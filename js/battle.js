@@ -20,6 +20,8 @@ async function inicializarBattle() {
 
     try {
         await cargarPokemonUsuarioBattle();
+        sincronizarEquipoBattleConColeccion();
+        renderSlotsEquipoBattle();
         renderColeccionBattle();
         renderResumenEquipoBattle();
     } catch (error) {
@@ -256,6 +258,48 @@ function persistirEquipoBattle() {
     } catch (error) {
         console.warn("No se pudo guardar el equipo de Battle:", error);
     }
+}
+
+function sincronizarEquipoBattleConColeccion() {
+    if (!Array.isArray(battleEquipo) || !battleEquipo.length) return false;
+    if (!Array.isArray(battlePokemonUsuario) || !battlePokemonUsuario.length) return false;
+
+    let huboCambios = false;
+
+    battleEquipo = battleEquipo
+        .map(pokemonGuardado => {
+            const actualizado = battlePokemonUsuario.find(p => Number(p.id) === Number(pokemonGuardado.id));
+
+            if (!actualizado) {
+                return pokemonGuardado;
+            }
+
+            const cambioDetectado =
+                Number(actualizado.pokemon_id) !== Number(pokemonGuardado.pokemon_id) ||
+                String(actualizado.nombre || "") !== String(pokemonGuardado.nombre || "") ||
+                String(actualizado.tipo || "") !== String(pokemonGuardado.tipo || "") ||
+                Number(actualizado.nivel || 0) !== Number(pokemonGuardado.nivel || 0) ||
+                Number(actualizado.hp_max || 0) !== Number(pokemonGuardado.hp_max || 0) ||
+                Number(actualizado.hp_actual || 0) !== Number(pokemonGuardado.hp_actual || 0) ||
+                Number(actualizado.ataque || 0) !== Number(pokemonGuardado.ataque || 0) ||
+                Number(actualizado.defensa || 0) !== Number(pokemonGuardado.defensa || 0) ||
+                Number(actualizado.velocidad || 0) !== Number(pokemonGuardado.velocidad || 0) ||
+                Number(actualizado.experiencia || 0) !== Number(pokemonGuardado.experiencia || 0) ||
+                Boolean(actualizado.es_shiny) !== Boolean(pokemonGuardado.es_shiny);
+
+            if (cambioDetectado) {
+                huboCambios = true;
+            }
+
+            return actualizado;
+        })
+        .slice(0, 6);
+
+    if (huboCambios) {
+        persistirEquipoBattle();
+    }
+
+    return huboCambios;
 }
 
 function cargarDificultadBattle() {
