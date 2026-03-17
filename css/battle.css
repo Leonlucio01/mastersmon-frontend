@@ -120,22 +120,17 @@
 
 .battle-summary-stats{
     display:grid;
-    grid-template-columns:repeat(3, minmax(0, 1fr));
+    grid-template-columns:repeat(4, minmax(0, 1fr));
     gap:12px;
     position:relative;
     z-index:1;
-    align-items:start;
+    align-items:stretch;
 }
 
-.summary-mini-card{
-    background:rgba(255,255,255,0.08);
-    border:1px solid rgba(255,255,255,0.12);
-    border-radius:18px;
-    padding:14px 16px;
-    min-height:74px;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
+.summary-mini-card strong{
+    font-size:16px;
+    color:#fff;
+    line-height:1.2;
 }
 
 .summary-mini-card span{
@@ -156,7 +151,7 @@
     flex-direction:column;
     justify-content:center;
     gap:6px;
-    min-height:74px;
+    min-height:92px;
 }
 
 .battle-difficulty-select{
@@ -206,9 +201,9 @@
     display:block;
     color:#cbd5e1;
     font-size:11px;
-    line-height:1.2;
+    line-height:1.25;
     font-weight:600;
-    margin-top:2px;
+    margin:0;
 }
 
 /* =========================
@@ -1384,6 +1379,22 @@
 @media (max-width:1180px){
     .battle-layout{
         grid-template-columns:1fr;
+    }
+
+    .battle-roster-grid{
+        grid-template-columns:repeat(3,1fr);
+    }
+
+    .battle-filters{
+        grid-template-columns:repeat(2, minmax(0,1fr));
+    }
+
+    .battle-layout{
+        grid-template-columns:1fr;
+    }
+
+    .battle-summary-stats{
+        grid-template-columns:repeat(2, minmax(0,1fr));
     }
 
     .battle-roster-grid{
