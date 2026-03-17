@@ -266,8 +266,10 @@ async function cargarEquipoJugadorArena() {
     );
 }
 
-function generarEquipoRivalFase1() {
-    const basePool = [
+function obtenerPoolRivalesArena() {
+    const bonusNivel = obtenerBonusNivelRivalArena();
+
+    const poolNormal = [
         { pokemon_id: 1, nombre: "Bulbasaur", tipo: "Planta/Veneno", hp: 45, ataque: 49, defensa: 49, velocidad: 45 },
         { pokemon_id: 4, nombre: "Charmander", tipo: "Fuego", hp: 39, ataque: 52, defensa: 43, velocidad: 65 },
         { pokemon_id: 7, nombre: "Squirtle", tipo: "Agua", hp: 44, ataque: 48, defensa: 65, velocidad: 43 },
@@ -282,6 +284,68 @@ function generarEquipoRivalFase1() {
         { pokemon_id: 60, nombre: "Poliwag", tipo: "Agua", hp: 40, ataque: 50, defensa: 40, velocidad: 90 }
     ];
 
+    const poolDesafio = [
+        { pokemon_id: 2, nombre: "Ivysaur", tipo: "Planta/Veneno", hp: 60, ataque: 62, defensa: 63, velocidad: 60 },
+        { pokemon_id: 5, nombre: "Charmeleon", tipo: "Fuego", hp: 58, ataque: 64, defensa: 58, velocidad: 80 },
+        { pokemon_id: 8, nombre: "Wartortle", tipo: "Agua", hp: 59, ataque: 63, defensa: 80, velocidad: 58 },
+        { pokemon_id: 17, nombre: "Pidgeotto", tipo: "Normal/Volador", hp: 63, ataque: 60, defensa: 55, velocidad: 71 },
+        { pokemon_id: 22, nombre: "Fearow", tipo: "Normal/Volador", hp: 65, ataque: 90, defensa: 65, velocidad: 100 },
+        { pokemon_id: 24, nombre: "Arbok", tipo: "Veneno", hp: 60, ataque: 95, defensa: 69, velocidad: 80 },
+        { pokemon_id: 26, nombre: "Raichu", tipo: "Electrico", hp: 60, ataque: 90, defensa: 55, velocidad: 110 },
+        { pokemon_id: 31, nombre: "Nidoqueen", tipo: "Veneno/Tierra", hp: 90, ataque: 92, defensa: 87, velocidad: 76 },
+        { pokemon_id: 34, nombre: "Nidoking", tipo: "Veneno/Tierra", hp: 81, ataque: 102, defensa: 77, velocidad: 85 },
+        { pokemon_id: 44, nombre: "Gloom", tipo: "Planta/Veneno", hp: 60, ataque: 65, defensa: 70, velocidad: 40 },
+        { pokemon_id: 67, nombre: "Machoke", tipo: "Lucha", hp: 80, ataque: 100, defensa: 70, velocidad: 45 },
+        { pokemon_id: 75, nombre: "Graveler", tipo: "Roca/Tierra", hp: 55, ataque: 95, defensa: 115, velocidad: 35 }
+    ];
+
+    const poolExperto = [
+        { pokemon_id: 3, nombre: "Venusaur", tipo: "Planta/Veneno", hp: 80, ataque: 82, defensa: 83, velocidad: 80 },
+        { pokemon_id: 6, nombre: "Charizard", tipo: "Fuego/Volador", hp: 78, ataque: 84, defensa: 78, velocidad: 100 },
+        { pokemon_id: 9, nombre: "Blastoise", tipo: "Agua", hp: 79, ataque: 83, defensa: 100, velocidad: 78 },
+        { pokemon_id: 18, nombre: "Pidgeot", tipo: "Normal/Volador", hp: 83, ataque: 80, defensa: 75, velocidad: 101 },
+        { pokemon_id: 45, nombre: "Vileplume", tipo: "Planta/Veneno", hp: 75, ataque: 80, defensa: 85, velocidad: 50 },
+        { pokemon_id: 59, nombre: "Arcanine", tipo: "Fuego", hp: 90, ataque: 110, defensa: 80, velocidad: 95 },
+        { pokemon_id: 62, nombre: "Poliwrath", tipo: "Agua/Lucha", hp: 90, ataque: 95, defensa: 95, velocidad: 70 },
+        { pokemon_id: 65, nombre: "Alakazam", tipo: "Psiquico", hp: 55, ataque: 50, defensa: 45, velocidad: 120 },
+        { pokemon_id: 68, nombre: "Machamp", tipo: "Lucha", hp: 90, ataque: 130, defensa: 80, velocidad: 55 },
+        { pokemon_id: 76, nombre: "Golem", tipo: "Roca/Tierra", hp: 80, ataque: 120, defensa: 130, velocidad: 45 },
+        { pokemon_id: 82, nombre: "Magneton", tipo: "Electrico/Acero", hp: 50, ataque: 60, defensa: 95, velocidad: 70 },
+        { pokemon_id: 94, nombre: "Gengar", tipo: "Fantasma/Veneno", hp: 60, ataque: 65, defensa: 60, velocidad: 110 }
+    ];
+
+    const poolMaestro = [
+        { pokemon_id: 65, nombre: "Alakazam", tipo: "Psiquico", hp: 55, ataque: 50, defensa: 45, velocidad: 120 },
+        { pokemon_id: 68, nombre: "Machamp", tipo: "Lucha", hp: 90, ataque: 130, defensa: 80, velocidad: 55 },
+        { pokemon_id: 94, nombre: "Gengar", tipo: "Fantasma/Veneno", hp: 60, ataque: 65, defensa: 60, velocidad: 110 },
+        { pokemon_id: 112, nombre: "Rhydon", tipo: "Tierra/Roca", hp: 105, ataque: 130, defensa: 120, velocidad: 40 },
+        { pokemon_id: 130, nombre: "Gyarados", tipo: "Agua/Volador", hp: 95, ataque: 125, defensa: 79, velocidad: 81 },
+        { pokemon_id: 131, nombre: "Lapras", tipo: "Agua/Hielo", hp: 130, ataque: 85, defensa: 80, velocidad: 60 },
+        { pokemon_id: 134, nombre: "Vaporeon", tipo: "Agua", hp: 130, ataque: 65, defensa: 60, velocidad: 65 },
+        { pokemon_id: 135, nombre: "Jolteon", tipo: "Electrico", hp: 65, ataque: 65, defensa: 60, velocidad: 130 },
+        { pokemon_id: 136, nombre: "Flareon", tipo: "Fuego", hp: 65, ataque: 130, defensa: 60, velocidad: 65 },
+        { pokemon_id: 143, nombre: "Snorlax", tipo: "Normal", hp: 160, ataque: 110, defensa: 65, velocidad: 30 },
+        { pokemon_id: 149, nombre: "Dragonite", tipo: "Dragon/Volador", hp: 91, ataque: 134, defensa: 95, velocidad: 80 },
+        { pokemon_id: 150, nombre: "Mewtwo", tipo: "Psiquico", hp: 106, ataque: 110, defensa: 90, velocidad: 130 }
+    ];
+
+    if (bonusNivel >= 6) {
+        return poolMaestro;
+    }
+
+    if (bonusNivel >= 4) {
+        return poolExperto;
+    }
+
+    if (bonusNivel >= 2) {
+        return poolDesafio;
+    }
+
+    return poolNormal;
+}
+
+function generarEquipoRivalFase1() {
+    const basePool = obtenerPoolRivalesArena();
     const promedioNivel = calcularPromedioNivelArena(arenaPlayerTeam) || 5;
     const bonusNivel = obtenerBonusNivelRivalArena();
     const nivelBaseRival = promedioNivel + bonusNivel;
@@ -297,7 +361,7 @@ function generarEquipoRivalFase1() {
         const velocidadFinal = elegido.velocidad + nivel;
 
         rivales.push({
-            id: `enemy-${i + 1}-${elegido.pokemon_id}`,
+            id: `enemy-${i + 1}-${elegido.pokemon_id}-${Date.now()}-${Math.floor(Math.random() * 9999)}`,
             pokemon_id: elegido.pokemon_id,
             nombre: elegido.nombre,
             tipo: elegido.tipo,
@@ -307,6 +371,7 @@ function generarEquipoRivalFase1() {
             ataque: ataqueFinal,
             defensa: defensaFinal,
             velocidad: velocidadFinal,
+            experiencia: 0,
             es_shiny: false,
             side: "enemy",
             slotIndex: i,
