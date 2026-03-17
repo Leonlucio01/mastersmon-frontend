@@ -714,11 +714,11 @@ function iniciarBatallaDemo() {
     }
 
     try {
-        const dificultad = document.getElementById("battleDificultadRival");
-        const bonusNivel = Number(dificultad?.value || 0);
+        const selectDificultad = document.getElementById("battleDificultadRival");
+        const bonusNivel = Number(selectDificultad?.value || 0);
 
         sessionStorage.setItem("mastersmon_battle_arena_team_v1", JSON.stringify(battleEquipo));
-        sessionStorage.setItem(BATTLE_ENEMY_LEVEL_BONUS_KEY, String(bonusNivel));
+        sessionStorage.setItem("mastersmon_battle_enemy_level_bonus_v1", String(bonusNivel));
 
         window.location.href = "battle-arena.html";
     } catch (error) {
