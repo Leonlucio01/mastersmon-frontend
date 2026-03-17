@@ -1,0 +1,464 @@
+/* =========================
+   POKEMART
+========================= */
+
+.seccion-pokedex{
+    max-width:1400px;
+    margin:0 auto;
+    padding:40px 30px 60px;
+}
+
+.encabezado-pokedex{
+    text-align:center;
+    margin-bottom:25px;
+}
+
+.titulo{
+    margin:0;
+    font-size:34px;
+    font-weight:800;
+    color:#111827;
+}
+
+.subtitulo{
+    margin-top:10px;
+    color:#6b7280;
+    font-size:16px;
+}
+
+/* =========================
+   SALDO USUARIO
+========================= */
+
+.pokemart-saldo{
+    max-width:900px;
+    margin:0 auto 28px;
+}
+
+.saldo-box{
+    background:linear-gradient(180deg,#ffffff 0%, #f8fafc 100%);
+    border-radius:22px;
+    padding:22px 26px;
+    box-shadow:0 10px 24px rgba(0,0,0,0.08);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    border:1px solid rgba(255,255,255,0.8);
+}
+
+.saldo-icono{
+    font-size:28px;
+    line-height:1;
+}
+
+.saldo-label{
+    margin:0;
+    color:#6b7280;
+    font-size:14px;
+}
+
+.saldo-box h3{
+    margin:4px 0 0;
+    font-size:34px;
+    color:#111827;
+    font-weight:900;
+}
+
+/* =========================
+   MENSAJES
+========================= */
+
+.mensaje-compra{
+    max-width:900px;
+    margin:0 auto 24px;
+    padding:14px 18px;
+    border-radius:14px;
+    font-weight:700;
+    text-align:center;
+    box-shadow:0 6px 18px rgba(0,0,0,0.06);
+}
+
+.mensaje-ok{
+    background:#dcfce7;
+    color:#166534;
+    border:1px solid #86efac;
+}
+
+.mensaje-error{
+    background:#fee2e2;
+    color:#991b1b;
+    border:1px solid #fca5a5;
+}
+
+/* =========================
+   GRID TIENDA
+========================= */
+
+.pokemart-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+    gap:22px;
+    align-items:stretch;
+}
+
+/* =========================
+   CARD ITEM
+========================= */
+
+.item-card{
+    position:relative;
+    background:white;
+    border-radius:22px;
+    padding:20px 18px;
+    box-shadow:
+        0 10px 24px rgba(0,0,0,0.10),
+        inset 0 1px 0 rgba(255,255,255,0.65);
+    transition:transform 0.22s ease, box-shadow 0.22s ease;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+    overflow:hidden;
+    border:1px solid rgba(255,255,255,0.7);
+}
+
+.item-card::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+        radial-gradient(circle at top left, rgba(255,255,255,0.85), transparent 35%),
+        linear-gradient(180deg, rgba(255,255,255,0.45), transparent 40%);
+    pointer-events:none;
+    z-index:0;
+}
+
+.item-card:hover{
+    transform:translateY(-5px);
+    box-shadow:
+        0 18px 32px rgba(0,0,0,0.14),
+        inset 0 1px 0 rgba(255,255,255,0.75);
+}
+
+.item-card > *{
+    position:relative;
+    z-index:1;
+}
+
+.item-card-top{
+    width:100%;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    margin-bottom:10px;
+    gap:10px;
+}
+
+.item-imagen{
+    width:64px;
+    height:64px;
+    object-fit:contain;
+    image-rendering:pixelated;
+    filter:drop-shadow(0 8px 10px rgba(0,0,0,0.14));
+}
+
+.item-card h3{
+    margin:6px 0 8px;
+    font-size:18px;
+    color:#111827;
+    font-weight:800;
+    min-height:44px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.item-descripcion{
+    min-height:48px;
+    color:#4b5563;
+    font-size:14px;
+    margin:0 0 14px;
+    line-height:1.35;
+}
+
+/* =========================
+   BADGES TIPO ITEM
+========================= */
+
+.tipo-item{
+    padding:6px 10px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:800;
+    color:white;
+    text-transform:capitalize;
+    box-shadow:0 6px 12px rgba(0,0,0,0.10);
+    white-space:nowrap;
+}
+
+.tipo-item.captura{
+    background:#2563eb;
+}
+
+.tipo-item.curacion{
+    background:#16a34a;
+}
+
+.tipo-item.evolucion{
+    background:#f59e0b;
+}
+
+/* =========================
+   STOCK / INFO
+========================= */
+
+.item-stock{
+    background:#eff6ff;
+    color:#1d4ed8;
+    font-size:13px;
+    font-weight:700;
+    padding:8px 12px;
+    border-radius:10px;
+    margin:0 0 12px;
+}
+
+.item-info{
+    width:100%;
+    background:#f8fafc;
+    border-radius:12px;
+    padding:10px 12px;
+    margin-bottom:14px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+}
+
+.item-info span{
+    color:#6b7280;
+    font-size:13px;
+}
+
+.item-info strong{
+    color:#111827;
+    font-size:20px;
+    font-weight:900;
+}
+
+/* =========================
+   CANTIDAD
+========================= */
+
+.cantidad-compra-box{
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:6px;
+    margin-bottom:14px;
+}
+
+.cantidad-compra-box label{
+    font-size:13px;
+    color:#6b7280;
+    font-weight:700;
+}
+
+.cantidad-compra-box input{
+    width:100%;
+    padding:11px 12px;
+    border:1px solid #d1d5db;
+    border-radius:10px;
+    font-size:14px;
+    outline:none;
+    box-sizing:border-box;
+    background:white;
+    transition:border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cantidad-compra-box input:focus{
+    border-color:#2563eb;
+    box-shadow:0 0 0 3px rgba(37,99,235,0.12);
+}
+
+/* =========================
+   BOTON COMPRAR
+========================= */
+
+.btn-comprar-item{
+    width:100%;
+    background:linear-gradient(135deg,#2563eb,#1d4ed8);
+    color:white;
+    border:none;
+    padding:12px 14px;
+    border-radius:12px;
+    cursor:pointer;
+    font-weight:800;
+    font-size:14px;
+    transition:all 0.2s ease;
+    box-shadow:0 8px 18px rgba(37,99,235,0.20);
+}
+
+.btn-comprar-item:hover{
+    transform:translateY(-1px);
+    box-shadow:0 12px 22px rgba(37,99,235,0.28);
+}
+
+.btn-comprar-item:active{
+    transform:scale(0.99);
+}
+
+/* =========================
+   COLORES SUAVES POR CATEGORIA
+========================= */
+
+.item-card:has(.tipo-item.captura){
+    background:linear-gradient(180deg,#f7fbff 0%, #eef5ff 45%, #ffffff 100%);
+    border-top:5px solid #2563eb;
+}
+
+.item-card:has(.tipo-item.curacion){
+    background:linear-gradient(180deg,#f4fff7 0%, #ebfdf1 45%, #ffffff 100%);
+    border-top:5px solid #16a34a;
+}
+
+.item-card:has(.tipo-item.evolucion){
+    background:linear-gradient(180deg,#fffaf2 0%, #fff2df 45%, #ffffff 100%);
+    border-top:5px solid #f59e0b;
+}
+
+/* Fallback si :has no aplica bien en algún navegador
+.item-card-top .tipo-item.captura ~ *{}
+.item-card-top .tipo-item.curacion ~ *{}
+.item-card-top .tipo-item.evolucion ~ *{} */
+
+/* =========================
+   EMPTY / ERRORES
+========================= */
+
+.empty-box{
+    background:white;
+    border-radius:18px;
+    padding:30px;
+    text-align:center;
+    box-shadow:0 6px 18px rgba(0,0,0,0.08);
+}
+
+/* =========================
+   TABLET
+========================= */
+
+@media (max-width: 1024px){
+    .seccion-pokedex{
+        padding:32px 20px 48px;
+    }
+
+    .pokemart-grid{
+        grid-template-columns:repeat(auto-fit, minmax(210px, 1fr));
+        gap:18px;
+    }
+
+    .saldo-box h3{
+        font-size:30px;
+    }
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 768px){
+    .seccion-pokedex{
+        padding:24px 14px 40px;
+    }
+
+    .titulo{
+        font-size:28px;
+        line-height:1.15;
+    }
+
+    .subtitulo{
+        font-size:14px;
+        line-height:1.35;
+        padding:0 6px;
+    }
+
+    .pokemart-saldo{
+        margin-bottom:20px;
+    }
+
+    .saldo-box{
+        padding:18px 16px;
+        border-radius:18px;
+    }
+
+    .saldo-box h3{
+        font-size:28px;
+    }
+
+    .pokemart-grid{
+        grid-template-columns:1fr;
+        gap:16px;
+    }
+
+    .item-card{
+        padding:18px 16px;
+        border-radius:18px;
+    }
+
+    .item-card h3{
+        font-size:20px;
+        min-height:auto;
+    }
+
+    .item-imagen{
+        width:58px;
+        height:58px;
+    }
+
+    .item-descripcion{
+        min-height:auto;
+        font-size:13px;
+    }
+
+    .item-info strong{
+        font-size:18px;
+    }
+
+    .cantidad-compra-box input{
+        font-size:16px;
+    }
+
+    .btn-comprar-item{
+        font-size:14px;
+    }
+}
+
+/* =========================
+   SMALL MOBILE
+========================= */
+
+@media (max-width: 480px){
+    .titulo{
+        font-size:24px;
+    }
+
+    .subtitulo{
+        font-size:13px;
+    }
+
+    .saldo-box{
+        flex-direction:column;
+        text-align:center;
+    }
+
+    .item-card-top{
+        align-items:center;
+    }
+
+    .tipo-item{
+        font-size:11px;
+        padding:5px 9px;
+    }
+}

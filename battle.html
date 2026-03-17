@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokemon World - Battle</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/menu.css">
+    <link rel="stylesheet" href="css/battle.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+    <header class="menu menu-pro">
+        <div class="menu-topbar">
+            <h1 class="logo">Pokemon World</h1>
+
+            <nav class="menu-nav-desktop">
+                <a href="index.html">Pokedex</a>
+                <a href="battle.html" class="active">Battle</a>
+                <a href="maps.html">Maps</a>
+                <a href="mypokemon.html">My Pokemon</a>
+                <a href="pokemart.html">PokeMart</a>
+            </nav>
+
+            <div class="menu-auth-area">
+                <div id="loginMenuContainer">
+                    <div id="g_id_onload"
+                         data-client_id="535230935122-vqqd262fjhetd408li95420bb8cas5vb.apps.googleusercontent.com"
+                         data-callback="handleCredentialResponse">
+                    </div>
+
+                    <div class="g_id_signin"
+                         data-type="standard"
+                         data-size="medium"
+                         data-theme="outline"
+                         data-text="signin_with"
+                         data-shape="pill"
+                         data-logo_alignment="left">
+                    </div>
+                </div>
+
+                <div id="usuarioMenu" class="oculto">
+                    <span id="nombreUsuario"></span>
+                    <button id="cerrarSesionMenu" type="button">Salir</button>
+                </div>
+            </div>
+
+            <button class="menu-toggle" id="menuToggle" type="button">☰</button>
+        </div>
+
+        <div class="menu-links-mobile" id="menuMobile">
+            <div class="mobile-panel">
+                <a href="index.html">Pokedex</a>
+                <a href="battle.html" class="active">Battle</a>
+                <a href="maps.html">Maps</a>
+                <a href="mypokemon.html">My Pokemon</a>
+                <a href="pokemart.html">PokeMart</a>
+
+                <div class="menu-mobile-user">
+                    <div id="loginMenuContainerMobile">
+                        <div class="g_id_signin"
+                             data-type="standard"
+                             data-size="medium"
+                             data-theme="outline"
+                             data-text="signin_with"
+                             data-shape="pill"
+                             data-logo_alignment="left">
+                        </div>
+                    </div>
+
+                    <div id="usuarioMenuMobile" class="oculto">
+                        <span id="nombreUsuarioMobile"></span>
+                        <button id="cerrarSesionMenuMobile" type="button">Salir</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="battle-page">
+        <section class="battle-hero">
+            <div class="battle-hero-badge">Modo táctico</div>
+            <h2 class="battle-title">BATTLE</h2>
+            <p class="battle-subtitle">
+                Prepara tu equipo de 6 Pokémon para combates RPG por turnos y progresión por experiencia.
+            </p>
+        </section>
+
+        <section class="battle-dashboard">
+            <div class="battle-summary-card">
+                <div class="battle-summary-top">
+                    <div>
+                        <span class="battle-summary-label">Estado del equipo</span>
+                        <h3>Tu escuadrón de combate</h3>
+                    </div>
+
+                    <div class="battle-summary-counter">
+                        <strong id="contadorEquipo">0 / 6</strong>
+                        <span>Slots ocupados</span>
+                    </div>
+                </div>
+
+                <div class="battle-summary-stats">
+                    <div class="summary-mini-card">
+                        <span>Promedio nivel</span>
+                        <strong id="battlePromedioNivel">—</strong>
+                    </div>
+
+                    <div class="summary-mini-card">
+                        <span>Tipo dominante</span>
+                        <strong id="battleTipoDominante">—</strong>
+                    </div>
+
+                    <div class="summary-mini-card">
+                        <span>Estado</span>
+                        <strong id="battleEstadoEquipo">En preparación</strong>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="battle-layout">
+            <div class="battle-panel battle-team-panel">
+                <div class="battle-panel-header">
+                    <div>
+                        <span class="battle-panel-kicker">Equipo principal</span>
+                        <h3>Arma tu equipo de 6</h3>
+                    </div>
+                    <span class="battle-panel-chip">Paso 1</span>
+                </div>
+
+                <p class="battle-panel-description">
+                    Selecciona los Pokémon que usarás en combate. Más adelante podrás ordenarlos,
+                    revisar roles y preparar estrategias antes de iniciar batalla.
+                </p>
+
+                <div id="equipoSlots" class="battle-team-grid"></div>
+
+                <div class="battle-actions">
+                    <button class="btn-battle btn-battle-light" id="btnLimpiarEquipo" type="button">
+                        Limpiar equipo
+                    </button>
+                    <button class="btn-battle btn-battle-secondary" id="btnGuardarEquipo" type="button">
+                        Guardar equipo
+                    </button>
+                    <button class="btn-battle btn-battle-primary" id="btnIniciarBatalla" type="button" disabled>
+                        Iniciar combate
+                    </button>
+                </div>
+            </div>
+
+            <div class="battle-panel battle-side-panel">
+                <div class="battle-panel-header">
+                    <div>
+                        <span class="battle-panel-kicker">Centro de combate</span>
+                        <h3>Resumen táctico</h3>
+                    </div>
+                    <span class="battle-panel-chip chip-red">V2</span>
+                </div>
+
+                <div class="battle-arena-preview">
+                    <div class="battle-arena-badge">Arena</div>
+                    <div class="battle-arena-content">
+                        <div class="arena-side arena-player">
+                            <div class="arena-orb"></div>
+                            <span>Tu equipo</span>
+                        </div>
+
+                        <div class="arena-vs">VS</div>
+
+                        <div class="arena-side arena-rival">
+                            <div class="arena-orb rival"></div>
+                            <span>Rival</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="battle-feature-list">
+                    <div class="battle-feature-card">
+                        <div class="feature-icon">⚔</div>
+                        <div>
+                            <h4>Daño estimado</h4>
+                            <p id="battleResumenAtaque">Forma tu equipo para ver tu perfil ofensivo.</p>
+                        </div>
+                    </div>
+
+                    <div class="battle-feature-card">
+                        <div class="feature-icon">🛡</div>
+                        <div>
+                            <h4>Balance general</h4>
+                            <p id="battleResumenBalance">Aún no hay suficiente información táctica.</p>
+                        </div>
+                    </div>
+
+                    <div class="battle-feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <div>
+                            <h4>Velocidad media</h4>
+                            <p id="battleResumenVelocidad">Selecciona Pokémon para calcularla.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="battle-preview-card">
+                    <div class="battle-preview-header">
+                        <span class="preview-badge">Vista previa</span>
+                        <h4>Flujo del modo Battle</h4>
+                    </div>
+
+                    <ol class="battle-flow">
+                        <li>Selecciona tu equipo de 6 Pokémon.</li>
+                        <li>Guarda tu escuadrón principal.</li>
+                        <li>Enfréntate a rivales en combates por turnos.</li>
+                        <li>Gana experiencia y fortalece a tu equipo.</li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+        <section class="battle-roster-section">
+            <div class="battle-panel battle-roster-panel">
+                <div class="battle-panel-header">
+                    <div>
+                        <span class="battle-panel-kicker">Colección</span>
+                        <h3>Pokémon disponibles para el equipo</h3>
+                    </div>
+                    <span class="battle-panel-chip">Selección</span>
+                </div>
+
+                <div class="battle-tabs">
+                    <button class="battle-tab active" type="button" data-battle-tab="todos">Todos</button>
+                    <button class="battle-tab" type="button" data-battle-tab="disponibles">Disponibles</button>
+                    <button class="battle-tab" type="button" data-battle-tab="equipo">En equipo</button>
+                </div>
+
+                <div class="battle-filters">
+                    <input type="text" id="buscarPokemonBattle" placeholder="Buscar por nombre...">
+
+                    <select id="filtroTipoBattle">
+                        <option value="">Todos los tipos</option>
+                    </select>
+
+                    <select id="filtroEstadoBattle">
+                        <option value="todos">Todos</option>
+                        <option value="normal">Normal</option>
+                        <option value="shiny">Shiny</option>
+                    </select>
+
+                    <select id="filtroOrdenBattle">
+                        <option value="id_pokemon">ID Pokémon</option>
+                        <option value="hp">HP</option>
+                        <option value="atk">ATK</option>
+                        <option value="def">DEF</option>
+                        <option value="nivel">Nivel</option>
+                        <option value="reciente">Más reciente</option>
+                    </select>
+                </div>
+
+                <div id="coleccionBattle" class="battle-roster-grid"></div>
+            </div>
+        </section>
+    </main>
+
+    <div id="battleModal" class="battle-modal-overlay oculto">
+        <div class="battle-modal">
+            <div id="battleModalIcon" class="battle-modal-icon">✓</div>
+            <h3 id="battleModalTitle">Mensaje</h3>
+            <p id="battleModalText">Texto del modal</p>
+
+            <div id="battleSingleClose">
+                <button id="battleModalClose" class="battle-modal-btn battle-modal-btn-primary" type="button">
+                    Continuar
+                </button>
+            </div>
+
+            <div id="battleConfirmActions" class="battle-modal-actions oculto">
+                <button id="battleConfirmCancel" class="battle-modal-btn battle-modal-btn-light" type="button">
+                    Cancelar
+                </button>
+                <button id="battleConfirmAccept" class="battle-modal-btn battle-modal-btn-danger" type="button">
+                    Confirmar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/gmail.js"></script>
+    <script src="js/battle.js"></script>
+    <script>
+        const menuToggle = document.getElementById("menuToggle");
+        const menuMobile = document.getElementById("menuMobile");
+
+        if (menuToggle && menuMobile) {
+            menuToggle.addEventListener("click", () => {
+                menuMobile.classList.toggle("menu-open");
+            });
+        }
+    </script>
+
+</body>
+</html>

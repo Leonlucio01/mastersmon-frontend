@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokemon World - Battle Arena</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/menu.css">
+    <link rel="stylesheet" href="css/battle-arena.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+    <header class="menu menu-pro">
+        <div class="menu-topbar">
+            <h1 class="logo">Pokemon World</h1>
+
+            <nav class="menu-nav-desktop">
+                <a href="index.html">Pokedex</a>
+                <a href="battle.html" class="active">Battle</a>
+                <a href="maps.html">Maps</a>
+                <a href="mypokemon.html">My Pokemon</a>
+                <a href="pokemart.html">PokeMart</a>
+            </nav>
+
+            <div id="usuarioMenu">
+                <span id="nombreUsuario">Entrenador</span>
+                <button id="cerrarSesionMenu">Salir</button>
+            </div>
+
+            <button class="menu-toggle" id="menuToggle">☰</button>
+        </div>
+
+        <div class="menu-links-mobile" id="menuMobile">
+            <div class="mobile-panel">
+                <a href="index.html">Pokedex</a>
+                <a href="battle.html" class="active">Battle</a>
+                <a href="maps.html">Maps</a>
+                <a href="mypokemon.html">My Pokemon</a>
+                <a href="pokemart.html">PokeMart</a>
+
+                <div class="menu-mobile-user">
+                    <span id="nombreUsuarioMobile">Entrenador</span>
+                    <button id="cerrarSesionMenuMobile">Salir</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="battle-arena-page">
+        <section class="arena-hero">
+            <div class="arena-hero-badge">Combate PvE · Fase 1</div>
+            <h1 class="arena-title">Battle Arena</h1>
+            <p class="arena-subtitle">
+                Enfrenta una escuadra rival aleatoria usando tu equipo principal de 6 Pokémon.
+            </p>
+        </section>
+
+        <div id="arenaMensaje" class="arena-message oculto"></div>
+
+        <section class="arena-layout">
+            <div class="arena-main-panel">
+                <div class="arena-versus-grid">
+                    <article class="arena-side-card player">
+                        <div class="arena-side-kicker">Tu equipo</div>
+                        <div id="playerActivePokemon" class="arena-active-card"></div>
+                    </article>
+
+                    <div class="arena-vs-center">
+                        <div class="arena-vs-badge">VS</div>
+                        <div class="arena-turn-box">
+                            <span>Turno</span>
+                            <strong id="arenaTurnoActual">1</strong>
+                        </div>
+                    </div>
+
+                    <article class="arena-side-card enemy">
+                        <div class="arena-side-kicker">Rival fase 1</div>
+                        <div id="enemyActivePokemon" class="arena-active-card"></div>
+                    </article>
+                </div>
+
+                <div class="arena-actions-panel">
+                    <div class="arena-action-header">
+                        <h3>Acciones del turno</h3>
+                        <p>El daño se calcula como ATK - DEF. Mínimo 1.</p>
+                    </div>
+
+                    <div class="arena-actions-grid">
+                        <button id="btnArenaAtacar" class="btn-arena btn-arena-primary" type="button">
+                            Atacar
+                        </button>
+
+                        <button id="btnArenaCambiar" class="btn-arena btn-arena-secondary" type="button">
+                            Cambiar Pokémon
+                        </button>
+
+                        <button id="btnArenaAuto" class="btn-arena btn-arena-light" type="button">
+                            Auto turno
+                        </button>
+
+                        <button id="btnArenaSalir" class="btn-arena btn-arena-danger" type="button">
+                            Salir
+                        </button>
+                    </div>
+                </div>
+
+                <div class="arena-team-preview-wrap">
+                    <div>
+                        <h3 class="arena-subsection-title">Tu escuadrón</h3>
+                        <div id="arenaPlayerTeam" class="arena-team-grid"></div>
+                    </div>
+
+                    <div>
+                        <h3 class="arena-subsection-title">Equipo rival</h3>
+                        <div id="arenaEnemyTeam" class="arena-team-grid enemy-grid"></div>
+                    </div>
+                </div>
+            </div>
+
+            <aside class="arena-side-panel">
+                <section class="arena-log-panel">
+                    <div class="arena-side-panel-header">
+                        <h3>Registro del combate</h3>
+                        <span class="arena-chip">Turnos</span>
+                    </div>
+                    <div id="arenaBattleLog" class="arena-log-list"></div>
+                </section>
+
+                <section class="arena-status-panel">
+                    <div class="arena-side-panel-header">
+                        <h3>Estado</h3>
+                        <span class="arena-chip chip-blue">Demo</span>
+                    </div>
+
+                    <div class="arena-status-grid">
+                        <div class="arena-status-card">
+                            <span>Pokémon vivos</span>
+                            <strong id="arenaPlayerAlive">0</strong>
+                            <small>Tu equipo</small>
+                        </div>
+
+                        <div class="arena-status-card">
+                            <span>Pokémon vivos</span>
+                            <strong id="arenaEnemyAlive">0</strong>
+                            <small>Rival</small>
+                        </div>
+
+                        <div class="arena-status-card full">
+                            <span>Estado general</span>
+                            <strong id="arenaEstadoGeneral">Preparando combate</strong>
+                        </div>
+                    </div>
+                </section>
+            </aside>
+        </section>
+    </main>
+
+    <div id="arenaChangeModal" class="arena-modal-overlay oculto">
+        <div class="arena-modal">
+            <div class="arena-modal-icon">⟳</div>
+            <h3>Cambiar Pokémon</h3>
+            <p>Selecciona un Pokémon vivo de tu equipo.</p>
+            <div id="arenaChangeOptions" class="arena-change-options"></div>
+            <div class="arena-modal-actions">
+                <button id="btnCerrarCambioArena" class="btn-arena btn-arena-light" type="button">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="arenaResultModal" class="arena-modal-overlay oculto">
+        <div class="arena-modal result-modal">
+            <div id="arenaResultIcon" class="arena-result-icon">🏆</div>
+            <h3 id="arenaResultTitle">¡Victoria!</h3>
+            <p id="arenaResultText">Has derrotado al equipo rival.</p>
+            <div class="arena-modal-actions">
+                <button id="btnArenaVolverBattle" class="btn-arena btn-arena-secondary" type="button">
+                    Volver a Battle
+                </button>
+                <button id="btnArenaReintentar" class="btn-arena btn-arena-primary" type="button">
+                    Reintentar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/gmail.js"></script>
+    <script src="js/battle-arena.js"></script>
+    <script>
+        const menuToggle = document.getElementById("menuToggle");
+        const menuMobile = document.getElementById("menuMobile");
+
+        if (menuToggle && menuMobile) {
+            menuToggle.addEventListener("click", () => {
+                menuMobile.classList.toggle("menu-open");
+            });
+        }
+    </script>
+</body>
+</html>

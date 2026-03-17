@@ -1,0 +1,1533 @@
+/* =========================================================
+   MAPS.CSS
+   ---------------------------------------------------------
+   Estructura general del archivo:
+   1. Contenedor principal y encabezado
+   2. Mensajes de estado
+   3. Carrusel de zonas
+   4. Cards de zonas
+   5. Layout del encuentro/mapa
+   6. Panel izquierdo del mapa
+   7. Miniaturas de Pokémon por zona
+   8. Controles de movimiento
+   9. Panel derecho de encuentro
+   10. Estado de captura
+   11. Showcase del Pokémon encontrado
+   12. Datos del Pokémon
+   13. Selector de Poké Balls
+   14. Modales
+   15. Animaciones
+   16. Responsive tablet
+   17. Responsive mobile
+========================================================= */
+
+
+/* =========================================================
+   1. CONTENEDOR PRINCIPAL Y ENCABEZADO
+========================================================= */
+
+.seccion-maps{
+    max-width:1200px;
+    margin:0 auto;
+    padding:36px 24px 60px;
+}
+
+.encabezado-maps{
+    text-align:center;
+    margin-bottom:28px;
+}
+
+.titulo-maps{
+    font-size:52px;
+    font-weight:800;
+    margin:0;
+    color:#0f172a;
+}
+
+.subtitulo-maps{
+    margin-top:8px;
+    color:#64748b;
+    font-size:20px;
+}
+
+
+/* =========================================================
+   2. MENSAJES DE ESTADO
+   - Usado para errores, avisos y mensajes correctos
+========================================================= */
+
+.mensaje-maps{
+    width:min(760px, calc(100% - 32px));
+    margin:26px auto 20px auto;
+    padding:14px 18px;
+    border-radius:14px;
+    font-size:15px;
+    font-weight:700;
+    line-height:1.35;
+    text-align:center;
+    border:1px solid transparent;
+    box-shadow:0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+.mensaje-maps.oculto{
+    display:none;
+}
+
+.mensaje-maps.ok{
+    background:linear-gradient(180deg, #ecfdf3 0%, #dcfce7 100%);
+    color:#166534;
+    border-color:#86efac;
+}
+
+.mensaje-maps.error{
+    background:linear-gradient(180deg, #fef2f2 0%, #fee2e2 100%);
+    color:#b91c1c;
+    border-color:#fca5a5;
+}
+
+.mensaje-maps.warning{
+    background:linear-gradient(180deg, #fff7ed 0%, #ffedd5 100%);
+    color:#c2410c;
+    border-color:#fdba74;
+}
+
+
+/* =========================================================
+   3. CARRUSEL DE ZONAS
+   - Parte superior donde se muestran las zonas disponibles
+========================================================= */
+
+.maps-carousel-wrapper{
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    margin-top:24px;
+}
+
+.maps-carousel-viewport{
+    width:100%;
+    overflow:hidden;
+}
+
+.maps-carousel-track{
+    display:grid;
+    grid-template-columns:repeat(4, minmax(0, 1fr));
+    gap:22px;
+    align-items:stretch;
+}
+
+.maps-arrow{
+    width:44px;
+    height:44px;
+    border:none;
+    border-radius:999px;
+    background:#2563eb;
+    color:#fff;
+    font-size:28px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    box-shadow:0 10px 20px rgba(37,99,235,0.18);
+    flex-shrink:0;
+    transition:transform 0.2s ease, background 0.2s ease;
+}
+
+.maps-arrow:hover{
+    background:#1d4ed8;
+    transform:translateY(-1px);
+}
+
+.maps-arrow:active{
+    transform:scale(0.98);
+}
+
+
+/* =========================================================
+   4. CARDS DE ZONAS
+   - Tarjetas de Bosque, Cueva, Lago, Torre, etc.
+========================================================= */
+
+.map-card{
+    background:#fff;
+    border-radius:22px;
+    overflow:hidden;
+    box-shadow:
+        0 10px 24px rgba(0,0,0,0.10),
+        inset 0 1px 0 rgba(255,255,255,0.65);
+    transition:transform 0.22s ease, box-shadow 0.22s ease;
+    border:1px solid rgba(255,255,255,0.7);
+}
+
+.map-card:hover{
+    transform:translateY(-5px);
+    box-shadow:
+        0 18px 32px rgba(0,0,0,0.14),
+        inset 0 1px 0 rgba(255,255,255,0.75);
+}
+
+.map-img-wrap{
+    width:100%;
+    height:170px;
+    overflow:hidden;
+    background:linear-gradient(180deg,#e2e8f0,#f8fafc);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.map-img{
+    max-width:100%;
+    max-height:100%;
+    width:auto;
+    height:auto;
+    object-fit:contain;
+    display:block;
+    transition:transform 0.25s ease;
+}
+
+.map-card:hover .map-img{
+    transform:scale(1.04);
+}
+
+.map-info{
+    padding:18px 18px 20px;
+    text-align:center;
+}
+
+.map-info h3{
+    margin:0 0 10px;
+    font-size:26px;
+    color:#111827;
+    font-weight:800;
+}
+
+.map-info p{
+    margin:0 0 14px;
+    color:#4b5563;
+    font-size:15px;
+    min-height:44px;
+    line-height:1.35;
+}
+
+.map-actions{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    flex-wrap:wrap;
+}
+
+.map-level{
+    display:inline-block;
+    padding:8px 14px;
+    border-radius:14px;
+    background:#eef2ff;
+    color:#3730a3;
+    font-size:14px;
+    font-weight:700;
+}
+
+.btn-map{
+    display:inline-block;
+    border:none;
+    background:#2563eb;
+    color:#fff;
+    padding:11px 18px;
+    border-radius:12px;
+    font-size:15px;
+    font-weight:700;
+    cursor:pointer;
+    transition:background 0.2s ease, transform 0.2s ease;
+}
+
+.btn-map:hover{
+    background:#1d4ed8;
+    transform:translateY(-1px);
+}
+
+.btn-map-activa{
+    background:#22c55e !important;
+    border-color:#22c55e !important;
+    color:#fff !important;
+    box-shadow:0 8px 18px rgba(34, 197, 94, 0.28);
+}
+
+/* Colores por tipo de zona */
+.zona-bosque .map-level{
+    background:#dcfce7;
+    color:#166534;
+}
+
+.zona-cueva .map-level{
+    background:#ede9fe;
+    color:#5b21b6;
+}
+
+.zona-lago .map-level{
+    background:#dbeafe;
+    color:#1d4ed8;
+}
+
+.zona-torre .map-level{
+    background:#fee2e2;
+    color:#991b1b;
+}
+
+.zona-bosque{
+    border-top:5px solid #16a34a;
+}
+
+.zona-cueva{
+    border-top:5px solid #7c3aed;
+}
+
+.zona-lago{
+    border-top:5px solid #2563eb;
+}
+
+.zona-torre{
+    border-top:5px solid #dc2626;
+}
+
+
+/* =========================================================
+   5. LAYOUT GENERAL DEL ENCUENTRO / MAPA
+   - Contenedor grande donde se muestra el mapa y el panel lateral
+========================================================= */
+
+.encuentro-box{
+    margin-top:28px;
+    border-radius:26px;
+    padding:24px;
+    box-shadow:0 12px 34px rgba(0,0,0,0.10);
+    text-align:center;
+    background:#ffffff;
+    overflow:hidden;
+    position:relative;
+}
+
+.encuentro-layout-mapa{
+    display:grid;
+    grid-template-columns:58% 42%;
+    gap:24px;
+    align-items:start;
+    max-width:1180px;
+    margin:0 auto;
+}
+
+.maps-login-lock{
+    min-height:220px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:32px 20px;
+}
+
+.maps-login-lock h3{
+    margin:0 0 10px;
+    font-size:28px;
+    font-weight:900;
+    color:#0f172a;
+}
+
+.maps-login-lock p{
+    margin:0;
+    max-width:520px;
+    font-size:16px;
+    line-height:1.5;
+    color:#64748b;
+}
+
+/* =========================================================
+   6. PANEL IZQUIERDO DEL MAPA
+   - Título del mapa
+   - Imagen del escenario
+   - Bloque inferior con miniaturas y flechas
+========================================================= */
+
+.mapa-exploracion-panel{
+    width:100%;
+    min-width:0;
+    background:rgba(255,255,255,0.94);
+    border-radius:24px;
+    padding:16px;
+    box-shadow:0 10px 26px rgba(0,0,0,0.10);
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    box-sizing:border-box;
+}
+
+.mapa-exploracion-header{
+    text-align:left;
+}
+
+.mapa-exploracion-header h3{
+    margin:0 0 6px;
+    font-size:28px;
+    color:#0f172a;
+    font-weight:900;
+}
+
+.mapa-exploracion-header p{
+    margin:0;
+    font-size:14px;
+    color:#64748b;
+}
+
+.mapa-exploracion-box{
+    width:100%;
+    min-height:440px;
+    border-radius:22px;
+    overflow:hidden;
+    background:#e5e7eb;
+    border:1px solid #dbe2ea;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:0;
+    box-sizing:border-box;
+}
+
+.mapa-exploracion-box img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    display:block;
+    image-rendering:pixelated;
+    background:transparent;
+}
+
+
+/* =========================================================
+   7. MINIATURAS DE POKÉMON POR ZONA
+   - Si hay hasta 6, se usa grid fijo
+   - Si hay más de 6, se usa carrusel automático
+========================================================= */
+
+.mapa-ui-inferior{
+    display:grid;
+    grid-template-columns:minmax(0, 1fr) 132px;
+    gap:18px;
+    align-items:stretch;
+    width:100%;
+}
+
+.mapa-evento-box{
+    min-width:0;
+    width:100%;
+    min-height:110px;
+    background:#ffffff;
+    border:2px solid #dbe2ea;
+    border-radius:18px;
+    padding:14px 16px;
+    box-shadow:0 8px 18px rgba(0,0,0,0.08);
+    text-align:left;
+    overflow:hidden;
+    box-sizing:border-box;
+}
+
+.mapa-evento-titulo{
+    font-size:14px;
+    font-weight:800;
+    color:#0f172a;
+    margin-bottom:10px;
+}
+
+/* Modo fijo: 1 a 6 Pokémon */
+.mini-zona-grid-fijo{
+    display:grid;
+    grid-template-columns:repeat(6, minmax(0, 1fr));
+    gap:10px;
+    width:100%;
+    align-items:start;
+}
+
+/* Modo carrusel: más de 6 Pokémon */
+.mini-zona-carrusel{
+    width:100%;
+    overflow:hidden;
+    position:relative;
+    display:block;
+}
+
+.mini-zona-track{
+    display:flex;
+    align-items:stretch;
+    gap:10px;
+    width:max-content;
+    min-width:max-content;
+    will-change:transform;
+}
+
+.mini-zona-carrusel.animando .mini-zona-track{
+    animation:miniZonaScroll 18s linear infinite;
+}
+
+.mini-zona-carrusel:hover .mini-zona-track{
+    animation-play-state:paused;
+}
+
+/* Card base de miniatura */
+.mini-zona-card{
+    background:linear-gradient(180deg,#f8fafc,#eef2f7);
+    border-radius:14px;
+    padding:8px 6px;
+    text-align:center;
+    box-shadow:0 4px 10px rgba(0,0,0,0.05);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-start;
+    box-sizing:border-box;
+}
+
+/* Tamaño cuando está en grid fijo */
+.mini-zona-grid-fijo .mini-zona-card{
+    width:100%;
+    min-width:0;
+}
+
+/* Tamaño cuando está en carrusel */
+.mini-zona-carrusel .mini-zona-card{
+    width:78px;
+    min-width:78px;
+    flex-shrink:0;
+}
+
+.mini-zona-card img{
+    width:42px;
+    height:42px;
+    object-fit:contain;
+    image-rendering:pixelated;
+    display:block;
+    margin:0 auto 4px;
+    animation:miniPokemonFloat 2.2s ease-in-out infinite;
+    animation-delay:var(--delay, 0s);
+}
+
+.mini-zona-card span{
+    display:block;
+    font-size:10px;
+    font-weight:700;
+    color:#334155;
+    line-height:1.2;
+    word-break:break-word;
+}
+
+.mini-zona-vacia{
+    padding:12px;
+    border-radius:14px;
+    background:#f8fafc;
+    color:#64748b;
+    font-size:13px;
+    font-weight:700;
+    text-align:center;
+}
+
+
+/* =========================================================
+   8. CONTROLES DE MOVIMIENTO
+   - Flechas del mapa
+========================================================= */
+
+.mapa-movimiento{
+    position:relative;
+    width:132px;
+    height:132px;
+    flex-shrink:0;
+    justify-self:center;
+}
+
+.mapa-movimiento button{
+    position:absolute;
+    border:none;
+    background:transparent;
+    padding:0;
+    margin:0;
+    cursor:pointer;
+    width:40px;
+    height:40px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.mapa-movimiento button img{
+    width:40px;
+    height:40px;
+    object-fit:contain;
+    image-rendering:pixelated;
+    display:block;
+    transition:transform 0.15s ease;
+}
+
+.mapa-movimiento button:hover img{
+    transform:scale(1.08);
+}
+
+.mapa-movimiento .move-center{
+    position:absolute;
+    top:46px;
+    left:46px;
+    width:40px;
+    height:40px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.mapa-movimiento .move-center img{
+    width:40px;
+    height:40px;
+    object-fit:contain;
+    image-rendering:pixelated;
+}
+
+.mapa-movimiento .move-up{
+    top:0;
+    left:46px;
+}
+
+.mapa-movimiento .move-down{
+    bottom:0;
+    left:46px;
+}
+
+.mapa-movimiento .move-left{
+    top:46px;
+    left:0;
+}
+
+.mapa-movimiento .move-right{
+    top:46px;
+    right:0;
+}
+
+
+/* =========================================================
+   9. PANEL DERECHO DE ENCUENTRO
+   - Información del Pokémon salvaje
+   - Panel de captura y huida
+========================================================= */
+
+.encuentro-lateral{
+    width:100%;
+    min-width:0;
+    display:grid;
+    grid-template-rows:auto auto;
+    gap:20px;
+    align-self:start;
+}
+
+.encuentro-info-panel,
+.encuentro-accion-panel{
+    background:rgba(255,255,255,0.94);
+    border-radius:24px;
+    padding:22px 20px;
+    box-shadow:0 10px 26px rgba(0,0,0,0.10);
+}
+
+.encuentro-info-panel{
+    position:relative;
+    overflow:hidden;
+}
+
+.encuentro-info-panel::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:radial-gradient(circle at top, rgba(59,130,246,0.05), transparent 55%);
+    pointer-events:none;
+}
+
+.encuentro-info-panel h2{
+    margin:0 0 16px;
+    font-size:24px;
+    color:#0f172a;
+    font-weight:900;
+    text-align:center;
+}
+
+.encuentro-accion-panel h4{
+    margin:0 0 16px;
+    text-align:center;
+    font-size:22px;
+    color:#111827;
+}
+
+
+/* =========================================================
+   10. ESTADO DE CAPTURA
+   - Poké Ball arriba del Pokémon encontrado
+========================================================= */
+
+.encuentro-top-status{
+    display:flex;
+    flex-direction:row;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    width:fit-content;
+    margin:0 auto 12px;
+    padding:6px 10px;
+    border-radius:14px;
+    background:rgba(255,255,255,0.82);
+    backdrop-filter:blur(4px);
+    box-shadow:0 4px 10px rgba(0,0,0,0.05);
+}
+
+.captura-indicador-superior{
+    width:34px;
+    height:34px;
+    border-radius:999px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#fff;
+    border:1px solid #e5e7eb;
+}
+
+.captura-indicador-superior.exacto{
+    background:linear-gradient(135deg,#fee2e2,#fecaca);
+}
+
+.captura-indicador-superior.otra-version{
+    background:linear-gradient(135deg,#fef3c7,#fde68a);
+}
+
+.captura-indicador-superior.ninguno{
+    background:linear-gradient(135deg,#f3f4f6,#e5e7eb);
+}
+
+.captura-ball-img{
+    width:18px;
+    height:18px;
+    display:block;
+    image-rendering:pixelated;
+}
+
+.captura-ball-img.gris{
+    filter:grayscale(100%) brightness(0.8) opacity(0.5);
+}
+
+.captura-ball-img.dorada{
+    filter:sepia(1) saturate(4) hue-rotate(350deg) brightness(1.05);
+}
+
+.captura-cantidad-box{
+    min-width:auto;
+    padding:5px 10px;
+    border-radius:999px;
+    background:#f8fafc;
+    border:1px solid #e5e7eb;
+    font-size:12px;
+    font-weight:800;
+    color:#334155;
+    text-align:center;
+    line-height:1;
+}
+
+
+/* =========================================================
+   11. SHOWCASE DEL POKÉMON ENCONTRADO
+   - Fondo según la zona
+   - Aura y plataforma
+========================================================= */
+
+.encuentro-pokemon-showcase{
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:210px;
+    margin:8px 0 16px;
+    border-radius:22px;
+    overflow:hidden;
+    background:#f8fafc;
+}
+
+.encuentro-pokemon-showcase.fondo-zona.zona-bosque{
+    background-image:
+        linear-gradient(rgba(255,255,255,0.35), rgba(255,255,255,0.45)),
+        url("../img/maps/cards/bosque_verde.png");
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+}
+
+.encuentro-pokemon-showcase.fondo-zona.zona-cueva{
+    background-image:
+        linear-gradient(rgba(255,255,255,0.35), rgba(255,255,255,0.45)),
+        url("../img/maps/cards/cueva_roca.png");
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+}
+
+.encuentro-pokemon-showcase.fondo-zona.zona-lago{
+    background-image:
+        linear-gradient(rgba(255,255,255,0.30), rgba(255,255,255,0.42)),
+        url("../img/maps/cards/lago_azul.png");
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+}
+
+.encuentro-pokemon-showcase.fondo-zona.zona-torre{
+    background-image:
+        linear-gradient(rgba(255,255,255,0.35), rgba(255,255,255,0.45)),
+        url("../img/maps/cards/torre_batalla.png");
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+}
+
+.encuentro-pokemon-aura{
+    position:absolute;
+    width:150px;
+    height:150px;
+    border-radius:999px;
+    background:radial-gradient(circle, rgba(255,255,255,0.45), rgba(59,130,246,0.12), transparent 72%);
+    z-index:1;
+    animation:floatAura 2.2s ease-in-out infinite;
+}
+
+.aura-shiny{
+    background:radial-gradient(circle, rgba(255,255,255,0.55), rgba(250,204,21,0.18), transparent 72%);
+}
+
+.encuentro-pokemon-plataforma{
+    position:absolute;
+    bottom:30px;
+    width:110px;
+    height:16px;
+    border-radius:999px;
+    background:radial-gradient(circle, rgba(15,23,42,0.28), rgba(15,23,42,0.10), transparent 75%);
+    filter:blur(2px);
+    z-index:1;
+}
+
+.encuentro-img{
+    position:relative;
+    width:126px;
+    height:126px;
+    object-fit:contain;
+    image-rendering:pixelated;
+    filter:drop-shadow(0 8px 14px rgba(0,0,0,0.22));
+    z-index:2;
+    animation:floatPokemon 2.4s ease-in-out infinite;
+}
+
+.encuentro-nombre-box{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+    margin-bottom:14px;
+}
+
+.encuentro-nombre-box h3{
+    margin:0;
+    font-size:28px;
+    color:#0f172a;
+    font-weight:900;
+    text-align:center;
+}
+
+.encuentro-shiny-badge{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:6px 12px;
+    border-radius:999px;
+    background:linear-gradient(135deg,#fef3c7,#fde68a);
+    color:#92400e;
+    font-size:12px;
+    font-weight:800;
+    border:1px solid #fcd34d;
+}
+
+
+/* =========================================================
+   12. DATOS DEL POKÉMON
+   - Tipo, nivel, HP
+========================================================= */
+
+.encuentro-datos-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:10px;
+}
+
+.dato-mini{
+    background:linear-gradient(180deg,#f8fafc,#eef2f7);
+    border-radius:14px;
+    padding:10px 8px;
+    text-align:center;
+    box-shadow:0 4px 10px rgba(0,0,0,0.04);
+}
+
+.dato-mini span{
+    display:block;
+    font-size:11px;
+    color:#64748b;
+    margin-bottom:4px;
+    font-weight:700;
+}
+
+.dato-mini strong{
+    font-size:16px;
+    color:#111827;
+    font-weight:900;
+}
+
+
+/* =========================================================
+   13. SELECTOR DE POKÉ BALLS
+========================================================= */
+
+.ball-selector-grid{
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0, 1fr));
+    gap:12px;
+    margin-bottom:16px;
+}
+
+.ball-option{
+    cursor:pointer;
+}
+
+.ball-option input{
+    display:none;
+}
+
+.ball-option-card{
+    border:2px solid transparent;
+    background:#f8fafc;
+    border-radius:16px;
+    padding:12px 8px;
+    min-height:110px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    box-shadow:0 6px 14px rgba(0,0,0,0.04);
+    transition:all 0.2s ease;
+}
+
+.ball-option input:checked + .ball-option-card{
+    border-color:#3b82f6;
+    background:#eff6ff;
+    box-shadow:0 10px 20px rgba(59,130,246,0.16);
+}
+
+.ball-option-card img{
+    width:34px;
+    height:34px;
+    object-fit:contain;
+    image-rendering:pixelated;
+}
+
+.ball-nombre{
+    font-size:12px;
+    font-weight:800;
+    color:#111827;
+    text-align:center;
+}
+
+.ball-cantidad{
+    font-size:11px;
+    color:#475569;
+    background:#e2e8f0;
+    padding:4px 8px;
+    border-radius:999px;
+}
+
+.sin-stock .ball-option-card{
+    opacity:0.5;
+}
+
+.sin-balls{
+    text-align:center;
+    color:#991b1b;
+    background:#fee2e2;
+    border:1px solid #fecaca;
+    border-radius:14px;
+    padding:14px;
+    font-weight:700;
+}
+
+.probabilidad-captura{
+    margin:10px 0 16px;
+    text-align:center;
+    font-weight:700;
+    color:#1d4ed8;
+    background:#eff6ff;
+    border:1px solid #bfdbfe;
+    padding:10px 14px;
+    border-radius:12px;
+}
+
+.encuentro-botones{
+    display:flex;
+    justify-content:center;
+    gap:12px;
+    flex-wrap:wrap;
+}
+
+.btn-capturar,
+.btn-huir{
+    border:none;
+    border-radius:12px;
+    padding:12px 18px;
+    font-weight:800;
+    cursor:pointer;
+    color:#fff;
+    min-width:120px;
+}
+
+.btn-capturar{
+    background:#16a34a;
+}
+
+.btn-huir{
+    background:#ef4444;
+}
+
+.btn-capturar:hover{
+    background:#15803d;
+}
+
+.btn-huir:hover{
+    background:#dc2626;
+}
+
+
+/* =========================================================
+   14. MODALES
+   - Modal shiny
+   - Modal resultado de captura
+========================================================= */
+
+.modal-shiny{
+    position:fixed;
+    inset:0;
+    background:rgba(15,23,42,0.58);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:9999;
+    padding:20px;
+}
+
+.modal-shiny-box{
+    background:linear-gradient(180deg,#fff7d6,#ffffff);
+    border:2px solid #facc15;
+    border-radius:24px;
+    max-width:440px;
+    width:100%;
+    padding:34px 28px;
+    text-align:center;
+    box-shadow:0 18px 40px rgba(0,0,0,0.25);
+}
+
+.shiny-stars{
+    font-size:28px;
+    margin-bottom:12px;
+}
+
+.modal-shiny-box h2{
+    margin:0 0 10px;
+    font-size:34px;
+    color:#92400e;
+}
+
+.modal-shiny-box p{
+    margin:0 0 22px;
+    font-size:17px;
+    color:#78350f;
+}
+
+.modal-shiny-box button{
+    border:none;
+    background:#f59e0b;
+    color:white;
+    padding:12px 22px;
+    border-radius:14px;
+    font-size:15px;
+    font-weight:800;
+    cursor:pointer;
+}
+
+.modal-shiny-box button:hover{
+    background:#d97706;
+}
+
+.modal-resultado{
+    position:fixed;
+    inset:0;
+    background:rgba(15, 23, 42, 0.50);
+    backdrop-filter:blur(3px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    z-index:3000;
+}
+
+.modal-resultado.oculto{
+    display:none;
+}
+
+.modal-resultado-box{
+    width:min(520px, 100%);
+    border-radius:24px;
+    padding:34px 28px 26px;
+    text-align:center;
+    box-shadow:0 24px 60px rgba(0,0,0,0.22);
+    border:2px solid transparent;
+    animation:modalPop .18s ease-out;
+}
+
+.modal-resultado-deco{
+    font-size:26px;
+    font-weight:900;
+    letter-spacing:3px;
+    margin-bottom:10px;
+}
+
+.modal-resultado-box h2{
+    margin:0 0 10px;
+    font-size:26px;
+    line-height:1.15;
+    font-weight:900;
+}
+
+.modal-resultado-box p{
+    margin:0 auto 18px;
+    max-width:360px;
+    font-size:17px;
+    line-height:1.45;
+    font-weight:600;
+}
+
+.modal-resultado-box button{
+    border:0;
+    border-radius:14px;
+    padding:12px 28px;
+    font-size:16px;
+    font-weight:800;
+    cursor:pointer;
+    transition:transform .15s ease, opacity .15s ease;
+    color:#fff;
+}
+
+.modal-resultado-box button:hover{
+    transform:translateY(-1px);
+    opacity:.96;
+}
+
+.modal-resultado-box button:active{
+    transform:translateY(0);
+}
+
+/* Variante éxito */
+.modal-resultado-box.exito{
+    background:#ecfdf3;
+    border-color:#22c55e;
+}
+
+.modal-resultado-box.exito .modal-resultado-deco{
+    color:#22c55e;
+}
+
+.modal-resultado-box.exito h2{
+    color:#15803d;
+}
+
+.modal-resultado-box.exito p{
+    color:#166534;
+}
+
+.modal-resultado-box.exito button{
+    background:#16a34a;
+}
+
+/* Variante error */
+.modal-resultado-box.error{
+    background:#fef2f2;
+    border-color:#ef4444;
+}
+
+.modal-resultado-box.error .modal-resultado-deco{
+    color:#ef4444;
+}
+
+.modal-resultado-box.error h2{
+    color:#b91c1c;
+}
+
+.modal-resultado-box.error p{
+    color:#991b1b;
+}
+
+.modal-resultado-box.error button{
+    background:#dc2626;
+}
+
+
+/* =========================================================
+   15. ANIMACIONES
+========================================================= */
+
+@keyframes floatPokemon{
+    0%,100%{ transform:translateY(0px); }
+    50%{ transform:translateY(-6px); }
+}
+
+@keyframes floatAura{
+    0%,100%{ transform:scale(1); opacity:0.95; }
+    50%{ transform:scale(1.05); opacity:1; }
+}
+
+@keyframes miniPokemonFloat{
+    0%,100%{ transform:translateY(0); }
+    50%{ transform:translateY(-4px); }
+}
+
+@keyframes miniZonaScroll{
+    0%{ transform:translateX(0); }
+    100%{ transform:translateX(calc(-50% - 5px)); }
+}
+
+@keyframes modalPop{
+    from{
+        opacity:0;
+        transform:translateY(10px) scale(.97);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0) scale(1);
+    }
+}
+
+
+/* =========================================================
+   16. RESPONSIVE TABLET
+========================================================= */
+
+@media (max-width: 1400px){
+    .maps-carousel-track{
+        grid-template-columns:repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 1100px){
+    .maps-carousel-track{
+        grid-template-columns:repeat(2, minmax(0, 1fr));
+    }
+
+    .encuentro-layout-mapa{
+        grid-template-columns:1fr;
+    }
+
+    .mapa-exploracion-box{
+        min-height:360px;
+    }
+}
+
+
+/* =========================================================
+   17. RESPONSIVE MOBILE
+========================================================= */
+
+@media (max-width: 768px){
+    .seccion-maps{
+        padding:24px 14px 40px;
+    }
+
+    .titulo-maps{
+        font-size:38px;
+    }
+
+    .subtitulo-maps{
+        font-size:16px;
+        line-height:1.35;
+    }
+
+    .maps-carousel-wrapper{
+        gap:8px;
+    }
+
+    .maps-carousel-track{
+        grid-template-columns:1fr;
+        gap:16px;
+    }
+
+    .maps-arrow{
+        width:38px;
+        height:38px;
+        font-size:24px;
+    }
+
+    .map-card{
+        max-width:380px;
+        margin:0 auto;
+    }
+
+    .map-img-wrap{
+        height:150px;
+    }
+
+    .map-info h3{
+        font-size:22px;
+    }
+
+    .map-info p{
+        min-height:auto;
+        font-size:14px;
+    }
+
+    .encuentro-box{
+        padding:14px;
+    }
+
+    .encuentro-layout-mapa{
+        gap:16px;
+    }
+
+    .mapa-exploracion-panel{
+        padding:12px;
+        border-radius:18px;
+    }
+
+    .mapa-exploracion-header h3{
+        font-size:22px;
+        text-align:center;
+    }
+
+    .mapa-exploracion-header p{
+        text-align:center;
+        font-size:13px;
+    }
+
+    .mapa-exploracion-box{
+        min-height:280px;
+        border-radius:18px;
+    }
+
+    .mapa-ui-inferior{
+        display:grid;
+        grid-template-columns:1fr;
+        gap:14px;
+        align-items:center;
+    }
+
+    .mapa-evento-box{
+        width:100%;
+        min-height:70px;
+        font-size:13px;
+    }
+
+    .mini-zona-grid-fijo{
+        grid-template-columns:repeat(3, minmax(0, 1fr));
+        gap:8px;
+    }
+
+    .mini-zona-carrusel .mini-zona-card{
+        width:70px;
+        min-width:70px;
+    }
+
+    .mini-zona-card img{
+        width:36px;
+        height:36px;
+    }
+
+    .mini-zona-card span{
+        font-size:9px;
+    }
+
+    .mini-zona-carrusel.animando .mini-zona-track{
+        animation-duration:14s;
+    }
+
+    .mapa-movimiento{
+        width:120px;
+        height:120px;
+    }
+
+    .mapa-movimiento button,
+    .mapa-movimiento button img,
+    .mapa-movimiento .move-center img{
+        width:36px;
+        height:36px;
+    }
+
+    .mapa-movimiento .move-center{
+        top:42px;
+        left:42px;
+        width:36px;
+        height:36px;
+    }
+
+    .mapa-movimiento .move-up{
+        top:0;
+        left:42px;
+    }
+
+    .mapa-movimiento .move-down{
+        bottom:0;
+        left:42px;
+    }
+
+    .mapa-movimiento .move-left{
+        top:42px;
+        left:0;
+    }
+
+    .mapa-movimiento .move-right{
+        top:42px;
+        right:0;
+    }
+
+    .encuentro-info-panel,
+    .encuentro-accion-panel{
+        padding:16px 14px;
+        border-radius:18px;
+    }
+
+    .encuentro-info-panel h2,
+    .encuentro-accion-panel h4{
+        font-size:18px;
+    }
+
+    .encuentro-pokemon-showcase{
+        min-height:180px;
+    }
+
+    .encuentro-img{
+        width:110px;
+        height:110px;
+    }
+
+    .maps-login-lock{
+        min-height:180px;
+        padding:24px 16px;
+    }
+
+    .maps-login-lock h3{
+        font-size:22px;
+    }
+
+    .maps-login-lock p{
+        font-size:14px;
+    }
+    
+    .encuentro-nombre-box h3{
+        font-size:24px;
+    }
+
+    .ball-selector-grid{
+        grid-template-columns:1fr;
+        gap:10px;
+    }
+
+    .ball-option-card{
+        min-height:auto;
+        flex-direction:row;
+        justify-content:space-between;
+    }
+
+    .ball-nombre{
+        flex:1;
+        text-align:left;
+        margin-left:10px;
+    }
+
+    .encuentro-botones{
+        flex-direction:column;
+    }
+
+    .btn-capturar,
+    .btn-huir{
+        width:100%;
+        min-width:unset;
+    }
+
+    .modal-shiny-box{
+        max-width:340px;
+        padding:24px 18px;
+    }
+
+    .modal-shiny-box h2{
+        font-size:28px;
+    }
+}
+
+@media (max-width: 480px){
+    .titulo-maps{
+        font-size:28px;
+    }
+
+    .subtitulo-maps{
+        font-size:15px;
+    }
+
+    .map-card{
+        max-width:100%;
+    }
+
+    .map-info h3{
+        font-size:20px;
+    }
+
+    .mapa-exploracion-box{
+        min-height:220px;
+    }
+
+    .encuentro-info-panel h2{
+        font-size:18px;
+    }
+
+    .encuentro-nombre-box h3{
+        font-size:24px;
+    }
+
+    .encuentro-datos-grid{
+        grid-template-columns:1fr 1fr 1fr;
+    }
+
+    .ball-selector-grid{
+        grid-template-columns:1fr;
+    }
+
+    .ball-option-card{
+        min-height:auto;
+        padding:12px 8px;
+        flex-direction:row;
+        justify-content:space-between;
+    }
+
+    .ball-option-card img{
+        width:28px;
+        height:28px;
+    }
+
+    .ball-nombre{
+        flex:1;
+        text-align:left;
+        margin-left:8px;
+    }
+
+    .ball-cantidad{
+        margin-left:8px;
+    }
+}

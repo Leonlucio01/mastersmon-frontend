@@ -1,0 +1,84 @@
+/* ===== Base ===== */
+html, body{
+    margin:0;
+    padding:0;
+    overflow-x:hidden;
+}
+
+body{
+    font-family: Arial, sans-serif;
+    background:#f3f4f8;
+    color:#1f2937;
+}
+
+/* Utilidades */
+.oculto{
+    display:none !important;
+}
+
+/* ===== Modal base ===== */
+.modal{
+    position:fixed;
+    inset:0;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:rgba(0,0,0,0.7);
+    z-index:999;
+    padding:12px;
+}
+
+.modal-content{
+    background:linear-gradient(180deg,#ffffff,#f7f7f7);
+    border-radius:20px;
+    padding:16px 14px 20px;
+    width:min(420px, calc(100vw - 24px));
+    max-height:92vh;
+    overflow-y:auto;
+    margin:auto;
+    box-sizing:border-box;
+    animation:aparecerPokemon .25s ease;
+}
+
+@keyframes aparecerPokemon{
+    from{
+        transform:translateY(20px);
+        opacity:0;
+    }
+    to{
+        transform:translateY(0);
+        opacity:1;
+    }
+}
+
+.detalle-imagen-box img{
+    transition:transform .2s ease;
+}
+
+.detalle-imagen-box img:hover{
+    transform:scale(1.1);
+}
+
+.tipo{
+    box-shadow:0 4px 10px rgba(0,0,0,0.15);
+}
+
+.cerrar{
+    position:absolute;
+    right:14px;
+    top:10px;
+    font-size:20px;
+    cursor:pointer;
+}
+
+/* Títulos reutilizables */
+.titulo{
+    font-size:30px;
+    font-weight:800;
+    margin:0;
+}
+
+.subtitulo{
+    color:#6b7280;
+    margin-top:6px;
+}
