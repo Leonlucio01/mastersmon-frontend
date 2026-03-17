@@ -89,16 +89,15 @@ async function inicializarMaps() {
 
         renderizarZonas();
 
-        if (!zonaSeleccionadaActual && zonasCache.length > 0) {
-            zonaSeleccionadaActual = zonasCache[0];
-            renderizarZonas();
+        if (zonasCache.length > 0) {
+            const primeraZonaId = Number(zonasCache[0].id);
+            await seleccionarZona(primeraZonaId);
         }
     } catch (error) {
         console.error("Error iniciando Maps:", error);
         mostrarErrorZonas();
     }
 }
-
 
 /* =========================
    MENU MOBILE
