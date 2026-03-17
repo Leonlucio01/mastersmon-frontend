@@ -99,7 +99,6 @@ async function inicializarMaps() {
     }
 }
 
-
 /* =========================
    MENU MOBILE
 ========================= */

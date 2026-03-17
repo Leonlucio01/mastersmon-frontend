@@ -34,6 +34,16 @@ function limpiarSesion() {
     localStorage.removeItem("usuario_id");
 }
 
+function getUsuarioLocal() {
+    try {
+        const raw = localStorage.getItem("usuario");
+        return raw ? JSON.parse(raw) : null;
+    } catch (error) {
+        console.warn("No se pudo leer usuario local:", error);
+        return null;
+    }
+}
+
 function getUsuarioIdLocal() {
     const directo = localStorage.getItem("usuario_id");
     if (directo) return Number(directo);
@@ -202,15 +212,5 @@ async function obtenerItemsUsuarioActual() {
         }
         console.error("Error en obtenerItemsUsuarioActual:", error);
         return [];
-    }
-}
-
-function getUsuarioLocal() {
-    try {
-        const raw = localStorage.getItem("usuario");
-        return raw ? JSON.parse(raw) : null;
-    } catch (error) {
-        console.warn("No se pudo leer usuario local:", error);
-        return null;
     }
 }
