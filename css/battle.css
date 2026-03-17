@@ -127,10 +127,15 @@
     align-items:stretch;
 }
 
-.summary-mini-card strong{
-    font-size:16px;
-    color:#fff;
-    line-height:1.2;
+.summary-mini-card{
+    background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.12);
+    border-radius:18px;
+    padding:14px 16px;
+    min-height:92px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
 }
 
 .summary-mini-card span{
@@ -173,7 +178,7 @@
     box-shadow:
         inset 0 1px 0 rgba(255,255,255,0.08),
         0 6px 16px rgba(15,23,42,0.16);
-    transition:border-color .18s ease, background .18s ease, box-shadow .18s ease, transform .18s ease;
+    transition:border-color .18s ease, background .18s ease, box-shadow .18s ease;
     background-image:
         linear-gradient(45deg, transparent 50%, #dbeafe 50%),
         linear-gradient(135deg, #dbeafe 50%, transparent 50%);
@@ -1379,18 +1384,6 @@
    RESPONSIVE
 ========================= */
 @media (max-width:1180px){
-    .battle-layout{
-        grid-template-columns:1fr;
-    }
-
-    .battle-roster-grid{
-        grid-template-columns:repeat(3,1fr);
-    }
-
-    .battle-filters{
-        grid-template-columns:repeat(2, minmax(0,1fr));
-    }
-
     .battle-layout{
         grid-template-columns:1fr;
     }

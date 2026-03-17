@@ -15,6 +15,7 @@ let arenaEnemyIndex = 0;
 let arenaTurno = 1;
 let arenaCombatEnded = false;
 let arenaTurnoEnProceso = false;
+let arenaAutoTurnoActivo = false;
 
 const BATTLE_TEAM_STORAGE_KEY = "mastersmon_battle_team_v1";
 const BATTLE_ARENA_PLAYER_TEAM_KEY = "mastersmon_battle_arena_team_v1";
@@ -162,6 +163,7 @@ const ARENA_TYPE_EFFECTIVENESS = {
 
 document.addEventListener("DOMContentLoaded", () => {
     inicializarArenaBattle();
+    
 });
 
 /* =========================================================
@@ -178,10 +180,12 @@ async function inicializarArenaBattle() {
         agregarLogArena("El combate comienza. Ambos equipos están listos.");
         ocultarMensajeArena();
         habilitarAccionesArena();
+        actualizarBotonAutoTurnoArena();
     } catch (error) {
         console.error("Error iniciando arena:", error);
         mostrarMensajeArena("No se pudo iniciar la batalla. Vuelve a Battle y arma tu equipo.", "error");
         deshabilitarAccionesArena();
+        actualizarBotonAutoTurnoArena();
     }
 }
 
@@ -206,7 +210,7 @@ function configurarEventosArena() {
 
     if (btnAtacar) btnAtacar.addEventListener("click", ejecutarTurnoAtaqueArena);
     if (btnCambiar) btnCambiar.addEventListener("click", abrirModalCambioArena);
-    if (btnAuto) btnAuto.addEventListener("click", ejecutarTurnoAtaqueArena);
+    if (btnAuto) btnAuto.addEventListener("click", ejecutarAutoTurnoArena);
     if (btnSalir) btnSalir.addEventListener("click", () => window.location.href = "battle.html");
 
     if (btnCerrarCambio) {
@@ -748,9 +752,95 @@ async function ejecutarTurnoAtaqueArena() {
         await verificarFinCombateArena();
     } finally {
         arenaTurnoEnProceso = false;
-        if (!arenaCombatEnded) {
+        if (!arenaCombatEnded && !arenaAutoTurnoActivo) {
             habilitarAccionesArena();
         }
+    }
+}
+
+async function ejecutarAutoTurnoArena() {
+    if (arenaCombatEnded || arenaTurnoEnProceso || arenaAutoTurnoActivo) return;
+
+    const playerInicial = obtenerPokemonActivoArena(arenaPlayerTeam, arenaPlayerIndex);
+    const enemyInicial = obtenerPokemonActivoArena(arenaEnemyTeam, arenaEnemyIndex);
+
+    if (!playerInicial || !enemyInicial) {
+        await verificarFinCombateArena();
+        return;
+    }
+
+    const playerInicialId = Number(playerInicial.id);
+    const enemyInicialId = Number(enemyInicial.id);
+
+    arenaAutoTurnoActivo = true;
+    actualizarBotonAutoTurnoArena();
+    deshabilitarAccionesArena();
+
+    agregarLogArena(
+        `Auto turno activado: ${playerInicial.nombre} atacará hasta que uno de los Pokémon activos sea debilitado.`,
+        "Sistema"
+    );
+
+    try {
+        while (!arenaCombatEnded && arenaAutoTurnoActivo) {
+            const playerActual = obtenerPokemonActivoArena(arenaPlayerTeam, arenaPlayerIndex);
+            const enemyActual = obtenerPokemonActivoArena(arenaEnemyTeam, arenaEnemyIndex);
+
+            if (!playerActual || !enemyActual) {
+                await verificarFinCombateArena();
+                break;
+            }
+
+            const mismoPlayer = Number(playerActual.id) === playerInicialId;
+            const mismoEnemy = Number(enemyActual.id) === enemyInicialId;
+
+            if (!mismoPlayer || !mismoEnemy) {
+                break;
+            }
+
+            await ejecutarTurnoAtaqueArena();
+
+            if (arenaCombatEnded) break;
+
+            const playerDespues = obtenerPokemonActivoArena(arenaPlayerTeam, arenaPlayerIndex);
+            const enemyDespues = obtenerPokemonActivoArena(arenaEnemyTeam, arenaEnemyIndex);
+
+            const sigueMismoPlayer = playerDespues && Number(playerDespues.id) === playerInicialId && !playerDespues.defeated;
+            const sigueMismoEnemy = enemyDespues && Number(enemyDespues.id) === enemyInicialId && !enemyDespues.defeated;
+
+            if (!sigueMismoPlayer || !sigueMismoEnemy) {
+                break;
+            }
+
+            await esperarArena(280);
+        }
+    } finally {
+        arenaAutoTurnoActivo = false;
+        actualizarBotonAutoTurnoArena();
+
+        if (!arenaCombatEnded && !arenaTurnoEnProceso) {
+            habilitarAccionesArena();
+        }
+    }
+}
+
+function detenerAutoTurnoArena() {
+    arenaAutoTurnoActivo = false;
+    actualizarBotonAutoTurnoArena();
+}
+
+function actualizarBotonAutoTurnoArena() {
+    const btnAuto = document.getElementById("btnArenaAuto");
+    if (!btnAuto) return;
+
+    btnAuto.classList.remove("btn-arena-light", "btn-arena-primary", "auto-turno-activo");
+
+    if (arenaAutoTurnoActivo) {
+        btnAuto.classList.add("btn-arena-primary", "auto-turno-activo");
+        btnAuto.textContent = "Auto activo";
+    } else {
+        btnAuto.classList.add("btn-arena-light");
+        btnAuto.textContent = "Auto turno";
     }
 }
 
@@ -880,11 +970,17 @@ function encontrarSiguienteVivoArena(team = []) {
 }
 
 function deshabilitarAccionesArena() {
-    const ids = ["btnArenaAtacar", "btnArenaCambiar", "btnArenaAuto", "btnArenaSalir"];
+    const ids = ["btnArenaAtacar", "btnArenaCambiar", "btnArenaSalir"];
     ids.forEach(id => {
         const btn = document.getElementById(id);
         if (btn) btn.disabled = true;
     });
+
+    const btnAuto = document.getElementById("btnArenaAuto");
+    if (btnAuto) {
+        btnAuto.disabled = true;
+        actualizarBotonAutoTurnoArena();
+    }
 }
 
 function habilitarAccionesArena() {
@@ -893,6 +989,8 @@ function habilitarAccionesArena() {
         const btn = document.getElementById(id);
         if (btn) btn.disabled = false;
     });
+
+    actualizarBotonAutoTurnoArena();
 }
 
 /* =========================================================
@@ -901,6 +999,7 @@ function habilitarAccionesArena() {
 function abrirModalCambioArena() {
     if (arenaCombatEnded || arenaTurnoEnProceso) return;
 
+    detenerAutoTurnoArena();
     const modal = document.getElementById("arenaChangeModal");
     const optionsBox = document.getElementById("arenaChangeOptions");
     if (!modal || !optionsBox) return;

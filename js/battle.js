@@ -397,7 +397,7 @@ function renderResumenEquipoBattle() {
     if (promedioNivel) promedioNivel.textContent = stats.promedioNivel;
     if (tipoDominante) tipoDominante.textContent = stats.tipoDominante;
     if (estado) estado.textContent = battleEquipo.length === 6 ? "Listo para combatir" : "En preparación";
-    if (btnIniciar) btnIniciar.disabled = battleEquipo.length !== 6;
+    if (btnIniciar) btnIniciar.disabled = false;
 
     const resumenAtaque = document.getElementById("battleResumenAtaque");
     const resumenBalance = document.getElementById("battleResumenBalance");
