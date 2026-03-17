@@ -3,6 +3,8 @@ let battleEquipo = [];
 let battleTabActual = "todos";
 
 const BATTLE_TEAM_STORAGE_KEY = "mastersmon_battle_team_v1";
+const BATTLE_ENEMY_LEVEL_BONUS_KEY = "mastersmon_battle_enemy_level_bonus_v1";
+
 
 document.addEventListener("DOMContentLoaded", () => {
     inicializarBattle();
@@ -12,12 +14,15 @@ async function inicializarBattle() {
     configurarResumenUsuarioBattle();
     configurarEventosBattle();
     cargarEquipoGuardadoBattle();
+    cargarDificultadBattle();
     renderSlotsEquipoBattle();
     renderResumenEquipoBattle();
     renderColeccionBattleLoading();
 
     try {
         await cargarPokemonUsuarioBattle();
+        sincronizarEquipoConColeccionBattle();
+        renderSlotsEquipoBattle();
         renderColeccionBattle();
         renderResumenEquipoBattle();
     } catch (error) {
@@ -38,6 +43,11 @@ function configurarEventosBattle() {
     const filtroTipo = document.getElementById("filtroTipoBattle");
     const filtroEstado = document.getElementById("filtroEstadoBattle");
     const filtroOrden = document.getElementById("filtroOrdenBattle");
+    const selectDificultad = document.getElementById("battleDificultadRival");
+
+    if (selectDificultad) {
+        selectDificultad.addEventListener("change", guardarDificultadBattle);
+    }
 
     if (btnLimpiar) {
         btnLimpiar.addEventListener("click", () => {
@@ -224,6 +234,39 @@ function persistirEquipoBattle() {
     } catch (error) {
         console.warn("No se pudo guardar el equipo de Battle:", error);
     }
+}
+
+function cargarDificultadBattle() {
+    const select = document.getElementById("battleDificultadRival");
+    const texto = document.getElementById("battleDificultadTexto");
+    if (!select) return;
+
+    const valorGuardado = sessionStorage.getItem(BATTLE_ENEMY_LEVEL_BONUS_KEY) ?? "0";
+    select.value = valorGuardado;
+
+    actualizarTextoDificultadBattle(Number(valorGuardado), texto);
+}
+
+function guardarDificultadBattle() {
+    const select = document.getElementById("battleDificultadRival");
+    const texto = document.getElementById("battleDificultadTexto");
+    if (!select) return;
+
+    const bonus = Number(select.value || 0);
+    sessionStorage.setItem(BATTLE_ENEMY_LEVEL_BONUS_KEY, String(bonus));
+    actualizarTextoDificultadBattle(bonus, texto);
+}
+
+function actualizarTextoDificultadBattle(bonus = 0, textoEl = null) {
+    const el = textoEl || document.getElementById("battleDificultadTexto");
+    if (!el) return;
+
+    if (bonus <= 0) {
+        el.textContent = "Los rivales saldrán cerca del promedio de tu equipo.";
+        return;
+    }
+
+    el.textContent = `Los rivales aparecerán con aproximadamente +${bonus} niveles sobre tu promedio.`;
 }
 
 /* =========================
@@ -605,7 +648,12 @@ function iniciarBatallaDemo() {
     }
 
     try {
+        const dificultad = document.getElementById("battleDificultadRival");
+        const bonusNivel = Number(dificultad?.value || 0);
+
         sessionStorage.setItem("mastersmon_battle_arena_team_v1", JSON.stringify(battleEquipo));
+        sessionStorage.setItem(BATTLE_ENEMY_LEVEL_BONUS_KEY, String(bonusNivel));
+
         window.location.href = "battle-arena.html";
     } catch (error) {
         console.error("No se pudo preparar la arena de combate:", error);

@@ -18,6 +18,7 @@ let arenaTurnoEnProceso = false;
 
 const BATTLE_TEAM_STORAGE_KEY = "mastersmon_battle_team_v1";
 const BATTLE_ARENA_PLAYER_TEAM_KEY = "mastersmon_battle_arena_team_v1";
+const BATTLE_ENEMY_LEVEL_BONUS_KEY = "mastersmon_battle_enemy_level_bonus_v1";
 
 /* =========================================================
    TABLA DE EFECTIVIDADES
@@ -278,11 +279,13 @@ function generarEquipoRivalFase1() {
     ];
 
     const promedioNivel = calcularPromedioNivelArena(arenaPlayerTeam) || 5;
+    const bonusNivel = obtenerBonusNivelRivalArena();
+    const nivelBaseRival = promedioNivel + bonusNivel;
     const rivales = [];
 
     for (let i = 0; i < 6; i++) {
         const elegido = { ...basePool[Math.floor(Math.random() * basePool.length)] };
-        const nivel = Math.max(1, promedioNivel + numeroRandomEntre(-1, 1));
+        const nivel = Math.max(1, nivelBaseRival + numeroRandomEntre(-1, 1));
 
         const hpFinal = elegido.hp + (nivel * 5);
         const ataqueFinal = elegido.ataque + (nivel * 2);
@@ -341,6 +344,11 @@ function calcularPromedioNivelArena(team = []) {
 
 function numeroRandomEntre(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function obtenerBonusNivelRivalArena() {
+    const bonus = Number(sessionStorage.getItem(BATTLE_ENEMY_LEVEL_BONUS_KEY) || 0);
+    return Number.isNaN(bonus) ? 0 : Math.max(0, bonus);
 }
 
 /* =========================================================
