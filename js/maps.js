@@ -76,6 +76,11 @@ async function inicializarMaps() {
     mostrarCargaZonas();
 
     try {
+        const usuario = getUsuarioLocal();
+        if (usuario && usuario.id != null && !localStorage.getItem("usuario_id")) {
+            localStorage.setItem("usuario_id", String(usuario.id));
+        }
+
         await Promise.all([
             cargarZonas(),
             cargarPokemonUsuarioMaps(),
@@ -93,6 +98,7 @@ async function inicializarMaps() {
         mostrarErrorZonas();
     }
 }
+
 
 /* =========================
    MENU MOBILE
@@ -638,7 +644,7 @@ async function moverEnMapa(direccion, opciones = {}) {
     if (!zonaSeleccionadaActual || movimientoEnCurso) return;
 
     const { silencioso = false } = opciones;
-    const usuarioId = Number(localStorage.getItem("usuario_id"));
+    const usuarioId = getUsuarioIdLocal();
 
     if (!usuarioId) {
         mostrarMensajeMaps("Debes iniciar sesión.", "error");
@@ -941,7 +947,7 @@ async function intentarCapturaDesdeUI() {
 }
 
 async function intentarCaptura(pokemonId, nivel, esShiny, hpActual, hpMaximo, itemId) {
-    const usuarioId = Number(localStorage.getItem("usuario_id"));
+    const usuarioId = getUsuarioIdLocal();
 
     if (!usuarioId) {
         mostrarMensajeMaps("Debes iniciar sesión.", "error");
