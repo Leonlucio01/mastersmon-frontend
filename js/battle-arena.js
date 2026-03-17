@@ -351,6 +351,40 @@ function obtenerBonusNivelRivalArena() {
     return Number.isNaN(bonus) ? 0 : Math.max(0, bonus);
 }
 
+function obtenerRecompensasPorDificultadArena() {
+    const bonusNivel = obtenerBonusNivelRivalArena();
+
+    if (bonusNivel >= 6) {
+        return {
+            nombre: "Maestro",
+            exp: 1000,
+            pokedolares: 5000
+        };
+    }
+
+    if (bonusNivel >= 4) {
+        return {
+            nombre: "Experto",
+            exp: 750,
+            pokedolares: 3750
+        };
+    }
+
+    if (bonusNivel >= 2) {
+        return {
+            nombre: "Desafío",
+            exp: 500,
+            pokedolares: 2500
+        };
+    }
+
+    return {
+        nombre: "Normal",
+        exp: 250,
+        pokedolares: 1250
+    };
+}
+
 /* =========================================================
    RENDER GENERAL
 ========================================================= */
@@ -808,8 +842,8 @@ async function verificarFinCombateArena() {
         deshabilitarAccionesArena();
 
         if (vivosPlayer > 0) {
-            await procesarRecompensasVictoriaArena();
-            mostrarResultadoArena(true);
+            const recompensaResultado = await procesarRecompensasVictoriaArena();
+            mostrarResultadoArena(true, recompensaResultado);
         } else {
             mostrarResultadoArena(false);
         }
@@ -906,22 +940,33 @@ function abrirModalCambioArena() {
 ========================================================= */
 async function procesarRecompensasVictoriaArena() {
     try {
-        const data = await otorgarRecompensasVictoriaArena(1000, 5000);
+        const recompensa = obtenerRecompensasPorDificultadArena();
+
+        const data = await otorgarRecompensasVictoriaArena(
+            recompensa.exp,
+            recompensa.pokedolares
+        );
 
         agregarLogArena(
-            `Recompensas obtenidas: +${data?.pokedolares_ganados ?? 5000} pokedólares y +${data?.exp_ganada ?? 1000} EXP para todo tu equipo.`,
+            `Recompensas obtenidas (${recompensa.nombre}): +${data?.pokedolares_ganados ?? recompensa.pokedolares} pokedólares y +${data?.exp_ganada ?? recompensa.exp} EXP para todo tu equipo.`,
             "Sistema"
         );
+
+        return {
+            ...recompensa,
+            data
+        };
     } catch (error) {
         console.warn("No se pudieron aplicar las recompensas de victoria:", error);
         agregarLogArena("La batalla terminó, pero hubo un problema al aplicar las recompensas.", "Sistema");
+        return null;
     }
 }
 
 /* =========================================================
    RESULTADO / LOG
 ========================================================= */
-function mostrarResultadoArena(victoria = true) {
+function mostrarResultadoArena(victoria = true, recompensa = null) {
     const modal = document.getElementById("arenaResultModal");
     const icon = document.getElementById("arenaResultIcon");
     const title = document.getElementById("arenaResultTitle");
@@ -930,11 +975,13 @@ function mostrarResultadoArena(victoria = true) {
     if (!modal || !icon || !title || !text) return;
 
     if (victoria) {
+        const recompensaFinal = recompensa || obtenerRecompensasPorDificultadArena();
+
         icon.textContent = "🏆";
         icon.style.background = "#dcfce7";
         icon.style.color = "#15803d";
         title.textContent = "¡Victoria!";
-        text.textContent = "Has derrotado al equipo rival de la fase 1. Recompensas: +5000 pokedólares y +1000 EXP para tu equipo.";
+        text.textContent = `Has derrotado al equipo rival de la fase 1 en dificultad ${recompensaFinal.nombre}. Recompensas: +${recompensaFinal.pokedolares} pokedólares y +${recompensaFinal.exp} EXP para tu equipo.`;
         mostrarMensajeArena("¡Ganaste la batalla!", "ok");
     } else {
         icon.textContent = "✖";
