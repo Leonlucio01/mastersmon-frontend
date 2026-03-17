@@ -769,8 +769,8 @@ async function ejecutarAutoTurnoArena() {
         return;
     }
 
-    const playerInicialId = Number(playerInicial.id);
-    const enemyInicialId = Number(enemyInicial.id);
+    const playerInicialId = String(playerInicial.id);
+    const enemyInicialId = String(enemyInicial.id);
 
     arenaAutoTurnoActivo = true;
     actualizarBotonAutoTurnoArena();
@@ -791,8 +791,8 @@ async function ejecutarAutoTurnoArena() {
                 break;
             }
 
-            const mismoPlayer = Number(playerActual.id) === playerInicialId;
-            const mismoEnemy = Number(enemyActual.id) === enemyInicialId;
+            const mismoPlayer = String(playerActual.id) === playerInicialId;
+            const mismoEnemy = String(enemyActual.id) === enemyInicialId;
 
             if (!mismoPlayer || !mismoEnemy) {
                 break;
@@ -805,8 +805,8 @@ async function ejecutarAutoTurnoArena() {
             const playerDespues = obtenerPokemonActivoArena(arenaPlayerTeam, arenaPlayerIndex);
             const enemyDespues = obtenerPokemonActivoArena(arenaEnemyTeam, arenaEnemyIndex);
 
-            const sigueMismoPlayer = playerDespues && Number(playerDespues.id) === playerInicialId && !playerDespues.defeated;
-            const sigueMismoEnemy = enemyDespues && Number(enemyDespues.id) === enemyInicialId && !enemyDespues.defeated;
+            const sigueMismoPlayer = playerDespues && String(playerDespues.id) === playerInicialId && !playerDespues.defeated;
+            const sigueMismoEnemy = enemyDespues && String(enemyDespues.id) === enemyInicialId && !enemyDespues.defeated;
 
             if (!sigueMismoPlayer || !sigueMismoEnemy) {
                 break;
