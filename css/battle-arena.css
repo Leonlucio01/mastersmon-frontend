@@ -443,6 +443,39 @@
     color: #b91c1c;
 }
 
+.arena-exp-block{
+    margin-top: 12px;
+    position: relative;
+    z-index: 2;
+}
+
+.arena-exp-top{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: 800;
+    color: #334155;
+}
+
+.arena-exp-bar{
+    width: 100%;
+    height: 10px;
+    background: #e5e7eb;
+    border-radius: 999px;
+    overflow: hidden;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.06);
+}
+
+.arena-exp-fill{
+    height: 100%;
+    background: linear-gradient(90deg, #22c55e, #16a34a);
+    border-radius: 999px;
+    transition: width .24s ease;
+}
+
 .arena-active-empty{
     min-height: 260px;
     border-radius: 22px;
@@ -631,6 +664,35 @@
 .arena-mini-meta .def{
     background: #ede9fe;
     color: #6d28d9;
+}
+
+.arena-mini-exp-wrap{
+    margin-top: 8px;
+    width: 100%;
+}
+
+.arena-mini-exp-bar{
+    width: 100%;
+    height: 7px;
+    background: #e5e7eb;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.arena-mini-exp-fill{
+    height: 100%;
+    background: linear-gradient(90deg, #22c55e, #16a34a);
+    border-radius: 999px;
+    transition: width .24s ease;
+}
+
+.arena-mini-exp-text{
+    display: block;
+    margin-top: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #111827;
+    text-align: center;
 }
 
 .arena-mini-dead{

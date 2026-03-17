@@ -4,8 +4,8 @@
    - Daño base: ATK - DEF (mínimo 1)
    - Multiplicador por tipo: x2 / x1 / x0.5
    - Recompensas al ganar:
-     * +500 pokedólares
-     * +25 EXP a todos los Pokémon del equipo
+     * +5000 pokedólares
+     * +1000 EXP a todos los Pokémon del equipo
 ========================================================= */
 
 let arenaPlayerTeam = [];
@@ -380,6 +380,10 @@ function renderActivePokemonCardArena(pokemon) {
     const hpClass = obtenerClaseHpArena(hpPercent);
     const sideClass = pokemon.side === "enemy" ? "enemy-card" : "player-card";
 
+    const expActual = calcularExpActualArena(pokemon);
+    const expObjetivo = calcularExpObjetivoArena(pokemon.nivel);
+    const expPercent = calcularExpPercentArena(pokemon);
+
     return `
         <div class="arena-active-inner arena-card ${sideClass} ${tipoClase} ${pokemon.defeated ? "is-ko" : ""}">
             <div class="arena-pokemon-top">
@@ -432,6 +436,18 @@ function renderActivePokemonCardArena(pokemon) {
                     ${pokemon.defeated ? "Debilitado" : "En combate"}
                 </div>
             </div>
+
+            ${pokemon.side !== "enemy" ? `
+                <div class="arena-exp-block">
+                    <div class="arena-exp-top">
+                        <span>EXP</span>
+                        <strong>${expActual} / ${expObjetivo}</strong>
+                    </div>
+                    <div class="arena-exp-bar">
+                        <div class="arena-exp-fill" style="width:${expPercent}%"></div>
+                    </div>
+                </div>
+            ` : ""}
         </div>
     `;
 }
@@ -463,6 +479,9 @@ function renderEquiposMiniArena() {
 
 function renderMiniPokemonArena(pokemon, isActive = false, isEnemy = false) {
     const imagen = obtenerImagenPokemonArena(pokemon);
+    const expActual = calcularExpActualArena(pokemon);
+    const expObjetivo = calcularExpObjetivoArena(pokemon.nivel);
+    const expPercent = calcularExpPercentArena(pokemon);
 
     return `
         <article class="arena-mini-card ${isActive ? (isEnemy ? "enemy-active" : "active") : ""} ${pokemon.defeated ? "fainted" : ""}">
@@ -474,6 +493,15 @@ function renderMiniPokemonArena(pokemon, isActive = false, isEnemy = false) {
                 <span class="atk">ATK ${pokemon.ataque}</span>
                 <span class="def">DEF ${pokemon.defensa}</span>
             </div>
+
+            ${!isEnemy ? `
+                <div class="arena-mini-exp-wrap">
+                    <div class="arena-mini-exp-bar">
+                        <div class="arena-mini-exp-fill" style="width:${expPercent}%"></div>
+                    </div>
+                    <small class="arena-mini-exp-text">EXP ${expActual}/${expObjetivo}</small>
+                </div>
+            ` : ""}
 
             ${pokemon.defeated ? `<span class="arena-mini-dead">KO</span>` : ""}
         </article>
@@ -714,6 +742,16 @@ async function resolverAtaqueArena(atacante, defensor, esAtaqueJugador = false) 
 
         agregarLogArena(`${defensor.nombre} quedó debilitado.`, "Sistema");
         renderArenaCompleta();
+
+        const vivosRestantes = contarVivosArena(
+            defensor.side === "enemy" ? arenaEnemyTeam : arenaPlayerTeam
+        );
+
+        if (vivosRestantes <= 0) {
+            await verificarFinCombateArena();
+            return;
+        }
+
         await esperarArena(300);
 
         if (defensor.side === "enemy") {
@@ -800,7 +838,7 @@ function encontrarSiguienteVivoArena(team = []) {
 }
 
 function deshabilitarAccionesArena() {
-    const ids = ["btnArenaAtacar", "btnArenaCambiar", "btnArenaAuto"];
+    const ids = ["btnArenaAtacar", "btnArenaCambiar", "btnArenaAuto", "btnArenaSalir"];
     ids.forEach(id => {
         const btn = document.getElementById(id);
         if (btn) btn.disabled = true;
@@ -808,7 +846,7 @@ function deshabilitarAccionesArena() {
 }
 
 function habilitarAccionesArena() {
-    const ids = ["btnArenaAtacar", "btnArenaCambiar", "btnArenaAuto"];
+    const ids = ["btnArenaAtacar", "btnArenaCambiar", "btnArenaAuto", "btnArenaSalir"];
     ids.forEach(id => {
         const btn = document.getElementById(id);
         if (btn) btn.disabled = false;
@@ -860,10 +898,10 @@ function abrirModalCambioArena() {
 ========================================================= */
 async function procesarRecompensasVictoriaArena() {
     try {
-        const data = await otorgarRecompensasVictoriaArena(25, 500);
+        const data = await otorgarRecompensasVictoriaArena(1000, 5000);
 
         agregarLogArena(
-            `Recompensas obtenidas: +${data?.pokedolares_ganados ?? 500} pokedólares y +${data?.exp_ganada ?? 25} EXP para todo tu equipo.`,
+            `Recompensas obtenidas: +${data?.pokedolares_ganados ?? 5000} pokedólares y +${data?.exp_ganada ?? 1000} EXP para todo tu equipo.`,
             "Sistema"
         );
     } catch (error) {
@@ -888,7 +926,7 @@ function mostrarResultadoArena(victoria = true) {
         icon.style.background = "#dcfce7";
         icon.style.color = "#15803d";
         title.textContent = "¡Victoria!";
-        text.textContent = "Has derrotado al equipo rival de la fase 1. Recompensas: +500 pokedólares y +25 EXP para tu equipo.";
+        text.textContent = "Has derrotado al equipo rival de la fase 1. Recompensas: +5000 pokedólares y +1000 EXP para tu equipo.";
         mostrarMensajeArena("¡Ganaste la batalla!", "ok");
     } else {
         icon.textContent = "✖";
@@ -949,6 +987,20 @@ function calcularHpPercentArena(pokemon) {
     return Math.max(0, Math.min(100, Math.round((hpActual / hpMax) * 100)));
 }
 
+function calcularExpObjetivoArena(nivel = 1) {
+    return Math.max(50, Number(nivel || 1) * 50);
+}
+
+function calcularExpActualArena(pokemon) {
+    return Math.max(0, Number(pokemon?.experiencia || 0));
+}
+
+function calcularExpPercentArena(pokemon) {
+    const expActual = calcularExpActualArena(pokemon);
+    const expObjetivo = calcularExpObjetivoArena(pokemon?.nivel || 1);
+    return Math.min(100, Math.floor((expActual / expObjetivo) * 100));
+}
+
 function obtenerClaseHpArena(percent) {
     if (percent <= 0) return "zero";
     if (percent <= 25) return "low";
@@ -1001,7 +1053,7 @@ function escapeHtmlArena(value) {
         .replaceAll("'", "&#039;");
 }
 
-async function otorgarRecompensasVictoriaArena(expGanada = 25, pokedolaresGanados = 500) {
+async function otorgarRecompensasVictoriaArena(expGanada = 1000, pokedolaresGanados = 5000) {
     const token = typeof getAccessToken === "function" ? getAccessToken() : null;
     const usuarioId = Number(localStorage.getItem("usuario_id"));
 
