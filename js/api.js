@@ -17,6 +17,10 @@ function guardarSesion(data) {
         localStorage.setItem("google_user_name", data.usuario.nombre || "");
         localStorage.setItem("usuario_correo", data.usuario.correo || "");
         localStorage.setItem("usuario_foto", data.usuario.foto || "");
+
+        if (data.usuario.id != null) {
+            localStorage.setItem("usuario_id", String(data.usuario.id));
+        }
     }
 }
 
@@ -27,6 +31,7 @@ function limpiarSesion() {
     localStorage.removeItem("google_user_name");
     localStorage.removeItem("usuario_correo");
     localStorage.removeItem("usuario_foto");
+    localStorage.removeItem("usuario_id");
 }
 
 function getUsuarioLocal() {
