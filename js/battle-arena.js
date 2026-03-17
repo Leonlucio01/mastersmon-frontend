@@ -426,31 +426,31 @@ function obtenerRecompensasPorDificultadArena() {
     if (bonusNivel >= 6) {
         return {
             nombre: "Maestro",
-            exp: 4000,
-            pokedolares: 10000
+            exp: 6000,
+            pokedolares: 15000
         };
     }
 
     if (bonusNivel >= 4) {
         return {
             nombre: "Experto",
-            exp: 3000,
-            pokedolares: 5000
+            exp: 4500,
+            pokedolares: 10000
         };
     }
 
     if (bonusNivel >= 2) {
         return {
             nombre: "Desafío",
-            exp: 2000,
-            pokedolares: 2500
+            exp: 3500,
+            pokedolares: 5000
         };
     }
 
     return {
         nombre: "Normal",
-        exp: 1000,
-        pokedolares: 1250
+        exp: 2500,
+        pokedolares: 2500
     };
 }
 
