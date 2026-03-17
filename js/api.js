@@ -204,3 +204,13 @@ async function obtenerItemsUsuarioActual() {
         return [];
     }
 }
+
+function getUsuarioLocal() {
+    try {
+        const raw = localStorage.getItem("usuario");
+        return raw ? JSON.parse(raw) : null;
+    } catch (error) {
+        console.warn("No se pudo leer usuario local:", error);
+        return null;
+    }
+}
