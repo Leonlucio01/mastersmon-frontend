@@ -294,6 +294,10 @@ function renderSlotsEquipoBattle() {
         const leadBadge = i === 0 ? `<span class="team-lead-badge">Líder</span>` : "";
         const tipoClase = obtenerClaseTipoBattle(pokemon.tipo);
 
+        const expActual = calcularExpActualBattle(pokemon);
+        const expObjetivo = calcularExpObjetivoBattle(pokemon.nivel);
+        const expPercent = calcularExpPercentBattle(pokemon);
+
         html += `
             <article class="battle-team-slot filled ${i === 0 ? "team-slot-lead" : ""} ${tipoClase}">
                 <div class="team-slot-index">${i + 1}</div>
@@ -317,6 +321,13 @@ function renderSlotsEquipoBattle() {
                             <span class="meta-atk">ATK ${pokemon.ataque ?? "—"}</span>
                             <span class="meta-def">DEF ${pokemon.defensa ?? "—"}</span>
                         </div>
+
+                        <div class="team-slot-exp-wrap">
+                            <div class="team-slot-exp-label">EXP ${expActual} / ${expObjetivo}</div>
+                            <div class="team-slot-exp-bar">
+                                <div class="team-slot-exp-fill" style="width:${expPercent}%"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </article>
@@ -325,6 +336,7 @@ function renderSlotsEquipoBattle() {
 
     container.innerHTML = html;
 }
+
 /* =========================
    RESUMEN
 ========================= */
@@ -527,6 +539,9 @@ function renderColeccionBattle() {
             : (pokemon.imagen || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.pokemon_id}.png`);
 
         const claseTipo = obtenerClaseTipoBattle(pokemon.tipo);
+        const expActual = calcularExpActualBattle(pokemon);
+        const expObjetivo = calcularExpObjetivoBattle(pokemon.nivel);
+        const expPercent = calcularExpPercentBattle(pokemon);
 
         return `
             <article class="battle-pokemon-card ${yaEnEquipo ? "selected" : ""} ${claseTipo}">
@@ -544,6 +559,13 @@ function renderColeccionBattle() {
                     <span class="battle-card-hp">HP ${pokemon.hp_actual ?? pokemon.hp_max ?? "—"}</span>
                     <span class="battle-card-atk">ATK ${pokemon.ataque ?? "—"}</span>
                     <span class="battle-card-def">DEF ${pokemon.defensa ?? "—"}</span>
+                </div>
+
+                <div class="battle-card-exp-wrap">
+                    <div class="battle-card-exp-label">EXP ${expActual} / ${expObjetivo}</div>
+                    <div class="battle-card-exp-bar">
+                        <div class="battle-card-exp-fill" style="width:${expPercent}%"></div>
+                    </div>
                 </div>
 
                 <button
@@ -663,6 +685,20 @@ function cerrarModalBattle() {
 /* =========================
    HELPERS
 ========================= */
+function calcularExpObjetivoBattle(nivel = 1) {
+    return Math.max(50, Number(nivel || 1) * 50);
+}
+
+function calcularExpActualBattle(pokemon) {
+    return Math.max(0, Number(pokemon?.experiencia || 0));
+}
+
+function calcularExpPercentBattle(pokemon) {
+    const expActual = calcularExpActualBattle(pokemon);
+    const expObjetivo = calcularExpObjetivoBattle(pokemon?.nivel || 1);
+    return Math.min(100, Math.floor((expActual / expObjetivo) * 100));
+}
+
 function obtenerClaseTipoBattle(tipo = "") {
     const valor = String(tipo).toLowerCase();
 

@@ -417,6 +417,33 @@
     color:#6d28d9;
 }
 
+.team-slot-exp-wrap{
+    width: 100%;
+    margin-top: 10px;
+}
+
+.team-slot-exp-label{
+    font-size: 12px;
+    font-weight: 800;
+    color: #374151;
+    margin-bottom: 6px;
+}
+
+.team-slot-exp-bar{
+    width: 100%;
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.team-slot-exp-fill{
+    height: 100%;
+    background: linear-gradient(90deg, #22c55e, #16a34a);
+    border-radius: 999px;
+    transition: width .24s ease;
+}
+
 .team-slot-remove{
     position:absolute;
     top:10px;
@@ -927,6 +954,35 @@
 .battle-card-def{
     background:#ede9fe;
     color:#6d28d9;
+}
+
+.battle-card-exp-wrap{
+    width: 100%;
+    margin: 2px 0 12px;
+    position: relative;
+    z-index: 1;
+}
+
+.battle-card-exp-label{
+    font-size: 12px;
+    font-weight: 800;
+    color: #374151;
+    margin-bottom: 6px;
+}
+
+.battle-card-exp-bar{
+    width: 100%;
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.battle-card-exp-fill{
+    height: 100%;
+    background: linear-gradient(90deg, #22c55e, #16a34a);
+    border-radius: 999px;
+    transition: width .24s ease;
 }
 
 .battle-card-btn{
