@@ -99,6 +99,7 @@ async function inicializarMaps() {
     }
 }
 
+
 /* =========================
    MENU MOBILE
 ========================= */
@@ -515,14 +516,19 @@ async function seleccionarZona(zonaId) {
         renderPanelDerechoVacio();
     }
 
+    scrollAlMapa();
+
     try {
         await cargarItemsUsuarioMaps(true);
     } catch (error) {
         console.warn("No se pudieron refrescar items al seleccionar zona:", error);
     }
 
-    await generarEncuentroInicial();
-    scrollAlMapa();
+    try {
+        await generarEncuentroInicial();
+    } catch (error) {
+        console.error("Error generando encuentro inicial:", error);
+    }
 }
 
 function renderizarZonaExploracion() {
