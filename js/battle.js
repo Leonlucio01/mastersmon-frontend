@@ -14,20 +14,30 @@ async function inicializarBattle() {
     configurarResumenUsuarioBattle();
     configurarEventosBattle();
     cargarEquipoGuardadoBattle();
-    cargarDificultadBattle();
     renderSlotsEquipoBattle();
     renderResumenEquipoBattle();
     renderColeccionBattleLoading();
 
     try {
         await cargarPokemonUsuarioBattle();
-        sincronizarEquipoConColeccionBattle();
-        renderSlotsEquipoBattle();
         renderColeccionBattle();
         renderResumenEquipoBattle();
     } catch (error) {
         console.error("Error iniciando Battle:", error);
         renderColeccionBattleError();
+
+        // Reintento automático por si la sesión todavía no estaba lista al recargar
+        setTimeout(async () => {
+            try {
+                renderColeccionBattleLoading();
+                await cargarPokemonUsuarioBattle();
+                renderColeccionBattle();
+                renderResumenEquipoBattle();
+            } catch (retryError) {
+                console.error("Error en reintento de Battle:", retryError);
+                renderColeccionBattleError();
+            }
+        }, 1200);
     }
 }
 
@@ -183,7 +193,7 @@ function configurarResumenUsuarioBattle() {
 async function cargarPokemonUsuarioBattle() {
     if (!getAccessToken()) {
         battlePokemonUsuario = [];
-        return;
+        throw new Error("No hay access token disponible.");
     }
 
     const data = await obtenerPokemonUsuarioActualBattle();
@@ -193,11 +203,7 @@ async function cargarPokemonUsuarioBattle() {
 
 async function obtenerPokemonUsuarioActualBattle() {
     const token = getAccessToken();
-    const usuarioId = localStorage.getItem("usuario_id");
-
-    if (!usuarioId) {
-        throw new Error("No se encontró el usuario actual.");
-    }
+    let usuarioId = localStorage.getItem("usuario_id");
 
     const headers = {};
     if (token) headers["Authorization"] = `Bearer ${token}`;
@@ -207,7 +213,23 @@ async function obtenerPokemonUsuarioActualBattle() {
             return await fetchJsonBattle(`${API_BASE}/usuario/me/pokemon`, { headers });
         }
     } catch (error) {
-        console.warn("Fallo /usuario/me/pokemon, usando endpoint por usuario_id:", error);
+        console.warn("Fallo /usuario/me/pokemon, intentando fallback:", error);
+    }
+
+    if (!usuarioId && typeof obtenerUsuarioActual === "function") {
+        try {
+            const usuario = await obtenerUsuarioActual();
+            if (usuario?.id) {
+                usuarioId = usuario.id;
+                localStorage.setItem("usuario_id", String(usuario.id));
+            }
+        } catch (error) {
+            console.warn("No se pudo obtener usuario actual en Battle:", error);
+        }
+    }
+
+    if (!usuarioId) {
+        throw new Error("No se encontró el usuario actual.");
     }
 
     return await fetchJsonBattle(`${API_BASE}/usuario/${usuarioId}/pokemon`, { headers });
