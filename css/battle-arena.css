@@ -305,11 +305,17 @@
     width: 100%;
 }
 
+/* =========================================================
+   AJUSTE NOMBRE POKÉMON DESKTOP
+   - El nombre ocupa toda la fila
+   - El badge shiny baja debajo del nombre
+   - Ya no se corta como "Mac..."
+========================================================= */
 .arena-pokemon-name-row{
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 8px;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     margin-bottom: 10px;
     width: 100%;
     min-width: 0;
@@ -317,16 +323,16 @@
 
 .arena-pokemon-name-row h3{
     margin: 0;
-    flex: 1 1 auto;
+    flex: 0 0 100%;
     min-width: 0;
     max-width: 100%;
-    font-size: 22px;
+    font-size: clamp(20px, 1.45vw, 22px);
     font-weight: 900;
     color: #111827;
-    line-height: 1.02;
+    line-height: 1.05;
     white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis;
+    text-overflow: clip;
 }
 
 .arena-shiny-badge{
@@ -1219,11 +1225,13 @@
         gap: 6px;
         margin-bottom: 8px;
         align-items: flex-start;
+        flex-wrap: wrap;
     }
 
     .arena-pokemon-name-row h3{
+        flex: 0 0 100%;
         font-size: 20px;
-        line-height: 1.02;
+        line-height: 1.03;
     }
 
     .arena-shiny-badge{
@@ -1497,7 +1505,12 @@
         height: 54px;
     }
 
+    .arena-pokemon-name-row{
+        flex-wrap: wrap;
+    }
+
     .arena-pokemon-name-row h3{
+        flex: 0 0 100%;
         font-size: 18px;
     }
 
