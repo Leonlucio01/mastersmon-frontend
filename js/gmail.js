@@ -106,16 +106,17 @@ window.handleCredentialResponse = async function(response) {
         const data = await loginConGoogleCredential(response.credential);
 
         if (!data || !data.usuario || !data.access_token) {
-            console.error("Respuesta inválida del login");
-            return;
+            throw new Error("Respuesta inválida del login");
         }
 
         actualizarUIUsuarioGlobal(data.usuario);
         refrescarVistaUsuario();
     } catch (error) {
         console.error("Error login Google:", error);
+        limpiarSesion();
         alert("No se pudo iniciar sesión con Google.");
         mostrarLoginMenu();
+        refrescarVistaUsuario();
     }
 };
 
