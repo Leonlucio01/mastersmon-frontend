@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,14 +16,21 @@
             <h1 class="logo">Pokemon World</h1>
 
             <nav class="menu-nav-desktop">
-                <a href="index.html">Pokedex</a>
-                <a href="battle.html">Battle</a>
-                <a href="maps.html" class="active">Maps</a>
-                <a href="mypokemon.html">My Pokemon</a>
-                <a href="pokemart.html">PokeMart</a>
+                <a href="index.html" data-i18n="menu_pokedex">Pokedex</a>
+                <a href="battle.html" data-i18n="menu_battle">Battle</a>
+                <a href="maps.html" class="active" data-i18n="menu_maps">Maps</a>
+                <a href="mypokemon.html" data-i18n="menu_my_pokemon">My Pokemon</a>
+                <a href="pokemart.html" data-i18n="menu_pokemart">PokeMart</a>
             </nav>
 
             <div class="menu-auth-area">
+                <div class="lang-switch">
+                    <select id="languageSelect">
+                        <option value="en">EN</option>
+                        <option value="es">ES</option>
+                    </select>
+                </div>
+
                 <div id="loginMenuContainer">
                     <div id="g_id_onload"
                          data-client_id="535230935122-vqqd262fjhetd408li95420bb8cas5vb.apps.googleusercontent.com"
@@ -42,7 +49,7 @@
 
                 <div id="usuarioMenu" class="oculto">
                     <span id="nombreUsuario"></span>
-                    <button id="cerrarSesionMenu" type="button">Salir</button>
+                    <button id="cerrarSesionMenu" type="button" data-i18n="menu_logout">Logout</button>
                 </div>
             </div>
 
@@ -51,11 +58,11 @@
 
         <div class="menu-links-mobile" id="menuMobile">
             <div class="mobile-panel">
-                <a href="index.html">Pokedex</a>
-                <a href="battle.html">Battle</a>
-                <a href="maps.html" class="active">Maps</a>
-                <a href="mypokemon.html">My Pokemon</a>
-                <a href="pokemart.html">PokeMart</a>
+                <a href="index.html" data-i18n="menu_pokedex">Pokedex</a>
+                <a href="battle.html" data-i18n="menu_battle">Battle</a>
+                <a href="maps.html" class="active" data-i18n="menu_maps">Maps</a>
+                <a href="mypokemon.html" data-i18n="menu_my_pokemon">My Pokemon</a>
+                <a href="pokemart.html" data-i18n="menu_pokemart">PokeMart</a>
 
                 <div class="menu-mobile-user">
                     <div id="loginMenuContainerMobile">
@@ -71,7 +78,7 @@
 
                     <div id="usuarioMenuMobile" class="oculto">
                         <span id="nombreUsuarioMobile"></span>
-                        <button id="cerrarSesionMenuMobile" type="button">Salir</button>
+                        <button id="cerrarSesionMenuMobile" type="button" data-i18n="menu_logout">Logout</button>
                     </div>
                 </div>
             </div>
@@ -81,18 +88,18 @@
     <main>
         <section class="seccion-maps">
             <div class="encabezado-maps">
-                <h1 class="titulo-maps">MAPS</h1>
-                <p class="subtitulo-maps">Selecciona una zona, entra al mapa y muévete para encontrar Pokémon salvajes</p>
+                <h1 class="titulo-maps" data-i18n="maps_title">MAPS</h1>
+                <p class="subtitulo-maps" data-i18n="maps_subtitle">Choose an area, enter the map, and move to find wild Pokémon</p>
             </div>
 
             <div class="maps-carousel-wrapper">
-                <button class="maps-arrow maps-arrow-left" id="btnMapPrev" type="button" aria-label="Mapa anterior">‹</button>
+                <button class="maps-arrow maps-arrow-left" id="btnMapPrev" type="button" aria-label="Previous map" data-i18n-aria-label="maps_prev_map">‹</button>
 
                 <div class="maps-carousel-viewport">
                     <div id="zonasContainer" class="maps-carousel-track"></div>
                 </div>
 
-                <button class="maps-arrow maps-arrow-right" id="btnMapNext" type="button" aria-label="Mapa siguiente">›</button>
+                <button class="maps-arrow maps-arrow-right" id="btnMapNext" type="button" aria-label="Next map" data-i18n-aria-label="maps_next_map">›</button>
             </div>
 
             <div id="mensajeMaps" class="mensaje-maps oculto"></div>
@@ -104,18 +111,18 @@
     <div id="modalShiny" class="modal-shiny oculto">
         <div class="modal-shiny-box">
             <div class="shiny-stars">✨ ✨ ✨</div>
-            <h2>¡Apareció un Pokémon Shiny!</h2>
-            <p>Has encontrado una versión muy rara.</p>
-            <button type="button" onclick="cerrarModalShiny()">Continuar</button>
+            <h2 data-i18n="maps_shiny_title">A Shiny Pokémon appeared!</h2>
+            <p data-i18n="maps_shiny_text">You found a very rare version.</p>
+            <button type="button" onclick="cerrarModalShiny()" data-i18n="maps_continue">Continue</button>
         </div>
     </div>
 
     <div id="modalResultadoCaptura" class="modal-resultado oculto">
         <div class="modal-resultado-box" id="modalResultadoCapturaBox">
             <div class="modal-resultado-deco" id="modalResultadoCapturaDeco">✨ ✨ ✨</div>
-            <h2 id="modalResultadoCapturaTitulo">Resultado</h2>
-            <p id="modalResultadoCapturaTexto">Mensaje</p>
-            <button type="button" id="btnCerrarModalResultadoCaptura">Continuar</button>
+            <h2 id="modalResultadoCapturaTitulo" data-i18n="maps_result_title">Result</h2>
+            <p id="modalResultadoCapturaTexto" data-i18n="maps_result_message">Message</p>
+            <button type="button" id="btnCerrarModalResultadoCaptura" data-i18n="maps_continue">Continue</button>
         </div>
     </div>
 

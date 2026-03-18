@@ -50,6 +50,14 @@ document.addEventListener("DOMContentLoaded", () => {
     configurarEventosDelegados();
     inicializarMaps();
 
+    const languageSelect = document.getElementById("languageSelect");
+    if (languageSelect && typeof getCurrentLang === "function") {
+        languageSelect.value = getCurrentLang();
+        languageSelect.addEventListener("change", (e) => {
+            setCurrentLang(e.target.value);
+        });
+    }
+
     const btnCerrarModalResultado = document.getElementById("btnCerrarModalResultadoCaptura");
     if (btnCerrarModalResultado) {
         btnCerrarModalResultado.addEventListener("click", cerrarModalResultadoCaptura);
@@ -70,6 +78,10 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }, 120);
     });
+
+    if (typeof applyTranslations === "function") {
+        applyTranslations();
+    }
 });
 
 async function inicializarMaps() {
@@ -399,11 +411,11 @@ function mostrarCargaZonas() {
             <article class="map-card">
                 <div class="map-img-wrap"></div>
                 <div class="map-info">
-                    <h3>Cargando...</h3>
-                    <p>Preparando zona de exploración...</p>
+                    <h3>${t("maps_loading")}</h3>
+                    <p>${t("maps_preparing_zone")}</p>
                     <div class="map-actions">
-                        <span class="map-level">Nivel —</span>
-                        <button class="btn-map" type="button" disabled>View</button>
+                        <span class="map-level">${t("maps_level_short")} —</span>
+                        <button class="btn-map" type="button" disabled>${t("maps_view")}</button>
                     </div>
                 </div>
             </article>
@@ -420,10 +432,10 @@ function mostrarErrorZonas() {
     container.innerHTML = `
         <article class="map-card">
             <div class="map-info">
-                <h3>No se pudieron cargar las zonas</h3>
-                <p>Verifica que tu backend esté corriendo.</p>
+                <h3>${t("maps_zones_load_error")}</h3>
+                <p>${t("maps_check_backend")}</p>
                 <div class="map-actions">
-                    <button class="btn-map" type="button" onclick="window.location.reload()">Reintentar</button>
+                    <button class="btn-map" type="button" onclick="window.location.reload()">${t("maps_retry")}</button>
                 </div>
             </div>
         </article>
@@ -440,8 +452,8 @@ function renderizarZonas() {
         container.innerHTML = `
             <article class="map-card">
                 <div class="map-info">
-                    <h3>No hay zonas disponibles</h3>
-                    <p>Agrega zonas en la base de datos.</p>
+                    <h3>${t("maps_no_zones")}</h3>
+                    <p>${t("maps_add_zones_db")}</p>
                 </div>
             </article>
         `;
@@ -460,12 +472,12 @@ function renderizarZonas() {
 
                 <div class="map-info">
                     <h3>${zona.nombre}</h3>
-                    <p>${zona.descripcion || "Zona de exploración Pokémon."}</p>
+                    <p>${zona.descripcion || t("maps_default_zone_desc")}</p>
 
                     <div class="map-actions">
-                        <span class="map-level">Nivel ${zona.nivel_min} - ${zona.nivel_max}</span>
+                        <span class="map-level">${t("maps_level")} ${zona.nivel_min} - ${zona.nivel_max}</span>
                         <button class="btn-map ${activa ? "btn-map-activa" : ""}" type="button" data-zona-id="${zona.id}">
-                            View
+                            ${t("maps_view")}
                         </button>
                     </div>
                 </div>
@@ -549,7 +561,7 @@ function renderizarZonaExploracion() {
             <div class="mapa-exploracion-panel">
                 <div class="mapa-exploracion-header">
                     <h3>${zonaSeleccionadaActual.nombre}</h3>
-                    <p>Usa las flechas para explorar y generar encuentros</p>
+                    <p>${t("maps_explore_hint")}</p>
                 </div>
 
                 <div class="mapa-exploracion-box">
@@ -564,29 +576,29 @@ function renderizarZonaExploracion() {
 
                 <div class="mapa-ui-inferior">
                     <div class="mapa-evento-box">
-                        <div class="mapa-evento-titulo">Pokémon que habitan aquí</div>
+                        <div class="mapa-evento-titulo">${t("maps_zone_pokemon")}</div>
                         ${renderMiniaturasZona(zonaSeleccionadaActual)}
                     </div>
 
                     <div class="mapa-movimiento">
-                        <button class="move-up" data-move="up" type="button" aria-label="Mover arriba">
-                            <img src="img/maps/move/north_able.png" alt="Arriba">
+                        <button class="move-up" data-move="up" type="button" aria-label="${t("maps_move_up")}">
+                            <img src="img/maps/move/north_able.png" alt="${t("maps_move_up")}">
                         </button>
 
-                        <button class="move-left" data-move="left" type="button" aria-label="Mover izquierda">
-                            <img src="img/maps/move/west_able.png" alt="Izquierda">
+                        <button class="move-left" data-move="left" type="button" aria-label="${t("maps_move_left")}">
+                            <img src="img/maps/move/west_able.png" alt="${t("maps_move_left")}">
                         </button>
 
                         <div class="move-center">
-                            <img src="img/maps/move/center.png" alt="Centro">
+                            <img src="img/maps/move/center.png" alt="Center">
                         </div>
 
-                        <button class="move-right" data-move="right" type="button" aria-label="Mover derecha">
-                            <img src="img/maps/move/east_able.png" alt="Derecha">
+                        <button class="move-right" data-move="right" type="button" aria-label="${t("maps_move_right")}">
+                            <img src="img/maps/move/east_able.png" alt="${t("maps_move_right")}">
                         </button>
 
-                        <button class="move-down" data-move="down" type="button" aria-label="Mover abajo">
-                            <img src="img/maps/move/south_able.png" alt="Abajo">
+                        <button class="move-down" data-move="down" type="button" aria-label="${t("maps_move_down")}">
+                            <img src="img/maps/move/south_able.png" alt="${t("maps_move_down")}">
                         </button>
                     </div>
                 </div>
@@ -606,7 +618,7 @@ function renderMiniaturasZona(zona = null) {
     if (!pokemonesZona.length) {
         return `
             <div class="mini-zona-vacia">
-                <span>Sin Pokémon</span>
+                <span>${t("maps_no_pokemon_zone")}</span>
             </div>
         `;
     }
@@ -651,7 +663,7 @@ async function moverEnMapa(direccion, opciones = {}) {
     const usuarioId = getUsuarioIdLocal();
 
     if (!usuarioId) {
-        mostrarMensajeMaps("Debes iniciar sesión.", "error");
+        mostrarMensajeMaps(t("maps_login_required"), "error");
         return;
     }
 
@@ -684,16 +696,16 @@ async function moverEnMapa(direccion, opciones = {}) {
         if (!zonaSeleccionadaActual || Number(zonaSeleccionadaActual.id) !== zonaIdActual) return;
 
         if (!pokemon || pokemon.error) {
-            throw new Error(pokemon?.error || "No se pudo generar el encuentro");
+            throw new Error(pokemon?.error || t("maps_encounter_generate_error"));
         }
 
         if (!pokemon.pokemon_id) {
-            throw new Error("El backend no devolvió un Pokémon válido");
+            throw new Error(t("maps_invalid_pokemon"));
         }
 
         encuentroActual = {
             pokemon_id: Number(pokemon.pokemon_id),
-            nombre: pokemon.nombre || "Pokémon salvaje",
+            nombre: pokemon.nombre || t("maps_wild_pokemon_default"),
             tipo: pokemon.tipo || "—",
             imagen: pokemon.imagen || null,
             rareza: pokemon.rareza || null,
@@ -717,7 +729,7 @@ async function moverEnMapa(direccion, opciones = {}) {
         if (requestIdActual !== encuentroRequestId) return;
 
         console.error("Error explorando zona:", error);
-        mostrarMensajeMaps(error.message || "No se pudo generar el encuentro.", "error");
+        mostrarMensajeMaps(error.message || t("maps_encounter_generate_error"), "error");
 
         if (!encuentroActual) {
             renderPanelDerechoVacio();
@@ -751,14 +763,14 @@ function renderEncuentroActual() {
     );
 
     infoPanel.innerHTML = `
-        <h2>¡Pokémon salvaje encontrado!</h2>
+        <h2>${t("maps_wild_found")}</h2>
 
         <div class="encuentro-top-status">
             <div class="captura-indicador-superior ${estadoCaptura.variante}">
                 <img 
                     src="${estadoCaptura.imagen}" 
                     class="captura-ball-img ${estadoCaptura.variante === "ninguno" ? "gris" : ""} ${estadoCaptura.variante === "otra-version" ? "dorada" : ""}"
-                    alt="Estado captura"
+                    alt="${t("maps_capture_status")}"
                 >
             </div>
 
@@ -780,15 +792,15 @@ function renderEncuentroActual() {
 
         <div class="encuentro-datos-grid">
             <div class="dato-mini">
-                <span>Tipo</span>
+                <span>${t("maps_type")}</span>
                 <strong>${encuentroActual.tipo || "—"}</strong>
             </div>
             <div class="dato-mini">
-                <span>Nivel</span>
+                <span>${t("maps_level")}</span>
                 <strong>${encuentroActual.nivel ?? "—"}</strong>
             </div>
             <div class="dato-mini">
-                <span>HP</span>
+                <span>${t("maps_hp")}</span>
                 <strong>${encuentroActual.hp ?? "—"}</strong>
             </div>
         </div>
@@ -807,8 +819,8 @@ function renderBloqueoMapsSinSesion() {
 
     encuentro.innerHTML = `
         <div class="maps-login-lock">
-            <h3>Inicia sesión para explorar</h3>
-            <p>Debes iniciar sesión con Google para entrar al mapa, moverte y capturar Pokémon.</p>
+            <h3>${t("maps_login_to_explore")}</h3>
+            <p>${t("maps_login_explore_text")}</p>
         </div>
     `;
 }
@@ -820,30 +832,30 @@ function renderPanelDerechoVacio() {
     if (!infoPanel || !accionPanel) return;
 
     infoPanel.innerHTML = `
-        <h2>Zona lista para explorar</h2>
+        <h2>${t("maps_area_ready")}</h2>
         <div class="encuentro-nombre-box">
-            <h3>${zonaSeleccionadaActual?.nombre || "Mapa"}</h3>
+            <h3>${zonaSeleccionadaActual?.nombre || "Map"}</h3>
         </div>
         <div class="encuentro-datos-grid">
             <div class="dato-mini">
-                <span>Zona</span>
+                <span>${t("maps_area")}</span>
                 <strong>${zonaSeleccionadaActual?.nombre || "—"}</strong>
             </div>
             <div class="dato-mini">
-                <span>Estado</span>
-                <strong>Libre</strong>
+                <span>${t("maps_status")}</span>
+                <strong>${t("maps_free")}</strong>
             </div>
             <div class="dato-mini">
-                <span>Encuentro</span>
+                <span>${t("maps_encounter")}</span>
                 <strong>—</strong>
             </div>
         </div>
     `;
 
     accionPanel.innerHTML = `
-        <h4>Selecciona la Poké Ball</h4>
+        <h4>${t("maps_select_ball")}</h4>
         <div class="probabilidad-captura">
-            Usa las flechas para generar un encuentro salvaje.
+            ${t("maps_generate_encounter_hint")}
         </div>
     `;
 }
@@ -870,7 +882,7 @@ function renderPanelAccionEncuentro() {
     }
 
     const htmlBalls = !usuarioLogueado
-        ? `<p class="sin-balls">Inicia sesión para usar Poké Balls y capturar Pokémon.</p>`
+        ? `<p class="sin-balls">${t("maps_login_balls_text")}</p>`
         : pokeballs.length
             ? pokeballs.map((item) => `
                 <label class="ball-option ${item.cantidad <= 0 ? "sin-stock" : ""}">
@@ -889,17 +901,17 @@ function renderPanelAccionEncuentro() {
                     </div>
                 </label>
             `).join("")
-            : `<p class="sin-balls">No tienes Poké Balls disponibles.</p>`;
+            : `<p class="sin-balls">${t("maps_no_balls")}</p>`;
 
     return `
-        <h4>Selecciona la Poké Ball</h4>
+        <h4>${t("maps_select_ball")}</h4>
 
         <div class="ball-selector-grid">
             ${htmlBalls}
         </div>
 
         <div id="probabilidadCaptura" class="probabilidad-captura">
-            ${usuarioLogueado ? "Probabilidad estimada: —" : "Inicia sesión para ver la probabilidad de captura"}
+            ${usuarioLogueado ? `${t("maps_capture_rate")}: —` : t("maps_capture_rate_hidden")}
         </div>
 
         <div class="encuentro-botones">
@@ -910,11 +922,11 @@ function renderPanelAccionEncuentro() {
                     ? "disabled"
                     : ""
             }>
-                Capturar
+                ${t("maps_catch")}
             </button>
 
             <button class="btn-huir" id="btnHuirMapa" type="button">
-                Huir
+                ${t("maps_run")}
             </button>
         </div>
     `;
@@ -926,14 +938,14 @@ function limpiarEncuentroActual() {
 
 async function intentarCapturaDesdeUI() {
     if (!encuentroActual) {
-        mostrarMensajeMaps("No hay ningún encuentro activo.", "warning");
+        mostrarMensajeMaps(t("maps_no_active_encounter"), "warning");
         return;
     }
 
     const seleccionada = document.querySelector('input[name="pokeballSeleccionada"]:checked');
 
     if (!seleccionada) {
-        mostrarMensajeMaps("Selecciona una Poké Ball.", "error");
+        mostrarMensajeMaps(t("maps_choose_ball"), "error");
         return;
     }
 
@@ -954,7 +966,7 @@ async function intentarCaptura(pokemonId, nivel, esShiny, hpActual, hpMaximo, it
     const usuarioId = getUsuarioIdLocal();
 
     if (!usuarioId) {
-        mostrarMensajeMaps("Debes iniciar sesión.", "error");
+        mostrarMensajeMaps(t("maps_login_required"), "error");
         return;
     }
 
@@ -983,7 +995,7 @@ async function intentarCaptura(pokemonId, nivel, esShiny, hpActual, hpMaximo, it
 
         if (data.capturado === true) {
             mostrarModalResultadoCaptura(
-                `${data.mensaje || "Pokémon capturado con éxito."}<br>Probabilidad: ${data.probabilidad ?? 0}%`,
+                `${data.mensaje || t("maps_capture_success_default")}<br>${t("maps_capture_probability")}: ${data.probabilidad ?? 0}%`,
                 "exito"
             );
 
@@ -1000,7 +1012,7 @@ async function intentarCaptura(pokemonId, nivel, esShiny, hpActual, hpMaximo, it
         }
 
         mostrarModalResultadoCaptura(
-            `${data.mensaje || "El Pokémon escapó."}<br>Probabilidad usada: ${data.probabilidad ?? 0}%`,
+            `${data.mensaje || t("maps_capture_escape_default")}<br>${t("maps_capture_used_probability")}: ${data.probabilidad ?? 0}%`,
             "error"
         );
 
@@ -1015,7 +1027,7 @@ async function intentarCaptura(pokemonId, nivel, esShiny, hpActual, hpMaximo, it
         }
     } catch (error) {
         console.error("Error al intentar capturar:", error);
-        mostrarMensajeMaps(error.message || "Error al intentar capturar el Pokémon.", "error");
+        mostrarMensajeMaps(error.message || t("maps_capture_error"), "error");
         await cargarItemsUsuarioMaps(true);
     } finally {
         const nuevoBtnCapturar = document.getElementById("btnCapturarMapa");
@@ -1087,7 +1099,7 @@ function actualizarProbabilidadVisual(esShiny = false) {
     if (!box) return;
 
     if (!seleccionada) {
-        box.textContent = "Probabilidad estimada: —";
+        box.textContent = `${t("maps_capture_rate")}: —`;
         return;
     }
 
@@ -1105,7 +1117,7 @@ function actualizarProbabilidadVisual(esShiny = false) {
     }
 
     prob = Math.max(1, Math.min(prob, 100));
-    box.textContent = `Probabilidad estimada: ${prob}%`;
+    box.textContent = `${t("maps_capture_rate")}: ${prob}%`;
 }
 
 function setEstadoMovimiento(cargando, direccion = "") {
@@ -1118,21 +1130,21 @@ function setEstadoMovimiento(cargando, direccion = "") {
     if (!titulo) return;
 
     if (cargando) {
-        titulo.textContent = `Explorando ${traducirDireccion(direccion)}...`;
+        titulo.textContent = `${t("maps_exploring_direction")} ${traducirDireccion(direccion)}...`;
     } else if (zonaSeleccionadaActual) {
-        titulo.textContent = "Usa las flechas para explorar y generar encuentros";
+        titulo.textContent = t("maps_explore_hint");
     }
 }
 
 function traducirDireccion(direccion = "") {
     const mapa = {
-        up: "arriba",
-        down: "abajo",
-        left: "a la izquierda",
-        right: "a la derecha"
+        up: t("maps_dir_up"),
+        down: t("maps_dir_down"),
+        left: t("maps_dir_left"),
+        right: t("maps_dir_right")
     };
 
-    return mapa[direccion] || "la zona";
+    return mapa[direccion] || t("maps_dir_zone");
 }
 
 function mostrarModalResultadoCaptura(mensaje, tipo = "exito") {
@@ -1149,10 +1161,10 @@ function mostrarModalResultadoCaptura(mensaje, tipo = "exito") {
 
     if (tipo === "exito") {
         deco.textContent = "✨ ✨ ✨";
-        titulo.innerHTML = "¡Captura<br>exitosa!";
+        titulo.innerHTML = t("maps_capture_success_title");
     } else {
         deco.textContent = "✦ ✦ ✦";
-        titulo.innerHTML = "No se pudo<br>capturar";
+        titulo.innerHTML = t("maps_capture_fail_title");
     }
 
     texto.innerHTML = mensaje;
