@@ -235,6 +235,21 @@
     min-width:max-content;
 }
 
+.lang-switch {
+    display: flex;
+    align-items: center;
+}
+
+.lang-switch select {
+    background: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    padding: 6px 10px;
+    font-weight: 700;
+    cursor: pointer;
+    outline: none;
+}
+
 #loginMenuContainer,
 #loginMenuContainerMobile{
     display:flex;

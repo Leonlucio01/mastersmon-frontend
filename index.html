@@ -25,6 +25,13 @@
             </nav>
 
             <div class="menu-auth-area">
+                <div class="lang-switch">
+                    <select id="languageSelect">
+                        <option value="en">EN</option>
+                        <option value="es">ES</option>
+                    </select>
+                </div>
+
                 <div id="loginMenuContainer">
                     <div id="g_id_onload"
                          data-client_id="535230935122-vqqd262fjhetd408li95420bb8cas5vb.apps.googleusercontent.com"
@@ -143,6 +150,16 @@
         if (menuToggle && menuMobile) {
             menuToggle.addEventListener("click", () => {
                 menuMobile.classList.toggle("menu-open");
+            });
+        }
+
+        const languageSelect = document.getElementById("languageSelect");
+
+        if (languageSelect && typeof getCurrentLang === "function") {
+            languageSelect.value = getCurrentLang();
+
+            languageSelect.addEventListener("change", (e) => {
+                setCurrentLang(e.target.value);
             });
         }
 
