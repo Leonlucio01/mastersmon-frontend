@@ -2,7 +2,6 @@ const LANG_STORAGE_KEY = "mastersmon_lang";
 
 const I18N = {
     en: {
-        // General
         menu_pokedex: "Pokedex",
         menu_battle: "Battle",
         menu_maps: "Maps",
@@ -22,22 +21,7 @@ const I18N = {
         maps_move_right: "Move right",
         maps_move_down: "Move down",
         maps_zone_pokemon: "Pokémon living here",
-        maps_explore_hint: "Use the arrows to explore and trigger encounters",
 
-        battle_badge: "Tactical mode",
-        battle_subtitle: "Prepare your team of 6 Pokémon for turn-based RPG battles and experience progression",
-
-        battle_arena_badge: "PvE Battle · Phase 1",
-        battle_arena_subtitle: "Face a random rival squad using your main team of 6 Pokémon",
-        battle_your_team: "Your team",
-        battle_rival: "Rival",
-
-        pokemon_capture_status: "Capture status",
-        pokemon_attack: "Attack",
-        pokemon_defense: "Defense",
-        pokemon_hp: "HP",
-
-        // Maps and exploration
         maps_prev_map: "Previous map",
         maps_next_map: "Next map",
         maps_shiny_title: "A Shiny Pokémon appeared!",
@@ -96,12 +80,24 @@ const I18N = {
         maps_capture_fail_title: "Could not<br>catch",
         maps_wild_pokemon_default: "Wild Pokémon",
         maps_encounter_generate_error: "Could not generate the encounter.",
-        maps_invalid_pokemon: "The backend did not return a valid Pokémon."
+        maps_invalid_pokemon: "The backend did not return a valid Pokémon.",
+        maps_center: "Center",
+        maps_map_fallback: "Map",
 
+        battle_badge: "Tactical mode",
+        battle_subtitle: "Prepare your team of 6 Pokémon for turn-based RPG battles and experience progression",
+        battle_arena_badge: "PvE Battle · Phase 1",
+        battle_arena_subtitle: "Face a random rival squad using your main team of 6 Pokémon",
+        battle_your_team: "Your team",
+        battle_rival: "Rival",
+
+        pokemon_capture_status: "Capture status",
+        pokemon_attack: "Attack",
+        pokemon_defense: "Defense",
+        pokemon_hp: "HP"
     },
 
     es: {
-        // General
         menu_pokedex: "Pokedex",
         menu_battle: "Battle",
         menu_maps: "Maps",
@@ -121,22 +117,7 @@ const I18N = {
         maps_move_right: "Mover derecha",
         maps_move_down: "Mover abajo",
         maps_zone_pokemon: "Pokémon que habitan aquí",
-        maps_explore_hint: "Usa las flechas para explorar y generar encuentros",
 
-        battle_badge: "Modo táctico",
-        battle_subtitle: "Prepara tu equipo de 6 Pokémon para combates RPG por turnos y progresión por experiencia",
-
-        battle_arena_badge: "Combate PvE · Fase 1",
-        battle_arena_subtitle: "Enfrenta una escuadra rival aleatoria usando tu equipo principal de 6 Pokémon",
-        battle_your_team: "Tu equipo",
-        battle_rival: "Rival",
-
-        pokemon_capture_status: "Estado captura",
-        pokemon_attack: "Ataque",
-        pokemon_defense: "Defensa",
-        pokemon_hp: "HP",
-
-        //Maps y exploración
         maps_prev_map: "Mapa anterior",
         maps_next_map: "Mapa siguiente",
         maps_shiny_title: "¡Apareció un Pokémon Shiny!",
@@ -148,7 +129,7 @@ const I18N = {
         maps_loading: "Cargando...",
         maps_preparing_zone: "Preparando zona de exploración...",
         maps_level_short: "Nivel",
-        maps_view: "View",
+        maps_view: "Ver",
         maps_zones_load_error: "No se pudieron cargar las zonas",
         maps_check_backend: "Verifica que tu backend esté corriendo.",
         maps_retry: "Reintentar",
@@ -195,8 +176,21 @@ const I18N = {
         maps_capture_fail_title: "No se pudo<br>capturar",
         maps_wild_pokemon_default: "Pokémon salvaje",
         maps_encounter_generate_error: "No se pudo generar el encuentro.",
-        maps_invalid_pokemon: "El backend no devolvió un Pokémon válido."
+        maps_invalid_pokemon: "El backend no devolvió un Pokémon válido.",
+        maps_center: "Centro",
+        maps_map_fallback: "Mapa",
 
+        battle_badge: "Modo táctico",
+        battle_subtitle: "Prepara tu equipo de 6 Pokémon para combates RPG por turnos y progresión por experiencia",
+        battle_arena_badge: "Combate PvE · Fase 1",
+        battle_arena_subtitle: "Enfrenta una escuadra rival aleatoria usando tu equipo principal de 6 Pokémon",
+        battle_your_team: "Tu equipo",
+        battle_rival: "Rival",
+
+        pokemon_capture_status: "Estado captura",
+        pokemon_attack: "Ataque",
+        pokemon_defense: "Defensa",
+        pokemon_hp: "HP"
     }
 };
 
@@ -214,7 +208,7 @@ function setCurrentLang(lang) {
 
 function t(key) {
     const lang = getCurrentLang();
-    return I18N[lang]?.[key] || I18N.en?.[key] || key;
+    return I18N?.[lang]?.[key] ?? I18N?.en?.[key] ?? key;
 }
 
 function applyTranslations(root = document) {

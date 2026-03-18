@@ -58,6 +58,36 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    document.addEventListener("languageChanged", () => {
+        if (typeof applyTranslations === "function") {
+            applyTranslations();
+        }
+
+        if (zonasCache.length > 0) {
+            renderizarZonas();
+        }
+
+        if (!zonaSeleccionadaActual) return;
+
+        if (!usuarioAutenticadoMaps()) {
+            renderBloqueoMapsSinSesion();
+            return;
+        }
+
+        renderizarZonaExploracion();
+
+        const encuentro = document.getElementById("encuentroContainer");
+        if (encuentro) {
+            encuentro.classList.remove("oculto");
+        }
+
+        if (encuentroActual) {
+            renderEncuentroActual();
+        } else {
+            renderPanelDerechoVacio();
+        }
+    });
+
     const btnCerrarModalResultado = document.getElementById("btnCerrarModalResultadoCaptura");
     if (btnCerrarModalResultado) {
         btnCerrarModalResultado.addEventListener("click", cerrarModalResultadoCaptura);
@@ -145,6 +175,8 @@ function configurarEventosDelegados() {
             if (!btn) return;
 
             const zonaId = Number(btn.dataset.zonaId);
+
+            scrollAlMapa();
             await seleccionarZona(zonaId);
         });
     }
@@ -166,6 +198,8 @@ function configurarEventosDelegados() {
 
             const huirBtn = event.target.closest("#btnHuirMapa");
             if (huirBtn) {
+                cerrarModalesSecundarios();
+                limpiarMensajeMaps();
                 limpiarEncuentroActual();
                 renderPanelDerechoVacio();
                 return;
@@ -367,12 +401,12 @@ function obtenerEstadoCapturaMapa(pokemonId, esShiny, listaPokemonUsuario = []) 
    ZONAS
 ========================= */
 function obtenerClaveZona(nombreZona = "") {
-    const nombre = nombreZona.toLowerCase().trim();
+    const nombre = String(nombreZona || "").toLowerCase().trim();
 
-    if (nombre.includes("bosque")) return "bosque";
-    if (nombre.includes("cueva")) return "cueva";
-    if (nombre.includes("lago")) return "lago";
-    if (nombre.includes("torre")) return "torre";
+    if (nombre.includes("bosque") || nombre.includes("forest")) return "bosque";
+    if (nombre.includes("cueva") || nombre.includes("cave")) return "cueva";
+    if (nombre.includes("lago") || nombre.includes("lake")) return "lago";
+    if (nombre.includes("torre") || nombre.includes("tower")) return "torre";
 
     return "default";
 }
@@ -493,6 +527,9 @@ async function seleccionarZona(zonaId) {
     zonaSeleccionadaActual = zona;
 
     if (!usuarioAutenticadoMaps()) {
+        encuentroRequestId++;
+        movimientoEnCurso = false;
+
         renderizarZonas();
         limpiarMensajeMaps();
         cerrarModalesSecundarios();
@@ -590,7 +627,7 @@ function renderizarZonaExploracion() {
                         </button>
 
                         <div class="move-center">
-                            <img src="img/maps/move/center.png" alt="Center">
+                            <img src="img/maps/move/center.png" alt="${t("maps_center")}">
                         </div>
 
                         <button class="move-right" data-move="right" type="button" aria-label="${t("maps_move_right")}">
@@ -834,7 +871,7 @@ function renderPanelDerechoVacio() {
     infoPanel.innerHTML = `
         <h2>${t("maps_area_ready")}</h2>
         <div class="encuentro-nombre-box">
-            <h3>${zonaSeleccionadaActual?.nombre || "Map"}</h3>
+            <h3>${zonaSeleccionadaActual?.nombre || t("maps_map_fallback")}</h3>
         </div>
         <div class="encuentro-datos-grid">
             <div class="dato-mini">
@@ -1193,14 +1230,26 @@ function scrollAlMapa() {
     const encuentro = document.getElementById("encuentroContainer");
     if (!encuentro) return;
 
-    requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
+    const intentarScroll = (intentosRestantes = 8) => {
+        const visible =
+            !encuentro.classList.contains("oculto") &&
+            encuentro.offsetHeight > 0 &&
+            encuentro.getBoundingClientRect().height > 0;
+
+        if (visible) {
             encuentro.scrollIntoView({
                 behavior: "smooth",
                 block: "start"
             });
-        });
-    });
+            return;
+        }
+
+        if (intentosRestantes > 0) {
+            requestAnimationFrame(() => intentarScroll(intentosRestantes - 1));
+        }
+    };
+
+    requestAnimationFrame(() => intentarScroll());
 }
 
 /* =========================
