@@ -99,7 +99,26 @@ const I18N = {
         pokedex_shiny_off: "✨ Shiny",
         pokedex_shiny_on: "🌟 Shiny On",
         pokedex_error_load: "Could not load the Pokédex.",
-        pokedex_retry: "Retry"
+        pokedex_retry: "Retry",
+
+        type_all: "All types",
+        type_normal: "Normal",
+        type_fire: "Fire",
+        type_water: "Water",
+        type_grass: "Grass",
+        type_electric: "Electric",
+        type_ice: "Ice",
+        type_fighting: "Fighting",
+        type_poison: "Poison",
+        type_ground: "Ground",
+        type_flying: "Flying",
+        type_psychic: "Psychic",
+        type_bug: "Bug",
+        type_rock: "Rock",
+        type_ghost: "Ghost",
+        type_dragon: "Dragon",
+        type_steel: "Steel",
+        type_fairy: "Fairy"
     },
 
     es: {
@@ -200,7 +219,27 @@ const I18N = {
         pokedex_shiny_off: "✨ Shiny",
         pokedex_shiny_on: "🌟 Shiny Activo",
         pokedex_error_load: "No se pudo cargar la Pokédex.",
-        pokedex_retry: "Reintentar"
+        pokedex_retry: "Reintentar",
+
+        type_all: "Todos los tipos",
+        type_normal: "Normal",
+        type_fire: "Fuego",
+        type_water: "Agua",
+        type_grass: "Planta",
+        type_electric: "Eléctrico",
+        type_ice: "Hielo",
+        type_fighting: "Lucha",
+        type_poison: "Veneno",
+        type_ground: "Tierra",
+        type_flying: "Volador",
+        type_psychic: "Psíquico",
+        type_bug: "Bicho",
+        type_rock: "Roca",
+        type_ghost: "Fantasma",
+        type_dragon: "Dragón",
+        type_steel: "Acero",
+        type_fairy: "Hada"
+
     }
 };
 

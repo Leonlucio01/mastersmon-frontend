@@ -43,11 +43,45 @@ function crearCardPokemon(pokemon) {
             >
         </div>
 
-        <div class="tipo">${pokemon.tipo}</div>
+        <div class="tipo">${traducirTipoPokemon(pokemon.tipo)}</div>
 
         <p>${t("pokemon_attack")}: ${pokemon.ataque}</p>
         <p>${t("pokemon_defense")}: ${pokemon.defensa}</p>
         <p>${t("pokemon_hp")}: ${pokemon.hp}</p>
     </div>
     `;
+}
+
+function traducirTipoPokemon(tipo = "") {
+    const mapa = {
+        "Normal": "type_normal",
+        "Fuego": "type_fire",
+        "Agua": "type_water",
+        "Planta": "type_grass",
+        "Electrico": "type_electric",
+        "Eléctrico": "type_electric",
+        "Hielo": "type_ice",
+        "Lucha": "type_fighting",
+        "Veneno": "type_poison",
+        "Tierra": "type_ground",
+        "Volador": "type_flying",
+        "Psiquico": "type_psychic",
+        "Psíquico": "type_psychic",
+        "Bicho": "type_bug",
+        "Roca": "type_rock",
+        "Fantasma": "type_ghost",
+        "Dragon": "type_dragon",
+        "Dragón": "type_dragon",
+        "Acero": "type_steel",
+        "Hada": "type_fairy"
+    };
+
+    return String(tipo)
+        .split("/")
+        .map(ti => {
+            const limpio = ti.trim();
+            const key = mapa[limpio];
+            return key ? t(key) : limpio;
+        })
+        .join(" / ");
 }
