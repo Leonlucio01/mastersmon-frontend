@@ -303,6 +303,7 @@
 .arena-pokemon-info{
     flex: 1;
     min-width: 0;
+    width: 100%;
 }
 
 .arena-pokemon-name-row{
@@ -311,14 +312,21 @@
     gap: 8px;
     flex-wrap: wrap;
     margin-bottom: 10px;
+    width: 100%;
+    min-width: 0;
 }
 
 .arena-pokemon-name-row h3{
     margin: 0;
-    font-size: 28px;
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: 100%;
+    font-size: clamp(22px, 3vw, 28px);
     font-weight: 900;
     color: #111827;
-    line-height: 1.1;
+    line-height: 1.05;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 .arena-shiny-badge{
@@ -1166,25 +1174,84 @@
         grid-template-columns: 1fr 1fr;
     }
 
+    .arena-side-card{
+        padding: 14px;
+        min-height: auto;
+    }
+
+    .arena-active-inner{
+        min-height: auto;
+        padding: 14px;
+    }
+
     .arena-pokemon-top{
-        flex-direction: column;
-        text-align: center;
+        display: grid;
+        grid-template-columns: 84px minmax(0, 1fr);
+        align-items: center;
+        gap: 12px;
+        text-align: left;
+    }
+
+    .arena-pokemon-sprite-wrap{
+        width: 84px;
+        height: 84px;
+        border-radius: 18px;
+    }
+
+    .arena-pokemon-sprite{
+        width: 64px;
+        height: 64px;
     }
 
     .arena-pokemon-info{
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+        display: block;
+        min-width: 0;
+        width: 100%;
     }
 
     .arena-pokemon-name-row{
-        justify-content: center;
+        justify-content: flex-start;
+        align-items: flex-start;
+        gap: 6px;
+        margin-bottom: 8px;
+    }
+
+    .arena-pokemon-name-row h3{
+        flex: 1 1 100%;
+        font-size: clamp(18px, 5.6vw, 24px);
+        line-height: 1.02;
+    }
+
+    .arena-shiny-badge{
+        padding: 6px 10px;
+        font-size: 11px;
+    }
+
+    .arena-type-pill{
+        min-width: 0;
+        max-width: 100%;
+        width: fit-content;
+        padding: 7px 12px;
+        font-size: 12px;
+        line-height: 1.1;
+        white-space: normal;
+        text-align: center;
+    }
+
+    .arena-stat-card{
+        padding: 10px 8px;
+        border-radius: 14px;
+    }
+
+    .arena-stat-card strong{
+        font-size: 15px;
     }
 
     .arena-status-grid{
         grid-template-columns: 1fr;
     }
 }
+
 
 @media (max-width: 520px){
     .arena-team-grid{
@@ -1197,5 +1264,47 @@
 
     .btn-arena{
         width: 100%;
+    }
+
+    .arena-versus-grid{
+        gap: 12px;
+    }
+
+    .arena-side-card{
+        padding: 12px;
+    }
+
+    .arena-active-inner{
+        padding: 12px;
+    }
+
+    .arena-pokemon-top{
+        grid-template-columns: 72px minmax(0, 1fr);
+        gap: 10px;
+    }
+
+    .arena-pokemon-sprite-wrap{
+        width: 72px;
+        height: 72px;
+        border-radius: 16px;
+    }
+
+    .arena-pokemon-sprite{
+        width: 56px;
+        height: 56px;
+    }
+
+    .arena-pokemon-name-row h3{
+        font-size: clamp(16px, 6vw, 21px);
+    }
+
+    .arena-type-pill{
+        font-size: 11px;
+        padding: 6px 10px;
+    }
+
+    .arena-hp-top,
+    .arena-exp-top{
+        font-size: 12px;
     }
 }
