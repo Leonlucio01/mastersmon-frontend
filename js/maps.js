@@ -106,7 +106,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (window.innerWidth > 900) {
                 cerrarMenuMobile();
             }
-        }, 120);
+        }, 40);
     });
 
     if (typeof applyTranslations === "function") {
