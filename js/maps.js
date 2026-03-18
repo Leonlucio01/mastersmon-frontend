@@ -416,40 +416,6 @@ function obtenerConfigZona(nombreZona = "") {
     return MAPAS_CONFIG[clave] || MAPAS_CONFIG.default;
 }
 
-function traducirTipoPokemonMaps(tipo = "") {
-    const mapa = {
-        "Normal": "type_normal",
-        "Fuego": "type_fire",
-        "Agua": "type_water",
-        "Planta": "type_grass",
-        "Electrico": "type_electric",
-        "Eléctrico": "type_electric",
-        "Hielo": "type_ice",
-        "Lucha": "type_fighting",
-        "Veneno": "type_poison",
-        "Tierra": "type_ground",
-        "Volador": "type_flying",
-        "Psiquico": "type_psychic",
-        "Psíquico": "type_psychic",
-        "Bicho": "type_bug",
-        "Roca": "type_rock",
-        "Fantasma": "type_ghost",
-        "Dragon": "type_dragon",
-        "Dragón": "type_dragon",
-        "Acero": "type_steel",
-        "Hada": "type_fairy"
-    };
-
-    return String(tipo || "")
-        .split("/")
-        .map(parte => {
-            const limpio = parte.trim();
-            const key = mapa[limpio];
-            return key ? t(key) : limpio;
-        })
-        .join("/");
-}
-
 function obtenerNombreZonaTraducido(zona = null) {
     const nombreOriginal = typeof zona === "string"
         ? zona
@@ -498,6 +464,40 @@ function obtenerDescripcionZonaTraducida(zona = null) {
     }
 
     return descripcionOriginal || t("maps_default_zone_desc");
+}
+
+function traducirTipoPokemonMaps(tipo = "") {
+    const mapa = {
+        "Normal": "type_normal",
+        "Fuego": "type_fire",
+        "Agua": "type_water",
+        "Planta": "type_grass",
+        "Electrico": "type_electric",
+        "Eléctrico": "type_electric",
+        "Hielo": "type_ice",
+        "Lucha": "type_fighting",
+        "Veneno": "type_poison",
+        "Tierra": "type_ground",
+        "Volador": "type_flying",
+        "Psiquico": "type_psychic",
+        "Psíquico": "type_psychic",
+        "Bicho": "type_bug",
+        "Roca": "type_rock",
+        "Fantasma": "type_ghost",
+        "Dragon": "type_dragon",
+        "Dragón": "type_dragon",
+        "Acero": "type_steel",
+        "Hada": "type_fairy"
+    };
+
+    return String(tipo || "")
+        .split("/")
+        .map(parte => {
+            const limpio = parte.trim();
+            const key = mapa[limpio];
+            return key ? t(key) : limpio;
+        })
+        .join("/");
 }
 
 async function cargarZonas() {
