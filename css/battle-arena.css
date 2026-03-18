@@ -636,6 +636,14 @@
     margin-bottom: 8px;
 }
 
+.arena-mini-card h4{
+    margin: 0 0 6px;
+    font-size: 14px;
+    font-weight: 900;
+    color: #111827;
+    min-height: 34px;
+}
+
 .arena-mini-type{
     margin: 0 0 8px;
     font-size: 12px;
