@@ -126,7 +126,7 @@ async function inicializarMaps() {
         await Promise.all([
             cargarZonas(),
             cargarPokemonUsuarioMaps(),
-            cargarItemsUsuarioMaps(true)
+            cargarItemsUsuarioMaps()
         ]);
 
         renderizarZonas();
@@ -654,9 +654,9 @@ async function seleccionarZona(zonaId) {
     scrollAlMapa();
 
     try {
-        await cargarItemsUsuarioMaps(true);
+        await cargarItemsUsuarioMaps();
     } catch (error) {
-        console.warn("No se pudieron refrescar items al seleccionar zona:", error);
+        console.warn("No se pudieron cargar items al seleccionar zona:", error);
     }
 
     try {
