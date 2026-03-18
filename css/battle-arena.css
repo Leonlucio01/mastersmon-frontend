@@ -180,10 +180,22 @@
 .arena-vs-badge{
     width: 78px;
     height: 78px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(180deg, #1d4ed8 0%, #1e40af 100%);
+    color: #fff;
     font-size: 24px;
+    font-weight: 900;
+    box-shadow: 0 16px 30px rgba(37,99,235,0.18);
 }
 
 .arena-turn-box{
+    width: 100%;
+    text-align: center;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
     border-radius: 16px;
     padding: 12px 8px;
 }
@@ -297,7 +309,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     margin-bottom: 10px;
     width: 100%;
     min-width: 0;
@@ -308,7 +320,7 @@
     flex: 1 1 auto;
     min-width: 0;
     max-width: 100%;
-    font-size: 24px;
+    font-size: 22px;
     font-weight: 900;
     color: #111827;
     line-height: 1.02;
@@ -321,6 +333,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
     padding: 6px 10px;
     border-radius: 999px;
     background: linear-gradient(180deg, #fff4cc 0%, #fde68a 100%);
