@@ -182,8 +182,6 @@ function configurarEventosDelegados() {
             if (!btn) return;
 
             const zonaId = Number(btn.dataset.zonaId);
-
-            scrollAlMapa();
             await seleccionarZona(zonaId);
         });
     }
@@ -633,7 +631,12 @@ async function seleccionarZona(zonaId) {
         const encuentro = document.getElementById("encuentroContainer");
         if (encuentro) {
             encuentro.classList.remove("oculto");
-            scrollAlMapa();
+
+            requestAnimationFrame(() => {
+                setTimeout(() => {
+                    scrollAlMapa();
+                }, 120);
+            });
         }
 
         return;
@@ -658,7 +661,11 @@ async function seleccionarZona(zonaId) {
         renderPanelDerechoVacio();
     }
 
-    scrollAlMapa();
+    requestAnimationFrame(() => {
+        setTimeout(() => {
+            scrollAlMapa();
+        }, 120);
+    });
 
     try {
         await cargarItemsUsuarioMaps();
@@ -1329,11 +1336,12 @@ function scrollAlMapa() {
     const encuentro = document.getElementById("encuentroContainer");
     if (!encuentro) return;
 
-    const intentarScroll = (intentosRestantes = 8) => {
+    const intentarScroll = (intentosRestantes = 24) => {
+        const rect = encuentro.getBoundingClientRect();
         const visible =
             !encuentro.classList.contains("oculto") &&
             encuentro.offsetHeight > 0 &&
-            encuentro.getBoundingClientRect().height > 0;
+            rect.height > 0;
 
         if (visible) {
             encuentro.scrollIntoView({
