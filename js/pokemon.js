@@ -26,7 +26,7 @@ function crearCardPokemon(pokemon) {
         <img
             class="pokeball-captura ${mostrarCaptura ? "capturado" : "no-capturado"}"
             src="${obtenerImagenPokeball()}"
-            alt="Estado captura"
+            alt="${t("pokemon_capture_status")}"
             loading="lazy"
             decoding="async"
         >
@@ -45,9 +45,9 @@ function crearCardPokemon(pokemon) {
 
         <div class="tipo">${pokemon.tipo}</div>
 
-        <p>Ataque: ${pokemon.ataque}</p>
-        <p>Defensa: ${pokemon.defensa}</p>
-        <p>HP: ${pokemon.hp}</p>
+        <p>${t("pokemon_attack")}: ${pokemon.ataque}</p>
+        <p>${t("pokemon_defense")}: ${pokemon.defensa}</p>
+        <p>${t("pokemon_hp")}: ${pokemon.hp}</p>
     </div>
     `;
 }

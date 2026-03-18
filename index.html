@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,11 +17,11 @@
             <h1 class="logo">Pokemon World</h1>
 
             <nav class="menu-nav-desktop">
-                <a href="index.html" class="active">Pokedex</a>
-                <a href="battle.html">Battle</a>
-                <a href="maps.html">Maps</a>
-                <a href="mypokemon.html">My Pokemon</a>
-                <a href="pokemart.html">PokeMart</a>
+                <a href="index.html" class="active" data-i18n="menu_pokedex">Pokedex</a>
+                <a href="battle.html" data-i18n="menu_battle">Battle</a>
+                <a href="maps.html" data-i18n="menu_maps">Maps</a>
+                <a href="mypokemon.html" data-i18n="menu_my_pokemon">My Pokemon</a>
+                <a href="pokemart.html" data-i18n="menu_pokemart">PokeMart</a>
             </nav>
 
             <div class="menu-auth-area">
@@ -43,7 +43,7 @@
 
                 <div id="usuarioMenu" class="oculto">
                     <span id="nombreUsuario"></span>
-                    <button id="cerrarSesionMenu" type="button">Salir</button>
+                    <button id="cerrarSesionMenu" type="button" data-i18n="menu_logout">Logout</button>
                 </div>
             </div>
 
@@ -52,11 +52,11 @@
 
         <div class="menu-links-mobile" id="menuMobile">
             <div class="mobile-panel">
-                <a href="index.html" class="active">Pokedex</a>
-                <a href="battle.html">Battle</a>
-                <a href="maps.html">Maps</a>
-                <a href="mypokemon.html">My Pokemon</a>
-                <a href="pokemart.html">PokeMart</a>
+                <a href="index.html" class="active" data-i18n="menu_pokedex">Pokedex</a>
+                <a href="battle.html" data-i18n="menu_battle">Battle</a>
+                <a href="maps.html" data-i18n="menu_maps">Maps</a>
+                <a href="mypokemon.html" data-i18n="menu_my_pokemon">My Pokemon</a>
+                <a href="pokemart.html" data-i18n="menu_pokemart">PokeMart</a>
 
                 <div class="menu-mobile-user">
                     <div id="loginMenuContainerMobile">
@@ -72,7 +72,7 @@
 
                     <div id="usuarioMenuMobile" class="oculto">
                         <span id="nombreUsuarioMobile"></span>
-                        <button id="cerrarSesionMenuMobile" type="button">Salir</button>
+                        <button id="cerrarSesionMenuMobile" type="button" data-i18n="menu_logout">Logout</button>
                     </div>
                 </div>
             </div>
@@ -85,15 +85,20 @@
 
     <section class="seccion-pokedex">
         <div class="encabezado-pokedex">
-            <h2 class="titulo">POKEDEX</h2>
-            <p class="subtitulo">Explora, busca y filtra tus Pokémon favoritos</p>
+            <h2 class="titulo" data-i18n="pokedex_title">POKEDEX</h2>
+            <p class="subtitulo" data-i18n="pokedex_subtitle">Explore, search, and filter your favorite Pokémon</p>
         </div>
 
         <div class="filtros">
-            <input type="text" id="buscarPokemon" placeholder="🔎 Buscar Pokémon...">
+            <input
+                type="text"
+                id="buscarPokemon"
+                placeholder="🔎 Search Pokémon..."
+                data-i18n-placeholder="pokedex_search_placeholder"
+            >
 
             <select id="filtroTipo">
-                <option value="">Todos los tipos</option>
+                <option value="" data-i18n="pokedex_all_types">All types</option>
                 <option value="Normal">Normal</option>
                 <option value="Fuego">Fuego</option>
                 <option value="Agua">Agua</option>
@@ -127,6 +132,7 @@
     </div>
 
     <script src="js/api.js"></script>
+    <script src="js/i18n.js"></script>
     <script src="js/pokemon.js"></script>
     <script src="js/gmail.js"></script>
     <script src="js/app.js"></script>
@@ -138,6 +144,10 @@
             menuToggle.addEventListener("click", () => {
                 menuMobile.classList.toggle("menu-open");
             });
+        }
+
+        if (typeof applyTranslations === "function") {
+            applyTranslations();
         }
     </script>
 
