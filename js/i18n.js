@@ -94,7 +94,12 @@ const I18N = {
         pokemon_capture_status: "Capture status",
         pokemon_attack: "Attack",
         pokemon_defense: "Defense",
-        pokemon_hp: "HP"
+        pokemon_hp: "HP",
+
+        pokedex_shiny_off: "✨ Shiny",
+        pokedex_shiny_on: "🌟 Shiny On",
+        pokedex_error_load: "Could not load the Pokédex.",
+        pokedex_retry: "Retry"
     },
 
     es: {
@@ -190,7 +195,12 @@ const I18N = {
         pokemon_capture_status: "Estado captura",
         pokemon_attack: "Ataque",
         pokemon_defense: "Defensa",
-        pokemon_hp: "HP"
+        pokemon_hp: "HP",
+
+        pokedex_shiny_off: "✨ Shiny",
+        pokedex_shiny_on: "🌟 Shiny Activo",
+        pokedex_error_load: "No se pudo cargar la Pokédex.",
+        pokedex_retry: "Reintentar"
     }
 };
 

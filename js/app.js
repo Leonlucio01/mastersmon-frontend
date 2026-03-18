@@ -55,8 +55,8 @@ function mostrarErrorPokedex() {
 
     pokedex.innerHTML = `
         <div class="pokedex-error">
-            <p>No se pudo cargar la Pokédex.</p>
-            <button id="btnReintentarPokedex" type="button">Reintentar</button>
+            <p>${t("pokedex_error_load")}</p>
+            <button id="btnReintentarPokedex" type="button">${t("pokedex_retry")}</button>
         </div>
     `;
 
@@ -217,6 +217,15 @@ async function cargarEstadoCapturas() {
 }
 
 window.cargarEstadoCapturas = cargarEstadoCapturas;
+
+function actualizarTextoBotonShiny() {
+    const btnShiny = document.getElementById("modoShiny");
+    if (!btnShiny) return;
+
+    btnShiny.textContent = modoShiny
+        ? t("pokedex_shiny_on")
+        : t("pokedex_shiny_off");
+}
 
 function aplicarFiltrosVisuales() {
     const buscador = document.getElementById("buscarPokemon");
@@ -550,13 +559,29 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (btnShiny) {
         btnShiny.addEventListener("click", function() {
             modoShiny = !modoShiny;
-            this.textContent = modoShiny ? "🌟 Shiny Activo" : "✨ Shiny";
 
+            actualizarTextoBotonShiny();
             actualizarImagenesPokemon();
             actualizarVisualPokeballs();
             aplicarFiltrosVisuales();
         });
     }
+
+    document.addEventListener("languageChanged", () => {
+        if (typeof applyTranslations === "function") {
+            applyTranslations();
+        }
+
+        actualizarTextoBotonShiny();
+
+        if (listaPokemonGlobal.length > 0) {
+            renderizarPokedex();
+        } else {
+            aplicarFiltrosVisuales();
+            actualizarVisualPokeballs();
+            actualizarImagenesPokemon();
+        }
+    });
 
     if (pokedex) {
         pokedex.addEventListener("click", async function(event) {
@@ -583,6 +608,12 @@ document.addEventListener("DOMContentLoaded", async () => {
             );
         });
     }
+
+    if (typeof applyTranslations === "function") {
+        applyTranslations();
+    }
+
+    actualizarTextoBotonShiny();
 
     await cargarPokedex();
     await precargarEvolucionesGlobal();
