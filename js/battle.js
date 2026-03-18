@@ -5,15 +5,31 @@ let battleTabActual = "todos";
 const BATTLE_TEAM_STORAGE_KEY = "mastersmon_battle_team_v1";
 const BATTLE_ENEMY_LEVEL_BONUS_KEY = "mastersmon_battle_enemy_level_bonus_v1";
 
-
 document.addEventListener("DOMContentLoaded", () => {
     inicializarBattle();
 });
 
 async function inicializarBattle() {
+    const languageSelect = document.getElementById("languageSelect");
+    if (languageSelect && typeof getCurrentLang === "function") {
+        languageSelect.value = getCurrentLang();
+        languageSelect.addEventListener("change", (e) => {
+            setCurrentLang(e.target.value);
+        });
+    }
+
+    document.addEventListener("languageChanged", () => {
+        refrescarUIBattlePorIdioma();
+    });
+
+    if (typeof applyTranslations === "function") {
+        applyTranslations();
+    }
+
     configurarResumenUsuarioBattle();
     configurarEventosBattle();
     cargarEquipoGuardadoBattle();
+    cargarDificultadBattle();
     renderSlotsEquipoBattle();
     renderResumenEquipoBattle();
     renderColeccionBattleLoading();
@@ -28,11 +44,12 @@ async function inicializarBattle() {
         console.error("Error iniciando Battle:", error);
         renderColeccionBattleError();
 
-        // Reintento automático por si la sesión todavía no estaba lista al recargar
         setTimeout(async () => {
             try {
                 renderColeccionBattleLoading();
                 await cargarPokemonUsuarioBattle();
+                sincronizarEquipoBattleConColeccion();
+                renderSlotsEquipoBattle();
                 renderColeccionBattle();
                 renderResumenEquipoBattle();
             } catch (retryError) {
@@ -41,6 +58,18 @@ async function inicializarBattle() {
             }
         }, 1200);
     }
+}
+
+function refrescarUIBattlePorIdioma() {
+    if (typeof applyTranslations === "function") {
+        applyTranslations();
+    }
+
+    poblarFiltroTiposBattle();
+    cargarDificultadBattle();
+    renderSlotsEquipoBattle();
+    renderResumenEquipoBattle();
+    renderColeccionBattle();
 }
 
 /* =========================
@@ -64,14 +93,14 @@ function configurarEventosBattle() {
     if (btnLimpiar) {
         btnLimpiar.addEventListener("click", () => {
             if (!battleEquipo.length) {
-                mostrarModalBattle("No hay Pokémon en el equipo para limpiar.", "info");
+                mostrarModalBattle(t("battle_empty_team_clear"), "info");
                 return;
             }
 
             mostrarConfirmacionBattle({
-                titulo: "¿Limpiar equipo?",
-                mensaje: "Se quitarán los Pokémon actuales del equipo.",
-                textoAceptar: "Sí, limpiar",
+                titulo: t("battle_confirm_clear_title"),
+                mensaje: t("battle_confirm_clear_text"),
+                textoAceptar: t("battle_confirm_clear_accept"),
                 tipo: "warning",
                 onConfirm: () => {
                     battleEquipo = [];
@@ -79,7 +108,7 @@ function configurarEventosBattle() {
                     renderSlotsEquipoBattle();
                     renderColeccionBattle();
                     renderResumenEquipoBattle();
-                    mostrarModalBattle("Equipo limpiado correctamente.", "warning");
+                    mostrarModalBattle(t("battle_team_cleared"), "warning");
                 }
             });
         });
@@ -88,7 +117,7 @@ function configurarEventosBattle() {
     if (btnGuardar) {
         btnGuardar.addEventListener("click", () => {
             persistirEquipoBattle();
-            mostrarModalBattle("Equipo guardado con éxito.", "ok");
+            mostrarModalBattle(t("battle_team_saved"), "ok");
         });
     }
 
@@ -184,7 +213,7 @@ function configurarResumenUsuarioBattle() {
     const nombreDesktop = document.getElementById("nombreUsuario");
     const nombreMobile = document.getElementById("nombreUsuarioMobile");
 
-    const nombre = localStorage.getItem("usuario_nombre") || nombreDesktop?.textContent?.trim() || "Entrenador";
+    const nombre = localStorage.getItem("usuario_nombre") || nombreDesktop?.textContent?.trim() || t("battle_trainer_default");
     if (nombreDesktop) nombreDesktop.textContent = nombre;
     if (nombreMobile) nombreMobile.textContent = nombre;
 }
@@ -195,7 +224,7 @@ function configurarResumenUsuarioBattle() {
 async function cargarPokemonUsuarioBattle() {
     if (!getAccessToken()) {
         battlePokemonUsuario = [];
-        throw new Error("No hay access token disponible.");
+        throw new Error(t("battle_no_token"));
     }
 
     const data = await obtenerPokemonUsuarioActualBattle();
@@ -231,7 +260,7 @@ async function obtenerPokemonUsuarioActualBattle() {
     }
 
     if (!usuarioId) {
-        throw new Error("No se encontró el usuario actual.");
+        throw new Error(t("battle_user_not_found"));
     }
 
     return await fetchJsonBattle(`${API_BASE}/usuario/${usuarioId}/pokemon`, { headers });
@@ -328,11 +357,11 @@ function actualizarTextoDificultadBattle(bonus = 0, textoEl = null) {
     if (!el) return;
 
     if (bonus <= 0) {
-        el.textContent = "Los rivales saldrán cerca del promedio de tu equipo.";
+        el.textContent = t("battle_difficulty_help");
         return;
     }
 
-    el.textContent = `Los rivales aparecerán con aproximadamente +${bonus} niveles sobre tu promedio.`;
+    el.textContent = formatBattleText("battle_difficulty_help_bonus", { bonus });
 }
 
 /* =========================
@@ -340,19 +369,19 @@ function actualizarTextoDificultadBattle(bonus = 0, textoEl = null) {
 ========================= */
 function agregarPokemonAEquipoBattle(pokemonInstanceId) {
     if (battleEquipo.length >= 6) {
-        mostrarModalBattle("Tu equipo ya tiene 6 Pokémon.", "warning");
+        mostrarModalBattle(t("battle_team_full"), "warning");
         return;
     }
 
     const existe = battleEquipo.some(p => Number(p.id) === Number(pokemonInstanceId));
     if (existe) {
-        mostrarModalBattle("Ese Pokémon ya está en tu equipo.", "warning");
+        mostrarModalBattle(t("battle_already_in_team"), "warning");
         return;
     }
 
     const pokemon = battlePokemonUsuario.find(p => Number(p.id) === Number(pokemonInstanceId));
     if (!pokemon) {
-        mostrarModalBattle("No se encontró ese Pokémon en tu colección.", "error");
+        mostrarModalBattle(t("battle_not_found_in_collection"), "error");
         return;
     }
 
@@ -388,8 +417,8 @@ function renderSlotsEquipoBattle() {
                     <div class="team-slot-index">${i + 1}</div>
                     <div class="team-slot-content">
                         <div class="team-slot-icon">+</div>
-                        <h4>Slot vacío</h4>
-                        <p>Agrega un Pokémon</p>
+                        <h4>${t("battle_empty_slot")}</h4>
+                        <p>${t("battle_add_pokemon")}</p>
                     </div>
                 </article>
             `;
@@ -400,7 +429,7 @@ function renderSlotsEquipoBattle() {
             ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${pokemon.pokemon_id}.png`
             : (pokemon.imagen || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.pokemon_id}.png`);
 
-        const leadBadge = i === 0 ? `<span class="team-lead-badge">Líder</span>` : "";
+        const leadBadge = i === 0 ? `<span class="team-lead-badge">${t("battle_leader")}</span>` : "";
         const tipoClase = obtenerClaseTipoBattle(pokemon.tipo);
 
         const expActual = calcularExpActualBattle(pokemon);
@@ -410,7 +439,7 @@ function renderSlotsEquipoBattle() {
         html += `
             <article class="battle-team-slot filled ${i === 0 ? "team-slot-lead" : ""} ${tipoClase}">
                 <div class="team-slot-index">${i + 1}</div>
-                <button class="team-slot-remove" type="button" data-remove-slot="${i}" aria-label="Quitar Pokémon">×</button>
+                <button class="team-slot-remove" type="button" data-remove-slot="${i}" aria-label="${t("battle_remove_pokemon")}">×</button>
 
                 <div class="team-slot-filled">
                     <img src="${imagen}" alt="${escapeHtmlBattle(pokemon.nombre)}" class="team-slot-sprite">
@@ -418,21 +447,21 @@ function renderSlotsEquipoBattle() {
                     <div class="team-slot-info">
                         <div class="team-slot-headline">
                             <h4>${escapeHtmlBattle(pokemon.nombre)}</h4>
-                            ${pokemon.es_shiny ? `<span class="team-shiny-icon" title="Pokémon Shiny">✦</span>` : ""}
+                            ${pokemon.es_shiny ? `<span class="team-shiny-icon" title="${t("battle_shiny_title")}">✦</span>` : ""}
                             ${leadBadge}
                         </div>
 
-                        <p>${escapeHtmlBattle(pokemon.tipo || "—")}</p>
+                        <p>${escapeHtmlBattle(traducirTipoBattle(pokemon.tipo || "—"))}</p>
 
                         <div class="team-slot-meta">
-                            <span class="meta-level">Nv. ${pokemon.nivel ?? "—"}</span>
-                            <span class="meta-hp">HP ${pokemon.hp_actual ?? pokemon.hp_max ?? "—"}</span>
-                            <span class="meta-atk">ATK ${pokemon.ataque ?? "—"}</span>
-                            <span class="meta-def">DEF ${pokemon.defensa ?? "—"}</span>
+                            <span class="meta-level">${t("battle_level_short")} ${pokemon.nivel ?? "—"}</span>
+                            <span class="meta-hp">${t("battle_stat_hp_short")} ${pokemon.hp_actual ?? pokemon.hp_max ?? "—"}</span>
+                            <span class="meta-atk">${t("battle_stat_atk_short")} ${pokemon.ataque ?? "—"}</span>
+                            <span class="meta-def">${t("battle_stat_def_short")} ${pokemon.defensa ?? "—"}</span>
                         </div>
 
                         <div class="team-slot-exp-wrap">
-                            <div class="team-slot-exp-label">EXP ${expActual} / ${expObjetivo}</div>
+                            <div class="team-slot-exp-label">${t("battle_exp_label")} ${expActual} / ${expObjetivo}</div>
                             <div class="team-slot-exp-bar">
                                 <div class="team-slot-exp-fill" style="width:${expPercent}%"></div>
                             </div>
@@ -461,8 +490,10 @@ function renderResumenEquipoBattle() {
     const btnIniciar = document.getElementById("btnIniciarBatalla");
 
     if (promedioNivel) promedioNivel.textContent = stats.promedioNivel;
-    if (tipoDominante) tipoDominante.textContent = stats.tipoDominante;
-    if (estado) estado.textContent = battleEquipo.length === 6 ? "Listo para combatir" : "En preparación";
+    if (tipoDominante) tipoDominante.textContent = stats.tipoDominante === "—" ? "—" : traducirTipoBattle(stats.tipoDominante);
+    if (estado) estado.textContent = battleEquipo.length === 6 ? t("battle_team_status_ready") : t("battle_team_status_preparing");
+
+    // Lo dejamos siempre habilitado para que el usuario reciba el modal de advertencia
     if (btnIniciar) btnIniciar.disabled = false;
 
     const resumenAtaque = document.getElementById("battleResumenAtaque");
@@ -479,9 +510,9 @@ function calcularResumenEquipoBattle() {
         return {
             promedioNivel: "—",
             tipoDominante: "—",
-            resumenAtaque: "Forma tu equipo para ver tu perfil ofensivo.",
-            resumenBalance: "Aún no hay suficiente información táctica.",
-            resumenVelocidad: "Selecciona Pokémon para calcularla."
+            resumenAtaque: t("battle_attack_summary_empty"),
+            resumenBalance: t("battle_balance_summary_empty"),
+            resumenVelocidad: t("battle_speed_summary_empty")
         };
     }
 
@@ -515,17 +546,20 @@ function calcularResumenEquipoBattle() {
         }
     }
 
-    let resumenAtaque = "Tu equipo aún no define un perfil ofensivo.";
-    if (sumaAtaque >= 500) resumenAtaque = "Equipo ofensivo fuerte, ideal para presión rápida.";
-    else if (sumaAtaque >= 350) resumenAtaque = "Perfil ofensivo equilibrado y estable.";
-    else resumenAtaque = "Daño moderado, conviene reforzar atacantes.";
+    let resumenAtaque = t("battle_attack_profile_empty");
+    if (sumaAtaque >= 500) resumenAtaque = t("battle_attack_profile_strong");
+    else if (sumaAtaque >= 350) resumenAtaque = t("battle_attack_profile_mid");
+    else resumenAtaque = t("battle_attack_profile_low");
 
-    let resumenBalance = "Equipo balanceado en construcción.";
-    if (sumaDefensa > sumaAtaque + 80) resumenBalance = "Equipo resistente con enfoque defensivo.";
-    else if (sumaAtaque > sumaDefensa + 80) resumenBalance = "Equipo agresivo con presión de daño.";
-    else resumenBalance = "Buena mezcla entre daño y resistencia.";
+    let resumenBalance = t("battle_balance_building");
+    if (sumaDefensa > sumaAtaque + 80) resumenBalance = t("battle_balance_defensive");
+    else if (sumaAtaque > sumaDefensa + 80) resumenBalance = t("battle_balance_offensive");
+    else resumenBalance = t("battle_balance_mixed");
 
-    const resumenVelocidad = `Velocidad media: ${promedioVelocidad}. ${promedioVelocidad >= 70 ? "Buen ritmo para abrir combates." : "Conviene sumar Pokémon más rápidos."}`;
+    const resumenVelocidad = formatBattleText("battle_speed_avg_summary", {
+        speed: promedioVelocidad,
+        extra: promedioVelocidad >= 70 ? t("battle_speed_fast_suffix") : t("battle_speed_slow_suffix")
+    });
 
     return {
         promedioNivel,
@@ -543,6 +577,7 @@ function poblarFiltroTiposBattle() {
     const select = document.getElementById("filtroTipoBattle");
     if (!select) return;
 
+    const valorActual = select.value;
     const tipos = new Set();
 
     battlePokemonUsuario.forEach(p => {
@@ -553,14 +588,17 @@ function poblarFiltroTiposBattle() {
             .forEach(tipo => tipos.add(tipo));
     });
 
-    const opciones = ['<option value="">Todos los tipos</option>']
+    const opciones = [`<option value="">${t("battle_all_types")}</option>`]
         .concat(
             Array.from(tipos)
                 .sort((a, b) => a.localeCompare(b))
-                .map(tipo => `<option value="${escapeHtmlBattle(tipo)}">${escapeHtmlBattle(tipo)}</option>`)
+                .map(tipo => `<option value="${escapeHtmlBattle(tipo)}">${escapeHtmlBattle(traducirTipoBattle(tipo))}</option>`)
         );
 
     select.innerHTML = opciones.join("");
+
+    const existeValor = Array.from(select.options).some(option => option.value === valorActual);
+    select.value = existeValor ? valorActual : "";
 }
 
 function renderColeccionBattleLoading() {
@@ -569,8 +607,8 @@ function renderColeccionBattleLoading() {
 
     container.innerHTML = `
         <div class="battle-empty-state">
-            <h4>Cargando tu colección...</h4>
-            <p>Preparando tus Pokémon para Battle.</p>
+            <h4>${t("battle_loading_collection_title")}</h4>
+            <p>${t("battle_loading_collection_text")}</p>
         </div>
     `;
 }
@@ -581,8 +619,8 @@ function renderColeccionBattleError() {
 
     container.innerHTML = `
         <div class="battle-empty-state">
-            <h4>No se pudo cargar tu colección</h4>
-            <p>Verifica la conexión con el backend e inténtalo de nuevo.</p>
+            <h4>${t("battle_collection_error_title")}</h4>
+            <p>${t("battle_collection_error_text")}</p>
         </div>
     `;
 }
@@ -631,8 +669,8 @@ function renderColeccionBattle() {
     if (!filtrados.length) {
         container.innerHTML = `
             <div class="battle-empty-state">
-                <h4>No hay Pokémon para mostrar</h4>
-                <p>Prueba con otro filtro o captura más Pokémon.</p>
+                <h4>${t("battle_empty_filtered_title")}</h4>
+                <p>${t("battle_empty_filtered_text")}</p>
             </div>
         `;
         return;
@@ -658,20 +696,20 @@ function renderColeccionBattle() {
 
                 <div class="battle-card-name-row">
                     <h4>${escapeHtmlBattle(pokemon.nombre)}</h4>
-                    ${pokemon.es_shiny ? `<span class="battle-card-shiny-dot" title="Pokémon Shiny">✦</span>` : ""}
+                    ${pokemon.es_shiny ? `<span class="battle-card-shiny-dot" title="${t("battle_shiny_title")}">✦</span>` : ""}
                 </div>
 
-                <p>${escapeHtmlBattle(pokemon.tipo || "—")}</p>
+                <p>${escapeHtmlBattle(traducirTipoBattle(pokemon.tipo || "—"))}</p>
 
                 <div class="battle-card-meta battle-card-meta-pro">
-                    <span class="battle-card-level">Nv ${pokemon.nivel ?? "—"}</span>
-                    <span class="battle-card-hp">HP ${pokemon.hp_actual ?? pokemon.hp_max ?? "—"}</span>
-                    <span class="battle-card-atk">ATK ${pokemon.ataque ?? "—"}</span>
-                    <span class="battle-card-def">DEF ${pokemon.defensa ?? "—"}</span>
+                    <span class="battle-card-level">${t("battle_level_short")} ${pokemon.nivel ?? "—"}</span>
+                    <span class="battle-card-hp">${t("battle_stat_hp_short")} ${pokemon.hp_actual ?? pokemon.hp_max ?? "—"}</span>
+                    <span class="battle-card-atk">${t("battle_stat_atk_short")} ${pokemon.ataque ?? "—"}</span>
+                    <span class="battle-card-def">${t("battle_stat_def_short")} ${pokemon.defensa ?? "—"}</span>
                 </div>
 
                 <div class="battle-card-exp-wrap">
-                    <div class="battle-card-exp-label">EXP ${expActual} / ${expObjetivo}</div>
+                    <div class="battle-card-exp-label">${t("battle_exp_label")} ${expActual} / ${expObjetivo}</div>
                     <div class="battle-card-exp-bar">
                         <div class="battle-card-exp-fill" style="width:${expPercent}%"></div>
                     </div>
@@ -683,7 +721,7 @@ function renderColeccionBattle() {
                     data-add-pokemon-id="${pokemon.id}"
                     ${deshabilitado ? "disabled" : ""}
                 >
-                    ${yaEnEquipo ? "✓ En el equipo" : equipoLleno ? "Equipo lleno" : "Agregar"}
+                    ${yaEnEquipo ? t("battle_in_team") : equipoLleno ? t("battle_team_full_short") : t("battle_add_button")}
                 </button>
             </article>
         `;
@@ -709,7 +747,7 @@ function compararPokemonBattle(a, b, orden) {
 ========================= */
 function iniciarBatallaDemo() {
     if (battleEquipo.length !== 6) {
-        mostrarModalBattle("Debes tener 6 Pokémon para iniciar combate.", "warning");
+        mostrarModalBattle(t("battle_need_six"), "warning");
         return;
     }
 
@@ -723,7 +761,7 @@ function iniciarBatallaDemo() {
         window.location.href = "battle-arena.html";
     } catch (error) {
         console.error("No se pudo preparar la arena de combate:", error);
-        mostrarModalBattle("No se pudo preparar el combate.", "error");
+        mostrarModalBattle(t("battle_prepare_combat_error"), "error");
     }
 }
 
@@ -747,16 +785,16 @@ function mostrarModalBattle(mensaje, tipo = "ok") {
     singleClose.classList.remove("oculto");
 
     if (tipo === "ok") {
-        title.textContent = "Equipo guardado";
+        title.textContent = t("battle_modal_saved_title");
         icon.textContent = "✓";
     } else if (tipo === "warning") {
-        title.textContent = "Atención";
+        title.textContent = t("battle_modal_warning_title");
         icon.textContent = "!";
     } else if (tipo === "error") {
-        title.textContent = "Ocurrió un problema";
+        title.textContent = t("battle_modal_error_title");
         icon.textContent = "×";
     } else {
-        title.textContent = "Información";
+        title.textContent = t("battle_modal_info_title");
         icon.textContent = "i";
     }
 
@@ -764,7 +802,7 @@ function mostrarModalBattle(mensaje, tipo = "ok") {
     modal.classList.remove("oculto");
 }
 
-function mostrarConfirmacionBattle({ titulo, mensaje, textoAceptar = "Aceptar", tipo = "warning", onConfirm }) {
+function mostrarConfirmacionBattle({ titulo, mensaje, textoAceptar = null, tipo = "warning", onConfirm }) {
     const modal = document.getElementById("battleModal");
     const title = document.getElementById("battleModalTitle");
     const text = document.getElementById("battleModalText");
@@ -781,10 +819,10 @@ function mostrarConfirmacionBattle({ titulo, mensaje, textoAceptar = "Aceptar", 
     singleClose.classList.add("oculto");
     confirmActions.classList.remove("oculto");
 
-    title.textContent = titulo || "Confirmación";
+    title.textContent = titulo || t("battle_confirm_title");
     text.textContent = mensaje || "";
     icon.textContent = tipo === "warning" ? "!" : "?";
-    acceptBtn.textContent = textoAceptar;
+    acceptBtn.textContent = textoAceptar || t("battle_confirm");
 
     window._battleConfirmAction = onConfirm;
     modal.classList.remove("oculto");
@@ -813,28 +851,119 @@ function calcularExpPercentBattle(pokemon) {
     return Math.min(100, Math.floor((expActual / expObjetivo) * 100));
 }
 
+function formatBattleText(key, vars = {}) {
+    let texto = t(key);
+
+    Object.entries(vars).forEach(([clave, valor]) => {
+        texto = texto.replaceAll(`{${clave}}`, String(valor));
+    });
+
+    return texto;
+}
+
+function obtenerClaveTipoBattle(tipo = "") {
+    const limpio = String(tipo || "").trim().toLowerCase();
+
+    const mapa = {
+        normal: "normal",
+        fuego: "fire",
+        fire: "fire",
+        agua: "water",
+        water: "water",
+        planta: "grass",
+        grass: "grass",
+        electrico: "electric",
+        eléctrico: "electric",
+        electric: "electric",
+        hielo: "ice",
+        ice: "ice",
+        lucha: "fighting",
+        fighting: "fighting",
+        veneno: "poison",
+        poison: "poison",
+        tierra: "ground",
+        ground: "ground",
+        volador: "flying",
+        flying: "flying",
+        psiquico: "psychic",
+        psíquico: "psychic",
+        psychic: "psychic",
+        bicho: "bug",
+        bug: "bug",
+        roca: "rock",
+        rock: "rock",
+        fantasma: "ghost",
+        ghost: "ghost",
+        dragon: "dragon",
+        dragón: "dragon",
+        acero: "steel",
+        steel: "steel",
+        hada: "fairy",
+        fairy: "fairy"
+    };
+
+    return mapa[limpio] || "";
+}
+
+function traducirTipoBattle(tipo = "") {
+    const mapa = {
+        normal: "type_normal",
+        fire: "type_fire",
+        water: "type_water",
+        grass: "type_grass",
+        electric: "type_electric",
+        ice: "type_ice",
+        fighting: "type_fighting",
+        poison: "type_poison",
+        ground: "type_ground",
+        flying: "type_flying",
+        psychic: "type_psychic",
+        bug: "type_bug",
+        rock: "type_rock",
+        ghost: "type_ghost",
+        dragon: "type_dragon",
+        steel: "type_steel",
+        fairy: "type_fairy"
+    };
+
+    return String(tipo || "")
+        .split("/")
+        .map(parte => {
+            const clave = obtenerClaveTipoBattle(parte);
+            return clave ? t(mapa[clave]) : parte.trim();
+        })
+        .join("/");
+}
+
 function obtenerClaseTipoBattle(tipo = "") {
-    const valor = String(tipo).toLowerCase();
+    const partes = String(tipo || "")
+        .split("/")
+        .map(t => t.trim())
+        .filter(Boolean);
 
-    if (valor.includes("agua")) return "type-agua";
-    if (valor.includes("fuego")) return "type-fuego";
-    if (valor.includes("planta")) return "type-planta";
-    if (valor.includes("eléctrico") || valor.includes("electrico")) return "type-electrico";
-    if (valor.includes("psíquico") || valor.includes("psiquico")) return "type-psiquico";
-    if (valor.includes("roca")) return "type-roca";
-    if (valor.includes("veneno")) return "type-veneno";
-    if (valor.includes("volador")) return "type-volador";
-    if (valor.includes("fantasma")) return "type-fantasma";
-    if (valor.includes("bicho")) return "type-bicho";
-    if (valor.includes("lucha")) return "type-lucha";
-    if (valor.includes("normal")) return "type-normal";
-    if (valor.includes("tierra")) return "type-tierra";
-    if (valor.includes("hielo")) return "type-hielo";
-    if (valor.includes("dragon") || valor.includes("dragón")) return "type-dragon";
-    if (valor.includes("acero")) return "type-acero";
-    if (valor.includes("hada")) return "type-hada";
+    const clavePrincipal = partes.length ? obtenerClaveTipoBattle(partes[0]) : "";
 
-    return "type-default";
+    const mapaClases = {
+        water: "type-agua",
+        fire: "type-fuego",
+        grass: "type-planta",
+        electric: "type-electrico",
+        psychic: "type-psiquico",
+        rock: "type-roca",
+        poison: "type-veneno",
+        flying: "type-volador",
+        ghost: "type-fantasma",
+        bug: "type-bicho",
+        fighting: "type-lucha",
+        normal: "type-normal",
+        ground: "type-tierra",
+        ice: "type-hielo",
+        dragon: "type-dragon",
+        steel: "type-acero",
+        fairy: "type-hada"
+    };
+
+    return mapaClases[clavePrincipal] || "type-default";
 }
 
 async function fetchJsonBattle(url, options = {}) {
