@@ -2,6 +2,7 @@ let misPokemonData = [];
 let usuarioActualMyPokemon = null;
 let pokemonPendienteSoltar = null;
 let estadosEvolucionCache = new Map();
+let modalEvolucionActual = null;
 
 const MY_POKEMON_CACHE_KEY = "mastersmon_mypokemon_cache";
 const MY_POKEMON_ITEMS_CACHE_KEY = "mastersmon_mypokemon_items_cache";
@@ -71,6 +72,59 @@ function obtenerImagenItemModal(nombreItem) {
     return obtenerImagenItemInventario(nombreItem);
 }
 
+function traducirTipoPokemonMyPokemon(tipo = "") {
+    const mapa = {
+        "Normal": "type_normal",
+        "Fuego": "type_fire",
+        "Agua": "type_water",
+        "Planta": "type_grass",
+        "Electrico": "type_electric",
+        "Eléctrico": "type_electric",
+        "Hielo": "type_ice",
+        "Lucha": "type_fighting",
+        "Veneno": "type_poison",
+        "Tierra": "type_ground",
+        "Volador": "type_flying",
+        "Psiquico": "type_psychic",
+        "Psíquico": "type_psychic",
+        "Bicho": "type_bug",
+        "Roca": "type_rock",
+        "Fantasma": "type_ghost",
+        "Dragon": "type_dragon",
+        "Dragón": "type_dragon",
+        "Acero": "type_steel",
+        "Hada": "type_fairy"
+    };
+
+    return String(tipo || "")
+        .split("/")
+        .map(parte => {
+            const limpio = parte.trim();
+            const key = mapa[limpio];
+            return key ? t(key) : limpio;
+        })
+        .join("/");
+}
+
+function traducirNombreItemMyPokemon(nombreItem = "") {
+    const mapa = {
+        "Poke Ball": "item_poke_ball",
+        "Super Ball": "item_super_ball",
+        "Ultra Ball": "item_ultra_ball",
+        "Master Ball": "item_master_ball",
+        "Pocion": "item_potion",
+        "Super Pocion": "item_super_potion",
+        "Piedra Fuego": "item_fire_stone",
+        "Piedra Agua": "item_water_stone",
+        "Piedra Trueno": "item_thunder_stone",
+        "Piedra Hoja": "item_leaf_stone",
+        "Piedra Lunar": "item_moon_stone"
+    };
+
+    const key = mapa[nombreItem];
+    return key ? t(key) : nombreItem;
+}
+
 function mostrarMensajeEvolucion(mensaje, tipo = "ok") {
     const box = document.getElementById("mensajeEvolucion");
     if (!box) return;
@@ -96,8 +150,8 @@ function renderEstadoSinSesion() {
 
     if (inventario) {
         inventario.innerHTML = `
-            <h3>🔒 Sesión requerida</h3>
-            <p>Inicia sesión para ver tu inventario y tu colección.</p>
+            <h3>${t("mypokemon_login_required_title")}</h3>
+            <p>${t("mypokemon_login_required_inventory_text")}</p>
         `;
     }
 
@@ -108,8 +162,8 @@ function renderEstadoSinSesion() {
     if (container) {
         container.innerHTML = `
             <div class="empty-box">
-                <h3>Debes iniciar sesión</h3>
-                <p>Accede con Google para ver tus Pokémon capturados.</p>
+                <h3>${t("mypokemon_login_required_box_title")}</h3>
+                <p>${t("mypokemon_login_required_box_text")}</p>
             </div>
         `;
     }
@@ -126,15 +180,15 @@ function renderResumenColeccion(resumenData) {
 
     resumen.innerHTML = `
         <div class="resumen-card">
-            <span>📘 Total Pokémon</span>
+            <span>${t("mypokemon_summary_total")}</span>
             <strong>${resumenData.total_capturados} / ${resumenData.total_pokedex}</strong>
         </div>
         <div class="resumen-card">
-            <span>✨ Shinys</span>
+            <span>${t("mypokemon_summary_shiny")}</span>
             <strong>${resumenData.total_shiny} / ${resumenData.total_pokemon_tabla}</strong>
         </div>
         <div class="resumen-card">
-            <span>📈 Avance Pokédex</span>
+            <span>${t("mypokemon_summary_progress")}</span>
             <strong>${resumenData.avance}%</strong>
         </div>
     `;
@@ -146,19 +200,19 @@ function renderInventarioUsuario(items = []) {
 
     if (!items.length) {
         inventario.innerHTML = `
-            <h3>🎒 Inventario</h3>
-            <p>No tienes items registrados todavía.</p>
+            <h3>${t("mypokemon_inventory_title")}</h3>
+            <p>${t("mypokemon_inventory_empty")}</p>
         `;
         return;
     }
 
     inventario.innerHTML = `
-        <h3>🎒 Inventario</h3>
+        <h3>${t("mypokemon_inventory_title")}</h3>
         <div class="inventario-lista">
             ${items.map(i => `
                 <span class="item-chip item-chip-con-icono">
-                    <img src="${obtenerImagenItemInventario(i.nombre)}" alt="${i.nombre}">
-                    <span>${i.nombre} x${i.cantidad}</span>
+                    <img src="${obtenerImagenItemInventario(i.nombre)}" alt="${traducirNombreItemMyPokemon(i.nombre)}">
+                    <span>${traducirNombreItemMyPokemon(i.nombre)} x${i.cantidad}</span>
                 </span>
             `).join("")}
         </div>
@@ -310,27 +364,31 @@ function estadoEvolucionVisual(evoData) {
     if (evoData?.puede_evolucionar && evoData.listo_ahora) {
         return {
             clase: evoData.tipo === "nivel" ? "btn-evolucionar-listo" : "btn-evolucionar-item",
-            texto: evoData.tipo === "nivel" ? "Listo por nivel" : "Listo por item"
+            texto: evoData.tipo === "nivel"
+                ? t("mypokemon_evolve_ready_level")
+                : t("mypokemon_evolve_ready_item")
         };
     }
 
     if (evoData?.puede_evolucionar && !evoData.listo_ahora) {
         return {
             clase: "btn-evolucionar",
-            texto: evoData.tipo === "item" ? "Requiere item" : "Evolucionar"
+            texto: evoData.tipo === "item"
+                ? t("mypokemon_evolve_requires_item")
+                : t("mypokemon_evolve_default")
         };
     }
 
     if (evoData && evoData.puede_evolucionar === false) {
         return {
             clase: "btn-evolucionar",
-            texto: "Sin evolución"
+            texto: t("mypokemon_evolve_no_evolution")
         };
     }
 
     return {
         clase: "btn-evolucionar",
-        texto: "Evolucionar"
+        texto: t("mypokemon_evolve_default")
     };
 }
 
@@ -339,30 +397,33 @@ function construirCardPokemon(p, evoData = null) {
     const porcentajeExp = Math.min(100, Math.floor((p.experiencia / (p.nivel * 50)) * 100));
     const estado = estadoEvolucionVisual(evoData);
     const nombreSeguro = String(p.nombre).replace(/'/g, "\\'");
+    const tipoTraducido = traducirTipoPokemonMyPokemon(p.tipo || "");
 
     return `
         <div class="pokemon-card" data-tipo="${p.tipo}" data-nombre="${p.nombre}" data-shiny="${p.es_shiny ? "true" : "false"}" data-usuario-pokemon-id="${p.id}">
             <div class="pokemon-card-header">
                 <h3>#${p.pokemon_id} ${p.nombre}</h3>
-                ${p.es_shiny ? `<span class="badge-shiny">✨ Shiny</span>` : `<span class="badge-normal">Normal</span>`}
+                ${p.es_shiny
+                    ? `<span class="badge-shiny">${t("mypokemon_badge_shiny")}</span>`
+                    : `<span class="badge-normal">${t("mypokemon_badge_normal")}</span>`}
             </div>
 
             <div class="pokemon-card-image">
                 <img src="${imagen}" alt="${p.nombre}" loading="lazy" decoding="async">
             </div>
 
-            <div class="tipo">${p.tipo}</div>
+            <div class="tipo">${tipoTraducido}</div>
 
             <div class="pokemon-stats">
-                <p><strong>Nivel:</strong> ${p.nivel}</p>
-                <p><strong>HP:</strong> ${p.hp_actual}/${p.hp_max}</p>
-                <p><strong>Ataque:</strong> ${p.ataque}</p>
-                <p><strong>Defensa:</strong> ${p.defensa}</p>
-                <p><strong>Velocidad:</strong> ${p.velocidad}</p>
+                <p><strong>${t("mypokemon_stat_level")}:</strong> ${p.nivel}</p>
+                <p><strong>${t("mypokemon_stat_hp")}:</strong> ${p.hp_actual}/${p.hp_max}</p>
+                <p><strong>${t("mypokemon_stat_attack")}:</strong> ${p.ataque}</p>
+                <p><strong>${t("mypokemon_stat_defense")}:</strong> ${p.defensa}</p>
+                <p><strong>${t("mypokemon_stat_speed")}:</strong> ${p.velocidad}</p>
             </div>
 
             <div class="exp-box">
-                <div class="exp-label">EXP: ${p.experiencia} / ${p.nivel * 50}</div>
+                <div class="exp-label">${t("mypokemon_exp_label")}: ${p.experiencia} / ${p.nivel * 50}</div>
                 <div class="exp-bar">
                     <div class="exp-fill" style="width:${porcentajeExp}%"></div>
                 </div>
@@ -374,7 +435,7 @@ function construirCardPokemon(p, evoData = null) {
                 </button>
 
                 <button class="btn-soltar" onclick="abrirModalSoltar(${p.id}, '${nombreSeguro}')">
-                    Soltar
+                    ${t("mypokemon_release_button")}
                 </button>
             </div>
         </div>
@@ -421,14 +482,14 @@ function renderizarMisPokemon(pokemons) {
         container.innerHTML = sinColeccion
             ? `
                 <div class="empty-box">
-                    <h3>No tienes Pokémon todavía</h3>
-                    <p>Explora mapas para capturar tu primer Pokémon.</p>
+                    <h3>${t("mypokemon_empty_title")}</h3>
+                    <p>${t("mypokemon_empty_text")}</p>
                 </div>
             `
             : `
                 <div class="empty-box">
-                    <h3>No se encontraron Pokémon</h3>
-                    <p>Prueba cambiando los filtros.</p>
+                    <h3>${t("mypokemon_no_results_title")}</h3>
+                    <p>${t("mypokemon_no_results_text")}</p>
                 </div>
             `;
         return;
@@ -450,10 +511,11 @@ function abrirModalSoltar(usuarioPokemonId, nombrePokemon) {
     const btn = document.getElementById("btnConfirmarSoltar");
 
     if (texto) {
-        texto.textContent = `¿Seguro que deseas soltar a ${nombrePokemon}?`;
+        texto.textContent = `${t("mypokemon_release_modal_text")} ${nombrePokemon}?`;
     }
 
     if (btn) {
+        btn.textContent = t("mypokemon_release_confirm");
         btn.onclick = confirmarSoltarPokemon;
     }
 
@@ -474,7 +536,7 @@ async function confirmarSoltarPokemon() {
     const usuario = usuarioActualMyPokemon || await obtenerUsuarioActual();
     if (!usuario?.id) {
         cerrarModalSoltar();
-        mostrarMensajeEvolucion("Debes iniciar sesión.", "error");
+        mostrarMensajeEvolucion(t("mypokemon_login_required_action"), "error");
         return;
     }
 
@@ -491,7 +553,7 @@ async function confirmarSoltarPokemon() {
         });
 
         cerrarModalSoltar();
-        mostrarMensajeEvolucion(data.mensaje || "Pokémon liberado correctamente", "ok");
+        mostrarMensajeEvolucion(data.mensaje || t("mypokemon_release_success"), "ok");
 
         const [pokemons, items, resumenData] = await Promise.all([
             obtenerPokemonUsuarioActual(),
@@ -513,7 +575,7 @@ async function confirmarSoltarPokemon() {
     } catch (error) {
         console.error("Error al soltar Pokémon:", error);
         cerrarModalSoltar();
-        mostrarMensajeEvolucion("No se pudo soltar el Pokémon", "error");
+        mostrarMensajeEvolucion(t("mypokemon_release_error"), "error");
     }
 }
 
@@ -522,7 +584,7 @@ async function manejarEvolucion(usuarioPokemonId, nombrePokemon) {
         const data = await obtenerEstadoEvolucion(usuarioPokemonId);
 
         if (!data?.puede_evolucionar) {
-            mostrarMensajeEvolucion(data?.motivo || "Este Pokémon aún no puede evolucionar", "error");
+            mostrarMensajeEvolucion(data?.motivo || t("mypokemon_evolve_not_available"), "error");
             return;
         }
 
@@ -537,7 +599,7 @@ async function manejarEvolucion(usuarioPokemonId, nombrePokemon) {
         }
     } catch (error) {
         console.error("Error manejando evolución:", error);
-        mostrarMensajeEvolucion("No se pudo revisar la evolución.", "error");
+        mostrarMensajeEvolucion(t("mypokemon_evolve_check_error"), "error");
     }
 }
 
@@ -549,6 +611,13 @@ function mostrarModalEvolucionNivel(usuarioPokemonId, nombrePokemon, data) {
     const opcionNivel = opciones.find(op => op.tipo === "nivel") || opciones[0];
     if (!opcionNivel || !contenido || !modal) return;
 
+    modalEvolucionActual = {
+        tipo: "nivel",
+        usuarioPokemonId,
+        nombrePokemon,
+        data
+    };
+
     const imagenActual = obtenerImagenPokemonModal(data.pokemon_id);
     const imagenEvolucion = obtenerImagenPokemonModal(opcionNivel.evolucion_id || opcionNivel.evoluciona_a);
 
@@ -557,8 +626,8 @@ function mostrarModalEvolucionNivel(usuarioPokemonId, nombrePokemon, data) {
     const listo = opcionNivel.listo === true;
 
     contenido.innerHTML = `
-        <h2 class="titulo-modal-evolucion">Evolución por nivel</h2>
-        <p class="subtitulo-modal-evolucion">Tu Pokémon evoluciona al alcanzar el nivel requerido</p>
+        <h2 class="titulo-modal-evolucion">${t("mypokemon_evolve_level_title")}</h2>
+        <p class="subtitulo-modal-evolucion">${t("mypokemon_evolve_level_subtitle")}</p>
 
         <div class="evolucion-preview-horizontal">
             <div class="evolucion-card-pokemon">
@@ -577,23 +646,23 @@ function mostrarModalEvolucionNivel(usuarioPokemonId, nombrePokemon, data) {
         <div class="item-evolucion-card">
             <div class="item-evolucion-top">
                 <div>
-                    <h3>Nivel requerido</h3>
-                    <p>Nivel actual: ${nivelActual}</p>
-                    <p>Nivel necesario: ${nivelRequerido}</p>
+                    <h3>${t("mypokemon_evolve_required_level")}</h3>
+                    <p>${t("mypokemon_evolve_current_level")}: ${nivelActual}</p>
+                    <p>${t("mypokemon_evolve_needed_level")}: ${nivelRequerido}</p>
                 </div>
             </div>
         </div>
 
         <p class="evolucion-detalle ${listo ? "ok" : "error"}">
             ${listo
-                ? "Este Pokémon ya cumple el nivel para evolucionar."
-                : "Aún no cumple el nivel necesario para evolucionar."}
+                ? t("mypokemon_evolve_level_ready_text")
+                : t("mypokemon_evolve_level_not_ready_text")}
         </p>
 
         <div class="evolucion-botones">
-            <button class="btn-cancelar-modal" onclick="cerrarModalEvolucion()">Cancelar</button>
+            <button class="btn-cancelar-modal" onclick="cerrarModalEvolucion()">${t("battle_cancel")}</button>
             <button class="btn-confirmar-evolucion" onclick="confirmarEvolucionNivel(${usuarioPokemonId})" ${!listo ? "disabled" : ""}>
-                Evolucionar
+                ${t("mypokemon_evolve_confirm")}
             </button>
         </div>
     `;
@@ -611,14 +680,22 @@ function mostrarModalEvolucionItem(usuarioPokemonId, nombrePokemon, data) {
 
     if (!opcionMostrar || !contenido || !modal) return;
 
+    modalEvolucionActual = {
+        tipo: "item",
+        usuarioPokemonId,
+        nombrePokemon,
+        data
+    };
+
     const imagenActual = obtenerImagenPokemonModal(data.pokemon_id);
     const imagenEvolucion = obtenerImagenPokemonModal(opcionMostrar.evoluciona_a);
     const imagenItem = obtenerImagenItemModal(opcionMostrar.item_nombre);
     const tieneItem = opcionMostrar.tiene_item;
+    const itemTraducido = traducirNombreItemMyPokemon(opcionMostrar.item_nombre);
 
     contenido.innerHTML = `
-        <h2 class="titulo-modal-evolucion">Evolución por item</h2>
-        <p class="subtitulo-modal-evolucion">Tu Pokémon puede evolucionar usando un objeto especial</p>
+        <h2 class="titulo-modal-evolucion">${t("mypokemon_evolve_item_title")}</h2>
+        <p class="subtitulo-modal-evolucion">${t("mypokemon_evolve_item_subtitle")}</p>
 
         <div class="evolucion-preview-horizontal">
             <div class="evolucion-card-pokemon">
@@ -636,25 +713,25 @@ function mostrarModalEvolucionItem(usuarioPokemonId, nombrePokemon, data) {
 
         <div class="item-evolucion-card">
             <div class="item-evolucion-top">
-                <img src="${imagenItem}" alt="${opcionMostrar.item_nombre}">
+                <img src="${imagenItem}" alt="${itemTraducido}">
                 <div>
-                    <h3>${opcionMostrar.item_nombre}</h3>
-                    <p>Tienes: x${opcionMostrar.cantidad}</p>
+                    <h3>${itemTraducido}</h3>
+                    <p>${t("mypokemon_item_you_have")}: x${opcionMostrar.cantidad}</p>
                 </div>
             </div>
         </div>
 
         <p class="evolucion-detalle ${tieneItem ? "ok" : "error"}">
             ${tieneItem
-                ? "Ya tienes el item necesario para evolucionar."
-                : "Todavía no tienes el item necesario para esta evolución."}
+                ? t("mypokemon_evolve_item_ready_text")
+                : t("mypokemon_evolve_item_missing_text")}
         </p>
 
         <div class="evolucion-botones">
-            <button class="btn-cancelar-modal" onclick="cerrarModalEvolucion()">Cancelar</button>
+            <button class="btn-cancelar-modal" onclick="cerrarModalEvolucion()">${t("battle_cancel")}</button>
             <button class="btn-usar-item" onclick="confirmarEvolucionItem(${usuarioPokemonId}, ${opcionMostrar.item_id})" ${!tieneItem ? "disabled" : ""}>
-                <img src="${imagenItem}" class="icon-item-btn" alt="${opcionMostrar.item_nombre}">
-                Usar ${opcionMostrar.item_nombre}
+                <img src="${imagenItem}" class="icon-item-btn" alt="${itemTraducido}">
+                ${t("mypokemon_use_item")} ${itemTraducido}
             </button>
         </div>
     `;
@@ -666,7 +743,7 @@ async function confirmarEvolucionNivel(usuarioPokemonId) {
     const usuario = usuarioActualMyPokemon || await obtenerUsuarioActual();
     if (!usuario?.id) {
         cerrarModalEvolucion();
-        mostrarMensajeEvolucion("Debes iniciar sesión.", "error");
+        mostrarMensajeEvolucion(t("mypokemon_login_required_action"), "error");
         return;
     }
 
@@ -695,7 +772,7 @@ async function confirmarEvolucionNivel(usuarioPokemonId) {
             return;
         }
 
-        mostrarMensajeEvolucion(evoData.mensaje || "Evolución realizada con éxito", "ok");
+        mostrarMensajeEvolucion(evoData.mensaje || t("mypokemon_evolve_success"), "ok");
 
         const pokemons = await obtenerPokemonUsuarioActual();
         misPokemonData = Array.isArray(pokemons) ? pokemons : [];
@@ -706,7 +783,7 @@ async function confirmarEvolucionNivel(usuarioPokemonId) {
     } catch (error) {
         console.error("Error evolucionando por nivel:", error);
         cerrarModalEvolucion();
-        mostrarMensajeEvolucion("No se pudo evolucionar.", "error");
+        mostrarMensajeEvolucion(t("mypokemon_evolve_error"), "error");
     }
 }
 
@@ -714,7 +791,7 @@ async function confirmarEvolucionItem(usuarioPokemonId, itemId) {
     const usuario = usuarioActualMyPokemon || await obtenerUsuarioActual();
     if (!usuario?.id) {
         cerrarModalEvolucion();
-        mostrarMensajeEvolucion("Debes iniciar sesión.", "error");
+        mostrarMensajeEvolucion(t("mypokemon_login_required_action"), "error");
         return;
     }
 
@@ -744,7 +821,7 @@ async function confirmarEvolucionItem(usuarioPokemonId, itemId) {
             return;
         }
 
-        mostrarMensajeEvolucion(evoData.mensaje || "Evolución realizada con éxito", "ok");
+        mostrarMensajeEvolucion(evoData.mensaje || t("mypokemon_evolve_success"), "ok");
 
         const [pokemons, items] = await Promise.all([
             obtenerPokemonUsuarioActual(),
@@ -762,7 +839,7 @@ async function confirmarEvolucionItem(usuarioPokemonId, itemId) {
     } catch (error) {
         console.error("Error evolucionando por item:", error);
         cerrarModalEvolucion();
-        mostrarMensajeEvolucion("No se pudo evolucionar.", "error");
+        mostrarMensajeEvolucion(t("mypokemon_evolve_error"), "error");
     }
 }
 
@@ -772,6 +849,7 @@ function cerrarModalEvolucion() {
 
     if (modal) modal.classList.add("oculto");
     if (contenido) contenido.innerHTML = "";
+    modalEvolucionActual = null;
 }
 
 async function cargarMisPokemon({ forzar = false } = {}) {
@@ -800,7 +878,71 @@ async function cargarItemsUsuario({ forzar = false } = {}) {
     }
 }
 
+function configurarSelectorIdiomaMyPokemon() {
+    const selectDesktop = document.getElementById("languageSelect");
+    const selectMobile = document.getElementById("languageSelectMobile");
+
+    const langActual = typeof getCurrentLang === "function" ? getCurrentLang() : "en";
+
+    if (selectDesktop) selectDesktop.value = langActual;
+    if (selectMobile) selectMobile.value = langActual;
+
+    if (selectDesktop) {
+        selectDesktop.addEventListener("change", (e) => {
+            const nuevo = e.target.value;
+            if (selectMobile) selectMobile.value = nuevo;
+            setCurrentLang(nuevo);
+        });
+    }
+
+    if (selectMobile) {
+        selectMobile.addEventListener("change", (e) => {
+            const nuevo = e.target.value;
+            if (selectDesktop) selectDesktop.value = nuevo;
+            setCurrentLang(nuevo);
+        });
+    }
+}
+
+function refrescarUIIdiomaMyPokemon() {
+    if (typeof applyTranslations === "function") {
+        applyTranslations();
+    }
+
+    const resumenCache = leerCacheJSON(MY_POKEMON_RESUMEN_CACHE_KEY, null);
+    const itemsCache = leerCacheJSON(MY_POKEMON_ITEMS_CACHE_KEY, []);
+    renderResumenColeccion(resumenCache);
+    renderInventarioUsuario(Array.isArray(itemsCache) ? itemsCache : []);
+
+    if (!usuarioAutenticadoMyPokemon()) {
+        renderEstadoSinSesion();
+    } else {
+        aplicarFiltrosMisPokemon();
+    }
+
+    if (pokemonPendienteSoltar) {
+        abrirModalSoltar(pokemonPendienteSoltar.usuarioPokemonId, pokemonPendienteSoltar.nombrePokemon);
+    }
+
+    if (modalEvolucionActual?.tipo === "nivel") {
+        mostrarModalEvolucionNivel(
+            modalEvolucionActual.usuarioPokemonId,
+            modalEvolucionActual.nombrePokemon,
+            modalEvolucionActual.data
+        );
+    }
+
+    if (modalEvolucionActual?.tipo === "item") {
+        mostrarModalEvolucionItem(
+            modalEvolucionActual.usuarioPokemonId,
+            modalEvolucionActual.nombrePokemon,
+            modalEvolucionActual.data
+        );
+    }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+    configurarSelectorIdiomaMyPokemon();
     cargarMisPokemon();
 
     const buscar = document.getElementById("buscarMiPokemon");
@@ -814,3 +956,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (orden) orden.addEventListener("change", aplicarFiltrosMisPokemon);
 });
 
+document.addEventListener("languageChanged", () => {
+    refrescarUIIdiomaMyPokemon();
+});
