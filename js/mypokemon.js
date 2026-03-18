@@ -298,16 +298,16 @@ function aplicarFiltrosMisPokemon() {
     const filtroRareza = document.getElementById("filtroMiRareza");
     const orden = document.getElementById("ordenMisPokemon");
 
-    const texto = buscar ? buscar.value.toLowerCase().trim() : "";
-    const tipo = filtroTipo ? filtroTipo.value.toLowerCase().trim() : "";
+    const texto = buscar ? normalizarTextoMyPokemon(buscar.value) : "";
+    const tipo = filtroTipo ? normalizarTextoMyPokemon(filtroTipo.value) : "";
     const rareza = filtroRareza ? filtroRareza.value.toLowerCase().trim() : "";
     const ordenValor = orden ? orden.value : "pokemon_id_asc";
 
     let filtrados = [...misPokemonData];
 
     filtrados = filtrados.filter(p => {
-        const nombre = (p.nombre || "").toLowerCase();
-        const tipoPokemon = (p.tipo || "").toLowerCase();
+        const nombre = normalizarTextoMyPokemon(p.nombre || "");
+        const tipoPokemon = normalizarTextoMyPokemon(p.tipo || "");
         const esShiny = p.es_shiny === true;
 
         const coincideNombre = nombre.includes(texto);
@@ -400,19 +400,25 @@ function construirCardPokemon(p, evoData = null) {
     const tipoTraducido = traducirTipoPokemonMyPokemon(p.tipo || "");
 
     return `
-        <div class="pokemon-card" data-tipo="${p.tipo}" data-nombre="${p.nombre}" data-shiny="${p.es_shiny ? "true" : "false"}" data-usuario-pokemon-id="${p.id}">
+        <div 
+            class="pokemon-card" 
+            data-tipo="${escapeHtmlMyPokemon(p.tipo)}" 
+            data-nombre="${escapeHtmlMyPokemon(p.nombre)}" 
+            data-shiny="${p.es_shiny ? "true" : "false"}" 
+            data-usuario-pokemon-id="${p.id}"
+        >
             <div class="pokemon-card-header">
-                <h3>#${p.pokemon_id} ${p.nombre}</h3>
+                <h3>#${p.pokemon_id} ${escapeHtmlMyPokemon(p.nombre)}</h3>
                 ${p.es_shiny
                     ? `<span class="badge-shiny">${t("mypokemon_badge_shiny")}</span>`
                     : `<span class="badge-normal">${t("mypokemon_badge_normal")}</span>`}
             </div>
 
             <div class="pokemon-card-image">
-                <img src="${imagen}" alt="${p.nombre}" loading="lazy" decoding="async">
+                <img src="${imagen}" alt="${escapeHtmlMyPokemon(p.nombre)}" loading="lazy" decoding="async">
             </div>
 
-            <div class="tipo">${tipoTraducido}</div>
+            <div class="tipo">${escapeHtmlMyPokemon(tipoTraducido)}</div>
 
             <div class="pokemon-stats">
                 <p><strong>${t("mypokemon_stat_level")}:</strong> ${p.nivel}</p>
@@ -959,3 +965,20 @@ document.addEventListener("DOMContentLoaded", () => {
 document.addEventListener("languageChanged", () => {
     refrescarUIIdiomaMyPokemon();
 });
+
+function normalizarTextoMyPokemon(valor = "") {
+    return String(valor || "")
+        .toLowerCase()
+        .trim()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+}
+
+function escapeHtmlMyPokemon(valor) {
+    return String(valor ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
