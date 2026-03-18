@@ -505,8 +505,7 @@ function renderizarMisPokemon(pokemons) {
         const evoCache = estadosEvolucionCache.get(p.id) || null;
         return construirCardPokemon(p, evoCache);
     }).join("");
-
-    hidratarEstadosEvolucion(pokemons);
+    
 }
 
 function abrirModalSoltar(usuarioPokemonId, nombrePokemon) {
