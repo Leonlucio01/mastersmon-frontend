@@ -321,12 +321,13 @@
     flex: 1 1 auto;
     min-width: 0;
     max-width: 100%;
-    font-size: clamp(22px, 3vw, 28px);
+    font-size: clamp(20px, 2.6vw, 28px);
     font-weight: 900;
     color: #111827;
     line-height: 1.05;
-    overflow-wrap: anywhere;
-    word-break: break-word;
+    word-break: normal;
+    overflow-wrap: normal;
+    hyphens: none;
 }
 
 .arena-shiny-badge{
@@ -1217,9 +1218,14 @@
     }
 
     .arena-pokemon-name-row h3{
-        flex: 1 1 100%;
-        font-size: clamp(18px, 5.6vw, 24px);
+        flex: 1 1 auto;
+        min-width: 0;
+        max-width: 100%;
+        font-size: 20px;
         line-height: 1.02;
+        word-break: normal;
+        overflow-wrap: normal;
+        hyphens: none;
     }
 
     .arena-shiny-badge{
@@ -1295,7 +1301,11 @@
     }
 
     .arena-pokemon-name-row h3{
-        font-size: clamp(16px, 6vw, 21px);
+        font-size: 18px;
+        line-height: 1.02;
+        word-break: normal;
+        overflow-wrap: normal;
+        hyphens: none;
     }
 
     .arena-type-pill{
