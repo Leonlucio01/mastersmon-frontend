@@ -123,17 +123,24 @@ async function inicializarMaps() {
             localStorage.setItem("usuario_id", String(usuario.id));
         }
 
-        await Promise.all([
-            cargarZonas(),
-            cargarPokemonUsuarioMaps(),
-            cargarItemsUsuarioMaps()
-        ]);
-
+        await cargarZonas();
         renderizarZonas();
 
         if (zonasCache.length > 0) {
             const primeraZonaId = Number(zonasCache[0].id);
+
+            const cargaSecundaria = Promise.allSettled([
+                cargarPokemonUsuarioMaps(),
+                cargarItemsUsuarioMaps()
+            ]);
+
             await seleccionarZona(primeraZonaId);
+
+            cargaSecundaria.then(() => {
+                if (encuentroActual) {
+                    renderEncuentroActual();
+                }
+            });
         }
     } catch (error) {
         console.error("Error iniciando Maps:", error);
