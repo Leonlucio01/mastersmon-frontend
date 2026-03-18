@@ -1097,6 +1097,7 @@ async function verificarFinCombateArena() {
 
         if (vivosPlayer > 0) {
             const recompensaResultado = await procesarRecompensasVictoriaArena();
+            renderArenaCompleta();
             mostrarResultadoArena(true, recompensaResultado);
         } else {
             mostrarResultadoArena(false);
@@ -1535,7 +1536,9 @@ async function otorgarRecompensasVictoriaArena(expGanada = 1000, pokedolaresGana
 
     if (Array.isArray(data.pokemon_actualizados)) {
         for (const actualizado of data.pokemon_actualizados) {
-            const pokeLocal = arenaPlayerTeam.find(p => Number(p.id) === Number(actualizado.usuario_pokemon_id));
+            const pokeLocal = arenaPlayerTeam.find(
+                p => Number(p.id) === Number(actualizado.usuario_pokemon_id)
+            );
             if (!pokeLocal) continue;
 
             pokeLocal.nivel = actualizado.nivel;
@@ -1545,14 +1548,18 @@ async function otorgarRecompensasVictoriaArena(expGanada = 1000, pokedolaresGana
             pokeLocal.ataque = actualizado.ataque;
             pokeLocal.defensa = actualizado.defensa;
             pokeLocal.velocidad = actualizado.velocidad;
+            pokeLocal.defeated = false;
         }
     }
 
     try {
         localStorage.setItem(BATTLE_TEAM_STORAGE_KEY, JSON.stringify(arenaPlayerTeam));
+        sessionStorage.setItem(BATTLE_ARENA_PLAYER_TEAM_KEY, JSON.stringify(arenaPlayerTeam));
     } catch (error) {
         console.warn("No se pudo refrescar el equipo guardado después de la recompensa:", error);
     }
+
+    renderArenaCompleta();
 
     return data;
 }
