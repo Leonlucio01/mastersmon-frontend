@@ -1,11 +1,5 @@
 /* =========================================================
    BATTLE ARENA JS
-   - Combate PvE fase 1
-   - Daño base: ATK - DEF (mínimo 1)
-   - Multiplicador por tipo: x2 / x1 / x0.5
-   - Recompensas al ganar:
-     * +5000 pokedólares
-     * +1000 EXP a todos los Pokémon del equipo
 ========================================================= */
 
 let arenaPlayerTeam = [];
@@ -16,6 +10,7 @@ let arenaTurno = 1;
 let arenaCombatEnded = false;
 let arenaTurnoEnProceso = false;
 let arenaAutoTurnoActivo = false;
+let arenaUltimoResultado = null;
 
 const BATTLE_TEAM_STORAGE_KEY = "mastersmon_battle_team_v1";
 const BATTLE_ARENA_PLAYER_TEAM_KEY = "mastersmon_battle_arena_team_v1";
@@ -162,8 +157,15 @@ const ARENA_TYPE_EFFECTIVENESS = {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
+    configurarMenuMobileArena();
+    configurarIdiomaArena();
     inicializarArenaBattle();
-    
+
+    window.addEventListener("resize", () => {
+        if (window.innerWidth > 900) {
+            cerrarMenuMobileArena();
+        }
+    });
 });
 
 /* =========================================================
@@ -177,13 +179,13 @@ async function inicializarArenaBattle() {
         await cargarEquipoJugadorArena();
         generarEquipoRivalFase1();
         renderArenaCompleta();
-        agregarLogArena("El combate comienza. Ambos equipos están listos.");
+        agregarLogArena(tSafeArena("arena_log_start"), tSafeArena("arena_system"));
         ocultarMensajeArena();
         habilitarAccionesArena();
         actualizarBotonAutoTurnoArena();
     } catch (error) {
         console.error("Error iniciando arena:", error);
-        mostrarMensajeArena("No se pudo iniciar la batalla. Vuelve a Battle y arma tu equipo.", "error");
+        mostrarMensajeArena(tSafeArena("arena_init_error"), "error");
         deshabilitarAccionesArena();
         actualizarBotonAutoTurnoArena();
     }
@@ -192,10 +194,11 @@ async function inicializarArenaBattle() {
 function sincronizarUsuarioArena() {
     const nombreDesktop = document.getElementById("nombreUsuario");
     const nombreMobile = document.getElementById("nombreUsuarioMobile");
-    const nombre = localStorage.getItem("usuario_nombre") || nombreDesktop?.textContent?.trim() || "Entrenador";
+    const usuario = typeof getUsuarioLocal === "function" ? getUsuarioLocal() : null;
+    const nombre = usuario?.nombre || localStorage.getItem("google_user_name") || "Entrenador";
 
-    if (nombreDesktop) nombreDesktop.textContent = nombre;
-    if (nombreMobile) nombreMobile.textContent = nombre;
+    if (nombreDesktop) nombreDesktop.textContent = `👤 ${nombre}`;
+    if (nombreMobile) nombreMobile.textContent = `👤 ${nombre}`;
 }
 
 function configurarEventosArena() {
@@ -232,6 +235,69 @@ function configurarEventosArena() {
     }
 }
 
+function configurarMenuMobileArena() {
+    const menuToggle = document.getElementById("menuToggle");
+    const menuMobile = document.getElementById("menuMobile");
+
+    if (!menuToggle || !menuMobile) return;
+
+    menuToggle.addEventListener("click", () => {
+        menuMobile.classList.toggle("menu-open");
+    });
+}
+
+function cerrarMenuMobileArena() {
+    const menuMobile = document.getElementById("menuMobile");
+    if (menuMobile) {
+        menuMobile.classList.remove("menu-open");
+    }
+}
+
+function configurarIdiomaArena() {
+    const languageSelect = document.getElementById("languageSelect");
+
+    if (languageSelect && typeof getCurrentLang === "function") {
+        languageSelect.value = getCurrentLang();
+        languageSelect.addEventListener("change", (e) => {
+            if (typeof setCurrentLang === "function") {
+                setCurrentLang(e.target.value);
+            }
+        });
+    }
+
+    document.addEventListener("languageChanged", refrescarUIArenaPorIdioma);
+
+    if (typeof applyTranslations === "function") {
+        applyTranslations();
+    }
+}
+
+function refrescarUIArenaPorIdioma() {
+    if (typeof applyTranslations === "function") {
+        applyTranslations();
+    }
+
+    actualizarBotonAutoTurnoArena();
+
+    if (arenaPlayerTeam.length || arenaEnemyTeam.length) {
+        renderArenaCompleta();
+    }
+
+    const modalCambio = document.getElementById("arenaChangeModal");
+    if (modalCambio && !modalCambio.classList.contains("oculto") && !arenaCombatEnded) {
+        abrirModalCambioArena();
+    }
+
+    const modalResultado = document.getElementById("arenaResultModal");
+    if (modalResultado && !modalResultado.classList.contains("oculto") && arenaUltimoResultado) {
+        mostrarResultadoArena(
+            arenaUltimoResultado.victoria,
+            arenaUltimoResultado.recompensa,
+            true
+        );
+    }
+}
+
 /* =========================================================
    DATA
 ========================================================= */
@@ -258,7 +324,7 @@ async function cargarEquipoJugadorArena() {
     }
 
     if (!Array.isArray(equipoGuardado) || equipoGuardado.length !== 6) {
-        throw new Error("Necesitas un equipo completo de 6 Pokémon.");
+        throw new Error(tSafeArena("arena_need_full_team"));
     }
 
     arenaPlayerTeam = equipoGuardado.slice(0, 6).map((pokemon, index) =>
@@ -329,18 +395,9 @@ function obtenerPoolRivalesArena() {
         { pokemon_id: 150, nombre: "Mewtwo", tipo: "Psiquico", hp: 106, ataque: 110, defensa: 90, velocidad: 130 }
     ];
 
-    if (bonusNivel >= 6) {
-        return poolMaestro;
-    }
-
-    if (bonusNivel >= 4) {
-        return poolExperto;
-    }
-
-    if (bonusNivel >= 2) {
-        return poolDesafio;
-    }
-
+    if (bonusNivel >= 6) return poolMaestro;
+    if (bonusNivel >= 4) return poolExperto;
+    if (bonusNivel >= 2) return poolDesafio;
     return poolNormal;
 }
 
@@ -425,7 +482,7 @@ function obtenerRecompensasPorDificultadArena() {
 
     if (bonusNivel >= 6) {
         return {
-            nombre: "Maestro",
+            nombre: tSafeArena("battle_difficulty_master"),
             exp: 6000,
             pokedolares: 15000
         };
@@ -433,7 +490,7 @@ function obtenerRecompensasPorDificultadArena() {
 
     if (bonusNivel >= 4) {
         return {
-            nombre: "Experto",
+            nombre: tSafeArena("battle_difficulty_expert"),
             exp: 4500,
             pokedolares: 10000
         };
@@ -441,14 +498,14 @@ function obtenerRecompensasPorDificultadArena() {
 
     if (bonusNivel >= 2) {
         return {
-            nombre: "Desafío",
+            nombre: tSafeArena("battle_difficulty_challenge"),
             exp: 3500,
             pokedolares: 5000
         };
     }
 
     return {
-        nombre: "Normal",
+        nombre: tSafeArena("battle_difficulty_normal"),
         exp: 2500,
         pokedolares: 2500
     };
@@ -474,18 +531,19 @@ function renderPokemonActivoArena() {
     if (playerBox) {
         playerBox.innerHTML = playerPokemon
             ? renderActivePokemonCardArena(playerPokemon)
-            : renderSinPokemonActivo("Tu equipo sin Pokémon disponibles");
+            : renderSinPokemonActivo(tSafeArena("arena_no_available_player"));
     }
 
     if (enemyBox) {
         enemyBox.innerHTML = enemyPokemon
             ? renderActivePokemonCardArena(enemyPokemon)
-            : renderSinPokemonActivo("El rival no tiene Pokémon disponibles");
+            : renderSinPokemonActivo(tSafeArena("arena_no_available_enemy"));
     }
 }
 
 function renderActivePokemonCardArena(pokemon) {
     const tipoClase = obtenerClaseTipoArena(pokemon.tipo);
+    const tipoTraducido = traducirTipoPokemonArena(pokemon.tipo);
     const imagen = obtenerImagenPokemonArena(pokemon);
     const hpPercent = calcularHpPercentArena(pokemon);
     const hpClass = obtenerClaseHpArena(hpPercent);
@@ -509,33 +567,33 @@ function renderActivePokemonCardArena(pokemon) {
                     </div>
 
                     <div class="arena-type-pill ${tipoClase}">
-                        ${escapeHtmlArena(pokemon.tipo)}
+                        ${escapeHtmlArena(tipoTraducido)}
                     </div>
                 </div>
             </div>
 
             <div class="arena-stats-grid">
                 <div class="arena-stat-card">
-                    <span>Nivel</span>
+                    <span>${tSafeArena("maps_level")}</span>
                     <strong>${pokemon.nivel}</strong>
                 </div>
                 <div class="arena-stat-card">
-                    <span>ATK</span>
+                    <span>${tSafeArena("pokemon_attack")}</span>
                     <strong>${pokemon.ataque}</strong>
                 </div>
                 <div class="arena-stat-card">
-                    <span>DEF</span>
+                    <span>${tSafeArena("pokemon_defense")}</span>
                     <strong>${pokemon.defensa}</strong>
                 </div>
                 <div class="arena-stat-card">
-                    <span>VEL</span>
+                    <span>${tSafeArena("arena_speed")}</span>
                     <strong>${pokemon.velocidad}</strong>
                 </div>
             </div>
 
             <div class="arena-hp-block">
                 <div class="arena-hp-top">
-                    <span>HP</span>
+                    <span>${tSafeArena("maps_hp")}</span>
                     <strong>${pokemon.hp_actual} / ${pokemon.hp_max}</strong>
                 </div>
 
@@ -544,14 +602,14 @@ function renderActivePokemonCardArena(pokemon) {
                 </div>
 
                 <div class="arena-status-label ${pokemon.defeated ? "fainted" : ""}">
-                    ${pokemon.defeated ? "Debilitado" : "En combate"}
+                    ${pokemon.defeated ? tSafeArena("arena_fainted") : tSafeArena("arena_in_battle")}
                 </div>
             </div>
 
             ${pokemon.side !== "enemy" ? `
                 <div class="arena-exp-block">
                     <div class="arena-exp-top">
-                        <span>EXP</span>
+                        <span>${tSafeArena("arena_exp")}</span>
                         <strong>${expActual} / ${expObjetivo}</strong>
                     </div>
                     <div class="arena-exp-bar">
@@ -590,6 +648,7 @@ function renderEquiposMiniArena() {
 
 function renderMiniPokemonArena(pokemon, isActive = false, isEnemy = false) {
     const imagen = obtenerImagenPokemonArena(pokemon);
+    const tipoTraducido = traducirTipoPokemonArena(pokemon.tipo);
     const expActual = calcularExpActualArena(pokemon);
     const expObjetivo = calcularExpObjetivoArena(pokemon.nivel);
     const expPercent = calcularExpPercentArena(pokemon);
@@ -598,6 +657,7 @@ function renderMiniPokemonArena(pokemon, isActive = false, isEnemy = false) {
         <article class="arena-mini-card ${isActive ? (isEnemy ? "enemy-active" : "active") : ""} ${pokemon.defeated ? "fainted" : ""}">
             <img src="${imagen}" alt="${escapeHtmlArena(pokemon.nombre)}">
             <h4>${escapeHtmlArena(pokemon.nombre)}</h4>
+            <p class="arena-mini-type">${escapeHtmlArena(tipoTraducido)}</p>
 
             <div class="arena-mini-meta">
                 <span class="hp">HP ${pokemon.hp_actual}</span>
@@ -610,7 +670,7 @@ function renderMiniPokemonArena(pokemon, isActive = false, isEnemy = false) {
                     <div class="arena-mini-exp-bar">
                         <div class="arena-mini-exp-fill" style="width:${expPercent}%"></div>
                     </div>
-                    <small class="arena-mini-exp-text">EXP ${expActual}/${expObjetivo}</small>
+                    <small class="arena-mini-exp-text">${tSafeArena("arena_exp")} ${expActual}/${expObjetivo}</small>
                 </div>
             ` : ""}
 
@@ -632,9 +692,11 @@ function renderEstadoArena() {
 
     if (estadoGeneral) {
         if (arenaCombatEnded) {
-            estadoGeneral.textContent = vivosPlayer > 0 ? "Victoria" : "Derrota";
+            estadoGeneral.textContent = vivosPlayer > 0
+                ? tSafeArena("arena_victory")
+                : tSafeArena("arena_defeat_title");
         } else {
-            estadoGeneral.textContent = "Combate en curso";
+            estadoGeneral.textContent = tSafeArena("arena_in_progress");
         }
     }
 }
@@ -765,8 +827,8 @@ function calcularMultiplicadorContraDefensorArena(atacante, defensor) {
 }
 
 function describirMultiplicadorArena(mult = 1) {
-    if (mult >= 2) return "¡Es muy efectivo!";
-    if (mult <= 0.5) return "No es muy efectivo.";
+    if (mult >= 2) return tSafeArena("arena_effective");
+    if (mult <= 0.5) return tSafeArena("arena_not_effective");
     return "";
 }
 
@@ -835,7 +897,7 @@ async function ejecutarAutoTurnoArena() {
 
     if (arenaAutoTurnoActivo) {
         detenerAutoTurnoArena();
-        agregarLogArena("Auto turno detenido.", "Sistema");
+        agregarLogArena(tSafeArena("arena_auto_stopped"), tSafeArena("arena_system"));
         habilitarAccionesArena();
         return;
     }
@@ -856,8 +918,8 @@ async function ejecutarAutoTurnoArena() {
     deshabilitarAccionesArena(true);
 
     agregarLogArena(
-        `Auto turno activado: ${playerInicial.nombre} atacará hasta que uno de los Pokémon activos sea debilitado.`,
-        "Sistema"
+        tfArena("arena_auto_activated", { pokemon: playerInicial.nombre }),
+        tSafeArena("arena_system")
     );
 
     try {
@@ -925,10 +987,10 @@ function actualizarBotonAutoTurnoArena() {
 
     if (arenaAutoTurnoActivo) {
         btnAuto.classList.add("btn-arena-primary", "auto-turno-activo");
-        btnAuto.textContent = "Auto activo";
+        btnAuto.textContent = tSafeArena("arena_action_auto_active");
     } else {
         btnAuto.classList.add("btn-arena-light");
-        btnAuto.textContent = "Auto turno";
+        btnAuto.textContent = tSafeArena("arena_action_auto");
     }
 }
 
@@ -945,12 +1007,16 @@ async function resolverAtaqueArena(atacante, defensor, esAtaqueJugador = false) 
     mostrarDanioFlotanteArena(!esAtaqueJugador, resultadoDanio.danio, resultadoDanio.multiplicador);
 
     agregarLogArena(
-        `${atacante.nombre} atacó a ${defensor.nombre} y causó ${resultadoDanio.danio} de daño.`,
-        esAtaqueJugador ? "Tu equipo" : "Rival"
+        tfArena("arena_log_attack", {
+            attacker: atacante.nombre,
+            defender: defensor.nombre,
+            damage: resultadoDanio.danio
+        }),
+        esAtaqueJugador ? tSafeArena("battle_your_team") : tSafeArena("battle_rival")
     );
 
     if (resultadoDanio.textoEfectividad) {
-        agregarLogArena(resultadoDanio.textoEfectividad, "Sistema");
+        agregarLogArena(resultadoDanio.textoEfectividad, tSafeArena("arena_system"));
     }
 
     renderArenaCompleta();
@@ -960,7 +1026,11 @@ async function resolverAtaqueArena(atacante, defensor, esAtaqueJugador = false) 
         defensor.hp_actual = 0;
         defensor.defeated = true;
 
-        agregarLogArena(`${defensor.nombre} quedó debilitado.`, "Sistema");
+        agregarLogArena(
+            tfArena("arena_log_fainted", { pokemon: defensor.nombre }),
+            tSafeArena("arena_system")
+        );
+
         renderArenaCompleta();
 
         const vivosRestantes = contarVivosArena(
@@ -978,7 +1048,10 @@ async function resolverAtaqueArena(atacante, defensor, esAtaqueJugador = false) 
             const siguiente = encontrarSiguienteVivoArena(arenaEnemyTeam);
             if (siguiente !== -1) {
                 arenaEnemyIndex = siguiente;
-                agregarLogArena(`${arenaEnemyTeam[siguiente].nombre} entra al combate por el rival.`, "Rival");
+                agregarLogArena(
+                    tfArena("arena_log_enemy_enters", { pokemon: arenaEnemyTeam[siguiente].nombre }),
+                    tSafeArena("battle_rival")
+                );
                 renderArenaCompleta();
                 await esperarArena(250);
             }
@@ -986,7 +1059,10 @@ async function resolverAtaqueArena(atacante, defensor, esAtaqueJugador = false) 
             const siguiente = encontrarSiguienteVivoArena(arenaPlayerTeam);
             if (siguiente !== -1) {
                 arenaPlayerIndex = siguiente;
-                agregarLogArena(`${arenaPlayerTeam[siguiente].nombre} entra al combate por tu equipo.`, "Tu equipo");
+                agregarLogArena(
+                    tfArena("arena_log_player_enters", { pokemon: arenaPlayerTeam[siguiente].nombre }),
+                    tSafeArena("battle_your_team")
+                );
                 renderArenaCompleta();
                 await esperarArena(250);
             }
@@ -1089,6 +1165,7 @@ function abrirModalCambioArena() {
     if (arenaCombatEnded || arenaTurnoEnProceso) return;
 
     detenerAutoTurnoArena();
+
     const modal = document.getElementById("arenaChangeModal");
     const optionsBox = document.getElementById("arenaChangeOptions");
     if (!modal || !optionsBox) return;
@@ -1103,7 +1180,7 @@ function abrirModalCambioArena() {
                 ${disabled ? "disabled" : ""}
             >
                 <strong>${escapeHtmlArena(pokemon.nombre)}</strong>
-                <span>Nv ${pokemon.nivel} · HP ${pokemon.hp_actual}/${pokemon.hp_max} · ATK ${pokemon.ataque} · DEF ${pokemon.defensa}</span>
+                <span>${tSafeArena("arena_level_short")} ${pokemon.nivel} · HP ${pokemon.hp_actual}/${pokemon.hp_max} · ATK ${pokemon.ataque} · DEF ${pokemon.defensa}</span>
             </button>
         `;
     }).join("");
@@ -1114,7 +1191,10 @@ function abrirModalCambioArena() {
             if (Number.isNaN(newIndex)) return;
 
             arenaPlayerIndex = newIndex;
-            agregarLogArena(`${arenaPlayerTeam[newIndex].nombre} entra al combate por tu equipo.`, "Tu equipo");
+            agregarLogArena(
+                tfArena("arena_log_player_enters", { pokemon: arenaPlayerTeam[newIndex].nombre }),
+                tSafeArena("battle_your_team")
+            );
             modal.classList.add("oculto");
             renderArenaCompleta();
         });
@@ -1136,17 +1216,22 @@ async function procesarRecompensasVictoriaArena() {
         );
 
         agregarLogArena(
-            `Recompensas obtenidas (${recompensa.nombre}): +${data?.pokedolares_ganados ?? recompensa.pokedolares} pokedólares y +${data?.exp_ganada ?? recompensa.exp} EXP para todo tu equipo.`,
-            "Sistema"
+            tfArena("arena_rewards_log", {
+                difficulty: recompensa.nombre,
+                coins: data?.pokedolares_ganados ?? recompensa.pokedolares,
+                exp: data?.exp_ganada ?? recompensa.exp
+            }),
+            tSafeArena("arena_system")
         );
 
         return {
-            ...recompensa,
+            exp: recompensa.exp,
+            pokedolares: recompensa.pokedolares,
             data
         };
     } catch (error) {
         console.warn("No se pudieron aplicar las recompensas de victoria:", error);
-        agregarLogArena("La batalla terminó, pero hubo un problema al aplicar las recompensas.", "Sistema");
+        agregarLogArena(tSafeArena("arena_rewards_error"), tSafeArena("arena_system"));
         return null;
     }
 }
@@ -1154,7 +1239,7 @@ async function procesarRecompensasVictoriaArena() {
 /* =========================================================
    RESULTADO / LOG
 ========================================================= */
-function mostrarResultadoArena(victoria = true, recompensa = null) {
+function mostrarResultadoArena(victoria = true, recompensa = null, soloRefresco = false) {
     const modal = document.getElementById("arenaResultModal");
     const icon = document.getElementById("arenaResultIcon");
     const title = document.getElementById("arenaResultTitle");
@@ -1162,35 +1247,48 @@ function mostrarResultadoArena(victoria = true, recompensa = null) {
 
     if (!modal || !icon || !title || !text) return;
 
+    arenaUltimoResultado = { victoria, recompensa };
+
     if (victoria) {
         const recompensaFinal = recompensa || obtenerRecompensasPorDificultadArena();
+        const dificultadTexto = obtenerRecompensasPorDificultadArena().nombre;
 
         icon.textContent = "🏆";
         icon.style.background = "#dcfce7";
         icon.style.color = "#15803d";
-        title.textContent = "¡Victoria!";
-        text.textContent = `Has derrotado al equipo rival de la fase 1 en dificultad ${recompensaFinal.nombre}. Recompensas: +${recompensaFinal.pokedolares} pokedólares y +${recompensaFinal.exp} EXP para tu equipo.`;
-        mostrarMensajeArena("¡Ganaste la batalla!", "ok");
+        title.textContent = tSafeArena("arena_victory");
+        text.textContent = tfArena("arena_result_victory_text", {
+            difficulty: dificultadTexto,
+            coins: recompensaFinal?.pokedolares ?? 0,
+            exp: recompensaFinal?.exp ?? 0
+        });
+
+        if (!soloRefresco) {
+            mostrarMensajeArena(tSafeArena("arena_victory_message"), "ok");
+        }
     } else {
         icon.textContent = "✖";
         icon.style.background = "#fee2e2";
         icon.style.color = "#b91c1c";
-        title.textContent = "Derrota";
-        text.textContent = "Tu equipo fue derrotado. Puedes volver a intentarlo.";
-        mostrarMensajeArena("Tu equipo fue derrotado.", "error");
+        title.textContent = tSafeArena("arena_defeat_title");
+        text.textContent = tSafeArena("arena_defeat_text");
+
+        if (!soloRefresco) {
+            mostrarMensajeArena(tSafeArena("arena_defeat_message"), "error");
+        }
     }
 
     modal.classList.remove("oculto");
 }
 
-function agregarLogArena(texto, autor = "Sistema") {
+function agregarLogArena(texto, autor = null) {
     const log = document.getElementById("arenaBattleLog");
     if (!log) return;
 
     const item = document.createElement("div");
     item.className = "arena-log-item";
     item.innerHTML = `
-        <small>${escapeHtmlArena(autor)} · Turno ${arenaTurno}</small>
+        <small>${escapeHtmlArena(autor || tSafeArena("arena_system"))} · ${tSafeArena("arena_turn")} ${arenaTurno}</small>
         <strong>${escapeHtmlArena(texto)}</strong>
     `;
 
@@ -1254,25 +1352,126 @@ function obtenerClaseHpArena(percent) {
 function obtenerClaseTipoArena(tipo = "") {
     const valor = normalizarTipoCombate(tipo);
 
-    if (valor.includes("agua")) return "type-agua";
-    if (valor.includes("fuego")) return "type-fuego";
-    if (valor.includes("planta")) return "type-planta";
-    if (valor.includes("electrico")) return "type-electrico";
-    if (valor.includes("psiquico")) return "type-psiquico";
-    if (valor.includes("roca")) return "type-roca";
-    if (valor.includes("veneno")) return "type-veneno";
-    if (valor.includes("volador")) return "type-volador";
-    if (valor.includes("fantasma")) return "type-fantasma";
-    if (valor.includes("bicho")) return "type-bicho";
-    if (valor.includes("lucha")) return "type-lucha";
+    if (valor.includes("agua") || valor.includes("water")) return "type-agua";
+    if (valor.includes("fuego") || valor.includes("fire")) return "type-fuego";
+    if (valor.includes("planta") || valor.includes("grass")) return "type-planta";
+    if (valor.includes("electrico") || valor.includes("electric")) return "type-electrico";
+    if (valor.includes("psiquico") || valor.includes("psychic")) return "type-psiquico";
+    if (valor.includes("roca") || valor.includes("rock")) return "type-roca";
+    if (valor.includes("veneno") || valor.includes("poison")) return "type-veneno";
+    if (valor.includes("volador") || valor.includes("flying")) return "type-volador";
+    if (valor.includes("fantasma") || valor.includes("ghost")) return "type-fantasma";
+    if (valor.includes("bicho") || valor.includes("bug")) return "type-bicho";
+    if (valor.includes("lucha") || valor.includes("fighting")) return "type-lucha";
     if (valor.includes("normal")) return "type-normal";
-    if (valor.includes("tierra")) return "type-tierra";
-    if (valor.includes("hielo")) return "type-hielo";
+    if (valor.includes("tierra") || valor.includes("ground")) return "type-tierra";
+    if (valor.includes("hielo") || valor.includes("ice")) return "type-hielo";
     if (valor.includes("dragon")) return "type-dragon";
-    if (valor.includes("acero")) return "type-acero";
-    if (valor.includes("hada")) return "type-hada";
+    if (valor.includes("acero") || valor.includes("steel")) return "type-acero";
+    if (valor.includes("hada") || valor.includes("fairy")) return "type-hada";
 
     return "type-default";
+}
+
+function traducirTipoPokemonArena(tipo = "") {
+    const mapa = {
+        "Normal": "type_normal",
+        "normal": "type_normal",
+        "Fuego": "type_fire",
+        "fuego": "type_fire",
+        "Fire": "type_fire",
+        "fire": "type_fire",
+        "Agua": "type_water",
+        "agua": "type_water",
+        "Water": "type_water",
+        "water": "type_water",
+        "Planta": "type_grass",
+        "planta": "type_grass",
+        "Grass": "type_grass",
+        "grass": "type_grass",
+        "Electrico": "type_electric",
+        "Eléctrico": "type_electric",
+        "electrico": "type_electric",
+        "eléctrico": "type_electric",
+        "Electric": "type_electric",
+        "electric": "type_electric",
+        "Hielo": "type_ice",
+        "hielo": "type_ice",
+        "Ice": "type_ice",
+        "ice": "type_ice",
+        "Lucha": "type_fighting",
+        "lucha": "type_fighting",
+        "Fighting": "type_fighting",
+        "fighting": "type_fighting",
+        "Veneno": "type_poison",
+        "veneno": "type_poison",
+        "Poison": "type_poison",
+        "poison": "type_poison",
+        "Tierra": "type_ground",
+        "tierra": "type_ground",
+        "Ground": "type_ground",
+        "ground": "type_ground",
+        "Volador": "type_flying",
+        "volador": "type_flying",
+        "Flying": "type_flying",
+        "flying": "type_flying",
+        "Psiquico": "type_psychic",
+        "Psíquico": "type_psychic",
+        "psiquico": "type_psychic",
+        "psíquico": "type_psychic",
+        "Psychic": "type_psychic",
+        "psychic": "type_psychic",
+        "Bicho": "type_bug",
+        "bicho": "type_bug",
+        "Bug": "type_bug",
+        "bug": "type_bug",
+        "Roca": "type_rock",
+        "roca": "type_rock",
+        "Rock": "type_rock",
+        "rock": "type_rock",
+        "Fantasma": "type_ghost",
+        "fantasma": "type_ghost",
+        "Ghost": "type_ghost",
+        "ghost": "type_ghost",
+        "Dragon": "type_dragon",
+        "Dragón": "type_dragon",
+        "dragon": "type_dragon",
+        "dragón": "type_dragon",
+        "Acero": "type_steel",
+        "acero": "type_steel",
+        "Steel": "type_steel",
+        "steel": "type_steel",
+        "Hada": "type_fairy",
+        "hada": "type_fairy",
+        "Fairy": "type_fairy",
+        "fairy": "type_fairy"
+    };
+
+    return String(tipo || "")
+        .split("/")
+        .map(parte => {
+            const limpio = parte.trim();
+            const key = mapa[limpio];
+            return key ? tSafeArena(key) : limpio;
+        })
+        .join("/");
+}
+
+function tSafeArena(key) {
+    if (typeof t === "function") {
+        return t(key);
+    }
+    return key;
+}
+
+function tfArena(key, values = {}) {
+    let texto = tSafeArena(key);
+
+    for (const [campo, valor] of Object.entries(values)) {
+        texto = texto.replaceAll(`{${campo}}`, String(valor));
+    }
+
+    return texto;
 }
 
 async function fetchJsonArena(url, options = {}) {
