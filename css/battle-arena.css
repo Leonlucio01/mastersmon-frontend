@@ -321,12 +321,13 @@
     flex: 1 1 auto;
     min-width: 0;
     max-width: 100%;
-    font-size: clamp(20px, 2.6vw, 28px);
+    font-size: clamp(18px, 2.2vw, 28px);
     font-weight: 900;
     color: #111827;
-    line-height: 1.05;
-    word-break: normal;
-    overflow-wrap: normal;
+    line-height: 1.02;
+    white-space: normal;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
     hyphens: none;
 }
 
@@ -584,6 +585,7 @@
     opacity: 1;
     box-shadow: 0 10px 18px rgba(34,197,94,0.18);
 }
+
 /* =========================================================
    PREVIEW DE EQUIPOS
 ========================================================= */
@@ -988,10 +990,6 @@
 /* =========================================================
    PALETA POR TIPO - FONDO CARD ACTIVA
 ========================================================= */
-/* =========================================================
-   FONDO CARD ACTIVA DEL DUELO
-   Solo azul para tu equipo y rojo para rival
-========================================================= */
 .arena-card.player-card{
     background: linear-gradient(180deg, #f1f7ff 0%, #e4f0ff 45%, #ffffff 100%);
 }
@@ -1132,57 +1130,63 @@
 }
 
 @media (max-width: 980px){
+    .battle-arena-page{
+        padding: 22px 16px 30px;
+    }
+
+    .arena-main-panel,
+    .arena-side-panel{
+        padding: 16px;
+        border-radius: 20px;
+    }
+
     .arena-versus-grid{
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr) 110px minmax(0, 1fr);
+        gap: 12px;
+        align-items: stretch;
     }
 
     .arena-vs-center{
-        flex-direction: row;
+        flex-direction: column;
         justify-content: center;
+        gap: 10px;
     }
 
-    .arena-actions-grid{
-        grid-template-columns: 1fr 1fr;
+    .arena-vs-badge{
+        width: 74px;
+        height: 74px;
+        font-size: 24px;
     }
 
-    .arena-team-preview-wrap{
-        grid-template-columns: 1fr;
+    .arena-turn-box{
+        padding: 10px 8px;
+        border-radius: 14px;
     }
 
-    .arena-team-grid{
-        grid-template-columns: repeat(3, 1fr);
-    }
-}
-
-@media (max-width: 700px){
-    .battle-arena-page{
-        padding: 22px 14px 34px;
+    .arena-turn-box span{
+        font-size: 11px;
     }
 
-    .arena-title{
-        font-size: 34px;
-    }
-
-    .arena-actions-grid{
-        grid-template-columns: 1fr;
-    }
-
-    .arena-stats-grid{
-        grid-template-columns: 1fr 1fr;
-    }
-
-    .arena-team-grid{
-        grid-template-columns: 1fr 1fr;
+    .arena-turn-box strong{
+        font-size: 22px;
     }
 
     .arena-side-card{
         padding: 14px;
         min-height: auto;
+        border-radius: 20px;
     }
 
     .arena-active-inner{
         min-height: auto;
-        padding: 14px;
+        padding: 12px;
+        border-radius: 18px;
+    }
+
+    .arena-side-kicker{
+        margin-bottom: 10px;
+        padding: 6px 10px;
+        font-size: 11px;
     }
 
     .arena-pokemon-top{
@@ -1190,6 +1194,7 @@
         grid-template-columns: 84px minmax(0, 1fr);
         align-items: center;
         gap: 12px;
+        margin-bottom: 12px;
         text-align: left;
     }
 
@@ -1200,80 +1205,273 @@
     }
 
     .arena-pokemon-sprite{
-        width: 64px;
-        height: 64px;
+        width: 62px;
+        height: 62px;
     }
 
     .arena-pokemon-info{
-        display: block;
         min-width: 0;
         width: 100%;
     }
 
     .arena-pokemon-name-row{
-        justify-content: flex-start;
-        align-items: flex-start;
+        width: 100%;
+        min-width: 0;
         gap: 6px;
         margin-bottom: 8px;
+        align-items: flex-start;
     }
 
     .arena-pokemon-name-row h3{
-        flex: 1 1 auto;
-        min-width: 0;
-        max-width: 100%;
         font-size: 20px;
         line-height: 1.02;
-        word-break: normal;
-        overflow-wrap: normal;
-        hyphens: none;
     }
 
     .arena-shiny-badge{
-        padding: 6px 10px;
-        font-size: 11px;
+        padding: 5px 9px;
+        font-size: 10px;
     }
 
     .arena-type-pill{
         min-width: 0;
         max-width: 100%;
         width: fit-content;
-        padding: 7px 12px;
-        font-size: 12px;
+        padding: 6px 10px;
+        font-size: 11px;
         line-height: 1.1;
-        white-space: normal;
-        text-align: center;
+        margin-bottom: 8px;
+    }
+
+    .arena-stats-grid{
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        margin-bottom: 12px;
     }
 
     .arena-stat-card{
-        padding: 10px 8px;
         border-radius: 14px;
+        padding: 10px 8px;
+    }
+
+    .arena-stat-card span{
+        font-size: 10px;
+        margin-bottom: 4px;
     }
 
     .arena-stat-card strong{
-        font-size: 15px;
+        font-size: 14px;
     }
 
-    .arena-status-grid{
-        grid-template-columns: 1fr;
-    }
-}
-
-
-@media (max-width: 520px){
-    .arena-team-grid{
-        grid-template-columns: 1fr;
+    .arena-hp-top,
+    .arena-exp-top{
+        font-size: 12px;
     }
 
-    .arena-modal-actions{
-        flex-direction: column;
+    .arena-hp-bar{
+        height: 12px;
+    }
+
+    .arena-exp-bar{
+        height: 8px;
+    }
+
+    .arena-status-label{
+        padding: 6px 10px;
+        font-size: 10px;
+    }
+
+    .arena-actions-panel{
+        padding: 14px;
+        border-radius: 18px;
+    }
+
+    .arena-action-header{
+        margin-bottom: 10px;
+    }
+
+    .arena-action-header h3{
+        font-size: 18px;
+        margin-bottom: 4px;
+    }
+
+    .arena-action-header p{
+        font-size: 12px;
+    }
+
+    .arena-actions-grid{
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 8px;
     }
 
     .btn-arena{
-        width: 100%;
+        padding: 10px 6px;
+        font-size: 12px;
+        border-radius: 12px;
+    }
+
+    .arena-team-preview-wrap{
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .arena-subsection-title{
+        margin-bottom: 8px;
+        font-size: 15px;
+    }
+
+    .arena-team-grid{
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .arena-mini-card{
+        padding: 8px;
+        border-radius: 14px;
+    }
+
+    .arena-mini-card img{
+        width: 38px;
+        height: 38px;
+        margin-bottom: 6px;
+    }
+
+    .arena-mini-card h4{
+        font-size: 11px;
+        min-height: 24px;
+        margin-bottom: 4px;
+    }
+
+    .arena-mini-type{
+        font-size: 9px;
+        min-height: 14px;
+        margin-bottom: 6px;
+    }
+
+    .arena-mini-meta{
+        gap: 4px;
+    }
+
+    .arena-mini-meta span{
+        font-size: 8px;
+        padding: 4px 6px;
+    }
+
+    .arena-mini-exp-wrap{
+        margin-top: 6px;
+    }
+
+    .arena-mini-exp-text{
+        margin-top: 3px;
+        font-size: 8px;
+    }
+
+    .arena-mini-dead{
+        font-size: 8px;
+        padding: 4px 6px;
+        margin-top: 6px;
+    }
+
+    .arena-side-panel{
+        gap: 12px;
+    }
+
+    .arena-log-panel,
+    .arena-status-panel{
+        padding: 14px;
+        border-radius: 18px;
+    }
+
+    .arena-side-panel-header{
+        margin-bottom: 10px;
+    }
+
+    .arena-side-panel-header h3{
+        font-size: 18px;
+    }
+
+    .arena-chip{
+        font-size: 10px;
+        padding: 5px 8px;
+    }
+
+    .arena-log-list{
+        max-height: 320px;
+        gap: 8px;
+    }
+
+    .arena-log-item{
+        padding: 10px 12px;
+        border-radius: 14px;
+    }
+
+    .arena-log-item small{
+        font-size: 10px;
+        margin-bottom: 3px;
+    }
+
+    .arena-log-item strong{
+        font-size: 12px;
+        line-height: 1.35;
+    }
+
+    .arena-status-grid{
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    .arena-status-card{
+        border-radius: 14px;
+        padding: 10px;
+    }
+
+    .arena-status-card span{
+        font-size: 10px;
+    }
+
+    .arena-status-card strong{
+        font-size: 18px;
+    }
+
+    .arena-status-card small{
+        font-size: 10px;
+    }
+}
+
+@media (max-width: 700px){
+    .battle-arena-page{
+        padding: 18px 12px 26px;
+    }
+
+    .arena-title{
+        font-size: 32px;
+    }
+
+    .arena-subtitle{
+        font-size: 14px;
+    }
+
+    .arena-hero-badge{
+        font-size: 11px;
+        padding: 6px 10px;
     }
 
     .arena-versus-grid{
-        gap: 12px;
+        grid-template-columns: minmax(0, 1fr) 88px minmax(0, 1fr);
+        gap: 10px;
+    }
+
+    .arena-vs-badge{
+        width: 64px;
+        height: 64px;
+        font-size: 22px;
+    }
+
+    .arena-turn-box{
+        padding: 8px 6px;
+    }
+
+    .arena-turn-box strong{
+        font-size: 20px;
     }
 
     .arena-side-card{
@@ -1281,7 +1479,7 @@
     }
 
     .arena-active-inner{
-        padding: 12px;
+        padding: 10px;
     }
 
     .arena-pokemon-top{
@@ -1296,25 +1494,140 @@
     }
 
     .arena-pokemon-sprite{
-        width: 56px;
-        height: 56px;
+        width: 54px;
+        height: 54px;
     }
 
     .arena-pokemon-name-row h3{
         font-size: 18px;
-        line-height: 1.02;
-        word-break: normal;
-        overflow-wrap: normal;
-        hyphens: none;
     }
 
     .arena-type-pill{
-        font-size: 11px;
-        padding: 6px 10px;
+        font-size: 10px;
+        padding: 5px 8px;
+    }
+
+    .arena-stat-card{
+        padding: 8px 6px;
+    }
+
+    .arena-stat-card span{
+        font-size: 9px;
+    }
+
+    .arena-stat-card strong{
+        font-size: 13px;
     }
 
     .arena-hp-top,
     .arena-exp-top{
-        font-size: 12px;
+        font-size: 11px;
+    }
+
+    .arena-actions-grid{
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 6px;
+    }
+
+    .btn-arena{
+        padding: 9px 4px;
+        font-size: 11px;
+    }
+
+    .arena-team-preview-wrap{
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .arena-team-grid{
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 6px;
+    }
+
+    .arena-mini-card{
+        padding: 6px;
+    }
+
+    .arena-mini-card img{
+        width: 32px;
+        height: 32px;
+    }
+
+    .arena-mini-card h4{
+        font-size: 10px;
+        min-height: 20px;
+    }
+
+    .arena-mini-type{
+        font-size: 8px;
+        min-height: 12px;
+    }
+
+    .arena-mini-meta span{
+        font-size: 7px;
+        padding: 3px 5px;
+    }
+
+    .arena-mini-exp-text{
+        font-size: 7px;
+    }
+
+    .arena-side-panel-header h3{
+        font-size: 16px;
+    }
+
+    .arena-log-item strong{
+        font-size: 11px;
+    }
+
+    .arena-status-card strong{
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 520px){
+    .battle-arena-page{
+        padding: 14px 10px 22px;
+    }
+
+    .arena-main-panel,
+    .arena-side-panel{
+        padding: 12px;
+        border-radius: 16px;
+    }
+
+    .arena-versus-grid{
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .arena-vs-center{
+        flex-direction: row;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .arena-actions-grid{
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .arena-team-preview-wrap{
+        grid-template-columns: 1fr;
+    }
+
+    .arena-team-grid{
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .arena-modal-actions{
+        flex-direction: column;
+    }
+
+    .btn-arena{
+        width: 100%;
+    }
+
+    .arena-status-grid{
+        grid-template-columns: 1fr;
     }
 }
