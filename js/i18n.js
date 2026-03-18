@@ -13,6 +13,10 @@ const I18N = {
         pokedex_subtitle: "Explore, search, and filter your favorite Pokémon",
         pokedex_search_placeholder: "🔎 Search Pokémon...",
         pokedex_all_types: "All types",
+        pokedex_shiny_off: "✨ Shiny",
+        pokedex_shiny_on: "🌟 Shiny On",
+        pokedex_error_load: "Could not load the Pokédex.",
+        pokedex_retry: "Retry",
 
         maps_title: "MAPS",
         maps_subtitle: "Choose an area, enter the map, and move to find wild Pokémon",
@@ -21,7 +25,6 @@ const I18N = {
         maps_move_right: "Move right",
         maps_move_down: "Move down",
         maps_zone_pokemon: "Pokémon living here",
-
         maps_prev_map: "Previous map",
         maps_next_map: "Next map",
         maps_shiny_title: "A Shiny Pokémon appeared!",
@@ -29,7 +32,6 @@ const I18N = {
         maps_continue: "Continue",
         maps_result_title: "Result",
         maps_result_message: "Message",
-
         maps_loading: "Loading...",
         maps_preparing_zone: "Preparing exploration area...",
         maps_level_short: "Level",
@@ -83,56 +85,18 @@ const I18N = {
         maps_invalid_pokemon: "The backend did not return a valid Pokémon.",
         maps_center: "Center",
         maps_map_fallback: "Map",
-
-        battle_badge: "Tactical mode",
-        battle_subtitle: "Prepare your team of 6 Pokémon for turn-based RPG battles and experience progression",
-        battle_arena_badge: "PvE Battle · Phase 1",
-        battle_arena_subtitle: "Face a random rival squad using your main team of 6 Pokémon",
-        battle_your_team: "Your team",
-        battle_rival: "Rival",
-
-        pokemon_capture_status: "Capture status",
-        pokemon_attack: "Attack",
-        pokemon_defense: "Defense",
-        pokemon_hp: "HP",
-
-        pokedex_shiny_off: "✨ Shiny",
-        pokedex_shiny_on: "🌟 Shiny On",
-        pokedex_error_load: "Could not load the Pokédex.",
-        pokedex_retry: "Retry",
-
-        type_all: "All types",
-        type_normal: "Normal",
-        type_fire: "Fire",
-        type_water: "Water",
-        type_grass: "Grass",
-        type_electric: "Electric",
-        type_ice: "Ice",
-        type_fighting: "Fighting",
-        type_poison: "Poison",
-        type_ground: "Ground",
-        type_flying: "Flying",
-        type_psychic: "Psychic",
-        type_bug: "Bug",
-        type_rock: "Rock",
-        type_ghost: "Ghost",
-        type_dragon: "Dragon",
-        type_steel: "Steel",
-        type_fairy: "Fairy",
-
         maps_zone_bosque_name: "Green Forest",
         maps_zone_bosque_desc: "A forest area full of grass- and bug-type Pokémon.",
-
         maps_zone_cueva_name: "Rock Cave",
         maps_zone_cueva_desc: "A dark cave with rock- and ground-type Pokémon.",
-
         maps_zone_lago_name: "Blue Lake",
         maps_zone_lago_desc: "A peaceful area with water-type Pokémon.",
-
         maps_zone_torre_name: "Battle Tower",
         maps_zone_torre_desc: "A place where you face enemies floor by floor.",
-    
+
+        battle_badge: "Tactical mode",
         battle_title: "BATTLE",
+        battle_subtitle: "Prepare your team of 6 Pokémon for turn-based RPG battles and experience progression",
         battle_team_status_label: "Team status",
         battle_team_squad_title: "Your battle squad",
         battle_filled_slots: "Filled slots",
@@ -143,9 +107,11 @@ const I18N = {
         battle_difficulty_expert: "Expert · +4 levels",
         battle_difficulty_master: "Master · +6 levels",
         battle_difficulty_help: "Rivals will appear close to your team average.",
+        battle_difficulty_help_bonus: "Rivals will appear with about +{bonus} levels over your average.",
         battle_dominant_type: "Dominant type",
         battle_team_status: "Status",
         battle_team_status_preparing: "Preparing",
+        battle_team_status_ready: "Ready to battle",
         battle_main_team: "Main team",
         battle_build_team_title: "Build your team of 6",
         battle_step_1: "Step 1",
@@ -190,7 +156,6 @@ const I18N = {
         battle_continue: "Continue",
         battle_cancel: "Cancel",
         battle_confirm: "Confirm",
-
         battle_empty_team_clear: "There are no Pokémon in the team to clear.",
         battle_confirm_clear_title: "Clear team?",
         battle_confirm_clear_text: "The current Pokémon will be removed from the team.",
@@ -199,7 +164,6 @@ const I18N = {
         battle_team_saved: "Team saved successfully.",
         battle_no_token: "No access token available.",
         battle_user_not_found: "Current user was not found.",
-        battle_difficulty_help_bonus: "Rivals will appear with about +{bonus} levels over your average.",
         battle_team_full: "Your team already has 6 Pokémon.",
         battle_already_in_team: "That Pokémon is already in your team.",
         battle_not_found_in_collection: "That Pokémon was not found in your collection.",
@@ -212,7 +176,6 @@ const I18N = {
         battle_stat_atk_short: "ATK",
         battle_stat_def_short: "DEF",
         battle_exp_label: "EXP",
-        battle_team_status_ready: "Ready to battle",
         battle_attack_profile_empty: "Your team does not define an offensive profile yet.",
         battle_attack_profile_strong: "Strong offensive team, ideal for fast pressure.",
         battle_attack_profile_mid: "Balanced and stable offensive profile.",
@@ -243,6 +206,11 @@ const I18N = {
         battle_remove_pokemon: "Remove Pokémon",
 
         battle_arena_title: "Battle Arena",
+        battle_arena_badge: "PvE Battle · Phase 1",
+        battle_arena_subtitle: "Face a random rival squad using your main team of 6 Pokémon",
+        battle_your_team: "Your team",
+        battle_rival: "Rival",
+
         arena_turn: "Turn",
         arena_rival_phase_1: "Phase 1 rival",
         arena_actions_title: "Turn actions",
@@ -290,10 +258,6 @@ const I18N = {
         arena_log_player_enters: "{pokemon} enters the battle for your team.",
         arena_no_available_player: "Your team has no available Pokémon",
         arena_no_available_enemy: "The rival has no available Pokémon",
-        //battle_difficulty_normal: "Normal",
-        //battle_difficulty_challenge: "Challenge",
-        //battle_difficulty_expert: "Expert",
-        //battle_difficulty_master: "Master",
         arena_rewards_log: "Rewards obtained ({difficulty}): +{coins} Pokédollars and +{exp} EXP for your whole team.",
         arena_rewards_error: "The battle ended, but there was a problem applying rewards.",
         arena_victory_message: "You won the battle!",
@@ -301,6 +265,11 @@ const I18N = {
         arena_defeat_title: "Defeat",
         arena_defeat_text: "Your team was defeated. You can try again.",
         arena_result_victory_text: "You defeated the phase 1 rival on {difficulty} difficulty. Rewards: +{coins} Pokédollars and +{exp} EXP for your team.",
+
+        pokemon_capture_status: "Capture status",
+        pokemon_attack: "Attack",
+        pokemon_defense: "Defense",
+        pokemon_hp: "HP",
 
         mypokemon_title: "MY POKEMON",
         mypokemon_subtitle: "Your collection, levels and evolutions",
@@ -360,18 +329,6 @@ const I18N = {
         mypokemon_evolve_success: "Evolution completed successfully",
         mypokemon_evolve_error: "Could not evolve.",
 
-        item_poke_ball: "Poke Ball",
-        item_super_ball: "Great Ball",
-        item_ultra_ball: "Ultra Ball",
-        item_master_ball: "Master Ball",
-        item_potion: "Potion",
-        item_super_potion: "Super Potion",
-        item_fire_stone: "Fire Stone",
-        item_water_stone: "Water Stone",
-        item_thunder_stone: "Thunder Stone",
-        item_leaf_stone: "Leaf Stone",
-        item_moon_stone: "Moon Stone",
-
         pokemart_title: "POKEMART",
         pokemart_subtitle: "Buy Poké Balls, potions and evolution stones",
         pokemart_login_required: "Login required",
@@ -393,7 +350,6 @@ const I18N = {
         pokemart_not_enough_money: "You do not have enough Pokédollars.",
         pokemart_buy_error: "Could not complete the purchase.",
         pokemart_bought_prefix: "You bought",
-
         pokemart_type_capture: "Capture",
         pokemart_type_healing: "Healing",
         pokemart_type_evolution: "Evolution",
@@ -409,7 +365,38 @@ const I18N = {
         item_thunder_stone: "Thunder Stone",
         item_leaf_stone: "Leaf Stone",
         item_moon_stone: "Moon Stone",
-    
+
+        type_all: "All types",
+        type_normal: "Normal",
+        type_fire: "Fire",
+        type_water: "Water",
+        type_grass: "Grass",
+        type_electric: "Electric",
+        type_ice: "Ice",
+        type_fighting: "Fighting",
+        type_poison: "Poison",
+        type_ground: "Ground",
+        type_flying: "Flying",
+        type_psychic: "Psychic",
+        type_bug: "Bug",
+        type_rock: "Rock",
+        type_ghost: "Ghost",
+        type_dragon: "Dragon",
+        type_steel: "Steel",
+        type_fairy: "Fairy",
+
+        pokemart_desc_poke_ball: "A basic ball used to catch wild Pokémon.",
+        pokemart_desc_super_ball: "A better ball with a higher capture rate than a Poké Ball.",
+        pokemart_desc_ultra_ball: "A high-performance ball with a very strong capture rate.",
+        pokemart_desc_master_ball: "The ultimate ball that catches any Pokémon without fail.",
+        pokemart_desc_potion: "Restores HP to one of your Pokémon.",
+        pokemart_desc_super_potion: "Restores more HP than a regular Potion.",
+        pokemart_desc_fire_stone: "An evolution stone that can evolve certain Fire-type Pokémon.",
+        pokemart_desc_water_stone: "An evolution stone that can evolve certain Water-type Pokémon.",
+        pokemart_desc_thunder_stone: "An evolution stone that can evolve certain Electric-type Pokémon.",
+        pokemart_desc_leaf_stone: "An evolution stone that can evolve certain Grass-type Pokémon.",
+        pokemart_desc_moon_stone: "A mysterious stone that can evolve certain special Pokémon.",
+
     },
 
     es: {
@@ -424,6 +411,10 @@ const I18N = {
         pokedex_subtitle: "Explora, busca y filtra tus Pokémon favoritos",
         pokedex_search_placeholder: "🔎 Buscar Pokémon...",
         pokedex_all_types: "Todos los tipos",
+        pokedex_shiny_off: "✨ Shiny",
+        pokedex_shiny_on: "🌟 Shiny Activo",
+        pokedex_error_load: "No se pudo cargar la Pokédex.",
+        pokedex_retry: "Reintentar",
 
         maps_title: "MAPS",
         maps_subtitle: "Selecciona una zona, entra al mapa y muévete para encontrar Pokémon salvajes",
@@ -432,7 +423,6 @@ const I18N = {
         maps_move_right: "Mover derecha",
         maps_move_down: "Mover abajo",
         maps_zone_pokemon: "Pokémon que habitan aquí",
-
         maps_prev_map: "Mapa anterior",
         maps_next_map: "Mapa siguiente",
         maps_shiny_title: "¡Apareció un Pokémon Shiny!",
@@ -440,7 +430,6 @@ const I18N = {
         maps_continue: "Continuar",
         maps_result_title: "Resultado",
         maps_result_message: "Mensaje",
-
         maps_loading: "Cargando...",
         maps_preparing_zone: "Preparando zona de exploración...",
         maps_level_short: "Nivel",
@@ -494,56 +483,18 @@ const I18N = {
         maps_invalid_pokemon: "El backend no devolvió un Pokémon válido.",
         maps_center: "Centro",
         maps_map_fallback: "Mapa",
-
-        battle_badge: "Modo táctico",
-        battle_subtitle: "Prepara tu equipo de 6 Pokémon para combates RPG por turnos y progresión por experiencia",
-        battle_arena_badge: "Combate PvE · Fase 1",
-        battle_arena_subtitle: "Enfrenta una escuadra rival aleatoria usando tu equipo principal de 6 Pokémon",
-        battle_your_team: "Tu equipo",
-        battle_rival: "Rival",
-
-        pokemon_capture_status: "Estado captura",
-        pokemon_attack: "Ataque",
-        pokemon_defense: "Defensa",
-        pokemon_hp: "HP",
-
-        pokedex_shiny_off: "✨ Shiny",
-        pokedex_shiny_on: "🌟 Shiny Activo",
-        pokedex_error_load: "No se pudo cargar la Pokédex.",
-        pokedex_retry: "Reintentar",
-
-        type_all: "Todos los tipos",
-        type_normal: "Normal",
-        type_fire: "Fuego",
-        type_water: "Agua",
-        type_grass: "Planta",
-        type_electric: "Eléctrico",
-        type_ice: "Hielo",
-        type_fighting: "Lucha",
-        type_poison: "Veneno",
-        type_ground: "Tierra",
-        type_flying: "Volador",
-        type_psychic: "Psíquico",
-        type_bug: "Bicho",
-        type_rock: "Roca",
-        type_ghost: "Fantasma",
-        type_dragon: "Dragón",
-        type_steel: "Acero",
-        type_fairy: "Hada",
-
         maps_zone_bosque_name: "Bosque Verde",
         maps_zone_bosque_desc: "Una zona boscosa llena de Pokemon tipo planta y bicho.",
-
         maps_zone_cueva_name: "Cueva Roca",
         maps_zone_cueva_desc: "Una cueva oscura con Pokemon de roca y tierra.",
-
         maps_zone_lago_name: "Lago Azul",
         maps_zone_lago_desc: "Una zona tranquila con Pokemon de agua.",
-
         maps_zone_torre_name: "Torre Batalla",
         maps_zone_torre_desc: "Un lugar donde te enfrentas a enemigos por pisos.",
 
+        battle_badge: "Modo táctico",
         battle_title: "BATTLE",
+        battle_subtitle: "Prepara tu equipo de 6 Pokémon para combates RPG por turnos y progresión por experiencia",
         battle_team_status_label: "Estado del equipo",
         battle_team_squad_title: "Tu escuadrón de combate",
         battle_filled_slots: "Slots ocupados",
@@ -554,9 +505,11 @@ const I18N = {
         battle_difficulty_expert: "Experto · +4 niveles",
         battle_difficulty_master: "Maestro · +6 niveles",
         battle_difficulty_help: "Los rivales saldrán cerca del promedio de tu equipo.",
+        battle_difficulty_help_bonus: "Los rivales aparecerán con aproximadamente +{bonus} niveles sobre tu promedio.",
         battle_dominant_type: "Tipo dominante",
         battle_team_status: "Estado",
         battle_team_status_preparing: "En preparación",
+        battle_team_status_ready: "Listo para combatir",
         battle_main_team: "Equipo principal",
         battle_build_team_title: "Arma tu equipo de 6",
         battle_step_1: "Paso 1",
@@ -601,7 +554,6 @@ const I18N = {
         battle_continue: "Continuar",
         battle_cancel: "Cancelar",
         battle_confirm: "Confirmar",
-
         battle_empty_team_clear: "No hay Pokémon en el equipo para limpiar.",
         battle_confirm_clear_title: "¿Limpiar equipo?",
         battle_confirm_clear_text: "Se quitarán los Pokémon actuales del equipo.",
@@ -610,7 +562,6 @@ const I18N = {
         battle_team_saved: "Equipo guardado con éxito.",
         battle_no_token: "No hay access token disponible.",
         battle_user_not_found: "No se encontró el usuario actual.",
-        battle_difficulty_help_bonus: "Los rivales aparecerán con aproximadamente +{bonus} niveles sobre tu promedio.",
         battle_team_full: "Tu equipo ya tiene 6 Pokémon.",
         battle_already_in_team: "Ese Pokémon ya está en tu equipo.",
         battle_not_found_in_collection: "No se encontró ese Pokémon en tu colección.",
@@ -623,7 +574,6 @@ const I18N = {
         battle_stat_atk_short: "ATK",
         battle_stat_def_short: "DEF",
         battle_exp_label: "EXP",
-        battle_team_status_ready: "Listo para combatir",
         battle_attack_profile_empty: "Tu equipo aún no define un perfil ofensivo.",
         battle_attack_profile_strong: "Equipo ofensivo fuerte, ideal para presión rápida.",
         battle_attack_profile_mid: "Perfil ofensivo equilibrado y estable.",
@@ -654,6 +604,11 @@ const I18N = {
         battle_remove_pokemon: "Quitar Pokémon",
 
         battle_arena_title: "Battle Arena",
+        battle_arena_badge: "Combate PvE · Fase 1",
+        battle_arena_subtitle: "Enfrenta una escuadra rival aleatoria usando tu equipo principal de 6 Pokémon",
+        battle_your_team: "Tu equipo",
+        battle_rival: "Rival",
+
         arena_turn: "Turno",
         arena_rival_phase_1: "Rival fase 1",
         arena_actions_title: "Acciones del turno",
@@ -701,10 +656,6 @@ const I18N = {
         arena_log_player_enters: "{pokemon} entra al combate por tu equipo.",
         arena_no_available_player: "Tu equipo no tiene Pokémon disponibles",
         arena_no_available_enemy: "El rival no tiene Pokémon disponibles",
-        //battle_difficulty_normal: "Normal",
-        //battle_difficulty_challenge: "Desafío",
-        //battle_difficulty_expert: "Experto",
-        //battle_difficulty_master: "Maestro",
         arena_rewards_log: "Recompensas obtenidas ({difficulty}): +{coins} pokedólares y +{exp} EXP para todo tu equipo.",
         arena_rewards_error: "La batalla terminó, pero hubo un problema al aplicar las recompensas.",
         arena_victory_message: "¡Ganaste la batalla!",
@@ -712,6 +663,11 @@ const I18N = {
         arena_defeat_title: "Derrota",
         arena_defeat_text: "Tu equipo fue derrotado. Puedes volver a intentarlo.",
         arena_result_victory_text: "Has derrotado al equipo rival de la fase 1 en dificultad {difficulty}. Recompensas: +{coins} pokedólares y +{exp} EXP para tu equipo.",
+
+        pokemon_capture_status: "Estado captura",
+        pokemon_attack: "Ataque",
+        pokemon_defense: "Defensa",
+        pokemon_hp: "HP",
 
         mypokemon_title: "MY POKEMON",
         mypokemon_subtitle: "Tu colección, niveles y evoluciones",
@@ -771,18 +727,6 @@ const I18N = {
         mypokemon_evolve_success: "Evolución realizada con éxito",
         mypokemon_evolve_error: "No se pudo evolucionar.",
 
-        item_poke_ball: "Poke Ball",
-        item_super_ball: "Super Ball",
-        item_ultra_ball: "Ultra Ball",
-        item_master_ball: "Master Ball",
-        item_potion: "Poción",
-        item_super_potion: "Super Poción",
-        item_fire_stone: "Piedra Fuego",
-        item_water_stone: "Piedra Agua",
-        item_thunder_stone: "Piedra Trueno",
-        item_leaf_stone: "Piedra Hoja",
-        item_moon_stone: "Piedra Lunar",
-
         pokemart_title: "POKEMART",
         pokemart_subtitle: "Compra Poké Balls, pociones y piedras de evolución",
         pokemart_login_required: "Sesión requerida",
@@ -804,7 +748,6 @@ const I18N = {
         pokemart_not_enough_money: "No tienes suficientes pokedólares.",
         pokemart_buy_error: "No se pudo completar la compra.",
         pokemart_bought_prefix: "Compraste",
-
         pokemart_type_capture: "Captura",
         pokemart_type_healing: "Curación",
         pokemart_type_evolution: "Evolución",
@@ -821,6 +764,37 @@ const I18N = {
         item_leaf_stone: "Piedra Hoja",
         item_moon_stone: "Piedra Lunar",
 
+        type_all: "Todos los tipos",
+        type_normal: "Normal",
+        type_fire: "Fuego",
+        type_water: "Agua",
+        type_grass: "Planta",
+        type_electric: "Eléctrico",
+        type_ice: "Hielo",
+        type_fighting: "Lucha",
+        type_poison: "Veneno",
+        type_ground: "Tierra",
+        type_flying: "Volador",
+        type_psychic: "Psíquico",
+        type_bug: "Bicho",
+        type_rock: "Roca",
+        type_ghost: "Fantasma",
+        type_dragon: "Dragón",
+        type_steel: "Acero",
+        type_fairy: "Hada",
+
+        pokemart_desc_poke_ball: "Una ball básica para capturar Pokémon salvajes.",
+        pokemart_desc_super_ball: "Una ball mejorada con más probabilidad de captura que la Poké Ball.",
+        pokemart_desc_ultra_ball: "Una ball de alto rendimiento con gran probabilidad de captura.",
+        pokemart_desc_master_ball: "La ball definitiva que captura cualquier Pokémon sin fallar.",
+        pokemart_desc_potion: "Restaura HP a uno de tus Pokémon.",
+        pokemart_desc_super_potion: "Restaura más HP que una poción normal.",
+        pokemart_desc_fire_stone: "Piedra evolutiva que permite evolucionar ciertos Pokémon de tipo fuego.",
+        pokemart_desc_water_stone: "Piedra evolutiva que permite evolucionar ciertos Pokémon de tipo agua.",
+        pokemart_desc_thunder_stone: "Piedra evolutiva que permite evolucionar ciertos Pokémon de tipo eléctrico.",
+        pokemart_desc_leaf_stone: "Piedra evolutiva que permite evolucionar ciertos Pokémon de tipo planta.",
+        pokemart_desc_moon_stone: "Piedra misteriosa que permite evolucionar ciertos Pokémon especiales.",
+
     }
 };
 
@@ -836,9 +810,17 @@ function setCurrentLang(lang) {
     document.dispatchEvent(new CustomEvent("languageChanged", { detail: { lang: finalLang } }));
 }
 
-function t(key) {
+function t(key, params = {}) {
     const lang = getCurrentLang();
-    return I18N?.[lang]?.[key] ?? I18N?.en?.[key] ?? key;
+    let value = I18N?.[lang]?.[key] ?? I18N?.en?.[key] ?? key;
+
+    if (typeof value !== "string") {
+        return value;
+    }
+
+    return value.replace(/\{(\w+)\}/g, (_, variable) => {
+        return params[variable] !== undefined ? String(params[variable]) : `{${variable}}`;
+    });
 }
 
 function applyTranslations(root = document) {
@@ -847,6 +829,11 @@ function applyTranslations(root = document) {
     root.querySelectorAll("[data-i18n]").forEach(el => {
         const key = el.dataset.i18n;
         el.textContent = t(key);
+    });
+
+    root.querySelectorAll("[data-i18n-html]").forEach(el => {
+        const key = el.dataset.i18nHtml;
+        el.innerHTML = t(key);
     });
 
     root.querySelectorAll("[data-i18n-placeholder]").forEach(el => {

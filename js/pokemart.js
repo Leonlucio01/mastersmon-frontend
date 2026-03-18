@@ -303,6 +303,7 @@ function renderizarTienda() {
         const cantidadInput = cantidadesSeleccionadas[item.id] || 1;
         const nombreTraducido = traducirNombreItemTienda(item.nombre);
         const tipoTraducido = traducirTipoItemTienda(item.tipo);
+        const descripcionTraducida = traducirDescripcionItemTienda(item.nombre, item.descripcion || "");
 
         html += `
             <div class="item-card" data-item-id="${item.id}">
@@ -318,7 +319,7 @@ function renderizarTienda() {
                 </div>
 
                 <h3>${nombreTraducido}</h3>
-                <p class="item-descripcion">${item.descripcion || ""}</p>
+                <p class="item-descripcion">${descripcionTraducida}</p>
 
                 <div class="item-stock">${t("pokemart_you_have")}: x${cantidadActual}</div>
 
@@ -632,4 +633,23 @@ function actualizarCardItemComprado(itemId) {
     }
 
     setBotonComprando(itemId, false);
+}
+
+function traducirDescripcionItemTienda(nombre = "", descripcionOriginal = "") {
+    const mapa = {
+        "Poke Ball": "pokemart_desc_poke_ball",
+        "Super Ball": "pokemart_desc_super_ball",
+        "Ultra Ball": "pokemart_desc_ultra_ball",
+        "Master Ball": "pokemart_desc_master_ball",
+        "Pocion": "pokemart_desc_potion",
+        "Super Pocion": "pokemart_desc_super_potion",
+        "Piedra Fuego": "pokemart_desc_fire_stone",
+        "Piedra Agua": "pokemart_desc_water_stone",
+        "Piedra Trueno": "pokemart_desc_thunder_stone",
+        "Piedra Hoja": "pokemart_desc_leaf_stone",
+        "Piedra Lunar": "pokemart_desc_moon_stone"
+    };
+
+    const key = mapa[nombre];
+    return key ? t(key) : (descripcionOriginal || "");
 }
