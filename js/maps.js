@@ -416,6 +416,90 @@ function obtenerConfigZona(nombreZona = "") {
     return MAPAS_CONFIG[clave] || MAPAS_CONFIG.default;
 }
 
+function traducirTipoPokemonMaps(tipo = "") {
+    const mapa = {
+        "Normal": "type_normal",
+        "Fuego": "type_fire",
+        "Agua": "type_water",
+        "Planta": "type_grass",
+        "Electrico": "type_electric",
+        "Eléctrico": "type_electric",
+        "Hielo": "type_ice",
+        "Lucha": "type_fighting",
+        "Veneno": "type_poison",
+        "Tierra": "type_ground",
+        "Volador": "type_flying",
+        "Psiquico": "type_psychic",
+        "Psíquico": "type_psychic",
+        "Bicho": "type_bug",
+        "Roca": "type_rock",
+        "Fantasma": "type_ghost",
+        "Dragon": "type_dragon",
+        "Dragón": "type_dragon",
+        "Acero": "type_steel",
+        "Hada": "type_fairy"
+    };
+
+    return String(tipo || "")
+        .split("/")
+        .map(parte => {
+            const limpio = parte.trim();
+            const key = mapa[limpio];
+            return key ? t(key) : limpio;
+        })
+        .join("/");
+}
+
+function obtenerNombreZonaTraducido(zona = null) {
+    const nombreOriginal = typeof zona === "string"
+        ? zona
+        : (zona?.nombre || "");
+
+    const clave = obtenerClaveZona(nombreOriginal);
+
+    const mapa = {
+        bosque: "maps_zone_bosque_name",
+        cueva: "maps_zone_cueva_name",
+        lago: "maps_zone_lago_name",
+        torre: "maps_zone_torre_name"
+    };
+
+    const key = mapa[clave];
+    const traducido = key ? t(key) : "";
+
+    return traducido && traducido !== key
+        ? traducido
+        : nombreOriginal;
+}
+
+function obtenerDescripcionZonaTraducida(zona = null) {
+    const nombreOriginal = typeof zona === "string"
+        ? zona
+        : (zona?.nombre || "");
+
+    const descripcionOriginal = typeof zona === "object"
+        ? (zona?.descripcion || "")
+        : "";
+
+    const clave = obtenerClaveZona(nombreOriginal);
+
+    const mapa = {
+        bosque: "maps_zone_bosque_desc",
+        cueva: "maps_zone_cueva_desc",
+        lago: "maps_zone_lago_desc",
+        torre: "maps_zone_torre_desc"
+    };
+
+    const key = mapa[clave];
+    const traducida = key ? t(key) : "";
+
+    if (traducida && traducida !== key) {
+        return traducida;
+    }
+
+    return descripcionOriginal || t("maps_default_zone_desc");
+}
+
 async function cargarZonas() {
     const cache = leerCacheZonas();
     if (cache && cache.length > 0) {
@@ -498,15 +582,18 @@ function renderizarZonas() {
         const config = obtenerConfigZona(zona.nombre);
         const activa = zonaSeleccionadaActual && Number(zonaSeleccionadaActual.id) === Number(zona.id);
 
+        const nombreZonaUI = obtenerNombreZonaTraducido(zona);
+        const descripcionZonaUI = obtenerDescripcionZonaTraducida(zona);
+
         return `
             <article class="map-card ${config.clase} ${activa ? "map-card-activa" : ""}">
                 <div class="map-img-wrap">
-                    <img src="${config.card}" alt="${zona.nombre}" class="map-img" loading="lazy" decoding="async">
+                    <img src="${config.card}" alt="${nombreZonaUI}" class="map-img" loading="lazy" decoding="async">
                 </div>
 
                 <div class="map-info">
-                    <h3>${zona.nombre}</h3>
-                    <p>${zona.descripcion || t("maps_default_zone_desc")}</p>
+                    <h3>${nombreZonaUI}</h3>
+                    <p>${descripcionZonaUI}</p>
 
                     <div class="map-actions">
                         <span class="map-level">${t("maps_level")} ${zona.nivel_min} - ${zona.nivel_max}</span>
@@ -587,6 +674,7 @@ function renderizarZonaExploracion() {
 
     const config = obtenerConfigZona(zonaSeleccionadaActual.nombre);
     const claseZona = config.clase;
+    const nombreZonaUI = obtenerNombreZonaTraducido(zonaSeleccionadaActual);
 
     encuentro.className = "encuentro-box";
     if (claseZona) {
@@ -597,7 +685,7 @@ function renderizarZonaExploracion() {
         <div class="encuentro-layout-mapa">
             <div class="mapa-exploracion-panel">
                 <div class="mapa-exploracion-header">
-                    <h3>${zonaSeleccionadaActual.nombre}</h3>
+                    <h3>${nombreZonaUI}</h3>
                     <p>${t("maps_explore_hint")}</p>
                 </div>
 
@@ -605,7 +693,7 @@ function renderizarZonaExploracion() {
                     <img
                         id="imgMapaExploracion"
                         src="${config.escenario}"
-                        alt="${zonaSeleccionadaActual.nombre}"
+                        alt="${nombreZonaUI}"
                         loading="eager"
                         decoding="async"
                     >
@@ -830,7 +918,7 @@ function renderEncuentroActual() {
         <div class="encuentro-datos-grid">
             <div class="dato-mini">
                 <span>${t("maps_type")}</span>
-                <strong>${encuentroActual.tipo || "—"}</strong>
+                <strong>${traducirTipoPokemonMaps(encuentroActual.tipo) || "—"}</strong>
             </div>
             <div class="dato-mini">
                 <span>${t("maps_level")}</span>
@@ -868,15 +956,19 @@ function renderPanelDerechoVacio() {
 
     if (!infoPanel || !accionPanel) return;
 
+    const nombreZonaUI = zonaSeleccionadaActual
+        ? obtenerNombreZonaTraducido(zonaSeleccionadaActual)
+        : t("maps_map_fallback");
+
     infoPanel.innerHTML = `
         <h2>${t("maps_area_ready")}</h2>
         <div class="encuentro-nombre-box">
-            <h3>${zonaSeleccionadaActual?.nombre || t("maps_map_fallback")}</h3>
+            <h3>${nombreZonaUI}</h3>
         </div>
         <div class="encuentro-datos-grid">
             <div class="dato-mini">
                 <span>${t("maps_area")}</span>
-                <strong>${zonaSeleccionadaActual?.nombre || "—"}</strong>
+                <strong>${nombreZonaUI || "—"}</strong>
             </div>
             <div class="dato-mini">
                 <span>${t("maps_status")}</span>

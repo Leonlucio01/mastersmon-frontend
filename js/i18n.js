@@ -118,7 +118,19 @@ const I18N = {
         type_ghost: "Ghost",
         type_dragon: "Dragon",
         type_steel: "Steel",
-        type_fairy: "Fairy"
+        type_fairy: "Fairy",
+
+        maps_zone_bosque_name: "Green Forest",
+        maps_zone_bosque_desc: "A forest area full of grass- and bug-type Pokémon.",
+
+        maps_zone_cueva_name: "Rock Cave",
+        maps_zone_cueva_desc: "A dark cave with rock- and ground-type Pokémon.",
+
+        maps_zone_lago_name: "Blue Lake",
+        maps_zone_lago_desc: "A peaceful area with water-type Pokémon.",
+
+        maps_zone_torre_name: "Battle Tower",
+        maps_zone_torre_desc: "A place where you face enemies floor by floor."
     },
 
     es: {
@@ -238,7 +250,19 @@ const I18N = {
         type_ghost: "Fantasma",
         type_dragon: "Dragón",
         type_steel: "Acero",
-        type_fairy: "Hada"
+        type_fairy: "Hada",
+
+        maps_zone_bosque_name: "Bosque Verde",
+        maps_zone_bosque_desc: "Una zona boscosa llena de Pokemon tipo planta y bicho.",
+
+        maps_zone_cueva_name: "Cueva Roca",
+        maps_zone_cueva_desc: "Una cueva oscura con Pokemon de roca y tierra.",
+
+        maps_zone_lago_name: "Lago Azul",
+        maps_zone_lago_desc: "Una zona tranquila con Pokemon de agua.",
+
+        maps_zone_torre_name: "Torre Batalla",
+        maps_zone_torre_desc: "Un lugar donde te enfrentas a enemigos por pisos."
 
     }
 };
