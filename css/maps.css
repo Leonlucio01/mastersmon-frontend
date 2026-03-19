@@ -380,6 +380,168 @@
     color:#64748b;
 }
 
+/* =========================================================
+   6A. SELECTOR DE AVATAR
+   - Variantes del personaje personalizado
+========================================================= */
+
+.mapa-toolbar-superior{
+    display:block;
+    width:100%;
+}
+
+.mapa-avatar-box{
+    background:#ffffff;
+    border:2px solid #dbe2ea;
+    border-radius:18px;
+    padding:14px 16px;
+    box-shadow:0 8px 18px rgba(0,0,0,0.06);
+}
+
+.mapa-avatar-titulo{
+    font-size:14px;
+    font-weight:800;
+    color:#0f172a;
+    margin-bottom:12px;
+    text-align:left;
+}
+
+.avatar-selector-grid{
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0, 1fr));
+    gap:12px;
+}
+
+.avatar-selector-btn{
+    border:2px solid transparent;
+    background:linear-gradient(180deg,#f8fafc,#eef2f7);
+    border-radius:16px;
+    padding:10px 12px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    text-align:left;
+    transition:all 0.18s ease;
+    box-shadow:0 4px 10px rgba(0,0,0,0.04);
+}
+
+.avatar-selector-btn:hover{
+    transform:translateY(-1px);
+    border-color:#cbd5e1;
+}
+
+.avatar-selector-btn.activo{
+    border-color:#2563eb;
+    background:#eff6ff;
+    box-shadow:0 10px 20px rgba(37,99,235,0.14);
+}
+
+.avatar-selector-preview{
+    width:48px;
+    height:48px;
+    border-radius:12px;
+    background:#ffffff;
+    border:1px solid #dbe2ea;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+}
+
+.avatar-selector-preview img{
+    width:34px;
+    height:auto;
+    image-rendering:pixelated;
+    display:block;
+}
+
+.avatar-selector-texto{
+    display:flex;
+    flex-direction:column;
+    min-width:0;
+}
+
+.avatar-selector-texto strong{
+    font-size:13px;
+    line-height:1.1;
+    color:#0f172a;
+    font-weight:900;
+}
+
+.avatar-selector-texto small{
+    font-size:11px;
+    line-height:1.2;
+    color:#64748b;
+    font-weight:700;
+}
+
+
+/* =========================================================
+   6B. AVATAR SOBRE EL MAPA
+   - Sprite del jugador encima del escenario
+========================================================= */
+
+.avatar-mapa{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:52px;
+    height:60px;
+    transform:translate(-50%, -82%);
+    transition:left 0.18s linear, top 0.18s linear;
+    z-index:3;
+    pointer-events:none;
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
+}
+
+.avatar-mapa-sombra{
+    position:absolute;
+    bottom:6px;
+    left:50%;
+    width:26px;
+    height:8px;
+    transform:translateX(-50%);
+    border-radius:999px;
+    background:radial-gradient(circle, rgba(15,23,42,0.30), rgba(15,23,42,0.10), transparent 75%);
+    filter:blur(1px);
+    z-index:1;
+}
+
+.avatar-mapa-img{
+    position:relative;
+    width:42px;
+    height:auto;
+    image-rendering:pixelated;
+    display:block;
+    z-index:2;
+    filter:drop-shadow(0 5px 10px rgba(0,0,0,0.22));
+}
+
+.avatar-color-verde{
+    filter:
+        saturate(1.05)
+        drop-shadow(0 5px 10px rgba(0,0,0,0.22));
+}
+
+.avatar-color-rojo{
+    filter:
+        hue-rotate(-35deg)
+        saturate(1.25)
+        contrast(1.08)
+        drop-shadow(0 5px 10px rgba(0,0,0,0.22));
+}
+
+.avatar-color-plomo{
+    filter:
+        grayscale(0.82)
+        brightness(0.92)
+        contrast(1.12)
+        drop-shadow(0 5px 10px rgba(0,0,0,0.22));
+}
+
 .mapa-exploracion-box{
     width:100%;
     min-height:440px;
@@ -392,17 +554,22 @@
     justify-content:center;
     padding:0;
     box-sizing:border-box;
+    position:relative;
+    isolation:isolate;
 }
 
-.mapa-exploracion-box img{
+#imgMapaExploracion{
     width:100%;
     height:100%;
     object-fit:contain;
     display:block;
     image-rendering:pixelated;
     background:transparent;
+    position:relative;
+    z-index:1;
+    pointer-events:none;
+    user-select:none;
 }
-
 
 /* =========================================================
    7. MINIATURAS DE POKÉMON POR ZONA
@@ -569,6 +736,16 @@
 
 .mapa-movimiento button:hover img{
     transform:scale(1.08);
+}
+
+.mapa-movimiento button:disabled{
+    cursor:not-allowed;
+    opacity:0.48;
+}
+
+.mapa-movimiento button.move-bloqueado img{
+    filter:grayscale(1) opacity(0.55);
+    transform:none !important;
 }
 
 .mapa-movimiento .move-center{
@@ -1470,6 +1647,34 @@
     .modal-shiny-box h2{
         font-size:28px;
     }
+
+    .avatar-selector-grid{
+        grid-template-columns:1fr;
+    }
+
+    .avatar-selector-btn{
+        justify-content:flex-start;
+    }
+
+    .avatar-selector-preview{
+        width:44px;
+        height:44px;
+    }
+
+    .avatar-selector-preview img{
+        width:30px;
+    }
+
+    .avatar-mapa{
+        width:46px;
+        height:54px;
+    }
+
+    .avatar-mapa-img{
+        width:36px;
+    }
+
+
 }
 
 @media (max-width: 480px){
@@ -1530,4 +1735,21 @@
     .ball-cantidad{
         margin-left:8px;
     }
+
+    .mapa-avatar-box{
+        padding:12px;
+    }
+
+    .avatar-selector-btn{
+        padding:9px 10px;
+    }
+
+    .avatar-selector-texto strong{
+        font-size:12px;
+    }
+
+    .avatar-selector-texto small{
+        font-size:10px;
+    }
+
 }

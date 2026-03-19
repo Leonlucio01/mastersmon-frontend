@@ -15,6 +15,68 @@ let itemSeleccionadoMaps = null;
 let encuentroRequestId = 0;
 
 const MAPS_ZONAS_CACHE_KEY = "mastersmon_maps_zonas_cache_v2";
+const MAPS_AVATAR_KEY = "mastersmon_maps_avatar_v1";
+const MAPS_AVATAR_POSICIONES_KEY = "mastersmon_maps_avatar_posiciones_v1";
+
+const AVATAR_PERSONALIZADO_BASE64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACcAAAAhCAYAAABa+rIoAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsIAAA7CARUoSoAAAAUPSURBVFhH7ZdLaJ1VEMfHe/MkVhIaUgNNGl9p0xKIEmtKfKRVEVeKUBDE0k1MC6Klq3aThRvdCNmIxqB140ICGldG1DZaorHUGog1FgutaaFNSYgkhtw0j+v5zT3zeXIf6U004sI/DDPfnHO++X8z58y5V/5HgO/Kyrq9+d+CJ5b81wgSKBTvzoAfS15tqEqiV5v7txGQ0WAmuYLaXKc3lmBIavfOxuRzbU+oYOPLFtTWHC0tVXL5EIx5nTd42Z7Z2ZccGUG2Vm3xI6I2PsaZZ4FtzR+95fJ+cbHOzQe3eb0mWDD/KC5jK0iCjwe+VO3mvos2cmBru8hP1UUpe/SGznHjHeoIsC5ywLICQqKA7IGrN8blzM8japeXl8uJw4vy5AMF+nzPobj8UBVXOxfBdZMLERIFkDWCISB7/JlLShByfYmE1NSWbSy5dEA2F0Hw4p4hJdh5YF6O1m3KSS7ngSBAekbyBUEIxr4bHPlRMxbi9U/v8pbIlbFZb2ViReZCMnw5+kMpky5JqO+IlMgLMpuRbVsXfjk+3uG0vLrtbu9NnWgAYey67wdlfyzGWs0eY+F7FD5A1HscqeSDEk+eq925QvAxZmvS15mfZ3qas1U+OX570p1WnRf2RpvzdGGhjiH2noyysk9emU1o1rprt8vo2G/qN+BrqN0mkCQziGuogvhM6YsNvcvLqk93Lal2JFWTOeTyQ63y2s2b0llUpO9w66P3RORIpXPoPgEQWA3d7YchKO6LvccF9AQRPnJ0cVEFULoDbzUrScr58KWL6qesgFPL/nNrtbzw0f0Tfi1ZI7B8ftJ7suCpfdF4x9gFqSyM6ZcTALRfnJLS1sfUPnvhvOyamFCbOSHIGDB/SIznGMT4UhOdRWBHgJISXAEhkzTivJxAkAI991bI3ODXahvOV1bqnFBY11BQoHY2RGWlDJSJPQVGe05Ep1T3nSOEr6Pn7WgfmublZGryvh1KML09QIzsfbawEGXJNOWGYHrWQIwHnFcGTmmrAASF2Bf9b6pghz57BqyZWFiWk8NnM+5X0Lx9l2orM4AkZOywAMdB9yuV9K4UcHD6rE2UlJQkW9qeV/m9v0uFMTQ+xk1snbs7o7ZBW7BWgR+9ZfNm1S6ctQqdG+pgTBE1VJwchpGSQhl+45Ac7Luu/t2P7pcz3/Sqbeg/1iLXf7ksTcfekcbEgvxavsmPpDY1IFNk847SUpl3ZS92ZUSPT05q+fxcMkUpda97OyprRI6v96YYwTt31EnntzUryKUTM4xXV6menpuT4njq14YRMj2/tKQ/lewuZQ5kSIzZaEPWq4gMPt72iD4ffLZJteGDvmHVXw2clpq2vXp3WvDWxvt1jIyFBAGkyeJH09Or/hIJkUEOsJcqKipkampKjrS0eG8KXUNDYmMJ95OH32lgX1Ozavoah8AIQs6IgbFr17RZ50MuAxCrr69PVldX64bHts1vNmN297olyVr3bBvfNr0JfsYRntMOxapYcdcS+L1EXGZmZrwnBTKFpMOuMEBmyBbXHxlBzK/7zYnzRT/f1wzIWSu5lZC1c+0vq6Z1WGbCjHhbx4KMrf+voQWnhCaUEQl9RhBiBLSfPOkBjSAS2sFzTmQcCIKml5DND7L597r2wF1ql72VNdzoRiJsG2BNh8Fg2TPx7mx+FSuTya0yki+ythJgpFy7WDHH/Kficd3wwGUg6vD+ee0Z2SiQqX8qW39B5E98RHDoLDZO6AAAAABJRU5ErkJggg==";
+
+const MAPS_AVATARES = {
+    leon_verde: {
+        id: "leon_verde",
+        nombre: "Leon",
+        etiqueta: "Verde / Negro",
+        sprite: AVATAR_PERSONALIZADO_BASE64,
+        claseColor: "avatar-color-verde"
+    },
+    leon_rojo: {
+        id: "leon_rojo",
+        nombre: "Leon",
+        etiqueta: "Rojo / Negro",
+        sprite: AVATAR_PERSONALIZADO_BASE64,
+        claseColor: "avatar-color-rojo"
+    },
+    leon_plomo: {
+        id: "leon_plomo",
+        nombre: "Leon",
+        etiqueta: "Plomo / Negro",
+        sprite: AVATAR_PERSONALIZADO_BASE64,
+        claseColor: "avatar-color-plomo"
+    }
+};
+
+/* =========================================================
+   RUTA BASE DEL AVATAR
+   - Primera versión del contorno caminable
+   - Está en porcentajes para que sea responsive
+========================================================= */
+const RUTA_CONTORNO_BASE = {
+    start: "n5",
+    nodes: {
+        n1:  { x: 12, y: 82, right: "n2" },
+        n2:  { x: 24, y: 82, left: "n1", right: "n3", up: "n8" },
+        n3:  { x: 36, y: 82, left: "n2", right: "n4" },
+        n4:  { x: 48, y: 82, left: "n3", right: "n5" },
+        n5:  { x: 60, y: 82, left: "n4", right: "n6", up: "n10" },
+        n6:  { x: 72, y: 82, left: "n5", right: "n7" },
+        n7:  { x: 84, y: 82, left: "n6", up: "n12" },
+        n8:  { x: 24, y: 63, down: "n2", right: "n9" },
+        n9:  { x: 38, y: 63, left: "n8", right: "n10" },
+        n10: { x: 52, y: 63, left: "n9", right: "n11", down: "n5", up: "n13" },
+        n11: { x: 66, y: 63, left: "n10", right: "n12" },
+        n12: { x: 80, y: 63, left: "n11", down: "n7" },
+        n13: { x: 52, y: 44, down: "n10", left: "n14", right: "n15" },
+        n14: { x: 36, y: 44, right: "n13" },
+        n15: { x: 68, y: 44, left: "n13" }
+    }
+};
+
+const MAPAS_RUTAS = {
+    bosque: RUTA_CONTORNO_BASE,
+    cueva: RUTA_CONTORNO_BASE,
+    lago: RUTA_CONTORNO_BASE,
+    torre: RUTA_CONTORNO_BASE,
+    default: RUTA_CONTORNO_BASE
+};
 
 const MAPAS_CONFIG = {
     bosque: {
@@ -48,6 +110,7 @@ document.addEventListener("DOMContentLoaded", () => {
     configurarMenuMobile();
     configurarCarruselMaps();
     configurarEventosDelegados();
+    configurarMovimientoTeclado();
     inicializarMaps();
 
     const languageSelect = document.getElementById("languageSelect");
@@ -188,6 +251,12 @@ function configurarEventosDelegados() {
 
     if (encuentroContainer) {
         encuentroContainer.addEventListener("click", async (event) => {
+            const avatarBtn = event.target.closest("[data-avatar-id]");
+            if (avatarBtn) {
+                seleccionarAvatarMaps(avatarBtn.dataset.avatarId);
+                return;
+            }
+
             const moveBtn = event.target.closest("[data-move]");
             if (moveBtn) {
                 const direccion = moveBtn.dataset.move;
@@ -298,6 +367,273 @@ function leerCacheZonas() {
         console.warn("No se pudo leer cache de zonas:", error);
         return null;
     }
+}
+
+/* =========================
+   AVATAR / MOVIMIENTO EN MAPA
+========================= */
+function tMaps(key, fallback) {
+    if (typeof t !== "function") return fallback;
+    const valor = t(key);
+    return valor && valor !== key ? valor : fallback;
+}
+
+function leerStorageJSON(clave, defecto = null) {
+    try {
+        const raw = localStorage.getItem(clave);
+        return raw ? JSON.parse(raw) : defecto;
+    } catch (error) {
+        console.warn(`No se pudo leer ${clave}:`, error);
+        return defecto;
+    }
+}
+
+function guardarStorageJSON(clave, valor) {
+    try {
+        localStorage.setItem(clave, JSON.stringify(valor));
+    } catch (error) {
+        console.warn(`No se pudo guardar ${clave}:`, error);
+    }
+}
+
+function obtenerAvatarActivoMaps() {
+    const avatarId = localStorage.getItem(MAPS_AVATAR_KEY) || "leon_verde";
+    return MAPS_AVATARES[avatarId] || MAPS_AVATARES.leon_verde;
+}
+
+function obtenerClaveZonaActualMaps() {
+    return obtenerClaveZona(zonaSeleccionadaActual?.nombre || "");
+}
+
+function obtenerRutaZonaActual() {
+    const clave = obtenerClaveZonaActualMaps();
+    return MAPAS_RUTAS[clave] || MAPAS_RUTAS.default;
+}
+
+function asegurarPosicionAvatarZona(zona = null) {
+    const clave = obtenerClaveZona(zona?.nombre || "");
+    const ruta = MAPAS_RUTAS[clave] || MAPAS_RUTAS.default;
+    const posiciones = leerStorageJSON(MAPS_AVATAR_POSICIONES_KEY, {}) || {};
+
+    if (!posiciones[clave] || !ruta.nodes[posiciones[clave]]) {
+        posiciones[clave] = ruta.start;
+        guardarStorageJSON(MAPS_AVATAR_POSICIONES_KEY, posiciones);
+    }
+}
+
+function obtenerNodoActualAvatar() {
+    const ruta = obtenerRutaZonaActual();
+    const clave = obtenerClaveZonaActualMaps();
+    const posiciones = leerStorageJSON(MAPS_AVATAR_POSICIONES_KEY, {}) || {};
+    const nodeId = posiciones[clave] && ruta.nodes[posiciones[clave]]
+        ? posiciones[clave]
+        : ruta.start;
+
+    return {
+        id: nodeId,
+        ...ruta.nodes[nodeId]
+    };
+}
+
+function guardarNodoActualAvatar(nodeId) {
+    const clave = obtenerClaveZonaActualMaps();
+    const ruta = obtenerRutaZonaActual();
+    if (!ruta.nodes[nodeId]) return;
+
+    const posiciones = leerStorageJSON(MAPS_AVATAR_POSICIONES_KEY, {}) || {};
+    posiciones[clave] = nodeId;
+    guardarStorageJSON(MAPS_AVATAR_POSICIONES_KEY, posiciones);
+}
+
+function obtenerSiguienteNodoAvatar(direccion) {
+    const actual = obtenerNodoActualAvatar();
+    return actual?.[direccion] || null;
+}
+
+function puedeMoverAvatar(direccion) {
+    return !!obtenerSiguienteNodoAvatar(direccion);
+}
+
+function renderAvatarSelectorMaps() {
+    const avatarActual = obtenerAvatarActivoMaps();
+
+    return Object.values(MAPS_AVATARES).map(avatar => `
+        <button
+            type="button"
+            class="avatar-selector-btn ${avatar.id === avatarActual.id ? "activo" : ""}"
+            data-avatar-id="${avatar.id}"
+            aria-label="${avatar.nombre} ${avatar.etiqueta}"
+        >
+            <span class="avatar-selector-preview">
+                <img
+                    src="${avatar.sprite}"
+                    alt="${avatar.nombre}"
+                    class="${avatar.claseColor}"
+                    loading="eager"
+                    decoding="async"
+                >
+            </span>
+
+            <span class="avatar-selector-texto">
+                <strong>${avatar.nombre}</strong>
+                <small>${avatar.etiqueta}</small>
+            </span>
+        </button>
+    `).join("");
+}
+
+function seleccionarAvatarMaps(avatarId) {
+    if (!MAPS_AVATARES[avatarId]) return;
+
+    localStorage.setItem(MAPS_AVATAR_KEY, avatarId);
+
+    document.querySelectorAll(".avatar-selector-btn").forEach(btn => {
+        btn.classList.toggle("activo", btn.dataset.avatarId === avatarId);
+    });
+
+    renderizarAvatarMapa();
+}
+
+function renderizarAvatarMapa() {
+    const avatarWrap = document.getElementById("avatarMapa");
+    if (!avatarWrap || !zonaSeleccionadaActual) return;
+
+    const avatar = obtenerAvatarActivoMaps();
+    const nodo = obtenerNodoActualAvatar();
+
+    avatarWrap.style.left = `${nodo.x}%`;
+    avatarWrap.style.top = `${nodo.y}%`;
+    avatarWrap.setAttribute("aria-label", avatar.nombre);
+
+    avatarWrap.innerHTML = `
+        <div class="avatar-mapa-sombra"></div>
+        <img
+            src="${avatar.sprite}"
+            alt="${avatar.nombre}"
+            class="avatar-mapa-img ${avatar.claseColor}"
+            loading="eager"
+            decoding="async"
+        >
+    `;
+
+    actualizarBotonesMovimientoDisponibles(false);
+}
+
+function actualizarBotonesMovimientoDisponibles(cargando = false) {
+    const botones = document.querySelectorAll("[data-move]");
+
+    botones.forEach(btn => {
+        const direccion = btn.dataset.move;
+        const disponible = zonaSeleccionadaActual && puedeMoverAvatar(direccion);
+
+        btn.disabled = cargando || !disponible;
+        btn.classList.toggle("move-bloqueado", !cargando && !disponible);
+    });
+}
+
+function moverAvatarVisual(nodeId) {
+    return new Promise((resolve) => {
+        const avatarWrap = document.getElementById("avatarMapa");
+        const ruta = obtenerRutaZonaActual();
+        const nodo = ruta.nodes[nodeId];
+
+        if (!avatarWrap || !nodo) {
+            resolve();
+            return;
+        }
+
+        requestAnimationFrame(() => {
+            avatarWrap.style.left = `${nodo.x}%`;
+            avatarWrap.style.top = `${nodo.y}%`;
+            setTimeout(resolve, 180);
+        });
+    });
+}
+
+function configurarMovimientoTeclado() {
+    if (window.__mapsKeyboardReady) return;
+    window.__mapsKeyboardReady = true;
+
+    window.addEventListener("keydown", async (event) => {
+        const tag = document.activeElement?.tagName || "";
+        const escribiendo = ["INPUT", "TEXTAREA", "SELECT"].includes(tag);
+
+        if (escribiendo) return;
+        if (!zonaSeleccionadaActual) return;
+        if (document.getElementById("modalShiny") && !document.getElementById("modalShiny").classList.contains("oculto")) return;
+        if (document.getElementById("modalResultadoCaptura") && !document.getElementById("modalResultadoCaptura").classList.contains("oculto")) return;
+
+        const mapa = {
+            ArrowUp: "up",
+            ArrowDown: "down",
+            ArrowLeft: "left",
+            ArrowRight: "right",
+            w: "up",
+            W: "up",
+            s: "down",
+            S: "down",
+            a: "left",
+            A: "left",
+            d: "right",
+            D: "right"
+        };
+
+        const direccion = mapa[event.key];
+        if (!direccion) return;
+
+        event.preventDefault();
+        await moverEnMapa(direccion);
+    });
+}
+
+async function solicitarEncuentroServidor(requestIdActual, zonaIdActual) {
+    const usuarioId = getUsuarioIdLocal();
+
+    const pokemon = await fetchJson(`${API_BASE}/maps/encuentro`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            ...(getAccessToken() ? { "Authorization": `Bearer ${getAccessToken()}` } : {})
+        },
+        body: JSON.stringify({
+            usuario_id: usuarioId,
+            zona_id: zonaIdActual
+        })
+    });
+
+    if (requestIdActual !== encuentroRequestId) return;
+    if (!zonaSeleccionadaActual || Number(zonaSeleccionadaActual.id) !== zonaIdActual) return;
+
+    if (!pokemon || pokemon.error) {
+        throw new Error(pokemon?.error || t("maps_encounter_generate_error"));
+    }
+
+    if (!pokemon.pokemon_id) {
+        throw new Error(t("maps_invalid_pokemon"));
+    }
+
+    encuentroActual = {
+        pokemon_id: Number(pokemon.pokemon_id),
+        nombre: pokemon.nombre || t("maps_wild_pokemon_default"),
+        tipo: pokemon.tipo || "—",
+        imagen: pokemon.imagen || null,
+        rareza: pokemon.rareza || null,
+        generacion: pokemon.generacion || null,
+        tiene_mega: !!pokemon.tiene_mega,
+        ataque: Number(pokemon.ataque || 0),
+        defensa: Number(pokemon.defensa || 0),
+        hp: Number(pokemon.hp || pokemon.hp_max || 0),
+        hp_max: Number(pokemon.hp_max || pokemon.hp || 0),
+        velocidad: Number(pokemon.velocidad || 0),
+        nivel: Number(pokemon.nivel || 1),
+        es_shiny: pokemon.es_shiny === true || pokemon.es_shiny === 1
+    };
+
+    if (encuentroActual.es_shiny) {
+        mostrarModalShiny();
+    }
+
+    renderEncuentroActual();
 }
 
 /* =========================
@@ -617,6 +953,7 @@ async function seleccionarZona(zonaId) {
     if (!zona) return;
 
     zonaSeleccionadaActual = zona;
+    asegurarPosicionAvatarZona(zona);
 
     if (!usuarioAutenticadoMaps()) {
         encuentroRequestId++;
@@ -703,6 +1040,15 @@ function renderizarZonaExploracion() {
                     <p>${t("maps_explore_hint")}</p>
                 </div>
 
+                <div class="mapa-toolbar-superior">
+                    <div class="mapa-avatar-box">
+                        <div class="mapa-avatar-titulo">${tMaps("maps_avatar_title", "Avatar")}</div>
+                        <div class="avatar-selector-grid">
+                            ${renderAvatarSelectorMaps()}
+                        </div>
+                    </div>
+                </div>
+
                 <div class="mapa-exploracion-box">
                     <img
                         id="imgMapaExploracion"
@@ -711,6 +1057,12 @@ function renderizarZonaExploracion() {
                         loading="eager"
                         decoding="async"
                     >
+
+                    <div
+                        id="avatarMapa"
+                        class="avatar-mapa"
+                        aria-label="${obtenerAvatarActivoMaps().nombre}"
+                    ></div>
                 </div>
 
                 <div class="mapa-ui-inferior">
@@ -749,6 +1101,8 @@ function renderizarZonaExploracion() {
             </div>
         </div>
     `;
+
+    renderizarAvatarMapa();
 }
 
 function renderMiniaturasZona(zona = null) {
@@ -798,7 +1152,7 @@ function renderMiniaturasZona(zona = null) {
 async function moverEnMapa(direccion, opciones = {}) {
     if (!zonaSeleccionadaActual || movimientoEnCurso) return;
 
-    const { silencioso = false } = opciones;
+    const { silencioso = false, soloEncuentro = false } = opciones;
     const usuarioId = getUsuarioIdLocal();
 
     if (!usuarioId) {
@@ -808,6 +1162,21 @@ async function moverEnMapa(direccion, opciones = {}) {
 
     const requestIdActual = ++encuentroRequestId;
     const zonaIdActual = Number(zonaSeleccionadaActual.id);
+
+    let siguienteNodoId = null;
+
+    if (!soloEncuentro) {
+        siguienteNodoId = obtenerSiguienteNodoAvatar(direccion);
+
+        if (!siguienteNodoId) {
+            mostrarMensajeMaps(
+                tMaps("maps_path_blocked", "No puedes avanzar por ese lado del camino."),
+                "warning"
+            );
+            actualizarBotonesMovimientoDisponibles(false);
+            return;
+        }
+    }
 
     movimientoEnCurso = true;
     cerrarModalesSecundarios();
@@ -819,51 +1188,12 @@ async function moverEnMapa(direccion, opciones = {}) {
     }
 
     try {
-        const pokemon = await fetchJson(`${API_BASE}/maps/encuentro`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                ...(getAccessToken() ? { "Authorization": `Bearer ${getAccessToken()}` } : {})
-            },
-            body: JSON.stringify({
-                usuario_id: usuarioId,
-                zona_id: zonaIdActual
-            })
-        });
-
-        if (requestIdActual !== encuentroRequestId) return;
-        if (!zonaSeleccionadaActual || Number(zonaSeleccionadaActual.id) !== zonaIdActual) return;
-
-        if (!pokemon || pokemon.error) {
-            throw new Error(pokemon?.error || t("maps_encounter_generate_error"));
+        if (!soloEncuentro && siguienteNodoId) {
+            guardarNodoActualAvatar(siguienteNodoId);
+            await moverAvatarVisual(siguienteNodoId);
         }
 
-        if (!pokemon.pokemon_id) {
-            throw new Error(t("maps_invalid_pokemon"));
-        }
-
-        encuentroActual = {
-            pokemon_id: Number(pokemon.pokemon_id),
-            nombre: pokemon.nombre || t("maps_wild_pokemon_default"),
-            tipo: pokemon.tipo || "—",
-            imagen: pokemon.imagen || null,
-            rareza: pokemon.rareza || null,
-            generacion: pokemon.generacion || null,
-            tiene_mega: !!pokemon.tiene_mega,
-            ataque: Number(pokemon.ataque || 0),
-            defensa: Number(pokemon.defensa || 0),
-            hp: Number(pokemon.hp || pokemon.hp_max || 0),
-            hp_max: Number(pokemon.hp_max || pokemon.hp || 0),
-            velocidad: Number(pokemon.velocidad || 0),
-            nivel: Number(pokemon.nivel || 1),
-            es_shiny: pokemon.es_shiny === true || pokemon.es_shiny === 1
-        };
-
-        if (encuentroActual.es_shiny) {
-            mostrarModalShiny();
-        }
-
-        renderEncuentroActual();
+        await solicitarEncuentroServidor(requestIdActual, zonaIdActual);
     } catch (error) {
         if (requestIdActual !== encuentroRequestId) return;
 
@@ -1264,16 +1594,16 @@ function actualizarProbabilidadVisual(esShiny = false) {
 }
 
 function setEstadoMovimiento(cargando, direccion = "") {
-    const botones = document.querySelectorAll("[data-move]");
-    botones.forEach(btn => {
-        btn.disabled = cargando;
-    });
-
     const titulo = document.querySelector(".mapa-exploracion-header p");
+
+    actualizarBotonesMovimientoDisponibles(cargando);
+
     if (!titulo) return;
 
     if (cargando) {
-        titulo.textContent = `${t("maps_exploring_direction")} ${traducirDireccion(direccion)}...`;
+        titulo.textContent = direccion
+            ? `${t("maps_exploring_direction")} ${traducirDireccion(direccion)}...`
+            : tMaps("maps_searching_encounter", "Buscando encuentro...");
     } else if (zonaSeleccionadaActual) {
         titulo.textContent = t("maps_explore_hint");
     }
@@ -1327,9 +1657,7 @@ function cerrarModalesSecundarios() {
 }
 
 async function generarEncuentroInicial() {
-    const direcciones = ["up", "down", "left", "right"];
-    const direccion = direcciones[Math.floor(Math.random() * direcciones.length)];
-    await moverEnMapa(direccion, { silencioso: true });
+    await moverEnMapa("up", { silencioso: true, soloEncuentro: true });
 }
 
 function scrollAlMapa() {
