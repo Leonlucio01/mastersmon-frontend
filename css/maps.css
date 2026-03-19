@@ -450,9 +450,10 @@
 }
 
 .avatar-selector-preview img{
-    width:34px;
-    height:auto;
+    width:39px;
+    height:33px;
     image-rendering:pixelated;
+    image-rendering:crisp-edges;
     display:block;
 }
 
@@ -486,8 +487,8 @@
     position:absolute;
     left:50%;
     top:50%;
-    width:52px;
-    height:60px;
+    width:58px;
+    height:58px;
     transform:translate(-50%, -82%);
     transition:left 0.18s linear, top 0.18s linear;
     z-index:3;
@@ -512,12 +513,15 @@
 
 .avatar-mapa-img{
     position:relative;
-    width:42px;
-    height:auto;
+    width:39px;
+    height:33px;
     image-rendering:pixelated;
+    image-rendering:crisp-edges;
     display:block;
     z-index:2;
     filter:drop-shadow(0 5px 10px rgba(0,0,0,0.22));
+    backface-visibility:hidden;
+    transform:translateZ(0);
 }
 
 .avatar-color-verde{
@@ -1653,21 +1657,23 @@
     }
 
     .avatar-selector-preview{
-        width:44px;
+        width:48px;
         height:44px;
     }
 
     .avatar-selector-preview img{
-        width:30px;
+        width:39px;
+        height:33px;
     }
 
     .avatar-mapa{
-        width:46px;
-        height:54px;
+        width:52px;
+        height:52px;
     }
 
     .avatar-mapa-img{
-        width:36px;
+        width:39px;
+        height:33px;
     }
 
 
