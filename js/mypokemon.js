@@ -5,16 +5,16 @@ let estadosEvolucionCache = new Map();
 let modalEvolucionActual = null;
 let cargandoMyPokemonEnCurso = false;
 let avatarActualizandoMyPokemon = false;
+let avatarCarruselInicio = 0;
 
 const MY_POKEMON_CACHE_KEY = "mastersmon_mypokemon_cache";
 const MY_POKEMON_ITEMS_CACHE_KEY = "mastersmon_mypokemon_items_cache";
 const MY_POKEMON_RESUMEN_CACHE_KEY = "mastersmon_mypokemon_resumen_cache";
-const MY_POKEMON_AVATAR_DEFAULT = "steven";
+const MY_POKEMON_AVATAR_DEFAULT = "goku";
 const MY_POKEMON_AVATAR_REGEX = /^[a-z0-9_-]{1,60}$/;
+const AVATARES_VISIBLES_POR_VISTA = 7;
 
 const AVATARES_DISPONIBLES = [
-    { id: "steven", nombre: "Steven" },
-    { id: "steven_1", nombre: "Steven 2" },
     { id: "batman", nombre: "Batman" },
     { id: "bryan", nombre: "Bryan" },
     { id: "goku", nombre: "Goku" },
@@ -107,6 +107,79 @@ function normalizarUsuarioMyPokemon(usuario) {
 function obtenerAvatarActualUsuarioMyPokemon() {
     const usuario = normalizarUsuarioMyPokemon(usuarioActualMyPokemon || getUsuarioLocal());
     return normalizarAvatarIdMyPokemon(usuario?.avatar_id || getAvatarIdLocal());
+}
+
+function totalAvataresDisponibles() {
+    return AVATARES_DISPONIBLES.length;
+}
+
+function normalizarIndiceCarruselAvatar(indice, total = totalAvataresDisponibles()) {
+    if (!total) return 0;
+    return ((indice % total) + total) % total;
+}
+
+function obtenerAvataresVisiblesCarrusel() {
+    const total = totalAvataresDisponibles();
+    if (!total) return [];
+
+    if (total <= AVATARES_VISIBLES_POR_VISTA) {
+        return AVATARES_DISPONIBLES.map((avatar, index) => ({
+            ...avatar,
+            _indice_real: index
+        }));
+    }
+
+    const visibles = [];
+    for (let i = 0; i < AVATARES_VISIBLES_POR_VISTA; i++) {
+        const indiceReal = normalizarIndiceCarruselAvatar(avatarCarruselInicio + i, total);
+        visibles.push({
+            ...AVATARES_DISPONIBLES[indiceReal],
+            _indice_real: indiceReal
+        });
+    }
+    return visibles;
+}
+
+function carruselIncluyeIndiceAvatar(indiceObjetivo) {
+    const total = totalAvataresDisponibles();
+    if (!total || indiceObjetivo < 0) return false;
+
+    const cantidad = Math.min(AVATARES_VISIBLES_POR_VISTA, total);
+    for (let i = 0; i < cantidad; i++) {
+        const indice = normalizarIndiceCarruselAvatar(avatarCarruselInicio + i, total);
+        if (indice === indiceObjetivo) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function asegurarAvatarVisibleEnCarrusel(avatarId) {
+    const total = totalAvataresDisponibles();
+    if (!total || total <= AVATARES_VISIBLES_POR_VISTA) {
+        avatarCarruselInicio = 0;
+        return;
+    }
+
+    const indice = AVATARES_DISPONIBLES.findIndex(a => a.id === avatarId);
+    if (indice < 0) return;
+
+    if (carruselIncluyeIndiceAvatar(indice)) {
+        return;
+    }
+
+    const offsetCentro = Math.floor(AVATARES_VISIBLES_POR_VISTA / 2);
+    avatarCarruselInicio = normalizarIndiceCarruselAvatar(indice - offsetCentro, total);
+}
+
+function moverCarruselAvatar(direccion = 1) {
+    if (avatarActualizandoMyPokemon) return;
+
+    const total = totalAvataresDisponibles();
+    if (!total || total <= AVATARES_VISIBLES_POR_VISTA) return;
+
+    avatarCarruselInicio = normalizarIndiceCarruselAvatar(avatarCarruselInicio + direccion, total);
+    renderAvatarSelector();
 }
 
 function obtenerImagenPokemonColeccion(pokemonId, esShiny = false) {
@@ -228,10 +301,14 @@ function renderAvatarSelector() {
 
     const avatarActual = obtenerAvatarActualUsuarioMyPokemon();
     const nombreActual = obtenerNombreAvatarVisual(avatarActual);
+    asegurarAvatarVisibleEnCarrusel(avatarActual);
+
+    const avataresVisibles = obtenerAvataresVisiblesCarrusel();
+    const mostrarControles = totalAvataresDisponibles() > AVATARES_VISIBLES_POR_VISTA;
 
     section.innerHTML = `
         <div class="avatar-studio-shell ${avatarActualizandoMyPokemon ? "updating" : ""}">
-            <div class="avatar-studio-top">
+            <div class="avatar-studio-header">
                 <div class="avatar-studio-copy">
                     <span class="avatar-studio-kicker">
                         ${tMyPokemon("mypokemon_avatar_kicker", "Trainer style")}
@@ -248,6 +325,7 @@ function renderAvatarSelector() {
                             onerror="this.onerror=null;this.src='img/avatars/${MY_POKEMON_AVATAR_DEFAULT}.png';"
                         >
                     </div>
+
                     <div class="avatar-studio-current-text">
                         <span>${tMyPokemon("mypokemon_avatar_current", "Current avatar")}</span>
                         <strong>${escapeHtmlMyPokemon(nombreActual)}</strong>
@@ -255,30 +333,61 @@ function renderAvatarSelector() {
                 </div>
             </div>
 
-            <div class="avatar-studio-grid">
-                ${AVATARES_DISPONIBLES.map(avatar => {
-                    const activo = avatar.id === avatarActual;
-                    return `
-                        <button
-                            type="button"
-                            class="avatar-option ${activo ? "activa" : ""}"
-                            data-avatar-option="${avatar.id}"
-                            ${avatarActualizandoMyPokemon ? "disabled" : ""}
-                            aria-label="${escapeHtmlMyPokemon(avatar.nombre)}"
-                            title="${escapeHtmlMyPokemon(avatar.nombre)}"
-                        >
-                            <div class="avatar-option-preview">
-                                <img
-                                    src="${obtenerRutaAvatarMyPokemon(avatar.id)}"
-                                    alt="${escapeHtmlMyPokemon(avatar.nombre)}"
-                                    onerror="this.onerror=null;this.src='img/avatars/${MY_POKEMON_AVATAR_DEFAULT}.png';"
-                                >
-                            </div>
-                            <span class="avatar-option-name">${escapeHtmlMyPokemon(avatar.nombre)}</span>
-                            ${activo ? `<span class="avatar-option-badge">${tMyPokemon("mypokemon_avatar_selected", "Selected")}</span>` : ""}
-                        </button>
-                    `;
-                }).join("")}
+            <div class="avatar-carousel-shell ${mostrarControles ? "" : "sin-controles"}">
+                ${mostrarControles ? `
+                    <button
+                        type="button"
+                        class="avatar-carousel-nav"
+                        data-avatar-nav="-1"
+                        ${avatarActualizandoMyPokemon ? "disabled" : ""}
+                        aria-label="${escapeHtmlMyPokemon(tMyPokemon("mypokemon_avatar_prev", "Previous avatars"))}"
+                        title="${escapeHtmlMyPokemon(tMyPokemon("mypokemon_avatar_prev", "Previous avatars"))}"
+                    >
+                        ‹
+                    </button>
+                ` : ""}
+
+                <div class="avatar-carousel-track">
+                    ${avataresVisibles.map(avatar => {
+                        const activo = avatar.id === avatarActual;
+                        return `
+                            <button
+                                type="button"
+                                class="avatar-option ${activo ? "activa" : ""}"
+                                data-avatar-option="${avatar.id}"
+                                ${avatarActualizandoMyPokemon ? "disabled" : ""}
+                                aria-label="${escapeHtmlMyPokemon(avatar.nombre)}"
+                                title="${escapeHtmlMyPokemon(avatar.nombre)}"
+                            >
+                                <span class="avatar-option-check">${activo ? "✓" : ""}</span>
+
+                                <div class="avatar-option-preview">
+                                    <img
+                                        src="${obtenerRutaAvatarMyPokemon(avatar.id)}"
+                                        alt="${escapeHtmlMyPokemon(avatar.nombre)}"
+                                        onerror="this.onerror=null;this.src='img/avatars/${MY_POKEMON_AVATAR_DEFAULT}.png';"
+                                    >
+                                </div>
+
+                                <span class="avatar-option-name">${escapeHtmlMyPokemon(avatar.nombre)}</span>
+                                ${activo ? `<span class="avatar-option-selected-text">${tMyPokemon("mypokemon_avatar_selected", "Selected")}</span>` : ""}
+                            </button>
+                        `;
+                    }).join("")}
+                </div>
+
+                ${mostrarControles ? `
+                    <button
+                        type="button"
+                        class="avatar-carousel-nav"
+                        data-avatar-nav="1"
+                        ${avatarActualizandoMyPokemon ? "disabled" : ""}
+                        aria-label="${escapeHtmlMyPokemon(tMyPokemon("mypokemon_avatar_next", "Next avatars"))}"
+                        title="${escapeHtmlMyPokemon(tMyPokemon("mypokemon_avatar_next", "Next avatars"))}"
+                    >
+                        ›
+                    </button>
+                ` : ""}
             </div>
 
             ${avatarActualizandoMyPokemon ? `
@@ -390,6 +499,7 @@ async function cambiarAvatarSeleccionado(avatarId) {
     if (avatarNormalizado === actual) return;
 
     avatarActualizandoMyPokemon = true;
+    asegurarAvatarVisibleEnCarrusel(avatarNormalizado);
     renderAvatarSelector();
 
     try {
@@ -400,6 +510,7 @@ async function cambiarAvatarSeleccionado(avatarId) {
             usuarioActualMyPokemon = normalizarUsuarioMyPokemon(getUsuarioLocal());
         }
 
+        asegurarAvatarVisibleEnCarrusel(avatarNormalizado);
         renderAvatarSelector();
         mostrarMensajeEvolucion(
             tMyPokemon("mypokemon_avatar_updated", "Avatar updated successfully"),
@@ -1151,10 +1262,17 @@ function configurarEventosAvatarSelector() {
     if (!section) return;
 
     section.addEventListener("click", async (event) => {
-        const btn = event.target.closest("[data-avatar-option]");
-        if (!btn) return;
+        const btnNav = event.target.closest("[data-avatar-nav]");
+        if (btnNav) {
+            const direccion = Number(btnNav.dataset.avatarNav || 0);
+            moverCarruselAvatar(direccion);
+            return;
+        }
 
-        const avatarId = btn.dataset.avatarOption;
+        const btnAvatar = event.target.closest("[data-avatar-option]");
+        if (!btnAvatar) return;
+
+        const avatarId = btnAvatar.dataset.avatarOption;
         if (!avatarId) return;
 
         await cambiarAvatarSeleccionado(avatarId);

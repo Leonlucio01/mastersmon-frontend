@@ -27,21 +27,58 @@ const MAPS_AVATAR_ID_REGEX = /^[a-z0-9_-]{1,60}$/;
 const RUTA_CONTORNO_BASE = {
     start: "n5",
     nodes: {
-        n1:  { x: 12, y: 82, right: "n2" },
-        n2:  { x: 24, y: 82, left: "n1", right: "n3", up: "n8" },
-        n3:  { x: 36, y: 82, left: "n2", right: "n4" },
-        n4:  { x: 48, y: 82, left: "n3", right: "n5" },
-        n5:  { x: 60, y: 82, left: "n4", right: "n6", up: "n10" },
-        n6:  { x: 72, y: 82, left: "n5", right: "n7" },
-        n7:  { x: 84, y: 82, left: "n6", up: "n12" },
-        n8:  { x: 24, y: 63, down: "n2", right: "n9" },
-        n9:  { x: 38, y: 63, left: "n8", right: "n10" },
-        n10: { x: 52, y: 63, left: "n9", right: "n11", down: "n5", up: "n13" },
-        n11: { x: 66, y: 63, left: "n10", right: "n12" },
-        n12: { x: 80, y: 63, left: "n11", down: "n7" },
-        n13: { x: 52, y: 44, down: "n10", left: "n14", right: "n15" },
-        n14: { x: 36, y: 44, right: "n13" },
-        n15: { x: 68, y: 44, left: "n13" }
+        /* =========================================================
+           FILA INFERIOR
+        ========================================================= */
+        n1:  { x: 8,  y: 84, right: "n2" },
+        n2:  { x: 18, y: 84, left: "n1", right: "n3", up: "n10" },
+        n3:  { x: 28, y: 84, left: "n2", right: "n4", up: "n11" },
+        n4:  { x: 38, y: 84, left: "n3", right: "n5", up: "n12" },
+        n5:  { x: 50, y: 84, left: "n4", right: "n6", up: "n13" },
+        n6:  { x: 62, y: 84, left: "n5", right: "n7", up: "n14" },
+        n7:  { x: 72, y: 84, left: "n6", right: "n8", up: "n15" },
+        n8:  { x: 82, y: 84, left: "n7", right: "n9", up: "n16" },
+        n9:  { x: 92, y: 84, left: "n8" },
+
+        /* =========================================================
+           FILA 2
+        ========================================================= */
+        n10: { x: 12, y: 72, down: "n2", right: "n11", up: "n17" },
+        n11: { x: 24, y: 72, left: "n10", down: "n3", right: "n12", up: "n18" },
+        n12: { x: 36, y: 72, left: "n11", down: "n4", right: "n13", up: "n19" },
+        n13: { x: 48, y: 72, left: "n12", down: "n5", right: "n14", up: "n20" },
+        n14: { x: 60, y: 72, left: "n13", down: "n6", right: "n15", up: "n21" },
+        n15: { x: 72, y: 72, left: "n14", down: "n7", right: "n16", up: "n22" },
+        n16: { x: 84, y: 72, left: "n15", down: "n8", up: "n23" },
+
+        /* =========================================================
+           FILA 3
+        ========================================================= */
+        n17: { x: 10, y: 60, down: "n10", right: "n18" },
+        n18: { x: 22, y: 60, left: "n17", down: "n11", right: "n19", up: "n24" },
+        n19: { x: 34, y: 60, left: "n18", down: "n12", right: "n20", up: "n25" },
+        n20: { x: 46, y: 60, left: "n19", down: "n13", right: "n21", up: "n26" },
+        n21: { x: 58, y: 60, left: "n20", down: "n14", right: "n22", up: "n27" },
+        n22: { x: 70, y: 60, left: "n21", down: "n15", right: "n23", up: "n28" },
+        n23: { x: 82, y: 60, left: "n22", down: "n16", up: "n29" },
+
+        /* =========================================================
+           FILA 4
+        ========================================================= */
+        n24: { x: 16, y: 48, down: "n18", right: "n25" },
+        n25: { x: 30, y: 48, left: "n24", down: "n19", right: "n26", up: "n30" },
+        n26: { x: 44, y: 48, left: "n25", down: "n20", right: "n27", up: "n31" },
+        n27: { x: 58, y: 48, left: "n26", down: "n21", right: "n28", up: "n32" },
+        n28: { x: 72, y: 48, left: "n27", down: "n22", right: "n29", up: "n33" },
+        n29: { x: 86, y: 48, left: "n28", down: "n23" },
+
+        /* =========================================================
+           FILA SUPERIOR
+        ========================================================= */
+        n30: { x: 26, y: 36, down: "n25", right: "n31" },
+        n31: { x: 42, y: 36, left: "n30", down: "n26", right: "n32" },
+        n32: { x: 58, y: 36, left: "n31", down: "n27", right: "n33" },
+        n33: { x: 74, y: 36, left: "n32", down: "n28" }
     }
 };
 
@@ -1069,7 +1106,7 @@ async function seleccionarZona(zonaId) {
             requestAnimationFrame(() => {
                 setTimeout(() => {
                     scrollAlMapa();
-                }, 120);
+                }, 40);
             });
         }
 
@@ -1098,7 +1135,7 @@ async function seleccionarZona(zonaId) {
     requestAnimationFrame(() => {
         setTimeout(() => {
             scrollAlMapa();
-        }, 120);
+        }, 40);
     });
 
     try {
