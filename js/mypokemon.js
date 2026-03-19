@@ -488,6 +488,7 @@ async function obtenerResumenPokedexUsuario(usuarioId) {
 
 async function cambiarAvatarSeleccionado(avatarId) {
     if (avatarActualizandoMyPokemon) return;
+
     if (!usuarioAutenticadoMyPokemon()) {
         mostrarMensajeEvolucion(t("mypokemon_login_required_action"), "error");
         return;
@@ -498,33 +499,48 @@ async function cambiarAvatarSeleccionado(avatarId) {
 
     if (avatarNormalizado === actual) return;
 
+    const usuarioAnterior = normalizarUsuarioMyPokemon(
+        usuarioActualMyPokemon || getUsuarioLocal() || { avatar_id: actual }
+    );
+
     avatarActualizandoMyPokemon = true;
+
+    usuarioActualMyPokemon = normalizarUsuarioMyPokemon({
+        ...(usuarioAnterior || {}),
+        avatar_id: avatarNormalizado
+    });
+
     asegurarAvatarVisibleEnCarrusel(avatarNormalizado);
     renderAvatarSelector();
 
     try {
         const data = await actualizarAvatarUsuarioActual(avatarNormalizado);
+
         if (data?.usuario) {
             usuarioActualMyPokemon = normalizarUsuarioMyPokemon(data.usuario);
         } else {
-            usuarioActualMyPokemon = normalizarUsuarioMyPokemon(getUsuarioLocal());
+            usuarioActualMyPokemon = normalizarUsuarioMyPokemon({
+                ...(usuarioAnterior || {}),
+                avatar_id: avatarNormalizado
+            });
         }
 
-        asegurarAvatarVisibleEnCarrusel(avatarNormalizado);
-        renderAvatarSelector();
         mostrarMensajeEvolucion(
             tMyPokemon("mypokemon_avatar_updated", "Avatar updated successfully"),
             "ok"
         );
     } catch (error) {
         console.error("Error actualizando avatar:", error);
-        renderAvatarSelector();
+
+        usuarioActualMyPokemon = usuarioAnterior;
+
         mostrarMensajeEvolucion(
             tMyPokemon("mypokemon_avatar_update_error", "Could not update the avatar"),
             "error"
         );
     } finally {
         avatarActualizandoMyPokemon = false;
+        asegurarAvatarVisibleEnCarrusel(obtenerAvatarActualUsuarioMyPokemon());
         renderAvatarSelector();
     }
 }
@@ -663,7 +679,6 @@ async function obtenerEstadoEvolucion(usuarioPokemonId, { forzar = false } = {})
         estadosEvolucionCache.set(usuarioPokemonId, data);
         return data;
     } catch (error) {
-        console.error("Error revisando evolución:", error);
         return null;
     }
 }
@@ -765,20 +780,8 @@ function actualizarBotonEvolucionCard(usuarioPokemonId, evoData) {
     btn.textContent = estado.texto;
 }
 
-async function hidratarEstadosEvolucion(pokemons) {
-    if (!Array.isArray(pokemons) || !pokemons.length) return;
-
-    const tareas = pokemons.map(async (p) => {
-        if (estadosEvolucionCache.has(p.id)) {
-            actualizarBotonEvolucionCard(p.id, estadosEvolucionCache.get(p.id));
-            return;
-        }
-
-        const evoData = await obtenerEstadoEvolucion(p.id);
-        actualizarBotonEvolucionCard(p.id, evoData);
-    });
-
-    await Promise.allSettled(tareas);
+async function hidratarEstadosEvolucion() {
+    return;
 }
 
 function renderizarMisPokemon(pokemons) {
@@ -813,8 +816,6 @@ function renderizarMisPokemon(pokemons) {
         const evoCache = estadosEvolucionCache.get(p.id) || null;
         return construirCardPokemon(p, evoCache);
     }).join("");
-
-    void hidratarEstadosEvolucion(pokemons);
 }
 
 function abrirModalSoltar(usuarioPokemonId, nombrePokemon) {

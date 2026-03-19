@@ -75,7 +75,7 @@
 }
 
 .avatar-studio-copy{
-    flex: 1 1 560px;
+    flex: 1 1 auto;
     min-width: 0;
 }
 
@@ -1153,6 +1153,11 @@
     .avatar-studio-header{
         flex-direction: column;
         align-items: stretch;
+    }
+
+    .avatar-studio-copy{
+        flex: none;
+        width: 100%;
     }
 
     .avatar-studio-current{
