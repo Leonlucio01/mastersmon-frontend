@@ -624,9 +624,11 @@
     font-weight: 900;
 }
 
-
 /* =========================================================
    6. LISTAS DE RANKING
+   - Cards generales
+   - Variante visual para Top Pokémon por EXP
+   - Fondo suave según tipo principal
 ========================================================= */
 
 .ranking-list{
@@ -729,6 +731,10 @@
     gap: 8px;
 }
 
+.ranking-list-subline-main{
+    margin-top: 8px;
+}
+
 .ranking-pill{
     display: inline-flex;
     align-items: center;
@@ -746,6 +752,19 @@
     background: linear-gradient(135deg, #fef3c7, #fde68a);
     color: #92400e;
     border-color: #fcd34d;
+}
+
+.ranking-pill-trainer{
+    background: linear-gradient(180deg, #eef2ff 0%, #e0e7ff 100%);
+    color: #1e3a8a;
+    border-color: #c7d2fe;
+    font-weight: 900;
+}
+
+.ranking-pill-type{
+    background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+    color: #0f172a;
+    border-color: #dbe3ee;
 }
 
 .ranking-list-side{
@@ -769,6 +788,10 @@
     line-height: 1.1;
 }
 
+.ranking-list-side-exp strong{
+    font-size: 20px;
+}
+
 .ranking-empty{
     border-radius: 20px;
     padding: 18px;
@@ -779,6 +802,136 @@
     font-weight: 700;
 }
 
+/* =========================================================
+   6.1 VARIANTE VISUAL - TOP POKÉMON EXP
+========================================================= */
+
+.ranking-list-card-pokemon{
+    border-radius: 26px;
+    padding: 18px 18px;
+    box-shadow:
+        0 12px 24px rgba(15, 23, 42, 0.08),
+        inset 0 1px 0 rgba(255,255,255,0.82);
+}
+
+.ranking-list-card-pokemon .ranking-list-rank{
+    width: 46px;
+    height: 46px;
+    border-radius: 16px;
+    font-size: 22px;
+}
+
+.ranking-list-card-pokemon .ranking-list-icon-pokemon{
+    width: 58px;
+    height: 58px;
+    border-radius: 18px;
+}
+
+.ranking-list-card-pokemon .ranking-list-icon-pokemon img{
+    max-width: 46px;
+    max-height: 46px;
+}
+
+.ranking-list-card-pokemon .ranking-list-text h3{
+    font-size: 18px;
+    margin-bottom: 2px;
+}
+
+.ranking-list-card-pokemon .ranking-list-side{
+    min-width: 120px;
+}
+
+/* =========================================================
+   6.2 COLORES POR TIPO PRINCIPAL
+========================================================= */
+
+.ranking-list-card-pokemon[data-tipo-principal^="Planta"]{
+    background: linear-gradient(180deg, #f2fff3 0%, #ebf9ee 100%);
+    border-color: rgba(74, 222, 128, 0.35);
+}
+
+.ranking-list-card-pokemon[data-tipo-principal^="Fuego"]{
+    background: linear-gradient(180deg, #fff5ef 0%, #ffede3 100%);
+    border-color: rgba(249, 115, 22, 0.28);
+}
+
+.ranking-list-card-pokemon[data-tipo-principal^="Agua"]{
+    background: linear-gradient(180deg, #f1f7ff 0%, #e7f0ff 100%);
+    border-color: rgba(59, 130, 246, 0.28);
+}
+
+.ranking-list-card-pokemon[data-tipo-principal^="Electrico"],
+.ranking-list-card-pokemon[data-tipo-principal^="Eléctrico"]{
+    background: linear-gradient(180deg, #fffde9 0%, #fff8d6 100%);
+    border-color: rgba(234, 179, 8, 0.30);
+}
+
+.ranking-list-card-pokemon[data-tipo-principal^="Hielo"]{
+    background: linear-gradient(180deg, #eefcff 0%, #e0f8ff 100%);
+    border-color: rgba(6, 182, 212, 0.26);
+}
+
+.ranking-list-card-pokemon[data-tipo-principal^="Lucha"]{
+    background: linear-gradient(180deg, #fff3f3 0%, #ffe7e7 100%);
+    border-color: rgba(220, 38, 38, 0.26);
+}
+
+.ranking-list-card-pokemon[data-tipo-principal^="Veneno"]{
+    background: linear-gradient(180deg, #fcf4ff 0%, #f4e7ff 100%);
+    border-color: rgba(168, 85, 247, 0.26);
+}
+
+.ranking-list-card-pokemon[data-tipo-principal^="Tierra"]{
+    background: linear-gradient(180deg, #fff9ec 0%, #f7eed7 100%);
+    border-color: rgba(202, 138, 4, 0.28);
+}
+
+.ranking-list-card-pokemon[data-tipo-principal^="Volador"]{
+    background: linear-gradient(180deg, #f8fbff 0%, #edf4ff 100%);
+    border-color: rgba(96, 165, 250, 0.26);
+}
+
+.ranking-list-card-pokemon[data-tipo-principal^="Psiquico"],
+.ranking-list-card-pokemon[data-tipo-principal^="Psíquico"]{
+    background: linear-gradient(180deg, #fff1f7 0%, #ffe5f0 100%);
+    border-color: rgba(236, 72, 153, 0.24);
+}
+
+.ranking-list-card-pokemon[data-tipo-principal^="Bicho"]{
+    background: linear-gradient(180deg, #f8ffe8 0%, #eef8d8 100%);
+    border-color: rgba(101, 163, 13, 0.25);
+}
+
+.ranking-list-card-pokemon[data-tipo-principal^="Roca"]{
+    background: linear-gradient(180deg, #fafaf9 0%, #f0ece6 100%);
+    border-color: rgba(120, 113, 108, 0.25);
+}
+
+.ranking-list-card-pokemon[data-tipo-principal^="Fantasma"]{
+    background: linear-gradient(180deg, #f7f4ff 0%, #ede7ff 100%);
+    border-color: rgba(124, 58, 237, 0.24);
+}
+
+.ranking-list-card-pokemon[data-tipo-principal^="Dragon"],
+.ranking-list-card-pokemon[data-tipo-principal^="Dragón"]{
+    background: linear-gradient(180deg, #f1f3ff 0%, #e3e8ff 100%);
+    border-color: rgba(79, 70, 229, 0.24);
+}
+
+.ranking-list-card-pokemon[data-tipo-principal^="Acero"]{
+    background: linear-gradient(180deg, #f6f9fc 0%, #ebf1f6 100%);
+    border-color: rgba(100, 116, 139, 0.24);
+}
+
+.ranking-list-card-pokemon[data-tipo-principal^="Hada"]{
+    background: linear-gradient(180deg, #fff2f8 0%, #ffe7f2 100%);
+    border-color: rgba(244, 114, 182, 0.24);
+}
+
+.ranking-list-card-pokemon[data-tipo-principal^="Normal"]{
+    background: linear-gradient(180deg, #fafafa 0%, #f1f1f1 100%);
+    border-color: rgba(107, 114, 128, 0.22);
+}
 
 /* =========================================================
    7. UTILIDADES VISUALES
