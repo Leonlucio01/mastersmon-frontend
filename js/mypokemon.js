@@ -1193,6 +1193,31 @@ async function cargarItemsUsuario({ forzar = false } = {}) {
     }
 }
 
+function configurarMenuMobileMyPokemon() {
+    const menuToggle = document.getElementById("menuToggle");
+    const menuMobile = document.getElementById("menuMobile");
+
+    if (!menuToggle || !menuMobile) return;
+
+    menuToggle.addEventListener("click", () => {
+        menuMobile.classList.toggle("menu-open");
+    });
+
+    menuMobile.addEventListener("click", (event) => {
+        const link = event.target.closest("a");
+        if (link) {
+            menuMobile.classList.remove("menu-open");
+        }
+    });
+}
+
+function cerrarMenuMobileMyPokemon() {
+    const menuMobile = document.getElementById("menuMobile");
+    if (menuMobile) {
+        menuMobile.classList.remove("menu-open");
+    }
+}
+
 function configurarSelectorIdiomaMyPokemon() {
     const selectDesktop = document.getElementById("languageSelect");
     const selectMobile = document.getElementById("languageSelectMobile");
@@ -1304,6 +1329,7 @@ function configurarEventosSesionMyPokemon() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+    configurarMenuMobileMyPokemon();
     configurarSelectorIdiomaMyPokemon();
     configurarEventosAvatarSelector();
     configurarEventosSesionMyPokemon();
@@ -1319,6 +1345,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (filtroTipo) filtroTipo.addEventListener("change", aplicarFiltrosMisPokemon);
     if (filtroRareza) filtroRareza.addEventListener("change", aplicarFiltrosMisPokemon);
     if (orden) orden.addEventListener("change", aplicarFiltrosMisPokemon);
+
+    window.addEventListener("resize", () => {
+        if (window.innerWidth > 900) {
+            cerrarMenuMobileMyPokemon();
+        }
+    });
 });
 
 document.addEventListener("languageChanged", () => {
