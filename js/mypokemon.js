@@ -3,10 +3,28 @@ let usuarioActualMyPokemon = null;
 let pokemonPendienteSoltar = null;
 let estadosEvolucionCache = new Map();
 let modalEvolucionActual = null;
+let cargandoMyPokemonEnCurso = false;
+let avatarActualizandoMyPokemon = false;
 
 const MY_POKEMON_CACHE_KEY = "mastersmon_mypokemon_cache";
 const MY_POKEMON_ITEMS_CACHE_KEY = "mastersmon_mypokemon_items_cache";
 const MY_POKEMON_RESUMEN_CACHE_KEY = "mastersmon_mypokemon_resumen_cache";
+const MY_POKEMON_AVATAR_DEFAULT = "steven";
+const MY_POKEMON_AVATAR_REGEX = /^[a-z0-9_-]{1,60}$/;
+
+const AVATARES_DISPONIBLES = [
+    { id: "steven", nombre: "Steven" },
+    { id: "steven_1", nombre: "Steven 2" },
+    { id: "batman", nombre: "Batman" },
+    { id: "bryan", nombre: "Bryan" },
+    { id: "goku", nombre: "Goku" },
+    { id: "hades", nombre: "Hades" },
+    { id: "jean", nombre: "Jean" },
+    { id: "jhonny", nombre: "Jhonny" },
+    { id: "leon", nombre: "Leon" },
+    { id: "nathaly", nombre: "Nathaly" },
+    { id: "rafael", nombre: "Rafael" }
+];
 
 function usuarioAutenticadoMyPokemon() {
     return !!getAccessToken();
@@ -38,6 +56,57 @@ function limpiarCacheMyPokemon() {
     } catch (error) {
         console.warn("No se pudo limpiar cache My Pokemon:", error);
     }
+}
+
+function reemplazarParametrosTexto(texto, params = {}) {
+    return String(texto || "").replace(/\{(\w+)\}/g, (_, key) => {
+        return params[key] !== undefined ? String(params[key]) : `{${key}}`;
+    });
+}
+
+function tMyPokemon(key, fallback, params = {}) {
+    if (typeof t === "function") {
+        const valor = t(key, params);
+        if (valor && valor !== key) {
+            return valor;
+        }
+    }
+    return reemplazarParametrosTexto(fallback, params);
+}
+
+function normalizarAvatarIdMyPokemon(avatarId) {
+    const valor = String(avatarId || "").trim().toLowerCase();
+    if (!valor || !MY_POKEMON_AVATAR_REGEX.test(valor)) {
+        return MY_POKEMON_AVATAR_DEFAULT;
+    }
+    return valor;
+}
+
+function obtenerNombreAvatarVisual(avatarId) {
+    const normalizado = normalizarAvatarIdMyPokemon(avatarId);
+    const encontrado = AVATARES_DISPONIBLES.find(a => a.id === normalizado);
+    if (encontrado) return encontrado.nombre;
+
+    return normalizado
+        .replaceAll("_", " ")
+        .replace(/\b\w/g, letra => letra.toUpperCase());
+}
+
+function obtenerRutaAvatarMyPokemon(avatarId) {
+    return `img/avatars/${normalizarAvatarIdMyPokemon(avatarId)}.png`;
+}
+
+function normalizarUsuarioMyPokemon(usuario) {
+    if (!usuario || typeof usuario !== "object") return null;
+    return {
+        ...usuario,
+        avatar_id: normalizarAvatarIdMyPokemon(usuario.avatar_id || getAvatarIdLocal())
+    };
+}
+
+function obtenerAvatarActualUsuarioMyPokemon() {
+    const usuario = normalizarUsuarioMyPokemon(usuarioActualMyPokemon || getUsuarioLocal());
+    return normalizarAvatarIdMyPokemon(usuario?.avatar_id || getAvatarIdLocal());
 }
 
 function obtenerImagenPokemonColeccion(pokemonId, esShiny = false) {
@@ -143,10 +212,90 @@ function limpiarMensajeEvolucion() {
     box.classList.remove("ok", "error");
 }
 
+function renderAvatarSelector() {
+    const section = document.getElementById("avatarSelectorSection");
+    if (!section) return;
+
+    if (!usuarioAutenticadoMyPokemon()) {
+        section.innerHTML = `
+            <div class="avatar-studio-lock">
+                <h3>${tMyPokemon("mypokemon_avatar_login_title", "Login required")}</h3>
+                <p>${tMyPokemon("mypokemon_avatar_login_text", "Log in to choose your trainer avatar.")}</p>
+            </div>
+        `;
+        return;
+    }
+
+    const avatarActual = obtenerAvatarActualUsuarioMyPokemon();
+    const nombreActual = obtenerNombreAvatarVisual(avatarActual);
+
+    section.innerHTML = `
+        <div class="avatar-studio-shell ${avatarActualizandoMyPokemon ? "updating" : ""}">
+            <div class="avatar-studio-top">
+                <div class="avatar-studio-copy">
+                    <span class="avatar-studio-kicker">
+                        ${tMyPokemon("mypokemon_avatar_kicker", "Trainer style")}
+                    </span>
+                    <h3>${tMyPokemon("mypokemon_avatar_title", "Choose your avatar")}</h3>
+                    <p>${tMyPokemon("mypokemon_avatar_subtitle", "Your avatar appears in maps, rankings, and profile sections.")}</p>
+                </div>
+
+                <div class="avatar-studio-current">
+                    <div class="avatar-studio-current-preview">
+                        <img
+                            src="${obtenerRutaAvatarMyPokemon(avatarActual)}"
+                            alt="${escapeHtmlMyPokemon(nombreActual)}"
+                            onerror="this.onerror=null;this.src='img/avatars/${MY_POKEMON_AVATAR_DEFAULT}.png';"
+                        >
+                    </div>
+                    <div class="avatar-studio-current-text">
+                        <span>${tMyPokemon("mypokemon_avatar_current", "Current avatar")}</span>
+                        <strong>${escapeHtmlMyPokemon(nombreActual)}</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="avatar-studio-grid">
+                ${AVATARES_DISPONIBLES.map(avatar => {
+                    const activo = avatar.id === avatarActual;
+                    return `
+                        <button
+                            type="button"
+                            class="avatar-option ${activo ? "activa" : ""}"
+                            data-avatar-option="${avatar.id}"
+                            ${avatarActualizandoMyPokemon ? "disabled" : ""}
+                            aria-label="${escapeHtmlMyPokemon(avatar.nombre)}"
+                            title="${escapeHtmlMyPokemon(avatar.nombre)}"
+                        >
+                            <div class="avatar-option-preview">
+                                <img
+                                    src="${obtenerRutaAvatarMyPokemon(avatar.id)}"
+                                    alt="${escapeHtmlMyPokemon(avatar.nombre)}"
+                                    onerror="this.onerror=null;this.src='img/avatars/${MY_POKEMON_AVATAR_DEFAULT}.png';"
+                                >
+                            </div>
+                            <span class="avatar-option-name">${escapeHtmlMyPokemon(avatar.nombre)}</span>
+                            ${activo ? `<span class="avatar-option-badge">${tMyPokemon("mypokemon_avatar_selected", "Selected")}</span>` : ""}
+                        </button>
+                    `;
+                }).join("")}
+            </div>
+
+            ${avatarActualizandoMyPokemon ? `
+                <div class="avatar-studio-loading">
+                    ${tMyPokemon("mypokemon_avatar_updating", "Updating avatar...")}
+                </div>
+            ` : ""}
+        </div>
+    `;
+}
+
 function renderEstadoSinSesion() {
     const inventario = document.getElementById("inventarioUsuario");
     const resumen = document.getElementById("resumenColeccion");
     const container = document.getElementById("misPokemonContainer");
+
+    renderAvatarSelector();
 
     if (inventario) {
         inventario.innerHTML = `
@@ -228,43 +377,88 @@ async function obtenerResumenPokedexUsuario(usuarioId) {
     }
 }
 
-async function cargarDatosBaseMyPokemon({ forzar = false } = {}) {
+async function cambiarAvatarSeleccionado(avatarId) {
+    if (avatarActualizandoMyPokemon) return;
     if (!usuarioAutenticadoMyPokemon()) {
-        usuarioActualMyPokemon = null;
-        misPokemonData = [];
-        estadosEvolucionCache.clear();
-        limpiarCacheMyPokemon();
-        renderEstadoSinSesion();
-        return false;
+        mostrarMensajeEvolucion(t("mypokemon_login_required_action"), "error");
+        return;
     }
 
-    if (!forzar) {
-        const cachePokemon = leerCacheJSON(MY_POKEMON_CACHE_KEY, null);
-        const cacheItems = leerCacheJSON(MY_POKEMON_ITEMS_CACHE_KEY, null);
-        const cacheResumen = leerCacheJSON(MY_POKEMON_RESUMEN_CACHE_KEY, null);
+    const avatarNormalizado = normalizarAvatarIdMyPokemon(avatarId);
+    const actual = obtenerAvatarActualUsuarioMyPokemon();
 
-        if (Array.isArray(cachePokemon)) {
-            misPokemonData = cachePokemon;
-            renderInventarioUsuario(Array.isArray(cacheItems) ? cacheItems : []);
-            renderResumenColeccion(cacheResumen);
-            aplicarFiltrosMisPokemon();
-        }
-    }
+    if (avatarNormalizado === actual) return;
 
-    const usuario = await obtenerUsuarioActual();
-
-    if (!usuario || !usuario.id) {
-        usuarioActualMyPokemon = null;
-        misPokemonData = [];
-        estadosEvolucionCache.clear();
-        limpiarCacheMyPokemon();
-        renderEstadoSinSesion();
-        return false;
-    }
-
-    usuarioActualMyPokemon = usuario;
+    avatarActualizandoMyPokemon = true;
+    renderAvatarSelector();
 
     try {
+        const data = await actualizarAvatarUsuarioActual(avatarNormalizado);
+        if (data?.usuario) {
+            usuarioActualMyPokemon = normalizarUsuarioMyPokemon(data.usuario);
+        } else {
+            usuarioActualMyPokemon = normalizarUsuarioMyPokemon(getUsuarioLocal());
+        }
+
+        renderAvatarSelector();
+        mostrarMensajeEvolucion(
+            tMyPokemon("mypokemon_avatar_updated", "Avatar updated successfully"),
+            "ok"
+        );
+    } catch (error) {
+        console.error("Error actualizando avatar:", error);
+        renderAvatarSelector();
+        mostrarMensajeEvolucion(
+            tMyPokemon("mypokemon_avatar_update_error", "Could not update the avatar"),
+            "error"
+        );
+    } finally {
+        avatarActualizandoMyPokemon = false;
+        renderAvatarSelector();
+    }
+}
+
+async function cargarDatosBaseMyPokemon({ forzar = false } = {}) {
+    cargandoMyPokemonEnCurso = true;
+
+    try {
+        if (!usuarioAutenticadoMyPokemon()) {
+            usuarioActualMyPokemon = null;
+            misPokemonData = [];
+            estadosEvolucionCache.clear();
+            limpiarCacheMyPokemon();
+            renderEstadoSinSesion();
+            return false;
+        }
+
+        if (!forzar) {
+            const cachePokemon = leerCacheJSON(MY_POKEMON_CACHE_KEY, null);
+            const cacheItems = leerCacheJSON(MY_POKEMON_ITEMS_CACHE_KEY, null);
+            const cacheResumen = leerCacheJSON(MY_POKEMON_RESUMEN_CACHE_KEY, null);
+
+            if (Array.isArray(cachePokemon)) {
+                misPokemonData = cachePokemon;
+                renderAvatarSelector();
+                renderInventarioUsuario(Array.isArray(cacheItems) ? cacheItems : []);
+                renderResumenColeccion(cacheResumen);
+                aplicarFiltrosMisPokemon();
+            }
+        }
+
+        const usuario = await obtenerUsuarioActual();
+
+        if (!usuario || !usuario.id) {
+            usuarioActualMyPokemon = null;
+            misPokemonData = [];
+            estadosEvolucionCache.clear();
+            limpiarCacheMyPokemon();
+            renderEstadoSinSesion();
+            return false;
+        }
+
+        usuarioActualMyPokemon = normalizarUsuarioMyPokemon(usuario);
+        renderAvatarSelector();
+
         if (forzar) {
             estadosEvolucionCache.clear();
         }
@@ -281,6 +475,7 @@ async function cargarDatosBaseMyPokemon({ forzar = false } = {}) {
         guardarCacheJSON(MY_POKEMON_ITEMS_CACHE_KEY, Array.isArray(items) ? items : []);
         guardarCacheJSON(MY_POKEMON_RESUMEN_CACHE_KEY, resumenData || null);
 
+        renderAvatarSelector();
         renderInventarioUsuario(Array.isArray(items) ? items : []);
         renderResumenColeccion(resumenData);
         aplicarFiltrosMisPokemon();
@@ -289,6 +484,8 @@ async function cargarDatosBaseMyPokemon({ forzar = false } = {}) {
     } catch (error) {
         console.error("Error cargando datos base de My Pokemon:", error);
         return false;
+    } finally {
+        cargandoMyPokemonEnCurso = false;
     }
 }
 
@@ -394,17 +591,17 @@ function estadoEvolucionVisual(evoData) {
 
 function construirCardPokemon(p, evoData = null) {
     const imagen = obtenerImagenPokemonColeccion(p.pokemon_id, p.es_shiny === true);
-    const porcentajeExp = Math.min(100, Math.floor((p.experiencia / (p.nivel * 50)) * 100));
+    const porcentajeExp = Math.min(100, Math.floor((p.experiencia / Math.max(1, (p.nivel * 50))) * 100));
     const estado = estadoEvolucionVisual(evoData);
     const nombreSeguro = String(p.nombre).replace(/'/g, "\\'");
     const tipoTraducido = traducirTipoPokemonMyPokemon(p.tipo || "");
 
     return `
-        <div 
-            class="pokemon-card" 
-            data-tipo="${escapeHtmlMyPokemon(p.tipo)}" 
-            data-nombre="${escapeHtmlMyPokemon(p.nombre)}" 
-            data-shiny="${p.es_shiny ? "true" : "false"}" 
+        <div
+            class="pokemon-card"
+            data-tipo="${escapeHtmlMyPokemon(p.tipo)}"
+            data-nombre="${escapeHtmlMyPokemon(p.nombre)}"
+            data-shiny="${p.es_shiny ? "true" : "false"}"
             data-usuario-pokemon-id="${p.id}"
         >
             <div class="pokemon-card-header">
@@ -505,7 +702,8 @@ function renderizarMisPokemon(pokemons) {
         const evoCache = estadosEvolucionCache.get(p.id) || null;
         return construirCardPokemon(p, evoCache);
     }).join("");
-    
+
+    void hidratarEstadosEvolucion(pokemons);
 }
 
 function abrirModalSoltar(usuarioPokemonId, nombrePokemon) {
@@ -914,6 +1112,8 @@ function refrescarUIIdiomaMyPokemon() {
         applyTranslations();
     }
 
+    renderAvatarSelector();
+
     const resumenCache = leerCacheJSON(MY_POKEMON_RESUMEN_CACHE_KEY, null);
     const itemsCache = leerCacheJSON(MY_POKEMON_ITEMS_CACHE_KEY, []);
     renderResumenColeccion(resumenCache);
@@ -946,8 +1146,49 @@ function refrescarUIIdiomaMyPokemon() {
     }
 }
 
+function configurarEventosAvatarSelector() {
+    const section = document.getElementById("avatarSelectorSection");
+    if (!section) return;
+
+    section.addEventListener("click", async (event) => {
+        const btn = event.target.closest("[data-avatar-option]");
+        if (!btn) return;
+
+        const avatarId = btn.dataset.avatarOption;
+        if (!avatarId) return;
+
+        await cambiarAvatarSeleccionado(avatarId);
+    });
+}
+
+function configurarEventosSesionMyPokemon() {
+    document.addEventListener("usuarioSesionActualizada", async (event) => {
+        const usuario = event.detail?.usuario || null;
+        usuarioActualMyPokemon = normalizarUsuarioMyPokemon(usuario);
+
+        if (cargandoMyPokemonEnCurso) {
+            renderAvatarSelector();
+            return;
+        }
+
+        if (!usuario) {
+            misPokemonData = [];
+            estadosEvolucionCache.clear();
+            limpiarCacheMyPokemon();
+            renderEstadoSinSesion();
+            return;
+        }
+
+        renderAvatarSelector();
+        await cargarMisPokemon({ forzar: true });
+    });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     configurarSelectorIdiomaMyPokemon();
+    configurarEventosAvatarSelector();
+    configurarEventosSesionMyPokemon();
+    renderAvatarSelector();
     cargarMisPokemon();
 
     const buscar = document.getElementById("buscarMiPokemon");
@@ -981,3 +1222,11 @@ function escapeHtmlMyPokemon(valor) {
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
 }
+
+window.cerrarModalEvolucion = cerrarModalEvolucion;
+window.cerrarModalSoltar = cerrarModalSoltar;
+window.abrirModalSoltar = abrirModalSoltar;
+window.confirmarSoltarPokemon = confirmarSoltarPokemon;
+window.manejarEvolucion = manejarEvolucion;
+window.confirmarEvolucionNivel = confirmarEvolucionNivel;
+window.confirmarEvolucionItem = confirmarEvolucionItem;

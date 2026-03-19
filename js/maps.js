@@ -15,34 +15,9 @@ let itemSeleccionadoMaps = null;
 let encuentroRequestId = 0;
 
 const MAPS_ZONAS_CACHE_KEY = "mastersmon_maps_zonas_cache_v2";
-const MAPS_AVATAR_KEY = "mastersmon_maps_avatar_v1";
 const MAPS_AVATAR_POSICIONES_KEY = "mastersmon_maps_avatar_posiciones_v1";
-
-const AVATAR_PERSONALIZADO_BASE64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACcAAAAhCAYAAABa+rIoAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsIAAA7CARUoSoAAAAUPSURBVFhH7ZdLaJ1VEMfHe/MkVhIaUgNNGl9p0xKIEmtKfKRVEVeKUBDE0k1MC6Klq3aThRvdCNmIxqB140ICGldG1DZaorHUGog1FgutaaFNSYgkhtw0j+v5zT3zeXIf6U004sI/DDPfnHO++X8z58y5V/5HgO/Kyrq9+d+CJ5b81wgSKBTvzoAfS15tqEqiV5v7txGQ0WAmuYLaXKc3lmBIavfOxuRzbU+oYOPLFtTWHC0tVXL5EIx5nTd42Z7Z2ZccGUG2Vm3xI6I2PsaZZ4FtzR+95fJ+cbHOzQe3eb0mWDD/KC5jK0iCjwe+VO3mvos2cmBru8hP1UUpe/SGznHjHeoIsC5ywLICQqKA7IGrN8blzM8japeXl8uJw4vy5AMF+nzPobj8UBVXOxfBdZMLERIFkDWCISB7/JlLShByfYmE1NSWbSy5dEA2F0Hw4p4hJdh5YF6O1m3KSS7ngSBAekbyBUEIxr4bHPlRMxbi9U/v8pbIlbFZb2ViReZCMnw5+kMpky5JqO+IlMgLMpuRbVsXfjk+3uG0vLrtbu9NnWgAYey67wdlfyzGWs0eY+F7FD5A1HscqeSDEk+eq925QvAxZmvS15mfZ3qas1U+OX570p1WnRf2RpvzdGGhjiH2noyysk9emU1o1rprt8vo2G/qN+BrqN0mkCQziGuogvhM6YsNvcvLqk93Lal2JFWTOeTyQ63y2s2b0llUpO9w66P3RORIpXPoPgEQWA3d7YchKO6LvccF9AQRPnJ0cVEFULoDbzUrScr58KWL6qesgFPL/nNrtbzw0f0Tfi1ZI7B8ftJ7suCpfdF4x9gFqSyM6ZcTALRfnJLS1sfUPnvhvOyamFCbOSHIGDB/SIznGMT4UhOdRWBHgJISXAEhkzTivJxAkAI991bI3ODXahvOV1bqnFBY11BQoHY2RGWlDJSJPQVGe05Ep1T3nSOEr6Pn7WgfmublZGryvh1KML09QIzsfbawEGXJNOWGYHrWQIwHnFcGTmmrAASF2Bf9b6pghz57BqyZWFiWk8NnM+5X0Lx9l2orM4AkZOywAMdB9yuV9K4UcHD6rE2UlJQkW9qeV/m9v0uFMTQ+xk1snbs7o7ZBW7BWgR+9ZfNm1S6ctQqdG+pgTBE1VJwchpGSQhl+45Ac7Luu/t2P7pcz3/Sqbeg/1iLXf7ksTcfekcbEgvxavsmPpDY1IFNk847SUpl3ZS92ZUSPT05q+fxcMkUpda97OyprRI6v96YYwTt31EnntzUryKUTM4xXV6menpuT4njq14YRMj2/tKQ/lewuZQ5kSIzZaEPWq4gMPt72iD4ffLZJteGDvmHVXw2clpq2vXp3WvDWxvt1jIyFBAGkyeJH09Or/hIJkUEOsJcqKipkampKjrS0eG8KXUNDYmMJ95OH32lgX1Ozavoah8AIQs6IgbFr17RZ50MuAxCrr69PVldX64bHts1vNmN297olyVr3bBvfNr0JfsYRntMOxapYcdcS+L1EXGZmZrwnBTKFpMOuMEBmyBbXHxlBzK/7zYnzRT/f1wzIWSu5lZC1c+0vq6Z1WGbCjHhbx4KMrf+voQWnhCaUEQl9RhBiBLSfPOkBjSAS2sFzTmQcCIKml5DND7L597r2wF1ql72VNdzoRiJsG2BNh8Fg2TPx7mx+FSuTya0yki+ythJgpFy7WDHH/Kficd3wwGUg6vD+ee0Z2SiQqX8qW39B5E98RHDoLDZO6AAAAABJRU5ErkJggg==";
-
-const MAPS_AVATARES = {
-    leon_verde: {
-        id: "leon_verde",
-        nombre: "Leon",
-        etiqueta: "Verde / Negro",
-        sprite: AVATAR_PERSONALIZADO_BASE64,
-        claseColor: "avatar-color-verde"
-    },
-    leon_rojo: {
-        id: "leon_rojo",
-        nombre: "Leon",
-        etiqueta: "Rojo / Negro",
-        sprite: AVATAR_PERSONALIZADO_BASE64,
-        claseColor: "avatar-color-rojo"
-    },
-    leon_plomo: {
-        id: "leon_plomo",
-        nombre: "Leon",
-        etiqueta: "Plomo / Negro",
-        sprite: AVATAR_PERSONALIZADO_BASE64,
-        claseColor: "avatar-color-plomo"
-    }
-};
+const MAPS_AVATAR_DEFAULT_ID = "steven";
+const MAPS_AVATAR_ID_REGEX = /^[a-z0-9_-]{1,60}$/;
 
 /* =========================================================
    RUTA BASE DEL AVATAR
@@ -111,45 +86,9 @@ document.addEventListener("DOMContentLoaded", () => {
     configurarCarruselMaps();
     configurarEventosDelegados();
     configurarMovimientoTeclado();
+    configurarSelectorIdiomaMaps();
+    configurarEventosSesionMaps();
     inicializarMaps();
-
-    const languageSelect = document.getElementById("languageSelect");
-    if (languageSelect && typeof getCurrentLang === "function") {
-        languageSelect.value = getCurrentLang();
-        languageSelect.addEventListener("change", (e) => {
-            setCurrentLang(e.target.value);
-        });
-    }
-
-    document.addEventListener("languageChanged", () => {
-        if (typeof applyTranslations === "function") {
-            applyTranslations();
-        }
-
-        if (zonasCache.length > 0) {
-            renderizarZonas();
-        }
-
-        if (!zonaSeleccionadaActual) return;
-
-        if (!usuarioAutenticadoMaps()) {
-            renderBloqueoMapsSinSesion();
-            return;
-        }
-
-        renderizarZonaExploracion();
-
-        const encuentro = document.getElementById("encuentroContainer");
-        if (encuentro) {
-            encuentro.classList.remove("oculto");
-        }
-
-        if (encuentroActual) {
-            renderEncuentroActual();
-        } else {
-            renderPanelDerechoVacio();
-        }
-    });
 
     const btnCerrarModalResultado = document.getElementById("btnCerrarModalResultadoCaptura");
     if (btnCerrarModalResultado) {
@@ -233,6 +172,155 @@ function cerrarMenuMobile() {
 }
 
 /* =========================
+   IDIOMA
+========================= */
+function configurarSelectorIdiomaMaps() {
+    const selectDesktop = document.getElementById("languageSelect");
+    const selectMobile = document.getElementById("languageSelectMobile");
+
+    const langActual = typeof getCurrentLang === "function" ? getCurrentLang() : "en";
+
+    if (selectDesktop) selectDesktop.value = langActual;
+    if (selectMobile) selectMobile.value = langActual;
+
+    if (selectDesktop) {
+        selectDesktop.addEventListener("change", (e) => {
+            const nuevo = e.target.value;
+            if (selectMobile) selectMobile.value = nuevo;
+            setCurrentLang(nuevo);
+        });
+    }
+
+    if (selectMobile) {
+        selectMobile.addEventListener("change", (e) => {
+            const nuevo = e.target.value;
+            if (selectDesktop) selectDesktop.value = nuevo;
+            setCurrentLang(nuevo);
+        });
+    }
+
+    document.addEventListener("languageChanged", () => {
+        if (typeof applyTranslations === "function") {
+            applyTranslations();
+        }
+
+        if (zonasCache.length > 0) {
+            renderizarZonas();
+        }
+
+        if (!zonaSeleccionadaActual) return;
+
+        if (!usuarioAutenticadoMaps()) {
+            renderBloqueoMapsSinSesion();
+            return;
+        }
+
+        renderizarZonaExploracion();
+
+        const encuentro = document.getElementById("encuentroContainer");
+        if (encuentro) {
+            encuentro.classList.remove("oculto");
+        }
+
+        if (encuentroActual) {
+            renderEncuentroActual();
+        } else {
+            renderPanelDerechoVacio();
+        }
+    });
+}
+
+/* =========================
+   SESION / AVATAR
+========================= */
+function configurarEventosSesionMaps() {
+    document.addEventListener("usuarioSesionActualizada", async (event) => {
+        const usuario = event.detail?.usuario || null;
+
+        sincronizarUsuarioLocalMaps(usuario);
+
+        if (zonasCache.length > 0) {
+            renderizarZonas();
+        }
+
+        if (!zonaSeleccionadaActual) return;
+
+        if (!usuarioAutenticadoMaps()) {
+            encuentroRequestId++;
+            movimientoEnCurso = false;
+            cerrarModalesSecundarios();
+            limpiarMensajeMaps();
+            limpiarEncuentroActual();
+            renderBloqueoMapsSinSesion();
+            return;
+        }
+
+        renderizarZonaExploracion();
+
+        const encuentro = document.getElementById("encuentroContainer");
+        if (encuentro) {
+            encuentro.classList.remove("oculto");
+        }
+
+        try {
+            await Promise.all([
+                cargarPokemonUsuarioMaps(),
+                cargarItemsUsuarioMaps(true)
+            ]);
+        } catch (error) {
+            console.warn("No se pudo refrescar la sesión en Maps:", error);
+        }
+
+        refrescarAvatarMapsEnPantalla();
+
+        if (encuentroActual) {
+            renderEncuentroActual();
+        } else {
+            renderPanelDerechoVacio();
+            try {
+                await generarEncuentroInicial();
+            } catch (error) {
+                console.error("Error generando encuentro tras actualizar sesión:", error);
+            }
+        }
+    });
+
+    window.addEventListener("storage", (event) => {
+        if (event.key === "usuario" || event.key === "usuario_id") {
+            refrescarAvatarMapsEnPantalla();
+        }
+    });
+
+    document.addEventListener("visibilitychange", () => {
+        if (!document.hidden) {
+            refrescarAvatarMapsEnPantalla();
+        }
+    });
+}
+
+function sincronizarUsuarioLocalMaps(usuario) {
+    if (!usuario || typeof usuario !== "object") return;
+
+    try {
+        localStorage.setItem("usuario", JSON.stringify(usuario));
+        if (usuario.id != null) {
+            localStorage.setItem("usuario_id", String(usuario.id));
+        }
+    } catch (error) {
+        console.warn("No se pudo sincronizar usuario local en Maps:", error);
+    }
+}
+
+function refrescarAvatarMapsEnPantalla() {
+    if (!zonaSeleccionadaActual) return;
+
+    const avatarWrap = document.getElementById("avatarMapa");
+    if (!avatarWrap) return;
+
+    renderizarAvatarMapa();
+}
+
+/* =========================
    EVENTOS DELEGADOS
 ========================= */
 function configurarEventosDelegados() {
@@ -251,12 +339,6 @@ function configurarEventosDelegados() {
 
     if (encuentroContainer) {
         encuentroContainer.addEventListener("click", async (event) => {
-            const avatarBtn = event.target.closest("[data-avatar-id]");
-            if (avatarBtn) {
-                seleccionarAvatarMaps(avatarBtn.dataset.avatarId);
-                return;
-            }
-
             const moveBtn = event.target.closest("[data-move]");
             if (moveBtn) {
                 const direccion = moveBtn.dataset.move;
@@ -396,9 +478,44 @@ function guardarStorageJSON(clave, valor) {
     }
 }
 
-function obtenerAvatarActivoMaps() {
-    const avatarId = localStorage.getItem(MAPS_AVATAR_KEY) || "leon_verde";
-    return MAPS_AVATARES[avatarId] || MAPS_AVATARES.leon_verde;
+function obtenerUsuarioMapsActual() {
+    return getUsuarioLocal() || null;
+}
+
+function obtenerNombreEntrenadorMaps() {
+    const usuario = obtenerUsuarioMapsActual();
+    return usuario?.nombre || tMaps("maps_trainer_default", "Trainer");
+}
+
+function normalizarAvatarIdMaps(avatarId) {
+    const valor = String(avatarId || "").trim().toLowerCase();
+    if (!valor || !MAPS_AVATAR_ID_REGEX.test(valor)) {
+        return MAPS_AVATAR_DEFAULT_ID;
+    }
+    return valor;
+}
+
+function obtenerAvatarIdUsuarioMaps() {
+    const usuario = obtenerUsuarioMapsActual();
+
+    if (usuario?.avatar_id) {
+        return normalizarAvatarIdMaps(usuario.avatar_id);
+    }
+
+    if (typeof getAvatarIdLocal === "function") {
+        return normalizarAvatarIdMaps(getAvatarIdLocal());
+    }
+
+    return MAPS_AVATAR_DEFAULT_ID;
+}
+
+function obtenerRutaAvatarMaps(avatarId = null) {
+    const avatarNormalizado = normalizarAvatarIdMaps(avatarId || obtenerAvatarIdUsuarioMaps());
+    return `img/avatars/${avatarNormalizado}.png`;
+}
+
+function obtenerRutaAvatarFallbackMaps() {
+    return `img/avatars/${MAPS_AVATAR_DEFAULT_ID}.png`;
 }
 
 function obtenerClaveZonaActualMaps() {
@@ -454,65 +571,30 @@ function puedeMoverAvatar(direccion) {
     return !!obtenerSiguienteNodoAvatar(direccion);
 }
 
-function renderAvatarSelectorMaps() {
-    const avatarActual = obtenerAvatarActivoMaps();
-
-    return Object.values(MAPS_AVATARES).map(avatar => `
-        <button
-            type="button"
-            class="avatar-selector-btn ${avatar.id === avatarActual.id ? "activo" : ""}"
-            data-avatar-id="${avatar.id}"
-            aria-label="${avatar.nombre} ${avatar.etiqueta}"
-        >
-            <span class="avatar-selector-preview">
-                <img
-                    src="${avatar.sprite}"
-                    alt="${avatar.nombre}"
-                    class="${avatar.claseColor}"
-                    loading="eager"
-                    decoding="async"
-                >
-            </span>
-
-            <span class="avatar-selector-texto">
-                <strong>${avatar.nombre}</strong>
-                <small>${avatar.etiqueta}</small>
-            </span>
-        </button>
-    `).join("");
-}
-
-function seleccionarAvatarMaps(avatarId) {
-    if (!MAPS_AVATARES[avatarId]) return;
-
-    localStorage.setItem(MAPS_AVATAR_KEY, avatarId);
-
-    document.querySelectorAll(".avatar-selector-btn").forEach(btn => {
-        btn.classList.toggle("activo", btn.dataset.avatarId === avatarId);
-    });
-
-    renderizarAvatarMapa();
-}
-
 function renderizarAvatarMapa() {
     const avatarWrap = document.getElementById("avatarMapa");
     if (!avatarWrap || !zonaSeleccionadaActual) return;
 
-    const avatar = obtenerAvatarActivoMaps();
     const nodo = obtenerNodoActualAvatar();
+    const nombreEntrenador = obtenerNombreEntrenadorMaps();
+    const avatarId = obtenerAvatarIdUsuarioMaps();
+    const rutaAvatar = obtenerRutaAvatarMaps(avatarId);
+    const rutaFallback = obtenerRutaAvatarFallbackMaps();
 
     avatarWrap.style.left = `${nodo.x}%`;
     avatarWrap.style.top = `${nodo.y}%`;
-    avatarWrap.setAttribute("aria-label", avatar.nombre);
+    avatarWrap.setAttribute("aria-label", nombreEntrenador);
+    avatarWrap.dataset.avatarId = avatarId;
 
     avatarWrap.innerHTML = `
         <div class="avatar-mapa-sombra"></div>
         <img
-            src="${avatar.sprite}"
-            alt="${avatar.nombre}"
-            class="avatar-mapa-img ${avatar.claseColor}"
+            src="${rutaAvatar}"
+            alt="${nombreEntrenador}"
+            class="avatar-mapa-img"
             loading="eager"
             decoding="async"
+            onerror="if(this.dataset.fallbackApplied==='1')return;this.dataset.fallbackApplied='1';this.src='${rutaFallback}';"
         >
     `;
 
@@ -584,6 +666,21 @@ function configurarMovimientoTeclado() {
         event.preventDefault();
         await moverEnMapa(direccion);
     });
+}
+
+/* =========================
+   ENCUENTRO / SERVIDOR
+========================= */
+function obtenerImagenPokemonEncuentro(pokemon) {
+    if (!pokemon) return "";
+
+    if (pokemon.imagen) {
+        return pokemon.imagen;
+    }
+
+    return pokemon.es_shiny
+        ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${pokemon.pokemon_id}.png`
+        : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.pokemon_id}.png`;
 }
 
 async function solicitarEncuentroServidor(requestIdActual, zonaIdActual) {
@@ -1040,15 +1137,6 @@ function renderizarZonaExploracion() {
                     <p>${t("maps_explore_hint")}</p>
                 </div>
 
-                <div class="mapa-toolbar-superior">
-                    <div class="mapa-avatar-box">
-                        <div class="mapa-avatar-titulo">${tMaps("maps_avatar_title", "Avatar")}</div>
-                        <div class="avatar-selector-grid">
-                            ${renderAvatarSelectorMaps()}
-                        </div>
-                    </div>
-                </div>
-
                 <div class="mapa-exploracion-box">
                     <img
                         id="imgMapaExploracion"
@@ -1061,7 +1149,7 @@ function renderizarZonaExploracion() {
                     <div
                         id="avatarMapa"
                         class="avatar-mapa"
-                        aria-label="${obtenerAvatarActivoMaps().nombre}"
+                        aria-label="${obtenerNombreEntrenadorMaps()}"
                     ></div>
                 </div>
 
@@ -1170,7 +1258,7 @@ async function moverEnMapa(direccion, opciones = {}) {
 
         if (!siguienteNodoId) {
             mostrarMensajeMaps(
-                tMaps("maps_path_blocked", "No puedes avanzar por ese lado del camino."),
+                tMaps("maps_path_blocked", "You cannot move further in that direction."),
                 "warning"
             );
             actualizarBotonesMovimientoDisponibles(false);
@@ -1221,9 +1309,7 @@ function renderEncuentroActual() {
     const accionPanel = document.getElementById("encuentroAccionPanel");
     if (!infoPanel || !accionPanel) return;
 
-    const imagen = encuentroActual.es_shiny
-        ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${encuentroActual.pokemon_id}.png`
-        : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${encuentroActual.pokemon_id}.png`;
+    const imagen = obtenerImagenPokemonEncuentro(encuentroActual);
 
     const estadoCaptura = obtenerEstadoCapturaMapa(
         encuentroActual.pokemon_id,
@@ -1236,8 +1322,8 @@ function renderEncuentroActual() {
 
         <div class="encuentro-top-status">
             <div class="captura-indicador-superior ${estadoCaptura.variante}">
-                <img 
-                    src="${estadoCaptura.imagen}" 
+                <img
+                    src="${estadoCaptura.imagen}"
                     class="captura-ball-img ${estadoCaptura.variante === "ninguno" ? "gris" : ""} ${estadoCaptura.variante === "otra-version" ? "dorada" : ""}"
                     alt="${t("maps_capture_status")}"
                 >
@@ -1359,9 +1445,9 @@ function renderPanelAccionEncuentro() {
         : pokeballs.length
             ? pokeballs.map((item) => `
                 <label class="ball-option ${item.cantidad <= 0 ? "sin-stock" : ""}">
-                    <input 
-                        type="radio" 
-                        name="pokeballSeleccionada" 
+                    <input
+                        type="radio"
+                        name="pokeballSeleccionada"
                         value="${item.item_id}"
                         data-nombre="${item.nombre}"
                         ${Number(item.item_id) === Number(itemMarcadoId) ? "checked" : ""}
@@ -1603,7 +1689,7 @@ function setEstadoMovimiento(cargando, direccion = "") {
     if (cargando) {
         titulo.textContent = direccion
             ? `${t("maps_exploring_direction")} ${traducirDireccion(direccion)}...`
-            : tMaps("maps_searching_encounter", "Buscando encuentro...");
+            : tMaps("maps_searching_encounter", "Searching for an encounter...");
     } else if (zonaSeleccionadaActual) {
         titulo.textContent = t("maps_explore_hint");
     }

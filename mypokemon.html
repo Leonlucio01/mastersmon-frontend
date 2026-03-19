@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,6 +21,7 @@
                 <a href="maps.html" data-i18n="menu_maps">Maps</a>
                 <a href="mypokemon.html" class="active" data-i18n="menu_my_pokemon">My Pokemon</a>
                 <a href="pokemart.html" data-i18n="menu_pokemart">PokeMart</a>
+                <a href="ranking.html" data-i18n="menu_ranking">Ranking</a>
             </nav>
 
             <div class="menu-auth-area">
@@ -49,7 +50,7 @@
 
                 <div id="usuarioMenu" class="oculto">
                     <span id="nombreUsuario"></span>
-                    <button id="cerrarSesionMenu" type="button" data-i18n="menu_logout">Salir</button>
+                    <button id="cerrarSesionMenu" type="button" data-i18n="menu_logout">Logout</button>
                 </div>
             </div>
 
@@ -63,6 +64,7 @@
                 <a href="maps.html" data-i18n="menu_maps">Maps</a>
                 <a href="mypokemon.html" class="active" data-i18n="menu_my_pokemon">My Pokemon</a>
                 <a href="pokemart.html" data-i18n="menu_pokemart">PokeMart</a>
+                <a href="ranking.html" data-i18n="menu_ranking">Ranking</a>
 
                 <div class="menu-mobile-user">
                     <div class="lang-switch">
@@ -85,7 +87,7 @@
 
                     <div id="usuarioMenuMobile" class="oculto">
                         <span id="nombreUsuarioMobile"></span>
-                        <button id="cerrarSesionMenuMobile" type="button" data-i18n="menu_logout">Salir</button>
+                        <button id="cerrarSesionMenuMobile" type="button" data-i18n="menu_logout">Logout</button>
                     </div>
                 </div>
             </div>
@@ -95,12 +97,14 @@
     <section class="seccion-pokedex">
         <div class="encabezado-pokedex">
             <h2 class="titulo" data-i18n="mypokemon_title">MY POKEMON</h2>
-            <p class="subtitulo" data-i18n="mypokemon_subtitle">Tu colección, niveles y evoluciones</p>
+            <p class="subtitulo" data-i18n="mypokemon_subtitle">Your collection, levels and evolutions</p>
         </div>
 
+        <div id="avatarSelectorSection" class="avatar-studio-box"></div>
+
         <div id="inventarioUsuario" class="battle-placeholder">
-            <h3 data-i18n="mypokemon_inventory_title">🎒 Inventario</h3>
-            <p data-i18n="mypokemon_inventory_loading">Cargando inventario...</p>
+            <h3 data-i18n="mypokemon_inventory_title">🎒 Inventory</h3>
+            <p data-i18n="mypokemon_inventory_loading">Loading inventory...</p>
         </div>
 
         <div id="resumenColeccion" class="resumen-coleccion">
@@ -113,7 +117,7 @@
                 <strong>...</strong>
             </div>
             <div class="resumen-card">
-                <span data-i18n="mypokemon_summary_progress">📈 Avance Pokédex</span>
+                <span data-i18n="mypokemon_summary_progress">📈 Pokédex Progress</span>
                 <strong>...</strong>
             </div>
         </div>
@@ -124,51 +128,51 @@
             <input
                 type="text"
                 id="buscarMiPokemon"
-                placeholder="🔎 Buscar mi Pokémon..."
+                placeholder="🔎 Search my Pokémon..."
                 data-i18n-placeholder="mypokemon_search_placeholder"
             >
 
             <select id="filtroMiTipo">
-                <option value="" data-i18n="mypokemon_all_types">Todos los tipos</option>
+                <option value="" data-i18n="mypokemon_all_types">All types</option>
                 <option value="Normal" data-i18n="type_normal">Normal</option>
-                <option value="Fuego" data-i18n="type_fire">Fuego</option>
-                <option value="Agua" data-i18n="type_water">Agua</option>
-                <option value="Planta" data-i18n="type_grass">Planta</option>
-                <option value="Electrico" data-i18n="type_electric">Eléctrico</option>
-                <option value="Hielo" data-i18n="type_ice">Hielo</option>
-                <option value="Lucha" data-i18n="type_fighting">Lucha</option>
-                <option value="Veneno" data-i18n="type_poison">Veneno</option>
-                <option value="Tierra" data-i18n="type_ground">Tierra</option>
-                <option value="Volador" data-i18n="type_flying">Volador</option>
-                <option value="Psiquico" data-i18n="type_psychic">Psíquico</option>
-                <option value="Bicho" data-i18n="type_bug">Bicho</option>
-                <option value="Roca" data-i18n="type_rock">Roca</option>
-                <option value="Fantasma" data-i18n="type_ghost">Fantasma</option>
-                <option value="Dragon" data-i18n="type_dragon">Dragón</option>
-                <option value="Acero" data-i18n="type_steel">Acero</option>
-                <option value="Hada" data-i18n="type_fairy">Hada</option>
+                <option value="Fuego" data-i18n="type_fire">Fire</option>
+                <option value="Agua" data-i18n="type_water">Water</option>
+                <option value="Planta" data-i18n="type_grass">Grass</option>
+                <option value="Electrico" data-i18n="type_electric">Electric</option>
+                <option value="Hielo" data-i18n="type_ice">Ice</option>
+                <option value="Lucha" data-i18n="type_fighting">Fighting</option>
+                <option value="Veneno" data-i18n="type_poison">Poison</option>
+                <option value="Tierra" data-i18n="type_ground">Ground</option>
+                <option value="Volador" data-i18n="type_flying">Flying</option>
+                <option value="Psiquico" data-i18n="type_psychic">Psychic</option>
+                <option value="Bicho" data-i18n="type_bug">Bug</option>
+                <option value="Roca" data-i18n="type_rock">Rock</option>
+                <option value="Fantasma" data-i18n="type_ghost">Ghost</option>
+                <option value="Dragon" data-i18n="type_dragon">Dragon</option>
+                <option value="Acero" data-i18n="type_steel">Steel</option>
+                <option value="Hada" data-i18n="type_fairy">Fairy</option>
             </select>
 
             <select id="filtroMiRareza">
-                <option value="" data-i18n="battle_filter_all">Todos</option>
+                <option value="" data-i18n="battle_filter_all">All</option>
                 <option value="normal" data-i18n="battle_filter_normal">Normal</option>
                 <option value="shiny" data-i18n="battle_filter_shiny">Shiny</option>
             </select>
 
             <select id="ordenMisPokemon">
-                <option value="pokemon_id_asc" data-i18n="battle_sort_id">ID Pokémon</option>
+                <option value="pokemon_id_asc" data-i18n="battle_sort_id">Pokémon ID</option>
                 <option value="hp_desc" data-i18n="battle_sort_hp">HP</option>
                 <option value="ataque_desc" data-i18n="battle_sort_atk">ATK</option>
                 <option value="defensa_desc" data-i18n="battle_sort_def">DEF</option>
-                <option value="nivel_desc" data-i18n="battle_sort_level">Nivel</option>
-                <option value="reciente" data-i18n="battle_sort_recent">Más reciente</option>
+                <option value="nivel_desc" data-i18n="battle_sort_level">Level</option>
+                <option value="reciente" data-i18n="battle_sort_recent">Most recent</option>
             </select>
         </div>
 
         <div id="misPokemonContainer" class="maps-grid">
             <div class="empty-box">
-                <h3 data-i18n="battle_loading_collection_title">Cargando colección...</h3>
-                <p data-i18n="mypokemon_loading_text">Espera un momento.</p>
+                <h3 data-i18n="battle_loading_collection_title">Loading your collection...</h3>
+                <p data-i18n="mypokemon_loading_text">Please wait a moment.</p>
             </div>
         </div>
     </section>
@@ -183,15 +187,15 @@
     <div id="modalConfirmarSoltar" class="modal oculto">
         <div class="modal-content modal-soltar">
             <span class="cerrar" onclick="cerrarModalSoltar()">✖</span>
-            <h2 class="titulo-modal-evolucion" data-i18n="mypokemon_release_modal_title">Soltar Pokémon</h2>
+            <h2 class="titulo-modal-evolucion" data-i18n="mypokemon_release_modal_title">Release Pokémon</h2>
             <p class="subtitulo-modal-evolucion" id="textoConfirmarSoltar">
-                ¿Seguro que deseas soltar este Pokémon?
+                Are you sure you want to release this Pokémon?
             </p>
 
             <div class="evolucion-botones">
-                <button class="btn-cancelar-modal" onclick="cerrarModalSoltar()" data-i18n="battle_cancel">Cancelar</button>
+                <button class="btn-cancelar-modal" onclick="cerrarModalSoltar()" data-i18n="battle_cancel">Cancel</button>
                 <button class="btn-soltar-confirmar" id="btnConfirmarSoltar" type="button" data-i18n="mypokemon_release_confirm">
-                    Sí, soltar
+                    Yes, release
                 </button>
             </div>
         </div>
@@ -201,16 +205,5 @@
     <script src="js/i18n.js"></script>
     <script src="js/gmail.js"></script>
     <script src="js/mypokemon.js"></script>
-    <script>
-        const menuToggle = document.getElementById("menuToggle");
-        const menuMobile = document.getElementById("menuMobile");
-
-        if (menuToggle && menuMobile) {
-            menuToggle.addEventListener("click", () => {
-                menuMobile.classList.toggle("menu-open");
-            });
-        }
-    </script>
-
 </body>
 </html>
