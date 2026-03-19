@@ -212,7 +212,7 @@ function renderHighlightCapturas(item, metaPokedex = {}) {
     const nombreEntrenador = item ? escapeHtml(item.nombre || "—") : t("ranking_no_data");
 
     return `
-        <article class="ranking-highlight-card">
+        <article class="ranking-highlight-card ranking-highlight-card-gold">
             <div class="ranking-highlight-label">🏆 ${t("ranking_hero_unique_label")}</div>
 
             <div class="ranking-highlight-top ranking-highlight-top-split">
@@ -222,7 +222,6 @@ function renderHighlightCapturas(item, metaPokedex = {}) {
                 </div>
 
                 <div class="ranking-highlight-side">
-                    <p class="ranking-highlight-side-name">${nombreEntrenador}</p>
                     <div class="ranking-highlight-avatar">
                         <img
                             src="${obtenerImagenAvatarRanking(item)}"
@@ -252,17 +251,20 @@ function renderHighlightPokemon(item) {
     const nombreEntrenador = item ? escapeHtml(item.entrenador_nombre || "—") : "—";
 
     return `
-        <article class="ranking-highlight-card">
+        <article class="ranking-highlight-card ranking-highlight-card-gold">
             <div class="ranking-highlight-label">⚡ ${t("ranking_hero_pokemon_label")}</div>
 
             <div class="ranking-highlight-top ranking-highlight-top-split">
                 <div class="ranking-highlight-copy">
                     <h3 class="ranking-highlight-title">${t("ranking_hero_pokemon_title")}</h3>
                     <p class="ranking-highlight-name">${nombrePokemon}</p>
+                    <p class="ranking-highlight-trainer-line">
+                        <span>${t("ranking_trainer")}:</span>
+                        <strong>${nombreEntrenador}</strong>
+                    </p>
                 </div>
 
                 <div class="ranking-highlight-side">
-                    <p class="ranking-highlight-side-name ranking-highlight-side-name-trainer">${nombreEntrenador}</p>
                     <div class="ranking-highlight-pokemon">
                         <img
                             src="${obtenerImagenPokemonRanking(item)}"
@@ -290,17 +292,16 @@ function renderHighlightTrainer(item) {
     const nombreEntrenador = item ? escapeHtml(item.nombre || "—") : t("ranking_no_data");
 
     return `
-        <article class="ranking-highlight-card">
+        <article class="ranking-highlight-card ranking-highlight-card-gold">
             <div class="ranking-highlight-label">👑 ${t("ranking_hero_trainer_label")}</div>
 
             <div class="ranking-highlight-top ranking-highlight-top-split">
                 <div class="ranking-highlight-copy">
                     <h3 class="ranking-highlight-title">${t("ranking_hero_trainer_title")}</h3>
-                    <p class="ranking-highlight-name ranking-highlight-name-strong">${nombreEntrenador}</p>
+                    <p class="ranking-highlight-name">${nombreEntrenador}</p>
                 </div>
 
                 <div class="ranking-highlight-side">
-                    <p class="ranking-highlight-side-name">${nombreEntrenador}</p>
                     <div class="ranking-highlight-avatar">
                         <img
                             src="${obtenerImagenAvatarRanking(item)}"
@@ -373,7 +374,7 @@ function renderCollectorCard(item, index, metaPokedex = {}) {
 
             <div class="ranking-collector-main">
                 <div class="ranking-collector-value">${formatearNumero(capturado)}</div>
-                <div class="ranking-collector-total">${t("ranking_out_of_total", { captured: formatearNumero(capturado), total: formatearNumero(total) })}</div>
+                <div class="ranking-collector-total">${formatearNumero(capturado)} / ${formatearNumero(total)}</div>
             </div>
 
             <div class="ranking-collector-stats">
@@ -398,7 +399,6 @@ function renderCollectorCard(item, index, metaPokedex = {}) {
    TOP POKÉMON POR EXP
    - Con fondo suave por tipo principal
 ========================================================= */
-
 function renderizarListaPokemonExp(lista = []) {
     const container = document.getElementById("rankingPokemonExp");
     if (!container) return;
@@ -408,14 +408,15 @@ function renderizarListaPokemonExp(lista = []) {
         return;
     }
 
-    container.innerHTML = lista.map(item => {
+    container.innerHTML = lista.map((item, index) => {
         const tipoPrincipal = obtenerTipoPrincipalRanking(item?.tipo || "");
         const tipoTraducido = escapeHtml(traducirTipoPokemonRankingSeguro(item?.tipo || "—"));
         const entrenador = escapeHtml(item?.entrenador_nombre || "—");
         const nombrePokemon = escapeHtml(item?.pokemon_nombre || "—");
+        const topClass = index < 3 ? `top-${index + 1}` : "";
 
         return `
-            <article class="ranking-list-card ranking-list-card-pokemon" data-tipo-principal="${escapeHtml(tipoPrincipal)}">
+            <article class="ranking-list-card ranking-list-card-pokemon ${topClass}" data-tipo-principal="${escapeHtml(tipoPrincipal)}">
                 <div class="ranking-list-rank">#${formatearNumero(item?.puesto || 0)}</div>
 
                 <div class="ranking-list-main">
@@ -432,7 +433,7 @@ function renderizarListaPokemonExp(lista = []) {
                         <div class="ranking-list-subline ranking-list-subline-main">
                             <span class="ranking-pill ranking-pill-trainer">${t("ranking_trainer")}: ${entrenador}</span>
                             <span class="ranking-pill">${t("ranking_level")}: ${formatearNumero(item?.nivel || 0)}</span>
-                            <span class="ranking-pill ranking-pill-type">${t("ranking_type")}: ${tipoTraducido}</span>
+                            <span class="ranking-pill ranking-pill-type ranking-pill-type-${normalizarTipoCss(tipoPrincipal)}">${tipoTraducido}</span>
                             ${item?.es_shiny ? `<span class="ranking-pill shiny">✨ ${t("ranking_shiny")}</span>` : ""}
                         </div>
                     </div>
@@ -460,32 +461,36 @@ function renderizarListaEntrenadores(lista = []) {
         return;
     }
 
-    container.innerHTML = lista.map(item => `
-        <article class="ranking-list-card">
-            <div class="ranking-list-rank">#${formatearNumero(item?.puesto || 0)}</div>
-            <div class="ranking-list-main">
-                <div class="ranking-list-icon">
-                    <img
-                        src="${obtenerImagenAvatarRanking(item)}"
-                        alt="${escapeHtml(item?.nombre || "Trainer")}"
-                        onerror="this.onerror=null;this.src='img/avatars/${RANKING_DEFAULT_AVATAR}.png';"
-                    >
-                </div>
-                <div class="ranking-list-text">
-                    <h3>${escapeHtml(item?.nombre || "—")}</h3>
-                    <div class="ranking-list-subline">
-                        <span class="ranking-pill">${t("ranking_pokemon_total")}: ${formatearNumero(item?.total_pokemon || 0)}</span>
-                        <span class="ranking-pill">${t("ranking_wins_total")}: ${formatearNumero(item?.victorias_total_sum || 0)}</span>
-                        <span class="ranking-pill">${t("ranking_level_max")}: ${formatearNumero(item?.nivel_maximo || 0)}</span>
+    container.innerHTML = lista.map((item, index) => {
+        const topClass = index < 3 ? `top-${index + 1}` : "";
+
+        return `
+            <article class="ranking-list-card ranking-list-card-trainer ${topClass}">
+                <div class="ranking-list-rank">#${formatearNumero(item?.puesto || 0)}</div>
+                <div class="ranking-list-main">
+                    <div class="ranking-list-icon">
+                        <img
+                            src="${obtenerImagenAvatarRanking(item)}"
+                            alt="${escapeHtml(item?.nombre || "Trainer")}"
+                            onerror="this.onerror=null;this.src='img/avatars/${RANKING_DEFAULT_AVATAR}.png';"
+                        >
+                    </div>
+                    <div class="ranking-list-text">
+                        <h3>${escapeHtml(item?.nombre || "—")}</h3>
+                        <div class="ranking-list-subline">
+                            <span class="ranking-pill">${t("ranking_pokemon_total")}: ${formatearNumero(item?.total_pokemon || 0)}</span>
+                            <span class="ranking-pill">${t("ranking_wins_total")}: ${formatearNumero(item?.victorias_total_sum || 0)}</span>
+                            <span class="ranking-pill">${t("ranking_level_max")}: ${formatearNumero(item?.nivel_maximo || 0)}</span>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="ranking-list-side">
-                <span>${t("ranking_exp_total")}</span>
-                <strong>${formatearNumero(item?.experiencia_total_sum || 0)}</strong>
-            </div>
-        </article>
-    `).join("");
+                <div class="ranking-list-side">
+                    <span>${t("ranking_exp_total")}</span>
+                    <strong>${formatearNumero(item?.experiencia_total_sum || 0)}</strong>
+                </div>
+            </article>
+        `;
+    }).join("");
 }
 
 /* =========================================================
@@ -527,6 +532,15 @@ function obtenerTipoPrincipalRanking(tipo = "") {
         .split("/")
         .map(parte => parte.trim())
         .find(Boolean) || "Normal";
+}
+
+function normalizarTipoCss(tipo = "") {
+    return String(tipo || "")
+        .toLowerCase()
+        .trim()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z]/g, "");
 }
 
 function formatearNumero(valor) {
