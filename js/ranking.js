@@ -209,11 +209,13 @@ function renderHighlightCapturas(item, metaPokedex = {}) {
     return `
         <article class="ranking-highlight-card">
             <div class="ranking-highlight-label">🏆 ${t("ranking_hero_unique_label")}</div>
-            <div class="ranking-highlight-main">
-                <div>
+
+            <div class="ranking-highlight-top">
+                <div class="ranking-highlight-copy">
                     <h3 class="ranking-highlight-title">${t("ranking_hero_unique_title")}</h3>
-                    <p class="ranking-highlight-desc">${item ? escapeHtml(item.nombre || "—") : t("ranking_no_data")}</p>
+                    <p class="ranking-highlight-name">${item ? escapeHtml(item.nombre || "—") : t("ranking_no_data")}</p>
                 </div>
+
                 <div class="ranking-highlight-avatar">
                     <img
                         src="${obtenerImagenAvatarRanking(item)}"
@@ -222,6 +224,7 @@ function renderHighlightCapturas(item, metaPokedex = {}) {
                     >
                 </div>
             </div>
+
             <div class="ranking-highlight-meta">
                 <div class="ranking-mini-stat">
                     <span>${t("ranking_unique_total")}</span>
@@ -237,14 +240,23 @@ function renderHighlightCapturas(item, metaPokedex = {}) {
 }
 
 function renderHighlightPokemon(item) {
+    const nombrePokemon = item ? escapeHtml(item.pokemon_nombre || "—") : t("ranking_no_data");
+    const nombreEntrenador = item ? escapeHtml(item.entrenador_nombre || "—") : "—";
+
     return `
         <article class="ranking-highlight-card">
             <div class="ranking-highlight-label">⚡ ${t("ranking_hero_pokemon_label")}</div>
-            <div class="ranking-highlight-main">
-                <div>
+
+            <div class="ranking-highlight-top">
+                <div class="ranking-highlight-copy">
                     <h3 class="ranking-highlight-title">${t("ranking_hero_pokemon_title")}</h3>
-                    <p class="ranking-highlight-desc">${item ? escapeHtml(item.pokemon_nombre || "—") : t("ranking_no_data")}</p>
+                    <p class="ranking-highlight-name">${nombrePokemon}</p>
+                    <p class="ranking-highlight-trainer-line">
+                        <span>${t("ranking_trainer")}:</span>
+                        <strong>${nombreEntrenador}</strong>
+                    </p>
                 </div>
+
                 <div class="ranking-highlight-pokemon">
                     <img
                         src="${obtenerImagenPokemonRanking(item)}"
@@ -252,6 +264,7 @@ function renderHighlightPokemon(item) {
                     >
                 </div>
             </div>
+
             <div class="ranking-highlight-meta">
                 <div class="ranking-mini-stat">
                     <span>${t("ranking_exp_total")}</span>
@@ -267,14 +280,18 @@ function renderHighlightPokemon(item) {
 }
 
 function renderHighlightTrainer(item) {
+    const nombreEntrenador = item ? escapeHtml(item.nombre || "—") : t("ranking_no_data");
+
     return `
         <article class="ranking-highlight-card">
             <div class="ranking-highlight-label">👑 ${t("ranking_hero_trainer_label")}</div>
-            <div class="ranking-highlight-main">
-                <div>
-                    <h3 class="ranking-highlight-title">${t("ranking_hero_trainer_title")}</div>
-                    <p class="ranking-highlight-desc">${item ? escapeHtml(item.nombre || "—") : t("ranking_no_data")}</p>
+
+            <div class="ranking-highlight-top">
+                <div class="ranking-highlight-copy">
+                    <h3 class="ranking-highlight-title">${t("ranking_hero_trainer_title")}</h3>
+                    <p class="ranking-highlight-name ranking-highlight-name-strong">${nombreEntrenador}</p>
                 </div>
+
                 <div class="ranking-highlight-avatar">
                     <img
                         src="${obtenerImagenAvatarRanking(item)}"
@@ -283,6 +300,7 @@ function renderHighlightTrainer(item) {
                     >
                 </div>
             </div>
+
             <div class="ranking-highlight-meta">
                 <div class="ranking-mini-stat">
                     <span>${t("ranking_exp_total")}</span>
