@@ -14,6 +14,14 @@ let resizeTimer = null;
 let itemSeleccionadoMaps = null;
 let encuentroRequestId = 0;
 
+/* =========================================================
+   TIEMPO REAL / PRESENCIA
+========================================================= */
+let mapsRealtimeConnection = null;
+let jugadoresZonaMaps = new Map();
+let presenciaZonaActivaId = null;
+let ultimoNodoReportadoMaps = null;
+
 const MAPS_ZONAS_CACHE_KEY = "mastersmon_maps_zonas_cache_v2";
 const MAPS_AVATAR_POSICIONES_KEY = "mastersmon_maps_avatar_posiciones_v1";
 const MAPS_AVATAR_DEFAULT_ID = "steven";
@@ -125,6 +133,7 @@ document.addEventListener("DOMContentLoaded", () => {
     configurarMovimientoTeclado();
     configurarSelectorIdiomaMaps();
     configurarEventosSesionMaps();
+    configurarEventosLifecycleMaps();
     inicializarMaps();
 
     const btnCerrarModalResultado = document.getElementById("btnCerrarModalResultadoCaptura");
@@ -259,6 +268,8 @@ function configurarSelectorIdiomaMaps() {
             encuentro.classList.remove("oculto");
         }
 
+        renderizarJugadoresMapa();
+
         if (encuentroActual) {
             renderEncuentroActual();
         } else {
@@ -288,6 +299,8 @@ function configurarEventosSesionMaps() {
             cerrarModalesSecundarios();
             limpiarMensajeMaps();
             limpiarEncuentroActual();
+            limpiarJugadoresZonaMaps();
+            await salirPresenciaMaps(true);
             renderBloqueoMapsSinSesion();
             return;
         }
@@ -302,7 +315,8 @@ function configurarEventosSesionMaps() {
         try {
             await Promise.all([
                 cargarPokemonUsuarioMaps(),
-                cargarItemsUsuarioMaps(true)
+                cargarItemsUsuarioMaps(true),
+                iniciarPresenciaZonaActual()
             ]);
         } catch (error) {
             console.warn("No se pudo refrescar la sesión en Maps:", error);
@@ -322,16 +336,61 @@ function configurarEventosSesionMaps() {
         }
     });
 
-    window.addEventListener("storage", (event) => {
-        if (event.key === "usuario" || event.key === "usuario_id") {
+    window.addEventListener("storage", async (event) => {
+        if (
+            event.key === "usuario" ||
+            event.key === "usuario_id" ||
+            event.key === "access_token" ||
+            event.key === "usuario_avatar_id"
+        ) {
+            if (!usuarioAutenticadoMaps()) {
+                encuentroRequestId++;
+                movimientoEnCurso = false;
+                cerrarModalesSecundarios();
+                limpiarMensajeMaps();
+                limpiarEncuentroActual();
+                limpiarJugadoresZonaMaps();
+                await salirPresenciaMaps(true);
+
+                if (zonasCache.length > 0) {
+                    renderizarZonas();
+                }
+
+                if (zonaSeleccionadaActual) {
+                    renderBloqueoMapsSinSesion();
+                }
+                return;
+            }
+
             refrescarAvatarMapsEnPantalla();
+            await refrescarPresenciaZonaActual();
+            sincronizarPresenciaLocalMaps();
         }
     });
 
-    document.addEventListener("visibilitychange", () => {
+    document.addEventListener("visibilitychange", async () => {
         if (!document.hidden) {
+            if (!usuarioAutenticadoMaps()) {
+                if (zonaSeleccionadaActual) {
+                    renderBloqueoMapsSinSesion();
+                }
+                return;
+            }
+
             refrescarAvatarMapsEnPantalla();
+            await refrescarPresenciaZonaActual();
+            sincronizarPresenciaLocalMaps();
         }
+    });
+}
+
+function configurarEventosLifecycleMaps() {
+    window.addEventListener("beforeunload", () => {
+        salirPresenciaMaps(true);
+    });
+
+    window.addEventListener("pagehide", () => {
+        salirPresenciaMaps(true);
     });
 }
 
@@ -706,6 +765,347 @@ function configurarMovimientoTeclado() {
 }
 
 /* =========================
+   TIEMPO REAL / PRESENCIA
+========================= */
+function obtenerLayerJugadoresMaps() {
+    return document.getElementById("jugadoresMapaLayer");
+}
+
+function limpiarJugadoresZonaMaps() {
+    jugadoresZonaMaps.clear();
+    presenciaZonaActivaId = null;
+    renderizarJugadoresMapa();
+}
+
+function obtenerNodoMapaPorId(nodeId) {
+    const ruta = obtenerRutaZonaActual();
+    if (!ruta || !ruta.nodes) return null;
+    return ruta.nodes[nodeId] ? { id: nodeId, ...ruta.nodes[nodeId] } : null;
+}
+
+function obtenerInicialNombreJugador(nombre = "") {
+    const limpio = String(nombre || "").trim();
+    return limpio ? limpio.charAt(0).toUpperCase() : "T";
+}
+
+function esJugadorActualMaps(usuarioId) {
+    const actual = getUsuarioIdLocal();
+    return Number(actual) > 0 && Number(actual) === Number(usuarioId);
+}
+
+function crearHtmlJugadorMapa(jugador, nodo) {
+    const nombre = jugador?.nombre || tMaps("maps_trainer_default", "Trainer");
+    const avatarId = normalizarAvatarIdMaps(jugador?.avatar_id || MAPS_AVATAR_DEFAULT_ID);
+    const rutaAvatar = obtenerRutaAvatarMaps(avatarId);
+    const rutaFallback = obtenerRutaAvatarFallbackMaps();
+    const inicial = obtenerInicialNombreJugador(nombre);
+
+    return `
+        <div
+            class="jugador-mapa"
+            data-usuario-id="${Number(jugador.usuario_id)}"
+            style="left:${nodo.x}%; top:${nodo.y}%"
+            aria-label="${nombre}"
+            title="${nombre}"
+        >
+            <div class="jugador-mapa-etiqueta">${nombre}</div>
+            <div class="jugador-mapa-sombra"></div>
+            <img
+                src="${rutaAvatar}"
+                alt="${nombre}"
+                class="jugador-mapa-img"
+                loading="eager"
+                decoding="async"
+                onerror="if(this.dataset.fallbackApplied==='1')return;this.dataset.fallbackApplied='1';this.src='${rutaFallback}';"
+            >
+            <div class="jugador-mapa-inicial">${inicial}</div>
+        </div>
+    `;
+}
+
+function renderizarJugadoresMapa() {
+    const layer = obtenerLayerJugadoresMaps();
+    if (!layer) return;
+
+    if (!zonaSeleccionadaActual || !usuarioAutenticadoMaps()) {
+        layer.innerHTML = "";
+        return;
+    }
+
+    const jugadores = Array.from(jugadoresZonaMaps.values())
+        .filter(j => !esJugadorActualMaps(j.usuario_id))
+        .filter(j => String(j.nodo_id || "").trim() !== "")
+        .sort((a, b) => String(a.nombre || "").localeCompare(String(b.nombre || ""), undefined, { sensitivity: "base" }));
+
+    const html = jugadores.map((jugador) => {
+        const nodo = obtenerNodoMapaPorId(jugador.nodo_id);
+        if (!nodo) return "";
+        return crearHtmlJugadorMapa(jugador, nodo);
+    }).join("");
+
+    layer.innerHTML = html;
+}
+
+function upsertJugadorZonaMaps(jugador) {
+    if (!jugador || jugador.usuario_id == null) return;
+    if (esJugadorActualMaps(jugador.usuario_id)) return;
+
+    jugadoresZonaMaps.set(Number(jugador.usuario_id), {
+        ...jugador,
+        usuario_id: Number(jugador.usuario_id)
+    });
+
+    renderizarJugadoresMapa();
+}
+
+function quitarJugadorZonaMaps(usuarioId) {
+    jugadoresZonaMaps.delete(Number(usuarioId));
+    renderizarJugadoresMapa();
+}
+
+function asegurarConexionTiempoRealMaps() {
+    if (mapsRealtimeConnection) return mapsRealtimeConnection;
+    if (typeof crearConexionTiempoRealMaps !== "function") return null;
+
+    mapsRealtimeConnection = crearConexionTiempoRealMaps({
+        onOpen: () => {
+            // La función de api.js reenvía automáticamente el último join al reconectar.
+        },
+        onClose: () => {
+            // Mantener silencioso para no ensuciar la UI del mapa.
+        },
+        onError: (error) => {
+            console.warn("WebSocket Maps:", error);
+        },
+        onReconnect: ({ intentos, delay }) => {
+            console.warn(`Maps WS reconectando. Intento ${intentos}, espera ${delay}ms`);
+        },
+        onMessage: (data) => {
+            procesarMensajeTiempoRealMaps(data);
+        }
+    });
+
+    mapsRealtimeConnection.connect();
+    return mapsRealtimeConnection;
+}
+
+function procesarMensajeTiempoRealMaps(data) {
+    const type = String(data?.type || "").toLowerCase();
+
+    if (!type) return;
+
+    if (type === "connected") {
+        return;
+    }
+
+    if (type === "pong") {
+        return;
+    }
+
+    if (type === "snapshot") {
+        const zonaId = Number(data?.zona_id || 0);
+        if (!zonaSeleccionadaActual || Number(zonaSeleccionadaActual.id) !== zonaId) return;
+
+        jugadoresZonaMaps.clear();
+
+        if (Array.isArray(data.jugadores)) {
+            data.jugadores.forEach((jugador) => {
+                if (!esJugadorActualMaps(jugador.usuario_id)) {
+                    jugadoresZonaMaps.set(Number(jugador.usuario_id), {
+                        ...jugador,
+                        usuario_id: Number(jugador.usuario_id)
+                    });
+                }
+            });
+        }
+
+        renderizarJugadoresMapa();
+        return;
+    }
+
+    if (type === "upsert") {
+        const jugador = data?.jugador || null;
+        if (!jugador) return;
+
+        if (!zonaSeleccionadaActual) return;
+        if (Number(jugador.zona_id || 0) !== Number(zonaSeleccionadaActual.id)) return;
+
+        upsertJugadorZonaMaps(jugador);
+        return;
+    }
+
+    if (type === "remove") {
+        const usuarioId = Number(data?.usuario_id || 0);
+        if (!usuarioId) return;
+
+        quitarJugadorZonaMaps(usuarioId);
+        return;
+    }
+
+    if (type === "ack") {
+        const self = data?.self || null;
+        if (self && Number(self.usuario_id || 0) === Number(getUsuarioIdLocal() || 0)) {
+            ultimoNodoReportadoMaps = String(self.nodo_id || ultimoNodoReportadoMaps || "");
+        }
+        return;
+    }
+
+    if (type === "left") {
+        return;
+    }
+
+    if (type === "error") {
+        console.warn("Error WS Maps:", data?.message || data);
+    }
+}
+
+async function refrescarPresenciaZonaActual() {
+    if (!usuarioAutenticadoMaps() || !zonaSeleccionadaActual) return;
+
+    try {
+        const data = await obtenerPresenciaMapa(zonaSeleccionadaActual.id);
+        if (!data || !Array.isArray(data.jugadores)) return;
+        if (!zonaSeleccionadaActual || Number(data.zona_id || 0) !== Number(zonaSeleccionadaActual.id)) return;
+
+        jugadoresZonaMaps.clear();
+
+        data.jugadores.forEach((jugador) => {
+            if (!esJugadorActualMaps(jugador.usuario_id)) {
+                jugadoresZonaMaps.set(Number(jugador.usuario_id), {
+                    ...jugador,
+                    usuario_id: Number(jugador.usuario_id)
+                });
+            }
+        });
+
+        renderizarJugadoresMapa();
+    } catch (error) {
+        console.warn("No se pudo refrescar la presencia de la zona:", error);
+    }
+}
+
+async function iniciarPresenciaZonaActual() {
+    if (!usuarioAutenticadoMaps() || !zonaSeleccionadaActual) {
+        limpiarJugadoresZonaMaps();
+        return;
+    }
+
+    const nodoActual = obtenerNodoActualAvatar();
+    const zonaId = Number(zonaSeleccionadaActual.id);
+    const nodoId = String(nodoActual?.id || "").trim().toLowerCase();
+
+    if (!zonaId || !nodoId) {
+        limpiarJugadoresZonaMaps();
+        return;
+    }
+
+    presenciaZonaActivaId = zonaId;
+    ultimoNodoReportadoMaps = nodoId;
+    jugadoresZonaMaps.clear();
+    renderizarJugadoresMapa();
+
+    try {
+        const snapshot = await obtenerPresenciaMapa(zonaId);
+        if (snapshot && Array.isArray(snapshot.jugadores) && zonaSeleccionadaActual && Number(zonaSeleccionadaActual.id) === zonaId) {
+            snapshot.jugadores.forEach((jugador) => {
+                if (!esJugadorActualMaps(jugador.usuario_id)) {
+                    jugadoresZonaMaps.set(Number(jugador.usuario_id), {
+                        ...jugador,
+                        usuario_id: Number(jugador.usuario_id)
+                    });
+                }
+            });
+            renderizarJugadoresMapa();
+        }
+    } catch (error) {
+        console.warn("No se pudo cargar snapshot de presencia:", error);
+    }
+
+    const conexion = asegurarConexionTiempoRealMaps();
+
+    if (conexion) {
+        conexion.join(zonaId, nodoId);
+    } else {
+        try {
+            await actualizarPresenciaMapa(zonaId, nodoId);
+        } catch (error) {
+            console.warn("No se pudo actualizar la presencia inicial por HTTP:", error);
+        }
+    }
+}
+
+function sincronizarPresenciaMovimiento(nodoId) {
+    if (!usuarioAutenticadoMaps() || !zonaSeleccionadaActual) return;
+    if (!nodoId) return;
+
+    const nodoNormalizado = String(nodoId).trim().toLowerCase();
+    ultimoNodoReportadoMaps = nodoNormalizado;
+
+    const conexion = asegurarConexionTiempoRealMaps();
+
+    if (conexion) {
+        const enviado = conexion.move(nodoNormalizado);
+
+        if (!enviado) {
+            actualizarPresenciaMapa(zonaSeleccionadaActual.id, nodoNormalizado)
+                .catch((error) => {
+                    console.warn("Fallback HTTP de movimiento falló:", error);
+                });
+        }
+
+        return;
+    }
+
+    actualizarPresenciaMapa(zonaSeleccionadaActual.id, nodoNormalizado)
+        .catch((error) => {
+            console.warn("No se pudo actualizar presencia por HTTP:", error);
+        });
+}
+
+function sincronizarPresenciaLocalMaps() {
+    if (!usuarioAutenticadoMaps() || !zonaSeleccionadaActual) return;
+
+    const nodoActual = obtenerNodoActualAvatar();
+    const zonaId = Number(zonaSeleccionadaActual.id);
+    const nodoId = String(nodoActual?.id || "").trim().toLowerCase();
+
+    if (!zonaId || !nodoId) return;
+
+    const conexion = asegurarConexionTiempoRealMaps();
+    if (conexion) {
+        conexion.join(zonaId, nodoId);
+    }
+}
+
+async function salirPresenciaMaps(cerrarConexion = false) {
+    try {
+        if (mapsRealtimeConnection) {
+            if (cerrarConexion) {
+                mapsRealtimeConnection.disconnect();
+            } else {
+                mapsRealtimeConnection.leave();
+            }
+        }
+    } catch (error) {
+        console.warn("No se pudo hacer leave del WS Maps:", error);
+    }
+
+    try {
+        if (usuarioAutenticadoMaps()) {
+            await eliminarPresenciaMapa();
+        }
+    } catch (error) {
+        console.warn("No se pudo eliminar presencia por HTTP:", error);
+    }
+
+    if (cerrarConexion && mapsRealtimeConnection) {
+        mapsRealtimeConnection = null;
+    }
+
+    limpiarJugadoresZonaMaps();
+}
+
+/* =========================
    ENCUENTRO / SERVIDOR
 ========================= */
 function obtenerImagenPokemonEncuentro(pokemon) {
@@ -723,11 +1123,10 @@ function obtenerImagenPokemonEncuentro(pokemon) {
 async function solicitarEncuentroServidor(requestIdActual, zonaIdActual) {
     const usuarioId = getUsuarioIdLocal();
 
-    const pokemon = await fetchJson(`${API_BASE}/maps/encuentro`, {
+    const pokemon = await fetchAuth(`${API_BASE}/maps/encuentro`, {
         method: "POST",
         headers: {
-            "Content-Type": "application/json",
-            ...(getAccessToken() ? { "Authorization": `Bearer ${getAccessToken()}` } : {})
+            "Content-Type": "application/json"
         },
         body: JSON.stringify({
             usuario_id: usuarioId,
@@ -1088,6 +1487,7 @@ async function seleccionarZona(zonaId) {
 
     zonaSeleccionadaActual = zona;
     asegurarPosicionAvatarZona(zona);
+    jugadoresZonaMaps.clear();
 
     if (!usuarioAutenticadoMaps()) {
         encuentroRequestId++;
@@ -1097,6 +1497,8 @@ async function seleccionarZona(zonaId) {
         limpiarMensajeMaps();
         cerrarModalesSecundarios();
         limpiarEncuentroActual();
+        limpiarJugadoresZonaMaps();
+        await salirPresenciaMaps(true);
         renderBloqueoMapsSinSesion();
 
         const encuentro = document.getElementById("encuentroContainer");
@@ -1139,9 +1541,12 @@ async function seleccionarZona(zonaId) {
     });
 
     try {
-        await cargarItemsUsuarioMaps();
+        await Promise.all([
+            cargarItemsUsuarioMaps(),
+            iniciarPresenciaZonaActual()
+        ]);
     } catch (error) {
-        console.warn("No se pudieron cargar items al seleccionar zona:", error);
+        console.warn("No se pudieron cargar datos al seleccionar zona:", error);
     }
 
     try {
@@ -1182,6 +1587,8 @@ function renderizarZonaExploracion() {
                         loading="eager"
                         decoding="async"
                     >
+
+                    <div id="jugadoresMapaLayer" class="jugadores-mapa-layer"></div>
 
                     <div
                         id="avatarMapa"
@@ -1228,6 +1635,7 @@ function renderizarZonaExploracion() {
     `;
 
     renderizarAvatarMapa();
+    renderizarJugadoresMapa();
 }
 
 function renderMiniaturasZona(zona = null) {
@@ -1316,6 +1724,7 @@ async function moverEnMapa(direccion, opciones = {}) {
         if (!soloEncuentro && siguienteNodoId) {
             guardarNodoActualAvatar(siguienteNodoId);
             await moverAvatarVisual(siguienteNodoId);
+            sincronizarPresenciaMovimiento(siguienteNodoId);
         }
 
         await solicitarEncuentroServidor(requestIdActual, zonaIdActual);
@@ -1572,11 +1981,10 @@ async function intentarCaptura(pokemonId, nivel, esShiny, hpActual, hpMaximo, it
     try {
         limpiarMensajeMaps();
 
-        const data = await fetchJson(`${API_BASE}/maps/intentar-captura`, {
+        const data = await fetchAuth(`${API_BASE}/maps/intentar-captura`, {
             method: "POST",
             headers: {
-                "Content-Type": "application/json",
-                ...(getAccessToken() ? { "Authorization": `Bearer ${getAccessToken()}` } : {})
+                "Content-Type": "application/json"
             },
             body: JSON.stringify({
                 usuario_id: usuarioId,

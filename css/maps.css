@@ -469,6 +469,88 @@
 
 
 /* =========================================================
+   6C. JUGADORES EN TIEMPO REAL SOBRE EL MAPA
+   - Layer de otros entrenadores
+   - Nombre flotante
+   - Avatar remoto
+========================================================= */
+
+.jugadores-mapa-layer{
+    position:absolute;
+    inset:0;
+    z-index:2;
+    pointer-events:none;
+}
+
+.jugador-mapa{
+    position:absolute;
+    width:60px;
+    height:74px;
+    transform:translate(-50%, -86%);
+    pointer-events:none;
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
+    transition:left 0.18s linear, top 0.18s linear;
+    z-index:2;
+}
+
+.jugador-mapa-sombra{
+    position:absolute;
+    bottom:8px;
+    left:50%;
+    width:26px;
+    height:8px;
+    transform:translateX(-50%);
+    border-radius:999px;
+    background:radial-gradient(circle, rgba(15,23,42,0.26), rgba(15,23,42,0.10), transparent 75%);
+    filter:blur(1px);
+    z-index:1;
+}
+
+.jugador-mapa-img{
+    position:relative;
+    max-width:50px;
+    max-height:50px;
+    width:auto;
+    height:auto;
+    object-fit:contain;
+    image-rendering:pixelated;
+    image-rendering:crisp-edges;
+    display:block;
+    z-index:2;
+    filter:drop-shadow(0 4px 8px rgba(0,0,0,0.20));
+    backface-visibility:hidden;
+    transform:translateZ(0);
+}
+
+.jugador-mapa-etiqueta{
+    position:absolute;
+    bottom:56px;
+    left:50%;
+    transform:translateX(-50%);
+    max-width:110px;
+    padding:5px 9px;
+    border-radius:999px;
+    background:rgba(15, 23, 42, 0.84);
+    color:#fff;
+    font-size:11px;
+    font-weight:800;
+    line-height:1;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    text-align:center;
+    box-shadow:0 6px 16px rgba(15,23,42,0.18);
+    z-index:3;
+}
+
+.jugador-mapa-inicial{
+    display:none;
+}
+
+
+/* =========================================================
    7. MINIATURAS DE POKÉMON POR ZONA
    - Si hay hasta 6, se usa grid fijo
    - Si hay más de 6, se usa carrusel automático
@@ -1554,6 +1636,23 @@
         max-width:48px;
         max-height:48px;
     }
+
+    .jugador-mapa{
+        width:54px;
+        height:66px;
+    }
+
+    .jugador-mapa-img{
+        max-width:44px;
+        max-height:44px;
+    }
+
+    .jugador-mapa-etiqueta{
+        bottom:50px;
+        max-width:94px;
+        font-size:10px;
+        padding:4px 8px;
+    }
 }
 
 @media (max-width: 480px){
@@ -1624,5 +1723,21 @@
         max-width:44px;
         max-height:44px;
     }
-}
 
+    .jugador-mapa{
+        width:50px;
+        height:62px;
+    }
+
+    .jugador-mapa-img{
+        max-width:40px;
+        max-height:40px;
+    }
+
+    .jugador-mapa-etiqueta{
+        bottom:46px;
+        max-width:82px;
+        font-size:9px;
+        padding:4px 7px;
+    }
+}
