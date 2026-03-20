@@ -1702,10 +1702,10 @@ async function moverEnMapa(direccion, opciones = {}) {
         siguienteNodoId = obtenerSiguienteNodoAvatar(direccion);
 
         if (!siguienteNodoId) {
-            mostrarMensajeMaps(
-                tMaps("maps_path_blocked", "You cannot move further in that direction."),
-                "warning"
-            );
+            //mostrarMensajeMaps(
+            //    tMaps("maps_path_blocked", "You cannot move further in that direction."),
+            //    "warning"
+            //);
             actualizarBotonesMovimientoDisponibles(false);
             return;
         }
