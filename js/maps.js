@@ -93,173 +93,112 @@ const RUTA_CONTORNO_BASE = {
 const MAPS_MAX_STEP_PERCENT = 6;
 
 /* =========================================================
-   GREEN FOREST
-   - Ruta automática basada en grid
-   - Todo lo libre se puede caminar
-   - Solo se bloquean los rectángulos marcados en rojo
+   GREEN FOREST POR GRID
+   0 = bloqueado
+   1 = caminable
+   Cada fila es de izquierda a derecha
+   Cada fila del array es de arriba hacia abajo
 ========================================================= */
 
-const FOREST_GRID_STEP = 4.5;
+function crearRutaDesdeGrid(grid, options = {}) {
+    const {
+        prefix = "grid",
+        xMin = 8,
+        yMin = 18,
+        cellWidth = 4.8,
+        cellHeight = 5.0,
+        startRow = 0,
+        startCol = 0
+    } = options;
 
-const BLOQUEOS_GREEN_FOREST = [
-    // Franja superior de árboles
-    { x1: 0,   y1: 0,   x2: 100, y2: 14.5 },
+    const nodes = {};
 
-    // Centro Pokémon
-    { x1: 7.5, y1: 15,  x2: 31.5, y2: 30.5 },
+    function esCaminable(row, col) {
+        if (row < 0 || row >= grid.length) return false;
+        const fila = grid[row];
+        if (typeof fila === "string") {
+            return fila[col] === "1";
+        }
+        return fila?.[col] === 1;
+    }
 
-    // Banco
-    { x1: 46.5, y1: 18, x2: 57.5, y2: 24.5 },
+    // 1) Crear nodos
+    for (let row = 0; row < grid.length; row++) {
+        const fila = grid[row];
+        const totalCols = typeof fila === "string" ? fila.length : fila.length;
 
-    // Casa azul
-    { x1: 58,  y1: 13.5, x2: 82,  y2: 24.8 },
+        for (let col = 0; col < totalCols; col++) {
+            if (!esCaminable(row, col)) continue;
 
-    // Poste / flores derecha superior
-    { x1: 80.5, y1: 14, x2: 89.5, y2: 30.5 },
-
-    // Árboles esquina superior derecha
-    { x1: 89.5, y1: 13, x2: 100, y2: 36.5 },
-
-    // Árboles lado izquierdo
-    { x1: 0,   y1: 37.5, x2: 13.5, y2: 100 },
-
-    // Lago superior
-    { x1: 12.5, y1: 49, x2: 43,   y2: 66.8 },
-
-    // Lago inferior
-    { x1: 12.5, y1: 74, x2: 47,   y2: 92.8 },
-
-    // Cerca derecha superior
-    { x1: 85.5, y1: 62.5, x2: 100, y2: 68.5 },
-
-    // Árbol pequeño junto a la escalera
-    { x1: 61.5, y1: 68, x2: 68.8, y2: 87 },
-
-    // Arbusto pequeño a la derecha de la escalera
-    { x1: 69, y1: 68, x2: 75.2, y2: 77.5 },
-
-    // Árboles / cerca inferior derecha
-    { x1: 75.5, y1: 82, x2: 100, y2: 95 },
-
-    // Franja inferior de árboles
-    { x1: 61.5, y1: 95, x2: 100, y2: 100 }
-];
-
-function puntoDentroDeRectangulo(x, y, rect) {
-    return (
-        x >= rect.x1 &&
-        x <= rect.x2 &&
-        y >= rect.y1 &&
-        y <= rect.y2
-    );
-}
-
-function puntoBloqueadoForest(x, y, rectangulos = []) {
-    return rectangulos.some(rect => puntoDentroDeRectangulo(x, y, rect));
-}
-
-function obtenerNodoMasCercano(nodes, candidatos = []) {
-    const ids = Object.keys(nodes || {});
-    if (!ids.length) return null;
-
-    let mejorId = ids[0];
-    let mejorDist = Number.POSITIVE_INFINITY;
-
-    for (const candidato of candidatos) {
-        const cx = Number(candidato.x);
-        const cy = Number(candidato.y);
-
-        for (const [id, node] of Object.entries(nodes)) {
-            const dx = Number(node.x) - cx;
-            const dy = Number(node.y) - cy;
-            const dist = Math.hypot(dx, dy);
-
-            if (dist < mejorDist) {
-                mejorDist = dist;
-                mejorId = id;
-            }
+            const id = `${prefix}_${row}_${col}`;
+            nodes[id] = {
+                x: Number((xMin + col * cellWidth).toFixed(2)),
+                y: Number((yMin + row * cellHeight).toFixed(2))
+            };
         }
     }
 
-    return mejorId;
-}
+    // 2) Conectar vecinos
+    for (let row = 0; row < grid.length; row++) {
+        const fila = grid[row];
+        const totalCols = typeof fila === "string" ? fila.length : fila.length;
 
-function construirRutaLibrePorGrid({
-    xMin = 6,
-    xMax = 94,
-    yMin = 18,
-    yMax = 94,
-    step = FOREST_GRID_STEP,
-    blockedRects = [],
-    startCandidates = []
-} = {}) {
-    const nodes = {};
-    const keyToId = new Map();
+        for (let col = 0; col < totalCols; col++) {
+            if (!esCaminable(row, col)) continue;
 
-    const xs = [];
-    const ys = [];
+            const id = `${prefix}_${row}_${col}`;
+            if (!nodes[id]) continue;
 
-    for (let x = xMin; x <= xMax + 0.001; x += step) {
-        xs.push(Number(x.toFixed(2)));
+            if (esCaminable(row - 1, col)) nodes[id].up = `${prefix}_${row - 1}_${col}`;
+            if (esCaminable(row + 1, col)) nodes[id].down = `${prefix}_${row + 1}_${col}`;
+            if (esCaminable(row, col - 1)) nodes[id].left = `${prefix}_${row}_${col - 1}`;
+            if (esCaminable(row, col + 1)) nodes[id].right = `${prefix}_${row}_${col + 1}`;
+        }
     }
 
-    for (let y = yMin; y <= yMax + 0.001; y += step) {
-        ys.push(Number(y.toFixed(2)));
-    }
-
-    ys.forEach((y, yi) => {
-        xs.forEach((x, xi) => {
-            if (puntoBloqueadoForest(x, y, blockedRects)) return;
-
-            const id = `gf_${xi}_${yi}`;
-            nodes[id] = { x, y };
-            keyToId.set(`${xi}_${yi}`, id);
-        });
-    });
-
-    ys.forEach((_, yi) => {
-        xs.forEach((__, xi) => {
-            const id = keyToId.get(`${xi}_${yi}`);
-            if (!id || !nodes[id]) return;
-
-            const rightId = keyToId.get(`${xi + 1}_${yi}`);
-            const leftId = keyToId.get(`${xi - 1}_${yi}`);
-            const upId = keyToId.get(`${xi}_${yi - 1}`);
-            const downId = keyToId.get(`${xi}_${yi + 1}`);
-
-            if (rightId) nodes[id].right = rightId;
-            if (leftId) nodes[id].left = leftId;
-            if (upId) nodes[id].up = upId;
-            if (downId) nodes[id].down = downId;
-        });
-    });
-
-    let start = obtenerNodoMasCercano(nodes, startCandidates);
-
-    if (!start) {
+    // 3) Start seguro
+    let start = `${prefix}_${startRow}_${startCol}`;
+    if (!nodes[start]) {
         const ids = Object.keys(nodes);
-        start = ids.length ? ids[0] : "gf_0_0";
+        start = ids.length ? ids[0] : start;
     }
 
-    return {
-        start,
-        nodes
-    };
+    return { start, nodes };
 }
 
-const RUTA_GREEN_FOREST = construirRutaLibrePorGrid({
-    xMin: 6,
-    xMax: 94,
+/* =========================================================
+   GRID GREEN FOREST
+   - Basado en lo que NO está en los rectángulos rojos
+   - Si algo no te gusta:
+     1 -> se puede caminar
+     0 -> bloqueado
+========================================================= */
+const GRID_GREEN_FOREST = [
+    "000000000000000000",
+    "000000000000000000",
+    "000000111111000000",
+    "000001111111100000",
+    "011111111111111000",
+    "001111111111111100",
+    "000001111110111100",
+    "000001111110111100",
+    "000001111111111100",
+    "001111111111111100",
+    "001111111111111100",
+    "000001111111100000",
+    "000001111111000000",
+    "000000011110000000",
+    "000000000000000000"
+];
+
+const RUTA_GREEN_FOREST = crearRutaDesdeGrid(GRID_GREEN_FOREST, {
+    prefix: "gf",
+    xMin: 8,
     yMin: 18,
-    yMax: 94,
-    step: FOREST_GRID_STEP,
-    blockedRects: BLOQUEOS_GREEN_FOREST,
-    startCandidates: [
-        { x: 48, y: 56 },
-        { x: 50, y: 60 },
-        { x: 44, y: 56 },
-        { x: 54, y: 56 }
-    ]
+    cellWidth: 4.8,
+    cellHeight: 5.0,
+    startRow: 8,
+    startCol: 8
 });
 
 const MAPAS_RUTAS = {
