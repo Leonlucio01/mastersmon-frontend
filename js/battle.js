@@ -4,6 +4,9 @@ let battleTabActual = "todos";
 
 const BATTLE_TEAM_STORAGE_KEY = "mastersmon_battle_team_v1";
 const BATTLE_ENEMY_LEVEL_BONUS_KEY = "mastersmon_battle_enemy_level_bonus_v1";
+const BATTLE_ACTIVITY_SESSION_KEY = "mastersmon_battle_activity_session_v1";
+
+let battleActividadTimer = null;
 
 document.addEventListener("DOMContentLoaded", () => {
     inicializarBattle();
@@ -36,10 +39,12 @@ async function inicializarBattle() {
 
     try {
         await cargarPokemonUsuarioBattle();
+        await intentarCargarEquipoServidorBattle();
         sincronizarEquipoBattleConColeccion();
         renderSlotsEquipoBattle();
         renderColeccionBattle();
         renderResumenEquipoBattle();
+        iniciarHeartbeatActividadBattle();
     } catch (error) {
         console.error("Error iniciando Battle:", error);
         renderColeccionBattleError();
@@ -48,10 +53,12 @@ async function inicializarBattle() {
             try {
                 renderColeccionBattleLoading();
                 await cargarPokemonUsuarioBattle();
+                await intentarCargarEquipoServidorBattle();
                 sincronizarEquipoBattleConColeccion();
                 renderSlotsEquipoBattle();
                 renderColeccionBattle();
                 renderResumenEquipoBattle();
+                iniciarHeartbeatActividadBattle();
             } catch (retryError) {
                 console.error("Error en reintento de Battle:", retryError);
                 renderColeccionBattleError();
@@ -115,9 +122,27 @@ function configurarEventosBattle() {
     }
 
     if (btnGuardar) {
-        btnGuardar.addEventListener("click", () => {
-            persistirEquipoBattle();
-            mostrarModalBattle(t("battle_team_saved"), "ok");
+        btnGuardar.addEventListener("click", async () => {
+            try {
+                persistirEquipoBattle();
+
+                if (!battleEquipo.length) {
+                    mostrarModalBattle(
+                        tBattleSafe("battle_team_empty_local_only", "The local team is empty. Nothing was synced to the account."),
+                        "warning"
+                    );
+                    return;
+                }
+
+                await guardarEquipoServidorBattle();
+                mostrarModalBattle(t("battle_team_saved"), "ok");
+            } catch (error) {
+                console.error("No se pudo guardar el equipo de Battle:", error);
+                mostrarModalBattle(
+                    error?.message || tBattleSafe("battle_team_save_server_error", "The team could not be saved to your account."),
+                    "error"
+                );
+            }
         });
     }
 
@@ -207,6 +232,9 @@ function configurarEventosBattle() {
             if (event.target === modal) cerrarModalBattle();
         });
     }
+
+    window.addEventListener("pagehide", detenerHeartbeatActividadBattle);
+    window.addEventListener("beforeunload", detenerHeartbeatActividadBattle);
 }
 
 function configurarResumenUsuarioBattle() {
@@ -287,6 +315,78 @@ function persistirEquipoBattle() {
     } catch (error) {
         console.warn("No se pudo guardar el equipo de Battle:", error);
     }
+}
+
+async function intentarCargarEquipoServidorBattle() {
+    if (!getAccessToken() || typeof API_BASE === "undefined") {
+        return false;
+    }
+
+    try {
+        const data = await fetchBattleAuth(`${API_BASE}/usuario/me/equipo`);
+
+        const equipoServidor = Array.isArray(data?.equipo)
+            ? data.equipo.slice(0, 6)
+            : [];
+
+        if (!equipoServidor.length) {
+            return false;
+        }
+
+        battleEquipo = equipoServidor;
+        persistirEquipoBattle();
+        return true;
+    } catch (error) {
+        console.warn("No se pudo cargar el equipo desde el servidor en Battle:", error);
+        return false;
+    }
+}
+
+function obtenerIdsEquipoBattle() {
+    return [...new Set(
+        (Array.isArray(battleEquipo) ? battleEquipo : [])
+            .map(p => Number(p?.id))
+            .filter(id => !Number.isNaN(id) && id > 0)
+    )].slice(0, 6);
+}
+
+async function guardarEquipoServidorBattle(opciones = {}) {
+    const { exigirSeis = false } = opciones;
+
+    if (!getAccessToken()) {
+        throw new Error(tBattleSafe("battle_no_token", "You must sign in first."));
+    }
+
+    const usuarioPokemonIds = obtenerIdsEquipoBattle();
+
+    if (exigirSeis && usuarioPokemonIds.length !== 6) {
+        throw new Error(tBattleSafe("battle_need_six", "You need 6 Pokémon in your team."));
+    }
+
+    if (!usuarioPokemonIds.length) {
+        throw new Error(tBattleSafe("battle_team_empty_server_save", "Add at least 1 Pokémon before saving your team."));
+    }
+
+    const data = await fetchBattleAuth(`${API_BASE}/usuario/me/equipo`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            usuario_pokemon_ids: usuarioPokemonIds
+        })
+    });
+
+    if (!data?.ok) {
+        throw new Error(data?.mensaje || tBattleSafe("battle_team_save_server_error", "The team could not be saved to your account."));
+    }
+
+    if (Array.isArray(data?.equipo) && data.equipo.length) {
+        battleEquipo = data.equipo.slice(0, 6);
+        persistirEquipoBattle();
+    }
+
+    return data;
 }
 
 function sincronizarEquipoBattleConColeccion() {
@@ -745,7 +845,7 @@ function compararPokemonBattle(a, b, orden) {
 /* =========================
    ACCIONES
 ========================= */
-function iniciarBatallaDemo() {
+async function iniciarBatallaDemo() {
     if (battleEquipo.length !== 6) {
         mostrarModalBattle(t("battle_need_six"), "warning");
         return;
@@ -755,13 +855,16 @@ function iniciarBatallaDemo() {
         const selectDificultad = document.getElementById("battleDificultadRival");
         const bonusNivel = Number(selectDificultad?.value || 0);
 
+        await guardarEquipoServidorBattle({ exigirSeis: true });
+        registrarActividadBattle("view", `equipo:${battleEquipo.length}`).catch(() => {});
+
         sessionStorage.setItem("mastersmon_battle_arena_team_v1", JSON.stringify(battleEquipo));
         sessionStorage.setItem("mastersmon_battle_enemy_level_bonus_v1", String(bonusNivel));
 
         window.location.href = "battle-arena.html";
     } catch (error) {
         console.error("No se pudo preparar la arena de combate:", error);
-        mostrarModalBattle(t("battle_prepare_combat_error"), "error");
+        mostrarModalBattle(error?.message || t("battle_prepare_combat_error"), "error");
     }
 }
 
@@ -964,6 +1067,96 @@ function obtenerClaseTipoBattle(tipo = "") {
     };
 
     return mapaClases[clavePrincipal] || "type-default";
+}
+
+function tBattleSafe(key, fallback = "") {
+    if (typeof t === "function") {
+        const traducido = t(key);
+        if (traducido && traducido !== key) {
+            return traducido;
+        }
+    }
+    return fallback || key;
+}
+
+function obtenerSesionActividadBattle() {
+    try {
+        let token = sessionStorage.getItem(BATTLE_ACTIVITY_SESSION_KEY);
+        if (token) return token;
+
+        token = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+            ? crypto.randomUUID()
+            : `battle_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+
+        sessionStorage.setItem(BATTLE_ACTIVITY_SESSION_KEY, token);
+        return token;
+    } catch (error) {
+        return `battle_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+    }
+}
+
+async function registrarActividadBattle(accion = "heartbeat", detalle = "") {
+    if (!getAccessToken() || typeof API_BASE === "undefined") {
+        return false;
+    }
+
+    try {
+        await fetchBattleAuth(`${API_BASE}/usuario/actividad`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                pagina: "battle",
+                accion,
+                detalle: detalle || null,
+                sesion_token: obtenerSesionActividadBattle(),
+                online: true
+            })
+        });
+        return true;
+    } catch (error) {
+        console.warn("No se pudo registrar actividad en Battle:", error);
+        return false;
+    }
+}
+
+function iniciarHeartbeatActividadBattle() {
+    detenerHeartbeatActividadBattle();
+
+    registrarActividadBattle("view", `equipo:${battleEquipo.length}`).catch(() => {});
+
+    battleActividadTimer = window.setInterval(() => {
+        registrarActividadBattle("heartbeat", `equipo:${battleEquipo.length}`).catch(() => {});
+    }, 20000);
+}
+
+function detenerHeartbeatActividadBattle() {
+    if (battleActividadTimer) {
+        window.clearInterval(battleActividadTimer);
+        battleActividadTimer = null;
+    }
+}
+
+async function fetchBattleAuth(url, options = {}) {
+    if (typeof fetchAuth === "function") {
+        return await fetchAuth(url, options);
+    }
+
+    const token = typeof getAccessToken === "function" ? getAccessToken() : "";
+    if (!token) {
+        throw new Error("NO_TOKEN");
+    }
+
+    const headers = {
+        ...(options.headers || {}),
+        Authorization: `Bearer ${token}`
+    };
+
+    return await fetchJsonBattle(url, {
+        ...options,
+        headers
+    });
 }
 
 async function fetchJsonBattle(url, options = {}) {

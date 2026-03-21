@@ -14,10 +14,21 @@ let arenaUltimoResultado = null;
 let arenaRecompensaProcesada = false;
 let arenaRecompensaEnProceso = false;
 let arenaUltimaRecompensaAplicada = null;
+let arenaBattleSessionToken = null;
+let arenaBattleSessionExpiraEn = null;
+let arenaBattleSessionTtlSegundos = 0;
+let arenaDificultadActual = "normal";
+let arenaActividadHeartbeat = null;
+
 
 const BATTLE_TEAM_STORAGE_KEY = "mastersmon_battle_team_v1";
 const BATTLE_ARENA_PLAYER_TEAM_KEY = "mastersmon_battle_arena_team_v1";
 const BATTLE_ENEMY_LEVEL_BONUS_KEY = "mastersmon_battle_enemy_level_bonus_v1";
+const BATTLE_ARENA_SESSION_TOKEN_KEY = "mastersmon_battle_arena_session_token_v1";
+const BATTLE_ARENA_SESSION_EXPIRES_KEY = "mastersmon_battle_arena_session_expires_v1";
+const BATTLE_ARENA_DIFFICULTY_KEY = "mastersmon_battle_arena_difficulty_v1";
+const BATTLE_ARENA_ACTIVITY_SESSION_KEY = "mastersmon_battle_arena_activity_session_v1";
+const ARENA_ACTIVITY_HEARTBEAT_MS = 60000;
 
 /* =========================================================
    TABLA DE EFECTIVIDADES
@@ -169,6 +180,10 @@ document.addEventListener("DOMContentLoaded", () => {
             cerrarMenuMobileArena();
         }
     });
+
+    window.addEventListener("beforeunload", () => {
+        detenerHeartbeatActividadArena();
+    });
 });
 
 /* =========================================================
@@ -178,21 +193,28 @@ async function inicializarArenaBattle() {
     arenaRecompensaProcesada = false;
     arenaRecompensaEnProceso = false;
     arenaUltimaRecompensaAplicada = null;
+    arenaBattleSessionToken = null;
+    arenaBattleSessionExpiraEn = null;
+    arenaBattleSessionTtlSegundos = 0;
+    arenaDificultadActual = sessionStorage.getItem(BATTLE_ARENA_DIFFICULTY_KEY) || "normal";
 
     sincronizarUsuarioArena();
     configurarEventosArena();
 
     try {
         await cargarEquipoJugadorArena();
+        await iniciarSesionBatallaArena();
         generarEquipoRivalFase1();
         renderArenaCompleta();
         agregarLogArena(tSafeArena("arena_log_start"), tSafeArena("arena_system"));
         ocultarMensajeArena();
         habilitarAccionesArena();
         actualizarBotonAutoTurnoArena();
+        iniciarHeartbeatActividadArena();
+        registrarActividadArena("view", `dificultad:${obtenerCodigoDificultadArena()}`).catch(() => {});
     } catch (error) {
         console.error("Error iniciando arena:", error);
-        mostrarMensajeArena(tSafeArena("arena_init_error"), "error");
+        mostrarMensajeArena(error?.message || tSafeArena("arena_init_error"), "error");
         deshabilitarAccionesArena();
         actualizarBotonAutoTurnoArena();
     }
@@ -331,16 +353,22 @@ async function cargarEquipoJugadorArena() {
     }
 
     if (!Array.isArray(equipoGuardado) || equipoGuardado.length !== 6) {
+        equipoGuardado = await cargarEquipoGuardadoBackendArena();
+    }
+
+    if (!Array.isArray(equipoGuardado) || equipoGuardado.length !== 6) {
         throw new Error(tSafeArena("arena_need_full_team"));
     }
 
-    arenaPlayerTeam = equipoGuardado.slice(0, 6).map((pokemon, index) =>
-        normalizarPokemonArena(pokemon, "player", index)
-    );
+    arenaPlayerTeam = equipoGuardado
+        .slice(0, 6)
+        .map((pokemon, index) => normalizarPokemonArena(pokemon, "player", index));
+
+    guardarEquipoArenaEnStorages();
 }
 
 function obtenerPoolRivalesArena() {
-    const bonusNivel = obtenerBonusNivelRivalArena();
+    const dificultad = obtenerCodigoDificultadArena();
 
     const poolNormal = [
         { pokemon_id: 1, nombre: "Bulbasaur", tipo: "Planta/Veneno", hp: 45, ataque: 49, defensa: 49, velocidad: 45 },
@@ -402,9 +430,9 @@ function obtenerPoolRivalesArena() {
         { pokemon_id: 150, nombre: "Mewtwo", tipo: "Psiquico", hp: 106, ataque: 110, defensa: 90, velocidad: 130 }
     ];
 
-    if (bonusNivel >= 6) return poolMaestro;
-    if (bonusNivel >= 4) return poolExperto;
-    if (bonusNivel >= 2) return poolDesafio;
+    if (dificultad === "master") return poolMaestro;
+    if (dificultad === "expert") return poolExperto;
+    if (dificultad === "challenge") return poolDesafio;
     return poolNormal;
 }
 
@@ -461,8 +489,12 @@ function normalizarPokemonArena(pokemon, side = "player", slotIndex = 0) {
         ataque: Number(pokemon.ataque ?? 1),
         defensa: Number(pokemon.defensa ?? 1),
         velocidad: Number(pokemon.velocidad ?? 1),
+        ataque_especial: Number(pokemon.ataque_especial ?? pokemon.ataque ?? 1),
+        defensa_especial: Number(pokemon.defensa_especial ?? pokemon.defensa ?? 1),
         experiencia: Number(pokemon.experiencia ?? 0),
         es_shiny: !!pokemon.es_shiny,
+        posicion: Number(pokemon.posicion ?? slotIndex + 1),
+        es_lider: Boolean(pokemon.es_lider ?? Number(pokemon.posicion ?? slotIndex + 1) === 1),
         side,
         slotIndex,
         defeated: hpActual <= 0
@@ -485,34 +517,38 @@ function obtenerBonusNivelRivalArena() {
 }
 
 function obtenerRecompensasPorDificultadArena() {
-    const bonusNivel = obtenerBonusNivelRivalArena();
+    const codigo = obtenerCodigoDificultadArena();
 
-    if (bonusNivel >= 6) {
+    if (codigo === "master") {
         return {
-            nombre: tSafeArena("battle_difficulty_master"),
+            codigo: "master",
+            nombre: obtenerNombreDificultadArena("master"),
             exp: 6000,
             pokedolares: 15000
         };
     }
 
-    if (bonusNivel >= 4) {
+    if (codigo === "expert") {
         return {
-            nombre: tSafeArena("battle_difficulty_expert"),
+            codigo: "expert",
+            nombre: obtenerNombreDificultadArena("expert"),
             exp: 4500,
             pokedolares: 10000
         };
     }
 
-    if (bonusNivel >= 2) {
+    if (codigo === "challenge") {
         return {
-            nombre: tSafeArena("battle_difficulty_challenge"),
+            codigo: "challenge",
+            nombre: obtenerNombreDificultadArena("challenge"),
             exp: 3500,
             pokedolares: 5000
         };
     }
 
     return {
-        nombre: tSafeArena("battle_difficulty_normal"),
+        codigo: "normal",
+        nombre: obtenerNombreDificultadArena("normal"),
         exp: 2500,
         pokedolares: 2500
     };
@@ -1107,6 +1143,7 @@ async function verificarFinCombateArena() {
             renderArenaCompleta();
             mostrarResultadoArena(true, recompensaResultado);
         } else {
+            registrarActividadArena("battle_end", "derrota").catch(() => {});
             mostrarResultadoArena(false);
         }
 
@@ -1216,9 +1253,11 @@ function abrirModalCambioArena() {
 ========================================================= */
 function construirResumenRecompensaArena(recompensaBase = null, data = null) {
     const recompensa = recompensaBase || obtenerRecompensasPorDificultadArena();
+    const codigo = data?.recompensa_codigo || recompensa?.codigo || obtenerCodigoDificultadArena();
 
     return {
-        nombre: recompensa?.nombre || tSafeArena("battle_difficulty_normal"),
+        codigo,
+        nombre: obtenerNombreDificultadArena(codigo),
         exp: Number(data?.exp_ganada ?? recompensa?.exp ?? 0),
         pokedolares: Number(data?.pokedolares_ganados ?? recompensa?.pokedolares ?? 0),
         data: data || null
@@ -1242,10 +1281,7 @@ async function procesarRecompensasVictoriaArena() {
 
     try {
         const recompensaBase = obtenerRecompensasPorDificultadArena();
-        const data = await otorgarRecompensasVictoriaArena(
-            recompensaBase.exp,
-            recompensaBase.pokedolares
-        );
+        const data = await otorgarRecompensasVictoriaArena();
 
         const recompensaFinal = construirResumenRecompensaArena(recompensaBase, data);
 
@@ -1260,11 +1296,12 @@ async function procesarRecompensasVictoriaArena() {
 
         arenaRecompensaProcesada = true;
         arenaUltimaRecompensaAplicada = recompensaFinal;
+        registrarActividadArena("battle_end", `victoria:${recompensaFinal.codigo}`).catch(() => {});
 
         return recompensaFinal;
     } catch (error) {
         console.warn("No se pudieron aplicar las recompensas de victoria:", error);
-        agregarLogArena(tSafeArena("arena_rewards_error"), tSafeArena("arena_system"));
+        agregarLogArena(error?.message || tSafeArena("arena_rewards_error"), tSafeArena("arena_system"));
         return null;
     } finally {
         arenaRecompensaEnProceso = false;
@@ -1521,6 +1558,205 @@ async function fetchJsonArena(url, options = {}) {
     return data;
 }
 
+async function fetchAuthArena(url, options = {}) {
+    if (typeof fetchAuth === "function") {
+        return await fetchAuth(url, options);
+    }
+
+    const token = typeof getAccessToken === "function" ? getAccessToken() : "";
+    if (!token) {
+        throw new Error("No se pudo identificar al usuario actual.");
+    }
+
+    return await fetchJsonArena(url, {
+        ...options,
+        headers: {
+            ...(options.headers || {}),
+            Authorization: `Bearer ${token}`
+        }
+    });
+}
+
+function inferirCodigoDificultadArenaDesdeBonus(bonus = 0) {
+    const valor = Number(bonus || 0);
+
+    if (valor >= 15) return "master";
+    if (valor >= 10) return "expert";
+    if (valor >= 6) return "master";
+    if (valor >= 5) return "challenge";
+    if (valor >= 4) return "expert";
+    if (valor >= 2) return "challenge";
+    return "normal";
+}
+
+function obtenerCodigoDificultadArena() {
+    if (arenaDificultadActual) {
+        return String(arenaDificultadActual).trim().toLowerCase();
+    }
+
+    const guardada = sessionStorage.getItem(BATTLE_ARENA_DIFFICULTY_KEY);
+    if (guardada) {
+        return String(guardada).trim().toLowerCase();
+    }
+
+    return inferirCodigoDificultadArenaDesdeBonus(obtenerBonusNivelRivalArena());
+}
+
+function obtenerNombreDificultadArena(codigo = "normal") {
+    const valor = String(codigo || "normal").trim().toLowerCase();
+
+    if (valor === "master") return tSafeArena("battle_difficulty_master");
+    if (valor === "expert") return tSafeArena("battle_difficulty_expert");
+    if (valor === "challenge") return tSafeArena("battle_difficulty_challenge");
+    return tSafeArena("battle_difficulty_normal");
+}
+
+function guardarEquipoArenaEnStorages() {
+    try {
+        localStorage.setItem(BATTLE_TEAM_STORAGE_KEY, JSON.stringify(arenaPlayerTeam));
+        sessionStorage.setItem(BATTLE_ARENA_PLAYER_TEAM_KEY, JSON.stringify(arenaPlayerTeam));
+    } catch (error) {
+        console.warn("No se pudo guardar el equipo local de arena:", error);
+    }
+}
+
+async function cargarEquipoGuardadoBackendArena() {
+    const data = await fetchAuthArena(`${API_BASE}/usuario/me/equipo`);
+    const equipo = Array.isArray(data?.equipo) ? data.equipo : [];
+
+    return equipo
+        .slice()
+        .sort((a, b) => Number(a.posicion || 999) - Number(b.posicion || 999));
+}
+
+function sincronizarSesionBackendArena(data = {}) {
+    arenaBattleSessionToken = data?.battle_session_token || null;
+    arenaBattleSessionTtlSegundos = Number(data?.ttl_segundos || 0);
+    arenaBattleSessionExpiraEn = data?.expira_en || null;
+    arenaDificultadActual = String(data?.dificultad_codigo || obtenerCodigoDificultadArena() || "normal").toLowerCase();
+
+    if (typeof data?.bonus_nivel_rival !== "undefined") {
+        sessionStorage.setItem(BATTLE_ENEMY_LEVEL_BONUS_KEY, String(Number(data.bonus_nivel_rival || 0)));
+    }
+
+    sessionStorage.setItem(BATTLE_ARENA_DIFFICULTY_KEY, arenaDificultadActual);
+
+    if (arenaBattleSessionToken) {
+        sessionStorage.setItem(BATTLE_ARENA_SESSION_TOKEN_KEY, arenaBattleSessionToken);
+    } else {
+        sessionStorage.removeItem(BATTLE_ARENA_SESSION_TOKEN_KEY);
+    }
+
+    if (arenaBattleSessionExpiraEn) {
+        sessionStorage.setItem(BATTLE_ARENA_SESSION_EXPIRES_KEY, arenaBattleSessionExpiraEn);
+    } else {
+        sessionStorage.removeItem(BATTLE_ARENA_SESSION_EXPIRES_KEY);
+    }
+}
+
+async function iniciarSesionBatallaArena() {
+    const usuarioPokemonIds = [...new Set(
+        arenaPlayerTeam
+            .map(p => Number(p.id))
+            .filter(id => !Number.isNaN(id) && id > 0)
+    )].slice(0, 6);
+
+    if (usuarioPokemonIds.length !== 6) {
+        throw new Error(tSafeArena("arena_need_full_team"));
+    }
+
+    const dificultad = inferirCodigoDificultadArenaDesdeBonus(obtenerBonusNivelRivalArena());
+
+    const data = await fetchAuthArena(`${API_BASE}/battle/iniciar`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            dificultad,
+            usuario_pokemon_ids: usuarioPokemonIds,
+            guardar_equipo: true
+        })
+    });
+
+    if (!data?.ok || !data?.battle_session_token) {
+        throw new Error(data?.mensaje || "No se pudo iniciar la sesión de batalla.");
+    }
+
+    sincronizarSesionBackendArena(data);
+    return data;
+}
+
+function obtenerSesionActividadArena() {
+    let sesion = sessionStorage.getItem(BATTLE_ARENA_ACTIVITY_SESSION_KEY);
+    if (sesion) return sesion;
+
+    sesion = `battle-arena-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    sessionStorage.setItem(BATTLE_ARENA_ACTIVITY_SESSION_KEY, sesion);
+    return sesion;
+}
+
+async function registrarActividadArena(accion = "heartbeat", detalle = "") {
+    if (typeof API_BASE === "undefined") return null;
+
+    try {
+        return await fetchAuthArena(`${API_BASE}/usuario/actividad`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                pagina: "battle-arena",
+                accion,
+                detalle: detalle || null,
+                sesion_token: obtenerSesionActividadArena(),
+                online: true
+            })
+        });
+    } catch (error) {
+        return null;
+    }
+}
+
+function iniciarHeartbeatActividadArena() {
+    detenerHeartbeatActividadArena();
+    arenaActividadHeartbeat = setInterval(() => {
+        registrarActividadArena("heartbeat").catch(() => {});
+    }, ARENA_ACTIVITY_HEARTBEAT_MS);
+}
+
+function detenerHeartbeatActividadArena() {
+    if (arenaActividadHeartbeat) {
+        clearInterval(arenaActividadHeartbeat);
+        arenaActividadHeartbeat = null;
+    }
+}
+
+function refrescarEquipoArenaDesdeRespuesta(data) {
+    if (!Array.isArray(data?.pokemon_actualizados)) return;
+
+    for (const actualizado of data.pokemon_actualizados) {
+        const pokeLocal = arenaPlayerTeam.find(
+            p => Number(p.id) === Number(actualizado.usuario_pokemon_id)
+        );
+        if (!pokeLocal) continue;
+
+        pokeLocal.nivel = Number(actualizado.nivel ?? pokeLocal.nivel);
+        pokeLocal.experiencia = Number(actualizado.experiencia ?? pokeLocal.experiencia);
+        pokeLocal.hp_max = Number(actualizado.hp_max ?? pokeLocal.hp_max);
+        pokeLocal.hp_actual = Number(actualizado.hp_max ?? pokeLocal.hp_max);
+        pokeLocal.ataque = Number(actualizado.ataque ?? pokeLocal.ataque);
+        pokeLocal.defensa = Number(actualizado.defensa ?? pokeLocal.defensa);
+        pokeLocal.velocidad = Number(actualizado.velocidad ?? pokeLocal.velocidad);
+        pokeLocal.ataque_especial = Number(actualizado.ataque_especial ?? pokeLocal.ataque_especial ?? pokeLocal.ataque);
+        pokeLocal.defensa_especial = Number(actualizado.defensa_especial ?? pokeLocal.defensa_especial ?? pokeLocal.defensa);
+        pokeLocal.defeated = false;
+    }
+
+    guardarEquipoArenaEnStorages();
+}
+
+
 function escapeHtmlArena(value) {
     return String(value ?? "")
         .replaceAll("&", "&amp;")
@@ -1530,42 +1766,22 @@ function escapeHtmlArena(value) {
         .replaceAll("'", "&#039;");
 }
 
-async function otorgarRecompensasVictoriaArena(expGanada = 1000, pokedolaresGanados = 5000) {
-    const token = typeof getAccessToken === "function" ? getAccessToken() : null;
-    const usuarioId = typeof getUsuarioIdLocal === "function"
-        ? Number(getUsuarioIdLocal())
-        : Number(localStorage.getItem("usuario_id"));
-
-    if (!token || !usuarioId || typeof API_BASE === "undefined") {
-        throw new Error("No se pudo identificar al usuario actual.");
+async function otorgarRecompensasVictoriaArena() {
+    if (!arenaBattleSessionToken) {
+        arenaBattleSessionToken = sessionStorage.getItem(BATTLE_ARENA_SESSION_TOKEN_KEY) || null;
     }
 
-    const usuarioPokemonIds = [...new Set(
-        arenaPlayerTeam
-            .map(p => Number(p.id))
-            .filter(id => !Number.isNaN(id) && id > 0)
-    )].slice(0, 6);
-
-    if (!usuarioPokemonIds.length) {
-        throw new Error("No se encontraron Pokémon válidos para otorgar recompensas.");
+    if (!arenaBattleSessionToken) {
+        throw new Error("La sesión de batalla ya no está disponible.");
     }
 
-    const recompensaPermitida = {
-        exp_ganada: Number(expGanada),
-        pokedolares_ganados: Number(pokedolaresGanados)
-    };
-
-    const data = await fetchJsonArena(`${API_BASE}/battle/recompensa-victoria`, {
+    const data = await fetchAuthArena(`${API_BASE}/battle/recompensa-victoria`, {
         method: "POST",
         headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
+            "Content-Type": "application/json"
         },
         body: JSON.stringify({
-            usuario_id: usuarioId,
-            usuario_pokemon_ids: usuarioPokemonIds,
-            exp_ganada: recompensaPermitida.exp_ganada,
-            pokedolares_ganados: recompensaPermitida.pokedolares_ganados
+            battle_session_token: arenaBattleSessionToken
         })
     });
 
@@ -1577,31 +1793,7 @@ async function otorgarRecompensasVictoriaArena(expGanada = 1000, pokedolaresGana
         localStorage.setItem("usuario_pokedolares", String(data.pokedolares_actuales));
     }
 
-    if (Array.isArray(data.pokemon_actualizados)) {
-        for (const actualizado of data.pokemon_actualizados) {
-            const pokeLocal = arenaPlayerTeam.find(
-                p => Number(p.id) === Number(actualizado.usuario_pokemon_id)
-            );
-            if (!pokeLocal) continue;
-
-            pokeLocal.nivel = Number(actualizado.nivel ?? pokeLocal.nivel);
-            pokeLocal.experiencia = Number(actualizado.experiencia ?? pokeLocal.experiencia);
-            pokeLocal.hp_max = Number(actualizado.hp_max ?? pokeLocal.hp_max);
-            pokeLocal.hp_actual = Number(actualizado.hp_max ?? pokeLocal.hp_max);
-            pokeLocal.ataque = Number(actualizado.ataque ?? pokeLocal.ataque);
-            pokeLocal.defensa = Number(actualizado.defensa ?? pokeLocal.defensa);
-            pokeLocal.velocidad = Number(actualizado.velocidad ?? pokeLocal.velocidad);
-            pokeLocal.defeated = false;
-        }
-    }
-
-    try {
-        localStorage.setItem(BATTLE_TEAM_STORAGE_KEY, JSON.stringify(arenaPlayerTeam));
-        sessionStorage.setItem(BATTLE_ARENA_PLAYER_TEAM_KEY, JSON.stringify(arenaPlayerTeam));
-    } catch (error) {
-        console.warn("No se pudo refrescar el equipo guardado después de la recompensa:", error);
-    }
-
+    refrescarEquipoArenaDesdeRespuesta(data);
     renderArenaCompleta();
 
     return data;
