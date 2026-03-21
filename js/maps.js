@@ -1140,6 +1140,13 @@ async function solicitarEncuentroServidor(requestIdActual, zonaIdActual) {
         throw new Error(t("maps_invalid_pokemon"));
     }
 
+    const ttlSegundos = Number(
+        pokemon.encuentro_ttl_segundos ??
+        pokemon.ttl_segundos ??
+        pokemon.ttl ??
+        0
+    );
+
     encuentroActual = {
         pokemon_id: Number(pokemon.pokemon_id),
         nombre: pokemon.nombre || t("maps_wild_pokemon_default"),
@@ -1154,7 +1161,10 @@ async function solicitarEncuentroServidor(requestIdActual, zonaIdActual) {
         hp_max: Number(pokemon.hp_max || pokemon.hp || 0),
         velocidad: Number(pokemon.velocidad || 0),
         nivel: Number(pokemon.nivel || 1),
-        es_shiny: pokemon.es_shiny === true || pokemon.es_shiny === 1
+        es_shiny: pokemon.es_shiny === true || pokemon.es_shiny === 1,
+        encuentro_token: pokemon.encuentro_token || null,
+        encuentro_ttl_segundos: ttlSegundos,
+        encuentro_expira_en_ms: ttlSegundos > 0 ? Date.now() + (ttlSegundos * 1000) : null
     };
 
     if (encuentroActual.es_shiny) {
@@ -1544,7 +1554,7 @@ async function seleccionarZona(zonaId) {
         console.warn("No se pudieron cargar datos al seleccionar zona:", error);
     }
 
-    // El primer encuentro ahora se genera solo al mover al avatar.
+    // El primer encuentro ahora aparece al moverte en el mapa.
 }
 
 function renderizarZonaExploracion() {
@@ -1686,7 +1696,6 @@ async function moverEnMapa(direccion, opciones = {}) {
 
     const requestIdActual = ++encuentroRequestId;
     const zonaIdActual = Number(zonaSeleccionadaActual.id);
-    const hayEncuentroActivo = !!encuentroActual?.encuentro_token;
 
     let siguienteNodoId = null;
 
@@ -1715,10 +1724,15 @@ async function moverEnMapa(direccion, opciones = {}) {
             sincronizarPresenciaMovimiento(siguienteNodoId);
         }
 
+        if (encuentroActualExpiradoMaps()) {
+            limpiarEncuentroActual();
+            renderPanelDerechoVacio();
+        }
+
+        const hayEncuentroActivo = !!encuentroActual?.encuentro_token;
+
         if (hayEncuentroActivo) {
-            if (encuentroActual) {
-                renderEncuentroActual();
-            }
+            renderEncuentroActual();
             return;
         }
 
@@ -1936,6 +1950,33 @@ function limpiarEncuentroActual() {
     encuentroActual = null;
 }
 
+function encuentroActualExpiradoMaps() {
+    if (!encuentroActual) return false;
+
+    if (!encuentroActual.encuentro_token) return true;
+
+    const expiraMs = Number(encuentroActual.encuentro_expira_en_ms || 0);
+    if (expiraMs > 0 && Date.now() >= expiraMs) {
+        return true;
+    }
+
+    return false;
+}
+
+function esErrorEncuentroExpiradoMaps(error) {
+    const mensaje = String(error?.message || "").toLowerCase();
+    return (
+        mensaje.includes("encuentro") && (
+            mensaje.includes("expir") ||
+            mensaje.includes("inválido") ||
+            mensaje.includes("invalido") ||
+            mensaje.includes("ya no es válido") ||
+            mensaje.includes("ya no es valido") ||
+            mensaje.includes("token")
+        )
+    );
+}
+
 async function intentarCapturaDesdeUI() {
     if (!encuentroActual) {
         mostrarMensajeMaps(t("maps_no_active_encounter"), "warning");
@@ -2005,7 +2046,8 @@ async function intentarCaptura(pokemonId, nivel, esShiny, hpActual, hpMaximo, it
 
             itemSeleccionadoMaps = itemId;
             limpiarEncuentroActual();
-            renderPanelDerechoVacio();
+
+            await generarEncuentroInicial();
             return;
         }
 
@@ -2025,18 +2067,7 @@ async function intentarCaptura(pokemonId, nivel, esShiny, hpActual, hpMaximo, it
         }
     } catch (error) {
         console.error("Error al intentar capturar:", error);
-
-        if (esErrorEncuentroExpiradoMaps(error)) {
-            mostrarMensajeMaps(
-                tMaps("maps_encounter_expired", "The encounter expired. Move again to search for a new Pokémon."),
-                "warning"
-            );
-            limpiarEncuentroActual();
-            renderPanelDerechoVacio();
-        } else {
-            mostrarMensajeMaps(error.message || t("maps_capture_error"), "error");
-        }
-
+        mostrarMensajeMaps(error.message || t("maps_capture_error"), "error");
         await cargarItemsUsuarioMaps(true);
     } finally {
         const nuevoBtnCapturar = document.getElementById("btnCapturarMapa");
