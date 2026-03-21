@@ -273,26 +273,25 @@ document.addEventListener("DOMContentLoaded", () => {
  
 async function inicializarMaps() {
     mostrarCargaZonas();
- 
+
     try {
-        const usuario = getUsuarioLocal();
-        if (usuario && usuario.id != null && !localStorage.getItem("usuario_id")) {
-            localStorage.setItem("usuario_id", String(usuario.id));
+        if (usuarioAutenticadoMaps()) {
+            await sincronizarSesionMapsConBackend(true);
         }
- 
+
         await cargarZonas();
         renderizarZonas();
- 
+
         if (zonasCache.length > 0) {
             const primeraZonaId = Number(zonasCache[0].id);
- 
+
             const cargaSecundaria = Promise.allSettled([
                 cargarPokemonUsuarioMaps(),
                 cargarItemsUsuarioMaps()
             ]);
- 
+
             await seleccionarZona(primeraZonaId);
- 
+
             cargaSecundaria.then(() => {
                 if (encuentroActual) {
                     renderEncuentroActual();
@@ -466,6 +465,7 @@ function configurarEventosSesionMaps() {
                 return;
             }
  
+            await sincronizarSesionMapsConBackend(true);
             refrescarAvatarMapsEnPantalla();
             await refrescarPresenciaZonaActual();
             sincronizarPresenciaLocalMaps();
@@ -481,6 +481,7 @@ function configurarEventosSesionMaps() {
                 return;
             }
  
+            await sincronizarSesionMapsConBackend(true);
             refrescarAvatarMapsEnPantalla();
             await refrescarPresenciaZonaActual();
             sincronizarPresenciaLocalMaps();
@@ -676,6 +677,52 @@ function guardarStorageJSON(clave, valor) {
     } catch (error) {
         console.warn(`No se pudo guardar ${clave}:`, error);
     }
+}
+
+async function sincronizarSesionMapsConBackend(forzar = false) {
+    if (!usuarioAutenticadoMaps()) return null;
+
+    const usuarioLocal = getUsuarioLocal();
+    if (!forzar && usuarioLocal?.id != null) {
+        return usuarioLocal;
+    }
+
+    if (typeof obtenerUsuarioActual !== "function") {
+        return usuarioLocal || null;
+    }
+
+    try {
+        const usuarioActual = await obtenerUsuarioActual();
+        return usuarioActual || usuarioLocal || null;
+    } catch (error) {
+        console.warn("No se pudo sincronizar la sesión de Maps con el backend:", error);
+        return usuarioLocal || null;
+    }
+}
+
+function obtenerUsuarioIdMapsActual() {
+    const usuario = obtenerUsuarioMapsActual();
+
+    if (usuario?.id != null) {
+        const id = Number(usuario.id);
+        return Number.isFinite(id) && id > 0 ? id : null;
+    }
+
+    const idLocal = Number(getUsuarioIdLocal());
+    return Number.isFinite(idLocal) && idLocal > 0 ? idLocal : null;
+}
+
+
+function obtenerUsuarioIdMapsActual() {
+    const usuario = obtenerUsuarioMapsActual();
+
+    if (usuario?.id != null) {
+        const id = Number(usuario.id);
+        return Number.isFinite(id) && id > 0 ? id : null;
+    }
+
+    const idLocal = Number(getUsuarioIdLocal());
+    return Number.isFinite(idLocal) && idLocal > 0 ? idLocal : null;
 }
  
 function obtenerUsuarioMapsActual() {
@@ -893,9 +940,10 @@ function obtenerInicialNombreJugador(nombre = "") {
 }
  
 function esJugadorActualMaps(usuarioId) {
-    const actual = getUsuarioIdLocal();
+    const actual = obtenerUsuarioIdMapsActual();
     return Number(actual) > 0 && Number(actual) === Number(usuarioId);
 }
+
  
 function crearHtmlJugadorMapa(jugador, nodo) {
     const nombre = jugador?.nombre || tMaps("maps_trainer_default", "Trainer");
@@ -1048,7 +1096,7 @@ function procesarMensajeTiempoRealMaps(data) {
  
     if (type === "ack") {
         const self = data?.self || null;
-        if (self && Number(self.usuario_id || 0) === Number(getUsuarioIdLocal() || 0)) {
+        if (self && Number(self.usuario_id || 0) === Number(obtenerUsuarioIdMapsActual() || 0)) {
             ultimoNodoReportadoMaps = String(self.nodo_id || ultimoNodoReportadoMaps || "");
         }
         return;
@@ -1225,37 +1273,34 @@ function obtenerImagenPokemonEncuentro(pokemon) {
 }
  
 async function solicitarEncuentroServidor(requestIdActual, zonaIdActual) {
-    const usuarioId = getUsuarioIdLocal();
- 
     const pokemon = await fetchAuth(`${API_BASE}/maps/encuentro`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
         body: JSON.stringify({
-            usuario_id: usuarioId,
             zona_id: zonaIdActual
         })
     });
- 
+
     if (requestIdActual !== encuentroRequestId) return;
     if (!zonaSeleccionadaActual || Number(zonaSeleccionadaActual.id) !== zonaIdActual) return;
- 
+
     if (!pokemon || pokemon.error) {
         throw new Error(pokemon?.error || t("maps_encounter_generate_error"));
     }
- 
+
     if (!pokemon.pokemon_id) {
         throw new Error(t("maps_invalid_pokemon"));
     }
- 
+
     const ttlSegundos = Number(
         pokemon.encuentro_ttl_segundos ??
         pokemon.ttl_segundos ??
         pokemon.ttl ??
         0
     );
- 
+
     encuentroActual = {
         pokemon_id: Number(pokemon.pokemon_id),
         nombre: pokemon.nombre || t("maps_wild_pokemon_default"),
@@ -1266,6 +1311,8 @@ async function solicitarEncuentroServidor(requestIdActual, zonaIdActual) {
         tiene_mega: !!pokemon.tiene_mega,
         ataque: Number(pokemon.ataque || 0),
         defensa: Number(pokemon.defensa || 0),
+        ataque_especial: Number(pokemon.ataque_especial || pokemon.ataque || 0),
+        defensa_especial: Number(pokemon.defensa_especial || pokemon.defensa || 0),
         hp: Number(pokemon.hp || pokemon.hp_max || 0),
         hp_max: Number(pokemon.hp_max || pokemon.hp || 0),
         velocidad: Number(pokemon.velocidad || 0),
@@ -1275,13 +1322,14 @@ async function solicitarEncuentroServidor(requestIdActual, zonaIdActual) {
         encuentro_ttl_segundos: ttlSegundos,
         encuentro_expira_en_ms: ttlSegundos > 0 ? Date.now() + (ttlSegundos * 1000) : null
     };
- 
+
     if (encuentroActual.es_shiny) {
         mostrarModalShiny();
     }
- 
+
     renderEncuentroActual();
 }
+
  
 /* =========================
    USUARIO / DATA
@@ -1794,59 +1842,56 @@ function renderMiniaturasZona(zona = null) {
 ========================= */
 async function moverEnMapa(direccion, opciones = {}) {
     if (!zonaSeleccionadaActual || movimientoEnCurso) return;
- 
+
     const { silencioso = false, soloEncuentro = false } = opciones;
-    const usuarioId = getUsuarioIdLocal();
- 
-    if (!usuarioId) {
+
+    if (!usuarioAutenticadoMaps()) {
         mostrarMensajeMaps(t("maps_login_required"), "error");
         return;
     }
- 
+
     const requestIdActual = ++encuentroRequestId;
     const zonaIdActual = Number(zonaSeleccionadaActual.id);
- 
+
     let siguienteNodoId = null;
- 
+
     if (!soloEncuentro) {
         siguienteNodoId = obtenerSiguienteNodoAvatar(direccion);
- 
+
         if (!siguienteNodoId) {
             actualizarBotonesMovimientoDisponibles(false);
             return;
         }
     }
- 
+
     movimientoEnCurso = true;
     cerrarModalesSecundarios();
     setEstadoMovimiento(true, direccion);
     limpiarMensajeMaps();
- 
+
     if (!encuentroActual && !silencioso) {
         renderPanelDerechoVacio();
     }
- 
+
     try {
         if (!soloEncuentro && siguienteNodoId) {
             guardarNodoActualAvatar(siguienteNodoId);
             await moverAvatarVisual(siguienteNodoId);
             sincronizarPresenciaMovimiento(siguienteNodoId);
         }
- 
+
         if (encuentroActualExpiradoMaps()) {
             limpiarEncuentroActual();
             renderPanelDerechoVacio();
         }
- 
-        // Cada movimiento válido puede reemplazar el encuentro anterior.
-        // El backend invalida el token previo y devuelve el nuevo encuentro activo.
+
         await solicitarEncuentroServidor(requestIdActual, zonaIdActual);
     } catch (error) {
         if (requestIdActual !== encuentroRequestId) return;
- 
+
         console.error("Error explorando zona:", error);
         mostrarMensajeMaps(error.message || t("maps_encounter_generate_error"), "error");
- 
+
         if (!encuentroActual) {
             renderPanelDerechoVacio();
         }
@@ -2119,26 +2164,23 @@ async function intentarCapturaDesdeUI() {
 }
  
 async function intentarCaptura(pokemonId, nivel, esShiny, hpActual, hpMaximo, itemId, encuentroToken = null) {
-    const usuarioId = getUsuarioIdLocal();
- 
-    if (!usuarioId) {
+    if (!usuarioAutenticadoMaps()) {
         mostrarMensajeMaps(t("maps_login_required"), "error");
         return;
     }
- 
+
     const btnCapturar = document.getElementById("btnCapturarMapa");
     if (btnCapturar) btnCapturar.disabled = true;
- 
+
     try {
         limpiarMensajeMaps();
- 
+
         const data = await fetchAuth(`${API_BASE}/maps/intentar-captura`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                usuario_id: usuarioId,
                 pokemon_id: Number(pokemonId),
                 nivel: Number(nivel),
                 es_shiny: !!esShiny,
@@ -2148,31 +2190,32 @@ async function intentarCaptura(pokemonId, nivel, esShiny, hpActual, hpMaximo, it
                 encuentro_token: encuentroToken || null
             })
         });
- 
+
         if (data.capturado === true) {
             mostrarModalResultadoCaptura(
                 `${data.mensaje || t("maps_capture_success_default")}<br>${t("maps_capture_probability")}: ${data.probabilidad ?? 0}%`,
                 "exito"
             );
- 
+
+            await sincronizarSesionMapsConBackend(false);
             await Promise.all([
                 cargarPokemonUsuarioMaps(),
                 cargarItemsUsuarioMaps(true)
             ]);
- 
+
             itemSeleccionadoMaps = itemId;
             limpiarEncuentroActual();
             renderPanelDerechoVacio();
             return;
         }
- 
+
         mostrarModalResultadoCaptura(
             `${data.mensaje || t("maps_capture_escape_default")}<br>${t("maps_capture_used_probability")}: ${data.probabilidad ?? 0}%`,
             "error"
         );
- 
+
         await cargarItemsUsuarioMaps(true);
- 
+
         if (encuentroActual) {
             const accionPanel = document.getElementById("encuentroAccionPanel");
             if (accionPanel) {
@@ -2182,7 +2225,7 @@ async function intentarCaptura(pokemonId, nivel, esShiny, hpActual, hpMaximo, it
         }
     } catch (error) {
         console.error("Error al intentar capturar:", error);
- 
+
         if (esErrorEncuentroExpiradoMaps(error)) {
             mostrarMensajeMaps(
                 tMaps("maps_encounter_expired", "The encounter expired. Move again to search for a new Pokémon."),
@@ -2193,7 +2236,7 @@ async function intentarCaptura(pokemonId, nivel, esShiny, hpActual, hpMaximo, it
         } else {
             mostrarMensajeMaps(error.message || t("maps_capture_error"), "error");
         }
- 
+
         await cargarItemsUsuarioMaps(true);
     } finally {
         const nuevoBtnCapturar = document.getElementById("btnCapturarMapa");
