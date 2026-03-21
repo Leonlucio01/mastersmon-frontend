@@ -32,6 +32,164 @@ const MAPS_AVATAR_ID_REGEX = /^[a-z0-9_-]{1,60}$/;
    - Primera versión del contorno caminable
    - Está en porcentajes para que sea responsive
 ========================================================= */
+const RUTA_CONTORNO_BASE = {
+    start: "n5",
+    nodes: {
+        /* =========================================================
+           FILA INFERIOR
+        ========================================================= */
+        n1:  { x: 8,  y: 84, right: "n2" },
+        n2:  { x: 18, y: 84, left: "n1", right: "n3", up: "n10" },
+        n3:  { x: 28, y: 84, left: "n2", right: "n4", up: "n11" },
+        n4:  { x: 38, y: 84, left: "n3", right: "n5", up: "n12" },
+        n5:  { x: 50, y: 84, left: "n4", right: "n6", up: "n13" },
+        n6:  { x: 62, y: 84, left: "n5", right: "n7", up: "n14" },
+        n7:  { x: 72, y: 84, left: "n6", right: "n8", up: "n15" },
+        n8:  { x: 82, y: 84, left: "n7", right: "n9", up: "n16" },
+        n9:  { x: 92, y: 84, left: "n8" },
+
+        /* =========================================================
+           FILA 2
+        ========================================================= */
+        n10: { x: 12, y: 72, down: "n2", right: "n11", up: "n17" },
+        n11: { x: 24, y: 72, left: "n10", down: "n3", right: "n12", up: "n18" },
+        n12: { x: 36, y: 72, left: "n11", down: "n4", right: "n13", up: "n19" },
+        n13: { x: 48, y: 72, left: "n12", down: "n5", right: "n14", up: "n20" },
+        n14: { x: 60, y: 72, left: "n13", down: "n6", right: "n15", up: "n21" },
+        n15: { x: 72, y: 72, left: "n14", down: "n7", right: "n16", up: "n22" },
+        n16: { x: 84, y: 72, left: "n15", down: "n8", up: "n23" },
+
+        /* =========================================================
+           FILA 3
+        ========================================================= */
+        n17: { x: 10, y: 60, down: "n10", right: "n18" },
+        n18: { x: 22, y: 60, left: "n17", down: "n11", right: "n19", up: "n24" },
+        n19: { x: 34, y: 60, left: "n18", down: "n12", right: "n20", up: "n25" },
+        n20: { x: 46, y: 60, left: "n19", down: "n13", right: "n21", up: "n26" },
+        n21: { x: 58, y: 60, left: "n20", down: "n14", right: "n22", up: "n27" },
+        n22: { x: 70, y: 60, left: "n21", down: "n15", right: "n23", up: "n28" },
+        n23: { x: 82, y: 60, left: "n22", down: "n16", up: "n29" },
+
+        /* =========================================================
+           FILA 4
+        ========================================================= */
+        n24: { x: 16, y: 48, down: "n18", right: "n25" },
+        n25: { x: 30, y: 48, left: "n24", down: "n19", right: "n26", up: "n30" },
+        n26: { x: 44, y: 48, left: "n25", down: "n20", right: "n27", up: "n31" },
+        n27: { x: 58, y: 48, left: "n26", down: "n21", right: "n28", up: "n32" },
+        n28: { x: 72, y: 48, left: "n27", down: "n22", right: "n29", up: "n33" },
+        n29: { x: 86, y: 48, left: "n28", down: "n23" },
+
+        /* =========================================================
+           FILA SUPERIOR
+        ========================================================= */
+        n30: { x: 26, y: 36, down: "n25", right: "n31" },
+        n31: { x: 42, y: 36, left: "n30", down: "n26", right: "n32" },
+        n32: { x: 58, y: 36, left: "n31", down: "n27", right: "n33" },
+        n33: { x: 74, y: 36, left: "n32", down: "n28" }
+    }
+};
+
+const MAPS_MAX_STEP_PERCENT = 6;
+
+function obtenerDireccionEntreNodos(nodeA, nodeB) {
+    const dx = Number(nodeB.x) - Number(nodeA.x);
+    const dy = Number(nodeB.y) - Number(nodeA.y);
+
+    if (Math.abs(dx) >= Math.abs(dy)) {
+        return dx >= 0 ? "right" : "left";
+    }
+
+    return dy >= 0 ? "down" : "up";
+}
+
+function direccionOpuesta(direccion) {
+    const mapa = {
+        up: "down",
+        down: "up",
+        left: "right",
+        right: "left"
+    };
+    return mapa[direccion] || "";
+}
+
+function clonarRuta(ruta) {
+    const nodes = {};
+    for (const [id, node] of Object.entries(ruta.nodes || {})) {
+        nodes[id] = { ...node };
+    }
+    return {
+        start: ruta.start,
+        nodes
+    };
+}
+
+function densificarRuta(rutaBase, maxStepPercent = MAPS_MAX_STEP_PERCENT) {
+    const ruta = clonarRuta(rutaBase);
+    const processed = new Set();
+    let autoId = 1;
+
+    const ids = Object.keys(ruta.nodes);
+
+    for (const nodeId of ids) {
+        const node = ruta.nodes[nodeId];
+        if (!node) continue;
+
+        for (const dir of ["up", "down", "left", "right"]) {
+            const nextId = node[dir];
+            if (!nextId || !ruta.nodes[nextId]) continue;
+
+            const pairKey = [nodeId, nextId].sort().join("|");
+            if (processed.has(pairKey)) continue;
+            processed.add(pairKey);
+
+            const nextNode = ruta.nodes[nextId];
+            const dx = Number(nextNode.x) - Number(node.x);
+            const dy = Number(nextNode.y) - Number(node.y);
+            const distance = Math.max(Math.abs(dx), Math.abs(dy));
+
+            if (distance <= maxStepPercent) continue;
+
+            const steps = Math.ceil(distance / maxStepPercent);
+            const intermediates = [];
+            const forwardDir = obtenerDireccionEntreNodos(node, nextNode);
+            const backwardDir = direccionOpuesta(forwardDir);
+
+            delete ruta.nodes[nodeId][forwardDir];
+            delete ruta.nodes[nextId][backwardDir];
+
+            for (let i = 1; i < steps; i++) {
+                const newId = `auto_${autoId++}`;
+                const ratio = i / steps;
+
+                ruta.nodes[newId] = {
+                    x: Number((node.x + dx * ratio).toFixed(2)),
+                    y: Number((node.y + dy * ratio).toFixed(2))
+                };
+
+                intermediates.push(newId);
+            }
+
+            const chain = [nodeId, ...intermediates, nextId];
+
+            for (let i = 0; i < chain.length - 1; i++) {
+                const aId = chain[i];
+                const bId = chain[i + 1];
+                const a = ruta.nodes[aId];
+                const b = ruta.nodes[bId];
+
+                const dirAB = obtenerDireccionEntreNodos(a, b);
+                const dirBA = direccionOpuesta(dirAB);
+
+                ruta.nodes[aId][dirAB] = bId;
+                ruta.nodes[bId][dirBA] = aId;
+            }
+        }
+    }
+
+    return ruta;
+}
+
 const RUTA_GREEN_FOREST = {
     start: "g12",
     nodes: {
@@ -76,7 +234,7 @@ const RUTA_GREEN_FOREST = {
         g24: { x: 68, y: 74, left: "g23" },
 
         /* =========================================================
-           CAMINO DE TIERRA SUPERIOR (BOSQUE / CASA / BANCA)
+           CAMINO DE TIERRA SUPERIOR
         ========================================================= */
         g25: { x: 40, y: 34, down: "g5", right: "g26" },
         g26: { x: 50, y: 34, down: "g6", left: "g25", right: "g27" },
@@ -115,268 +273,12 @@ const RUTA_GREEN_FOREST = {
     }
 };
 
-const RUTA_ROCK_CAVE = {
-    start: "c13",
-    nodes: {
-        /* =========================================================
-           ZONA SUPERIOR / BAJO ESTATUAS
-        ========================================================= */
-        c1:  { x: 12, y: 28, right: "c2", down: "c9" },
-        c2:  { x: 22, y: 28, left: "c1", right: "c3", down: "c10" },
-        c3:  { x: 32, y: 28, left: "c2", right: "c4", down: "c11" },
-        c4:  { x: 42, y: 28, left: "c3", right: "c5", down: "c12" },
-        c5:  { x: 52, y: 28, left: "c4", right: "c6", down: "c13" },
-        c6:  { x: 62, y: 28, left: "c5", right: "c7", down: "c14" },
-        c7:  { x: 72, y: 28, left: "c6", right: "c8", down: "c15" },
-        c8:  { x: 82, y: 28, left: "c7", down: "c16" },
-
-        /* =========================================================
-           CORREDOR SUPERIOR PRINCIPAL
-        ========================================================= */
-        c9:  { x: 14, y: 38, up: "c1", right: "c10", down: "c17" },
-        c10: { x: 24, y: 38, up: "c2", left: "c9", right: "c11", down: "c18" },
-        c11: { x: 34, y: 38, up: "c3", left: "c10", right: "c12", down: "c19" },
-        c12: { x: 44, y: 38, up: "c4", left: "c11", right: "c13", down: "c20" },
-        c13: { x: 54, y: 38, up: "c5", left: "c12", right: "c14", down: "c21" },
-        c14: { x: 64, y: 38, up: "c6", left: "c13", right: "c15", down: "c22" },
-        c15: { x: 74, y: 38, up: "c7", left: "c14", right: "c16", down: "c23" },
-        c16: { x: 84, y: 38, up: "c8", left: "c15", down: "c24" },
-
-        /* =========================================================
-           CORREDOR MEDIO / CAMINO PRINCIPAL
-        ========================================================= */
-        c17: { x: 14, y: 50, up: "c9", right: "c18", down: "c25" },
-        c18: { x: 26, y: 50, up: "c10", left: "c17", right: "c19", down: "c26" },
-        c19: { x: 38, y: 50, up: "c11", left: "c18", right: "c20", down: "c27" },
-        c20: { x: 50, y: 50, up: "c12", left: "c19", right: "c21", down: "c28" },
-        c21: { x: 62, y: 50, up: "c13", left: "c20", right: "c22", down: "c29" },
-        c22: { x: 74, y: 50, up: "c14", left: "c21", right: "c23", down: "c30" },
-        c23: { x: 84, y: 50, up: "c15", left: "c22", down: "c31" },
-        c24: { x: 90, y: 42, up: "c16" },
-
-        /* =========================================================
-           ZONA MEDIA BAJA / PASILLO ANCHO
-        ========================================================= */
-        c25: { x: 16, y: 62, up: "c17", right: "c26", down: "c32" },
-        c26: { x: 28, y: 62, up: "c18", left: "c25", right: "c27", down: "c33" },
-        c27: { x: 40, y: 62, up: "c19", left: "c26", right: "c28", down: "c34" },
-        c28: { x: 52, y: 62, up: "c20", left: "c27", right: "c29", down: "c35" },
-        c29: { x: 64, y: 62, up: "c21", left: "c28", right: "c30", down: "c36" },
-        c30: { x: 76, y: 62, up: "c22", left: "c29", right: "c31", down: "c37" },
-        c31: { x: 88, y: 62, up: "c23", left: "c30", down: "c38" },
-
-        /* =========================================================
-           ZONA INFERIOR / CAMINO HACIA LA SALIDA
-        ========================================================= */
-        c32: { x: 16, y: 76, up: "c25", right: "c33" },
-        c33: { x: 28, y: 76, up: "c26", left: "c32", right: "c34" },
-        c34: { x: 40, y: 76, up: "c27", left: "c33", right: "c35", down: "c39" },
-        c35: { x: 52, y: 76, up: "c28", left: "c34", right: "c36", down: "c40" },
-        c36: { x: 64, y: 76, up: "c29", left: "c35", right: "c37", down: "c41" },
-        c37: { x: 76, y: 76, up: "c30", left: "c36", right: "c38", down: "c42" },
-        c38: { x: 88, y: 76, up: "c31", left: "c37" },
-
-        /* =========================================================
-           PARTE MÁS BAJA / CERCA DE LA CUEVA INFERIOR
-        ========================================================= */
-        c39: { x: 40, y: 88, up: "c34", right: "c40" },
-        c40: { x: 52, y: 88, up: "c35", left: "c39", right: "c41" },
-        c41: { x: 64, y: 88, up: "c36", left: "c40", right: "c42" },
-        c42: { x: 76, y: 88, up: "c37", left: "c41", right: "c43" },
-        c43: { x: 86, y: 88, left: "c42" },
-
-        /* =========================================================
-           RAMALES EXTRA PARA DAR SENSACIÓN DE CUEVA ABIERTA
-        ========================================================= */
-        c44: { x: 8,  y: 44, right: "c17" },
-        c45: { x: 22, y: 70, right: "c33" },
-        c46: { x: 58, y: 70, right: "c36", left: "c35" },
-        c47: { x: 70, y: 86, left: "c41", right: "c42" }
-    }
-};
- 
-const RUTA_BLUE_LAKE = {
-    start: "l17",
-    nodes: {
-        /* =========================================================
-           LAGO SUPERIOR
-        ========================================================= */
-        l1:  { x: 18, y: 20, right: "l2", down: "l7" },
-        l2:  { x: 28, y: 20, left: "l1", right: "l3", down: "l8" },
-        l3:  { x: 38, y: 20, left: "l2", right: "l4", down: "l9" },
-        l4:  { x: 48, y: 20, left: "l3", right: "l5", down: "l10" },
-        l5:  { x: 58, y: 20, left: "l4", right: "l6", down: "l11" },
-        l6:  { x: 68, y: 20, left: "l5", down: "l12" },
-
-        /* =========================================================
-           ZONA MEDIA SUPERIOR
-        ========================================================= */
-        l7:  { x: 16, y: 30, up: "l1", right: "l8", down: "l13" },
-        l8:  { x: 26, y: 30, up: "l2", left: "l7", right: "l9", down: "l14" },
-        l9:  { x: 36, y: 30, up: "l3", left: "l8", right: "l10", down: "l15" },
-        l10: { x: 46, y: 30, up: "l4", left: "l9", right: "l11", down: "l16" },
-        l11: { x: 56, y: 30, up: "l5", left: "l10", right: "l12", down: "l17" },
-        l12: { x: 66, y: 30, up: "l6", left: "l11", down: "l18" },
-
-        /* =========================================================
-           ZONA CENTRAL DEL LAGO
-        ========================================================= */
-        l13: { x: 14, y: 40, up: "l7", right: "l14", down: "l19" },
-        l14: { x: 24, y: 40, up: "l8", left: "l13", right: "l15", down: "l20" },
-        l15: { x: 34, y: 40, up: "l9", left: "l14", right: "l16", down: "l21" },
-        l16: { x: 44, y: 40, up: "l10", left: "l15", right: "l17", down: "l22" },
-        l17: { x: 54, y: 40, up: "l11", left: "l16", right: "l18", down: "l23" },
-        l18: { x: 64, y: 40, up: "l12", left: "l17", down: "l24" },
-
-        /* =========================================================
-           LAGO CENTRAL BAJO
-        ========================================================= */
-        l19: { x: 14, y: 50, up: "l13", right: "l20", down: "l25" },
-        l20: { x: 24, y: 50, up: "l14", left: "l19", right: "l21", down: "l26" },
-        l21: { x: 34, y: 50, up: "l15", left: "l20", right: "l22", down: "l27" },
-        l22: { x: 44, y: 50, up: "l16", left: "l21", right: "l23", down: "l28" },
-        l23: { x: 54, y: 50, up: "l17", left: "l22", right: "l24", down: "l29" },
-        l24: { x: 64, y: 50, up: "l18", left: "l23", down: "l30" },
-
-        /* =========================================================
-           PARTE BAJA DEL AGUA
-        ========================================================= */
-        l25: { x: 12, y: 62, up: "l19", right: "l26", down: "l31" },
-        l26: { x: 22, y: 62, up: "l20", left: "l25", right: "l27", down: "l32" },
-        l27: { x: 32, y: 62, up: "l21", left: "l26", right: "l28", down: "l33" },
-        l28: { x: 42, y: 62, up: "l22", left: "l27", right: "l29", down: "l34" },
-        l29: { x: 52, y: 62, up: "l23", left: "l28", right: "l30", down: "l35" },
-        l30: { x: 62, y: 62, up: "l24", left: "l29", down: "l36" },
-
-        /* =========================================================
-           BORDE INFERIOR / SALIDA HACIA PLAYA
-        ========================================================= */
-        l31: { x: 12, y: 74, up: "l25", right: "l32" },
-        l32: { x: 22, y: 74, up: "l26", left: "l31", right: "l33", down: "l37" },
-        l33: { x: 32, y: 74, up: "l27", left: "l32", right: "l34", down: "l38" },
-        l34: { x: 42, y: 74, up: "l28", left: "l33", right: "l35" },
-        l35: { x: 52, y: 74, up: "l29", left: "l34", right: "l36" },
-        l36: { x: 62, y: 74, up: "l30", left: "l35" },
-
-        /* =========================================================
-           PEQUEÑA PLAYA / MUELLE INFERIOR IZQUIERDO
-        ========================================================= */
-        l37: { x: 18, y: 84, up: "l32", right: "l38" },
-        l38: { x: 28, y: 84, up: "l33", left: "l37", right: "l39" },
-        l39: { x: 36, y: 84, left: "l38" },
-
-        /* =========================================================
-           RAMALES EXTRA PARA DAR MÁS LIBERTAD EN EL AGUA
-        ========================================================= */
-        l40: { x: 20, y: 24, right: "l2", down: "l8" },
-        l41: { x: 60, y: 36, left: "l17", right: "l18" },
-        l42: { x: 58, y: 56, up: "l24", left: "l29" },
-        l43: { x: 26, y: 68, up: "l26", right: "l33" }
-    }
-};
-
-const RUTA_BATTLE_TOWER = {
-    start: "t24",
-    nodes: {
-        /* =========================================================
-           PARTE MÁS BAJA / CAMINO INFERIOR
-        ========================================================= */
-        t1:  { x: 30, y: 88, right: "t2" },
-        t2:  { x: 40, y: 88, left: "t1", right: "t3", up: "t10" },
-        t3:  { x: 50, y: 88, left: "t2", right: "t4", up: "t11" },
-        t4:  { x: 60, y: 88, left: "t3", right: "t5", up: "t12" },
-        t5:  { x: 70, y: 88, left: "t4", up: "t13" },
-
-        /* =========================================================
-           ZONA BAJA / CRUCE CERCA DEL AGUA
-        ========================================================= */
-        t10: { x: 36, y: 80, up: "t18", down: "t2", right: "t11" },
-        t11: { x: 46, y: 80, up: "t19", down: "t3", left: "t10", right: "t12" },
-        t12: { x: 56, y: 80, up: "t20", down: "t4", left: "t11", right: "t13" },
-        t13: { x: 66, y: 80, up: "t21", down: "t5", left: "t12", right: "t14" },
-        t14: { x: 76, y: 80, left: "t13", up: "t22" },
-
-        /* =========================================================
-           CAMINO MEDIO BAJO
-        ========================================================= */
-        t18: { x: 34, y: 72, up: "t23", down: "t10", right: "t19" },
-        t19: { x: 44, y: 72, up: "t24", down: "t11", left: "t18", right: "t20" },
-        t20: { x: 54, y: 72, up: "t25", down: "t12", left: "t19", right: "t21" },
-        t21: { x: 64, y: 72, up: "t26", down: "t13", left: "t20", right: "t22" },
-        t22: { x: 74, y: 72, up: "t27", down: "t14", left: "t21" },
-
-        /* =========================================================
-           ANILLO EXTERIOR DE LA PLAZA CENTRAL
-        ========================================================= */
-        t23: { x: 32, y: 64, up: "t28", down: "t18", right: "t24" },
-        t24: { x: 42, y: 64, up: "t29", down: "t19", left: "t23", right: "t25" },
-        t25: { x: 52, y: 64, up: "t30", down: "t20", left: "t24", right: "t26" },
-        t26: { x: 62, y: 64, up: "t31", down: "t21", left: "t25", right: "t27" },
-        t27: { x: 72, y: 64, up: "t32", down: "t22", left: "t26" },
-
-        /* =========================================================
-           PLAZA CENTRAL / BORDE DE LA ARENA
-        ========================================================= */
-        t28: { x: 30, y: 56, up: "t33", down: "t23", right: "t29" },
-        t29: { x: 40, y: 56, up: "t34", down: "t24", left: "t28", right: "t30" },
-        t30: { x: 50, y: 56, up: "t35", down: "t25", left: "t29", right: "t31" },
-        t31: { x: 60, y: 56, up: "t36", down: "t26", left: "t30", right: "t32" },
-        t32: { x: 70, y: 56, up: "t37", down: "t27", left: "t31" },
-
-        /* =========================================================
-           ESCALINATA CENTRAL HACIA LA TORRE
-        ========================================================= */
-        t33: { x: 34, y: 48, up: "t38", down: "t28", right: "t34" },
-        t34: { x: 42, y: 48, up: "t39", down: "t29", left: "t33", right: "t35" },
-        t35: { x: 50, y: 48, up: "t40", down: "t30", left: "t34", right: "t36" },
-        t36: { x: 58, y: 48, up: "t41", down: "t31", left: "t35", right: "t37" },
-        t37: { x: 66, y: 48, up: "t42", down: "t32", left: "t36" },
-
-        /* =========================================================
-           PARTE ALTA / FRENTE A LA TORRE
-        ========================================================= */
-        t38: { x: 36, y: 40, up: "t43", down: "t33", right: "t39" },
-        t39: { x: 43, y: 40, up: "t44", down: "t34", left: "t38", right: "t40" },
-        t40: { x: 50, y: 40, up: "t45", down: "t35", left: "t39", right: "t41" },
-        t41: { x: 57, y: 40, up: "t46", down: "t36", left: "t40", right: "t42" },
-        t42: { x: 64, y: 40, up: "t47", down: "t37", left: "t41" },
-
-        /* =========================================================
-           ENTRADA DE LA TORRE / CAMINO SUPERIOR
-        ========================================================= */
-        t43: { x: 38, y: 32, down: "t38", right: "t44" },
-        t44: { x: 44, y: 32, down: "t39", left: "t43", right: "t45" },
-        t45: { x: 50, y: 32, down: "t40", left: "t44", right: "t46" },
-        t46: { x: 56, y: 32, down: "t41", left: "t45", right: "t47" },
-        t47: { x: 62, y: 32, down: "t42", left: "t46", right: "t48" },
-        t48: { x: 72, y: 36, left: "t47", down: "t49" },
-
-        /* =========================================================
-           RAMAL DERECHO / CUEVA LATERAL
-        ========================================================= */
-        t49: { x: 76, y: 46, up: "t48", down: "t50" },
-        t50: { x: 80, y: 56, up: "t49", down: "t51" },
-        t51: { x: 78, y: 66, up: "t50", down: "t22" },
-
-        /* =========================================================
-           RAMAL IZQUIERDO BAJO / SENSACIÓN DE CAMINO ABIERTO
-        ========================================================= */
-        t52: { x: 24, y: 72, right: "t18", up: "t53" },
-        t53: { x: 22, y: 62, down: "t52", right: "t23" },
-
-        /* =========================================================
-           RAMAL IZQUIERDO MEDIO / ALREDEDOR DE LA PLAZA
-        ========================================================= */
-        t54: { x: 24, y: 56, right: "t28", down: "t53" }
-    }
-};
-
 const MAPAS_RUTAS = {
-    bosque: RUTA_GREEN_FOREST,
-    cueva: RUTA_ROCK_CAVE,
-    lago: RUTA_BLUE_LAKE,
-    torre: RUTA_BATTLE_TOWER,
-    default: RUTA_GREEN_FOREST
+    bosque: densificarRuta(RUTA_GREEN_FOREST),
+    cueva: RUTA_CONTORNO_BASE,
+    lago: RUTA_CONTORNO_BASE,
+    torre: RUTA_CONTORNO_BASE,
+    default: RUTA_CONTORNO_BASE
 };
  
 const MAPAS_CONFIG = {
@@ -999,7 +901,7 @@ function moverAvatarVisual(nodeId) {
         requestAnimationFrame(() => {
             avatarWrap.style.left = `${nodo.x}%`;
             avatarWrap.style.top = `${nodo.y}%`;
-            setTimeout(resolve, 180);
+            setTimeout(resolve, 100);
         });
     });
 }
