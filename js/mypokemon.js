@@ -285,6 +285,18 @@ function limpiarMensajeEvolucion() {
     box.classList.remove("ok", "error");
 }
 
+function esErrorAuthMyPokemon(error) {
+    return error?.code === "NO_TOKEN" || error?.code === "UNAUTHORIZED";
+}
+
+function manejarErrorAuthMyPokemon() {
+    usuarioActualMyPokemon = null;
+    misPokemonData = [];
+    estadosEvolucionCache.clear();
+    limpiarCacheMyPokemon();
+    renderEstadoSinSesion();
+}
+
 function renderAvatarSelector() {
     const section = document.getElementById("avatarSelectorSection");
     if (!section) return;
@@ -674,11 +686,21 @@ async function obtenerEstadoEvolucion(usuarioPokemonId, { forzar = false } = {})
         return estadosEvolucionCache.get(usuarioPokemonId);
     }
 
+    if (!usuarioAutenticadoMyPokemon()) {
+        return null;
+    }
+
     try {
-        const data = await fetchJson(`${API_BASE}/usuario/pokemon/${usuarioPokemonId}/evolucion`);
+        const data = await fetchAuth(`${API_BASE}/usuario/pokemon/${usuarioPokemonId}/evolucion`);
         estadosEvolucionCache.set(usuarioPokemonId, data);
         return data;
     } catch (error) {
+        if (esErrorAuthMyPokemon(error)) {
+            manejarErrorAuthMyPokemon();
+            return null;
+        }
+
+        console.error("Error obteniendo estado de evolución:", error);
         return null;
     }
 }
@@ -856,14 +878,13 @@ async function confirmarSoltarPokemon() {
     }
 
     try {
-        const data = await fetchJson(`${API_BASE}/usuario/soltar-pokemon`, {
+        const data = await fetchAuth(`${API_BASE}/usuario/soltar-pokemon`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                usuario_pokemon_id: pokemonPendienteSoltar.usuarioPokemonId,
-                usuario_id: Number(usuario.id)
+                usuario_pokemon_id: pokemonPendienteSoltar.usuarioPokemonId
             })
         });
 
@@ -890,7 +911,14 @@ async function confirmarSoltarPokemon() {
     } catch (error) {
         console.error("Error al soltar Pokémon:", error);
         cerrarModalSoltar();
-        mostrarMensajeEvolucion(t("mypokemon_release_error"), "error");
+
+        if (esErrorAuthMyPokemon(error)) {
+            manejarErrorAuthMyPokemon();
+            mostrarMensajeEvolucion(t("mypokemon_login_required_action"), "error");
+            return;
+        }
+
+        mostrarMensajeEvolucion(error.message || t("mypokemon_release_error"), "error");
     }
 }
 
@@ -1065,14 +1093,13 @@ async function confirmarEvolucionNivel(usuarioPokemonId) {
     try {
         limpiarMensajeEvolucion();
 
-        const evoData = await fetchJson(`${API_BASE}/pokemon/evolucionar-nivel`, {
+        const evoData = await fetchAuth(`${API_BASE}/pokemon/evolucionar-nivel`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                usuario_pokemon_id: usuarioPokemonId,
-                usuario_id: Number(usuario.id)
+                usuario_pokemon_id: usuarioPokemonId
             })
         });
 
@@ -1098,7 +1125,14 @@ async function confirmarEvolucionNivel(usuarioPokemonId) {
     } catch (error) {
         console.error("Error evolucionando por nivel:", error);
         cerrarModalEvolucion();
-        mostrarMensajeEvolucion(t("mypokemon_evolve_error"), "error");
+
+        if (esErrorAuthMyPokemon(error)) {
+            manejarErrorAuthMyPokemon();
+            mostrarMensajeEvolucion(t("mypokemon_login_required_action"), "error");
+            return;
+        }
+
+        mostrarMensajeEvolucion(error.message || t("mypokemon_evolve_error"), "error");
     }
 }
 
@@ -1113,15 +1147,14 @@ async function confirmarEvolucionItem(usuarioPokemonId, itemId) {
     try {
         limpiarMensajeEvolucion();
 
-        const evoData = await fetchJson(`${API_BASE}/pokemon/evolucionar-item`, {
+        const evoData = await fetchAuth(`${API_BASE}/pokemon/evolucionar-item`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
                 usuario_pokemon_id: usuarioPokemonId,
-                item_id: itemId,
-                usuario_id: Number(usuario.id)
+                item_id: itemId
             })
         });
 
@@ -1154,7 +1187,14 @@ async function confirmarEvolucionItem(usuarioPokemonId, itemId) {
     } catch (error) {
         console.error("Error evolucionando por item:", error);
         cerrarModalEvolucion();
-        mostrarMensajeEvolucion(t("mypokemon_evolve_error"), "error");
+
+        if (esErrorAuthMyPokemon(error)) {
+            manejarErrorAuthMyPokemon();
+            mostrarMensajeEvolucion(t("mypokemon_login_required_action"), "error");
+            return;
+        }
+
+        mostrarMensajeEvolucion(error.message || t("mypokemon_evolve_error"), "error");
     }
 }
 

@@ -1159,7 +1159,12 @@ async function solicitarEncuentroServidor(requestIdActual, zonaIdActual) {
         hp_max: Number(pokemon.hp_max || pokemon.hp || 0),
         velocidad: Number(pokemon.velocidad || 0),
         nivel: Number(pokemon.nivel || 1),
-        es_shiny: pokemon.es_shiny === true || pokemon.es_shiny === 1
+        es_shiny: pokemon.es_shiny === true || pokemon.es_shiny === 1,
+        encuentro_token: pokemon.encuentro_token || null,
+        encuentro_ttl_segundos: Number(pokemon.encuentro_ttl_segundos || 0),
+        encuentro_expira_en: Number(pokemon.encuentro_ttl_segundos || 0) > 0
+            ? Date.now() + (Number(pokemon.encuentro_ttl_segundos || 0) * 1000)
+            : null
     };
 
     if (encuentroActual.es_shiny) {
@@ -1947,6 +1952,14 @@ async function intentarCapturaDesdeUI() {
         return;
     }
 
+    if (!encuentroActual.encuentro_token) {
+        mostrarMensajeMaps(tMaps("maps_encounter_expired", "The encounter expired. A new Pokémon will appear."), "warning");
+        limpiarEncuentroActual();
+        renderPanelDerechoVacio();
+        await generarEncuentroInicial();
+        return;
+    }
+
     const seleccionada = document.querySelector('input[name="pokeballSeleccionada"]:checked');
 
     if (!seleccionada) {
@@ -1963,11 +1976,12 @@ async function intentarCapturaDesdeUI() {
         encuentroActual.es_shiny,
         encuentroActual.hp,
         encuentroActual.hp,
-        itemId
+        itemId,
+        encuentroActual.encuentro_token
     );
 }
 
-async function intentarCaptura(pokemonId, nivel, esShiny, hpActual, hpMaximo, itemId) {
+async function intentarCaptura(pokemonId, nivel, esShiny, hpActual, hpMaximo, itemId, encuentroToken = null) {
     const usuarioId = getUsuarioIdLocal();
 
     if (!usuarioId) {
@@ -1993,7 +2007,8 @@ async function intentarCaptura(pokemonId, nivel, esShiny, hpActual, hpMaximo, it
                 es_shiny: !!esShiny,
                 hp_actual: Number(hpActual),
                 hp_maximo: Number(hpMaximo),
-                item_id: Number(itemId)
+                item_id: Number(itemId),
+                encuentro_token: encuentroToken || null
             })
         });
 
@@ -2031,8 +2046,20 @@ async function intentarCaptura(pokemonId, nivel, esShiny, hpActual, hpMaximo, it
         }
     } catch (error) {
         console.error("Error al intentar capturar:", error);
-        mostrarMensajeMaps(error.message || t("maps_capture_error"), "error");
-        await cargarItemsUsuarioMaps(true);
+
+        if (esErrorEncuentroExpiradoMaps(error)) {
+            mostrarMensajeMaps(
+                tMaps("maps_encounter_expired", "The encounter expired. A new Pokémon will appear."),
+                "warning"
+            );
+            limpiarEncuentroActual();
+            renderPanelDerechoVacio();
+            await cargarItemsUsuarioMaps(true);
+            await generarEncuentroInicial();
+        } else {
+            mostrarMensajeMaps(error.message || t("maps_capture_error"), "error");
+            await cargarItemsUsuarioMaps(true);
+        }
     } finally {
         const nuevoBtnCapturar = document.getElementById("btnCapturarMapa");
         if (nuevoBtnCapturar) {
@@ -2216,6 +2243,20 @@ function scrollAlMapa() {
     };
 
     requestAnimationFrame(() => intentarScroll());
+}
+
+function esErrorEncuentroExpiradoMaps(error) {
+    const mensaje = String(error?.message || "").toLowerCase();
+    return (
+        mensaje.includes("encuentro") && (
+            mensaje.includes("expir") ||
+            mensaje.includes("inválido") ||
+            mensaje.includes("invalido") ||
+            mensaje.includes("ya no es válido") ||
+            mensaje.includes("ya no es valido") ||
+            mensaje.includes("token")
+        )
+    );
 }
 
 /* =========================

@@ -128,6 +128,13 @@ function usuarioAutenticadoTienda() {
     return !!getAccessToken();
 }
 
+function limpiarEstadoUsuarioTiendaEnMemoria() {
+    usuarioTiendaGlobal = null;
+    inventarioUsuarioGlobal = [];
+    saldoUsuarioGlobal = 0;
+    limpiarCacheUsuarioTienda();
+}
+
 function mostrarMensajeCompra(mensaje, tipo = "ok") {
     const box = document.getElementById("mensajeCompra");
     if (!box) return;
@@ -408,6 +415,12 @@ async function sincronizarDatosUsuarioTiendaSilencioso(itemId = null) {
         }
     } catch (error) {
         console.warn("No se pudo sincronizar tienda en segundo plano:", error);
+
+        if (error?.code === "NO_TOKEN" || error?.code === "UNAUTHORIZED") {
+            limpiarEstadoUsuarioTiendaEnMemoria();
+            renderizarSaldo();
+            renderizarTienda();
+        }
     }
 }
 
@@ -448,10 +461,7 @@ async function cargarTienda({ forzarCatalogo = false } = {}) {
         if (estaLogueado) {
             await Promise.all([promesaCatalogo, cargarDatosUsuarioTienda()]);
         } else {
-            usuarioTiendaGlobal = null;
-            saldoUsuarioGlobal = 0;
-            inventarioUsuarioGlobal = [];
-            limpiarCacheUsuarioTienda();
+            limpiarEstadoUsuarioTiendaEnMemoria();
             await promesaCatalogo;
         }
 
@@ -459,6 +469,13 @@ async function cargarTienda({ forzarCatalogo = false } = {}) {
         renderizarTienda();
     } catch (error) {
         console.error("Error cargando tienda:", error);
+
+        if (error?.code === "NO_TOKEN" || error?.code === "UNAUTHORIZED") {
+            limpiarEstadoUsuarioTiendaEnMemoria();
+            renderizarSaldo();
+            renderizarTienda();
+            return;
+        }
 
         if (!cacheCatalogo || cacheCatalogo.length === 0) {
             if (saldoBox) saldoBox.innerHTML = `<p>${t("pokemart_balance_error")}</p>`;
@@ -474,13 +491,15 @@ async function comprarItem(itemId) {
     }
 
     let usuario = usuarioTiendaGlobal;
+    let usuarioId = usuario?.id ? Number(usuario.id) : Number(getUsuarioIdLocal());
 
     if (!usuario || !usuario.id) {
         usuario = await obtenerUsuarioActual();
         usuarioTiendaGlobal = usuario;
+        usuarioId = usuario?.id ? Number(usuario.id) : usuarioId;
     }
 
-    if (!usuario || !usuario.id) {
+    if (!usuario || !usuario.id || !usuarioId) {
         mostrarMensajeCompra(t("pokemart_user_error"), "error");
         return;
     }
@@ -511,21 +530,19 @@ async function comprarItem(itemId) {
     setBotonComprando(itemId, true);
 
     try {
-        const res = await fetch(`${API_BASE}/tienda/comprar`, {
+        const data = await fetchAuth(`${API_BASE}/tienda/comprar`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                usuario_id: Number(usuario.id),
+                usuario_id: usuarioId,
                 item_id: Number(itemId),
                 cantidad: cantidad
             })
         });
 
-        const data = await res.json();
-
-        if (!res.ok || data.ok === false) {
+        if (data.ok === false) {
             mostrarMensajeCompra(data.mensaje || t("pokemart_buy_error"), "error");
             setBotonComprando(itemId, false);
             return;
@@ -539,6 +556,10 @@ async function comprarItem(itemId) {
 
         if (typeof data.pokedolares_actual !== "undefined") {
             saldoUsuarioGlobal = Number(data.pokedolares_actual);
+            localStorage.setItem("usuario_pokedolares", String(saldoUsuarioGlobal));
+            if (usuarioTiendaGlobal) {
+                usuarioTiendaGlobal.pokedolares = saldoUsuarioGlobal;
+            }
         } else {
             saldoUsuarioGlobal = Math.max(0, saldoUsuarioGlobal - total);
         }
@@ -584,7 +605,16 @@ async function comprarItem(itemId) {
 
     } catch (error) {
         console.error("Error comprando item:", error);
-        mostrarMensajeCompra(t("pokemart_buy_error"), "error");
+
+        if (error?.code === "NO_TOKEN" || error?.code === "UNAUTHORIZED") {
+            limpiarEstadoUsuarioTiendaEnMemoria();
+            renderizarSaldo();
+            renderizarTienda();
+            mostrarMensajeCompra(t("pokemart_login_message"), "error");
+        } else {
+            mostrarMensajeCompra(error.message || t("pokemart_buy_error"), "error");
+        }
+
         setBotonComprando(itemId, false);
     }
 }

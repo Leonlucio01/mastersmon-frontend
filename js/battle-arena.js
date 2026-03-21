@@ -11,6 +11,9 @@ let arenaCombatEnded = false;
 let arenaTurnoEnProceso = false;
 let arenaAutoTurnoActivo = false;
 let arenaUltimoResultado = null;
+let arenaRecompensaProcesada = false;
+let arenaRecompensaEnProceso = false;
+let arenaUltimaRecompensaAplicada = null;
 
 const BATTLE_TEAM_STORAGE_KEY = "mastersmon_battle_team_v1";
 const BATTLE_ARENA_PLAYER_TEAM_KEY = "mastersmon_battle_arena_team_v1";
@@ -172,6 +175,10 @@ document.addEventListener("DOMContentLoaded", () => {
    INIT / CONFIG
 ========================================================= */
 async function inicializarArenaBattle() {
+    arenaRecompensaProcesada = false;
+    arenaRecompensaEnProceso = false;
+    arenaUltimaRecompensaAplicada = null;
+
     sincronizarUsuarioArena();
     configurarEventosArena();
 
@@ -1207,35 +1214,63 @@ function abrirModalCambioArena() {
 /* =========================================================
    RECOMPENSAS
 ========================================================= */
-async function procesarRecompensasVictoriaArena() {
-    try {
-        const recompensa = obtenerRecompensasPorDificultadArena();
+function construirResumenRecompensaArena(recompensaBase = null, data = null) {
+    const recompensa = recompensaBase || obtenerRecompensasPorDificultadArena();
 
+    return {
+        nombre: recompensa?.nombre || tSafeArena("battle_difficulty_normal"),
+        exp: Number(data?.exp_ganada ?? recompensa?.exp ?? 0),
+        pokedolares: Number(data?.pokedolares_ganados ?? recompensa?.pokedolares ?? 0),
+        data: data || null
+    };
+}
+
+async function procesarRecompensasVictoriaArena() {
+    if (arenaUltimaRecompensaAplicada) {
+        return arenaUltimaRecompensaAplicada;
+    }
+
+    if (arenaRecompensaEnProceso) {
+        return null;
+    }
+
+    if (arenaRecompensaProcesada) {
+        return arenaUltimaRecompensaAplicada;
+    }
+
+    arenaRecompensaEnProceso = true;
+
+    try {
+        const recompensaBase = obtenerRecompensasPorDificultadArena();
         const data = await otorgarRecompensasVictoriaArena(
-            recompensa.exp,
-            recompensa.pokedolares
+            recompensaBase.exp,
+            recompensaBase.pokedolares
         );
+
+        const recompensaFinal = construirResumenRecompensaArena(recompensaBase, data);
 
         agregarLogArena(
             tfArena("arena_rewards_log", {
-                difficulty: recompensa.nombre,
-                coins: data?.pokedolares_ganados ?? recompensa.pokedolares,
-                exp: data?.exp_ganada ?? recompensa.exp
+                difficulty: recompensaFinal.nombre,
+                coins: recompensaFinal.pokedolares,
+                exp: recompensaFinal.exp
             }),
             tSafeArena("arena_system")
         );
 
-        return {
-            exp: recompensa.exp,
-            pokedolares: recompensa.pokedolares,
-            data
-        };
+        arenaRecompensaProcesada = true;
+        arenaUltimaRecompensaAplicada = recompensaFinal;
+
+        return recompensaFinal;
     } catch (error) {
         console.warn("No se pudieron aplicar las recompensas de victoria:", error);
         agregarLogArena(tSafeArena("arena_rewards_error"), tSafeArena("arena_system"));
         return null;
+    } finally {
+        arenaRecompensaEnProceso = false;
     }
 }
+
 
 /* =========================================================
    RESULTADO / LOG
@@ -1251,15 +1286,14 @@ function mostrarResultadoArena(victoria = true, recompensa = null, soloRefresco 
     arenaUltimoResultado = { victoria, recompensa };
 
     if (victoria) {
-        const recompensaFinal = recompensa || obtenerRecompensasPorDificultadArena();
-        const dificultadTexto = obtenerRecompensasPorDificultadArena().nombre;
+        const recompensaFinal = recompensa || construirResumenRecompensaArena();
 
         icon.textContent = "🏆";
         icon.style.background = "#dcfce7";
         icon.style.color = "#15803d";
         title.textContent = tSafeArena("arena_victory");
         text.textContent = tfArena("arena_result_victory_text", {
-            difficulty: dificultadTexto,
+            difficulty: recompensaFinal?.nombre || tSafeArena("battle_difficulty_normal"),
             coins: recompensaFinal?.pokedolares ?? 0,
             exp: recompensaFinal?.exp ?? 0
         });
@@ -1498,19 +1532,28 @@ function escapeHtmlArena(value) {
 
 async function otorgarRecompensasVictoriaArena(expGanada = 1000, pokedolaresGanados = 5000) {
     const token = typeof getAccessToken === "function" ? getAccessToken() : null;
-    const usuarioId = Number(localStorage.getItem("usuario_id"));
+    const usuarioId = typeof getUsuarioIdLocal === "function"
+        ? Number(getUsuarioIdLocal())
+        : Number(localStorage.getItem("usuario_id"));
 
     if (!token || !usuarioId || typeof API_BASE === "undefined") {
         throw new Error("No se pudo identificar al usuario actual.");
     }
 
-    const usuarioPokemonIds = arenaPlayerTeam
-        .map(p => Number(p.id))
-        .filter(id => !Number.isNaN(id) && id > 0);
+    const usuarioPokemonIds = [...new Set(
+        arenaPlayerTeam
+            .map(p => Number(p.id))
+            .filter(id => !Number.isNaN(id) && id > 0)
+    )].slice(0, 6);
 
     if (!usuarioPokemonIds.length) {
         throw new Error("No se encontraron Pokémon válidos para otorgar recompensas.");
     }
+
+    const recompensaPermitida = {
+        exp_ganada: Number(expGanada),
+        pokedolares_ganados: Number(pokedolaresGanados)
+    };
 
     const data = await fetchJsonArena(`${API_BASE}/battle/recompensa-victoria`, {
         method: "POST",
@@ -1521,8 +1564,8 @@ async function otorgarRecompensasVictoriaArena(expGanada = 1000, pokedolaresGana
         body: JSON.stringify({
             usuario_id: usuarioId,
             usuario_pokemon_ids: usuarioPokemonIds,
-            exp_ganada: Number(expGanada),
-            pokedolares_ganados: Number(pokedolaresGanados)
+            exp_ganada: recompensaPermitida.exp_ganada,
+            pokedolares_ganados: recompensaPermitida.pokedolares_ganados
         })
     });
 
@@ -1541,13 +1584,13 @@ async function otorgarRecompensasVictoriaArena(expGanada = 1000, pokedolaresGana
             );
             if (!pokeLocal) continue;
 
-            pokeLocal.nivel = actualizado.nivel;
-            pokeLocal.experiencia = actualizado.experiencia;
-            pokeLocal.hp_max = actualizado.hp_max;
-            pokeLocal.hp_actual = actualizado.hp_max;
-            pokeLocal.ataque = actualizado.ataque;
-            pokeLocal.defensa = actualizado.defensa;
-            pokeLocal.velocidad = actualizado.velocidad;
+            pokeLocal.nivel = Number(actualizado.nivel ?? pokeLocal.nivel);
+            pokeLocal.experiencia = Number(actualizado.experiencia ?? pokeLocal.experiencia);
+            pokeLocal.hp_max = Number(actualizado.hp_max ?? pokeLocal.hp_max);
+            pokeLocal.hp_actual = Number(actualizado.hp_max ?? pokeLocal.hp_max);
+            pokeLocal.ataque = Number(actualizado.ataque ?? pokeLocal.ataque);
+            pokeLocal.defensa = Number(actualizado.defensa ?? pokeLocal.defensa);
+            pokeLocal.velocidad = Number(actualizado.velocidad ?? pokeLocal.velocidad);
             pokeLocal.defeated = false;
         }
     }
