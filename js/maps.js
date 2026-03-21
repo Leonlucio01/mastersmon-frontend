@@ -105,8 +105,8 @@ function crearRutaDesdeGrid(grid, options = {}) {
         prefix = "grid",
         xMin = 8,
         yMin = 18,
-        cellWidth = 4.8,
-        cellHeight = 5.0,
+        cellWidth = 5.8,
+        cellHeight = 6.0,
         startRow = 0,
         startCol = 0
     } = options;
@@ -829,7 +829,7 @@ function moverAvatarVisual(nodeId) {
         requestAnimationFrame(() => {
             avatarWrap.style.left = `${nodo.x}%`;
             avatarWrap.style.top = `${nodo.y}%`;
-            setTimeout(resolve, 40);
+            setTimeout(resolve, 35);
         });
     });
 }
