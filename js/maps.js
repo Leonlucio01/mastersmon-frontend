@@ -195,8 +195,8 @@ const RUTA_GREEN_FOREST = crearRutaDesdeGrid(GRID_GREEN_FOREST, {
     prefix: "gf",
     xMin: 8,
     yMin: 18,
-    cellWidth: 4.8,
-    cellHeight: 5.0,
+    cellWidth: 6.2,
+    cellHeight: 6.2,
     startRow: 8,
     startCol: 8
 });
@@ -829,7 +829,7 @@ function moverAvatarVisual(nodeId) {
         requestAnimationFrame(() => {
             avatarWrap.style.left = `${nodo.x}%`;
             avatarWrap.style.top = `${nodo.y}%`;
-            setTimeout(resolve, 35);
+            setTimeout(resolve, 25);
         });
     });
 }
