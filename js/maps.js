@@ -90,23 +90,22 @@ const RUTA_CONTORNO_BASE = {
     }
 };
 
+
 const MAPS_MAX_STEP_PERCENT = 6;
 
 /* =========================================================
    GREEN FOREST POR GRID
    0 = bloqueado
    1 = caminable
-   Cada fila es de izquierda a derecha
-   Cada fila del array es de arriba hacia abajo
 ========================================================= */
 
 function crearRutaDesdeGrid(grid, options = {}) {
     const {
         prefix = "grid",
-        xMin = 8,
-        yMin = 18,
-        cellWidth = 6.2,
-        cellHeight = 6.2,
+        xMin = 4,
+        yMin = 8,
+        cellWidth = 5.3,
+        cellHeight = 5.8,
         startRow = 8,
         startCol = 8
     } = options;
@@ -168,35 +167,33 @@ function crearRutaDesdeGrid(grid, options = {}) {
 
 /* =========================================================
    GRID GREEN FOREST
-   - Basado en lo que NO está en los rectángulos rojos
-   - Si algo no te gusta:
-     1 -> se puede caminar
-     0 -> bloqueado
+   - Todo habilitado para probar cobertura completa
 ========================================================= */
 const GRID_GREEN_FOREST = [
-    "11111111111111111",
-    "11111111111111111",
-    "11111111111111111",
-    "11111111111111111",
-    "11111111111111111",
-    "11111111111111111",
-    "11111111111111111",
-    "11111111111111111",
-    "11111111111111111",
-    "11111111111111111",
-    "11111111111111111",
-    "11111111111111111",
-    "11111111111111111",
-    "11111111111111111",
-    "11111111111111111"
+    "111111111111111111",
+    "111111111111111111",
+    "111111111111111111",
+    "111111111111111111",
+    "111111111111111111",
+    "111111111111111111",
+    "111111111111111111",
+    "111111111111111111",
+    "111111111111111111",
+    "111111111111111111",
+    "111111111111111111",
+    "111111111111111111",
+    "111111111111111111",
+    "111111111111111111",
+    "111111111111111111",
+    "111111111111111111"
 ];
 
 const RUTA_GREEN_FOREST = crearRutaDesdeGrid(GRID_GREEN_FOREST, {
     prefix: "gf",
-    xMin: 8,
-    yMin: 18,
-    cellWidth: 6,
-    cellHeight: 4.5,
+    xMin: 4,
+    yMin: 8,
+    cellWidth: 5.3,
+    cellHeight: 5.8,
     startRow: 8,
     startCol: 8
 });
