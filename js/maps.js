@@ -183,16 +183,16 @@ const GRID_GREEN_FOREST = [
     "11111111111111111",
     "11111111111111111",
     "11111111111111111",
-    "11111111111011110",
-    "11111111111011110"
+    "11111111111111110",
+    "11111111111111110"
 ];
 
 const RUTA_GREEN_FOREST = crearRutaDesdeGrid(GRID_GREEN_FOREST, {
     prefix: "gf",
     xMin: 8,
     yMin: 18,
-    cellWidth: 8,
-    cellHeight: 8,
+    cellWidth: 6,
+    cellHeight: 6,
     startRow: 8,
     startCol: 8
 });
