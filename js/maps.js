@@ -328,11 +328,7 @@ function configurarEventosSesionMaps() {
             renderEncuentroActual();
         } else {
             renderPanelDerechoVacio();
-            try {
-                await generarEncuentroInicial();
-            } catch (error) {
-                console.error("Error generando encuentro tras actualizar sesión:", error);
-            }
+            actualizarBotonesMovimientoDisponibles(false);
         }
     });
 
@@ -454,6 +450,7 @@ function configurarEventosDelegados() {
                 limpiarMensajeMaps();
                 limpiarEncuentroActual();
                 renderPanelDerechoVacio();
+                actualizarBotonesMovimientoDisponibles(false);
                 return;
             }
         });
@@ -699,13 +696,15 @@ function renderizarAvatarMapa() {
 
 function actualizarBotonesMovimientoDisponibles(cargando = false) {
     const botones = document.querySelectorAll("[data-move]");
+    const encuentroBloqueando = encuentroActivoBloqueanteMaps();
 
     botones.forEach(btn => {
         const direccion = btn.dataset.move;
         const disponible = zonaSeleccionadaActual && puedeMoverAvatar(direccion);
+        const bloqueado = cargando || encuentroBloqueando || !disponible;
 
-        btn.disabled = cargando || !disponible;
-        btn.classList.toggle("move-bloqueado", !cargando && !disponible);
+        btn.disabled = bloqueado;
+        btn.classList.toggle("move-bloqueado", !cargando && (!disponible || encuentroBloqueando));
     });
 }
 
@@ -1118,6 +1117,25 @@ function obtenerImagenPokemonEncuentro(pokemon) {
     return pokemon.es_shiny
         ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${pokemon.pokemon_id}.png`
         : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.pokemon_id}.png`;
+}
+
+function encuentroActivoBloqueanteMaps() {
+    if (!encuentroActual) return false;
+
+    if (
+        encuentroActual.encuentro_expira_en &&
+        Number(encuentroActual.encuentro_expira_en) > 0 &&
+        Date.now() > Number(encuentroActual.encuentro_expira_en)
+    ) {
+        limpiarEncuentroActual();
+        return false;
+    }
+
+    return true;
+}
+
+function puedeGenerarNuevoEncuentroMaps() {
+    return !encuentroActivoBloqueanteMaps() && !movimientoEnCurso;
 }
 
 async function solicitarEncuentroServidor(requestIdActual, zonaIdActual) {
@@ -1554,11 +1572,8 @@ async function seleccionarZona(zonaId) {
         console.warn("No se pudieron cargar datos al seleccionar zona:", error);
     }
 
-    try {
-        await generarEncuentroInicial();
-    } catch (error) {
-        console.error("Error generando encuentro inicial:", error);
-    }
+    renderPanelDerechoVacio();
+    actualizarBotonesMovimientoDisponibles(false);
 }
 
 function renderizarZonaExploracion() {
@@ -1698,6 +1713,18 @@ async function moverEnMapa(direccion, opciones = {}) {
         return;
     }
 
+    if (encuentroActivoBloqueanteMaps()) {
+        if (!silencioso) {
+            mostrarMensajeMaps(
+                tMaps("maps_finish_current_encounter", "Resolve the current encounter first: catch it or run away."),
+                "warning"
+            );
+        }
+        renderEncuentroActual();
+        actualizarBotonesMovimientoDisponibles(false);
+        return;
+    }
+
     const requestIdActual = ++encuentroRequestId;
     const zonaIdActual = Number(zonaSeleccionadaActual.id);
 
@@ -1707,10 +1734,6 @@ async function moverEnMapa(direccion, opciones = {}) {
         siguienteNodoId = obtenerSiguienteNodoAvatar(direccion);
 
         if (!siguienteNodoId) {
-            //mostrarMensajeMaps(
-            //    tMaps("maps_path_blocked", "You cannot move further in that direction."),
-            //    "warning"
-            //);
             actualizarBotonesMovimientoDisponibles(false);
             return;
         }
@@ -1720,10 +1743,7 @@ async function moverEnMapa(direccion, opciones = {}) {
     cerrarModalesSecundarios();
     setEstadoMovimiento(true, direccion);
     limpiarMensajeMaps();
-
-    if (!encuentroActual && !silencioso) {
-        renderPanelDerechoVacio();
-    }
+    renderPanelDerechoVacio();
 
     try {
         if (!soloEncuentro && siguienteNodoId) {
@@ -1738,14 +1758,12 @@ async function moverEnMapa(direccion, opciones = {}) {
 
         console.error("Error explorando zona:", error);
         mostrarMensajeMaps(error.message || t("maps_encounter_generate_error"), "error");
-
-        if (!encuentroActual) {
-            renderPanelDerechoVacio();
-        }
+        renderPanelDerechoVacio();
     } finally {
         if (requestIdActual === encuentroRequestId) {
             setEstadoMovimiento(false);
             movimientoEnCurso = false;
+            actualizarBotonesMovimientoDisponibles(false);
         }
     }
 }
@@ -1814,6 +1832,7 @@ function renderEncuentroActual() {
 
     accionPanel.innerHTML = renderPanelAccionEncuentro();
     actualizarProbabilidadVisual(encuentroActual.es_shiny === true);
+    actualizarBotonesMovimientoDisponibles(false);
 }
 
 function renderBloqueoMapsSinSesion() {
@@ -1868,6 +1887,8 @@ function renderPanelDerechoVacio() {
             ${t("maps_generate_encounter_hint")}
         </div>
     `;
+
+    actualizarBotonesMovimientoDisponibles(false);
 }
 
 function renderPanelAccionEncuentro() {
@@ -1953,10 +1974,10 @@ async function intentarCapturaDesdeUI() {
     }
 
     if (!encuentroActual.encuentro_token) {
-        mostrarMensajeMaps(tMaps("maps_encounter_expired", "The encounter expired. A new Pokémon will appear."), "warning");
+        mostrarMensajeMaps(tMaps("maps_encounter_expired", "The encounter expired. Move again to search for a new Pokémon."), "warning");
         limpiarEncuentroActual();
         renderPanelDerechoVacio();
-        await generarEncuentroInicial();
+        actualizarBotonesMovimientoDisponibles(false);
         return;
     }
 
@@ -2025,8 +2046,8 @@ async function intentarCaptura(pokemonId, nivel, esShiny, hpActual, hpMaximo, it
 
             itemSeleccionadoMaps = itemId;
             limpiarEncuentroActual();
-
-            await generarEncuentroInicial();
+            renderPanelDerechoVacio();
+            actualizarBotonesMovimientoDisponibles(false);
             return;
         }
 
@@ -2049,13 +2070,13 @@ async function intentarCaptura(pokemonId, nivel, esShiny, hpActual, hpMaximo, it
 
         if (esErrorEncuentroExpiradoMaps(error)) {
             mostrarMensajeMaps(
-                tMaps("maps_encounter_expired", "The encounter expired. A new Pokémon will appear."),
+                tMaps("maps_encounter_expired", "The encounter expired. Move again to search for a new Pokémon."),
                 "warning"
             );
             limpiarEncuentroActual();
             renderPanelDerechoVacio();
+            actualizarBotonesMovimientoDisponibles(false);
             await cargarItemsUsuarioMaps(true);
-            await generarEncuentroInicial();
         } else {
             mostrarMensajeMaps(error.message || t("maps_capture_error"), "error");
             await cargarItemsUsuarioMaps(true);
@@ -2215,6 +2236,7 @@ function cerrarModalesSecundarios() {
 }
 
 async function generarEncuentroInicial() {
+    if (!puedeGenerarNuevoEncuentroMaps()) return;
     await moverEnMapa("up", { silencioso: true, soloEncuentro: true });
 }
 
