@@ -1729,13 +1729,8 @@ async function moverEnMapa(direccion, opciones = {}) {
             renderPanelDerechoVacio();
         }
  
-        const hayEncuentroActivo = !!encuentroActual?.encuentro_token;
- 
-        if (hayEncuentroActivo) {
-            renderEncuentroActual();
-            return;
-        }
- 
+        // Cada movimiento válido puede reemplazar el encuentro anterior.
+        // El backend invalida el token previo y devuelve el nuevo encuentro activo.
         await solicitarEncuentroServidor(requestIdActual, zonaIdActual);
     } catch (error) {
         if (requestIdActual !== encuentroRequestId) return;
