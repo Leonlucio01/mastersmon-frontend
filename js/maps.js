@@ -92,146 +92,57 @@ const RUTA_CONTORNO_BASE = {
 
 const MAPS_MAX_STEP_PERCENT = 6;
 
-function obtenerDireccionEntreNodos(nodeA, nodeB) {
-    const dx = Number(nodeB.x) - Number(nodeA.x);
-    const dy = Number(nodeB.y) - Number(nodeA.y);
+/* =========================================================
+   GREEN FOREST
+   - Ruta automática basada en grid
+   - Todo lo libre se puede caminar
+   - Solo se bloquean los rectángulos marcados en rojo
+========================================================= */
 
-    if (Math.abs(dx) >= Math.abs(dy)) {
-        return dx >= 0 ? "right" : "left";
-    }
-
-    return dy >= 0 ? "down" : "up";
-}
-
-function direccionOpuesta(direccion) {
-    const mapa = {
-        up: "down",
-        down: "up",
-        left: "right",
-        right: "left"
-    };
-    return mapa[direccion] || "";
-}
-
-function clonarRuta(ruta) {
-    const nodes = {};
-    for (const [id, node] of Object.entries(ruta.nodes || {})) {
-        nodes[id] = { ...node };
-    }
-    return {
-        start: ruta.start,
-        nodes
-    };
-}
-
-function densificarRuta(rutaBase, maxStepPercent = MAPS_MAX_STEP_PERCENT) {
-    const ruta = clonarRuta(rutaBase);
-    const processed = new Set();
-    let autoId = 1;
-
-    const ids = Object.keys(ruta.nodes);
-
-    for (const nodeId of ids) {
-        const node = ruta.nodes[nodeId];
-        if (!node) continue;
-
-        for (const dir of ["up", "down", "left", "right"]) {
-            const nextId = node[dir];
-            if (!nextId || !ruta.nodes[nextId]) continue;
-
-            const pairKey = [nodeId, nextId].sort().join("|");
-            if (processed.has(pairKey)) continue;
-            processed.add(pairKey);
-
-            const nextNode = ruta.nodes[nextId];
-            const dx = Number(nextNode.x) - Number(node.x);
-            const dy = Number(nextNode.y) - Number(node.y);
-            const distance = Math.max(Math.abs(dx), Math.abs(dy));
-
-            if (distance <= maxStepPercent) continue;
-
-            const steps = Math.ceil(distance / maxStepPercent);
-            const intermediates = [];
-            const forwardDir = obtenerDireccionEntreNodos(node, nextNode);
-            const backwardDir = direccionOpuesta(forwardDir);
-
-            delete ruta.nodes[nodeId][forwardDir];
-            delete ruta.nodes[nextId][backwardDir];
-
-            for (let i = 1; i < steps; i++) {
-                const newId = `auto_${autoId++}`;
-                const ratio = i / steps;
-
-                ruta.nodes[newId] = {
-                    x: Number((node.x + dx * ratio).toFixed(2)),
-                    y: Number((node.y + dy * ratio).toFixed(2))
-                };
-
-                intermediates.push(newId);
-            }
-
-            const chain = [nodeId, ...intermediates, nextId];
-
-            for (let i = 0; i < chain.length - 1; i++) {
-                const aId = chain[i];
-                const bId = chain[i + 1];
-                const a = ruta.nodes[aId];
-                const b = ruta.nodes[bId];
-
-                const dirAB = obtenerDireccionEntreNodos(a, b);
-                const dirBA = direccionOpuesta(dirAB);
-
-                ruta.nodes[aId][dirAB] = bId;
-                ruta.nodes[bId][dirBA] = aId;
-            }
-        }
-    }
-
-    return ruta;
-}
+const FOREST_GRID_STEP = 4.5;
 
 const BLOQUEOS_GREEN_FOREST = [
     // Franja superior de árboles
-    { x1: 0,  y1: 0,  x2: 100, y2: 13 },
+    { x1: 0,   y1: 0,   x2: 100, y2: 14.5 },
 
     // Centro Pokémon
-    { x1: 0,  y1: 14, x2: 33,  y2: 33 },
+    { x1: 7.5, y1: 15,  x2: 31.5, y2: 30.5 },
 
     // Banco
-    { x1: 47, y1: 18, x2: 58,  y2: 25 },
+    { x1: 46.5, y1: 18, x2: 57.5, y2: 24.5 },
 
     // Casa azul
-    { x1: 58, y1: 13, x2: 82,  y2: 25 },
+    { x1: 58,  y1: 13.5, x2: 82,  y2: 24.8 },
 
     // Poste / flores derecha superior
-    { x1: 80, y1: 14, x2: 90,  y2: 30 },
+    { x1: 80.5, y1: 14, x2: 89.5, y2: 30.5 },
 
     // Árboles esquina superior derecha
-    { x1: 89, y1: 13, x2: 100, y2: 36 },
+    { x1: 89.5, y1: 13, x2: 100, y2: 36.5 },
 
     // Árboles lado izquierdo
-    { x1: 0,  y1: 38, x2: 14,  y2: 100 },
+    { x1: 0,   y1: 37.5, x2: 13.5, y2: 100 },
 
     // Lago superior
-    { x1: 13, y1: 48, x2: 43,  y2: 67 },
+    { x1: 12.5, y1: 49, x2: 43,   y2: 66.8 },
 
     // Lago inferior
-    { x1: 13, y1: 74, x2: 48,  y2: 93 },
+    { x1: 12.5, y1: 74, x2: 47,   y2: 92.8 },
 
     // Cerca derecha superior
-    { x1: 86, y1: 63, x2: 100, y2: 68 },
+    { x1: 85.5, y1: 62.5, x2: 100, y2: 68.5 },
 
     // Árbol pequeño junto a la escalera
-    { x1: 61, y1: 68, x2: 69,  y2: 87 },
+    { x1: 61.5, y1: 68, x2: 68.8, y2: 87 },
 
-    // Arbusto pequeño lado derecho de escalera
-    { x1: 69, y1: 68, x2: 75,  y2: 77 },
+    // Arbusto pequeño a la derecha de la escalera
+    { x1: 69, y1: 68, x2: 75.2, y2: 77.5 },
 
-    // Árboles y cerca inferior derecha
-    { x1: 76, y1: 82, x2: 100, y2: 95 },
+    // Árboles / cerca inferior derecha
+    { x1: 75.5, y1: 82, x2: 100, y2: 95 },
 
     // Franja inferior de árboles
-    { x1: 62, y1: 95, x2: 100, y2: 100 }
+    { x1: 61.5, y1: 95, x2: 100, y2: 100 }
 ];
 
 function puntoDentroDeRectangulo(x, y, rect) {
@@ -243,55 +154,116 @@ function puntoDentroDeRectangulo(x, y, rect) {
     );
 }
 
-function nodoBloqueadoPorRectangulos(node, rectangulos = []) {
-    return rectangulos.some(rect =>
-        puntoDentroDeRectangulo(Number(node.x), Number(node.y), rect)
-    );
+function puntoBloqueadoForest(x, y, rectangulos = []) {
+    return rectangulos.some(rect => puntoDentroDeRectangulo(x, y, rect));
 }
 
-function filtrarRutaPorBloqueos(rutaBase, rectangulos = [], preferredStart = []) {
-    const ruta = clonarRuta(rutaBase);
+function obtenerNodoMasCercano(nodes, candidatos = []) {
+    const ids = Object.keys(nodes || {});
+    if (!ids.length) return null;
 
-    // 1) borrar nodos bloqueados
-    for (const [id, node] of Object.entries(ruta.nodes)) {
-        if (nodoBloqueadoPorRectangulos(node, rectangulos)) {
-            delete ruta.nodes[id];
-        }
-    }
+    let mejorId = ids[0];
+    let mejorDist = Number.POSITIVE_INFINITY;
 
-    // 2) limpiar conexiones hacia nodos que ya no existen
-    for (const node of Object.values(ruta.nodes)) {
-        for (const dir of ["up", "down", "left", "right"]) {
-            if (node[dir] && !ruta.nodes[node[dir]]) {
-                delete node[dir];
+    for (const candidato of candidatos) {
+        const cx = Number(candidato.x);
+        const cy = Number(candidato.y);
+
+        for (const [id, node] of Object.entries(nodes)) {
+            const dx = Number(node.x) - cx;
+            const dy = Number(node.y) - cy;
+            const dist = Math.hypot(dx, dy);
+
+            if (dist < mejorDist) {
+                mejorDist = dist;
+                mejorId = id;
             }
         }
     }
 
-    // 3) elegir start válido
-    for (const id of preferredStart) {
-        if (ruta.nodes[id]) {
-            ruta.start = id;
-            return ruta;
-        }
-    }
-
-    if (!ruta.nodes[ruta.start]) {
-        const ids = Object.keys(ruta.nodes);
-        ruta.start = ids.length ? ids[0] : ruta.start;
-    }
-
-    return ruta;
+    return mejorId;
 }
 
-const RUTA_GREEN_FOREST = filtrarRutaPorBloqueos(
-    densificarRuta(RUTA_CONTORNO_BASE, 5.5),
-    BLOQUEOS_GREEN_FOREST,
-    ["n13", "n12", "n14", "n20"]
-);
+function construirRutaLibrePorGrid({
+    xMin = 6,
+    xMax = 94,
+    yMin = 18,
+    yMax = 94,
+    step = FOREST_GRID_STEP,
+    blockedRects = [],
+    startCandidates = []
+} = {}) {
+    const nodes = {};
+    const keyToId = new Map();
+
+    const xs = [];
+    const ys = [];
+
+    for (let x = xMin; x <= xMax + 0.001; x += step) {
+        xs.push(Number(x.toFixed(2)));
+    }
+
+    for (let y = yMin; y <= yMax + 0.001; y += step) {
+        ys.push(Number(y.toFixed(2)));
+    }
+
+    ys.forEach((y, yi) => {
+        xs.forEach((x, xi) => {
+            if (puntoBloqueadoForest(x, y, blockedRects)) return;
+
+            const id = `gf_${xi}_${yi}`;
+            nodes[id] = { x, y };
+            keyToId.set(`${xi}_${yi}`, id);
+        });
+    });
+
+    ys.forEach((_, yi) => {
+        xs.forEach((__, xi) => {
+            const id = keyToId.get(`${xi}_${yi}`);
+            if (!id || !nodes[id]) return;
+
+            const rightId = keyToId.get(`${xi + 1}_${yi}`);
+            const leftId = keyToId.get(`${xi - 1}_${yi}`);
+            const upId = keyToId.get(`${xi}_${yi - 1}`);
+            const downId = keyToId.get(`${xi}_${yi + 1}`);
+
+            if (rightId) nodes[id].right = rightId;
+            if (leftId) nodes[id].left = leftId;
+            if (upId) nodes[id].up = upId;
+            if (downId) nodes[id].down = downId;
+        });
+    });
+
+    let start = obtenerNodoMasCercano(nodes, startCandidates);
+
+    if (!start) {
+        const ids = Object.keys(nodes);
+        start = ids.length ? ids[0] : "gf_0_0";
+    }
+
+    return {
+        start,
+        nodes
+    };
+}
+
+const RUTA_GREEN_FOREST = construirRutaLibrePorGrid({
+    xMin: 6,
+    xMax: 94,
+    yMin: 18,
+    yMax: 94,
+    step: FOREST_GRID_STEP,
+    blockedRects: BLOQUEOS_GREEN_FOREST,
+    startCandidates: [
+        { x: 48, y: 56 },
+        { x: 50, y: 60 },
+        { x: 44, y: 56 },
+        { x: 54, y: 56 }
+    ]
+});
 
 const MAPAS_RUTAS = {
-    bosque: RUTA_CONTORNO_BASE,
+    bosque: RUTA_GREEN_FOREST,
     cueva: RUTA_CONTORNO_BASE,
     lago: RUTA_CONTORNO_BASE,
     torre: RUTA_CONTORNO_BASE,
