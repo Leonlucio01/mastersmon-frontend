@@ -190,95 +190,112 @@ function densificarRuta(rutaBase, maxStepPercent = MAPS_MAX_STEP_PERCENT) {
     return ruta;
 }
 
-const RUTA_GREEN_FOREST = {
-    start: "g12",
-    nodes: {
-        /* =========================================================
-           CALLE SUPERIOR / FRENTE AL CENTRO Y CASA
-        ========================================================= */
-        g1:  { x: 10, y: 44, right: "g2" },
-        g2:  { x: 18, y: 44, left: "g1", right: "g3" },
-        g3:  { x: 26, y: 44, left: "g2", right: "g4" },
-        g4:  { x: 34, y: 44, left: "g3", right: "g5" },
-        g5:  { x: 42, y: 44, left: "g4", right: "g6", down: "g11", up: "g25" },
-        g6:  { x: 50, y: 44, left: "g5", right: "g7", down: "g12", up: "g26" },
-        g7:  { x: 58, y: 44, left: "g6", right: "g8", down: "g13", up: "g27" },
-        g8:  { x: 66, y: 44, left: "g7", right: "g9" },
-        g9:  { x: 74, y: 44, left: "g8", right: "g10" },
-        g10: { x: 82, y: 44, left: "g9" },
+const BLOQUEOS_GREEN_FOREST = [
+    // Franja superior de árboles
+    { x1: 0,  y1: 0,  x2: 100, y2: 13 },
 
-        /* =========================================================
-           CRUCE CENTRAL
-        ========================================================= */
-        g11: { x: 42, y: 54, up: "g5", right: "g12", down: "g16" },
-        g12: { x: 50, y: 54, up: "g6", left: "g11", right: "g13", down: "g17" },
-        g13: { x: 58, y: 54, up: "g7", left: "g12", right: "g14", down: "g18" },
-        g14: { x: 66, y: 54, left: "g13", right: "g15", down: "g19" },
-        g15: { x: 74, y: 54, left: "g14", down: "g20" },
+    // Centro Pokémon
+    { x1: 0,  y1: 14, x2: 33,  y2: 33 },
 
-        /* =========================================================
-           BAJADA HACIA PUENTE / LAGO
-        ========================================================= */
-        g16: { x: 42, y: 64, up: "g11", right: "g17", down: "g21" },
-        g17: { x: 50, y: 64, up: "g12", left: "g16", right: "g18", down: "g22" },
-        g18: { x: 58, y: 64, up: "g13", left: "g17", right: "g19", down: "g23" },
-        g19: { x: 66, y: 64, up: "g14", left: "g18", right: "g20" },
-        g20: { x: 74, y: 64, up: "g15", left: "g19" },
+    // Banco
+    { x1: 47, y1: 18, x2: 58,  y2: 25 },
 
-        /* =========================================================
-           PUENTE / PARTE BAJA
-        ========================================================= */
-        g21: { x: 38, y: 74, up: "g16", right: "g22" },
-        g22: { x: 48, y: 74, up: "g17", left: "g21", right: "g23" },
-        g23: { x: 58, y: 74, up: "g18", left: "g22", right: "g24" },
-        g24: { x: 68, y: 74, left: "g23" },
+    // Casa azul
+    { x1: 58, y1: 13, x2: 82,  y2: 25 },
 
-        /* =========================================================
-           CAMINO DE TIERRA SUPERIOR
-        ========================================================= */
-        g25: { x: 40, y: 34, down: "g5", right: "g26" },
-        g26: { x: 50, y: 34, down: "g6", left: "g25", right: "g27" },
-        g27: { x: 60, y: 34, down: "g7", left: "g26", right: "g28" },
-        g28: { x: 70, y: 34, left: "g27", right: "g29" },
-        g29: { x: 80, y: 34, left: "g28" },
+    // Poste / flores derecha superior
+    { x1: 80, y1: 14, x2: 90,  y2: 30 },
 
-        /* =========================================================
-           PASTO DERECHO SUPERIOR
-        ========================================================= */
-        g30: { x: 66, y: 60, left: "g18", right: "g31", down: "g33" },
-        g31: { x: 74, y: 60, left: "g30", right: "g32", down: "g34" },
-        g32: { x: 82, y: 60, left: "g31", down: "g35" },
+    // Árboles esquina superior derecha
+    { x1: 89, y1: 13, x2: 100, y2: 36 },
 
-        g33: { x: 66, y: 68, up: "g30", right: "g34", down: "g36" },
-        g34: { x: 74, y: 68, up: "g31", left: "g33", right: "g35", down: "g37" },
-        g35: { x: 82, y: 68, up: "g32", left: "g34", down: "g38" },
+    // Árboles lado izquierdo
+    { x1: 0,  y1: 38, x2: 14,  y2: 100 },
 
-        g36: { x: 66, y: 76, up: "g33", right: "g37" },
-        g37: { x: 74, y: 76, up: "g34", left: "g36", right: "g38" },
-        g38: { x: 82, y: 76, up: "g35", left: "g37" },
+    // Lago superior
+    { x1: 13, y1: 48, x2: 43,  y2: 67 },
 
-        /* =========================================================
-           PASTO DERECHO INFERIOR
-        ========================================================= */
-        g39: { x: 68, y: 84, right: "g40", up: "g37" },
-        g40: { x: 76, y: 84, left: "g39", right: "g41", up: "g38" },
-        g41: { x: 84, y: 84, left: "g40" },
+    // Lago inferior
+    { x1: 13, y1: 74, x2: 48,  y2: 93 },
 
-        /* =========================================================
-           BORDE IZQUIERDO / LAGO
-        ========================================================= */
-        g42: { x: 26, y: 54, right: "g11", down: "g43" },
-        g43: { x: 26, y: 64, up: "g42", down: "g44" },
-        g44: { x: 26, y: 74, up: "g43", right: "g21" }
+    // Cerca derecha superior
+    { x1: 86, y1: 63, x2: 100, y2: 68 },
+
+    // Árbol pequeño junto a la escalera
+    { x1: 61, y1: 68, x2: 69,  y2: 87 },
+
+    // Arbusto pequeño lado derecho de escalera
+    { x1: 69, y1: 68, x2: 75,  y2: 77 },
+
+    // Árboles y cerca inferior derecha
+    { x1: 76, y1: 82, x2: 100, y2: 95 },
+
+    // Franja inferior de árboles
+    { x1: 62, y1: 95, x2: 100, y2: 100 }
+];
+
+function puntoDentroDeRectangulo(x, y, rect) {
+    return (
+        x >= rect.x1 &&
+        x <= rect.x2 &&
+        y >= rect.y1 &&
+        y <= rect.y2
+    );
+}
+
+function nodoBloqueadoPorRectangulos(node, rectangulos = []) {
+    return rectangulos.some(rect =>
+        puntoDentroDeRectangulo(Number(node.x), Number(node.y), rect)
+    );
+}
+
+function filtrarRutaPorBloqueos(rutaBase, rectangulos = [], preferredStart = []) {
+    const ruta = clonarRuta(rutaBase);
+
+    // 1) borrar nodos bloqueados
+    for (const [id, node] of Object.entries(ruta.nodes)) {
+        if (nodoBloqueadoPorRectangulos(node, rectangulos)) {
+            delete ruta.nodes[id];
+        }
     }
-};
+
+    // 2) limpiar conexiones hacia nodos que ya no existen
+    for (const node of Object.values(ruta.nodes)) {
+        for (const dir of ["up", "down", "left", "right"]) {
+            if (node[dir] && !ruta.nodes[node[dir]]) {
+                delete node[dir];
+            }
+        }
+    }
+
+    // 3) elegir start válido
+    for (const id of preferredStart) {
+        if (ruta.nodes[id]) {
+            ruta.start = id;
+            return ruta;
+        }
+    }
+
+    if (!ruta.nodes[ruta.start]) {
+        const ids = Object.keys(ruta.nodes);
+        ruta.start = ids.length ? ids[0] : ruta.start;
+    }
+
+    return ruta;
+}
+
+const RUTA_GREEN_FOREST = filtrarRutaPorBloqueos(
+    densificarRuta(RUTA_CONTORNO_BASE, 5.5),
+    BLOQUEOS_GREEN_FOREST,
+    ["n13", "n12", "n14", "n20"]
+);
 
 const MAPAS_RUTAS = {
-    bosque: densificarRuta(RUTA_GREEN_FOREST),
+    bosque: RUTA_GREEN_FOREST,
     cueva: RUTA_CONTORNO_BASE,
     lago: RUTA_CONTORNO_BASE,
     torre: RUTA_CONTORNO_BASE,
-    default: RUTA_CONTORNO_BASE
+    default: RUTA_GREEN_FOREST
 };
  
 const MAPAS_CONFIG = {
@@ -901,7 +918,7 @@ function moverAvatarVisual(nodeId) {
         requestAnimationFrame(() => {
             avatarWrap.style.left = `${nodo.x}%`;
             avatarWrap.style.top = `${nodo.y}%`;
-            setTimeout(resolve, 40);
+            setTimeout(resolve, 70);
         });
     });
 }
