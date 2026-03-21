@@ -901,7 +901,7 @@ function moverAvatarVisual(nodeId) {
         requestAnimationFrame(() => {
             avatarWrap.style.left = `${nodo.x}%`;
             avatarWrap.style.top = `${nodo.y}%`;
-            setTimeout(resolve, 100);
+            setTimeout(resolve, 40);
         });
     });
 }
