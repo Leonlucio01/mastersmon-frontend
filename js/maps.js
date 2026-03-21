@@ -711,19 +711,6 @@ function obtenerUsuarioIdMapsActual() {
     const idLocal = Number(getUsuarioIdLocal());
     return Number.isFinite(idLocal) && idLocal > 0 ? idLocal : null;
 }
-
-
-function obtenerUsuarioIdMapsActual() {
-    const usuario = obtenerUsuarioMapsActual();
-
-    if (usuario?.id != null) {
-        const id = Number(usuario.id);
-        return Number.isFinite(id) && id > 0 ? id : null;
-    }
-
-    const idLocal = Number(getUsuarioIdLocal());
-    return Number.isFinite(idLocal) && idLocal > 0 ? idLocal : null;
-}
  
 function obtenerUsuarioMapsActual() {
     return getUsuarioLocal() || null;
