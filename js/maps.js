@@ -105,10 +105,10 @@ function crearRutaDesdeGrid(grid, options = {}) {
         prefix = "grid",
         xMin = 8,
         yMin = 18,
-        cellWidth = 6.0,
-        cellHeight = 5.5,
-        startRow = 0,
-        startCol = 0
+        cellWidth = 6.2,
+        cellHeight = 6.2,
+        startRow = 8,
+        startCol = 8
     } = options;
 
     const nodes = {};
