@@ -196,7 +196,7 @@ const RUTA_GREEN_FOREST = crearRutaDesdeGrid(GRID_GREEN_FOREST, {
     xMin: 8,
     yMin: 18,
     cellWidth: 6,
-    cellHeight: 6,
+    cellHeight: 4.5,
     startRow: 8,
     startCol: 8
 });
