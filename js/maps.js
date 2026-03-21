@@ -291,7 +291,7 @@ const RUTA_GREEN_FOREST = filtrarRutaPorBloqueos(
 );
 
 const MAPAS_RUTAS = {
-    bosque: RUTA_GREEN_FOREST,
+    bosque: RUTA_CONTORNO_BASE,
     cueva: RUTA_CONTORNO_BASE,
     lago: RUTA_CONTORNO_BASE,
     torre: RUTA_CONTORNO_BASE,
@@ -918,7 +918,7 @@ function moverAvatarVisual(nodeId) {
         requestAnimationFrame(() => {
             avatarWrap.style.left = `${nodo.x}%`;
             avatarWrap.style.top = `${nodo.y}%`;
-            setTimeout(resolve, 70);
+            setTimeout(resolve, 40);
         });
     });
 }
