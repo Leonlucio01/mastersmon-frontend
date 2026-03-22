@@ -574,13 +574,7 @@ function generarEquipoRivalFase1() {
     for (let i = 0; i < 6; i++) {
         const elegido = { ...basePool[Math.floor(Math.random() * basePool.length)] };
         const nivel = Math.max(1, nivelBaseRival + numeroRandomEntre(-1, 1));
-
-        const hpFinal = elegido.hp + (nivel * 5);
-        const ataqueFinal = elegido.ataque + (nivel * 2);
-        const defensaFinal = elegido.defensa + (nivel * 2);
-        const velocidadFinal = elegido.velocidad + nivel;
-        const ataqueEspecialFinal = Number(elegido.ataque_especial ?? elegido.ataque ?? 1) + (nivel * 2);
-        const defensaEspecialFinal = Number(elegido.defensa_especial ?? elegido.defensa ?? 1) + (nivel * 2);
+        const statsFinales = calcularStatsRivalPorNivelArena(elegido, nivel);
 
         rivales.push({
             id: `enemy-${i + 1}-${elegido.pokemon_id}-${Date.now()}-${Math.floor(Math.random() * 9999)}`,
@@ -588,13 +582,13 @@ function generarEquipoRivalFase1() {
             nombre: elegido.nombre,
             tipo: elegido.tipo,
             nivel,
-            hp_max: hpFinal,
-            hp_actual: hpFinal,
-            ataque: ataqueFinal,
-            defensa: defensaFinal,
-            velocidad: velocidadFinal,
-            ataque_especial: ataqueEspecialFinal,
-            defensa_especial: defensaEspecialFinal,
+            hp_max: statsFinales.hp_max,
+            hp_actual: statsFinales.hp_max,
+            ataque: statsFinales.ataque,
+            defensa: statsFinales.defensa,
+            velocidad: statsFinales.velocidad,
+            ataque_especial: statsFinales.ataque_especial,
+            defensa_especial: statsFinales.defensa_especial,
             movimientos_equipados: generarMovimientosRivalArena(elegido, nivel),
             experiencia: 0,
             es_shiny: false,
@@ -605,6 +599,27 @@ function generarEquipoRivalFase1() {
     }
 
     arenaEnemyTeam = rivales;
+}
+
+function calcularStatsRivalPorNivelArena(basePokemon, nivel = 1) {
+    const nivelSeguro = Math.max(1, Number(nivel || 1));
+    const factorNivel = Math.max(0, nivelSeguro - 1);
+
+    const hpBase = Math.max(1, Number(basePokemon?.hp || 1));
+    const ataqueBase = Math.max(1, Number(basePokemon?.ataque || 1));
+    const defensaBase = Math.max(1, Number(basePokemon?.defensa || 1));
+    const velocidadBase = Math.max(1, Number(basePokemon?.velocidad || 1));
+    const ataqueEspecialBase = Math.max(1, Number(basePokemon?.ataque_especial ?? basePokemon?.ataque ?? 1));
+    const defensaEspecialBase = Math.max(1, Number(basePokemon?.defensa_especial ?? basePokemon?.defensa ?? 1));
+
+    return {
+        hp_max: hpBase + (factorNivel * 4),
+        ataque: ataqueBase + (factorNivel * 2),
+        defensa: defensaBase + (factorNivel * 2),
+        velocidad: velocidadBase + factorNivel,
+        ataque_especial: ataqueEspecialBase + (factorNivel * 2),
+        defensa_especial: defensaEspecialBase + (factorNivel * 2)
+    };
 }
 
 
@@ -1153,7 +1168,7 @@ function calcularMultiplicadorContraDefensorArena(atacante, defensor) {
 
 function describirMultiplicadorArena(mult = 1) {
     if (mult >= 2) return tSafeArena("arena_effective");
-    if (mult <= 0.5) return tSafeArena("arena_not_effective");
+    if (mult > 0 && mult <= 0.5) return tSafeArena("arena_not_effective");
     return "";
 }
 
@@ -1438,20 +1453,23 @@ async function resolverAtaqueArena(atacante, defensor, movimiento, esAtaqueJugad
     }
 }
 
-function calcularDanioArena(atacante, defensor, movimiento) {
+function obtenerFactorNivelDanioArena(nivel = 1) {
+    const nivelSeguro = Math.max(1, Number(nivel || 1));
+    return 0.22 + Math.min(0.48, nivelSeguro / 180);
+}
+
+function estimarDanioMovimientoArena(atacante, defensor, movimiento, usarVariacion = false) {
     const movimientoUsado = movimiento || crearMovimientoFallbackArena(atacante, 1);
     const esEspecial = String(movimientoUsado?.categoria || "").toLowerCase() === "especial";
     const statAtaque = Math.max(1, Number(esEspecial ? (atacante.ataque_especial ?? atacante.ataque ?? 1) : (atacante.ataque ?? 1)));
     const statDefensa = Math.max(1, Number(esEspecial ? (defensor.defensa_especial ?? defensor.defensa ?? 1) : (defensor.defensa ?? 1)));
     const potencia = Math.max(1, Number(movimientoUsado?.potencia || 40));
-
     const multiplicador = calcularMultiplicadorMovimientoContraDefensorArena(movimientoUsado?.tipo || atacante.tipo, defensor);
-    const stab = tieneStabArena(atacante, movimientoUsado) ? 1.2 : 1;
-    const nivelFactor = 0.9 + Math.min(1.15, Number(atacante.nivel || 1) / 100);
-    const variacion = 0.92 + (Math.random() * 0.08);
-
-    const base = (potencia * statAtaque / statDefensa) * nivelFactor;
-    const danio = Math.max(1, Math.round((base / 8) * stab * multiplicador * variacion));
+    const stab = tieneStabArena(atacante, movimientoUsado) ? 1.15 : 1;
+    const factorNivel = obtenerFactorNivelDanioArena(atacante?.nivel || 1);
+    const variacion = usarVariacion ? (0.94 + (Math.random() * 0.12)) : 1;
+    const base = potencia * (statAtaque / statDefensa) * factorNivel;
+    const danio = Math.max(1, Math.round(base * stab * multiplicador * variacion));
 
     return {
         base,
@@ -1461,6 +1479,10 @@ function calcularDanioArena(atacante, defensor, movimiento) {
         danio,
         textoEfectividad: describirMultiplicadorArena(multiplicador)
     };
+}
+
+function calcularDanioArena(atacante, defensor, movimiento) {
+    return estimarDanioMovimientoArena(atacante, defensor, movimiento, true);
 }
 
 function seleccionarMejorMovimientoArena(atacante, defensor) {
@@ -1475,12 +1497,11 @@ function seleccionarMejorMovimientoArena(atacante, defensor) {
     let mejorPuntaje = -Infinity;
 
     for (const movimiento of disponibles) {
-        const potencia = Number(movimiento.potencia || 40);
+        const estimado = estimarDanioMovimientoArena(atacante, defensor, movimiento, false);
         const precision = Math.max(1, Number(movimiento.precision_pct || 100)) / 100;
-        const mult = calcularMultiplicadorMovimientoContraDefensorArena(movimiento.tipo, defensor);
-        const stab = tieneStabArena(atacante, movimiento) ? 1.2 : 1;
         const prioridad = Number(movimiento.prioridad || 0) * 8;
-        const puntaje = (potencia * mult * stab * precision) + prioridad;
+        const puedeRematar = estimado.danio >= Math.max(1, Number(defensor?.hp_actual || defensor?.hp_max || 1));
+        const puntaje = (estimado.danio * precision) + prioridad + (puedeRematar ? 60 : 0);
 
         if (puntaje > mejorPuntaje) {
             mejor = movimiento;
@@ -1678,8 +1699,11 @@ function calcularMultiplicadorMovimientoContraDefensorArena(tipoMovimiento, defe
         resultadoFinal *= obtenerMultiplicadorTipoArena(tipoAtk, tipoDef);
     }
 
-    if (resultadoFinal >= 2) return 2;
+    if (resultadoFinal <= 0) return 0;
+    if (resultadoFinal <= 0.25) return 0.25;
     if (resultadoFinal <= 0.5) return 0.5;
+    if (resultadoFinal >= 4) return 4;
+    if (resultadoFinal >= 2) return 2;
     return 1;
 }
 
