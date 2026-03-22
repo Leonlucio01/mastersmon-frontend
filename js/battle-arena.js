@@ -1109,11 +1109,64 @@ function esperarArena(ms) {
    CÁLCULO DE TIPOS
 ========================================================= */
 function normalizarTipoCombate(valor = "") {
-    return String(valor)
+    const limpio = String(valor || "")
         .toLowerCase()
         .trim()
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "");
+
+    const mapa = {
+        normal: "normal",
+
+        fire: "fuego",
+        fuego: "fuego",
+
+        water: "agua",
+        agua: "agua",
+
+        grass: "planta",
+        planta: "planta",
+
+        electric: "electrico",
+        electrico: "electrico",
+
+        ice: "hielo",
+        hielo: "hielo",
+
+        fighting: "lucha",
+        lucha: "lucha",
+
+        poison: "veneno",
+        veneno: "veneno",
+
+        ground: "tierra",
+        tierra: "tierra",
+
+        flying: "volador",
+        volador: "volador",
+
+        psychic: "psiquico",
+        psiquico: "psiquico",
+
+        bug: "bicho",
+        bicho: "bicho",
+
+        rock: "roca",
+        roca: "roca",
+
+        ghost: "fantasma",
+        fantasma: "fantasma",
+
+        dragon: "dragon",
+
+        steel: "acero",
+        acero: "acero",
+
+        fairy: "hada",
+        hada: "hada"
+    };
+
+    return mapa[limpio] || limpio;
 }
 
 function obtenerTiposPokemonArena(tipoTexto = "") {
