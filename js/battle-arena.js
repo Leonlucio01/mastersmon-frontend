@@ -38,6 +38,8 @@ const BATTLE_ARENA_MODE_KEY = "mastersmon_battle_arena_mode_v1";
 const BATTLE_BOSS_SESSION_TOKEN_KEY = "mastersmon_battle_boss_session_token_v1";
 const BATTLE_BOSS_DATA_KEY = "mastersmon_battle_boss_data_v1";
 const BATTLE_BOSS_EVENT_KEY = "mastersmon_battle_boss_event_v1";
+const BATTLE_BOSS_COMBAT_STATE_KEY = "mastersmon_battle_boss_combat_state_v1";
+const BATTLE_BOSS_SESSION_EXPIRES_KEY = "mastersmon_battle_boss_session_expires_v1";
 const ARENA_ACTIVITY_HEARTBEAT_MS = 60000;
 
 /* =========================================================
@@ -323,6 +325,10 @@ async function inicializarArenaBattle() {
     arenaBattleSessionToken = null;
     arenaBattleSessionExpiraEn = null;
     arenaBattleSessionTtlSegundos = 0;
+    arenaTurno = 1;
+    arenaCombatEnded = false;
+    arenaTurnoEnProceso = false;
+    arenaAutoTurnoActivo = false;
     arenaModoActual = obtenerModoArenaActual();
     arenaBossActual = leerJSONArena(BATTLE_BOSS_DATA_KEY, null);
     arenaBossEventoActual = leerJSONArena(BATTLE_BOSS_EVENT_KEY, null);
@@ -335,17 +341,36 @@ async function inicializarArenaBattle() {
     actualizarHeroModoArena();
 
     try {
-        await cargarEquipoJugadorArena();
-
         if (esModoBossArena()) {
-            const bossData = await iniciarSesionBossArena();
-            if (Array.isArray(bossData?.snapshot_equipo) && bossData.snapshot_equipo.length === 6) {
-                arenaPlayerTeam = bossData.snapshot_equipo.slice(0, 6).map((pokemon, index) => normalizarPokemonArena(pokemon, "player", index));
+            await cargarEquipoJugadorArena();
+
+            const estadoRestaurado = restaurarEstadoBossArena();
+            if (estadoRestaurado) {
                 await cargarMovimientosEquipoJugadorArena();
                 guardarEquipoArenaEnStorages();
+            } else if (existeSesionBossLocalArena()) {
+                sincronizarSesionBossArena({
+                    boss_session_token: sessionStorage.getItem(BATTLE_BOSS_SESSION_TOKEN_KEY) || null,
+                    expira_en: sessionStorage.getItem(BATTLE_BOSS_SESSION_EXPIRES_KEY) || null,
+                    boss: arenaBossActual,
+                    evento: arenaBossEventoActual
+                });
+                generarBossEnemigoArena(arenaBossActual);
+                guardarEstadoBossArena();
+            } else {
+                const bossData = await iniciarSesionBossArena();
+                if (Array.isArray(bossData?.snapshot_equipo) && bossData.snapshot_equipo.length === 6) {
+                    arenaPlayerTeam = bossData.snapshot_equipo
+                        .slice(0, 6)
+                        .map((pokemon, index) => normalizarPokemonArena(pokemon, "player", index));
+                    await cargarMovimientosEquipoJugadorArena();
+                    guardarEquipoArenaEnStorages();
+                }
+                generarBossEnemigoArena(bossData?.boss || arenaBossActual);
+                guardarEstadoBossArena();
             }
-            generarBossEnemigoArena(bossData?.boss || arenaBossActual);
         } else {
+            await cargarEquipoJugadorArena();
             await iniciarSesionBatallaArena();
             generarEquipoRivalFase1();
         }
@@ -389,7 +414,7 @@ function configurarEventosArena() {
     if (btnAtacar) btnAtacar.addEventListener("click", togglePanelMovimientosArena);
     if (btnCambiar) btnCambiar.addEventListener("click", abrirModalCambioArena);
     if (btnAuto) btnAuto.addEventListener("click", ejecutarAutoTurnoArena);
-    if (btnSalir) btnSalir.addEventListener("click", () => window.location.href = "battle.html");
+    if (btnSalir) btnSalir.addEventListener("click", manejarSalidaArena);
 
     if (btnCerrarCambio) {
         btnCerrarCambio.addEventListener("click", () => {
@@ -402,15 +427,11 @@ function configurarEventosArena() {
     }
 
     if (btnVolverBattle) {
-        btnVolverBattle.addEventListener("click", () => {
-            window.location.href = "battle.html";
-        });
+        btnVolverBattle.addEventListener("click", manejarSalidaArena);
     }
 
     if (btnReintentar) {
-        btnReintentar.addEventListener("click", () => {
-            window.location.reload();
-        });
+        btnReintentar.addEventListener("click", manejarReintentoArena);
     }
 }
 
@@ -510,6 +531,136 @@ function leerJSONArena(clave, defecto = null) {
     }
 }
 
+function existeSesionBossLocalArena() {
+    const token = sessionStorage.getItem(BATTLE_BOSS_SESSION_TOKEN_KEY) || "";
+    const boss = leerJSONArena(BATTLE_BOSS_DATA_KEY, null);
+    return Boolean(token && boss);
+}
+
+function construirExpiraBossArena(ttlSegundos = 0, expiraEn = null) {
+    if (expiraEn) return String(expiraEn);
+    const ttl = Number(ttlSegundos || 0);
+    if (ttl <= 0) return null;
+    return new Date(Date.now() + (ttl * 1000)).toISOString();
+}
+
+function construirEstadoSerializableBossArena() {
+    return {
+        boss_session_token: arenaBattleSessionToken || null,
+        expira_en: arenaBattleSessionExpiraEn || null,
+        ttl_segundos: Number(arenaBattleSessionTtlSegundos || 0),
+        turno: Number(arenaTurno || 1),
+        player_index: Number(arenaPlayerIndex || 0),
+        enemy_index: Number(arenaEnemyIndex || 0),
+        boss: arenaBossActual || null,
+        evento: arenaBossEventoActual || null,
+        player_team: Array.isArray(arenaPlayerTeam) ? arenaPlayerTeam : [],
+        enemy_team: Array.isArray(arenaEnemyTeam) ? arenaEnemyTeam : []
+    };
+}
+
+function guardarEstadoBossArena() {
+    if (!esModoBossArena()) return;
+
+    if (arenaCombatEnded || !arenaBattleSessionToken) {
+        sessionStorage.removeItem(BATTLE_BOSS_COMBAT_STATE_KEY);
+        return;
+    }
+
+    try {
+        sessionStorage.setItem(
+            BATTLE_BOSS_COMBAT_STATE_KEY,
+            JSON.stringify(construirEstadoSerializableBossArena())
+        );
+    } catch (error) {
+        console.warn("No se pudo guardar el estado local del Boss:", error);
+    }
+}
+
+function restaurarEstadoBossArena() {
+    const estado = leerJSONArena(BATTLE_BOSS_COMBAT_STATE_KEY, null);
+    if (!estado || typeof estado !== "object") return false;
+
+    const token = String(estado.boss_session_token || sessionStorage.getItem(BATTLE_BOSS_SESSION_TOKEN_KEY) || "").trim();
+    if (!token) return false;
+
+    if (!Array.isArray(estado.player_team) || !Array.isArray(estado.enemy_team)) {
+        return false;
+    }
+
+    if (estado.player_team.length !== 6 || estado.enemy_team.length < 1) {
+        return false;
+    }
+
+    arenaBattleSessionToken = token;
+    arenaBattleSessionTtlSegundos = Number(estado.ttl_segundos || 0);
+    arenaBattleSessionExpiraEn = estado.expira_en || sessionStorage.getItem(BATTLE_BOSS_SESSION_EXPIRES_KEY) || null;
+    arenaTurno = Math.max(1, Number(estado.turno || 1));
+    arenaBossActual = estado.boss || arenaBossActual;
+    arenaBossEventoActual = estado.evento || arenaBossEventoActual;
+    arenaPlayerTeam = estado.player_team.map((pokemon, index) => normalizarPokemonArena(pokemon, "player", index));
+    arenaEnemyTeam = estado.enemy_team.map((pokemon, index) => normalizarPokemonArena(pokemon, "enemy", index));
+    arenaPlayerIndex = Math.max(0, Math.min(arenaPlayerTeam.length - 1, Number(estado.player_index || 0)));
+    arenaEnemyIndex = Math.max(0, Math.min(arenaEnemyTeam.length - 1, Number(estado.enemy_index || 0)));
+
+    sessionStorage.setItem(BATTLE_BOSS_SESSION_TOKEN_KEY, arenaBattleSessionToken);
+    if (arenaBattleSessionExpiraEn) {
+        sessionStorage.setItem(BATTLE_BOSS_SESSION_EXPIRES_KEY, arenaBattleSessionExpiraEn);
+    }
+
+    if (arenaBossActual) {
+        sessionStorage.setItem(BATTLE_BOSS_DATA_KEY, JSON.stringify(arenaBossActual));
+    }
+    if (arenaBossEventoActual) {
+        sessionStorage.setItem(BATTLE_BOSS_EVENT_KEY, JSON.stringify(arenaBossEventoActual));
+    }
+
+    return true;
+}
+
+function limpiarSesionBossArena({ limpiarModo = false } = {}) {
+    sessionStorage.removeItem(BATTLE_BOSS_SESSION_TOKEN_KEY);
+    sessionStorage.removeItem(BATTLE_BOSS_SESSION_EXPIRES_KEY);
+    sessionStorage.removeItem(BATTLE_BOSS_DATA_KEY);
+    sessionStorage.removeItem(BATTLE_BOSS_EVENT_KEY);
+    sessionStorage.removeItem(BATTLE_BOSS_COMBAT_STATE_KEY);
+
+    if (limpiarModo) {
+        sessionStorage.removeItem(BATTLE_ARENA_MODE_KEY);
+    }
+
+    arenaBattleSessionToken = null;
+    arenaBattleSessionExpiraEn = null;
+    arenaBattleSessionTtlSegundos = 0;
+    arenaBossActual = null;
+    arenaBossEventoActual = null;
+}
+
+function manejarSalidaArena() {
+    detenerAutoTurnoArena();
+    detenerHeartbeatActividadArena();
+
+    if (esModoBossArena()) {
+        limpiarSesionBossArena({ limpiarModo: true });
+    } else {
+        sessionStorage.removeItem(BATTLE_ARENA_MODE_KEY);
+    }
+
+    window.location.href = "battle.html";
+}
+
+function manejarReintentoArena() {
+    detenerAutoTurnoArena();
+
+    if (esModoBossArena()) {
+        limpiarSesionBossArena({ limpiarModo: true });
+        window.location.href = "battle.html";
+        return;
+    }
+
+    window.location.reload();
+}
+
 function actualizarHeroModoArena() {
     const badge = document.querySelector(".arena-hero-badge");
     const title = document.querySelector(".arena-title");
@@ -566,16 +717,28 @@ function generarBossEnemigoArena(boss = null) {
 
 function sincronizarSesionBossArena(data = {}) {
     arenaBossActual = data?.boss || arenaBossActual;
+    arenaBossEventoActual = data?.evento || data?.boss_evento || arenaBossEventoActual;
     arenaBattleSessionToken = data?.boss_session_token || sessionStorage.getItem(BATTLE_BOSS_SESSION_TOKEN_KEY) || null;
-    arenaBattleSessionTtlSegundos = Number(data?.ttl_segundos || 0);
-    arenaBattleSessionExpiraEn = null;
+    arenaBattleSessionTtlSegundos = Number(data?.ttl_segundos || arenaBattleSessionTtlSegundos || 0);
+    arenaBattleSessionExpiraEn = construirExpiraBossArena(
+        arenaBattleSessionTtlSegundos,
+        data?.expira_en || sessionStorage.getItem(BATTLE_BOSS_SESSION_EXPIRES_KEY) || null
+    );
 
     if (arenaBattleSessionToken) {
         sessionStorage.setItem(BATTLE_BOSS_SESSION_TOKEN_KEY, String(arenaBattleSessionToken));
     }
 
+    if (arenaBattleSessionExpiraEn) {
+        sessionStorage.setItem(BATTLE_BOSS_SESSION_EXPIRES_KEY, String(arenaBattleSessionExpiraEn));
+    }
+
     if (arenaBossActual) {
         sessionStorage.setItem(BATTLE_BOSS_DATA_KEY, JSON.stringify(arenaBossActual));
+    }
+
+    if (arenaBossEventoActual) {
+        sessionStorage.setItem(BATTLE_BOSS_EVENT_KEY, JSON.stringify(arenaBossEventoActual));
     }
 }
 
@@ -629,6 +792,8 @@ async function procesarRecompensaBossArena(victoria = false) {
     if (arenaRecompensaProcesada) return arenaUltimaRecompensaAplicada;
 
     arenaRecompensaEnProceso = true;
+    let recompensaConfirmada = false;
+
     try {
         const data = await reclamarRecompensaBossArenaApi(calcularDamageBossArena(), !!victoria, arenaTurno);
         const recompensa = construirResumenRecompensaBossArena(data);
@@ -646,6 +811,7 @@ async function procesarRecompensaBossArena(victoria = false) {
 
         arenaRecompensaProcesada = true;
         arenaUltimaRecompensaAplicada = recompensa;
+        recompensaConfirmada = true;
 
         if (typeof data?.pokedolares_actuales !== "undefined") {
             localStorage.setItem("usuario_pokedolares", String(data.pokedolares_actuales));
@@ -660,7 +826,12 @@ async function procesarRecompensaBossArena(victoria = false) {
         return construirResumenRecompensaBossArena(null);
     } finally {
         arenaRecompensaEnProceso = false;
-        sessionStorage.removeItem(BATTLE_BOSS_SESSION_TOKEN_KEY);
+
+        if (recompensaConfirmada || arenaRecompensaProcesada) {
+            limpiarSesionBossArena({ limpiarModo: true });
+        } else {
+            guardarEstadoBossArena();
+        }
     }
 }
 
@@ -911,6 +1082,7 @@ function renderArenaCompleta() {
     renderEstadoArena();
     actualizarTurnoArena();
     renderPanelMovimientosArena();
+    guardarEstadoBossArena();
 }
 
 function renderPokemonActivoArena() {
