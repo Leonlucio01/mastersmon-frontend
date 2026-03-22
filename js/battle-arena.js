@@ -2234,6 +2234,15 @@ function inferirCodigoDificultadArenaDesdeBonus(bonus = 0) {
     return "normal";
 }
 
+function obtenerBonusEsperadoPorDificultadArena(codigo = "normal") {
+    const valor = String(codigo || "normal").trim().toLowerCase();
+
+    if (valor === "master") return 6;
+    if (valor === "expert") return 4;
+    if (valor === "challenge") return 2;
+    return 0;
+}
+
 function obtenerCodigoDificultadArena() {
     if (arenaDificultadActual) {
         return String(arenaDificultadActual).trim().toLowerCase();
@@ -2278,12 +2287,19 @@ function sincronizarSesionBackendArena(data = {}) {
     arenaBattleSessionToken = data?.battle_session_token || null;
     arenaBattleSessionTtlSegundos = Number(data?.ttl_segundos || 0);
     arenaBattleSessionExpiraEn = data?.expira_en || null;
-    arenaDificultadActual = String(data?.dificultad_codigo || obtenerCodigoDificultadArena() || "normal").toLowerCase();
 
-    if (typeof data?.bonus_nivel_rival !== "undefined") {
-        sessionStorage.setItem(BATTLE_ENEMY_LEVEL_BONUS_KEY, String(Number(data.bonus_nivel_rival || 0)));
-    }
+    const dificultadLocal = String(
+        sessionStorage.getItem(BATTLE_ARENA_DIFFICULTY_KEY)
+        || arenaDificultadActual
+        || data?.dificultad_codigo
+        || "normal"
+    ).toLowerCase();
 
+    const dificultadBackend = String(data?.dificultad_codigo || dificultadLocal || "normal").toLowerCase();
+    arenaDificultadActual = dificultadLocal || dificultadBackend || "normal";
+
+    const bonusEsperado = obtenerBonusEsperadoPorDificultadArena(arenaDificultadActual);
+    sessionStorage.setItem(BATTLE_ENEMY_LEVEL_BONUS_KEY, String(bonusEsperado));
     sessionStorage.setItem(BATTLE_ARENA_DIFFICULTY_KEY, arenaDificultadActual);
 
     if (arenaBattleSessionToken) {
@@ -2310,7 +2326,16 @@ async function iniciarSesionBatallaArena() {
         throw new Error(tSafeArena("arena_need_full_team"));
     }
 
-    const dificultad = inferirCodigoDificultadArenaDesdeBonus(obtenerBonusNivelRivalArena());
+    const dificultad = String(
+        sessionStorage.getItem(BATTLE_ARENA_DIFFICULTY_KEY)
+        || arenaDificultadActual
+        || inferirCodigoDificultadArenaDesdeBonus(obtenerBonusNivelRivalArena())
+        || "normal"
+    ).toLowerCase();
+
+    const bonusEsperado = obtenerBonusEsperadoPorDificultadArena(dificultad);
+    sessionStorage.setItem(BATTLE_ENEMY_LEVEL_BONUS_KEY, String(bonusEsperado));
+    sessionStorage.setItem(BATTLE_ARENA_DIFFICULTY_KEY, dificultad);
 
     const data = await fetchAuthArena(`${API_BASE}/battle/iniciar`, {
         method: "POST",
