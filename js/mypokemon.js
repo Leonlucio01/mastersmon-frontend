@@ -416,6 +416,13 @@ function renderModalMovimientosContenido() {
     const movimientoPendienteId = Number(
         modalMovimientosActual.movimientoPendienteId || movimientoSlotActual?.movimiento_id || 0
     );
+    const tipoCssSeleccionado = normalizarTipoCssMyPokemon(movimientoSlotActual?.tipo || "");
+    const textoTipoSeleccionado = movimientoSlotActual
+        ? obtenerTextoTipoMovimientoUi(movimientoSlotActual.tipo || "")
+        : "";
+    const textoCategoriaSeleccionada = movimientoSlotActual
+        ? obtenerCategoriaMovimientoTexto(movimientoSlotActual.categoria)
+        : "";
 
     const slotsHtml = [1, 2, 3, 4].map(slot => {
         const movimiento = obtenerMovimientoEquipadoPorSlot(movimientos, slot);
@@ -515,7 +522,7 @@ function renderModalMovimientosContenido() {
         `;
 
     contenido.innerHTML = `
-        <div class="mypokemon-moves-shell">
+        <div class="mypokemon-moves-shell" data-selected-type="${tipoCssSeleccionado}">
             <div class="mypokemon-moves-hero">
                 <h2 class="titulo-modal-evolucion">${tMyPokemon("mypokemon_moves_title", "Pokémon moves")}</h2>
                 <p class="subtitulo-modal-evolucion">${escapeHtmlMyPokemon(nombrePokemon)} · ${t("battle_level_short")} ${nivelPokemon}${tipoPokemon ? ` · ${escapeHtmlMyPokemon(tipoPokemon)}` : ""}</p>
@@ -526,7 +533,7 @@ function renderModalMovimientosContenido() {
                 <span>${tMyPokemon("mypokemon_moves_help", "Select a slot first, then choose the move you want to equip.")}</span>
             </div>
 
-            <section class="mypokemon-moves-slots-section">
+            <section class="mypokemon-moves-slots-section" data-selected-type="${tipoCssSeleccionado}">
                 <div class="mypokemon-moves-section-head">
                     <div>
                         <span class="mypokemon-moves-section-kicker">${tMyPokemon("mypokemon_moves_equipped_title", "Equipped loadout")}</span>
@@ -539,7 +546,7 @@ function renderModalMovimientosContenido() {
                 </div>
             </section>
 
-            <section class="mypokemon-moves-selected-panel ${movimientoSlotActual ? "has-move" : "is-empty"}">
+            <section class="mypokemon-moves-selected-panel ${movimientoSlotActual ? "has-move" : "is-empty"}" data-selected-type="${tipoCssSeleccionado}">
                 <div class="mypokemon-moves-selected-copy">
                     <span class="mypokemon-moves-section-kicker">${tMyPokemon("mypokemon_moves_selected_slot", "Selected slot")}</span>
                     <h3>${tMyPokemon("mypokemon_moves_slot_label", "Slot")} ${slotSeleccionado}</h3>
@@ -550,13 +557,19 @@ function renderModalMovimientosContenido() {
                     </p>
                 </div>
 
-                <div class="mypokemon-moves-selected-preview">
+                <div class="mypokemon-moves-selected-preview" data-selected-type="${tipoCssSeleccionado}">
+                    ${movimientoSlotActual ? `
+                        <div class="mypokemon-moves-selected-preview-top">
+                            <span class="mypokemon-move-pill type-${tipoCssSeleccionado}">${escapeHtmlMyPokemon(textoTipoSeleccionado)}</span>
+                            <span class="mypokemon-move-pill is-category">${escapeHtmlMyPokemon(textoCategoriaSeleccionada)}</span>
+                        </div>
+                    ` : ""}
                     <strong>${movimientoSlotActual ? escapeHtmlMyPokemon(movimientoSlotActual.nombre) : tMyPokemon("mypokemon_moves_empty_slot", "Empty slot")}</strong>
-                    <span>${movimientoSlotActual ? `${escapeHtmlMyPokemon(obtenerTextoTipoMovimientoUi(movimientoSlotActual.tipo || ""))} · ${escapeHtmlMyPokemon(obtenerCategoriaMovimientoTexto(movimientoSlotActual.categoria))}` : tMyPokemon("mypokemon_moves_choose_move_cta", "Choose a move to equip")}</span>
+                    <span>${movimientoSlotActual ? `${escapeHtmlMyPokemon(textoTipoSeleccionado)} · ${escapeHtmlMyPokemon(textoCategoriaSeleccionada)}` : tMyPokemon("mypokemon_moves_choose_move_cta", "Choose a move to equip")}</span>
                 </div>
             </section>
 
-            <section class="mypokemon-moves-list-section">
+            <section class="mypokemon-moves-list-section" data-selected-type="${tipoCssSeleccionado}">
                 <div class="mypokemon-moves-section-head">
                     <div>
                         <span class="mypokemon-moves-section-kicker">${tMyPokemon("mypokemon_moves_available_list", "Unlocked moves")}</span>

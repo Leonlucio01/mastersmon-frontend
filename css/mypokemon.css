@@ -2439,3 +2439,254 @@
 .mypokemon-moves-actions .btn-evolucionar{
     box-shadow: 0 10px 20px rgba(37,99,235,0.22);
 }
+
+/* =========================================================
+   MOVES WOW V3 - SELECTED PREVIEW COLOR FLOW
+   Pegar al final del archivo
+========================================================= */
+
+.mypokemon-moves-shell{
+    --selected-type-accent: #60a5fa;
+    --selected-type-rgb: 96,165,250;
+    --selected-type-soft: #eff6ff;
+    --selected-type-soft-2: #dbeafe;
+    --selected-type-deep: #1d4ed8;
+    --selected-type-shadow: rgba(37,99,235,0.16);
+}
+
+.mypokemon-moves-shell[data-selected-type="neutral"]{
+    --selected-type-accent: #94a3b8;
+    --selected-type-rgb: 148,163,184;
+    --selected-type-soft: #f8fafc;
+    --selected-type-soft-2: #e2e8f0;
+    --selected-type-deep: #475569;
+    --selected-type-shadow: rgba(71,85,105,0.14);
+}
+
+.mypokemon-moves-shell[data-selected-type="normal"]{
+    --selected-type-accent: #6b7280;
+    --selected-type-rgb: 107,114,128;
+    --selected-type-soft: #f4f4f5;
+    --selected-type-soft-2: #e5e7eb;
+    --selected-type-deep: #374151;
+    --selected-type-shadow: rgba(75,85,99,0.16);
+}
+
+.mypokemon-moves-shell[data-selected-type="fire"]{
+    --selected-type-accent: #f97316;
+    --selected-type-rgb: 249,115,22;
+    --selected-type-soft: #fff2eb;
+    --selected-type-soft-2: #fed7aa;
+    --selected-type-deep: #c2410c;
+    --selected-type-shadow: rgba(249,115,22,0.18);
+}
+
+.mypokemon-moves-shell[data-selected-type="water"]{
+    --selected-type-accent: #3b82f6;
+    --selected-type-rgb: 59,130,246;
+    --selected-type-soft: #eef6ff;
+    --selected-type-soft-2: #bfdbfe;
+    --selected-type-deep: #1d4ed8;
+    --selected-type-shadow: rgba(37,99,235,0.18);
+}
+
+.mypokemon-moves-shell[data-selected-type="grass"]{
+    --selected-type-accent: #22c55e;
+    --selected-type-rgb: 34,197,94;
+    --selected-type-soft: #edfdf3;
+    --selected-type-soft-2: #bbf7d0;
+    --selected-type-deep: #15803d;
+    --selected-type-shadow: rgba(22,163,74,0.18);
+}
+
+.mypokemon-moves-shell[data-selected-type="electric"]{
+    --selected-type-accent: #eab308;
+    --selected-type-rgb: 234,179,8;
+    --selected-type-soft: #fffbe6;
+    --selected-type-soft-2: #fde68a;
+    --selected-type-deep: #a16207;
+    --selected-type-shadow: rgba(202,138,4,0.18);
+}
+
+.mypokemon-moves-shell[data-selected-type="ice"]{
+    --selected-type-accent: #06b6d4;
+    --selected-type-rgb: 6,182,212;
+    --selected-type-soft: #ecfeff;
+    --selected-type-soft-2: #a5f3fc;
+    --selected-type-deep: #0f766e;
+    --selected-type-shadow: rgba(8,145,178,0.18);
+}
+
+.mypokemon-moves-shell[data-selected-type="fighting"]{
+    --selected-type-accent: #ef4444;
+    --selected-type-rgb: 239,68,68;
+    --selected-type-soft: #fff1f2;
+    --selected-type-soft-2: #fecdd3;
+    --selected-type-deep: #b91c1c;
+    --selected-type-shadow: rgba(220,38,38,0.18);
+}
+
+.mypokemon-moves-shell[data-selected-type="poison"]{
+    --selected-type-accent: #a855f7;
+    --selected-type-rgb: 168,85,247;
+    --selected-type-soft: #faf5ff;
+    --selected-type-soft-2: #e9d5ff;
+    --selected-type-deep: #7e22ce;
+    --selected-type-shadow: rgba(147,51,234,0.20);
+}
+
+.mypokemon-moves-shell[data-selected-type="ground"]{
+    --selected-type-accent: #d97706;
+    --selected-type-rgb: 217,119,6;
+    --selected-type-soft: #fff7ed;
+    --selected-type-soft-2: #fdba74;
+    --selected-type-deep: #b45309;
+    --selected-type-shadow: rgba(180,83,9,0.18);
+}
+
+.mypokemon-moves-shell[data-selected-type="flying"]{
+    --selected-type-accent: #60a5fa;
+    --selected-type-rgb: 96,165,250;
+    --selected-type-soft: #eff6ff;
+    --selected-type-soft-2: #c7d2fe;
+    --selected-type-deep: #4338ca;
+    --selected-type-shadow: rgba(67,56,202,0.16);
+}
+
+.mypokemon-moves-shell[data-selected-type="psychic"]{
+    --selected-type-accent: #ec4899;
+    --selected-type-rgb: 236,72,153;
+    --selected-type-soft: #fdf2f8;
+    --selected-type-soft-2: #fbcfe8;
+    --selected-type-deep: #be185d;
+    --selected-type-shadow: rgba(190,24,93,0.18);
+}
+
+.mypokemon-moves-shell[data-selected-type="bug"]{
+    --selected-type-accent: #84cc16;
+    --selected-type-rgb: 132,204,22;
+    --selected-type-soft: #f7fee7;
+    --selected-type-soft-2: #d9f99d;
+    --selected-type-deep: #4d7c0f;
+    --selected-type-shadow: rgba(101,163,13,0.18);
+}
+
+.mypokemon-moves-shell[data-selected-type="rock"]{
+    --selected-type-accent: #78716c;
+    --selected-type-rgb: 120,113,108;
+    --selected-type-soft: #fafaf9;
+    --selected-type-soft-2: #d6d3d1;
+    --selected-type-deep: #57534e;
+    --selected-type-shadow: rgba(87,83,78,0.16);
+}
+
+.mypokemon-moves-shell[data-selected-type="ghost"]{
+    --selected-type-accent: #7c3aed;
+    --selected-type-rgb: 124,58,237;
+    --selected-type-soft: #f5f3ff;
+    --selected-type-soft-2: #c4b5fd;
+    --selected-type-deep: #6d28d9;
+    --selected-type-shadow: rgba(109,40,217,0.18);
+}
+
+.mypokemon-moves-shell[data-selected-type="dragon"]{
+    --selected-type-accent: #4f46e5;
+    --selected-type-rgb: 79,70,229;
+    --selected-type-soft: #eef2ff;
+    --selected-type-soft-2: #a5b4fc;
+    --selected-type-deep: #4338ca;
+    --selected-type-shadow: rgba(79,70,229,0.18);
+}
+
+.mypokemon-moves-shell[data-selected-type="steel"]{
+    --selected-type-accent: #64748b;
+    --selected-type-rgb: 100,116,139;
+    --selected-type-soft: #f1f5f9;
+    --selected-type-soft-2: #cbd5e1;
+    --selected-type-deep: #334155;
+    --selected-type-shadow: rgba(51,65,85,0.18);
+}
+
+.mypokemon-moves-shell[data-selected-type="fairy"]{
+    --selected-type-accent: #f472b6;
+    --selected-type-rgb: 244,114,182;
+    --selected-type-soft: #fdf2f8;
+    --selected-type-soft-2: #fbcfe8;
+    --selected-type-deep: #be185d;
+    --selected-type-shadow: rgba(190,24,93,0.16);
+}
+
+.mypokemon-moves-shell .mypokemon-moves-section-kicker{
+    background: rgba(var(--selected-type-rgb),0.12);
+    color: var(--selected-type-deep);
+    border: 1px solid rgba(var(--selected-type-rgb),0.18);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.88);
+}
+
+.mypokemon-moves-shell .mypokemon-moves-slots-section,
+.mypokemon-moves-shell .mypokemon-moves-list-section{
+    border-color: rgba(var(--selected-type-rgb),0.18);
+    box-shadow:
+        0 14px 28px rgba(15,23,42,0.07),
+        0 0 0 1px rgba(var(--selected-type-rgb),0.05);
+}
+
+.mypokemon-moves-shell .mypokemon-moves-selected-panel{
+    border-color: rgba(var(--selected-type-rgb),0.24);
+    background:
+        radial-gradient(circle at left center, rgba(var(--selected-type-rgb),0.18), transparent 34%),
+        radial-gradient(circle at right center, rgba(var(--selected-type-rgb),0.10), transparent 24%),
+        linear-gradient(180deg, #ffffff 0%, var(--selected-type-soft) 100%);
+    box-shadow:
+        0 18px 34px rgba(15,23,42,0.08),
+        0 0 0 1px rgba(var(--selected-type-rgb),0.08);
+}
+
+.mypokemon-moves-shell .mypokemon-moves-selected-copy h3{
+    color: var(--selected-type-deep);
+}
+
+.mypokemon-moves-shell .mypokemon-moves-selected-preview{
+    position: relative;
+    overflow: hidden;
+    border-color: rgba(var(--selected-type-rgb),0.28);
+    background:
+        radial-gradient(circle at top right, rgba(var(--selected-type-rgb),0.20), transparent 30%),
+        radial-gradient(circle at bottom left, rgba(var(--selected-type-rgb),0.12), transparent 26%),
+        linear-gradient(180deg, #ffffff 0%, var(--selected-type-soft) 100%);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.92),
+        0 14px 26px var(--selected-type-shadow);
+}
+
+.mypokemon-moves-shell .mypokemon-moves-selected-preview::after{
+    content: "";
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 4px;
+    background: linear-gradient(90deg, rgba(var(--selected-type-rgb),0.18), rgba(var(--selected-type-rgb),0.88), rgba(var(--selected-type-rgb),0.18));
+}
+
+.mypokemon-moves-selected-preview-top{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+}
+
+.mypokemon-moves-shell .mypokemon-moves-selected-preview strong{
+    color: #0f172a;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.86);
+}
+
+.mypokemon-moves-shell .mypokemon-moves-selected-preview span{
+    color: #475569;
+}
+
+@media (max-width: 768px){
+    .mypokemon-moves-selected-preview-top{
+        margin-bottom: 8px;
+    }
+}
