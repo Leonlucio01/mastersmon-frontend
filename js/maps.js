@@ -1929,7 +1929,7 @@ function renderEncuentroActual() {
                     estadoCaptura.variante === "exacto"
                         ? `x${estadoCaptura.cantidad}`
                         : estadoCaptura.variante === "otra-version"
-                            ? `✨ x${estadoCaptura.cantidad_otras_variantes}`
+                            ? `Alt x${estadoCaptura.cantidad_otras_variantes}`
                             : `x0`
                 }
             </div>
