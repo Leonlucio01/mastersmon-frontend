@@ -568,19 +568,20 @@ function generarEquipoRivalFase1() {
     const basePool = obtenerPoolRivalesArena();
     const promedioNivel = calcularPromedioNivelArena(arenaPlayerTeam) || 5;
     const bonusNivel = obtenerBonusNivelRivalArena();
-    const nivelBaseRival = promedioNivel + bonusNivel;
+    const nivelBaseRival = Math.max(1, promedioNivel + bonusNivel);
     const rivales = [];
 
     for (let i = 0; i < 6; i++) {
         const elegido = { ...basePool[Math.floor(Math.random() * basePool.length)] };
-        const nivel = Math.max(1, nivelBaseRival + numeroRandomEntre(-1, 1));
+        const nivel = nivelBaseRival;
+        const nivelFactor = Math.max(0, nivel - 1);
 
-        const hpFinal = elegido.hp + (nivel * 5);
-        const ataqueFinal = elegido.ataque + (nivel * 2);
-        const defensaFinal = elegido.defensa + (nivel * 2);
-        const velocidadFinal = elegido.velocidad + nivel;
-        const ataqueEspecialFinal = Number(elegido.ataque_especial ?? elegido.ataque ?? 1) + (nivel * 2);
-        const defensaEspecialFinal = Number(elegido.defensa_especial ?? elegido.defensa ?? 1) + (nivel * 2);
+        const hpFinal = Number(elegido.hp || 1) + (nivelFactor * 4);
+        const ataqueFinal = Number(elegido.ataque || 1) + (nivelFactor * 2);
+        const defensaFinal = Number(elegido.defensa || 1) + (nivelFactor * 2);
+        const velocidadFinal = Number(elegido.velocidad || 1) + nivelFactor;
+        const ataqueEspecialFinal = Number(elegido.ataque_especial ?? elegido.ataque ?? 1) + (nivelFactor * 2);
+        const defensaEspecialFinal = Number(elegido.defensa_especial ?? elegido.defensa ?? 1) + (nivelFactor * 2);
 
         rivales.push({
             id: `enemy-${i + 1}-${elegido.pokemon_id}-${Date.now()}-${Math.floor(Math.random() * 9999)}`,
@@ -606,7 +607,6 @@ function generarEquipoRivalFase1() {
 
     arenaEnemyTeam = rivales;
 }
-
 
 function normalizarPokemonArena(pokemon, side = "player", slotIndex = 0) {
     const hpMax = Number(pokemon.hp_max ?? pokemon.hp_actual ?? pokemon.hp ?? 1);
@@ -969,7 +969,7 @@ function renderPanelMovimientosArena() {
         panel.classList.add("oculto");
         grid.innerHTML = "";
         if (subtitle) {
-            subtitle.textContent = "Select one of the 4 equipped moves of your active Pokémon.";
+            subtitle.textContent = "Choose one of the 4 equipped moves of your active Pokémon.";
         }
         return;
     }
@@ -999,7 +999,7 @@ function renderPanelMovimientosArena() {
 
             const pokemonActivo = obtenerPokemonActivoArena(arenaPlayerTeam, arenaPlayerIndex);
             const movimiento = obtenerMovimientoPorSlotArena(pokemonActivo, slot, true);
-            if (!movimiento || Number(movimiento.cooldown_restante || 0) > 0) {
+            if (!movimiento) {
                 return;
             }
 
@@ -1015,25 +1015,20 @@ function renderMoveCardArena(movimiento, esJugador = true) {
     const tipoClase = obtenerClaseTipoArena(movimiento.tipo || "Normal");
     const categoria = obtenerEtiquetaCategoriaMovimientoArena(movimiento.categoria);
     const potencia = movimiento.potencia ?? "—";
-    const precisionNumero = Number(movimiento.precision_pct || 100);
+    const precisionNumero = Math.max(1, Number(movimiento.precision_pct || 100));
     const precision = `${precisionNumero}%`;
-    const cooldown = Number(movimiento.cooldown_turnos || 0);
-    const cooldownRestante = Number(movimiento.cooldown_restante || 0);
-    const disabled = esJugador && cooldownRestante > 0;
+    const prioridad = Number(movimiento.prioridad || 0);
     const tipoTraducido = traducirTipoPokemonArena(movimiento.tipo || "Normal");
 
     return `
         <button
             type="button"
-            class="arena-move-card ${tipoClase} ${disabled ? "is-disabled" : ""}"
+            class="arena-move-card ${tipoClase}"
             data-arena-move-slot="${movimiento.slot || 0}"
-            ${disabled ? "disabled" : ""}
         >
             <div class="arena-move-card-top">
                 <span class="arena-move-slot">Slot ${movimiento.slot || "?"}</span>
-                <span class="arena-move-status ${disabled ? "is-cooling" : "is-ready"}">
-                    ${cooldownRestante > 0 ? `Cooling ${cooldownRestante}` : "Ready"}
-                </span>
+                <span class="arena-move-status is-ready">Ready</span>
             </div>
 
             <div class="arena-move-title-row">
@@ -1056,14 +1051,14 @@ function renderMoveCardArena(movimiento, esJugador = true) {
                     <strong>${precision}</strong>
                 </div>
                 <div class="arena-move-stat-card">
-                    <span>Cooldown</span>
-                    <strong>${cooldown}</strong>
+                    <span>Priority</span>
+                    <strong>${prioridad}</strong>
                 </div>
             </div>
 
             <div class="arena-move-footer">
-                <span>${disabled ? `This move is recovering` : "Tap to attack"}</span>
-                <span>${cooldownRestante > 0 ? `CD ${cooldownRestante}` : "Go"}</span>
+                <span>${esJugador ? "Tap to attack" : "Battle move"}</span>
+                <span>${categoria}</span>
             </div>
         </button>
     `;
@@ -1129,11 +1124,48 @@ function esperarArena(ms) {
    CÁLCULO DE TIPOS
 ========================================================= */
 function normalizarTipoCombate(valor = "") {
-    return String(valor)
+    const limpio = String(valor || "")
         .toLowerCase()
         .trim()
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "");
+
+    const mapa = {
+        normal: "normal",
+        fire: "fuego",
+        fuego: "fuego",
+        water: "agua",
+        agua: "agua",
+        grass: "planta",
+        planta: "planta",
+        electric: "electrico",
+        electrico: "electrico",
+        ice: "hielo",
+        hielo: "hielo",
+        fighting: "lucha",
+        lucha: "lucha",
+        poison: "veneno",
+        veneno: "veneno",
+        ground: "tierra",
+        tierra: "tierra",
+        flying: "volador",
+        volador: "volador",
+        psychic: "psiquico",
+        psiquico: "psiquico",
+        bug: "bicho",
+        bicho: "bicho",
+        rock: "roca",
+        roca: "roca",
+        ghost: "fantasma",
+        fantasma: "fantasma",
+        dragon: "dragon",
+        steel: "acero",
+        acero: "acero",
+        fairy: "hada",
+        hada: "hada"
+    };
+
+    return mapa[limpio] || limpio;
 }
 
 function obtenerTiposPokemonArena(tipoTexto = "") {
@@ -1499,8 +1531,7 @@ function calcularDanioArena(atacante, defensor, movimiento) {
 }
 
 function seleccionarMejorMovimientoArena(atacante, defensor) {
-    const movimientos = obtenerMovimientosEquipadosArena(atacante, true);
-    const disponibles = movimientos.filter(mov => Number(mov.cooldown_restante || 0) <= 0);
+    const disponibles = obtenerMovimientosEquipadosArena(atacante, true);
 
     if (!disponibles.length) {
         return crearMovimientoFallbackArena(atacante, 1);
@@ -1563,8 +1594,8 @@ function normalizarMovimientoArena(movimiento, slotFallback = 0) {
         categoria: normalizarCategoriaMovimientoArena(movimiento.categoria || movimiento.category || "fisico"),
         potencia: potenciaRaw === null || typeof potenciaRaw === "undefined" ? null : Number(potenciaRaw),
         precision_pct: Number(movimiento.precision_pct ?? movimiento.precision ?? 100),
-        cooldown_turnos: Number(movimiento.cooldown_turnos ?? movimiento.cooldown ?? 0),
-        cooldown_restante: Math.max(0, Number(movimiento.cooldown_restante ?? 0)),
+        cooldown_turnos: 0,
+        cooldown_restante: 0,
         prioridad: Number(movimiento.prioridad ?? movimiento.priority ?? 0),
         objetivo: movimiento.objetivo || movimiento.target || "rival",
         slot: Number(movimiento.slot ?? slotFallback ?? 0)
@@ -1662,37 +1693,11 @@ function crearMovimientoFallbackArena(pokemon, slot = 1) {
 }
 
 function aplicarCooldownMovimientoArena(pokemon, movimiento) {
-    if (!pokemon || !movimiento) return;
-
-    const lista = pokemon.movimientos_equipados || [];
-    const slotObjetivo = Number(movimiento.slot || 0);
-    const codigoObjetivo = String(movimiento.codigo || "");
-
-    const encontrado = lista.find(mov =>
-        Number(mov.slot || 0) === slotObjetivo ||
-        String(mov.codigo || "") === codigoObjetivo
-    );
-
-    if (!encontrado) return;
-
-    encontrado.cooldown_restante = Math.max(
-        0,
-        Number(encontrado.cooldown_turnos || 0) > 0
-            ? Number(encontrado.cooldown_turnos || 0) + 1
-            : 0
-    );
+    return;
 }
 
 function reducirCooldownsArena(team = []) {
-    team.forEach(pokemon => {
-        if (!Array.isArray(pokemon.movimientos_equipados)) return;
-        pokemon.movimientos_equipados.forEach(movimiento => {
-            const restante = Number(movimiento.cooldown_restante || 0);
-            if (restante > 0) {
-                movimiento.cooldown_restante = restante - 1;
-            }
-        });
-    });
+    return;
 }
 
 function tieneStabArena(atacante, movimiento) {
@@ -2213,10 +2218,7 @@ async function fetchAuthArena(url, options = {}) {
 function inferirCodigoDificultadArenaDesdeBonus(bonus = 0) {
     const valor = Number(bonus || 0);
 
-    if (valor >= 15) return "master";
-    if (valor >= 10) return "expert";
     if (valor >= 6) return "master";
-    if (valor >= 5) return "challenge";
     if (valor >= 4) return "expert";
     if (valor >= 2) return "challenge";
     return "normal";

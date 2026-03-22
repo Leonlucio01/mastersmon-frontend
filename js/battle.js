@@ -4,6 +4,7 @@ let battleTabActual = "todos";
 
 const BATTLE_TEAM_STORAGE_KEY = "mastersmon_battle_team_v1";
 const BATTLE_ENEMY_LEVEL_BONUS_KEY = "mastersmon_battle_enemy_level_bonus_v1";
+const BATTLE_ARENA_DIFFICULTY_KEY = "mastersmon_battle_arena_difficulty_v1";
 const BATTLE_ACTIVITY_SESSION_KEY = "mastersmon_battle_activity_session_v1";
 
 let battleActividadTimer = null;
@@ -297,6 +298,29 @@ async function obtenerPokemonUsuarioActualBattle() {
 /* =========================
    STORAGE
 ========================= */
+function normalizarValorDificultadBattle(raw) {
+    const valor = String(raw ?? "").trim().toLowerCase();
+
+    if (valor === "" || valor === "normal") return 0;
+    if (valor === "challenge") return 2;
+    if (valor === "expert") return 4;
+    if (valor === "master") return 6;
+
+    const numero = Number(valor);
+    if ([0, 2, 4, 6].includes(numero)) return numero;
+
+    return 0;
+}
+
+function obtenerCodigoDificultadBattleDesdeBonus(bonus = 0) {
+    const valor = Number(bonus || 0);
+
+    if (valor >= 6) return "master";
+    if (valor >= 4) return "expert";
+    if (valor >= 2) return "challenge";
+    return "normal";
+}
+
 function cargarEquipoGuardadoBattle() {
     try {
         const raw = localStorage.getItem(BATTLE_TEAM_STORAGE_KEY);
@@ -436,10 +460,14 @@ function cargarDificultadBattle() {
     const texto = document.getElementById("battleDificultadTexto");
     if (!select) return;
 
-    const valorGuardado = sessionStorage.getItem(BATTLE_ENEMY_LEVEL_BONUS_KEY) ?? "0";
-    select.value = valorGuardado;
+    const rawGuardado = sessionStorage.getItem(BATTLE_ENEMY_LEVEL_BONUS_KEY);
+    const bonus = normalizarValorDificultadBattle(rawGuardado);
 
-    actualizarTextoDificultadBattle(Number(valorGuardado), texto);
+    select.value = String(bonus);
+    sessionStorage.setItem(BATTLE_ENEMY_LEVEL_BONUS_KEY, String(bonus));
+    sessionStorage.setItem(BATTLE_ARENA_DIFFICULTY_KEY, obtenerCodigoDificultadBattleDesdeBonus(bonus));
+
+    actualizarTextoDificultadBattle(bonus, texto);
 }
 
 function guardarDificultadBattle() {
@@ -447,8 +475,12 @@ function guardarDificultadBattle() {
     const texto = document.getElementById("battleDificultadTexto");
     if (!select) return;
 
-    const bonus = Number(select.value || 0);
+    const bonus = normalizarValorDificultadBattle(select.value || 0);
+
+    select.value = String(bonus);
     sessionStorage.setItem(BATTLE_ENEMY_LEVEL_BONUS_KEY, String(bonus));
+    sessionStorage.setItem(BATTLE_ARENA_DIFFICULTY_KEY, obtenerCodigoDificultadBattleDesdeBonus(bonus));
+
     actualizarTextoDificultadBattle(bonus, texto);
 }
 
@@ -853,13 +885,14 @@ async function iniciarBatallaDemo() {
 
     try {
         const selectDificultad = document.getElementById("battleDificultadRival");
-        const bonusNivel = Number(selectDificultad?.value || 0);
+        const bonusNivel = normalizarValorDificultadBattle(selectDificultad?.value || 0);
 
         await guardarEquipoServidorBattle({ exigirSeis: true });
         registrarActividadBattle("view", `equipo:${battleEquipo.length}`).catch(() => {});
 
         sessionStorage.setItem("mastersmon_battle_arena_team_v1", JSON.stringify(battleEquipo));
         sessionStorage.setItem("mastersmon_battle_enemy_level_bonus_v1", String(bonusNivel));
+        sessionStorage.setItem("mastersmon_battle_arena_difficulty_v1", obtenerCodigoDificultadBattleDesdeBonus(bonusNivel));
 
         window.location.href = "battle-arena.html";
     } catch (error) {
