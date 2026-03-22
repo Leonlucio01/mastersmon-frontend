@@ -748,3 +748,120 @@ function crearConexionTiempoRealMaps(opciones = {}) {
         getEstado
     };
 }
+/* =========================================================
+   PATCH PARA api.js
+   Agrega estas funciones al final del archivo
+========================================================= */
+
+async function obtenerEstadoBossMundo() {
+    try {
+        return await fetchAuth(`${API_BASE}/battle/boss/estado`);
+    } catch (error) {
+        console.error("Error en obtenerEstadoBossMundo:", error);
+        throw error;
+    }
+}
+
+async function iniciarBossMundo(usuarioPokemonIds = null, guardarEquipo = true) {
+    try {
+        return await fetchAuth(`${API_BASE}/battle/boss/iniciar`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                usuario_pokemon_ids: Array.isArray(usuarioPokemonIds) ? usuarioPokemonIds : null,
+                guardar_equipo: Boolean(guardarEquipo)
+            })
+        });
+    } catch (error) {
+        console.error("Error en iniciarBossMundo:", error);
+        throw error;
+    }
+}
+
+async function reclamarBossMundo(bossSessionToken, damageTotal = 0, bossDerrotado = false, turnos = 0) {
+    try {
+        return await fetchAuth(`${API_BASE}/battle/boss/recompensa`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                boss_session_token: String(bossSessionToken || ""),
+                damage_total: Number(damageTotal) || 0,
+                boss_derrotado: Boolean(bossDerrotado),
+                turnos: Number(turnos) || 0
+            })
+        });
+    } catch (error) {
+        console.error("Error en reclamarBossMundo:", error);
+        throw error;
+    }
+}
+
+async function obtenerRankingBossMundo(limit = 20) {
+    try {
+        return await fetchAuth(`${API_BASE}/battle/boss/ranking?limit=${encodeURIComponent(limit)}`);
+    } catch (error) {
+        console.error("Error en obtenerRankingBossMundo:", error);
+        throw error;
+    }
+}
+
+async function obtenerEstadoIdle() {
+    try {
+        return await fetchAuth(`${API_BASE}/battle/idle/estado`);
+    } catch (error) {
+        console.error("Error en obtenerEstadoIdle:", error);
+        throw error;
+    }
+}
+
+async function iniciarModoIdle(tierCodigo = "ruta", duracionSegundos = 3600, usuarioPokemonIds = null, guardarEquipo = true) {
+    try {
+        return await fetchAuth(`${API_BASE}/battle/idle/iniciar`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                tier_codigo: String(tierCodigo || "ruta"),
+                duracion_segundos: Number(duracionSegundos) || 3600,
+                usuario_pokemon_ids: Array.isArray(usuarioPokemonIds) ? usuarioPokemonIds : null,
+                guardar_equipo: Boolean(guardarEquipo)
+            })
+        });
+    } catch (error) {
+        console.error("Error en iniciarModoIdle:", error);
+        throw error;
+    }
+}
+
+async function reclamarModoIdle() {
+    try {
+        return await fetchAuth(`${API_BASE}/battle/idle/reclamar`, {
+            method: "POST"
+        });
+    } catch (error) {
+        console.error("Error en reclamarModoIdle:", error);
+        throw error;
+    }
+}
+
+async function cancelarModoIdle(idleSessionToken = "") {
+    try {
+        return await fetchAuth(`${API_BASE}/battle/idle/cancelar`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                idle_session_token: String(idleSessionToken || "")
+            })
+        });
+    } catch (error) {
+        console.error("Error en cancelarModoIdle:", error);
+        throw error;
+    }
+}

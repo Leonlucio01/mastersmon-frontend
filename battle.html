@@ -116,7 +116,7 @@
                         <strong id="battlePromedioNivel">—</strong>
                     </div>
 
-                    <div class="summary-mini-card battle-difficulty-card">
+                    <div class="summary-mini-card battle-difficulty-card" id="battleDifficultyCard">
                         <span data-i18n="battle_enemy_difficulty">Enemy difficulty</span>
 
                         <select id="battleDificultadRival" class="battle-difficulty-select">
@@ -140,6 +140,45 @@
                         <span data-i18n="battle_team_status">Status</span>
                         <strong id="battleEstadoEquipo" data-i18n="battle_team_status_preparing">Preparing</strong>
                     </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="battle-modes-section">
+            <div class="battle-panel battle-modes-panel">
+                <div class="battle-panel-header battle-panel-header-tight">
+                    <div>
+                        <span class="battle-panel-kicker" data-i18n="battle_modes_kicker">Game modes</span>
+                        <h3 data-i18n="battle_modes_title">Choose your battle mode</h3>
+                    </div>
+                    <span class="battle-panel-chip" data-i18n="battle_step_2">Step 2</span>
+                </div>
+
+                <p class="battle-panel-description battle-panel-description-tight" data-i18n="battle_modes_subtitle">
+                    Use your saved team of 6 Pokémon to enter the tactical arena, fight the world Alpha Boss, or farm rewards in Idle Expedition.
+                </p>
+
+                <div class="battle-mode-grid" id="battleModeGrid">
+                    <button type="button" class="battle-mode-card active" data-battle-mode="arena" id="battleModeArena">
+                        <span class="battle-mode-badge" data-i18n="battle_mode_selected">Selected</span>
+                        <div class="battle-mode-icon">⚔️</div>
+                        <h4 data-i18n="battle_mode_arena_title">Tactical Arena</h4>
+                        <p data-i18n="battle_mode_arena_desc">Classic 6 vs 6 turn-based battle with selectable difficulty.</p>
+                    </button>
+
+                    <button type="button" class="battle-mode-card" data-battle-mode="boss" id="battleModeBoss">
+                        <span class="battle-mode-badge battle-mode-badge-accent" data-i18n="battle_mode_daily">Daily</span>
+                        <div class="battle-mode-icon">👑</div>
+                        <h4 data-i18n="battle_mode_boss_title">Alpha Boss</h4>
+                        <p data-i18n="battle_mode_boss_desc">Use your 6 Pokémon against a single Alpha Boss that opens at 20:00 server time.</p>
+                    </button>
+
+                    <button type="button" class="battle-mode-card" data-battle-mode="idle" id="battleModeIdle">
+                        <span class="battle-mode-badge battle-mode-badge-soft" data-i18n="battle_mode_recommended">Recommended</span>
+                        <div class="battle-mode-icon">⏳</div>
+                        <h4 data-i18n="battle_mode_idle_title">Idle Expedition</h4>
+                        <p data-i18n="battle_mode_idle_desc">Send your team to farm EXP, Pokédollars and items over time.</p>
+                    </button>
                 </div>
             </div>
         </section>
@@ -180,23 +219,102 @@
                         <span class="battle-panel-kicker" data-i18n="battle_combat_center">Combat center</span>
                         <h3 data-i18n="battle_tactical_summary">Tactical summary</h3>
                     </div>
-                    <span class="battle-panel-chip chip-red">V2</span>
+                    <span class="battle-panel-chip chip-red">V3</span>
                 </div>
 
-                <div class="battle-arena-preview">
-                    <div class="battle-arena-badge" data-i18n="battle_arena_label">Arena</div>
-                    <div class="battle-arena-content">
-                        <div class="arena-side arena-player">
-                            <div class="arena-orb"></div>
-                            <span data-i18n="battle_your_team">Your team</span>
-                        </div>
+                <div class="battle-current-mode-card" id="battleModoActualCard">
+                    <div class="battle-current-mode-top">
+                        <span class="battle-current-mode-label" data-i18n="battle_mode_active_label">Current mode</span>
+                        <span class="battle-current-mode-pill" id="battleModoActualPill">Arena</span>
+                    </div>
+                    <h4 id="battleModoActualNombre">Tactical Arena</h4>
+                    <p id="battleModoActualDescripcion">Classic 6 vs 6 turn-based battle with selectable difficulty.</p>
+                    <small id="battleModoActualHint">Save your team and enter the arena.</small>
+                </div>
 
-                        <div class="arena-vs">VS</div>
-
-                        <div class="arena-side arena-rival">
-                            <div class="arena-orb rival"></div>
-                            <span data-i18n="battle_rival">Rival</span>
+                <div class="battle-boss-card" id="battleBossCard">
+                    <div class="battle-side-card-head">
+                        <div>
+                            <span class="battle-side-card-kicker" data-i18n="battle_boss_panel_kicker">World event</span>
+                            <h4 data-i18n="battle_boss_title">Alpha Boss</h4>
                         </div>
+                        <span class="battle-side-card-pill" id="battleBossEstadoBadge">—</span>
+                    </div>
+
+                    <div class="battle-boss-main">
+                        <div class="battle-boss-avatar">👑</div>
+                        <div class="battle-boss-info">
+                            <strong id="battleBossNombre">—</strong>
+                            <p id="battleBossDescripcion">—</p>
+                        </div>
+                    </div>
+
+                    <div class="battle-boss-stats-grid">
+                        <div class="battle-boss-stat">
+                            <span data-i18n="battle_boss_schedule">Schedule</span>
+                            <strong data-i18n="battle_boss_schedule_value">20:00 server</strong>
+                        </div>
+                        <div class="battle-boss-stat">
+                            <span id="battleBossTimerLabel" data-i18n="battle_boss_starts_in">Starts in</span>
+                            <strong id="battleBossTimer">—</strong>
+                        </div>
+                        <div class="battle-boss-stat">
+                            <span data-i18n="battle_boss_damage">Your damage</span>
+                            <strong id="battleBossDamage">—</strong>
+                        </div>
+                    </div>
+
+                    <div class="battle-boss-actions">
+                        <button class="btn-battle btn-battle-primary" id="btnIniciarBoss" type="button" data-i18n="battle_boss_enter">Enter Boss</button>
+                        <button class="btn-battle btn-battle-light" id="btnRefrescarBoss" type="button" data-i18n="battle_boss_refresh">Refresh</button>
+                    </div>
+                </div>
+
+                <div class="battle-idle-card" id="battleIdleCard">
+                    <div class="battle-side-card-head">
+                        <div>
+                            <span class="battle-side-card-kicker" data-i18n="battle_idle_panel_kicker">Auto farming</span>
+                            <h4 data-i18n="battle_idle_title">Idle Expedition</h4>
+                        </div>
+                        <span class="battle-side-card-pill battle-side-card-pill-blue" id="battleIdleEstadoBadge">—</span>
+                    </div>
+
+                    <div class="battle-idle-config-grid">
+                        <label class="battle-idle-field">
+                            <span data-i18n="battle_idle_tier">Tier</span>
+                            <select id="battleIdleTier">
+                                <option value="ruta" data-i18n="battle_idle_tier_ruta">Route</option>
+                                <option value="elite" data-i18n="battle_idle_tier_elite">Elite</option>
+                                <option value="legend" data-i18n="battle_idle_tier_legend">Legend</option>
+                            </select>
+                        </label>
+
+                        <label class="battle-idle-field">
+                            <span data-i18n="battle_idle_duration">Duration</span>
+                            <select id="battleIdleDuration">
+                                <option value="3600" data-i18n="battle_idle_duration_1h">1 hour</option>
+                                <option value="7200" data-i18n="battle_idle_duration_2h">2 hours</option>
+                                <option value="14400" data-i18n="battle_idle_duration_4h">4 hours</option>
+                                <option value="28800" data-i18n="battle_idle_duration_8h">8 hours</option>
+                            </select>
+                        </label>
+                    </div>
+
+                    <div class="battle-idle-progress-wrap">
+                        <div class="battle-idle-progress-top">
+                            <span id="battleIdleTimerLabel" data-i18n="battle_idle_remaining">Remaining</span>
+                            <strong id="battleIdleTimer">—</strong>
+                        </div>
+                        <div class="battle-idle-progress-bar">
+                            <div id="battleIdleProgressFill" class="battle-idle-progress-fill" style="width:0%"></div>
+                        </div>
+                        <small id="battleIdleProgressText">—</small>
+                    </div>
+
+                    <div class="battle-idle-actions">
+                        <button class="btn-battle btn-battle-primary" id="btnIniciarIdle" type="button" data-i18n="battle_idle_start">Start idle</button>
+                        <button class="btn-battle btn-battle-secondary" id="btnReclamarIdle" type="button" data-i18n="battle_idle_claim">Claim</button>
+                        <button class="btn-battle btn-battle-light" id="btnCancelarIdle" type="button" data-i18n="battle_idle_cancel">Cancel</button>
                     </div>
                 </div>
 
@@ -226,18 +344,15 @@
                     </div>
                 </div>
 
-                <div class="battle-preview-card">
+                <div class="battle-preview-card battle-boss-ranking-card">
                     <div class="battle-preview-header">
-                        <span class="preview-badge" data-i18n="battle_preview_badge">Preview</span>
-                        <h4 data-i18n="battle_mode_flow_title">Battle mode flow</h4>
+                        <span class="preview-badge" data-i18n="battle_boss_today_label">Today</span>
+                        <h4 data-i18n="battle_boss_ranking_title">Boss damage ranking</h4>
                     </div>
 
-                    <ol class="battle-flow">
-                        <li data-i18n="battle_flow_1">Select your team of 6 Pokémon.</li>
-                        <li data-i18n="battle_flow_2">Save your main squad.</li>
-                        <li data-i18n="battle_flow_3">Face rivals in turn-based battles.</li>
-                        <li data-i18n="battle_flow_4">Gain experience and strengthen your team.</li>
-                    </ol>
+                    <div id="battleBossRankingList" class="battle-boss-ranking-list">
+                        <div class="battle-ranking-empty" data-i18n="battle_boss_ranking_empty">No Boss attempts yet.</div>
+                    </div>
                 </div>
             </div>
         </section>

@@ -1,11 +1,22 @@
 let battlePokemonUsuario = [];
 let battleEquipo = [];
 let battleTabActual = "todos";
+let battleModoActual = "arena";
+let battleBossEstadoActual = null;
+let battleBossRankingActual = [];
+let battleIdleEstadoActual = null;
+let battleModosTimer = null;
 
 const BATTLE_TEAM_STORAGE_KEY = "mastersmon_battle_team_v1";
 const BATTLE_ENEMY_LEVEL_BONUS_KEY = "mastersmon_battle_enemy_level_bonus_v1";
 const BATTLE_ARENA_DIFFICULTY_KEY = "mastersmon_battle_arena_difficulty_v1";
 const BATTLE_ACTIVITY_SESSION_KEY = "mastersmon_battle_activity_session_v1";
+const BATTLE_MODE_STORAGE_KEY = "mastersmon_battle_mode_v1";
+const BATTLE_ARENA_MODE_KEY = "mastersmon_battle_arena_mode_v1";
+const BATTLE_BOSS_SESSION_TOKEN_KEY = "mastersmon_battle_boss_session_token_v1";
+const BATTLE_BOSS_DATA_KEY = "mastersmon_battle_boss_data_v1";
+const BATTLE_BOSS_EVENT_KEY = "mastersmon_battle_boss_event_v1";
+const BATTLE_IDLE_SESSION_KEY = "mastersmon_battle_idle_session_v1";
 
 let battleActividadTimer = null;
 
@@ -31,12 +42,17 @@ async function inicializarBattle() {
     }
 
     configurarResumenUsuarioBattle();
+    cargarModoBattle();
     configurarEventosBattle();
     cargarEquipoGuardadoBattle();
     cargarDificultadBattle();
     renderSlotsEquipoBattle();
     renderResumenEquipoBattle();
+    renderPanelModoActualBattle();
+    renderBossBattle();
+    renderIdleBattle();
     renderColeccionBattleLoading();
+    iniciarRelojModosBattle();
 
     try {
         await cargarPokemonUsuarioBattle();
@@ -45,6 +61,10 @@ async function inicializarBattle() {
         renderSlotsEquipoBattle();
         renderColeccionBattle();
         renderResumenEquipoBattle();
+        await Promise.all([
+            cargarEstadoBossBattle(true),
+            cargarEstadoIdleBattle(true)
+        ]);
         iniciarHeartbeatActividadBattle();
     } catch (error) {
         console.error("Error iniciando Battle:", error);
@@ -59,6 +79,10 @@ async function inicializarBattle() {
                 renderSlotsEquipoBattle();
                 renderColeccionBattle();
                 renderResumenEquipoBattle();
+                await Promise.all([
+                    cargarEstadoBossBattle(true),
+                    cargarEstadoIdleBattle(true)
+                ]);
                 iniciarHeartbeatActividadBattle();
             } catch (retryError) {
                 console.error("Error en reintento de Battle:", retryError);
@@ -75,8 +99,12 @@ function refrescarUIBattlePorIdioma() {
 
     poblarFiltroTiposBattle();
     cargarDificultadBattle();
+    actualizarUISelectorModoBattle();
     renderSlotsEquipoBattle();
     renderResumenEquipoBattle();
+    renderPanelModoActualBattle();
+    renderBossBattle();
+    renderIdleBattle();
     renderColeccionBattle();
 }
 
@@ -93,6 +121,13 @@ function configurarEventosBattle() {
     const filtroEstado = document.getElementById("filtroEstadoBattle");
     const filtroOrden = document.getElementById("filtroOrdenBattle");
     const selectDificultad = document.getElementById("battleDificultadRival");
+    const btnBoss = document.getElementById("btnIniciarBoss");
+    const btnBossRefresh = document.getElementById("btnRefrescarBoss");
+    const btnIdleStart = document.getElementById("btnIniciarIdle");
+    const btnIdleClaim = document.getElementById("btnReclamarIdle");
+    const btnIdleCancel = document.getElementById("btnCancelarIdle");
+    const idleTier = document.getElementById("battleIdleTier");
+    const idleDuration = document.getElementById("battleIdleDuration");
 
     if (selectDificultad) {
         selectDificultad.addEventListener("change", guardarDificultadBattle);
@@ -148,13 +183,37 @@ function configurarEventosBattle() {
     }
 
     if (btnIniciar) {
-        btnIniciar.addEventListener("click", iniciarBatallaDemo);
+        btnIniciar.addEventListener("click", ejecutarModoSeleccionadoBattle);
     }
 
     if (buscador) buscador.addEventListener("input", renderColeccionBattle);
     if (filtroTipo) filtroTipo.addEventListener("change", renderColeccionBattle);
     if (filtroEstado) filtroEstado.addEventListener("change", renderColeccionBattle);
     if (filtroOrden) filtroOrden.addEventListener("change", renderColeccionBattle);
+
+    document.querySelectorAll("[data-battle-mode]").forEach(btn => {
+        btn.addEventListener("click", () => {
+            seleccionarModoBattle(btn.dataset.battleMode || "arena");
+        });
+    });
+
+    if (btnBoss) btnBoss.addEventListener("click", iniciarModoBossBattle);
+    if (btnBossRefresh) btnBossRefresh.addEventListener("click", () => cargarEstadoBossBattle(false));
+    if (btnIdleStart) btnIdleStart.addEventListener("click", iniciarModoIdleBattle);
+    if (btnIdleClaim) btnIdleClaim.addEventListener("click", reclamarIdleBattle);
+    if (btnIdleCancel) btnIdleCancel.addEventListener("click", cancelarIdleBattle);
+
+    if (idleTier) {
+        idleTier.addEventListener("change", () => {
+            if (!(battleIdleEstadoActual?.sesion?.estado)) renderIdleBattle();
+        });
+    }
+
+    if (idleDuration) {
+        idleDuration.addEventListener("change", () => {
+            if (!(battleIdleEstadoActual?.sesion?.estado)) renderIdleBattle();
+        });
+    }
 
     document.querySelectorAll("[data-battle-tab]").forEach(btn => {
         btn.addEventListener("click", () => {
@@ -628,6 +687,8 @@ function renderResumenEquipoBattle() {
     // Lo dejamos siempre habilitado para que el usuario reciba el modal de advertencia
     if (btnIniciar) btnIniciar.disabled = false;
 
+    actualizarEstadoModoSeleccionadoBattle();
+
     const resumenAtaque = document.getElementById("battleResumenAtaque");
     const resumenBalance = document.getElementById("battleResumenBalance");
     const resumenVelocidad = document.getElementById("battleResumenVelocidad");
@@ -877,6 +938,12 @@ function compararPokemonBattle(a, b, orden) {
 /* =========================
    ACCIONES
 ========================= */
+async function ejecutarModoSeleccionadoBattle() {
+    if (battleModoActual === "boss") return iniciarModoBossBattle();
+    if (battleModoActual === "idle") return iniciarModoIdleBattle();
+    return iniciarBatallaDemo();
+}
+
 async function iniciarBatallaDemo() {
     if (battleEquipo.length !== 6) {
         mostrarModalBattle(t("battle_need_six"), "warning");
@@ -890,15 +957,537 @@ async function iniciarBatallaDemo() {
         await guardarEquipoServidorBattle({ exigirSeis: true });
         registrarActividadBattle("view", `equipo:${battleEquipo.length}`).catch(() => {});
 
-        sessionStorage.setItem("mastersmon_battle_arena_team_v1", JSON.stringify(battleEquipo));
+        sessionStorage.setItem(BATTLE_ARENA_PLAYER_TEAM_KEY_SAFE(), JSON.stringify(battleEquipo));
         sessionStorage.setItem("mastersmon_battle_enemy_level_bonus_v1", String(bonusNivel));
         sessionStorage.setItem("mastersmon_battle_arena_difficulty_v1", obtenerCodigoDificultadBattleDesdeBonus(bonusNivel));
+        sessionStorage.setItem(BATTLE_ARENA_MODE_KEY, "arena");
+        sessionStorage.removeItem(BATTLE_BOSS_SESSION_TOKEN_KEY);
+        sessionStorage.removeItem(BATTLE_BOSS_DATA_KEY);
+        sessionStorage.removeItem(BATTLE_BOSS_EVENT_KEY);
 
-        window.location.href = "battle-arena.html";
+        window.location.href = "battle-arena.html?modo=arena";
     } catch (error) {
         console.error("No se pudo preparar la arena de combate:", error);
         mostrarModalBattle(error?.message || t("battle_prepare_combat_error"), "error");
     }
+}
+
+async function iniciarModoBossBattle() {
+    if (!getAccessToken()) {
+        mostrarModalBattle(tBattleSafe("battle_mode_requires_login", "You must sign in first."), "warning");
+        return;
+    }
+
+    if (battleEquipo.length !== 6) {
+        mostrarModalBattle(t("battle_need_six"), "warning");
+        return;
+    }
+
+    try {
+        await guardarEquipoServidorBattle({ exigirSeis: true });
+        const data = await iniciarBossBattleApi(obtenerIdsEquipoBattle(), true);
+
+        if (!data?.ok || !data?.boss_session_token || !data?.boss) {
+            throw new Error(data?.mensaje || tBattleSafe("battle_boss_start_error", "The Alpha Boss could not be started."));
+        }
+
+        sessionStorage.setItem(BATTLE_ARENA_MODE_KEY, "boss");
+        sessionStorage.setItem(BATTLE_BOSS_SESSION_TOKEN_KEY, String(data.boss_session_token));
+        sessionStorage.setItem(BATTLE_BOSS_DATA_KEY, JSON.stringify(data.boss));
+        sessionStorage.setItem(BATTLE_BOSS_EVENT_KEY, JSON.stringify({ boss_evento_id: data.boss_evento_id || null, fecha_evento: data.fecha_evento || null }));
+        sessionStorage.setItem(BATTLE_ARENA_PLAYER_TEAM_KEY_SAFE(), JSON.stringify(Array.isArray(data.snapshot_equipo) ? data.snapshot_equipo : battleEquipo));
+
+        window.location.href = "battle-arena.html?modo=boss";
+    } catch (error) {
+        console.error("No se pudo iniciar el Boss:", error);
+        mostrarModalBattle(error?.message || tBattleSafe("battle_boss_start_error", "The Alpha Boss could not be started."), "error");
+    }
+}
+
+async function iniciarModoIdleBattle() {
+    if (!getAccessToken()) {
+        mostrarModalBattle(tBattleSafe("battle_mode_requires_login", "You must sign in first."), "warning");
+        return;
+    }
+
+    if (battleEquipo.length !== 6) {
+        mostrarModalBattle(t("battle_need_six"), "warning");
+        return;
+    }
+
+    if (battleIdleEstadoActual?.sesion && ["activa", "reclamable"].includes(String(battleIdleEstadoActual.sesion.estado || ""))) {
+        mostrarModalBattle(tBattleSafe("battle_idle_active_message_fixed", "You already have an active Idle Expedition."), "info");
+        return;
+    }
+
+    try {
+        await guardarEquipoServidorBattle({ exigirSeis: true });
+        const tierCodigo = document.getElementById("battleIdleTier")?.value || "ruta";
+        const duracionSegundos = Number(document.getElementById("battleIdleDuration")?.value || 3600);
+        const data = await iniciarIdleBattleApi(tierCodigo, duracionSegundos, obtenerIdsEquipoBattle(), true);
+
+        if (!data?.ok || !data?.idle_session_token) {
+            throw new Error(data?.mensaje || tBattleSafe("battle_idle_start_error", "The Idle Expedition could not be started."));
+        }
+
+        sessionStorage.setItem(BATTLE_IDLE_SESSION_KEY, String(data.idle_session_token));
+        await cargarEstadoIdleBattle(true);
+        seleccionarModoBattle("idle", { persistir: true, refrescar: true });
+        mostrarModalBattle(tBattleSafe("battle_idle_started_ok", "Idle Expedition started successfully."), "ok");
+    } catch (error) {
+        console.error("No se pudo iniciar el modo Idle:", error);
+        mostrarModalBattle(error?.message || tBattleSafe("battle_idle_start_error", "The Idle Expedition could not be started."), "error");
+    }
+}
+
+async function reclamarIdleBattle() {
+    if (!getAccessToken()) {
+        mostrarModalBattle(tBattleSafe("battle_mode_requires_login", "You must sign in first."), "warning");
+        return;
+    }
+
+    try {
+        const data = await reclamarIdleBattleApi();
+        if (!data?.ok) {
+            throw new Error(data?.mensaje || tBattleSafe("battle_idle_claim_error", "Idle rewards could not be claimed."));
+        }
+
+        if (typeof data.pokedolares_actuales !== "undefined") {
+            localStorage.setItem("usuario_pokedolares", String(data.pokedolares_actuales));
+        }
+
+        sessionStorage.removeItem(BATTLE_IDLE_SESSION_KEY);
+        await cargarEstadoIdleBattle(true);
+
+        const resultado = data?.resultado || {};
+        mostrarModalBattle(
+            formatBattleText("battle_idle_claimed_text", {
+                coins: Number(resultado?.pokedolares_ganados || 0),
+                exp: Number(resultado?.exp_ganada || 0),
+                wins: Number(resultado?.victorias_estimadas || 0)
+            }),
+            "ok"
+        );
+    } catch (error) {
+        console.error("No se pudo reclamar Idle:", error);
+        mostrarModalBattle(error?.message || tBattleSafe("battle_idle_claim_error", "Idle rewards could not be claimed."), "error");
+    }
+}
+
+async function cancelarIdleBattle() {
+    if (!getAccessToken()) {
+        mostrarModalBattle(tBattleSafe("battle_mode_requires_login", "You must sign in first."), "warning");
+        return;
+    }
+
+    if (!battleIdleEstadoActual?.sesion?.token) {
+        mostrarModalBattle(tBattleSafe("battle_idle_status_idle", "No active Idle Expedition."), "info");
+        return;
+    }
+
+    mostrarConfirmacionBattle({
+        titulo: tBattleSafe("battle_idle_cancel_title", "Cancel Idle Expedition?"),
+        mensaje: tBattleSafe("battle_idle_cancel_confirm", "Your current Idle Expedition will be cancelled and no rewards will be granted."),
+        textoAceptar: tBattleSafe("battle_idle_cancel", "Cancel idle"),
+        tipo: "warning",
+        onConfirm: async () => {
+            try {
+                const data = await cancelarIdleBattleApi(battleIdleEstadoActual?.sesion?.token || "");
+                if (!data?.ok) {
+                    throw new Error(data?.mensaje || tBattleSafe("battle_idle_cancel_error", "The Idle Expedition could not be cancelled."));
+                }
+
+                sessionStorage.removeItem(BATTLE_IDLE_SESSION_KEY);
+                await cargarEstadoIdleBattle(true);
+                mostrarModalBattle(tBattleSafe("battle_idle_cancelled", "Idle Expedition cancelled."), "warning");
+            } catch (error) {
+                console.error("No se pudo cancelar Idle:", error);
+                mostrarModalBattle(error?.message || tBattleSafe("battle_idle_cancel_error", "The Idle Expedition could not be cancelled."), "error");
+            }
+        }
+    });
+}
+
+/* =========================
+   MODOS / BOSS / IDLE
+========================= */
+function BATTLE_ARENA_PLAYER_TEAM_KEY_SAFE() {
+    return "mastersmon_battle_arena_team_v1";
+}
+
+function cargarModoBattle() {
+    const guardado = localStorage.getItem(BATTLE_MODE_STORAGE_KEY) || sessionStorage.getItem(BATTLE_MODE_STORAGE_KEY) || "arena";
+    battleModoActual = ["arena", "boss", "idle"].includes(String(guardado).toLowerCase()) ? String(guardado).toLowerCase() : "arena";
+    actualizarUISelectorModoBattle();
+}
+
+function persistirModoBattle() {
+    localStorage.setItem(BATTLE_MODE_STORAGE_KEY, battleModoActual);
+    sessionStorage.setItem(BATTLE_MODE_STORAGE_KEY, battleModoActual);
+}
+
+function seleccionarModoBattle(modo = "arena", opciones = {}) {
+    const { persistir = true, refrescar = true } = opciones;
+    battleModoActual = ["arena", "boss", "idle"].includes(String(modo).toLowerCase()) ? String(modo).toLowerCase() : "arena";
+    if (persistir) persistirModoBattle();
+    actualizarUISelectorModoBattle();
+    actualizarEstadoModoSeleccionadoBattle();
+    if (refrescar) {
+        renderPanelModoActualBattle();
+        renderBossBattle();
+        renderIdleBattle();
+    }
+}
+
+function actualizarUISelectorModoBattle() {
+    document.querySelectorAll("[data-battle-mode]").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.battleMode === battleModoActual);
+    });
+}
+
+function actualizarEstadoModoSeleccionadoBattle() {
+    const btnIniciar = document.getElementById("btnIniciarBatalla");
+    const selectDificultad = document.getElementById("battleDificultadRival");
+    const diffCard = document.getElementById("battleDifficultyCard");
+
+    if (selectDificultad) selectDificultad.disabled = battleModoActual !== "arena";
+    if (diffCard) diffCard.classList.toggle("battle-mode-hidden", battleModoActual !== "arena");
+
+    if (btnIniciar) {
+        const key = battleModoActual === "boss" ? "battle_start_boss" : battleModoActual === "idle" ? "battle_start_idle" : "battle_start_arena";
+        btnIniciar.textContent = tBattleSafe(key, battleModoActual === "boss" ? "Enter Boss" : battleModoActual === "idle" ? "Start idle" : "Start battle");
+    }
+}
+
+function renderPanelModoActualBattle() {
+    const pill = document.getElementById("battleModoActualPill");
+    const nombre = document.getElementById("battleModoActualNombre");
+    const descripcion = document.getElementById("battleModoActualDescripcion");
+    const hint = document.getElementById("battleModoActualHint");
+    if (!pill || !nombre || !descripcion || !hint) return;
+
+    if (battleModoActual === "boss") {
+        pill.textContent = tBattleSafe("battle_mode_boss_title", "Alpha Boss");
+        nombre.textContent = tBattleSafe("battle_mode_boss_title", "Alpha Boss");
+        descripcion.textContent = tBattleSafe("battle_mode_boss_desc", "Use your 6 Pokémon against a single Alpha Boss that opens at 20:00 server time.");
+        hint.textContent = tBattleSafe("battle_mode_start_hint_boss", "Save your team and enter during the event window.");
+        return;
+    }
+
+    if (battleModoActual === "idle") {
+        pill.textContent = tBattleSafe("battle_mode_idle_title", "Idle Expedition");
+        nombre.textContent = tBattleSafe("battle_mode_idle_title", "Idle Expedition");
+        descripcion.textContent = tBattleSafe("battle_mode_idle_desc", "Send your team to farm EXP, Pokédollars and items over time.");
+        hint.textContent = tBattleSafe("battle_mode_start_hint_idle", "Start the expedition and return later to claim the rewards.");
+        return;
+    }
+
+    pill.textContent = tBattleSafe("battle_mode_arena_title", "Tactical Arena");
+    nombre.textContent = tBattleSafe("battle_mode_arena_title", "Tactical Arena");
+    descripcion.textContent = tBattleSafe("battle_mode_arena_desc", "Classic 6 vs 6 turn-based battle with selectable difficulty.");
+    hint.textContent = tBattleSafe("battle_mode_start_hint_arena", "Save your team and enter the arena.");
+}
+
+function iniciarRelojModosBattle() {
+    detenerRelojModosBattle();
+    battleModosTimer = window.setInterval(actualizarTemporizadoresLocalesBattle, 1000);
+}
+
+function detenerRelojModosBattle() {
+    if (battleModosTimer) {
+        window.clearInterval(battleModosTimer);
+        battleModosTimer = null;
+    }
+}
+
+function actualizarTemporizadoresLocalesBattle() {
+    if (battleBossEstadoActual?.hora_inicio && battleBossEstadoActual?.hora_fin) {
+        const ahora = Date.now();
+        const inicioMs = Date.parse(battleBossEstadoActual.hora_inicio);
+        const finMs = Date.parse(battleBossEstadoActual.hora_fin);
+        if (Number.isFinite(inicioMs) && Number.isFinite(finMs)) {
+            battleBossEstadoActual.segundos_para_inicio = Math.max(0, Math.floor((inicioMs - ahora) / 1000));
+            battleBossEstadoActual.segundos_para_fin = Math.max(0, Math.floor((finMs - ahora) / 1000));
+            battleBossEstadoActual.activo = ahora >= inicioMs && ahora < finMs;
+            battleBossEstadoActual.estado = battleBossEstadoActual.activo ? "activo" : (ahora < inicioMs ? "programado" : "cerrado");
+        }
+    }
+
+    if (battleIdleEstadoActual?.sesion?.termina_en) {
+        const terminaMs = Date.parse(battleIdleEstadoActual.sesion.termina_en);
+        const iniciaMs = Date.parse(battleIdleEstadoActual.sesion.iniciado_en || battleIdleEstadoActual.sesion.termina_en);
+        if (Number.isFinite(terminaMs)) {
+            const ahora = Date.now();
+            const restante = Math.max(0, Math.floor((terminaMs - ahora) / 1000));
+            const total = Math.max(1, Math.floor((terminaMs - (Number.isFinite(iniciaMs) ? iniciaMs : ahora)) / 1000));
+            const transcurrido = Math.max(0, total - restante);
+            battleIdleEstadoActual.sesion.segundos_restantes = restante;
+            battleIdleEstadoActual.sesion.progreso_pct = Math.max(0, Math.min(100, Math.round((transcurrido / total) * 100)));
+            if (restante <= 0 && battleIdleEstadoActual.sesion.estado === "activa") {
+                battleIdleEstadoActual.sesion.estado = "reclamable";
+            }
+        }
+    }
+
+    renderBossBattle();
+    renderIdleBattle();
+}
+
+async function cargarEstadoBossBattle(silencioso = true) {
+    if (!getAccessToken()) {
+        battleBossEstadoActual = null;
+        battleBossRankingActual = [];
+        renderBossBattle();
+        return null;
+    }
+
+    try {
+        const [estado, ranking] = await Promise.all([
+            obtenerEstadoBossBattleApi(),
+            obtenerRankingBossBattleApi(8).catch(() => ({ ranking: [] }))
+        ]);
+        battleBossEstadoActual = estado || null;
+        battleBossRankingActual = Array.isArray(ranking?.ranking) ? ranking.ranking : [];
+        renderBossBattle();
+        return estado;
+    } catch (error) {
+        if (!silencioso) {
+            mostrarModalBattle(error?.message || tBattleSafe("battle_boss_load_error", "The Alpha Boss state could not be loaded."), "error");
+        }
+        battleBossEstadoActual = { ok: false, activo: false, error: error?.message || "error" };
+        battleBossRankingActual = [];
+        renderBossBattle();
+        return null;
+    }
+}
+
+function renderBossBattle() {
+    const badge = document.getElementById("battleBossEstadoBadge");
+    const nombre = document.getElementById("battleBossNombre");
+    const descripcion = document.getElementById("battleBossDescripcion");
+    const timerLabel = document.getElementById("battleBossTimerLabel");
+    const timer = document.getElementById("battleBossTimer");
+    const damage = document.getElementById("battleBossDamage");
+    const btnBoss = document.getElementById("btnIniciarBoss");
+    const rankingBox = document.getElementById("battleBossRankingList");
+    if (!badge || !nombre || !descripcion || !timerLabel || !timer || !damage || !btnBoss || !rankingBox) return;
+
+    if (!getAccessToken()) {
+        badge.textContent = tBattleSafe("battle_boss_login_badge", "Login");
+        nombre.textContent = tBattleSafe("battle_mode_boss_title", "Alpha Boss");
+        descripcion.textContent = tBattleSafe("battle_boss_login_text", "Sign in to view today’s Alpha Boss event.");
+        timerLabel.textContent = tBattleSafe("battle_boss_starts_in", "Starts in");
+        timer.textContent = "—";
+        damage.textContent = "—";
+        btnBoss.disabled = true;
+        btnBoss.textContent = tBattleSafe("battle_boss_enter", "Enter Boss");
+        rankingBox.innerHTML = `<div class="battle-ranking-empty">${escapeHtmlBattle(tBattleSafe("battle_boss_ranking_empty", "No Boss attempts yet."))}</div>`;
+        return;
+    }
+
+    const estado = battleBossEstadoActual || {};
+    const participacion = estado?.participacion || null;
+    const boss = estado?.boss || null;
+    nombre.textContent = boss?.nombre || tBattleSafe("battle_mode_boss_title", "Alpha Boss");
+    descripcion.textContent = boss?.descripcion || tBattleSafe("battle_mode_boss_desc", "Use your 6 Pokémon against a single Alpha Boss that opens at 20:00 server time.");
+    damage.textContent = participacion ? String(Number(participacion.damage_total || 0)) : "0";
+
+    if (participacion?.reclamado_en) {
+        badge.textContent = tBattleSafe("battle_boss_status_done", "Completed");
+        timerLabel.textContent = tBattleSafe("battle_boss_schedule", "Schedule");
+        timer.textContent = tBattleSafe("battle_boss_schedule_value", "20:00 server");
+        btnBoss.disabled = true;
+        btnBoss.textContent = tBattleSafe("battle_boss_status_done", "Completed");
+    } else if (estado?.activo) {
+        badge.textContent = tBattleSafe("battle_boss_status_active", "Active");
+        timerLabel.textContent = tBattleSafe("battle_boss_ends_in", "Ends in");
+        timer.textContent = formatSecondsBattle(Number(estado?.segundos_para_fin || 0));
+        btnBoss.disabled = false;
+        btnBoss.textContent = tBattleSafe("battle_boss_enter", "Enter Boss");
+    } else {
+        badge.textContent = tBattleSafe("battle_boss_status_closed", "Closed");
+        timerLabel.textContent = tBattleSafe("battle_boss_starts_in", "Starts in");
+        timer.textContent = Number(estado?.segundos_para_inicio || 0) > 0 ? formatSecondsBattle(Number(estado?.segundos_para_inicio || 0)) : tBattleSafe("battle_boss_schedule_value", "20:00 server");
+        btnBoss.disabled = true;
+        btnBoss.textContent = tBattleSafe("battle_boss_enter", "Enter Boss");
+    }
+
+    if (!battleBossRankingActual.length) {
+        rankingBox.innerHTML = `<div class="battle-ranking-empty">${escapeHtmlBattle(tBattleSafe("battle_boss_ranking_empty", "No Boss attempts yet."))}</div>`;
+        return;
+    }
+
+    rankingBox.innerHTML = battleBossRankingActual.slice(0, 8).map(item => {
+        const porcentaje = Number(item?.boss_hp_total || 0) > 0 ? Math.min(100, Math.round((Number(item.damage_total || 0) / Number(item.boss_hp_total || 1)) * 100)) : 0;
+        return `
+            <div class="battle-boss-ranking-item">
+                <div class="battle-boss-ranking-left">
+                    <div class="battle-boss-ranking-place">${item.puesto ?? "-"}</div>
+                    <div>
+                        <div class="battle-boss-ranking-name">${escapeHtmlBattle(item.nombre || tBattleSafe("maps_trainer_default", "Trainer"))}</div>
+                        <span class="battle-boss-ranking-meta">${porcentaje}% HP</span>
+                    </div>
+                </div>
+                <div class="battle-boss-ranking-right">
+                    <strong>${Number(item.damage_total || 0).toLocaleString()}</strong>
+                    <span>${escapeHtmlBattle(tBattleSafe("battle_boss_top_damage", "Damage"))}</span>
+                    ${item.boss_derrotado ? `<div class="battle-boss-clear-badge">${escapeHtmlBattle(tBattleSafe("battle_boss_defeated_badge", "Cleared"))}</div>` : ""}
+                </div>
+            </div>`;
+    }).join("");
+}
+
+async function cargarEstadoIdleBattle(silencioso = true) {
+    if (!getAccessToken()) {
+        battleIdleEstadoActual = null;
+        renderIdleBattle();
+        return null;
+    }
+    try {
+        const data = await obtenerEstadoIdleBattleApi();
+        battleIdleEstadoActual = data || null;
+        renderIdleBattle();
+        return data;
+    } catch (error) {
+        if (!silencioso) {
+            mostrarModalBattle(error?.message || tBattleSafe("battle_idle_load_error", "The Idle Expedition state could not be loaded."), "error");
+        }
+        battleIdleEstadoActual = { ok: false, activa: false, sesion: null, error: error?.message || "error" };
+        renderIdleBattle();
+        return null;
+    }
+}
+
+function renderIdleBattle() {
+    const badge = document.getElementById("battleIdleEstadoBadge");
+    const tier = document.getElementById("battleIdleTier");
+    const duration = document.getElementById("battleIdleDuration");
+    const timerLabel = document.getElementById("battleIdleTimerLabel");
+    const timer = document.getElementById("battleIdleTimer");
+    const progressFill = document.getElementById("battleIdleProgressFill");
+    const progressText = document.getElementById("battleIdleProgressText");
+    const btnStart = document.getElementById("btnIniciarIdle");
+    const btnClaim = document.getElementById("btnReclamarIdle");
+    const btnCancel = document.getElementById("btnCancelarIdle");
+    if (!badge || !tier || !duration || !timerLabel || !timer || !progressFill || !progressText || !btnStart || !btnClaim || !btnCancel) return;
+
+    if (!getAccessToken()) {
+        badge.textContent = tBattleSafe("battle_boss_login_badge", "Login");
+        timerLabel.textContent = tBattleSafe("battle_idle_remaining", "Remaining");
+        timer.textContent = "—";
+        progressFill.style.width = "0%";
+        progressText.textContent = tBattleSafe("battle_idle_login_text", "Sign in to use Idle Expedition.");
+        btnStart.disabled = true;
+        btnClaim.disabled = true;
+        btnCancel.disabled = true;
+        tier.disabled = false;
+        duration.disabled = false;
+        return;
+    }
+
+    const sesion = battleIdleEstadoActual?.sesion || null;
+    if (!sesion || !battleIdleEstadoActual?.activa) {
+        badge.textContent = tBattleSafe("battle_idle_status_idle", "Ready");
+        timerLabel.textContent = tBattleSafe("battle_idle_remaining", "Remaining");
+        timer.textContent = "—";
+        progressFill.style.width = "0%";
+        progressText.textContent = tBattleSafe("battle_idle_status_idle_text", "Choose a tier and duration, then start the expedition.");
+        btnStart.disabled = false;
+        btnClaim.disabled = true;
+        btnCancel.disabled = true;
+        tier.disabled = false;
+        duration.disabled = false;
+        return;
+    }
+
+    const estado = String(sesion.estado || "activa").toLowerCase();
+    const progreso = Math.max(0, Math.min(100, Number(sesion.progreso_pct || 0)));
+    progressFill.style.width = `${progreso}%`;
+    timer.textContent = formatSecondsBattle(Number(sesion.segundos_restantes || 0));
+    tier.value = sesion.tier_codigo || tier.value;
+    duration.value = String(sesion.duracion_segundos || duration.value || 3600);
+    tier.disabled = true;
+    duration.disabled = true;
+
+    if (estado === "reclamable") {
+        badge.textContent = tBattleSafe("battle_idle_status_ready", "Ready");
+        timerLabel.textContent = tBattleSafe("battle_idle_progress", "Progress");
+        timer.textContent = "100%";
+        progressText.textContent = tBattleSafe("battle_idle_ready_message", "Your rewards are ready to claim.");
+        btnStart.disabled = true;
+        btnClaim.disabled = false;
+        btnCancel.disabled = true;
+        return;
+    }
+
+    badge.textContent = tBattleSafe("battle_idle_status_active", "Active");
+    timerLabel.textContent = tBattleSafe("battle_idle_remaining", "Remaining");
+    progressText.textContent = formatBattleText("battle_idle_active_message", { tier: traducirTierIdleBattle(sesion.tier_codigo), progress: progreso });
+    btnStart.disabled = true;
+    btnClaim.disabled = true;
+    btnCancel.disabled = false;
+}
+
+function traducirTierIdleBattle(codigo = "ruta") {
+    const valor = String(codigo || "ruta").toLowerCase();
+    if (valor === "legend") return tBattleSafe("battle_idle_tier_legend", "Legend");
+    if (valor === "elite") return tBattleSafe("battle_idle_tier_elite", "Elite");
+    return tBattleSafe("battle_idle_tier_ruta", "Route");
+}
+
+function formatSecondsBattle(seconds = 0) {
+    const total = Math.max(0, Number(seconds || 0));
+    const h = Math.floor(total / 3600);
+    const m = Math.floor((total % 3600) / 60);
+    const s = total % 60;
+    return [h, m, s].map(v => String(v).padStart(2, "0")).join(":");
+}
+
+async function obtenerEstadoBossBattleApi() {
+    if (typeof obtenerEstadoBossMundo === "function") return await obtenerEstadoBossMundo();
+    return await fetchBattleAuth(`${API_BASE}/battle/boss/estado`);
+}
+
+async function obtenerRankingBossBattleApi(limit = 8) {
+    if (typeof obtenerRankingBossMundo === "function") return await obtenerRankingBossMundo(limit);
+    return await fetchBattleAuth(`${API_BASE}/battle/boss/ranking?limit=${encodeURIComponent(limit)}`);
+}
+
+async function iniciarBossBattleApi(usuarioPokemonIds = [], guardarEquipo = true) {
+    if (typeof iniciarBossMundo === "function") return await iniciarBossMundo(usuarioPokemonIds, guardarEquipo);
+    return await fetchBattleAuth(`${API_BASE}/battle/boss/iniciar`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ usuario_pokemon_ids: Array.isArray(usuarioPokemonIds) ? usuarioPokemonIds : null, guardar_equipo: Boolean(guardarEquipo) })
+    });
+}
+
+async function obtenerEstadoIdleBattleApi() {
+    if (typeof obtenerEstadoIdle === "function") return await obtenerEstadoIdle();
+    return await fetchBattleAuth(`${API_BASE}/battle/idle/estado`);
+}
+
+async function iniciarIdleBattleApi(tierCodigo = "ruta", duracionSegundos = 3600, usuarioPokemonIds = [], guardarEquipo = true) {
+    if (typeof iniciarModoIdle === "function") return await iniciarModoIdle(tierCodigo, duracionSegundos, usuarioPokemonIds, guardarEquipo);
+    return await fetchBattleAuth(`${API_BASE}/battle/idle/iniciar`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tier_codigo: tierCodigo, duracion_segundos: duracionSegundos, usuario_pokemon_ids: Array.isArray(usuarioPokemonIds) ? usuarioPokemonIds : null, guardar_equipo: Boolean(guardarEquipo) })
+    });
+}
+
+async function reclamarIdleBattleApi() {
+    if (typeof reclamarModoIdle === "function") return await reclamarModoIdle();
+    return await fetchBattleAuth(`${API_BASE}/battle/idle/reclamar`, { method: "POST" });
+}
+
+async function cancelarIdleBattleApi(idleSessionToken = "") {
+    if (typeof cancelarModoIdle === "function") return await cancelarModoIdle(idleSessionToken);
+    return await fetchBattleAuth(`${API_BASE}/battle/idle/cancelar`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idle_session_token: String(idleSessionToken || "") })
+    });
 }
 
 /* =========================
@@ -1169,6 +1758,7 @@ function detenerHeartbeatActividadBattle() {
         window.clearInterval(battleActividadTimer);
         battleActividadTimer = null;
     }
+    detenerRelojModosBattle();
 }
 
 async function fetchBattleAuth(url, options = {}) {
