@@ -251,6 +251,36 @@ async function obtenerPokemonUsuarioActual() {
     }
 }
 
+async function obtenerMovimientosPokemonUsuario(usuarioPokemonId) {
+    try {
+        return await fetchAuth(`${API_BASE}/usuario/pokemon/${encodeURIComponent(usuarioPokemonId)}/movimientos`);
+    } catch (error) {
+        if (error.code === "NO_TOKEN" || error.code === "UNAUTHORIZED") {
+            return { ok: false, movimientos: [], equipados: [] };
+        }
+        console.error("Error en obtenerMovimientosPokemonUsuario:", error);
+        throw error;
+    }
+}
+
+async function equiparMovimientoPokemonUsuario(usuarioPokemonId, movimientoId, slot) {
+    try {
+        return await fetchAuth(`${API_BASE}/usuario/pokemon/${encodeURIComponent(usuarioPokemonId)}/movimientos/equipar`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                movimiento_id: Number(movimientoId),
+                slot: Number(slot)
+            })
+        });
+    } catch (error) {
+        console.error("Error en equiparMovimientoPokemonUsuario:", error);
+        throw error;
+    }
+}
+
 async function obtenerUsuarioActual() {
     try {
         const usuario = await fetchAuth(`${API_BASE}/usuario/me`);

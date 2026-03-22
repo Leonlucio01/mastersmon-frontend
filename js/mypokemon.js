@@ -3,8 +3,11 @@ let usuarioActualMyPokemon = null;
 let pokemonPendienteSoltar = null;
 let estadosEvolucionCache = new Map();
 let modalEvolucionActual = null;
+let modalMovimientosActual = null;
 let cargandoMyPokemonEnCurso = false;
 let avatarActualizandoMyPokemon = false;
+let equipandoMovimientoEnCurso = false;
+let movimientosPokemonCache = new Map();
 let avatarCarruselInicio = 0;
 
 const MY_POKEMON_CACHE_KEY = "mastersmon_mypokemon_cache";
@@ -56,6 +59,8 @@ function limpiarCacheMyPokemon() {
     } catch (error) {
         console.warn("No se pudo limpiar cache My Pokemon:", error);
     }
+
+    movimientosPokemonCache.clear();
 }
 
 function reemplazarParametrosTexto(texto, params = {}) {
@@ -283,6 +288,304 @@ function limpiarMensajeEvolucion() {
     box.textContent = "";
     box.classList.add("oculto");
     box.classList.remove("ok", "error");
+}
+
+function obtenerDatosMovimientosCache(usuarioPokemonId) {
+    return movimientosPokemonCache.get(Number(usuarioPokemonId)) || null;
+}
+
+function guardarDatosMovimientosCache(usuarioPokemonId, data) {
+    movimientosPokemonCache.set(Number(usuarioPokemonId), data || null);
+}
+
+function obtenerCategoriaMovimientoTexto(categoria) {
+    const valor = String(categoria || "").trim().toLowerCase();
+    if (valor === "fisico") return tMyPokemon("mypokemon_move_category_physical", "Physical");
+    if (valor === "especial") return tMyPokemon("mypokemon_move_category_special", "Special");
+    if (valor === "estado") return tMyPokemon("mypokemon_move_category_status", "Status");
+    return categoria || "-";
+}
+
+function obtenerMovimientoEquipadoPorSlot(movimientos = [], slot = 1) {
+    return (Array.isArray(movimientos) ? movimientos : []).find(mov => Number(mov?.slot) === Number(slot)) || null;
+}
+
+function renderModalMovimientosLoading(nombrePokemon = "") {
+    const contenido = document.getElementById("contenidoModalMovimientosPokemon");
+    if (!contenido) return;
+
+    contenido.innerHTML = `
+        <h2 class="titulo-modal-evolucion">${tMyPokemon("mypokemon_moves_title", "Pokémon moves")}</h2>
+        <p class="subtitulo-modal-evolucion">${escapeHtmlMyPokemon(nombrePokemon || tMyPokemon("mypokemon_moves_loading_subtitle", "Loading moves..."))}</p>
+        <div class="empty-box">
+            <h3>${tMyPokemon("mypokemon_moves_loading_title", "Loading moves...")}</h3>
+            <p>${tMyPokemon("mypokemon_moves_loading_text", "Please wait a moment.")}</p>
+        </div>
+    `;
+}
+
+function renderModalMovimientosError(nombrePokemon = "", mensaje = "") {
+    const contenido = document.getElementById("contenidoModalMovimientosPokemon");
+    if (!contenido) return;
+
+    contenido.innerHTML = `
+        <h2 class="titulo-modal-evolucion">${tMyPokemon("mypokemon_moves_title", "Pokémon moves")}</h2>
+        <p class="subtitulo-modal-evolucion">${escapeHtmlMyPokemon(nombrePokemon || "")}</p>
+        <div class="empty-box">
+            <h3>${tMyPokemon("mypokemon_moves_error_title", "Could not load moves")}</h3>
+            <p>${escapeHtmlMyPokemon(mensaje || tMyPokemon("mypokemon_moves_error_text", "Try again in a moment."))}</p>
+            <button type="button" class="btn-evolucionar" data-skill-refresh="1">
+                ${tMyPokemon("mypokemon_moves_retry", "Retry")}
+            </button>
+        </div>
+    `;
+}
+
+function renderModalMovimientosContenido() {
+    const contenido = document.getElementById("contenidoModalMovimientosPokemon");
+    if (!contenido || !modalMovimientosActual) return;
+
+    if (modalMovimientosActual.cargando) {
+        renderModalMovimientosLoading(modalMovimientosActual.nombrePokemon);
+        return;
+    }
+
+    const data = modalMovimientosActual.data || {};
+    const usuarioPokemon = data.usuario_pokemon || {};
+    const movimientos = Array.isArray(data.movimientos) ? data.movimientos : [];
+    const nombrePokemon = usuarioPokemon.nombre || modalMovimientosActual.nombrePokemon || "Pokémon";
+    const nivelPokemon = Number(usuarioPokemon.nivel || 1);
+    const tipoPokemon = traducirTipoPokemonMyPokemon(usuarioPokemon.tipo || "");
+    const slotSeleccionado = Number(modalMovimientosActual.slotSeleccionado || 1);
+
+    const slotsHtml = [1, 2, 3, 4].map(slot => {
+        const movimiento = obtenerMovimientoEquipadoPorSlot(movimientos, slot);
+        const activo = slotSeleccionado === slot;
+        return `
+            <button
+                type="button"
+                class="item-evolucion-card ${activo ? "evolucion-lista" : ""}"
+                data-skill-slot="${slot}"
+                ${equipandoMovimientoEnCurso ? "disabled" : ""}
+            >
+                <div class="item-evolucion-top">
+                    <div>
+                        <h3>${tMyPokemon("mypokemon_moves_slot_label", "Slot")} ${slot}</h3>
+                        <p>${movimiento ? escapeHtmlMyPokemon(movimiento.nombre) : tMyPokemon("mypokemon_moves_empty_slot", "Empty slot")}</p>
+                        <p>${movimiento ? `${escapeHtmlMyPokemon(traducirTipoPokemonMyPokemon(movimiento.tipo || ""))} · ${escapeHtmlMyPokemon(obtenerCategoriaMovimientoTexto(movimiento.categoria))}` : tMyPokemon("mypokemon_moves_select_slot", "Select this slot")}</p>
+                    </div>
+                </div>
+            </button>
+        `;
+    }).join("");
+
+    const movimientosHtml = movimientos.length
+        ? movimientos.map(mov => {
+            const estaEquipado = Number(mov.slot || 0) > 0;
+            const potencia = mov.potencia != null ? String(mov.potencia) : tMyPokemon("mypokemon_moves_no_power", "-" );
+            return `
+                <button
+                    type="button"
+                    class="item-evolucion-card"
+                    data-skill-equip="${mov.movimiento_id}"
+                    ${equipandoMovimientoEnCurso ? "disabled" : ""}
+                >
+                    <div class="item-evolucion-top">
+                        <div>
+                            <h3>${escapeHtmlMyPokemon(mov.nombre)}</h3>
+                            <p>${escapeHtmlMyPokemon(traducirTipoPokemonMyPokemon(mov.tipo || ""))} · ${escapeHtmlMyPokemon(obtenerCategoriaMovimientoTexto(mov.categoria))}</p>
+                            <p>Power: ${escapeHtmlMyPokemon(potencia)} · ACC: ${escapeHtmlMyPokemon(String(mov.precision_pct || 0))}% · CD: ${escapeHtmlMyPokemon(String(mov.cooldown_turnos || 0))}</p>
+                            <p>${estaEquipado ? `${tMyPokemon("mypokemon_moves_equipped_in", "Equipped in slot")} ${mov.slot}` : `${tMyPokemon("mypokemon_moves_unlock_level", "Unlock level")} ${mov.nivel_requerido}`}</p>
+                        </div>
+                    </div>
+                </button>
+            `;
+        }).join("")
+        : `
+            <div class="empty-box">
+                <h3>${tMyPokemon("mypokemon_moves_empty_title", "No moves available")}</h3>
+                <p>${tMyPokemon("mypokemon_moves_empty_text", "This Pokémon has no unlocked moves yet.")}</p>
+            </div>
+        `;
+
+    contenido.innerHTML = `
+        <h2 class="titulo-modal-evolucion">${tMyPokemon("mypokemon_moves_title", "Pokémon moves")}</h2>
+        <p class="subtitulo-modal-evolucion">${escapeHtmlMyPokemon(nombrePokemon)} · Lv ${nivelPokemon}${tipoPokemon ? ` · ${escapeHtmlMyPokemon(tipoPokemon)}` : ""}</p>
+
+        <div class="evolucion-detalle ok">
+            ${tMyPokemon("mypokemon_moves_help", "Select a slot first, then choose the move you want to equip.")}
+        </div>
+
+        <div class="inventario-lista">
+            ${slotsHtml}
+        </div>
+
+        <div class="item-evolucion-card">
+            <div class="item-evolucion-top">
+                <div>
+                    <h3>${tMyPokemon("mypokemon_moves_selected_slot", "Selected slot")}: ${slotSeleccionado}</h3>
+                    <p>${tMyPokemon("mypokemon_moves_available_list", "Unlocked moves")}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="inventario-lista">
+            ${movimientosHtml}
+        </div>
+
+        <div class="evolucion-botones">
+            <button type="button" class="btn-cancelar-modal" onclick="cerrarModalMovimientosPokemon()">${t("battle_cancel")}</button>
+            <button type="button" class="btn-evolucionar" data-skill-refresh="1" ${equipandoMovimientoEnCurso ? "disabled" : ""}>
+                ${equipandoMovimientoEnCurso ? tMyPokemon("mypokemon_moves_saving", "Saving...") : tMyPokemon("mypokemon_moves_refresh", "Refresh")}
+            </button>
+        </div>
+    `;
+}
+
+async function abrirModalMovimientosPokemon(usuarioPokemonId, nombrePokemon, { forzar = false } = {}) {
+    const modal = document.getElementById("modalMovimientosPokemon");
+    if (!modal) return;
+
+    modal.classList.remove("oculto");
+
+    const cache = !forzar ? obtenerDatosMovimientosCache(usuarioPokemonId) : null;
+    modalMovimientosActual = {
+        usuarioPokemonId: Number(usuarioPokemonId),
+        nombrePokemon: String(nombrePokemon || "Pokémon"),
+        slotSeleccionado: Number(modalMovimientosActual?.usuarioPokemonId) === Number(usuarioPokemonId)
+            ? Number(modalMovimientosActual?.slotSeleccionado || 1)
+            : 1,
+        data: cache,
+        cargando: true
+    };
+
+    if (cache && !forzar) {
+        modalMovimientosActual.cargando = false;
+        renderModalMovimientosContenido();
+    } else {
+        renderModalMovimientosLoading(nombrePokemon);
+    }
+
+    try {
+        const data = await obtenerMovimientosPokemonUsuario(usuarioPokemonId);
+        if (!modalMovimientosActual || Number(modalMovimientosActual.usuarioPokemonId) !== Number(usuarioPokemonId)) {
+            return;
+        }
+
+        guardarDatosMovimientosCache(usuarioPokemonId, data);
+        modalMovimientosActual.data = data;
+        modalMovimientosActual.cargando = false;
+        modalMovimientosActual.nombrePokemon = data?.usuario_pokemon?.nombre || modalMovimientosActual.nombrePokemon;
+        renderModalMovimientosContenido();
+    } catch (error) {
+        console.error("Error cargando movimientos del Pokémon:", error);
+
+        if (esErrorAuthMyPokemon(error)) {
+            cerrarModalMovimientosPokemon();
+            manejarErrorAuthMyPokemon();
+            mostrarMensajeEvolucion(t("mypokemon_login_required_action"), "error");
+            return;
+        }
+
+        if (!modalMovimientosActual || Number(modalMovimientosActual.usuarioPokemonId) !== Number(usuarioPokemonId)) {
+            return;
+        }
+
+        modalMovimientosActual.cargando = false;
+        renderModalMovimientosError(nombrePokemon, error.message || tMyPokemon("mypokemon_moves_error_text", "Try again in a moment."));
+    }
+}
+
+function cerrarModalMovimientosPokemon() {
+    const modal = document.getElementById("modalMovimientosPokemon");
+    const contenido = document.getElementById("contenidoModalMovimientosPokemon");
+
+    if (modal) modal.classList.add("oculto");
+    if (contenido) contenido.innerHTML = "";
+
+    equipandoMovimientoEnCurso = false;
+    modalMovimientosActual = null;
+}
+
+async function equiparMovimientoSeleccionado(movimientoId) {
+    if (!modalMovimientosActual || equipandoMovimientoEnCurso) return;
+
+    const usuarioPokemonId = Number(modalMovimientosActual.usuarioPokemonId || 0);
+    const slot = Number(modalMovimientosActual.slotSeleccionado || 1);
+
+    if (!usuarioPokemonId || !movimientoId || slot < 1 || slot > 4) return;
+
+    equipandoMovimientoEnCurso = true;
+    renderModalMovimientosContenido();
+
+    try {
+        const data = await equiparMovimientoPokemonUsuario(usuarioPokemonId, movimientoId, slot);
+
+        const payloadActual = modalMovimientosActual?.data || {};
+        const actualizado = {
+            ...payloadActual,
+            movimientos: Array.isArray(data?.movimientos) ? data.movimientos : [],
+            equipados: Array.isArray(data?.equipados) ? data.equipados : []
+        };
+
+        guardarDatosMovimientosCache(usuarioPokemonId, actualizado);
+
+        if (modalMovimientosActual && Number(modalMovimientosActual.usuarioPokemonId) === usuarioPokemonId) {
+            modalMovimientosActual.data = actualizado;
+        }
+
+        renderModalMovimientosContenido();
+        mostrarMensajeEvolucion(data?.mensaje || tMyPokemon("mypokemon_moves_saved", "Move equipped successfully"), "ok");
+    } catch (error) {
+        console.error("Error equipando movimiento:", error);
+
+        if (esErrorAuthMyPokemon(error)) {
+            cerrarModalMovimientosPokemon();
+            manejarErrorAuthMyPokemon();
+            mostrarMensajeEvolucion(t("mypokemon_login_required_action"), "error");
+            return;
+        }
+
+        renderModalMovimientosContenido();
+        mostrarMensajeEvolucion(error.message || tMyPokemon("mypokemon_moves_save_error", "Could not equip the move"), "error");
+    } finally {
+        equipandoMovimientoEnCurso = false;
+        if (modalMovimientosActual) {
+            renderModalMovimientosContenido();
+        }
+    }
+}
+
+function configurarEventosMovimientosPokemon() {
+    const modal = document.getElementById("modalMovimientosPokemon");
+    if (!modal) return;
+
+    modal.addEventListener("click", async (event) => {
+        const btnRefresh = event.target.closest("[data-skill-refresh]");
+        if (btnRefresh && modalMovimientosActual) {
+            await abrirModalMovimientosPokemon(
+                modalMovimientosActual.usuarioPokemonId,
+                modalMovimientosActual.nombrePokemon,
+                { forzar: true }
+            );
+            return;
+        }
+
+        const btnSlot = event.target.closest("[data-skill-slot]");
+        if (btnSlot && modalMovimientosActual && !equipandoMovimientoEnCurso) {
+            modalMovimientosActual.slotSeleccionado = Number(btnSlot.dataset.skillSlot || 1);
+            renderModalMovimientosContenido();
+            return;
+        }
+
+        const btnEquipar = event.target.closest("[data-skill-equip]");
+        if (btnEquipar) {
+            const movimientoId = Number(btnEquipar.dataset.skillEquip || 0);
+            if (movimientoId > 0) {
+                await equiparMovimientoSeleccionado(movimientoId);
+            }
+        }
+    });
 }
 
 function esErrorAuthMyPokemon(error) {
@@ -566,6 +869,7 @@ async function cargarDatosBaseMyPokemon({ forzar = false } = {}) {
             misPokemonData = [];
             estadosEvolucionCache.clear();
             limpiarCacheMyPokemon();
+            cerrarModalMovimientosPokemon();
             renderEstadoSinSesion();
             return false;
         }
@@ -591,6 +895,7 @@ async function cargarDatosBaseMyPokemon({ forzar = false } = {}) {
             misPokemonData = [];
             estadosEvolucionCache.clear();
             limpiarCacheMyPokemon();
+            cerrarModalMovimientosPokemon();
             renderEstadoSinSesion();
             return false;
         }
@@ -785,6 +1090,10 @@ function construirCardPokemon(p, evoData = null) {
                     ${estado.texto}
                 </button>
 
+                <button class="btn-evolucionar" onclick="abrirModalMovimientosPokemon(${p.id}, '${nombreSeguro}')">
+                    ${tMyPokemon("mypokemon_moves_button", "Moves")}
+                </button>
+
                 <button class="btn-soltar" onclick="abrirModalSoltar(${p.id}, '${nombreSeguro}')">
                     ${t("mypokemon_release_button")}
                 </button>
@@ -907,6 +1216,12 @@ async function confirmarSoltarPokemon() {
         renderResumenColeccion(resumenData);
 
         estadosEvolucionCache.clear();
+        movimientosPokemonCache.delete(Number(pokemonPendienteSoltar?.usuarioPokemonId || 0));
+
+        if (modalMovimientosActual && Number(modalMovimientosActual.usuarioPokemonId) === Number(pokemonPendienteSoltar?.usuarioPokemonId || 0)) {
+            cerrarModalMovimientosPokemon();
+        }
+
         aplicarFiltrosMisPokemon();
     } catch (error) {
         console.error("Error al soltar Pokémon:", error);
@@ -1121,6 +1436,12 @@ async function confirmarEvolucionNivel(usuarioPokemonId) {
         guardarCacheJSON(MY_POKEMON_CACHE_KEY, misPokemonData);
 
         estadosEvolucionCache.clear();
+        movimientosPokemonCache.delete(Number(usuarioPokemonId));
+
+        if (modalMovimientosActual && Number(modalMovimientosActual.usuarioPokemonId) === Number(usuarioPokemonId)) {
+            await abrirModalMovimientosPokemon(usuarioPokemonId, modalMovimientosActual?.nombrePokemon || "Pokémon", { forzar: true });
+        }
+
         aplicarFiltrosMisPokemon();
     } catch (error) {
         console.error("Error evolucionando por nivel:", error);
@@ -1183,6 +1504,12 @@ async function confirmarEvolucionItem(usuarioPokemonId, itemId) {
         renderInventarioUsuario(Array.isArray(items) ? items : []);
 
         estadosEvolucionCache.clear();
+        movimientosPokemonCache.delete(Number(usuarioPokemonId));
+
+        if (modalMovimientosActual && Number(modalMovimientosActual.usuarioPokemonId) === Number(usuarioPokemonId)) {
+            await abrirModalMovimientosPokemon(usuarioPokemonId, modalMovimientosActual?.nombrePokemon || "Pokémon", { forzar: true });
+        }
+
         aplicarFiltrosMisPokemon();
     } catch (error) {
         console.error("Error evolucionando por item:", error);
@@ -1321,6 +1648,10 @@ function refrescarUIIdiomaMyPokemon() {
             modalEvolucionActual.data
         );
     }
+
+    if (modalMovimientosActual) {
+        renderModalMovimientosContenido();
+    }
 }
 
 function configurarEventosAvatarSelector() {
@@ -1359,6 +1690,7 @@ function configurarEventosSesionMyPokemon() {
             misPokemonData = [];
             estadosEvolucionCache.clear();
             limpiarCacheMyPokemon();
+            cerrarModalMovimientosPokemon();
             renderEstadoSinSesion();
             return;
         }
@@ -1372,6 +1704,7 @@ document.addEventListener("DOMContentLoaded", () => {
     configurarMenuMobileMyPokemon();
     configurarSelectorIdiomaMyPokemon();
     configurarEventosAvatarSelector();
+    configurarEventosMovimientosPokemon();
     configurarEventosSesionMyPokemon();
     renderAvatarSelector();
     cargarMisPokemon();
