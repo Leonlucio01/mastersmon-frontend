@@ -1379,43 +1379,47 @@ function usuarioAutenticadoMaps() {
  
 function obtenerEstadoCapturaMapa(pokemonId, esShiny, listaPokemonUsuario = []) {
     const shinyActual = esShiny === true || esShiny === 1 || esShiny === "true";
- 
+
     let cantidadExacta = 0;
-    let cantidadTotal = 0;
- 
+    let cantidadOtrasVariantes = 0;
+
     for (const p of listaPokemonUsuario) {
         if (Number(p.pokemon_id) !== Number(pokemonId)) continue;
- 
-        cantidadTotal += 1;
- 
+
         const shinyPokemon = p.es_shiny === true || p.es_shiny === 1 || p.es_shiny === "true";
+
         if (shinyPokemon === shinyActual) {
             cantidadExacta += 1;
+        } else {
+            cantidadOtrasVariantes += 1;
         }
     }
- 
+
     if (cantidadExacta > 0) {
         return {
             capturado: true,
             variante: "exacto",
             cantidad: cantidadExacta,
+            cantidad_otras_variantes: cantidadOtrasVariantes,
             imagen: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png"
         };
     }
- 
-    if (cantidadTotal > 0) {
+
+    if (cantidadOtrasVariantes > 0) {
         return {
             capturado: true,
             variante: "otra-version",
-            cantidad: cantidadTotal,
+            cantidad: 0,
+            cantidad_otras_variantes: cantidadOtrasVariantes,
             imagen: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png"
         };
     }
- 
+
     return {
         capturado: false,
         variante: "ninguno",
         cantidad: 0,
+        cantidad_otras_variantes: 0,
         imagen: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png"
     };
 }
@@ -1919,9 +1923,15 @@ function renderEncuentroActual() {
                     alt="${t("maps_capture_status")}"
                 >
             </div>
- 
+
             <div class="captura-cantidad-box">
-                x${estadoCaptura.cantidad}
+                ${
+                    estadoCaptura.variante === "exacto"
+                        ? `x${estadoCaptura.cantidad}`
+                        : estadoCaptura.variante === "otra-version"
+                            ? `✨ x${estadoCaptura.cantidad_otras_variantes}`
+                            : `x0`
+                }
             </div>
         </div>
  
