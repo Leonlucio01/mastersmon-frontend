@@ -20,6 +20,9 @@ let arenaBattleSessionTtlSegundos = 0;
 let arenaDificultadActual = "normal";
 let arenaActividadHeartbeat = null;
 
+let arenaMovesPanelAbierto = false;
+let arenaMovimientoJugadorPendiente = null;
+
 
 const BATTLE_TEAM_STORAGE_KEY = "mastersmon_battle_team_v1";
 const BATTLE_ARENA_PLAYER_TEAM_KEY = "mastersmon_battle_arena_team_v1";
@@ -170,6 +173,123 @@ const ARENA_TYPE_EFFECTIVENESS = {
     }
 };
 
+
+const ARENA_MOVE_LIBRARY = {
+    tackle:         { codigo: "tackle", nombre: "Tackle", tipo: "Normal",   categoria: "fisico",   potencia: 40,  precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 1 },
+    headbutt:       { codigo: "headbutt", nombre: "Headbutt", tipo: "Normal", categoria: "fisico", potencia: 55, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 6 },
+    quick_attack:   { codigo: "quick_attack", nombre: "Quick Attack", tipo: "Normal", categoria: "fisico", potencia: 45, precision_pct: 100, cooldown_turnos: 0, prioridad: 1, nivel_requerido: 10 },
+    swift:          { codigo: "swift", nombre: "Swift", tipo: "Normal", categoria: "especial", potencia: 60, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 18 },
+
+    ember:          { codigo: "ember", nombre: "Ember", tipo: "Fire", categoria: "especial", potencia: 40, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 1 },
+    flame_wheel:    { codigo: "flame_wheel", nombre: "Flame Wheel", tipo: "Fire", categoria: "fisico", potencia: 60, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 12 },
+    flamethrower:   { codigo: "flamethrower", nombre: "Flamethrower", tipo: "Fire", categoria: "especial", potencia: 90, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 24 },
+    fire_blast:     { codigo: "fire_blast", nombre: "Fire Blast", tipo: "Fire", categoria: "especial", potencia: 110, precision_pct: 85, cooldown_turnos: 1, prioridad: 0, nivel_requerido: 42 },
+
+    water_gun:      { codigo: "water_gun", nombre: "Water Gun", tipo: "Water", categoria: "especial", potencia: 40, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 1 },
+    bubble_beam:    { codigo: "bubble_beam", nombre: "Bubble Beam", tipo: "Water", categoria: "especial", potencia: 65, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 12 },
+    aqua_tail:      { codigo: "aqua_tail", nombre: "Aqua Tail", tipo: "Water", categoria: "fisico", potencia: 80, precision_pct: 90, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 24 },
+    hydro_pump:     { codigo: "hydro_pump", nombre: "Hydro Pump", tipo: "Water", categoria: "especial", potencia: 110, precision_pct: 80, cooldown_turnos: 1, prioridad: 0, nivel_requerido: 42 },
+
+    vine_whip:      { codigo: "vine_whip", nombre: "Vine Whip", tipo: "Grass", categoria: "fisico", potencia: 45, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 1 },
+    razor_leaf:     { codigo: "razor_leaf", nombre: "Razor Leaf", tipo: "Grass", categoria: "fisico", potencia: 55, precision_pct: 95, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 12 },
+    giga_drain:     { codigo: "giga_drain", nombre: "Giga Drain", tipo: "Grass", categoria: "especial", potencia: 75, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 24 },
+    solar_beam:     { codigo: "solar_beam", nombre: "Solar Beam", tipo: "Grass", categoria: "especial", potencia: 120, precision_pct: 100, cooldown_turnos: 1, prioridad: 0, nivel_requerido: 42 },
+
+    thunder_shock:  { codigo: "thunder_shock", nombre: "Thunder Shock", tipo: "Electric", categoria: "especial", potencia: 40, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 1 },
+    spark:          { codigo: "spark", nombre: "Spark", tipo: "Electric", categoria: "fisico", potencia: 65, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 12 },
+    thunderbolt:    { codigo: "thunderbolt", nombre: "Thunderbolt", tipo: "Electric", categoria: "especial", potencia: 90, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 24 },
+    thunder:        { codigo: "thunder", nombre: "Thunder", tipo: "Electric", categoria: "especial", potencia: 110, precision_pct: 70, cooldown_turnos: 1, prioridad: 0, nivel_requerido: 42 },
+
+    powder_snow:    { codigo: "powder_snow", nombre: "Powder Snow", tipo: "Ice", categoria: "especial", potencia: 40, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 1 },
+    ice_shard:      { codigo: "ice_shard", nombre: "Ice Shard", tipo: "Ice", categoria: "fisico", potencia: 40, precision_pct: 100, cooldown_turnos: 0, prioridad: 1, nivel_requerido: 10 },
+    ice_beam:       { codigo: "ice_beam", nombre: "Ice Beam", tipo: "Ice", categoria: "especial", potencia: 90, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 24 },
+    blizzard:       { codigo: "blizzard", nombre: "Blizzard", tipo: "Ice", categoria: "especial", potencia: 110, precision_pct: 70, cooldown_turnos: 1, prioridad: 0, nivel_requerido: 42 },
+
+    karate_chop:    { codigo: "karate_chop", nombre: "Karate Chop", tipo: "Fighting", categoria: "fisico", potencia: 50, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 1 },
+    brick_break:    { codigo: "brick_break", nombre: "Brick Break", tipo: "Fighting", categoria: "fisico", potencia: 75, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 14 },
+    cross_chop:     { codigo: "cross_chop", nombre: "Cross Chop", tipo: "Fighting", categoria: "fisico", potencia: 100, precision_pct: 80, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 28 },
+    close_combat:   { codigo: "close_combat", nombre: "Close Combat", tipo: "Fighting", categoria: "fisico", potencia: 120, precision_pct: 100, cooldown_turnos: 1, prioridad: 0, nivel_requerido: 42 },
+
+    poison_sting:   { codigo: "poison_sting", nombre: "Poison Sting", tipo: "Poison", categoria: "fisico", potencia: 35, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 1 },
+    acid:           { codigo: "acid", nombre: "Acid", tipo: "Poison", categoria: "especial", potencia: 40, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 12 },
+    sludge_bomb:    { codigo: "sludge_bomb", nombre: "Sludge Bomb", tipo: "Poison", categoria: "especial", potencia: 90, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 24 },
+    gunk_shot:      { codigo: "gunk_shot", nombre: "Gunk Shot", tipo: "Poison", categoria: "fisico", potencia: 110, precision_pct: 80, cooldown_turnos: 1, prioridad: 0, nivel_requerido: 42 },
+
+    mud_slap:       { codigo: "mud_slap", nombre: "Mud Slap", tipo: "Ground", categoria: "especial", potencia: 35, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 1 },
+    bulldoze:       { codigo: "bulldoze", nombre: "Bulldoze", tipo: "Ground", categoria: "fisico", potencia: 60, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 12 },
+    dig:            { codigo: "dig", nombre: "Dig", tipo: "Ground", categoria: "fisico", potencia: 80, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 24 },
+    earthquake:     { codigo: "earthquake", nombre: "Earthquake", tipo: "Ground", categoria: "fisico", potencia: 100, precision_pct: 100, cooldown_turnos: 1, prioridad: 0, nivel_requerido: 42 },
+
+    gust:           { codigo: "gust", nombre: "Gust", tipo: "Flying", categoria: "especial", potencia: 40, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 1 },
+    wing_attack:    { codigo: "wing_attack", nombre: "Wing Attack", tipo: "Flying", categoria: "fisico", potencia: 60, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 12 },
+    air_slash:      { codigo: "air_slash", nombre: "Air Slash", tipo: "Flying", categoria: "especial", potencia: 75, precision_pct: 95, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 24 },
+    drill_peck:     { codigo: "drill_peck", nombre: "Drill Peck", tipo: "Flying", categoria: "fisico", potencia: 90, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 42 },
+
+    confusion:      { codigo: "confusion", nombre: "Confusion", tipo: "Psychic", categoria: "especial", potencia: 50, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 1 },
+    psybeam:        { codigo: "psybeam", nombre: "Psybeam", tipo: "Psychic", categoria: "especial", potencia: 65, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 12 },
+    psychic:        { codigo: "psychic", nombre: "Psychic", tipo: "Psychic", categoria: "especial", potencia: 90, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 24 },
+    future_sight:   { codigo: "future_sight", nombre: "Future Sight", tipo: "Psychic", categoria: "especial", potencia: 110, precision_pct: 100, cooldown_turnos: 1, prioridad: 0, nivel_requerido: 42 },
+
+    bug_bite:       { codigo: "bug_bite", nombre: "Bug Bite", tipo: "Bug", categoria: "fisico", potencia: 60, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 1 },
+    signal_beam:    { codigo: "signal_beam", nombre: "Signal Beam", tipo: "Bug", categoria: "especial", potencia: 75, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 12 },
+    x_scissor:      { codigo: "x_scissor", nombre: "X-Scissor", tipo: "Bug", categoria: "fisico", potencia: 80, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 24 },
+    megahorn:       { codigo: "megahorn", nombre: "Megahorn", tipo: "Bug", categoria: "fisico", potencia: 120, precision_pct: 85, cooldown_turnos: 1, prioridad: 0, nivel_requerido: 42 },
+
+    rock_throw:     { codigo: "rock_throw", nombre: "Rock Throw", tipo: "Rock", categoria: "fisico", potencia: 50, precision_pct: 90, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 1 },
+    rock_slide:     { codigo: "rock_slide", nombre: "Rock Slide", tipo: "Rock", categoria: "fisico", potencia: 75, precision_pct: 90, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 12 },
+    power_gem:      { codigo: "power_gem", nombre: "Power Gem", tipo: "Rock", categoria: "especial", potencia: 80, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 24 },
+    stone_edge:     { codigo: "stone_edge", nombre: "Stone Edge", tipo: "Rock", categoria: "fisico", potencia: 100, precision_pct: 80, cooldown_turnos: 1, prioridad: 0, nivel_requerido: 42 },
+
+    lick:           { codigo: "lick", nombre: "Lick", tipo: "Ghost", categoria: "fisico", potencia: 30, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 1 },
+    shadow_punch:   { codigo: "shadow_punch", nombre: "Shadow Punch", tipo: "Ghost", categoria: "fisico", potencia: 60, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 12 },
+    shadow_ball:    { codigo: "shadow_ball", nombre: "Shadow Ball", tipo: "Ghost", categoria: "especial", potencia: 80, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 24 },
+    phantom_force:  { codigo: "phantom_force", nombre: "Phantom Force", tipo: "Ghost", categoria: "fisico", potencia: 100, precision_pct: 100, cooldown_turnos: 1, prioridad: 0, nivel_requerido: 42 },
+
+    twister:        { codigo: "twister", nombre: "Twister", tipo: "Dragon", categoria: "especial", potencia: 40, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 1 },
+    dragon_breath:  { codigo: "dragon_breath", nombre: "Dragon Breath", tipo: "Dragon", categoria: "especial", potencia: 60, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 12 },
+    dragon_claw:    { codigo: "dragon_claw", nombre: "Dragon Claw", tipo: "Dragon", categoria: "fisico", potencia: 80, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 24 },
+    dragon_pulse:   { codigo: "dragon_pulse", nombre: "Dragon Pulse", tipo: "Dragon", categoria: "especial", potencia: 90, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 42 },
+
+    metal_claw:     { codigo: "metal_claw", nombre: "Metal Claw", tipo: "Steel", categoria: "fisico", potencia: 50, precision_pct: 95, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 1 },
+    steel_wing:     { codigo: "steel_wing", nombre: "Steel Wing", tipo: "Steel", categoria: "fisico", potencia: 70, precision_pct: 90, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 12 },
+    iron_head:      { codigo: "iron_head", nombre: "Iron Head", tipo: "Steel", categoria: "fisico", potencia: 80, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 24 },
+    flash_cannon:   { codigo: "flash_cannon", nombre: "Flash Cannon", tipo: "Steel", categoria: "especial", potencia: 80, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 42 },
+
+    fairy_wind:     { codigo: "fairy_wind", nombre: "Fairy Wind", tipo: "Fairy", categoria: "especial", potencia: 40, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 1 },
+    draining_kiss:  { codigo: "draining_kiss", nombre: "Draining Kiss", tipo: "Fairy", categoria: "especial", potencia: 50, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 12 },
+    dazzling_gleam: { codigo: "dazzling_gleam", nombre: "Dazzling Gleam", tipo: "Fairy", categoria: "especial", potencia: 80, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 24 },
+    moonblast:      { codigo: "moonblast", nombre: "Moonblast", tipo: "Fairy", categoria: "especial", potencia: 95, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 42 },
+
+    battle_strike:  { codigo: "battle_strike", nombre: "Battle Strike", tipo: "Normal", categoria: "fisico", potencia: 45, precision_pct: 100, cooldown_turnos: 0, prioridad: 0, nivel_requerido: 1 }
+};
+
+const ARENA_TYPE_MOVESET_CODES = {
+    normal: ["tackle", "headbutt", "quick_attack", "swift"],
+    fuego: ["ember", "flame_wheel", "flamethrower", "fire_blast"],
+    agua: ["water_gun", "bubble_beam", "aqua_tail", "hydro_pump"],
+    planta: ["vine_whip", "razor_leaf", "giga_drain", "solar_beam"],
+    electrico: ["thunder_shock", "spark", "thunderbolt", "thunder"],
+    hielo: ["powder_snow", "ice_shard", "ice_beam", "blizzard"],
+    lucha: ["karate_chop", "brick_break", "cross_chop", "close_combat"],
+    veneno: ["poison_sting", "acid", "sludge_bomb", "gunk_shot"],
+    tierra: ["mud_slap", "bulldoze", "dig", "earthquake"],
+    volador: ["gust", "wing_attack", "air_slash", "drill_peck"],
+    psiquico: ["confusion", "psybeam", "psychic", "future_sight"],
+    bicho: ["bug_bite", "signal_beam", "x_scissor", "megahorn"],
+    roca: ["rock_throw", "rock_slide", "power_gem", "stone_edge"],
+    fantasma: ["lick", "shadow_punch", "shadow_ball", "phantom_force"],
+    dragon: ["twister", "dragon_breath", "dragon_claw", "dragon_pulse"],
+    acero: ["metal_claw", "steel_wing", "iron_head", "flash_cannon"],
+    hada: ["fairy_wind", "draining_kiss", "dazzling_gleam", "moonblast"]
+};
+
+const ARENA_MOVE_CATEGORY_LABELS = {
+    fisico: "Physical",
+    especial: "Special",
+    estado: "Status"
+};
+
+
 document.addEventListener("DOMContentLoaded", () => {
     configurarMenuMobileArena();
     configurarIdiomaArena();
@@ -237,10 +357,11 @@ function configurarEventosArena() {
     const btnSalir = document.getElementById("btnArenaSalir");
 
     const btnCerrarCambio = document.getElementById("btnCerrarCambioArena");
+    const btnCerrarMoves = document.getElementById("btnArenaCerrarMoves");
     const btnVolverBattle = document.getElementById("btnArenaVolverBattle");
     const btnReintentar = document.getElementById("btnArenaReintentar");
 
-    if (btnAtacar) btnAtacar.addEventListener("click", ejecutarTurnoAtaqueArena);
+    if (btnAtacar) btnAtacar.addEventListener("click", togglePanelMovimientosArena);
     if (btnCambiar) btnCambiar.addEventListener("click", abrirModalCambioArena);
     if (btnAuto) btnAuto.addEventListener("click", ejecutarAutoTurnoArena);
     if (btnSalir) btnSalir.addEventListener("click", () => window.location.href = "battle.html");
@@ -249,6 +370,10 @@ function configurarEventosArena() {
         btnCerrarCambio.addEventListener("click", () => {
             document.getElementById("arenaChangeModal")?.classList.add("oculto");
         });
+    }
+
+    if (btnCerrarMoves) {
+        btnCerrarMoves.addEventListener("click", cerrarPanelMovimientosArena);
     }
 
     if (btnVolverBattle) {
@@ -330,6 +455,7 @@ function refrescarUIArenaPorIdioma() {
 /* =========================================================
    DATA
 ========================================================= */
+
 async function cargarEquipoJugadorArena() {
     let equipoGuardado = [];
 
@@ -364,10 +490,12 @@ async function cargarEquipoJugadorArena() {
         .slice(0, 6)
         .map((pokemon, index) => normalizarPokemonArena(pokemon, "player", index));
 
+    await cargarMovimientosEquipoJugadorArena();
     guardarEquipoArenaEnStorages();
 }
 
 function obtenerPoolRivalesArena() {
+
     const dificultad = obtenerCodigoDificultadArena();
 
     const poolNormal = [
@@ -451,6 +579,8 @@ function generarEquipoRivalFase1() {
         const ataqueFinal = elegido.ataque + (nivel * 2);
         const defensaFinal = elegido.defensa + (nivel * 2);
         const velocidadFinal = elegido.velocidad + nivel;
+        const ataqueEspecialFinal = Number(elegido.ataque_especial ?? elegido.ataque ?? 1) + (nivel * 2);
+        const defensaEspecialFinal = Number(elegido.defensa_especial ?? elegido.defensa ?? 1) + (nivel * 2);
 
         rivales.push({
             id: `enemy-${i + 1}-${elegido.pokemon_id}-${Date.now()}-${Math.floor(Math.random() * 9999)}`,
@@ -463,6 +593,9 @@ function generarEquipoRivalFase1() {
             ataque: ataqueFinal,
             defensa: defensaFinal,
             velocidad: velocidadFinal,
+            ataque_especial: ataqueEspecialFinal,
+            defensa_especial: defensaEspecialFinal,
+            movimientos_equipados: generarMovimientosRivalArena(elegido, nivel),
             experiencia: 0,
             es_shiny: false,
             side: "enemy",
@@ -473,6 +606,7 @@ function generarEquipoRivalFase1() {
 
     arenaEnemyTeam = rivales;
 }
+
 
 function normalizarPokemonArena(pokemon, side = "player", slotIndex = 0) {
     const hpMax = Number(pokemon.hp_max ?? pokemon.hp_actual ?? pokemon.hp ?? 1);
@@ -495,6 +629,8 @@ function normalizarPokemonArena(pokemon, side = "player", slotIndex = 0) {
         es_shiny: !!pokemon.es_shiny,
         posicion: Number(pokemon.posicion ?? slotIndex + 1),
         es_lider: Boolean(pokemon.es_lider ?? Number(pokemon.posicion ?? slotIndex + 1) === 1),
+        movimientos_equipados: normalizarListaMovimientosArena(pokemon.movimientos_equipados || pokemon.equipados || [], true),
+        movimientos_desbloqueados: normalizarListaMovimientosArena(pokemon.movimientos_desbloqueados || pokemon.movimientos || [], false),
         side,
         slotIndex,
         defeated: hpActual <= 0
@@ -562,6 +698,7 @@ function renderArenaCompleta() {
     renderEquiposMiniArena();
     renderEstadoArena();
     actualizarTurnoArena();
+    renderPanelMovimientosArena();
 }
 
 function renderPokemonActivoArena() {
@@ -615,7 +752,7 @@ function renderActivePokemonCardArena(pokemon) {
                 </div>
             </div>
 
-            <div class="arena-stats-grid">
+            <div class="arena-stats-grid arena-stats-grid-extended">
                 <div class="arena-stat-card">
                     <span>${tSafeArena("maps_level")}</span>
                     <strong>${pokemon.nivel}</strong>
@@ -629,10 +766,20 @@ function renderActivePokemonCardArena(pokemon) {
                     <strong>${pokemon.defensa}</strong>
                 </div>
                 <div class="arena-stat-card">
+                    <span>SP ATK</span>
+                    <strong>${pokemon.ataque_especial}</strong>
+                </div>
+                <div class="arena-stat-card">
+                    <span>SP DEF</span>
+                    <strong>${pokemon.defensa_especial}</strong>
+                </div>
+                <div class="arena-stat-card">
                     <span>${tSafeArena("arena_speed")}</span>
                     <strong>${pokemon.velocidad}</strong>
                 </div>
             </div>
+
+            ${pokemon.side !== "enemy" ? renderResumenMovimientosActivoArena(pokemon) : ""}
 
             <div class="arena-hp-block">
                 <div class="arena-hp-top">
@@ -660,6 +807,26 @@ function renderActivePokemonCardArena(pokemon) {
                     </div>
                 </div>
             ` : ""}
+        </div>
+    `;
+}
+
+function renderResumenMovimientosActivoArena(pokemon) {
+    const movimientos = obtenerMovimientosEquipadosArena(pokemon, true).slice(0, 4);
+    if (!movimientos.length) return "";
+
+    return `
+        <div class="arena-active-moves-inline">
+            ${movimientos.map(movimiento => {
+                const categoria = obtenerEtiquetaCategoriaMovimientoArena(movimiento.categoria);
+                const cooldownRestante = Number(movimiento.cooldown_restante || 0);
+                return `
+                    <div class="arena-active-move-chip ${cooldownRestante > 0 ? "is-cooling" : ""}">
+                        <strong>${escapeHtmlArena(movimiento.nombre)}</strong>
+                        <span>${escapeHtmlArena(traducirTipoPokemonArena(movimiento.tipo || "Normal"))} · ${escapeHtmlArena(categoria)}</span>
+                    </div>
+                `;
+            }).join("")}
         </div>
     `;
 }
@@ -744,10 +911,125 @@ function renderEstadoArena() {
     }
 }
 
+
 function actualizarTurnoArena() {
     const turnoEl = document.getElementById("arenaTurnoActual");
     if (turnoEl) turnoEl.textContent = arenaTurno;
 }
+
+function togglePanelMovimientosArena() {
+    if (arenaCombatEnded || arenaTurnoEnProceso) return;
+
+    if (arenaMovesPanelAbierto) {
+        cerrarPanelMovimientosArena();
+    } else {
+        abrirPanelMovimientosArena();
+    }
+}
+
+function abrirPanelMovimientosArena() {
+    if (arenaCombatEnded || arenaTurnoEnProceso) return;
+    arenaMovesPanelAbierto = true;
+    arenaMovimientoJugadorPendiente = null;
+    renderPanelMovimientosArena();
+}
+
+function cerrarPanelMovimientosArena() {
+    arenaMovesPanelAbierto = false;
+    arenaMovimientoJugadorPendiente = null;
+    renderPanelMovimientosArena();
+}
+
+function renderPanelMovimientosArena() {
+    const panel = document.getElementById("arenaMovesPanel");
+    const grid = document.getElementById("arenaMovesGrid");
+    const subtitle = document.getElementById("arenaMovesPanelSubtitle");
+
+    if (!panel || !grid) return;
+
+    const playerPokemon = obtenerPokemonActivoArena(arenaPlayerTeam, arenaPlayerIndex);
+
+    if (!arenaMovesPanelAbierto || !playerPokemon || arenaCombatEnded) {
+        panel.classList.add("oculto");
+        grid.innerHTML = "";
+        if (subtitle) {
+            subtitle.textContent = "Select one of the 4 equipped moves of your active Pokémon.";
+        }
+        return;
+    }
+
+    const movimientos = obtenerMovimientosEquipadosArena(playerPokemon, true);
+    panel.classList.remove("oculto");
+
+    if (subtitle) {
+        subtitle.textContent = `${playerPokemon.nombre} · Lv ${playerPokemon.nivel} · Choose your next move`;
+    }
+
+    if (!movimientos.length) {
+        grid.innerHTML = `
+            <div class="arena-moves-empty">
+                This Pokémon has no equipped moves yet.
+            </div>
+        `;
+        return;
+    }
+
+    grid.innerHTML = movimientos.map(movimiento => renderMoveCardArena(movimiento, true)).join("");
+
+    grid.querySelectorAll("[data-arena-move-slot]").forEach(btn => {
+        btn.addEventListener("click", async () => {
+            const slot = Number(btn.dataset.arenaMoveSlot);
+            if (Number.isNaN(slot)) return;
+
+            const pokemonActivo = obtenerPokemonActivoArena(arenaPlayerTeam, arenaPlayerIndex);
+            const movimiento = obtenerMovimientoPorSlotArena(pokemonActivo, slot, true);
+            if (!movimiento || Number(movimiento.cooldown_restante || 0) > 0) {
+                return;
+            }
+
+            arenaMovimientoJugadorPendiente = movimiento;
+            await ejecutarTurnoAtaqueArena(false, movimiento);
+        });
+    });
+}
+
+function renderMoveCardArena(movimiento, esJugador = true) {
+    const tipoClase = obtenerClaseTipoArena(movimiento.tipo || "Normal");
+    const categoria = obtenerEtiquetaCategoriaMovimientoArena(movimiento.categoria);
+    const potencia = movimiento.potencia ?? "—";
+    const precision = `${Number(movimiento.precision_pct || 100)}%`;
+    const cooldown = Number(movimiento.cooldown_turnos || 0);
+    const cooldownRestante = Number(movimiento.cooldown_restante || 0);
+    const disabled = esJugador && cooldownRestante > 0;
+
+    return `
+        <button
+            type="button"
+            class="arena-move-card ${tipoClase} ${disabled ? "is-disabled" : ""}"
+            data-arena-move-slot="${movimiento.slot || 0}"
+            ${disabled ? "disabled" : ""}
+        >
+            <div class="arena-move-card-top">
+                <span class="arena-move-slot">Slot ${movimiento.slot || "?"}</span>
+                <span class="arena-move-type">${escapeHtmlArena(traducirTipoPokemonArena(movimiento.tipo || "Normal"))}</span>
+            </div>
+
+            <strong class="arena-move-name">${escapeHtmlArena(movimiento.nombre || "Move")}</strong>
+
+            <div class="arena-move-meta">
+                <span>${escapeHtmlArena(categoria)}</span>
+                <span>Power ${potencia}</span>
+                <span>ACC ${precision}</span>
+            </div>
+
+            <div class="arena-move-footer">
+                <span>CD ${cooldown}</span>
+                <span>${cooldownRestante > 0 ? `Cooling ${cooldownRestante}` : "Ready"}</span>
+            </div>
+        </button>
+    `;
+}
+
 
 /* =========================================================
    ANIMACIONES DE COMBATE
@@ -878,7 +1160,8 @@ function describirMultiplicadorArena(mult = 1) {
 /* =========================================================
    COMBATE
 ========================================================= */
-async function ejecutarTurnoAtaqueArena(desdeAuto = false) {
+
+async function ejecutarTurnoAtaqueArena(desdeAuto = false, movimientoSeleccionado = null) {
     if (arenaCombatEnded || arenaTurnoEnProceso) return;
 
     const atacantePlayer = obtenerPokemonActivoArena(arenaPlayerTeam, arenaPlayerIndex);
@@ -889,45 +1172,68 @@ async function ejecutarTurnoAtaqueArena(desdeAuto = false) {
         return;
     }
 
+    const movimientoJugador = movimientoSeleccionado || seleccionarMejorMovimientoArena(atacantePlayer, atacanteEnemy);
+    const movimientoRival = seleccionarMejorMovimientoArena(atacanteEnemy, atacantePlayer);
+
+    if (!movimientoJugador) {
+        mostrarMensajeArena("Your active Pokémon has no available move right now.", "warning");
+        return;
+    }
+
     arenaTurnoEnProceso = true;
+    cerrarPanelMovimientosArena();
 
     if (!desdeAuto) {
         deshabilitarAccionesArena(false);
     }
 
     try {
+        const prioridadPlayer = Number(movimientoJugador?.prioridad || 0);
+        const prioridadEnemy = Number(movimientoRival?.prioridad || 0);
+
         const playerPrimero =
-            Number(atacantePlayer.velocidad || 0) >= Number(atacanteEnemy.velocidad || 0);
+            prioridadPlayer === prioridadEnemy
+                ? Number(atacantePlayer.velocidad || 0) >= Number(atacanteEnemy.velocidad || 0)
+                : prioridadPlayer > prioridadEnemy;
 
         if (playerPrimero) {
-            await resolverAtaqueArena(atacantePlayer, atacanteEnemy, true);
+            await resolverAtaqueArena(atacantePlayer, atacanteEnemy, movimientoJugador, true);
 
             if (!(await verificarFinCombateArena())) {
                 const nuevoEnemy = obtenerPokemonActivoArena(arenaEnemyTeam, arenaEnemyIndex);
                 const nuevoPlayer = obtenerPokemonActivoArena(arenaPlayerTeam, arenaPlayerIndex);
 
                 if (nuevoEnemy && nuevoPlayer) {
-                    await resolverAtaqueArena(nuevoEnemy, nuevoPlayer, false);
+                    const movimientoRivalActual = seleccionarMejorMovimientoArena(nuevoEnemy, nuevoPlayer);
+                    await resolverAtaqueArena(nuevoEnemy, nuevoPlayer, movimientoRivalActual, false);
                 }
             }
         } else {
-            await resolverAtaqueArena(atacanteEnemy, atacantePlayer, false);
+            await resolverAtaqueArena(atacanteEnemy, atacantePlayer, movimientoRival, false);
 
             if (!(await verificarFinCombateArena())) {
                 const nuevoEnemy = obtenerPokemonActivoArena(arenaEnemyTeam, arenaEnemyIndex);
                 const nuevoPlayer = obtenerPokemonActivoArena(arenaPlayerTeam, arenaPlayerIndex);
 
                 if (nuevoEnemy && nuevoPlayer) {
-                    await resolverAtaqueArena(nuevoPlayer, nuevoEnemy, true);
+                    const movimientoJugadorActual = movimientoSeleccionado && String(nuevoPlayer.id) === String(atacantePlayer.id)
+                        ? obtenerMovimientoPorSlotArena(nuevoPlayer, movimientoSeleccionado.slot, true) || seleccionarMejorMovimientoArena(nuevoPlayer, nuevoEnemy)
+                        : seleccionarMejorMovimientoArena(nuevoPlayer, nuevoEnemy);
+
+                    await resolverAtaqueArena(nuevoPlayer, nuevoEnemy, movimientoJugadorActual, true);
                 }
             }
         }
+
+        reducirCooldownsArena(arenaPlayerTeam);
+        reducirCooldownsArena(arenaEnemyTeam);
 
         arenaTurno += 1;
         renderArenaCompleta();
         await verificarFinCombateArena();
     } finally {
         arenaTurnoEnProceso = false;
+        arenaMovimientoJugadorPendiente = null;
 
         if (!arenaCombatEnded && !arenaAutoTurnoActivo) {
             habilitarAccionesArena();
@@ -1037,26 +1343,45 @@ function actualizarBotonAutoTurnoArena() {
     }
 }
 
-async function resolverAtaqueArena(atacante, defensor, esAtaqueJugador = false) {
+
+async function resolverAtaqueArena(atacante, defensor, movimiento, esAtaqueJugador = false) {
     if (!atacante || !defensor || atacante.defeated || defensor.defeated) return;
+
+    const movimientoUsado = movimiento || crearMovimientoFallbackArena(atacante, 1);
+    const nombreMovimiento = movimientoUsado?.nombre || "Move";
 
     animarAtaqueArena(esAtaqueJugador);
     await esperarArena(220);
 
-    const resultadoDanio = calcularDanioArena(atacante, defensor);
+    aplicarCooldownMovimientoArena(atacante, movimientoUsado);
+
+    const precision = Math.max(1, Math.min(100, Number(movimientoUsado.precision_pct || 100)));
+    const acierta = Math.random() * 100 < precision;
+
+    if (!acierta) {
+        agregarLogArena(
+            `${atacante.nombre} used ${nombreMovimiento}, but it missed.`,
+            esAtaqueJugador ? tSafeArena("battle_your_team") : tSafeArena("battle_rival")
+        );
+        renderArenaCompleta();
+        await esperarArena(320);
+        return;
+    }
+
+    const resultadoDanio = calcularDanioArena(atacante, defensor, movimientoUsado);
     defensor.hp_actual = Math.max(0, Number(defensor.hp_actual) - resultadoDanio.danio);
 
     animarGolpeArena(!esAtaqueJugador);
     mostrarDanioFlotanteArena(!esAtaqueJugador, resultadoDanio.danio, resultadoDanio.multiplicador);
 
     agregarLogArena(
-        tfArena("arena_log_attack", {
-            attacker: atacante.nombre,
-            defender: defensor.nombre,
-            damage: resultadoDanio.danio
-        }),
+        `${atacante.nombre} used ${nombreMovimiento} and dealt ${resultadoDanio.danio} damage to ${defensor.nombre}.`,
         esAtaqueJugador ? tSafeArena("battle_your_team") : tSafeArena("battle_rival")
     );
+
+    if (resultadoDanio.stab > 1) {
+        agregarLogArena("Same-type bonus activated.", tSafeArena("arena_system"));
+    }
 
     if (resultadoDanio.textoEfectividad) {
         agregarLogArena(resultadoDanio.textoEfectividad, tSafeArena("arena_system"));
@@ -1113,21 +1438,251 @@ async function resolverAtaqueArena(atacante, defensor, esAtaqueJugador = false) 
     }
 }
 
-function calcularDanioArena(atacante, defensor) {
-    const atk = Number(atacante.ataque || 0);
-    const def = Number(defensor.defensa || 0);
-    const base = Math.max(1, atk - def);
+function calcularDanioArena(atacante, defensor, movimiento) {
+    const movimientoUsado = movimiento || crearMovimientoFallbackArena(atacante, 1);
+    const esEspecial = String(movimientoUsado?.categoria || "").toLowerCase() === "especial";
+    const statAtaque = Math.max(1, Number(esEspecial ? (atacante.ataque_especial ?? atacante.ataque ?? 1) : (atacante.ataque ?? 1)));
+    const statDefensa = Math.max(1, Number(esEspecial ? (defensor.defensa_especial ?? defensor.defensa ?? 1) : (defensor.defensa ?? 1)));
+    const potencia = Math.max(1, Number(movimientoUsado?.potencia || 40));
 
-    const multiplicador = calcularMultiplicadorContraDefensorArena(atacante, defensor);
-    const danio = Math.max(1, Math.round(base * multiplicador));
+    const multiplicador = calcularMultiplicadorMovimientoContraDefensorArena(movimientoUsado?.tipo || atacante.tipo, defensor);
+    const stab = tieneStabArena(atacante, movimientoUsado) ? 1.2 : 1;
+    const nivelFactor = 0.9 + Math.min(1.15, Number(atacante.nivel || 1) / 100);
+    const variacion = 0.92 + (Math.random() * 0.08);
+
+    const base = (potencia * statAtaque / statDefensa) * nivelFactor;
+    const danio = Math.max(1, Math.round((base / 8) * stab * multiplicador * variacion));
 
     return {
         base,
+        potencia,
         multiplicador,
+        stab,
         danio,
         textoEfectividad: describirMultiplicadorArena(multiplicador)
     };
 }
+
+function seleccionarMejorMovimientoArena(atacante, defensor) {
+    const movimientos = obtenerMovimientosEquipadosArena(atacante, true);
+    const disponibles = movimientos.filter(mov => Number(mov.cooldown_restante || 0) <= 0);
+
+    if (!disponibles.length) {
+        return crearMovimientoFallbackArena(atacante, 1);
+    }
+
+    let mejor = disponibles[0];
+    let mejorPuntaje = -Infinity;
+
+    for (const movimiento of disponibles) {
+        const potencia = Number(movimiento.potencia || 40);
+        const precision = Math.max(1, Number(movimiento.precision_pct || 100)) / 100;
+        const mult = calcularMultiplicadorMovimientoContraDefensorArena(movimiento.tipo, defensor);
+        const stab = tieneStabArena(atacante, movimiento) ? 1.2 : 1;
+        const prioridad = Number(movimiento.prioridad || 0) * 8;
+        const puntaje = (potencia * mult * stab * precision) + prioridad;
+
+        if (puntaje > mejorPuntaje) {
+            mejor = movimiento;
+            mejorPuntaje = puntaje;
+        }
+    }
+
+    return mejor;
+}
+
+function obtenerMovimientosEquipadosArena(pokemon, incluirFallback = false) {
+    const lista = normalizarListaMovimientosArena(pokemon?.movimientos_equipados || [], true)
+        .sort((a, b) => Number(a.slot || 999) - Number(b.slot || 999));
+
+    if (lista.length) {
+        return lista;
+    }
+
+    return incluirFallback ? [crearMovimientoFallbackArena(pokemon, 1)] : [];
+}
+
+function obtenerMovimientoPorSlotArena(pokemon, slot, incluirFallback = false) {
+    const lista = obtenerMovimientosEquipadosArena(pokemon, incluirFallback);
+    const encontrado = lista.find(mov => Number(mov.slot || 0) === Number(slot || 0));
+    return encontrado || null;
+}
+
+function normalizarListaMovimientosArena(movimientos = [], equipados = false) {
+    if (!Array.isArray(movimientos)) return [];
+    return movimientos
+        .map((movimiento, index) => normalizarMovimientoArena(movimiento, equipados ? (index + 1) : 0))
+        .filter(Boolean);
+}
+
+function normalizarMovimientoArena(movimiento, slotFallback = 0) {
+    if (!movimiento || typeof movimiento !== "object") return null;
+
+    const potenciaRaw = movimiento.potencia;
+    return {
+        usuario_pokemon_movimiento_id: movimiento.usuario_pokemon_movimiento_id ? Number(movimiento.usuario_pokemon_movimiento_id) : null,
+        movimiento_id: movimiento.movimiento_id ? Number(movimiento.movimiento_id) : null,
+        codigo: movimiento.codigo || movimiento.code || `move-${slotFallback}`,
+        nombre: movimiento.nombre || movimiento.name || "Move",
+        tipo: movimiento.tipo || movimiento.type || "Normal",
+        categoria: normalizarCategoriaMovimientoArena(movimiento.categoria || movimiento.category || "fisico"),
+        potencia: potenciaRaw === null || typeof potenciaRaw === "undefined" ? null : Number(potenciaRaw),
+        precision_pct: Number(movimiento.precision_pct ?? movimiento.precision ?? 100),
+        cooldown_turnos: Number(movimiento.cooldown_turnos ?? movimiento.cooldown ?? 0),
+        cooldown_restante: Math.max(0, Number(movimiento.cooldown_restante ?? 0)),
+        prioridad: Number(movimiento.prioridad ?? movimiento.priority ?? 0),
+        objetivo: movimiento.objetivo || movimiento.target || "rival",
+        slot: Number(movimiento.slot ?? slotFallback ?? 0)
+    };
+}
+
+function normalizarCategoriaMovimientoArena(categoria = "fisico") {
+    const valor = String(categoria || "fisico").toLowerCase().trim();
+    if (valor === "special") return "especial";
+    if (valor === "status") return "estado";
+    if (valor === "physical") return "fisico";
+    return valor || "fisico";
+}
+
+function obtenerEtiquetaCategoriaMovimientoArena(categoria = "fisico") {
+    return ARENA_MOVE_CATEGORY_LABELS[normalizarCategoriaMovimientoArena(categoria)] || "Physical";
+}
+
+async function cargarMovimientosEquipoJugadorArena() {
+    await Promise.all(arenaPlayerTeam.map(async (pokemon) => {
+        const usuarioPokemonId = Number(pokemon.id || 0);
+        if (!usuarioPokemonId) {
+            pokemon.movimientos_equipados = [crearMovimientoFallbackArena(pokemon, 1)];
+            pokemon.movimientos_desbloqueados = [...pokemon.movimientos_equipados];
+            return;
+        }
+
+        try {
+            const data = await obtenerMovimientosPokemonUsuarioArena(usuarioPokemonId);
+            const equipados = normalizarListaMovimientosArena(data?.equipados || [], true)
+                .sort((a, b) => Number(a.slot || 999) - Number(b.slot || 999));
+            const movimientos = normalizarListaMovimientosArena(data?.movimientos || [], false);
+
+            pokemon.movimientos_equipados = equipados.length
+                ? equipados
+                : [crearMovimientoFallbackArena(pokemon, 1)];
+            pokemon.movimientos_desbloqueados = movimientos.length
+                ? movimientos
+                : [...pokemon.movimientos_equipados];
+        } catch (error) {
+            console.warn(`No se pudieron cargar movimientos para el Pokémon ${usuarioPokemonId}:`, error);
+            pokemon.movimientos_equipados = [crearMovimientoFallbackArena(pokemon, 1)];
+            pokemon.movimientos_desbloqueados = [...pokemon.movimientos_equipados];
+        }
+    }));
+}
+
+async function obtenerMovimientosPokemonUsuarioArena(usuarioPokemonId) {
+    if (typeof obtenerMovimientosPokemonUsuario === "function") {
+        return await obtenerMovimientosPokemonUsuario(usuarioPokemonId);
+    }
+    return await fetchAuthArena(`${API_BASE}/usuario/pokemon/${encodeURIComponent(usuarioPokemonId)}/movimientos`);
+}
+
+function generarMovimientosRivalArena(pokemonBase, nivel = 1) {
+    const tipos = obtenerTiposPokemonArena(pokemonBase?.tipo || "");
+    const codigos = [];
+
+    for (const tipo of tipos) {
+        const porTipo = ARENA_TYPE_MOVESET_CODES[tipo] || [];
+        codigos.push(...porTipo);
+    }
+
+    codigos.push(...(ARENA_TYPE_MOVESET_CODES.normal || []));
+
+    const unicos = [...new Set(codigos)];
+    const desbloqueados = unicos
+        .map(codigo => ({ ...(ARENA_MOVE_LIBRARY[codigo] || {}) }))
+        .filter(mov => mov && mov.codigo && Number(mov.nivel_requerido || 1) <= Number(nivel || 1))
+        .sort((a, b) => {
+            const nivelA = Number(a.nivel_requerido || 1);
+            const nivelB = Number(b.nivel_requerido || 1);
+            if (nivelA !== nivelB) return nivelA - nivelB;
+            return Number(a.potencia || 0) - Number(b.potencia || 0);
+        });
+
+    const seleccionados = desbloqueados.slice(-4);
+    if (!seleccionados.length) {
+        seleccionados.push({ ...ARENA_MOVE_LIBRARY.tackle });
+    }
+
+    return seleccionados.map((movimiento, index) => normalizarMovimientoArena({
+        ...movimiento,
+        slot: index + 1,
+        cooldown_restante: 0
+    }, index + 1));
+}
+
+function crearMovimientoFallbackArena(pokemon, slot = 1) {
+    return normalizarMovimientoArena({
+        ...ARENA_MOVE_LIBRARY.battle_strike,
+        slot,
+        tipo: "Normal"
+    }, slot);
+}
+
+function aplicarCooldownMovimientoArena(pokemon, movimiento) {
+    if (!pokemon || !movimiento) return;
+
+    const lista = pokemon.movimientos_equipados || [];
+    const slotObjetivo = Number(movimiento.slot || 0);
+    const codigoObjetivo = String(movimiento.codigo || "");
+
+    const encontrado = lista.find(mov =>
+        Number(mov.slot || 0) === slotObjetivo ||
+        String(mov.codigo || "") === codigoObjetivo
+    );
+
+    if (!encontrado) return;
+
+    encontrado.cooldown_restante = Math.max(
+        0,
+        Number(encontrado.cooldown_turnos || 0) > 0
+            ? Number(encontrado.cooldown_turnos || 0) + 1
+            : 0
+    );
+}
+
+function reducirCooldownsArena(team = []) {
+    team.forEach(pokemon => {
+        if (!Array.isArray(pokemon.movimientos_equipados)) return;
+        pokemon.movimientos_equipados.forEach(movimiento => {
+            const restante = Number(movimiento.cooldown_restante || 0);
+            if (restante > 0) {
+                movimiento.cooldown_restante = restante - 1;
+            }
+        });
+    });
+}
+
+function tieneStabArena(atacante, movimiento) {
+    const tipoMovimiento = normalizarTipoCombate(movimiento?.tipo || "");
+    const tiposPokemon = obtenerTiposPokemonArena(atacante?.tipo || "");
+    return tiposPokemon.includes(tipoMovimiento);
+}
+
+function calcularMultiplicadorMovimientoContraDefensorArena(tipoMovimiento, defensor) {
+    const tipoAtk = normalizarTipoCombate(tipoMovimiento);
+    const tiposDefensor = obtenerTiposPokemonArena(defensor?.tipo || "");
+
+    if (!tipoAtk || !tiposDefensor.length) return 1;
+
+    let resultadoFinal = 1;
+
+    for (const tipoDef of tiposDefensor) {
+        resultadoFinal *= obtenerMultiplicadorTipoArena(tipoAtk, tipoDef);
+    }
+
+    if (resultadoFinal >= 2) return 2;
+    if (resultadoFinal <= 0.5) return 0.5;
+    return 1;
+}
+
 
 async function verificarFinCombateArena() {
     const vivosPlayer = contarVivosArena(arenaPlayerTeam);
@@ -1179,6 +1734,9 @@ function encontrarSiguienteVivoArena(team = []) {
 }
 
 function deshabilitarAccionesArena(mantenerAuto = false) {
+    const btnCerrarMoves = document.getElementById("btnArenaCerrarMoves");
+    if (btnCerrarMoves) btnCerrarMoves.disabled = true;
+
     const ids = ["btnArenaAtacar", "btnArenaCambiar", "btnArenaSalir"];
     ids.forEach(id => {
         const btn = document.getElementById(id);
@@ -1194,6 +1752,9 @@ function deshabilitarAccionesArena(mantenerAuto = false) {
 }
 
 function habilitarAccionesArena() {
+    const btnCerrarMoves = document.getElementById("btnArenaCerrarMoves");
+    if (btnCerrarMoves) btnCerrarMoves.disabled = false;
+
     const ids = ["btnArenaAtacar", "btnArenaCambiar", "btnArenaAuto", "btnArenaSalir"];
     ids.forEach(id => {
         const btn = document.getElementById(id);
@@ -1210,6 +1771,7 @@ function abrirModalCambioArena() {
     if (arenaCombatEnded || arenaTurnoEnProceso) return;
 
     detenerAutoTurnoArena();
+    cerrarPanelMovimientosArena();
 
     const modal = document.getElementById("arenaChangeModal");
     const optionsBox = document.getElementById("arenaChangeOptions");
@@ -1313,6 +1875,7 @@ async function procesarRecompensasVictoriaArena() {
    RESULTADO / LOG
 ========================================================= */
 function mostrarResultadoArena(victoria = true, recompensa = null, soloRefresco = false) {
+    cerrarPanelMovimientosArena();
     const modal = document.getElementById("arenaResultModal");
     const icon = document.getElementById("arenaResultIcon");
     const title = document.getElementById("arenaResultTitle");
@@ -1794,6 +2357,7 @@ async function otorgarRecompensasVictoriaArena() {
     }
 
     refrescarEquipoArenaDesdeRespuesta(data);
+    await cargarMovimientosEquipoJugadorArena();
     renderArenaCompleta();
 
     return data;

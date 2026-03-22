@@ -122,7 +122,7 @@
                 <div class="arena-actions-panel">
                     <div class="arena-action-header">
                         <h3 data-i18n="arena_actions_title">Acciones del turno</h3>
-                        <p data-i18n="arena_actions_hint">El daño se calcula como ATK - DEF. Mínimo 1.</p>
+                        <p>Select one of the 4 equipped moves. Physical moves use ATK/DEF and Special moves use SP ATK/SP DEF.</p>
                     </div>
 
                     <div class="arena-actions-grid">
@@ -141,6 +141,18 @@
                         <button id="btnArenaSalir" class="btn-arena btn-arena-danger" type="button" data-i18n="arena_action_exit">
                             Salir
                         </button>
+                    </div>
+
+                    <div id="arenaMovesPanel" class="arena-moves-panel oculto">
+                        <div class="arena-moves-panel-head">
+                            <div>
+                                <h4>Choose a move</h4>
+                                <p id="arenaMovesPanelSubtitle">Select one of the 4 equipped moves of your active Pokémon.</p>
+                            </div>
+                            <button id="btnArenaCerrarMoves" class="arena-moves-close" type="button" aria-label="Close moves panel">✕</button>
+                        </div>
+
+                        <div id="arenaMovesGrid" class="arena-moves-grid"></div>
                     </div>
                 </div>
 
