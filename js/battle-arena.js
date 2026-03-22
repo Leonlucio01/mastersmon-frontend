@@ -1505,20 +1505,23 @@ async function resolverAtaqueArena(atacante, defensor, movimiento, esAtaqueJugad
     }
 }
 
-function calcularDanioArena(atacante, defensor, movimiento) {
+function obtenerFactorNivelDanioArena(nivel = 1) {
+    const nivelSeguro = Math.max(1, Number(nivel || 1));
+    return 0.22 + Math.min(0.48, nivelSeguro / 180);
+}
+
+function estimarDanioMovimientoArena(atacante, defensor, movimiento, usarVariacion = false) {
     const movimientoUsado = movimiento || crearMovimientoFallbackArena(atacante, 1);
     const esEspecial = String(movimientoUsado?.categoria || "").toLowerCase() === "especial";
     const statAtaque = Math.max(1, Number(esEspecial ? (atacante.ataque_especial ?? atacante.ataque ?? 1) : (atacante.ataque ?? 1)));
     const statDefensa = Math.max(1, Number(esEspecial ? (defensor.defensa_especial ?? defensor.defensa ?? 1) : (defensor.defensa ?? 1)));
     const potencia = Math.max(1, Number(movimientoUsado?.potencia || 40));
-
     const multiplicador = calcularMultiplicadorMovimientoContraDefensorArena(movimientoUsado?.tipo || atacante.tipo, defensor);
-    const stab = tieneStabArena(atacante, movimientoUsado) ? 1.2 : 1;
-    const nivelFactor = 0.9 + Math.min(1.15, Number(atacante.nivel || 1) / 100);
-    const variacion = 0.92 + (Math.random() * 0.08);
-
-    const base = (potencia * statAtaque / statDefensa) * nivelFactor;
-    const danio = Math.max(1, Math.round((base / 8) * stab * multiplicador * variacion));
+    const stab = tieneStabArena(atacante, movimientoUsado) ? 1.15 : 1;
+    const factorNivel = obtenerFactorNivelDanioArena(atacante?.nivel || 1);
+    const variacion = usarVariacion ? (0.94 + (Math.random() * 0.12)) : 1;
+    const base = potencia * (statAtaque / statDefensa) * factorNivel;
+    const danio = Math.max(1, Math.round(base * stab * multiplicador * variacion));
 
     return {
         base,
@@ -1528,6 +1531,10 @@ function calcularDanioArena(atacante, defensor, movimiento) {
         danio,
         textoEfectividad: describirMultiplicadorArena(multiplicador)
     };
+}
+
+function calcularDanioArena(atacante, defensor, movimiento) {
+    return estimarDanioMovimientoArena(atacante, defensor, movimiento, true);
 }
 
 function seleccionarMejorMovimientoArena(atacante, defensor) {
@@ -1541,12 +1548,11 @@ function seleccionarMejorMovimientoArena(atacante, defensor) {
     let mejorPuntaje = -Infinity;
 
     for (const movimiento of disponibles) {
-        const potencia = Number(movimiento.potencia || 40);
+        const estimado = estimarDanioMovimientoArena(atacante, defensor, movimiento, false);
         const precision = Math.max(1, Number(movimiento.precision_pct || 100)) / 100;
-        const mult = calcularMultiplicadorMovimientoContraDefensorArena(movimiento.tipo, defensor);
-        const stab = tieneStabArena(atacante, movimiento) ? 1.2 : 1;
         const prioridad = Number(movimiento.prioridad || 0) * 8;
-        const puntaje = (potencia * mult * stab * precision) + prioridad;
+        const puedeRematar = estimado.danio >= Math.max(1, Number(defensor?.hp_actual || defensor?.hp_max || 1));
+        const puntaje = (estimado.danio * precision) + prioridad + (puedeRematar ? 60 : 0);
 
         if (puntaje > mejorPuntaje) {
             mejor = movimiento;
@@ -1718,8 +1724,11 @@ function calcularMultiplicadorMovimientoContraDefensorArena(tipoMovimiento, defe
         resultadoFinal *= obtenerMultiplicadorTipoArena(tipoAtk, tipoDef);
     }
 
-    if (resultadoFinal >= 2) return 2;
+    if (resultadoFinal <= 0) return 0;
+    if (resultadoFinal <= 0.25) return 0.25;
     if (resultadoFinal <= 0.5) return 0.5;
+    if (resultadoFinal >= 4) return 4;
+    if (resultadoFinal >= 2) return 2;
     return 1;
 }
 
