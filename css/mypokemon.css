@@ -874,13 +874,14 @@
 
 
 /* =========================================================
-   MODALES
+   MODALES BASE
 ========================================================= */
 
 .modal{
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.7);
+    background: rgba(15,23,42,0.72);
+    backdrop-filter: blur(3px);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -902,17 +903,44 @@
     max-height: 90vh;
     overflow-y: auto;
     box-sizing: border-box;
+    border: 1px solid rgba(226,232,240,0.95);
+}
+
+.modal-content::-webkit-scrollbar{
+    width: 10px;
+}
+
+.modal-content::-webkit-scrollbar-thumb{
+    background: #cbd5e1;
+    border-radius: 999px;
+}
+
+.modal-content::-webkit-scrollbar-track{
+    background: transparent;
 }
 
 .cerrar{
     position: absolute;
     top: 12px;
     right: 16px;
+    width: 42px;
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     font-size: 30px;
     cursor: pointer;
     font-weight: bold;
     color: #374151;
     line-height: 1;
+    border-radius: 999px;
+    transition: background .2s ease, color .2s ease, transform .2s ease;
+}
+
+.cerrar:hover{
+    background: #eff6ff;
+    color: #1d4ed8;
+    transform: scale(1.04);
 }
 
 .modal-evolucion{
@@ -978,7 +1006,8 @@
 
 .evolucion-lista{
     background: linear-gradient(180deg, #ecfdf5, #d1fae5);
-    border: 2px solid #86efac;
+    border: 2px solid #22c55e !important;
+    box-shadow: 0 12px 24px rgba(34,197,94,0.16) !important;
 }
 
 .evolucion-flecha-grande{
@@ -1140,6 +1169,157 @@
 
 
 /* =========================================================
+   MODAL DE MOVIMIENTOS
+========================================================= */
+
+#modalMovimientosPokemon .modal-content{
+    max-width: 760px;
+    padding: 28px 24px 24px;
+}
+
+#contenidoModalMovimientosPokemon{
+    text-align: center;
+}
+
+#contenidoModalMovimientosPokemon .titulo-modal-evolucion{
+    font-size: 28px;
+    margin-bottom: 4px;
+    padding-right: 34px;
+}
+
+#contenidoModalMovimientosPokemon .subtitulo-modal-evolucion{
+    margin-top: 4px;
+    margin-bottom: 18px;
+}
+
+#contenidoModalMovimientosPokemon .evolucion-detalle.ok{
+    margin: 0 0 18px;
+    padding: 14px 16px;
+    border-radius: 16px;
+    border: 1px solid #bbf7d0;
+    background: linear-gradient(180deg, #f0fdf4 0%, #ecfdf5 100%);
+    color: #166534;
+    box-shadow: 0 8px 18px rgba(22,163,74,0.08);
+}
+
+#contenidoModalMovimientosPokemon .item-evolucion-card{
+    margin: 0;
+    border-radius: 18px;
+    border: 1px solid #dbe3ef;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    box-shadow: 0 8px 20px rgba(15,23,42,0.06);
+}
+
+#contenidoModalMovimientosPokemon button.item-evolucion-card{
+    width: 100%;
+    text-align: center;
+    cursor: pointer;
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
+}
+
+#contenidoModalMovimientosPokemon button.item-evolucion-card:hover:not(:disabled){
+    transform: translateY(-2px);
+    border-color: #93c5fd;
+    box-shadow: 0 14px 28px rgba(37,99,235,0.12);
+    background: linear-gradient(180deg, #ffffff 0%, #f4f9ff 100%);
+}
+
+#contenidoModalMovimientosPokemon button.item-evolucion-card:disabled{
+    opacity: .72;
+    cursor: not-allowed;
+}
+
+#contenidoModalMovimientosPokemon .item-evolucion-top{
+    gap: 0;
+}
+
+#contenidoModalMovimientosPokemon .item-evolucion-top > div{
+    width: 100%;
+}
+
+#contenidoModalMovimientosPokemon .item-evolucion-top h3{
+    margin: 0 0 8px;
+    font-size: 22px;
+    font-weight: 900;
+    color: #0f172a;
+}
+
+#contenidoModalMovimientosPokemon .item-evolucion-top p{
+    margin: 4px 0;
+    font-size: 14px;
+    color: #475569;
+    line-height: 1.35;
+}
+
+#contenidoModalMovimientosPokemon > .inventario-lista:first-of-type{
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin: 0 0 18px;
+}
+
+#contenidoModalMovimientosPokemon > .inventario-lista:first-of-type .item-evolucion-card{
+    min-height: 118px;
+    padding: 18px 14px;
+}
+
+#contenidoModalMovimientosPokemon > .inventario-lista:first-of-type .item-evolucion-top h3{
+    font-size: 18px;
+    margin-bottom: 6px;
+}
+
+#contenidoModalMovimientosPokemon > .inventario-lista:first-of-type .item-evolucion-top p{
+    font-size: 13px;
+}
+
+#contenidoModalMovimientosPokemon > .inventario-lista:last-of-type{
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin: 16px 0 0;
+}
+
+#contenidoModalMovimientosPokemon > .inventario-lista:last-of-type .item-evolucion-card{
+    min-height: 162px;
+    padding: 18px 16px;
+}
+
+#contenidoModalMovimientosPokemon > .inventario-lista:last-of-type .item-evolucion-top h3{
+    font-size: 18px;
+}
+
+#contenidoModalMovimientosPokemon > .inventario-lista:last-of-type .item-evolucion-top p:nth-child(2){
+    font-weight: 700;
+    color: #334155;
+}
+
+#contenidoModalMovimientosPokemon > .inventario-lista:last-of-type .empty-box{
+    grid-column: 1 / -1;
+}
+
+#contenidoModalMovimientosPokemon > .item-evolucion-card{
+    padding: 16px 18px;
+    margin-bottom: 0;
+}
+
+#contenidoModalMovimientosPokemon > .item-evolucion-card .item-evolucion-top h3{
+    font-size: 24px;
+}
+
+#contenidoModalMovimientosPokemon .evolucion-botones{
+    margin-top: 20px;
+    gap: 12px;
+}
+
+#contenidoModalMovimientosPokemon .btn-cancelar-modal,
+#contenidoModalMovimientosPokemon .btn-evolucionar{
+    min-width: 150px;
+    min-height: 46px;
+    border-radius: 14px;
+}
+
+
+/* =========================================================
    RESPONSIVE
 ========================================================= */
 
@@ -1163,6 +1343,10 @@
     .avatar-studio-current{
         width: 100%;
         min-width: 0;
+    }
+
+    #contenidoModalMovimientosPokemon > .inventario-lista:first-of-type{
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
@@ -1323,6 +1507,12 @@
         border-radius: 20px;
     }
 
+    #modalMovimientosPokemon .modal-content{
+        width: min(680px, calc(100vw - 20px));
+        max-width: calc(100vw - 20px);
+        padding: 18px 14px 20px;
+    }
+
     .modal-evolucion{
         max-width: 100%;
         padding: 20px 14px;
@@ -1374,6 +1564,40 @@
     .btn-usar-item{
         width: 100%;
         min-width: unset;
+    }
+
+    #contenidoModalMovimientosPokemon .titulo-modal-evolucion{
+        font-size: 24px;
+        padding-right: 28px;
+    }
+
+    #contenidoModalMovimientosPokemon .subtitulo-modal-evolucion{
+        margin-bottom: 14px;
+    }
+
+    #contenidoModalMovimientosPokemon > .inventario-lista:first-of-type,
+    #contenidoModalMovimientosPokemon > .inventario-lista:last-of-type{
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    #contenidoModalMovimientosPokemon > .inventario-lista:first-of-type .item-evolucion-card,
+    #contenidoModalMovimientosPokemon > .inventario-lista:last-of-type .item-evolucion-card{
+        min-height: auto;
+        padding: 16px 14px;
+    }
+
+    #contenidoModalMovimientosPokemon > .item-evolucion-card .item-evolucion-top h3{
+        font-size: 20px;
+    }
+
+    #contenidoModalMovimientosPokemon .item-evolucion-top h3{
+        font-size: 17px;
+        margin-bottom: 6px;
+    }
+
+    #contenidoModalMovimientosPokemon .item-evolucion-top p{
+        font-size: 13px;
     }
 }
 
@@ -1482,5 +1706,21 @@
     .item-chip{
         font-size: 12px;
         padding: 6px 9px;
+    }
+
+    #modalMovimientosPokemon .modal-content{
+        width: calc(100vw - 16px);
+        max-width: calc(100vw - 16px);
+        padding: 16px 12px 18px;
+    }
+
+    #contenidoModalMovimientosPokemon .evolucion-detalle.ok{
+        padding: 12px 12px;
+        font-size: 13px;
+    }
+
+    #contenidoModalMovimientosPokemon .btn-cancelar-modal,
+    #contenidoModalMovimientosPokemon .btn-evolucionar{
+        width: 100%;
     }
 }
