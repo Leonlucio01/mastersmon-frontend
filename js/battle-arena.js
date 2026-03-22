@@ -283,10 +283,10 @@ const ARENA_TYPE_MOVESET_CODES = {
     hada: ["fairy_wind", "draining_kiss", "dazzling_gleam", "moonblast"]
 };
 
-const ARENA_MOVE_CATEGORY_KEYS = {
-    fisico: "mypokemon_move_category_physical",
-    especial: "mypokemon_move_category_special",
-    estado: "mypokemon_move_category_status"
+const ARENA_MOVE_CATEGORY_LABELS = {
+    fisico: "Physical",
+    especial: "Special",
+    estado: "Status"
 };
 
 
@@ -870,8 +870,8 @@ function renderMiniPokemonArena(pokemon, isActive = false, isEnemy = false) {
                 <div class="arena-mini-sprite-wrap">
                     <img src="${imagen}" alt="${escapeHtmlArena(pokemon.nombre)}">
                 </div>
-                ${isActive ? `<span class="arena-mini-focus-badge ${isEnemy ? "enemy" : "player"}">${escapeHtmlArena(isEnemy ? tSafeArena("arena_mini_rival") : tSafeArena("arena_mini_active"))}</span>` : ""}
-                ${pokemon.defeated ? `<span class="arena-mini-focus-badge is-ko">${escapeHtmlArena(tSafeArena("arena_ko_short"))}</span>` : ""}
+                ${isActive ? `<span class="arena-mini-focus-badge ${isEnemy ? "enemy" : "player"}">${isEnemy ? "Rival" : "Active"}</span>` : ""}
+                ${pokemon.defeated ? `<span class="arena-mini-focus-badge is-ko">KO</span>` : ""}
             </div>
 
             <h4>${escapeHtmlArena(pokemon.nombre)}</h4>
@@ -969,7 +969,7 @@ function renderPanelMovimientosArena() {
         panel.classList.add("oculto");
         grid.innerHTML = "";
         if (subtitle) {
-            subtitle.textContent = tSafeArena("arena_moves_subtitle_default");
+            subtitle.textContent = "Choose one of the 4 equipped moves of your active Pokémon.";
         }
         return;
     }
@@ -978,16 +978,13 @@ function renderPanelMovimientosArena() {
     panel.classList.remove("oculto");
 
     if (subtitle) {
-        subtitle.textContent = tfArena("arena_moves_subtitle_choose", {
-            pokemon: playerPokemon.nombre,
-            level: playerPokemon.nivel
-        });
+        subtitle.textContent = `${playerPokemon.nombre} · Lv ${playerPokemon.nivel} · Choose your next move`;
     }
 
     if (!movimientos.length) {
         grid.innerHTML = `
             <div class="arena-moves-empty">
-                ${escapeHtmlArena(tSafeArena("arena_moves_empty"))}
+                This Pokémon has no equipped moves yet.
             </div>
         `;
         return;
@@ -1030,8 +1027,8 @@ function renderMoveCardArena(movimiento, esJugador = true) {
             data-arena-move-slot="${movimiento.slot || 0}"
         >
             <div class="arena-move-card-top">
-                <span class="arena-move-slot">${escapeHtmlArena(tSafeArena("arena_move_slot"))} ${movimiento.slot || "?"}</span>
-                <span class="arena-move-status is-ready">${escapeHtmlArena(tSafeArena("arena_move_ready"))}</span>
+                <span class="arena-move-slot">Slot ${movimiento.slot || "?"}</span>
+                <span class="arena-move-status is-ready">Ready</span>
             </div>
 
             <div class="arena-move-title-row">
@@ -1041,27 +1038,27 @@ function renderMoveCardArena(movimiento, esJugador = true) {
 
             <div class="arena-move-pill-row">
                 <span class="arena-move-pill is-category">${escapeHtmlArena(categoria)}</span>
-                <span class="arena-move-pill is-precision">${escapeHtmlArena(tSafeArena("arena_move_accuracy_short"))} ${precision}</span>
+                <span class="arena-move-pill is-precision">ACC ${precision}</span>
             </div>
 
             <div class="arena-move-stats-grid">
                 <div class="arena-move-stat-card">
-                    <span>${escapeHtmlArena(tSafeArena("arena_move_power"))}</span>
+                    <span>Power</span>
                     <strong>${potencia}</strong>
                 </div>
                 <div class="arena-move-stat-card">
-                    <span>${escapeHtmlArena(tSafeArena("arena_move_accuracy"))}</span>
+                    <span>Accuracy</span>
                     <strong>${precision}</strong>
                 </div>
                 <div class="arena-move-stat-card">
-                    <span>${escapeHtmlArena(tSafeArena("arena_move_priority"))}</span>
+                    <span>Priority</span>
                     <strong>${prioridad}</strong>
                 </div>
             </div>
 
             <div class="arena-move-footer">
-                <span>${escapeHtmlArena(esJugador ? tSafeArena("arena_move_tap_to_attack") : tSafeArena("arena_move_battle"))}</span>
-                <span>${escapeHtmlArena(categoria)}</span>
+                <span>${esJugador ? "Tap to attack" : "Battle move"}</span>
+                <span>${categoria}</span>
             </div>
         </button>
     `;
@@ -1111,7 +1108,13 @@ function mostrarDanioFlotanteArena(esJugador, valor, multiplicador = 1) {
 
     const pop = document.createElement("div");
     pop.className = "arena-damage-pop";
-    pop.textContent = multiplicador > 1 ? `-${valor} x2` : multiplicador < 1 ? `-${valor} x0.5` : `-${valor}`;
+
+    let multText = "";
+    if (Math.abs(Number(multiplicador || 1) - 1) > 0.001) {
+        multText = ` x${Number(multiplicador).toFixed(Number.isInteger(multiplicador) ? 0 : 2).replace(/\.00$/, "")}`;
+    }
+
+    pop.textContent = `-${valor}${multText}`;
     card.appendChild(pop);
 
     setTimeout(() => {
@@ -1246,7 +1249,7 @@ async function ejecutarTurnoAtaqueArena(desdeAuto = false, movimientoSeleccionad
     const movimientoRival = seleccionarMejorMovimientoArena(atacanteEnemy, atacantePlayer);
 
     if (!movimientoJugador) {
-        mostrarMensajeArena(tSafeArena("arena_no_available_move"), "warning");
+        mostrarMensajeArena("Your active Pokémon has no available move right now.", "warning");
         return;
     }
 
@@ -1430,7 +1433,7 @@ async function resolverAtaqueArena(atacante, defensor, movimiento, esAtaqueJugad
 
     if (!acierta) {
         agregarLogArena(
-            tfArena("arena_log_miss", { attacker: atacante.nombre, move: nombreMovimiento }),
+            `${atacante.nombre} used ${nombreMovimiento}, but it missed.`,
             esAtaqueJugador ? tSafeArena("battle_your_team") : tSafeArena("battle_rival")
         );
         renderArenaCompleta();
@@ -1445,17 +1448,12 @@ async function resolverAtaqueArena(atacante, defensor, movimiento, esAtaqueJugad
     mostrarDanioFlotanteArena(!esAtaqueJugador, resultadoDanio.danio, resultadoDanio.multiplicador);
 
     agregarLogArena(
-        tfArena("arena_log_move_attack", {
-            attacker: atacante.nombre,
-            move: nombreMovimiento,
-            damage: resultadoDanio.danio,
-            defender: defensor.nombre
-        }),
+        `${atacante.nombre} used ${nombreMovimiento} and dealt ${resultadoDanio.danio} damage to ${defensor.nombre}.`,
         esAtaqueJugador ? tSafeArena("battle_your_team") : tSafeArena("battle_rival")
     );
 
     if (resultadoDanio.stab > 1) {
-        agregarLogArena(tSafeArena("arena_log_stab"), tSafeArena("arena_system"));
+        agregarLogArena("Same-type bonus activated.", tSafeArena("arena_system"));
     }
 
     if (resultadoDanio.textoEfectividad) {
@@ -1513,20 +1511,23 @@ async function resolverAtaqueArena(atacante, defensor, movimiento, esAtaqueJugad
     }
 }
 
-function calcularDanioArena(atacante, defensor, movimiento) {
+function obtenerFactorNivelDanioArena(nivel = 1) {
+    const nivelSeguro = Math.max(1, Number(nivel || 1));
+    return 0.22 + Math.min(0.48, nivelSeguro / 180);
+}
+
+function estimarDanioMovimientoArena(atacante, defensor, movimiento, usarVariacion = false) {
     const movimientoUsado = movimiento || crearMovimientoFallbackArena(atacante, 1);
     const esEspecial = String(movimientoUsado?.categoria || "").toLowerCase() === "especial";
     const statAtaque = Math.max(1, Number(esEspecial ? (atacante.ataque_especial ?? atacante.ataque ?? 1) : (atacante.ataque ?? 1)));
     const statDefensa = Math.max(1, Number(esEspecial ? (defensor.defensa_especial ?? defensor.defensa ?? 1) : (defensor.defensa ?? 1)));
     const potencia = Math.max(1, Number(movimientoUsado?.potencia || 40));
-
     const multiplicador = calcularMultiplicadorMovimientoContraDefensorArena(movimientoUsado?.tipo || atacante.tipo, defensor);
-    const stab = tieneStabArena(atacante, movimientoUsado) ? 1.2 : 1;
-    const nivelFactor = 0.9 + Math.min(1.15, Number(atacante.nivel || 1) / 100);
-    const variacion = 0.92 + (Math.random() * 0.08);
-
-    const base = (potencia * statAtaque / statDefensa) * nivelFactor;
-    const danio = Math.max(1, Math.round((base / 8) * stab * multiplicador * variacion));
+    const stab = tieneStabArena(atacante, movimientoUsado) ? 1.15 : 1;
+    const factorNivel = obtenerFactorNivelDanioArena(atacante?.nivel || 1);
+    const variacion = usarVariacion ? (0.94 + (Math.random() * 0.12)) : 1;
+    const base = potencia * (statAtaque / statDefensa) * factorNivel;
+    const danio = Math.max(1, Math.round(base * stab * multiplicador * variacion));
 
     return {
         base,
@@ -1536,6 +1537,10 @@ function calcularDanioArena(atacante, defensor, movimiento) {
         danio,
         textoEfectividad: describirMultiplicadorArena(multiplicador)
     };
+}
+
+function calcularDanioArena(atacante, defensor, movimiento) {
+    return estimarDanioMovimientoArena(atacante, defensor, movimiento, true);
 }
 
 function seleccionarMejorMovimientoArena(atacante, defensor) {
@@ -1549,12 +1554,11 @@ function seleccionarMejorMovimientoArena(atacante, defensor) {
     let mejorPuntaje = -Infinity;
 
     for (const movimiento of disponibles) {
-        const potencia = Number(movimiento.potencia || 40);
+        const estimado = estimarDanioMovimientoArena(atacante, defensor, movimiento, false);
         const precision = Math.max(1, Number(movimiento.precision_pct || 100)) / 100;
-        const mult = calcularMultiplicadorMovimientoContraDefensorArena(movimiento.tipo, defensor);
-        const stab = tieneStabArena(atacante, movimiento) ? 1.2 : 1;
         const prioridad = Number(movimiento.prioridad || 0) * 8;
-        const puntaje = (potencia * mult * stab * precision) + prioridad;
+        const puedeRematar = estimado.danio >= Math.max(1, Number(defensor?.hp_actual || defensor?.hp_max || 1));
+        const puntaje = (estimado.danio * precision) + prioridad + (puedeRematar ? 60 : 0);
 
         if (puntaje > mejorPuntaje) {
             mejor = movimiento;
@@ -1619,9 +1623,7 @@ function normalizarCategoriaMovimientoArena(categoria = "fisico") {
 }
 
 function obtenerEtiquetaCategoriaMovimientoArena(categoria = "fisico") {
-    const categoriaNormalizada = normalizarCategoriaMovimientoArena(categoria);
-    const key = ARENA_MOVE_CATEGORY_KEYS[categoriaNormalizada];
-    return key ? tSafeArena(key) : tSafeArena("mypokemon_move_category_physical");
+    return ARENA_MOVE_CATEGORY_LABELS[normalizarCategoriaMovimientoArena(categoria)] || "Physical";
 }
 
 async function cargarMovimientosEquipoJugadorArena() {
@@ -1728,8 +1730,11 @@ function calcularMultiplicadorMovimientoContraDefensorArena(tipoMovimiento, defe
         resultadoFinal *= obtenerMultiplicadorTipoArena(tipoAtk, tipoDef);
     }
 
-    if (resultadoFinal >= 2) return 2;
+    if (resultadoFinal <= 0) return 0;
+    if (resultadoFinal <= 0.25) return 0.25;
     if (resultadoFinal <= 0.5) return 0.5;
+    if (resultadoFinal >= 4) return 4;
+    if (resultadoFinal >= 2) return 2;
     return 1;
 }
 
@@ -1853,7 +1858,7 @@ function abrirModalCambioArena() {
                         <div class="arena-change-name-row">
                             <strong>${escapeHtmlArena(pokemon.nombre)}</strong>
                             <span class="arena-change-status-chip ${current ? "is-current" : defeated ? "is-ko" : "is-ready"}">
-                                ${escapeHtmlArena(current ? tSafeArena("arena_change_current") : defeated ? tSafeArena("arena_change_ko") : tSafeArena("arena_change_ready"))}
+                                ${current ? "Current" : defeated ? "KO" : "Ready"}
                             </span>
                         </div>
 
@@ -2234,15 +2239,6 @@ function inferirCodigoDificultadArenaDesdeBonus(bonus = 0) {
     return "normal";
 }
 
-function obtenerBonusEsperadoPorDificultadArena(codigo = "normal") {
-    const valor = String(codigo || "normal").trim().toLowerCase();
-
-    if (valor === "master") return 6;
-    if (valor === "expert") return 4;
-    if (valor === "challenge") return 2;
-    return 0;
-}
-
 function obtenerCodigoDificultadArena() {
     if (arenaDificultadActual) {
         return String(arenaDificultadActual).trim().toLowerCase();
@@ -2287,19 +2283,12 @@ function sincronizarSesionBackendArena(data = {}) {
     arenaBattleSessionToken = data?.battle_session_token || null;
     arenaBattleSessionTtlSegundos = Number(data?.ttl_segundos || 0);
     arenaBattleSessionExpiraEn = data?.expira_en || null;
+    arenaDificultadActual = String(data?.dificultad_codigo || obtenerCodigoDificultadArena() || "normal").toLowerCase();
 
-    const dificultadLocal = String(
-        sessionStorage.getItem(BATTLE_ARENA_DIFFICULTY_KEY)
-        || arenaDificultadActual
-        || data?.dificultad_codigo
-        || "normal"
-    ).toLowerCase();
+    if (typeof data?.bonus_nivel_rival !== "undefined") {
+        sessionStorage.setItem(BATTLE_ENEMY_LEVEL_BONUS_KEY, String(Number(data.bonus_nivel_rival || 0)));
+    }
 
-    const dificultadBackend = String(data?.dificultad_codigo || dificultadLocal || "normal").toLowerCase();
-    arenaDificultadActual = dificultadLocal || dificultadBackend || "normal";
-
-    const bonusEsperado = obtenerBonusEsperadoPorDificultadArena(arenaDificultadActual);
-    sessionStorage.setItem(BATTLE_ENEMY_LEVEL_BONUS_KEY, String(bonusEsperado));
     sessionStorage.setItem(BATTLE_ARENA_DIFFICULTY_KEY, arenaDificultadActual);
 
     if (arenaBattleSessionToken) {
@@ -2326,16 +2315,7 @@ async function iniciarSesionBatallaArena() {
         throw new Error(tSafeArena("arena_need_full_team"));
     }
 
-    const dificultad = String(
-        sessionStorage.getItem(BATTLE_ARENA_DIFFICULTY_KEY)
-        || arenaDificultadActual
-        || inferirCodigoDificultadArenaDesdeBonus(obtenerBonusNivelRivalArena())
-        || "normal"
-    ).toLowerCase();
-
-    const bonusEsperado = obtenerBonusEsperadoPorDificultadArena(dificultad);
-    sessionStorage.setItem(BATTLE_ENEMY_LEVEL_BONUS_KEY, String(bonusEsperado));
-    sessionStorage.setItem(BATTLE_ARENA_DIFFICULTY_KEY, dificultad);
+    const dificultad = inferirCodigoDificultadArenaDesdeBonus(obtenerBonusNivelRivalArena());
 
     const data = await fetchAuthArena(`${API_BASE}/battle/iniciar`, {
         method: "POST",
