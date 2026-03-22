@@ -1377,53 +1377,45 @@ function usuarioAutenticadoMaps() {
     return !!getAccessToken();
 }
  
-function obtenerEstadoCapturaMapa(pokemonId, esShiny, listaPokemonUsuario = []) {
-    const shinyActual = esShiny === true || esShiny === 1 || esShiny === "true";
+function esValorShinyMaps(valor) {
+    return (
+        valor === true ||
+        valor === 1 ||
+        valor === "1" ||
+        String(valor).trim().toLowerCase() === "true"
+    );
+}
 
-    let cantidadExacta = 0;
-    let cantidadOtrasVariantes = 0;
+function obtenerEstadoCapturaMapa(pokemonId, esShiny, listaPokemonUsuario = []) {
+    const shinyActual = esValorShinyMaps(esShiny);
+
+    let cantidadNormal = 0;
+    let cantidadShiny = 0;
 
     for (const p of listaPokemonUsuario) {
         if (Number(p.pokemon_id) !== Number(pokemonId)) continue;
 
-        const shinyPokemon = p.es_shiny === true || p.es_shiny === 1 || p.es_shiny === "true";
+        const shinyPokemon = esValorShinyMaps(p.es_shiny);
 
-        if (shinyPokemon === shinyActual) {
-            cantidadExacta += 1;
+        if (shinyPokemon) {
+            cantidadShiny += 1;
         } else {
-            cantidadOtrasVariantes += 1;
+            cantidadNormal += 1;
         }
     }
 
-    if (cantidadExacta > 0) {
-        return {
-            capturado: true,
-            variante: "exacto",
-            cantidad: cantidadExacta,
-            cantidad_otras_variantes: cantidadOtrasVariantes,
-            imagen: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png"
-        };
-    }
-
-    if (cantidadOtrasVariantes > 0) {
-        return {
-            capturado: true,
-            variante: "otra-version",
-            cantidad: 0,
-            cantidad_otras_variantes: cantidadOtrasVariantes,
-            imagen: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png"
-        };
-    }
+    const cantidadMostrada = shinyActual ? cantidadShiny : cantidadNormal;
 
     return {
-        capturado: false,
-        variante: "ninguno",
-        cantidad: 0,
-        cantidad_otras_variantes: 0,
+        capturado: cantidadMostrada > 0,
+        variante: shinyActual ? "shiny" : "normal",
+        cantidad_normal: cantidadNormal,
+        cantidad_shiny: cantidadShiny,
+        cantidad_mostrada: cantidadMostrada,
         imagen: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png"
     };
 }
- 
+
 /* =========================
    ZONAS
 ========================= */
@@ -1916,22 +1908,16 @@ function renderEncuentroActual() {
         <h2>${t("maps_wild_found")}</h2>
  
         <div class="encuentro-top-status">
-            <div class="captura-indicador-superior ${estadoCaptura.variante}">
+            <div class="captura-indicador-superior ${estadoCaptura.capturado ? "exacto" : "ninguno"}">
                 <img
                     src="${estadoCaptura.imagen}"
-                    class="captura-ball-img ${estadoCaptura.variante === "ninguno" ? "gris" : ""} ${estadoCaptura.variante === "otra-version" ? "dorada" : ""}"
+                    class="captura-ball-img ${estadoCaptura.capturado ? "" : "gris"}"
                     alt="${t("maps_capture_status")}"
                 >
             </div>
 
             <div class="captura-cantidad-box">
-                ${
-                    estadoCaptura.variante === "exacto"
-                        ? `x${estadoCaptura.cantidad}`
-                        : estadoCaptura.variante === "otra-version"
-                            ? `Alt x${estadoCaptura.cantidad_otras_variantes}`
-                            : `x0`
-                }
+                x${estadoCaptura.cantidad_mostrada}
             </div>
         </div>
  
