@@ -306,6 +306,51 @@ function obtenerCategoriaMovimientoTexto(categoria) {
     return categoria || "-";
 }
 
+function normalizarTipoCssMyPokemon(tipo = "") {
+    const valor = normalizarTextoMyPokemon(tipo).split("/")[0].trim();
+    const mapa = {
+        normal: "normal",
+        fire: "fire",
+        fuego: "fire",
+        water: "water",
+        agua: "water",
+        grass: "grass",
+        planta: "grass",
+        electric: "electric",
+        electrico: "electric",
+        ice: "ice",
+        hielo: "ice",
+        fighting: "fighting",
+        lucha: "fighting",
+        poison: "poison",
+        veneno: "poison",
+        ground: "ground",
+        tierra: "ground",
+        flying: "flying",
+        volador: "flying",
+        psychic: "psychic",
+        psiquico: "psychic",
+        bug: "bug",
+        bicho: "bug",
+        rock: "rock",
+        roca: "rock",
+        ghost: "ghost",
+        fantasma: "ghost",
+        dragon: "dragon",
+        steel: "steel",
+        acero: "steel",
+        fairy: "fairy",
+        hada: "fairy"
+    };
+    return mapa[valor] || "neutral";
+}
+
+function obtenerTextoTipoMovimientoUi(tipo = "") {
+    const limpio = String(tipo || "").trim();
+    if (!limpio) return tMyPokemon("mypokemon_moves_type_unknown", "Unknown");
+    return traducirTipoPokemonMyPokemon(limpio);
+}
+
 function obtenerMovimientoEquipadoPorSlot(movimientos = [], slot = 1) {
     return (Array.isArray(movimientos) ? movimientos : []).find(mov => Number(mov?.slot) === Number(slot)) || null;
 }
@@ -315,11 +360,16 @@ function renderModalMovimientosLoading(nombrePokemon = "") {
     if (!contenido) return;
 
     contenido.innerHTML = `
-        <h2 class="titulo-modal-evolucion">${tMyPokemon("mypokemon_moves_title", "Pokémon moves")}</h2>
-        <p class="subtitulo-modal-evolucion">${escapeHtmlMyPokemon(nombrePokemon || tMyPokemon("mypokemon_moves_loading_subtitle", "Loading moves..."))}</p>
-        <div class="empty-box">
-            <h3>${tMyPokemon("mypokemon_moves_loading_title", "Loading moves...")}</h3>
-            <p>${tMyPokemon("mypokemon_moves_loading_text", "Please wait a moment.")}</p>
+        <div class="mypokemon-moves-shell is-loading">
+            <div class="mypokemon-moves-hero">
+                <h2 class="titulo-modal-evolucion">${tMyPokemon("mypokemon_moves_title", "Pokémon moves")}</h2>
+                <p class="subtitulo-modal-evolucion">${escapeHtmlMyPokemon(nombrePokemon || tMyPokemon("mypokemon_moves_loading_subtitle", "Loading moves..."))}</p>
+            </div>
+
+            <div class="mypokemon-moves-empty-state">
+                <h3>${tMyPokemon("mypokemon_moves_loading_title", "Loading moves...")}</h3>
+                <p>${tMyPokemon("mypokemon_moves_loading_text", "Please wait a moment.")}</p>
+            </div>
         </div>
     `;
 }
@@ -329,14 +379,19 @@ function renderModalMovimientosError(nombrePokemon = "", mensaje = "") {
     if (!contenido) return;
 
     contenido.innerHTML = `
-        <h2 class="titulo-modal-evolucion">${tMyPokemon("mypokemon_moves_title", "Pokémon moves")}</h2>
-        <p class="subtitulo-modal-evolucion">${escapeHtmlMyPokemon(nombrePokemon || "")}</p>
-        <div class="empty-box">
-            <h3>${tMyPokemon("mypokemon_moves_error_title", "Could not load moves")}</h3>
-            <p>${escapeHtmlMyPokemon(mensaje || tMyPokemon("mypokemon_moves_error_text", "Try again in a moment."))}</p>
-            <button type="button" class="btn-evolucionar" data-skill-refresh="1">
-                ${tMyPokemon("mypokemon_moves_retry", "Retry")}
-            </button>
+        <div class="mypokemon-moves-shell is-error">
+            <div class="mypokemon-moves-hero">
+                <h2 class="titulo-modal-evolucion">${tMyPokemon("mypokemon_moves_title", "Pokémon moves")}</h2>
+                <p class="subtitulo-modal-evolucion">${escapeHtmlMyPokemon(nombrePokemon || "")}</p>
+            </div>
+
+            <div class="mypokemon-moves-empty-state is-error">
+                <h3>${tMyPokemon("mypokemon_moves_error_title", "Could not load moves")}</h3>
+                <p>${escapeHtmlMyPokemon(mensaje || tMyPokemon("mypokemon_moves_error_text", "Try again in a moment."))}</p>
+                <button type="button" class="btn-evolucionar" data-skill-refresh="1">
+                    ${tMyPokemon("mypokemon_moves_retry", "Retry")}
+                </button>
+            </div>
         </div>
     `;
 }
@@ -357,22 +412,45 @@ function renderModalMovimientosContenido() {
     const nivelPokemon = Number(usuarioPokemon.nivel || 1);
     const tipoPokemon = traducirTipoPokemonMyPokemon(usuarioPokemon.tipo || "");
     const slotSeleccionado = Number(modalMovimientosActual.slotSeleccionado || 1);
+    const movimientoSlotActual = obtenerMovimientoEquipadoPorSlot(movimientos, slotSeleccionado);
+    const movimientoPendienteId = Number(
+        modalMovimientosActual.movimientoPendienteId || movimientoSlotActual?.movimiento_id || 0
+    );
 
     const slotsHtml = [1, 2, 3, 4].map(slot => {
         const movimiento = obtenerMovimientoEquipadoPorSlot(movimientos, slot);
         const activo = slotSeleccionado === slot;
+        const tipoCss = normalizarTipoCssMyPokemon(movimiento?.tipo || "");
+        const estadoSlot = movimiento
+            ? tMyPokemon("mypokemon_moves_slot_filled_badge", "Equipped")
+            : tMyPokemon("mypokemon_moves_slot_empty_badge", "Empty");
+
         return `
             <button
                 type="button"
-                class="item-evolucion-card ${activo ? "evolucion-lista" : ""}"
+                class="mypokemon-moves-slot-card ${activo ? "is-selected" : ""} ${movimiento ? "is-filled" : "is-empty"}"
                 data-skill-slot="${slot}"
                 ${equipandoMovimientoEnCurso ? "disabled" : ""}
             >
-                <div class="item-evolucion-top">
-                    <div>
+                <span class="mypokemon-moves-slot-index">${tMyPokemon("mypokemon_moves_slot_short", "Slot")} ${slot}</span>
+                <span class="mypokemon-moves-slot-state ${movimiento ? "is-filled" : "is-empty"}">${estadoSlot}</span>
+
+                <div class="mypokemon-moves-slot-body">
+                    <div class="mypokemon-moves-slot-title-row">
                         <h3>${tMyPokemon("mypokemon_moves_slot_label", "Slot")} ${slot}</h3>
-                        <p>${movimiento ? escapeHtmlMyPokemon(movimiento.nombre) : tMyPokemon("mypokemon_moves_empty_slot", "Empty slot")}</p>
-                        <p>${movimiento ? `${escapeHtmlMyPokemon(traducirTipoPokemonMyPokemon(movimiento.tipo || ""))} · ${escapeHtmlMyPokemon(obtenerCategoriaMovimientoTexto(movimiento.categoria))}` : tMyPokemon("mypokemon_moves_select_slot", "Select this slot")}</p>
+                    </div>
+
+                    <p class="mypokemon-moves-slot-name">
+                        ${movimiento ? escapeHtmlMyPokemon(movimiento.nombre) : tMyPokemon("mypokemon_moves_empty_slot", "Empty slot")}
+                    </p>
+
+                    <div class="mypokemon-moves-slot-meta">
+                        ${movimiento ? `
+                            <span class="mypokemon-move-pill type-${tipoCss}">${escapeHtmlMyPokemon(obtenerTextoTipoMovimientoUi(movimiento.tipo || ""))}</span>
+                            <span class="mypokemon-move-pill is-category">${escapeHtmlMyPokemon(obtenerCategoriaMovimientoTexto(movimiento.categoria))}</span>
+                        ` : `
+                            <span class="mypokemon-moves-slot-hint">${tMyPokemon("mypokemon_moves_select_slot", "Select this slot")}</span>
+                        `}
                     </div>
                 </div>
             </button>
@@ -382,62 +460,121 @@ function renderModalMovimientosContenido() {
     const movimientosHtml = movimientos.length
         ? movimientos.map(mov => {
             const estaEquipado = Number(mov.slot || 0) > 0;
-            const potencia = mov.potencia != null ? String(mov.potencia) : tMyPokemon("mypokemon_moves_no_power", "-" );
+            const estaEnSlotSeleccionado = Number(mov.slot || 0) === slotSeleccionado;
+            const estaResaltado = movimientoPendienteId > 0 && Number(mov.movimiento_id) === movimientoPendienteId;
+            const potencia = mov.potencia != null ? String(mov.potencia) : tMyPokemon("mypokemon_moves_no_power", "-");
+            const tipoCss = normalizarTipoCssMyPokemon(mov.tipo || "");
+            const textoEstado = estaEquipado
+                ? `${tMyPokemon("mypokemon_moves_equipped_in", "Equipped in slot")} ${mov.slot}`
+                : `${tMyPokemon("mypokemon_moves_unlock_level", "Unlock level")} ${mov.nivel_requerido}`;
+            const accionTexto = estaEnSlotSeleccionado
+                ? tMyPokemon("mypokemon_moves_selected_move", "Selected move")
+                : tMyPokemon("mypokemon_moves_equip_here", "Equip in this slot");
+
             return `
                 <button
                     type="button"
-                    class="item-evolucion-card"
+                    class="mypokemon-move-card ${estaEquipado ? "is-equipped" : ""} ${estaResaltado ? "is-selected" : ""} ${estaEnSlotSeleccionado ? "is-current-slot" : ""}"
                     data-skill-equip="${mov.movimiento_id}"
                     ${equipandoMovimientoEnCurso ? "disabled" : ""}
                 >
-                    <div class="item-evolucion-top">
+                    <div class="mypokemon-move-card-top">
                         <div>
-                            <h3>${escapeHtmlMyPokemon(mov.nombre)}</h3>
-                            <p>${escapeHtmlMyPokemon(traducirTipoPokemonMyPokemon(mov.tipo || ""))} · ${escapeHtmlMyPokemon(obtenerCategoriaMovimientoTexto(mov.categoria))}</p>
-                            <p>Power: ${escapeHtmlMyPokemon(potencia)} · ACC: ${escapeHtmlMyPokemon(String(mov.precision_pct || 0))}% · CD: ${escapeHtmlMyPokemon(String(mov.cooldown_turnos || 0))}</p>
-                            <p>${estaEquipado ? `${tMyPokemon("mypokemon_moves_equipped_in", "Equipped in slot")} ${mov.slot}` : `${tMyPokemon("mypokemon_moves_unlock_level", "Unlock level")} ${mov.nivel_requerido}`}</p>
+                            <h3 class="mypokemon-move-name">${escapeHtmlMyPokemon(mov.nombre)}</h3>
+                            <div class="mypokemon-move-pill-row">
+                                <span class="mypokemon-move-pill type-${tipoCss}">${escapeHtmlMyPokemon(obtenerTextoTipoMovimientoUi(mov.tipo || ""))}</span>
+                                <span class="mypokemon-move-pill is-category">${escapeHtmlMyPokemon(obtenerCategoriaMovimientoTexto(mov.categoria))}</span>
+                                <span class="mypokemon-move-pill ${estaEquipado ? "is-equipped" : "is-available"}">${escapeHtmlMyPokemon(textoEstado)}</span>
+                            </div>
+                        </div>
+                        <span class="mypokemon-move-action">${accionTexto}</span>
+                    </div>
+
+                    <div class="mypokemon-move-stats-grid">
+                        <div class="mypokemon-move-stat-box">
+                            <span>${tMyPokemon("mypokemon_moves_power_label", "Power")}</span>
+                            <strong>${escapeHtmlMyPokemon(potencia)}</strong>
+                        </div>
+                        <div class="mypokemon-move-stat-box">
+                            <span>${tMyPokemon("mypokemon_moves_accuracy_label", "Accuracy")}</span>
+                            <strong>${escapeHtmlMyPokemon(String(mov.precision_pct || 0))}%</strong>
+                        </div>
+                        <div class="mypokemon-move-stat-box">
+                            <span>${tMyPokemon("mypokemon_moves_cooldown_label", "Cooldown")}</span>
+                            <strong>${escapeHtmlMyPokemon(String(mov.cooldown_turnos || 0))}</strong>
                         </div>
                     </div>
                 </button>
             `;
         }).join("")
         : `
-            <div class="empty-box">
+            <div class="mypokemon-moves-empty-state">
                 <h3>${tMyPokemon("mypokemon_moves_empty_title", "No moves available")}</h3>
                 <p>${tMyPokemon("mypokemon_moves_empty_text", "This Pokémon has no unlocked moves yet.")}</p>
             </div>
         `;
 
     contenido.innerHTML = `
-        <h2 class="titulo-modal-evolucion">${tMyPokemon("mypokemon_moves_title", "Pokémon moves")}</h2>
-        <p class="subtitulo-modal-evolucion">${escapeHtmlMyPokemon(nombrePokemon)} · Lv ${nivelPokemon}${tipoPokemon ? ` · ${escapeHtmlMyPokemon(tipoPokemon)}` : ""}</p>
-
-        <div class="evolucion-detalle ok">
-            ${tMyPokemon("mypokemon_moves_help", "Select a slot first, then choose the move you want to equip.")}
-        </div>
-
-        <div class="inventario-lista">
-            ${slotsHtml}
-        </div>
-
-        <div class="item-evolucion-card">
-            <div class="item-evolucion-top">
-                <div>
-                    <h3>${tMyPokemon("mypokemon_moves_selected_slot", "Selected slot")}: ${slotSeleccionado}</h3>
-                    <p>${tMyPokemon("mypokemon_moves_available_list", "Unlocked moves")}</p>
-                </div>
+        <div class="mypokemon-moves-shell">
+            <div class="mypokemon-moves-hero">
+                <h2 class="titulo-modal-evolucion">${tMyPokemon("mypokemon_moves_title", "Pokémon moves")}</h2>
+                <p class="subtitulo-modal-evolucion">${escapeHtmlMyPokemon(nombrePokemon)} · ${t("battle_level_short")} ${nivelPokemon}${tipoPokemon ? ` · ${escapeHtmlMyPokemon(tipoPokemon)}` : ""}</p>
             </div>
-        </div>
 
-        <div class="inventario-lista">
-            ${movimientosHtml}
-        </div>
+            <div class="mypokemon-moves-helper-banner">
+                <span class="mypokemon-moves-helper-icon">✦</span>
+                <span>${tMyPokemon("mypokemon_moves_help", "Select a slot first, then choose the move you want to equip.")}</span>
+            </div>
 
-        <div class="evolucion-botones">
-            <button type="button" class="btn-cancelar-modal" onclick="cerrarModalMovimientosPokemon()">${t("battle_cancel")}</button>
-            <button type="button" class="btn-evolucionar" data-skill-refresh="1" ${equipandoMovimientoEnCurso ? "disabled" : ""}>
-                ${equipandoMovimientoEnCurso ? tMyPokemon("mypokemon_moves_saving", "Saving...") : tMyPokemon("mypokemon_moves_refresh", "Refresh")}
-            </button>
+            <section class="mypokemon-moves-slots-section">
+                <div class="mypokemon-moves-section-head">
+                    <div>
+                        <span class="mypokemon-moves-section-kicker">${tMyPokemon("mypokemon_moves_equipped_title", "Equipped loadout")}</span>
+                        <h3>${tMyPokemon("mypokemon_moves_slots_title", "Choose the slot to edit")}</h3>
+                    </div>
+                </div>
+
+                <div class="mypokemon-moves-slots-grid">
+                    ${slotsHtml}
+                </div>
+            </section>
+
+            <section class="mypokemon-moves-selected-panel ${movimientoSlotActual ? "has-move" : "is-empty"}">
+                <div class="mypokemon-moves-selected-copy">
+                    <span class="mypokemon-moves-section-kicker">${tMyPokemon("mypokemon_moves_selected_slot", "Selected slot")}</span>
+                    <h3>${tMyPokemon("mypokemon_moves_slot_label", "Slot")} ${slotSeleccionado}</h3>
+                    <p>
+                        ${movimientoSlotActual
+                            ? tMyPokemon("mypokemon_moves_selected_slot_filled", "This is the move currently equipped in the selected slot.")
+                            : tMyPokemon("mypokemon_moves_selected_slot_empty", "This slot is empty. Choose any unlocked move below.")}
+                    </p>
+                </div>
+
+                <div class="mypokemon-moves-selected-preview">
+                    <strong>${movimientoSlotActual ? escapeHtmlMyPokemon(movimientoSlotActual.nombre) : tMyPokemon("mypokemon_moves_empty_slot", "Empty slot")}</strong>
+                    <span>${movimientoSlotActual ? `${escapeHtmlMyPokemon(obtenerTextoTipoMovimientoUi(movimientoSlotActual.tipo || ""))} · ${escapeHtmlMyPokemon(obtenerCategoriaMovimientoTexto(movimientoSlotActual.categoria))}` : tMyPokemon("mypokemon_moves_choose_move_cta", "Choose a move to equip")}</span>
+                </div>
+            </section>
+
+            <section class="mypokemon-moves-list-section">
+                <div class="mypokemon-moves-section-head">
+                    <div>
+                        <span class="mypokemon-moves-section-kicker">${tMyPokemon("mypokemon_moves_available_list", "Unlocked moves")}</span>
+                        <h3>${tMyPokemon("mypokemon_moves_available_title", "Pick the move for the selected slot")}</h3>
+                    </div>
+                </div>
+
+                <div class="mypokemon-moves-grid">
+                    ${movimientosHtml}
+                </div>
+            </section>
+
+            <div class="evolucion-botones mypokemon-moves-actions">
+                <button type="button" class="btn-cancelar-modal" onclick="cerrarModalMovimientosPokemon()">${t("battle_cancel")}</button>
+                <button type="button" class="btn-evolucionar" data-skill-refresh="1" ${equipandoMovimientoEnCurso ? "disabled" : ""}>
+                    ${equipandoMovimientoEnCurso ? tMyPokemon("mypokemon_moves_saving", "Saving...") : tMyPokemon("mypokemon_moves_refresh", "Refresh")}
+                </button>
+            </div>
         </div>
     `;
 }
@@ -455,6 +592,9 @@ async function abrirModalMovimientosPokemon(usuarioPokemonId, nombrePokemon, { f
         slotSeleccionado: Number(modalMovimientosActual?.usuarioPokemonId) === Number(usuarioPokemonId)
             ? Number(modalMovimientosActual?.slotSeleccionado || 1)
             : 1,
+        movimientoPendienteId: Number(modalMovimientosActual?.usuarioPokemonId) === Number(usuarioPokemonId)
+            ? Number(modalMovimientosActual?.movimientoPendienteId || 0)
+            : 0,
         data: cache,
         cargando: true
     };
@@ -476,6 +616,8 @@ async function abrirModalMovimientosPokemon(usuarioPokemonId, nombrePokemon, { f
         modalMovimientosActual.data = data;
         modalMovimientosActual.cargando = false;
         modalMovimientosActual.nombrePokemon = data?.usuario_pokemon?.nombre || modalMovimientosActual.nombrePokemon;
+        const movimientoActivo = obtenerMovimientoEquipadoPorSlot(Array.isArray(data?.movimientos) ? data.movimientos : [], modalMovimientosActual.slotSeleccionado);
+        modalMovimientosActual.movimientoPendienteId = Number(movimientoActivo?.movimiento_id || modalMovimientosActual.movimientoPendienteId || 0);
         renderModalMovimientosContenido();
     } catch (error) {
         console.error("Error cargando movimientos del Pokémon:", error);
@@ -515,6 +657,7 @@ async function equiparMovimientoSeleccionado(movimientoId) {
 
     if (!usuarioPokemonId || !movimientoId || slot < 1 || slot > 4) return;
 
+    modalMovimientosActual.movimientoPendienteId = Number(movimientoId || 0);
     equipandoMovimientoEnCurso = true;
     renderModalMovimientosContenido();
 
@@ -532,6 +675,7 @@ async function equiparMovimientoSeleccionado(movimientoId) {
 
         if (modalMovimientosActual && Number(modalMovimientosActual.usuarioPokemonId) === usuarioPokemonId) {
             modalMovimientosActual.data = actualizado;
+            modalMovimientosActual.movimientoPendienteId = Number(movimientoId || 0);
         }
 
         renderModalMovimientosContenido();
@@ -574,6 +718,9 @@ function configurarEventosMovimientosPokemon() {
         const btnSlot = event.target.closest("[data-skill-slot]");
         if (btnSlot && modalMovimientosActual && !equipandoMovimientoEnCurso) {
             modalMovimientosActual.slotSeleccionado = Number(btnSlot.dataset.skillSlot || 1);
+            const movimientos = Array.isArray(modalMovimientosActual?.data?.movimientos) ? modalMovimientosActual.data.movimientos : [];
+            const movimientoSlot = obtenerMovimientoEquipadoPorSlot(movimientos, modalMovimientosActual.slotSeleccionado);
+            modalMovimientosActual.movimientoPendienteId = Number(movimientoSlot?.movimiento_id || 0);
             renderModalMovimientosContenido();
             return;
         }

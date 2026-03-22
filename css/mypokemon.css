@@ -1173,151 +1173,513 @@
 ========================================================= */
 
 #modalMovimientosPokemon .modal-content{
-    max-width: 760px;
-    padding: 28px 24px 24px;
+    max-width: 860px;
+    padding: 30px 24px 24px;
+    background:
+        radial-gradient(circle at top left, rgba(59,130,246,0.09), transparent 26%),
+        radial-gradient(circle at top right, rgba(16,185,129,0.08), transparent 24%),
+        linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
 }
 
 #contenidoModalMovimientosPokemon{
+    text-align: left;
+}
+
+.mypokemon-moves-shell{
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.mypokemon-moves-hero{
     text-align: center;
+    padding: 0 10px;
 }
 
 #contenidoModalMovimientosPokemon .titulo-modal-evolucion{
-    font-size: 28px;
-    margin-bottom: 4px;
+    font-size: 34px;
+    font-weight: 900;
+    margin-bottom: 6px;
     padding-right: 34px;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
 }
 
 #contenidoModalMovimientosPokemon .subtitulo-modal-evolucion{
-    margin-top: 4px;
-    margin-bottom: 18px;
+    margin-top: 0;
+    margin-bottom: 0;
+    color: #64748b;
+    font-size: 15px;
 }
 
-#contenidoModalMovimientosPokemon .evolucion-detalle.ok{
-    margin: 0 0 18px;
+.mypokemon-moves-helper-banner{
+    display: flex;
+    align-items: center;
+    gap: 10px;
     padding: 14px 16px;
-    border-radius: 16px;
-    border: 1px solid #bbf7d0;
-    background: linear-gradient(180deg, #f0fdf4 0%, #ecfdf5 100%);
-    color: #166534;
-    box-shadow: 0 8px 18px rgba(22,163,74,0.08);
-}
-
-#contenidoModalMovimientosPokemon .item-evolucion-card{
-    margin: 0;
     border-radius: 18px;
-    border: 1px solid #dbe3ef;
-    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-    box-shadow: 0 8px 20px rgba(15,23,42,0.06);
-}
-
-#contenidoModalMovimientosPokemon button.item-evolucion-card{
-    width: 100%;
-    text-align: center;
-    cursor: pointer;
-    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
-}
-
-#contenidoModalMovimientosPokemon button.item-evolucion-card:hover:not(:disabled){
-    transform: translateY(-2px);
-    border-color: #93c5fd;
-    box-shadow: 0 14px 28px rgba(37,99,235,0.12);
-    background: linear-gradient(180deg, #ffffff 0%, #f4f9ff 100%);
-}
-
-#contenidoModalMovimientosPokemon button.item-evolucion-card:disabled{
-    opacity: .72;
-    cursor: not-allowed;
-}
-
-#contenidoModalMovimientosPokemon .item-evolucion-top{
-    gap: 0;
-}
-
-#contenidoModalMovimientosPokemon .item-evolucion-top > div{
-    width: 100%;
-}
-
-#contenidoModalMovimientosPokemon .item-evolucion-top h3{
-    margin: 0 0 8px;
-    font-size: 22px;
-    font-weight: 900;
-    color: #0f172a;
-}
-
-#contenidoModalMovimientosPokemon .item-evolucion-top p{
-    margin: 4px 0;
-    font-size: 14px;
-    color: #475569;
+    background: linear-gradient(180deg, #effaf4 0%, #ebfff3 100%);
+    border: 1px solid #b7f0c7;
+    color: #166534;
+    box-shadow: 0 10px 18px rgba(22,163,74,0.08);
+    font-weight: 800;
     line-height: 1.35;
 }
 
-#contenidoModalMovimientosPokemon > .inventario-lista:first-of-type{
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+.mypokemon-moves-helper-icon{
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: #ffffff;
+    box-shadow: 0 8px 16px rgba(34,197,94,0.22);
+}
+
+.mypokemon-moves-section-head{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     gap: 12px;
-    margin: 0 0 18px;
+    margin-bottom: 12px;
 }
 
-#contenidoModalMovimientosPokemon > .inventario-lista:first-of-type .item-evolucion-card{
-    min-height: 118px;
-    padding: 18px 14px;
+.mypokemon-moves-section-kicker{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: #eef2ff;
+    color: #4338ca;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
 }
 
-#contenidoModalMovimientosPokemon > .inventario-lista:first-of-type .item-evolucion-top h3{
-    font-size: 18px;
-    margin-bottom: 6px;
+.mypokemon-moves-section-head h3{
+    margin: 0;
+    font-size: 22px;
+    color: #0f172a;
+    font-weight: 900;
+    line-height: 1.15;
 }
 
-#contenidoModalMovimientosPokemon > .inventario-lista:first-of-type .item-evolucion-top p{
-    font-size: 13px;
+.mypokemon-moves-slots-section,
+.mypokemon-moves-list-section{
+    border-radius: 24px;
+    padding: 18px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.96) 100%);
+    border: 1px solid #dbe7f3;
+    box-shadow: 0 14px 28px rgba(15,23,42,0.07);
 }
 
-#contenidoModalMovimientosPokemon > .inventario-lista:last-of-type{
+.mypokemon-moves-slots-grid{
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 14px;
-    margin: 16px 0 0;
 }
 
-#contenidoModalMovimientosPokemon > .inventario-lista:last-of-type .item-evolucion-card{
-    min-height: 162px;
-    padding: 18px 16px;
+.mypokemon-moves-slot-card{
+    position: relative;
+    width: 100%;
+    border: 1px solid #d9e2ef;
+    border-radius: 22px;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    padding: 18px 16px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    cursor: pointer;
+    text-align: left;
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
+    box-shadow: 0 10px 18px rgba(15,23,42,0.05);
 }
 
-#contenidoModalMovimientosPokemon > .inventario-lista:last-of-type .item-evolucion-top h3{
+.mypokemon-moves-slot-card:hover:not(:disabled){
+    transform: translateY(-2px);
+    border-color: #93c5fd;
+    box-shadow: 0 16px 28px rgba(37,99,235,0.14);
+}
+
+.mypokemon-moves-slot-card.is-selected{
+    border-color: #2563eb;
+    background:
+        radial-gradient(circle at top right, rgba(59,130,246,0.16), transparent 30%),
+        linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.14), 0 18px 32px rgba(37,99,235,0.18);
+    transform: translateY(-1px);
+}
+
+.mypokemon-moves-slot-card.is-empty{
+    border-style: dashed;
+}
+
+.mypokemon-moves-slot-card:disabled{
+    cursor: not-allowed;
+    opacity: .76;
+}
+
+.mypokemon-moves-slot-index,
+.mypokemon-moves-slot-state{
+    position: absolute;
+    top: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 28px;
+    border-radius: 999px;
+    padding: 0 10px;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+}
+
+.mypokemon-moves-slot-index{
+    left: 12px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+}
+
+.mypokemon-moves-slot-state{
+    right: 12px;
+    border: 1px solid transparent;
+}
+
+.mypokemon-moves-slot-state.is-filled{
+    background: #ecfdf5;
+    color: #15803d;
+    border-color: #bbf7d0;
+}
+
+.mypokemon-moves-slot-state.is-empty{
+    background: #fff7ed;
+    color: #c2410c;
+    border-color: #fed7aa;
+}
+
+.mypokemon-moves-slot-body{
+    padding-top: 24px;
+}
+
+.mypokemon-moves-slot-title-row h3{
+    margin: 0;
     font-size: 18px;
+    color: #0f172a;
+    font-weight: 900;
 }
 
-#contenidoModalMovimientosPokemon > .inventario-lista:last-of-type .item-evolucion-top p:nth-child(2){
-    font-weight: 700;
-    color: #334155;
+.mypokemon-moves-slot-name{
+    margin: 8px 0 0;
+    min-height: 30px;
+    font-size: 18px;
+    font-weight: 900;
+    color: #0f172a;
+    line-height: 1.2;
 }
 
-#contenidoModalMovimientosPokemon > .inventario-lista:last-of-type .empty-box{
-    grid-column: 1 / -1;
+.mypokemon-moves-slot-card.is-empty .mypokemon-moves-slot-name{
+    color: #94a3b8;
 }
 
-#contenidoModalMovimientosPokemon > .item-evolucion-card{
-    padding: 16px 18px;
-    margin-bottom: 0;
+.mypokemon-moves-slot-meta{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 10px;
 }
 
-#contenidoModalMovimientosPokemon > .item-evolucion-card .item-evolucion-top h3{
+.mypokemon-moves-slot-hint{
+    display: inline-flex;
+    align-items: center;
+    min-height: 30px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background: #f8fafc;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 800;
+    border: 1px dashed #cbd5e1;
+}
+
+.mypokemon-moves-selected-panel{
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(240px, .8fr);
+    gap: 16px;
+    align-items: center;
+    border-radius: 24px;
+    padding: 18px 18px;
+    background:
+        radial-gradient(circle at left center, rgba(59,130,246,0.12), transparent 36%),
+        linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    border: 1px solid #dbeafe;
+    box-shadow: 0 16px 30px rgba(37,99,235,0.08);
+}
+
+.mypokemon-moves-selected-panel.is-empty{
+    background:
+        radial-gradient(circle at left center, rgba(148,163,184,0.12), transparent 36%),
+        linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    border-color: #e2e8f0;
+    box-shadow: 0 12px 22px rgba(15,23,42,0.06);
+}
+
+.mypokemon-moves-selected-copy h3{
+    margin: 0;
+    font-size: 26px;
+    color: #0f172a;
+    font-weight: 900;
+}
+
+.mypokemon-moves-selected-copy p{
+    margin: 8px 0 0;
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.45;
+}
+
+.mypokemon-moves-selected-preview{
+    min-height: 112px;
+    border-radius: 20px;
+    padding: 16px;
+    border: 1px solid #dbeafe;
+    background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+    text-align: center;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.9);
+}
+
+.mypokemon-moves-selected-panel.is-empty .mypokemon-moves-selected-preview{
+    border-color: #e2e8f0;
+    background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+}
+
+.mypokemon-moves-selected-preview strong{
+    font-size: 22px;
+    color: #0f172a;
+    font-weight: 900;
+    line-height: 1.15;
+}
+
+.mypokemon-moves-selected-preview span{
+    color: #475569;
+    font-size: 14px;
+    line-height: 1.35;
+}
+
+.mypokemon-moves-grid{
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.mypokemon-move-card{
+    width: 100%;
+    border: 1px solid #dbe3ef;
+    border-radius: 22px;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    padding: 18px 16px 16px;
+    text-align: left;
+    cursor: pointer;
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
+    box-shadow: 0 10px 20px rgba(15,23,42,0.06);
+}
+
+.mypokemon-move-card:hover:not(:disabled){
+    transform: translateY(-2px);
+    border-color: #93c5fd;
+    box-shadow: 0 16px 30px rgba(37,99,235,0.14);
+    background: linear-gradient(180deg, #ffffff 0%, #f4f9ff 100%);
+}
+
+.mypokemon-move-card.is-selected{
+    border-color: #2563eb;
+    background:
+        radial-gradient(circle at top right, rgba(59,130,246,0.16), transparent 30%),
+        linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.12), 0 18px 32px rgba(37,99,235,0.18);
+}
+
+.mypokemon-move-card.is-equipped:not(.is-selected){
+    border-color: #86efac;
+    background:
+        radial-gradient(circle at top right, rgba(34,197,94,0.14), transparent 32%),
+        linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%);
+}
+
+.mypokemon-move-card.is-current-slot{
+    box-shadow: 0 0 0 2px rgba(34,197,94,0.12), 0 16px 26px rgba(22,163,74,0.14);
+}
+
+.mypokemon-move-card:disabled{
+    cursor: not-allowed;
+    opacity: .78;
+}
+
+.mypokemon-move-card-top{
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.mypokemon-move-name{
+    margin: 0;
     font-size: 24px;
+    font-weight: 900;
+    color: #0f172a;
+    line-height: 1.1;
 }
 
-#contenidoModalMovimientosPokemon .evolucion-botones{
-    margin-top: 20px;
+.mypokemon-move-action{
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 32px;
+    padding: 0 12px;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+.mypokemon-move-pill-row{
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.mypokemon-move-pill{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 30px;
+    padding: 0 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+    border: 1px solid transparent;
+}
+
+.mypokemon-move-pill.is-category{
+    background: #f8fafc;
+    color: #334155;
+    border-color: #dbe3ef;
+}
+
+.mypokemon-move-pill.is-equipped{
+    background: #ecfdf5;
+    color: #15803d;
+    border-color: #bbf7d0;
+}
+
+.mypokemon-move-pill.is-available{
+    background: #fff7ed;
+    color: #c2410c;
+    border-color: #fed7aa;
+}
+
+.mypokemon-move-pill.type-normal{ background:#f3f4f6; color:#374151; border-color:#d1d5db; }
+.mypokemon-move-pill.type-fire{ background:#fff1eb; color:#c2410c; border-color:#fdba74; }
+.mypokemon-move-pill.type-water{ background:#eef6ff; color:#1d4ed8; border-color:#93c5fd; }
+.mypokemon-move-pill.type-grass{ background:#ecfdf3; color:#15803d; border-color:#86efac; }
+.mypokemon-move-pill.type-electric{ background:#fff9db; color:#a16207; border-color:#fde68a; }
+.mypokemon-move-pill.type-ice{ background:#ecfeff; color:#0f766e; border-color:#a5f3fc; }
+.mypokemon-move-pill.type-fighting{ background:#fff1f2; color:#be123c; border-color:#fda4af; }
+.mypokemon-move-pill.type-poison{ background:#faf5ff; color:#7e22ce; border-color:#d8b4fe; }
+.mypokemon-move-pill.type-ground{ background:#fff7ed; color:#b45309; border-color:#fdba74; }
+.mypokemon-move-pill.type-flying{ background:#eff6ff; color:#4338ca; border-color:#c7d2fe; }
+.mypokemon-move-pill.type-psychic{ background:#fdf2f8; color:#be185d; border-color:#f9a8d4; }
+.mypokemon-move-pill.type-bug{ background:#f7fee7; color:#4d7c0f; border-color:#bef264; }
+.mypokemon-move-pill.type-rock{ background:#fafaf9; color:#57534e; border-color:#d6d3d1; }
+.mypokemon-move-pill.type-ghost{ background:#f5f3ff; color:#6d28d9; border-color:#c4b5fd; }
+.mypokemon-move-pill.type-dragon{ background:#eef2ff; color:#4338ca; border-color:#a5b4fc; }
+.mypokemon-move-pill.type-steel{ background:#f1f5f9; color:#334155; border-color:#cbd5e1; }
+.mypokemon-move-pill.type-fairy{ background:#fdf2f8; color:#be185d; border-color:#fbcfe8; }
+.mypokemon-move-pill.type-neutral{ background:#f8fafc; color:#475569; border-color:#dbe3ef; }
+
+.mypokemon-move-stats-grid{
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.mypokemon-move-stat-box{
+    border-radius: 16px;
+    padding: 12px 10px;
+    background: rgba(255,255,255,0.9);
+    border: 1px solid #e2e8f0;
+    text-align: center;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.9);
+}
+
+.mypokemon-move-stat-box span{
+    display: block;
+    font-size: 11px;
+    font-weight: 800;
+    color: #64748b;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+
+.mypokemon-move-stat-box strong{
+    display: block;
+    font-size: 20px;
+    color: #0f172a;
+    font-weight: 900;
+    line-height: 1;
+}
+
+.mypokemon-moves-empty-state{
+    border-radius: 22px;
+    padding: 26px 20px;
+    text-align: center;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    border: 1px dashed #cbd5e1;
+}
+
+.mypokemon-moves-empty-state.is-error{
+    border-style: solid;
+    border-color: #fecaca;
+    background: linear-gradient(180deg, #fff5f5 0%, #ffffff 100%);
+}
+
+.mypokemon-moves-empty-state h3{
+    margin: 0 0 8px;
+    font-size: 24px;
+    color: #111827;
+}
+
+.mypokemon-moves-empty-state p{
+    margin: 0;
+    color: #64748b;
+    font-size: 15px;
+    line-height: 1.45;
+}
+
+.mypokemon-moves-actions{
+    margin-top: 2px;
     gap: 12px;
 }
-
-#contenidoModalMovimientosPokemon .btn-cancelar-modal,
-#contenidoModalMovimientosPokemon .btn-evolucionar{
-    min-width: 150px;
-    min-height: 46px;
-    border-radius: 14px;
-}
-
 
 /* =========================================================
    RESPONSIVE
@@ -1567,37 +1929,41 @@
     }
 
     #contenidoModalMovimientosPokemon .titulo-modal-evolucion{
-        font-size: 24px;
+        font-size: 28px;
         padding-right: 28px;
     }
 
     #contenidoModalMovimientosPokemon .subtitulo-modal-evolucion{
-        margin-bottom: 14px;
+        font-size: 14px;
     }
 
-    #contenidoModalMovimientosPokemon > .inventario-lista:first-of-type,
-    #contenidoModalMovimientosPokemon > .inventario-lista:last-of-type{
+    #modalMovimientosPokemon .modal-content{
+        width: min(760px, calc(100vw - 20px));
+        max-width: calc(100vw - 20px);
+        padding: 18px 14px 20px;
+    }
+
+    .mypokemon-moves-helper-banner{
+        align-items: flex-start;
+    }
+
+    .mypokemon-moves-slots-grid,
+    .mypokemon-moves-grid{
         grid-template-columns: 1fr;
-        gap: 10px;
+        gap: 12px;
     }
 
-    #contenidoModalMovimientosPokemon > .inventario-lista:first-of-type .item-evolucion-card,
-    #contenidoModalMovimientosPokemon > .inventario-lista:last-of-type .item-evolucion-card{
-        min-height: auto;
-        padding: 16px 14px;
+    .mypokemon-moves-selected-panel{
+        grid-template-columns: 1fr;
     }
 
-    #contenidoModalMovimientosPokemon > .item-evolucion-card .item-evolucion-top h3{
-        font-size: 20px;
+    .mypokemon-move-card-top{
+        flex-direction: column;
+        align-items: stretch;
     }
 
-    #contenidoModalMovimientosPokemon .item-evolucion-top h3{
-        font-size: 17px;
-        margin-bottom: 6px;
-    }
-
-    #contenidoModalMovimientosPokemon .item-evolucion-top p{
-        font-size: 13px;
+    .mypokemon-move-action{
+        align-self: flex-start;
     }
 }
 
@@ -1714,13 +2080,41 @@
         padding: 16px 12px 18px;
     }
 
-    #contenidoModalMovimientosPokemon .evolucion-detalle.ok{
-        padding: 12px 12px;
-        font-size: 13px;
+    .mypokemon-moves-shell{
+        gap: 14px;
     }
 
-    #contenidoModalMovimientosPokemon .btn-cancelar-modal,
-    #contenidoModalMovimientosPokemon .btn-evolucionar{
+    #contenidoModalMovimientosPokemon .titulo-modal-evolucion{
+        font-size: 24px;
+        padding-right: 26px;
+    }
+
+    .mypokemon-moves-helper-banner,
+    .mypokemon-moves-slots-section,
+    .mypokemon-moves-list-section,
+    .mypokemon-moves-selected-panel{
+        padding: 14px;
+        border-radius: 18px;
+    }
+
+    .mypokemon-moves-slot-card,
+    .mypokemon-move-card{
+        padding: 16px 14px 14px;
+        border-radius: 18px;
+    }
+
+    .mypokemon-move-name,
+    .mypokemon-moves-selected-preview strong{
+        font-size: 20px;
+    }
+
+    .mypokemon-move-stats-grid{
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .mypokemon-moves-actions .btn-cancelar-modal,
+    .mypokemon-moves-actions .btn-evolucionar{
         width: 100%;
     }
 }
