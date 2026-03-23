@@ -269,15 +269,16 @@ function obtenerSubtituloSeccionTienda(categoria) {
 }
 
 function renderizarCardItemHTML(item, estaLogueado) {
+    const categoria = obtenerCategoriaItemBase(item);
     const itemUsuario = inventarioUsuarioGlobal.find(i => Number(i.item_id) === Number(item.id));
     const cantidadActual = itemUsuario ? itemUsuario.cantidad : 0;
     const cantidadInput = cantidadesSeleccionadas[item.id] || 1;
     const nombreTraducido = traducirNombreItemTienda(item.nombre);
     const tipoTraducido = traducirTipoItemTienda(item.tipo);
     const descripcionTraducida = traducirDescripcionItemTienda(item.nombre, item.descripcion || "");
-    const detalleMicro = obtenerMicroDetalleItem(item);
+
     return `
-        <div class="item-card" data-item-id="${item.id}">
+        <article class="item-card item-card-${categoria}" data-item-id="${item.id}">
             <div class="item-card-top">
                 <img
                     class="item-imagen"
@@ -288,11 +289,12 @@ function renderizarCardItemHTML(item, estaLogueado) {
                 >
                 <div class="item-card-top-right">
                     <span class="${obtenerClaseTipo(item.tipo)}">${tipoTraducido}</span>
-                    <span class="item-micro-pill">${detalleMicro}</span>
                 </div>
             </div>
+
             <h3>${nombreTraducido}</h3>
             <p class="item-descripcion">${descripcionTraducida}</p>
+
             <div class="item-card-inline-stats">
                 <div class="item-stock">${t("pokemart_you_have")}: x${cantidadActual}</div>
                 <div class="item-info compact">
@@ -300,6 +302,7 @@ function renderizarCardItemHTML(item, estaLogueado) {
                     <strong>${item.precio}</strong>
                 </div>
             </div>
+
             <div class="cantidad-compra-box">
                 <label for="cantidad-item-${item.id}">${t("pokemart_quantity")}</label>
                 <input
@@ -310,48 +313,24 @@ function renderizarCardItemHTML(item, estaLogueado) {
                     ${estaLogueado ? "" : "disabled"}
                 >
             </div>
+
             <button class="btn-comprar-item" data-item-id="${item.id}" ${estaLogueado ? "" : "disabled"}>
                 ${estaLogueado ? t("pokemart_buy") : t("pokemart_login_button")}
             </button>
-        </div>
+        </article>
     `;
 }
 
 function renderizarQuickNavTienda(secciones = []) {
     const nav = document.getElementById("pokemartQuickNav");
     if (!nav) return;
-    nav.innerHTML = secciones.map(categoria => {
-        const label = obtenerTituloSeccionTienda(categoria);
-        return `<a class="pokemart-quicknav-chip" href="#shop-section-${categoria}">${SHOP_SECTION_ICON[categoria] || "🛒"} <span>${label}</span></a>`;
-    }).join("");
+    nav.innerHTML = "";
 }
 
 function renderizarHeroResumenPokeMart() {
     const hero = document.getElementById("pokemartHeroNotes");
     if (!hero) return;
-    hero.innerHTML = `
-        <article class="mart-note-card accent-capture compact">
-            <span class="mart-note-icon">🎯</span>
-            <div>
-                <h4>${pmText("hero_card_capture")}</h4>
-                <p>${pmText("hero_card_capture_desc")}</p>
-            </div>
-        </article>
-        <article class="mart-note-card accent-premium compact">
-            <span class="mart-note-icon">⚡</span>
-            <div>
-                <h4>${pmText("hero_card_premium")}</h4>
-                <p>${pmText("hero_card_premium_desc")}</p>
-            </div>
-        </article>
-        <article class="mart-note-card accent-use compact">
-            <span class="mart-note-icon">🎒</span>
-            <div>
-                <h4>${pmText("hero_card_use")}</h4>
-                <p>${pmText("hero_card_use_desc")}</p>
-            </div>
-        </article>
-    `;
+    hero.innerHTML = "";
 }
 
 function esItemPremiumSolo(item = {}) {
@@ -514,30 +493,26 @@ function renderizarSaldo() {
 
     if (!usuarioAutenticadoTienda()) {
         saldoBox.innerHTML = `
-            <div class="saldo-box wide">
-                <span class="saldo-icono">🔒</span>
+            <div class="saldo-box login">
+                <span class="saldo-side-icon locked">🔒</span>
                 <div>
                     <p class="saldo-label">${t("pokemart_login_required")}</p>
                     <h3>${t("pokemart_login_to_buy")}</h3>
                 </div>
             </div>
         `;
-        renderizarHeroResumenPokeMart();
         return;
     }
 
     saldoBox.innerHTML = `
-        <div class="saldo-box wide highlight">
-            <div class="saldo-main-copy">
-                <p class="saldo-label">${t("pokemart_balance_label")}</p>
+        <div class="saldo-box classic">
+            <p class="saldo-label">${t("pokemart_balance_label")}</p>
+            <div class="saldo-value-row">
+                <span class="saldo-icono">💰</span>
                 <h3>${saldoUsuarioGlobal ?? 0}</h3>
-                <small>${pmText("hero_desc")}</small>
             </div>
-            <div class="saldo-side-icon">💰</div>
         </div>
     `;
-
-    renderizarHeroResumenPokeMart();
 }
 
 function renderizarTienda() {
@@ -547,7 +522,7 @@ function renderizarTienda() {
     tienda.innerHTML = "";
 
     if (!tiendaItemsGlobal.length) {
-        tienda.innerHTML = `<p>${t("pokemart_no_items")}</p>`;
+        tienda.innerHTML = `<div class="empty-box">${t("pokemart_no_items")}</div>`;
         renderizarQuickNavTienda([]);
         return;
     }
@@ -559,44 +534,22 @@ function renderizarTienda() {
             const categoriaA = SHOP_SECTION_ORDER.indexOf(obtenerCategoriaItemBase(a));
             const categoriaB = SHOP_SECTION_ORDER.indexOf(obtenerCategoriaItemBase(b));
             if (categoriaA !== categoriaB) return categoriaA - categoriaB;
+
             const pesoA = obtenerPesoOrdenItem(a);
             const pesoB = obtenerPesoOrdenItem(b);
             if (pesoA !== pesoB) return pesoA - pesoB;
+
             return String(a?.nombre || "").localeCompare(String(b?.nombre || ""));
         });
 
-    const grupos = {
-        captura: [],
-        curacion: [],
-        evolucion: [],
-        otros: []
-    };
+    renderizarQuickNavTienda([]);
 
-    visibles.forEach(item => {
-        const categoria = obtenerCategoriaItemBase(item);
-        grupos[categoria] = grupos[categoria] || [];
-        grupos[categoria].push(item);
-    });
+    if (!visibles.length) {
+        tienda.innerHTML = `<div class="empty-box">${t("pokemart_no_items")}</div>`;
+        return;
+    }
 
-    const secciones = SHOP_SECTION_ORDER.filter(categoria => Array.isArray(grupos[categoria]) && grupos[categoria].length > 0);
-    renderizarQuickNavTienda(secciones);
-
-    tienda.innerHTML = secciones.map(categoria => `
-        <section class="shop-category-section section-${categoria}" id="shop-section-${categoria}">
-            <div class="shop-category-header">
-                <div>
-                    <span class="shop-category-kicker">${SHOP_SECTION_ICON[categoria] || "🛒"} ${obtenerTituloSeccionTienda(categoria)}</span>
-                    <h3>${obtenerTituloSeccionTienda(categoria)}</h3>
-                    <p>${obtenerSubtituloSeccionTienda(categoria)}</p>
-                </div>
-                <span class="shop-category-count">${grupos[categoria].length}</span>
-            </div>
-            <div class="shop-category-grid grid-${categoria} ${categoria === "captura" ? "capture-priority-grid" : ""}">
-                ${grupos[categoria].map(item => renderizarCardItemHTML(item, estaLogueado)).join("")}
-            </div>
-        </section>
-    `).join("");
-
+    tienda.innerHTML = visibles.map(item => renderizarCardItemHTML(item, estaLogueado)).join("");
     tiendaRenderizada = true;
 }
 

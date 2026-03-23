@@ -1,22 +1,17 @@
 /* =========================================================
-   POKEMART - MASTERSMON STORE REDESIGN
-   - Tienda principal arriba
+   POKEMART - CLASSIC STORE + PREMIUM PAYPAL
+   - Tienda normal arriba con look clásico del screenshot
    - Premium / PayPal abajo
-   - Compatible con pokemart.html nuevo
-   - Respeta clases usadas por pokemart.js actual
+   - Compatible con pokemart.js actual
 ========================================================= */
 
 :root{
-    --mart-bg: #eef4ff;
-    --mart-surface: rgba(255,255,255,.96);
-    --mart-surface-strong: #ffffff;
-    --mart-border: rgba(148,163,184,.20);
-    --mart-border-strong: rgba(37,99,235,.18);
-    --mart-shadow: 0 18px 44px rgba(15,23,42,.08);
-    --mart-shadow-soft: 0 10px 26px rgba(15,23,42,.06);
+    --mart-bg: #eef2f7;
+    --mart-surface: #ffffff;
+    --mart-surface-soft: #f8fafc;
+    --mart-border: rgba(148,163,184,.18);
     --mart-text: #0f172a;
-    --mart-muted: #475569;
-    --mart-soft: #64748b;
+    --mart-muted: #64748b;
     --mart-blue: #2563eb;
     --mart-blue-dark: #1d4ed8;
     --mart-green: #16a34a;
@@ -25,308 +20,145 @@
     --mart-orange-dark: #ea580c;
     --mart-red: #dc2626;
     --mart-paypal: #0a2540;
-    --mart-radius-xl: 32px;
+    --mart-shadow: 0 18px 40px rgba(15,23,42,.08);
+    --mart-shadow-soft: 0 12px 24px rgba(15,23,42,.06);
+    --mart-radius-xl: 30px;
     --mart-radius-lg: 24px;
     --mart-radius-md: 18px;
     --mart-radius-sm: 14px;
-}
-
-/* =========================================================
-   BASE
-========================================================= */
-
-.pokemart-page{
-    min-height: 100vh;
-    background:
-        radial-gradient(circle at top left, rgba(96,165,250,.14), transparent 26%),
-        radial-gradient(circle at top right, rgba(16,185,129,.10), transparent 24%),
-        linear-gradient(180deg, #edf3ff 0%, #f8fbff 38%, #f3f6fb 100%);
-}
-
-.pokemart-shell{
-    max-width: 1320px;
-    margin: 0 auto;
-    padding: 28px 20px 0;
 }
 
 .oculto{
     display: none !important;
 }
 
+.pokemart-page{
+    min-height: 100vh;
+    background: linear-gradient(180deg, #f1f5f9 0%, #f8fafc 100%);
+}
+
+.pokemart-shell{
+    max-width: 1380px;
+    margin: 0 auto;
+    padding: 26px 20px 0;
+}
+
 .titulo{
     margin: 0;
-    font-size: clamp(38px, 4.8vw, 58px);
-    line-height: .98;
-    font-weight: 900;
-    letter-spacing: -.04em;
     color: var(--mart-text);
 }
 
 .subtitulo{
-    margin: 10px 0 0;
+    margin: 0;
     color: var(--mart-muted);
-    font-size: 15px;
-    line-height: 1.7;
-    max-width: 760px;
 }
 
 /* =========================================================
-   HERO PRINCIPAL
+   CABECERA CLÁSICA
 ========================================================= */
 
-.pokemart-hero-section{
-    padding-bottom: 14px;
+.pokemart-classic-section{
+    padding: 10px 0 10px;
 }
 
-.pokemart-hero-card{
-    position: relative;
-    overflow: hidden;
-    display: grid;
-    grid-template-columns: 1.25fr .85fr;
-    gap: 18px;
-    padding: 28px;
-    border-radius: var(--mart-radius-xl);
-    border: 1px solid rgba(59,130,246,.12);
-    background:
-        radial-gradient(circle at 10% 0%, rgba(59,130,246,.10), transparent 28%),
-        radial-gradient(circle at 90% 10%, rgba(16,185,129,.08), transparent 22%),
-        linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(244,248,255,.98) 100%);
-    box-shadow: var(--mart-shadow);
+.pokemart-title-block{
+    text-align: center;
     margin-bottom: 18px;
 }
 
-.pokemart-hero-card::after{
-    content: "";
-    position: absolute;
-    inset: auto -80px -90px auto;
-    width: 240px;
-    height: 240px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(37,99,235,.12) 0%, transparent 65%);
-    pointer-events: none;
-}
-
-.pokemart-hero-copy{
-    position: relative;
-    z-index: 1;
-    min-width: 0;
-}
-
-.pokemart-kicker{
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 14px;
-    border-radius: 999px;
-    background: rgba(37,99,235,.10);
-    color: var(--mart-blue-dark);
-    font-size: 12px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: .08em;
-    margin-bottom: 14px;
-}
-
-.pokemart-title{
-    margin-bottom: 8px;
-}
-
-.pokemart-subtitle{
-    max-width: 760px;
-}
-
-.pokemart-hero-tags{
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 18px;
-}
-
-.pokemart-hero-tag{
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px 14px;
-    border-radius: 999px;
-    background: #fff;
-    border: 1px solid rgba(148,163,184,.20);
-    color: var(--mart-text);
-    font-size: 12px;
-    font-weight: 800;
-    letter-spacing: .04em;
-    text-transform: uppercase;
-    box-shadow: 0 8px 18px rgba(15,23,42,.04);
-}
-
-.pokemart-hero-tag.premium{
-    background: linear-gradient(135deg, rgba(10,37,64,.98) 0%, rgba(29,78,216,.96) 100%);
-    border-color: transparent;
-    color: #fff;
-}
-
-.pokemart-hero-side{
-    display: grid;
-    gap: 14px;
-    align-content: center;
-    position: relative;
-    z-index: 1;
-}
-
-.pokemart-hero-highlight{
-    background: rgba(255,255,255,.92);
-    border: 1px solid var(--mart-border);
-    border-radius: 22px;
-    padding: 16px 18px;
-    box-shadow: var(--mart-shadow-soft);
-}
-
-.pokemart-hero-highlight strong{
-    display: block;
-    margin: 0 0 6px;
-    font-size: 16px;
+.pokemart-classic-title{
+    font-size: clamp(40px, 4.2vw, 58px);
+    line-height: .95;
     font-weight: 900;
-    color: var(--mart-text);
+    letter-spacing: -.03em;
 }
 
-.pokemart-hero-highlight span{
-    display: block;
-    color: var(--mart-muted);
-    font-size: 13px;
+.pokemart-classic-subtitle{
+    margin: 10px auto 0;
+    max-width: 760px;
+    font-size: 16px;
     line-height: 1.6;
 }
 
 /* =========================================================
-   SALDO + PANEL LATERAL
+   SALDO
 ========================================================= */
 
-.pokemart-top-grid{
-    display: grid;
-    grid-template-columns: minmax(280px, 340px) 1fr;
-    gap: 18px;
-    align-items: stretch;
-    margin-bottom: 18px;
-}
-
 .pokemart-saldo{
-    min-width: 0;
+    max-width: 760px;
+    margin: 0 auto 22px;
 }
 
 .saldo-box{
-    min-height: 100%;
-    background: linear-gradient(135deg, #0f2260 0%, #15337f 58%, #2563eb 100%);
-    border-radius: 26px;
-    padding: 22px;
-    border: 1px solid rgba(255,255,255,.08);
-    box-shadow: 0 18px 34px rgba(29,78,216,.18);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    color: #fff;
+    background: var(--mart-surface);
+    border: 1px solid rgba(226,232,240,.95);
+    border-radius: 28px;
+    box-shadow: var(--mart-shadow);
+    padding: 20px 26px;
 }
 
-.saldo-box h3{
-    margin: 6px 0 0;
-    font-size: clamp(34px, 4vw, 48px);
-    line-height: 1;
-    font-weight: 900;
-    color: #fff;
+.saldo-box.classic{
+    text-align: center;
+}
+
+.saldo-box.login{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    text-align: left;
 }
 
 .saldo-label{
     display: block;
-    margin: 0;
-    font-size: 13px;
-    line-height: 1.5;
-    color: rgba(255,255,255,.78);
+    margin: 0 0 6px;
+    color: var(--mart-muted);
+    font-size: 14px;
+    font-weight: 600;
 }
 
-.saldo-icono{
-    flex: 0 0 auto;
-    width: 68px;
-    height: 68px;
-    display: grid;
-    place-items: center;
-    border-radius: 20px;
-    background: rgba(255,255,255,.12);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.14);
-    font-size: 34px;
-}
-
-.pokemart-side-panel{
-    min-width: 0;
-    display: grid;
+.saldo-value-row{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     gap: 14px;
-    border: 1px solid var(--mart-border);
-    border-radius: 26px;
-    padding: 18px;
-    background: linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(247,250,255,.98) 100%);
-    box-shadow: var(--mart-shadow-soft);
 }
 
-.pokemart-side-panel-head h3{
-    margin: 0 0 8px;
-    font-size: clamp(24px, 2.5vw, 30px);
-    line-height: 1.08;
+.saldo-value-row h3,
+.saldo-box h3{
+    margin: 0;
+    font-size: clamp(40px, 4vw, 54px);
+    line-height: 1;
+    font-weight: 900;
     color: var(--mart-text);
 }
 
-.pokemart-side-panel-head p{
-    margin: 0;
-    color: var(--mart-muted);
-    font-size: 14px;
-    line-height: 1.65;
-    max-width: 760px;
-}
-
-.pokemart-hero-notes{
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0,1fr));
-    gap: 12px;
-}
-
-.pokemart-hero-notes:empty{
-    display: none;
-}
-
-/* Tarjetas que el JS podría inyectar */
-.mart-note-card,
-.pokemart-note-card{
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    padding: 12px 13px;
-    border-radius: 18px;
-    background: #fff;
-    border: 1px solid rgba(148,163,184,.18);
-    box-shadow: 0 10px 20px rgba(15,23,42,.04);
-}
-
-.mart-note-icon,
-.pokemart-note-icon{
-    width: 40px;
-    height: 40px;
-    border-radius: 14px;
-    display: grid;
+.saldo-icono,
+.saldo-side-icon{
+    display: inline-grid;
     place-items: center;
-    background: rgba(37,99,235,.08);
-    font-size: 18px;
-    flex: 0 0 auto;
+    width: 54px;
+    height: 54px;
+    border-radius: 18px;
+    background: linear-gradient(180deg, #fff8dc 0%, #fef3c7 100%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.85), 0 8px 18px rgba(245,158,11,.16);
+    font-size: 28px;
 }
 
-.mart-note-card h4,
-.pokemart-note-card h4{
-    margin: 0 0 4px;
-    font-size: 14px;
-    color: var(--mart-text);
+.saldo-side-icon.locked{
+    background: linear-gradient(180deg, #eef2f7 0%, #e2e8f0 100%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.9);
 }
 
-.mart-note-card p,
-.pokemart-note-card p{
-    margin: 0;
-    color: var(--mart-muted);
+.saldo-box.login h3{
+    font-size: clamp(28px, 3vw, 38px);
+}
+
+.saldo-help{
+    display: block;
+    margin-top: 8px;
     font-size: 12px;
-    line-height: 1.5;
+    color: var(--mart-muted);
 }
 
 /* =========================================================
@@ -334,139 +166,61 @@
 ========================================================= */
 
 .mensaje-compra{
-    margin-bottom: 16px;
-    padding: 14px 16px;
+    max-width: 860px;
+    margin: 0 auto 18px;
+    padding: 14px 18px;
     border-radius: 16px;
-    font-weight: 800;
     text-align: center;
-    box-shadow: 0 8px 18px rgba(15,23,42,.05);
+    font-weight: 800;
+    box-shadow: 0 10px 22px rgba(15,23,42,.06);
 }
 
 .mensaje-ok{
     background: #dcfce7;
-    color: #166534;
     border: 1px solid #86efac;
+    color: #166534;
 }
 
 .mensaje-error{
     background: #fee2e2;
-    color: #991b1b;
     border: 1px solid #fca5a5;
+    color: #991b1b;
 }
 
 /* =========================================================
-   TIENDA NORMAL
+   CATALOGO CLÁSICO
 ========================================================= */
 
-.pokemart-store-block{
-    border: 1px solid rgba(148,163,184,.16);
-    background: linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(248,250,255,.98) 100%);
-    border-radius: var(--mart-radius-xl);
-    padding: 20px;
-    box-shadow: var(--mart-shadow);
+.pokemart-catalog-shell{
+    background: transparent;
 }
 
-.pokemart-section-head{
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 14px;
-    margin-bottom: 18px;
-}
-
-.pokemart-section-kicker{
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 7px 12px;
-    border-radius: 999px;
-    background: rgba(37,99,235,.10);
-    color: var(--mart-blue-dark);
-    font-size: 12px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: .08em;
-    margin-bottom: 10px;
-}
-
-.pokemart-section-head h3{
-    margin: 0 0 6px;
-    font-size: clamp(28px, 3vw, 36px);
-    line-height: 1.06;
-    color: var(--mart-text);
-}
-
-.pokemart-section-head p{
-    margin: 0;
-    color: var(--mart-muted);
-    font-size: 14px;
-    line-height: 1.65;
-    max-width: 760px;
-}
-
-/* Quick nav opcional si luego la inyectas */
-.pokemart-quicknav{
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 18px;
-}
-
-.pokemart-quicknav:empty{
-    display: none;
-}
-
-.pokemart-quicknav a,
-.pokemart-quicknav button,
-.pokemart-quicknav-chip{
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 14px;
-    border-radius: 999px;
-    text-decoration: none;
-    border: 1px solid rgba(148,163,184,.18);
-    background: #fff;
-    color: var(--mart-text);
-    font-size: 13px;
-    font-weight: 800;
-    box-shadow: 0 8px 16px rgba(15,23,42,.04);
-    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
-}
-
-.pokemart-quicknav a:hover,
-.pokemart-quicknav button:hover,
-.pokemart-quicknav-chip:hover{
-    transform: translateY(-1px);
-    border-color: rgba(37,99,235,.30);
-    box-shadow: 0 12px 20px rgba(37,99,235,.10);
-}
-
-/* Grid principal de items */
-.pokemart-sections,
+.pokemart-classic-grid,
 #tiendaItems{
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 16px;
+    gap: 20px;
+    align-items: stretch;
 }
-
-/* =========================================================
-   TARJETAS DE ITEMS
-========================================================= */
 
 .item-card{
     position: relative;
-    overflow: hidden;
     display: flex;
     flex-direction: column;
-    min-height: 368px;
-    padding: 16px;
+    min-height: 392px;
+    padding: 18px 18px 16px;
     border-radius: 24px;
-    background: linear-gradient(180deg, rgba(255,255,255,.99) 0%, rgba(244,247,255,.98) 100%);
-    border: 1px solid rgba(148,163,184,.18);
-    box-shadow: 0 14px 26px rgba(15,23,42,.06);
+    border: 1px solid rgba(226,232,240,.95);
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    box-shadow: 0 12px 24px rgba(15,23,42,.06);
+    overflow: hidden;
     text-align: center;
-    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    transition: transform .18s ease, box-shadow .18s ease;
+}
+
+.item-card:hover{
+    transform: translateY(-3px);
+    box-shadow: 0 18px 30px rgba(15,23,42,.10);
 }
 
 .item-card::before{
@@ -474,26 +228,27 @@
     position: absolute;
     inset: 0 0 auto 0;
     height: 4px;
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-    opacity: .92;
+    background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
 }
 
-.item-card:hover{
-    transform: translateY(-2px);
-    box-shadow: 0 20px 34px rgba(37,99,235,.10);
+.item-card.item-card-curacion,
+.item-card:has(.tipo-item.curacion){
+    background: linear-gradient(180deg, #f6fff8 0%, #f4fbf6 42%, #ffffff 100%);
 }
 
-/* Mejora visual automática si el navegador soporta :has() */
+.item-card.item-card-curacion::before,
 .item-card:has(.tipo-item.curacion)::before{
-    background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+    background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
 }
 
+.item-card.item-card-evolucion,
+.item-card:has(.tipo-item.evolucion){
+    background: linear-gradient(180deg, #fffaf2 0%, #fff7ea 42%, #ffffff 100%);
+}
+
+.item-card.item-card-evolucion::before,
 .item-card:has(.tipo-item.evolucion)::before{
-    background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
-}
-
-.item-card:has(.tipo-item.captura)::before{
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    background: linear-gradient(180deg, #fbbf24 0%, #f59e0b 100%);
 }
 
 .item-card-top{
@@ -501,167 +256,179 @@
     justify-content: space-between;
     align-items: flex-start;
     gap: 10px;
-    margin-bottom: 10px;
+    margin-bottom: 14px;
 }
 
 .item-imagen{
-    width: 58px;
-    height: 58px;
+    width: 62px;
+    height: 62px;
     object-fit: contain;
     image-rendering: pixelated;
-    filter: drop-shadow(0 8px 10px rgba(15,23,42,.12));
+    filter: drop-shadow(0 8px 12px rgba(15,23,42,.14));
+}
+
+.item-card-top-right{
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
 }
 
 .tipo-item{
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 30px;
-    padding: 0 12px;
+    padding: 7px 12px;
     border-radius: 999px;
-    color: #fff;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
-    letter-spacing: .06em;
-    line-height: 1;
-    text-transform: uppercase;
-    box-shadow: 0 6px 12px rgba(15,23,42,.10);
+    color: #fff;
+    box-shadow: 0 8px 16px rgba(15,23,42,.10);
+    white-space: nowrap;
 }
 
-.tipo-item.captura{
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-}
-
-.tipo-item.curacion{
-    background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
-}
-
-.tipo-item.evolucion{
-    background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
-}
+.tipo-item.captura{ background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%); }
+.tipo-item.curacion{ background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%); }
+.tipo-item.evolucion{ background: linear-gradient(180deg, #fbbf24 0%, #f59e0b 100%); }
 
 .item-card h3{
-    margin: 8px 0 10px;
+    margin: 4px 0 10px;
     font-size: 18px;
-    line-height: 1.15;
-    font-weight: 900;
+    line-height: 1.25;
     color: var(--mart-text);
+    font-weight: 900;
+    min-height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .item-descripcion{
     margin: 0 0 14px;
-    color: var(--mart-muted);
-    font-size: 13px;
-    line-height: 1.55;
     min-height: 58px;
+    color: #475569;
+    font-size: 14px;
+    line-height: 1.45;
+}
+
+.item-card-inline-stats{
+    display: grid;
+    gap: 12px;
+    margin-top: auto;
+    margin-bottom: 14px;
 }
 
 .item-stock{
-    display: flex;
-    align-items: center;
+    display: inline-flex;
     justify-content: center;
-    min-height: 42px;
-    margin-top: auto;
-    margin-bottom: 12px;
-    border-radius: 14px;
-    background: #f7faff;
-    border: 1px solid rgba(148,163,184,.14);
-    color: #2d4bff;
-    font-size: 12px;
+    align-items: center;
+    align-self: center;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #2563eb;
+    font-size: 13px;
     font-weight: 800;
 }
 
 .item-info{
+    width: 100%;
+    border-radius: 14px;
+    background: rgba(255,255,255,.96);
+    border: 1px solid rgba(226,232,240,.95);
+    padding: 12px 14px;
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    gap: 12px;
-    min-height: 54px;
-    margin-bottom: 12px;
-    border-radius: 16px;
-    background: #ffffff;
-    border: 1px solid rgba(148,163,184,.14);
-    padding: 0 14px;
+    align-items: center;
+    gap: 10px;
 }
 
 .item-info span{
-    color: #64748b;
-    font-size: 12px;
-    font-weight: 700;
+    color: var(--mart-muted);
+    font-size: 13px;
+    font-weight: 600;
 }
 
 .item-info strong{
     color: var(--mart-text);
-    font-size: 32px;
-    line-height: 1;
+    font-size: 22px;
     font-weight: 900;
 }
 
 .cantidad-compra-box{
-    display: grid;
-    gap: 6px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
     margin-bottom: 12px;
     text-align: left;
 }
 
 .cantidad-compra-box label{
-    font-size: 12px;
-    color: #475569;
+    color: var(--mart-muted);
+    font-size: 13px;
     font-weight: 700;
 }
 
 .cantidad-compra-box input{
     width: 100%;
-    height: 46px;
-    border-radius: 14px;
-    border: 1px solid rgba(148,163,184,.28);
+    height: 44px;
+    padding: 0 12px;
+    border: 1px solid #dbe3ee;
+    border-radius: 12px;
     background: #fff;
-    padding: 0 14px;
-    font-size: 15px;
     color: var(--mart-text);
+    font-size: 14px;
     outline: none;
-    transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+    box-sizing: border-box;
+    transition: border-color .18s ease, box-shadow .18s ease;
 }
 
 .cantidad-compra-box input:focus{
-    border-color: rgba(37,99,235,.46);
-    box-shadow: 0 0 0 4px rgba(37,99,235,.10);
-}
-
-.cantidad-compra-box input:disabled{
-    background: #f8fafc;
-    cursor: not-allowed;
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 3px rgba(37,99,235,.12);
 }
 
 .btn-comprar-item{
     width: 100%;
-    height: 48px;
+    min-height: 46px;
     border: none;
     border-radius: 14px;
-    background: linear-gradient(135deg, var(--mart-blue) 0%, var(--mart-blue-dark) 100%);
+    background: linear-gradient(180deg, #2f6af1 0%, #2557d6 100%);
     color: #fff;
     font-size: 15px;
-    font-weight: 800;
+    font-weight: 900;
     cursor: pointer;
-    box-shadow: 0 14px 24px rgba(37,99,235,.18);
+    box-shadow: 0 12px 22px rgba(37,99,235,.22);
     transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease;
 }
 
 .btn-comprar-item:hover:not(:disabled){
     transform: translateY(-1px);
-    box-shadow: 0 18px 26px rgba(37,99,235,.22);
+    box-shadow: 0 16px 26px rgba(37,99,235,.28);
 }
 
 .btn-comprar-item:disabled{
-    opacity: .62;
     cursor: not-allowed;
+    opacity: .68;
     box-shadow: none;
+}
+
+.empty-box,
+.pokemart-empty-box{
+    grid-column: 1 / -1;
+    padding: 28px;
+    border-radius: 22px;
+    text-align: center;
+    background: #fff;
+    border: 1px dashed rgba(148,163,184,.36);
+    box-shadow: var(--mart-shadow-soft);
+    color: var(--mart-muted);
 }
 
 /* =========================================================
    PREMIUM / PAYPAL
 ========================================================= */
-
 .premium-shop-section{
     padding: 18px 0 46px;
 }
@@ -1254,153 +1021,131 @@
     gap: 10px;
 }
 
+
+/* =========================================================
+   SKELETON LOADING
+========================================================= */
+
+.skeleton-card,
+.skeleton-saldo{
+    overflow: hidden;
+    position: relative;
+}
+
+.skeleton-card::after,
+.skeleton-saldo::after{
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.6), transparent);
+    transform: translateX(-100%);
+    animation: martShimmer 1.35s infinite;
+}
+
+@keyframes martShimmer{
+    100%{ transform: translateX(100%); }
+}
+
+.skeleton-image,
+.skeleton-pill,
+.skeleton-title,
+.skeleton-line,
+.skeleton-saldo-icon{
+    background: #e2e8f0;
+    border-radius: 14px;
+}
+
+.skeleton-image{
+    width: 58px;
+    height: 58px;
+}
+
+.skeleton-pill{
+    width: 84px;
+    height: 30px;
+}
+
+.skeleton-title{
+    height: 22px;
+    margin: 12px auto 10px;
+    width: 68%;
+}
+
+.skeleton-line{
+    height: 12px;
+    margin: 8px auto;
+    width: 92%;
+}
+
+.skeleton-line.short{ width: 64%; }
+
+.skeleton-saldo{
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 22px;
+    border-radius: 24px;
+}
+
+.skeleton-saldo-icon{
+    width: 68px;
+    height: 68px;
+}
+
+.skeleton-saldo-text{
+    flex: 1;
+    display: grid;
+    gap: 10px;
+}
+
 /* =========================================================
    RESPONSIVE
 ========================================================= */
 
-@media (max-width: 1180px){
-    .pokemart-hero-card{
-        grid-template-columns: 1fr;
-    }
-
-    .pokemart-top-grid{
-        grid-template-columns: 1fr;
-    }
-
-    .pokemart-hero-notes{
-        grid-template-columns: 1fr;
-    }
-
-    .pokemart-sections,
-    #tiendaItems{
-        grid-template-columns: repeat(3, minmax(0,1fr));
-    }
-
-    .premium-shop-grid{
-        grid-template-columns: repeat(2, minmax(0,1fr));
-    }
+@media (max-width: 1240px){
+    .pokemart-classic-grid,
+    #tiendaItems{ grid-template-columns: repeat(4, minmax(0,1fr)); }
+    .premium-shop-grid{ grid-template-columns: repeat(3, minmax(0,1fr)); }
 }
 
-@media (max-width: 860px){
-    .pokemart-shell{
-        padding: 20px 14px 0;
-    }
-
-    .pokemart-hero-card,
-    .pokemart-store-block,
-    .premium-shop-shell{
-        border-radius: 24px;
-    }
-
-    .pokemart-hero-card{
-        padding: 20px;
-    }
-
-    .pokemart-store-block{
-        padding: 16px;
-    }
-
-    .premium-shop-head{
-        flex-direction: column;
-        align-items: flex-start;
-        padding: 20px 18px 16px;
-    }
-
-    .premium-shop-summary{
-        grid-template-columns: 1fr;
-        padding: 0 18px 16px;
-    }
-
-    .premium-shop-catalog-wrap{
-        padding: 0 18px 18px;
-    }
-
-    .pokemart-sections,
-    #tiendaItems{
-        grid-template-columns: repeat(2, minmax(0,1fr));
-    }
-
-    .premium-shop-grid{
-        grid-template-columns: 1fr;
-    }
-
+@media (max-width: 980px){
+    .pokemart-shell{ padding: 20px 14px 0; }
+    .pokemart-classic-grid,
+    #tiendaItems{ grid-template-columns: repeat(3, minmax(0,1fr)); }
+    .premium-shop-head{ flex-direction: column; align-items: flex-start; padding: 20px 18px 16px; }
+    .premium-shop-summary{ grid-template-columns: 1fr; padding: 0 18px 16px; }
+    .premium-shop-catalog-wrap{ padding: 0 18px 18px; }
+    .premium-shop-grid{ grid-template-columns: repeat(2, minmax(0,1fr)); }
     .premium-banner-message,
-    .premium-login-box{
-        margin-left: 18px;
-        margin-right: 18px;
-    }
-
+    .premium-login-box{ margin-left: 18px; margin-right: 18px; }
     .premium-modal-head,
     .premium-modal-body,
-    .premium-modal-actions{
-        padding-left: 18px;
-        padding-right: 18px;
-    }
+    .premium-modal-actions{ padding-left: 18px; padding-right: 18px; }
+}
 
-    .premium-modal-head h3{
-        font-size: 24px;
-    }
+@media (max-width: 760px){
+    .pokemart-classic-title{ font-size: 40px; }
+    .pokemart-classic-subtitle{ font-size: 14px; }
+    .pokemart-classic-grid,
+    #tiendaItems{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .premium-shop-grid{ grid-template-columns: 1fr; }
+    .premium-modal-head h3{ font-size: 24px; }
 }
 
 @media (max-width: 560px){
-    .titulo{
-        font-size: 32px;
-    }
-
-    .subtitulo{
-        font-size: 14px;
-    }
-
-    .pokemart-hero-card{
-        padding: 16px;
-    }
-
-    .saldo-box{
-        padding: 18px;
-    }
-
-    .saldo-box h3{
-        font-size: 36px;
-    }
-
-    .pokemart-side-panel{
-        padding: 14px;
-        border-radius: 20px;
-    }
-
-    .pokemart-store-block{
-        padding: 14px;
-    }
-
-    .pokemart-section-head h3,
-    .premium-shop-head h3{
-        font-size: 26px;
-    }
-
-    .pokemart-sections,
-    #tiendaItems{
-        grid-template-columns: 1fr;
-    }
-
-    .item-card{
-        min-height: auto;
-        padding: 14px;
-        border-radius: 20px;
-    }
-
-    .item-descripcion{
-        min-height: auto;
-    }
-
-    .item-info strong{
-        font-size: 26px;
-    }
-
-    .premium-modal{
-        border-radius: 22px;
-    }
-
-    .premium-modal-grid{
-        grid-template-columns: 1fr;
-    }
+    .pokemart-classic-section{ padding-top: 8px; }
+    .pokemart-classic-title{ font-size: 34px; }
+    .pokemart-classic-subtitle{ font-size: 13px; }
+    .saldo-box{ padding: 18px; }
+    .saldo-box.login{ flex-direction: column; text-align: center; }
+    .saldo-value-row h3,
+    .saldo-box h3{ font-size: 36px; }
+    .pokemart-classic-grid,
+    #tiendaItems{ grid-template-columns: 1fr; gap: 16px; }
+    .item-card{ min-height: auto; padding: 16px; border-radius: 22px; }
+    .item-descripcion{ min-height: auto; }
+    .item-info strong{ font-size: 20px; }
+    .premium-modal{ border-radius: 22px; }
+    .premium-modal-grid{ grid-template-columns: 1fr; }
 }
