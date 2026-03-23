@@ -6,6 +6,12 @@ let battleBossEstadoActual = null;
 let battleBossRankingActual = [];
 let battleIdleEstadoActual = null;
 let battleModosTimer = null;
+let battleIdleServerOffsetMs = 0;
+let battleIdleStartsAtMs = 0;
+let battleIdleEndsAtMs = 0;
+let battleIdleUltimaSincronizacionMs = 0;
+let battleIdleSyncEnProceso = false;
+let battleIdleCountdownFinalizado = false;
 
 const BATTLE_TEAM_STORAGE_KEY = "mastersmon_battle_team_v1";
 const BATTLE_ENEMY_LEVEL_BONUS_KEY = "mastersmon_battle_enemy_level_bonus_v1";
@@ -295,6 +301,15 @@ function configurarEventosBattle() {
 
     window.addEventListener("pagehide", detenerHeartbeatActividadBattle);
     window.addEventListener("beforeunload", detenerHeartbeatActividadBattle);
+    window.addEventListener("focus", () => {
+        refrescarEstadoIdleBattleSilencioso(true);
+    });
+
+    document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") {
+            refrescarEstadoIdleBattleSilencioso(true);
+        }
+    });
 }
 
 function configurarResumenUsuarioBattle() {
@@ -1214,17 +1229,36 @@ function actualizarTemporizadoresLocalesBattle() {
     }
 
     if (battleIdleEstadoActual?.sesion?.termina_en) {
-        const terminaMs = Date.parse(battleIdleEstadoActual.sesion.termina_en);
-        const iniciaMs = Date.parse(battleIdleEstadoActual.sesion.iniciado_en || battleIdleEstadoActual.sesion.termina_en);
+        const terminaMs = Number.isFinite(battleIdleEndsAtMs) && battleIdleEndsAtMs > 0
+            ? battleIdleEndsAtMs
+            : Date.parse(battleIdleEstadoActual.sesion.termina_en);
+        const iniciaMs = Number.isFinite(battleIdleStartsAtMs) && battleIdleStartsAtMs > 0
+            ? battleIdleStartsAtMs
+            : Date.parse(battleIdleEstadoActual.sesion.iniciado_en || battleIdleEstadoActual.sesion.termina_en);
+
         if (Number.isFinite(terminaMs)) {
-            const ahora = Date.now();
-            const restante = Math.max(0, Math.floor((terminaMs - ahora) / 1000));
-            const total = Math.max(1, Math.floor((terminaMs - (Number.isFinite(iniciaMs) ? iniciaMs : ahora)) / 1000));
+            const ahoraServidorMs = obtenerAhoraServidorIdleBattleMs();
+            const restante = Math.max(0, Math.floor((terminaMs - ahoraServidorMs) / 1000));
+            const total = Math.max(1, Math.floor((terminaMs - (Number.isFinite(iniciaMs) ? iniciaMs : ahoraServidorMs)) / 1000));
             const transcurrido = Math.max(0, total - restante);
+
             battleIdleEstadoActual.sesion.segundos_restantes = restante;
             battleIdleEstadoActual.sesion.progreso_pct = Math.max(0, Math.min(100, Math.round((transcurrido / total) * 100)));
-            if (restante <= 0 && battleIdleEstadoActual.sesion.estado === "activa") {
-                battleIdleEstadoActual.sesion.estado = "reclamable";
+
+            if (restante <= 0) {
+                if (battleIdleEstadoActual.sesion.estado === "activa") {
+                    battleIdleEstadoActual.sesion.estado = "reclamable";
+                }
+
+                if (!battleIdleCountdownFinalizado) {
+                    battleIdleCountdownFinalizado = true;
+                    refrescarEstadoIdleBattleSilencioso(true);
+                }
+            } else {
+                battleIdleCountdownFinalizado = false;
+                if ((Date.now() - battleIdleUltimaSincronizacionMs) >= 45000) {
+                    refrescarEstadoIdleBattleSilencioso(false);
+                }
             }
         }
     }
@@ -1339,20 +1373,20 @@ function renderBossBattle() {
 
 async function cargarEstadoIdleBattle(silencioso = true) {
     if (!getAccessToken()) {
-        battleIdleEstadoActual = null;
+        registrarEstadoIdleBattle(null);
         renderIdleBattle();
         return null;
     }
     try {
         const data = await obtenerEstadoIdleBattleApi();
-        battleIdleEstadoActual = data || null;
+        registrarEstadoIdleBattle(data || null);
         renderIdleBattle();
         return data;
     } catch (error) {
         if (!silencioso) {
             mostrarModalBattle(error?.message || tBattleSafe("battle_idle_load_error", "The Idle Expedition state could not be loaded."), "error");
         }
-        battleIdleEstadoActual = { ok: false, activa: false, sesion: null, error: error?.message || "error" };
+        registrarEstadoIdleBattle({ ok: false, activa: false, sesion: null, error: error?.message || "error" });
         renderIdleBattle();
         return null;
     }
@@ -1433,6 +1467,55 @@ function traducirTierIdleBattle(codigo = "ruta") {
     if (valor === "legend") return tBattleSafe("battle_idle_tier_legend", "Legend");
     if (valor === "elite") return tBattleSafe("battle_idle_tier_elite", "Elite");
     return tBattleSafe("battle_idle_tier_ruta", "Route");
+}
+
+function registrarEstadoIdleBattle(data = null) {
+    battleIdleEstadoActual = data || null;
+    battleIdleUltimaSincronizacionMs = Date.now();
+    battleIdleCountdownFinalizado = false;
+
+    if (!data?.sesion) {
+        battleIdleServerOffsetMs = 0;
+        battleIdleStartsAtMs = 0;
+        battleIdleEndsAtMs = 0;
+        return;
+    }
+
+    const horaServerMs = Date.parse(data?.hora_server || "");
+    if (Number.isFinite(horaServerMs)) {
+        battleIdleServerOffsetMs = horaServerMs - Date.now();
+    }
+
+    battleIdleStartsAtMs = Date.parse(data?.sesion?.iniciado_en || "") || 0;
+    battleIdleEndsAtMs = Date.parse(data?.sesion?.termina_en || "") || 0;
+}
+
+function obtenerAhoraServidorIdleBattleMs() {
+    return Date.now() + Number(battleIdleServerOffsetMs || 0);
+}
+
+async function refrescarEstadoIdleBattleSilencioso(forzar = false) {
+    if (!getAccessToken()) return null;
+    if (battleIdleSyncEnProceso) return null;
+
+    const ahoraLocalMs = Date.now();
+    if (!forzar && (ahoraLocalMs - battleIdleUltimaSincronizacionMs) < 45000) {
+        return null;
+    }
+
+    battleIdleSyncEnProceso = true;
+    if (!forzar) {
+        battleIdleUltimaSincronizacionMs = ahoraLocalMs;
+    }
+
+    try {
+        return await cargarEstadoIdleBattle(true);
+    } catch (error) {
+        console.warn("No se pudo refrescar el estado Idle en segundo plano:", error);
+        return null;
+    } finally {
+        battleIdleSyncEnProceso = false;
+    }
 }
 
 function formatSecondsBattle(seconds = 0) {
