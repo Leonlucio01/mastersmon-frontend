@@ -1,900 +1,616 @@
-/* =========================
-   POKEMART
-========================= */
+/* =========================================================
+   POKEMART / COMPACT PREMIUM STORE REFRESH
+========================================================= */
+
+:root{
+    --mart-bg: #eef4ff;
+    --mart-surface: rgba(255,255,255,.96);
+    --mart-border: rgba(148,163,184,.22);
+    --mart-shadow: 0 18px 44px rgba(15,23,42,.08);
+    --mart-shadow-soft: 0 10px 26px rgba(15,23,42,.06);
+    --mart-text: #0f172a;
+    --mart-muted: #475569;
+    --mart-blue: #2563eb;
+    --mart-blue-dark: #1d4ed8;
+    --mart-green: #16a34a;
+    --mart-orange: #f59e0b;
+}
 
 .seccion-pokedex{
-    max-width:1400px;
-    margin:0 auto;
-    padding:40px 30px 60px;
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 28px 20px 56px;
 }
 
-.encabezado-pokedex{
-    text-align:center;
-    margin-bottom:25px;
-}
-
-.titulo{
-    margin:0;
-    font-size:34px;
-    font-weight:800;
-    color:#111827;
-}
-
-.subtitulo{
-    margin-top:10px;
-    color:#6b7280;
-    font-size:16px;
-}
-
-/* =========================
-   SALDO USUARIO
-========================= */
-
-.pokemart-saldo{
-    max-width:900px;
-    margin:0 auto 28px;
-}
-
-.saldo-box{
-    background:linear-gradient(180deg,#ffffff 0%, #f8fafc 100%);
-    border-radius:22px;
-    padding:22px 26px;
-    box-shadow:0 10px 24px rgba(0,0,0,0.08);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:14px;
-    border:1px solid rgba(255,255,255,0.8);
-}
-
-.saldo-icono{
-    font-size:28px;
-    line-height:1;
-}
-
-.saldo-label{
-    margin:0;
-    color:#6b7280;
-    font-size:14px;
-}
-
-.saldo-box h3{
-    margin:4px 0 0;
-    font-size:34px;
-    color:#111827;
-    font-weight:900;
-}
-
-/* =========================
-   MENSAJES
-========================= */
-
-.mensaje-compra{
-    max-width:900px;
-    margin:0 auto 24px;
-    padding:14px 18px;
-    border-radius:14px;
-    font-weight:700;
-    text-align:center;
-    box-shadow:0 6px 18px rgba(0,0,0,0.06);
-}
-
-.mensaje-ok{
-    background:#dcfce7;
-    color:#166534;
-    border:1px solid #86efac;
-}
-
-.mensaje-error{
-    background:#fee2e2;
-    color:#991b1b;
-    border:1px solid #fca5a5;
-}
-
-/* =========================
-   GRID TIENDA
-========================= */
-
-.pokemart-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
-    gap:22px;
-    align-items:stretch;
-}
-
-/* =========================
-   CARD ITEM
-========================= */
-
-.item-card{
-    position:relative;
-    background:white;
-    border-radius:22px;
-    padding:20px 18px;
-    box-shadow:
-        0 10px 24px rgba(0,0,0,0.10),
-        inset 0 1px 0 rgba(255,255,255,0.65);
-    transition:transform 0.22s ease, box-shadow 0.22s ease;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    text-align:center;
-    overflow:hidden;
-    border:1px solid rgba(255,255,255,0.7);
-}
-
-.item-card::before{
-    content:"";
-    position:absolute;
-    inset:0;
-    background:
-        radial-gradient(circle at top left, rgba(255,255,255,0.85), transparent 35%),
-        linear-gradient(180deg, rgba(255,255,255,0.45), transparent 40%);
-    pointer-events:none;
-    z-index:0;
-}
-
-.item-card:hover{
-    transform:translateY(-5px);
-    box-shadow:
-        0 18px 32px rgba(0,0,0,0.14),
-        inset 0 1px 0 rgba(255,255,255,0.75);
-}
-
-.item-card > *{
-    position:relative;
-    z-index:1;
-}
-
-.item-card-top{
-    width:100%;
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-start;
-    margin-bottom:10px;
-    gap:10px;
-}
-
-.item-imagen{
-    width:64px;
-    height:64px;
-    object-fit:contain;
-    image-rendering:pixelated;
-    filter:drop-shadow(0 8px 10px rgba(0,0,0,0.14));
-}
-
-.item-card h3{
-    margin:6px 0 8px;
-    font-size:18px;
-    color:#111827;
-    font-weight:800;
-    min-height:44px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-}
-
-.item-descripcion{
-    min-height:48px;
-    color:#4b5563;
-    font-size:14px;
-    margin:0 0 14px;
-    line-height:1.35;
-}
-
-/* =========================
-   BADGES TIPO ITEM
-========================= */
-
-.tipo-item{
-    padding:6px 10px;
-    border-radius:999px;
-    font-size:12px;
-    font-weight:800;
-    color:white;
-    text-transform:capitalize;
-    box-shadow:0 6px 12px rgba(0,0,0,0.10);
-    white-space:nowrap;
-}
-
-.tipo-item.captura{
-    background:#2563eb;
-}
-
-.tipo-item.curacion{
-    background:#16a34a;
-}
-
-.tipo-item.evolucion{
-    background:#f59e0b;
-}
-
-/* =========================
-   STOCK / INFO
-========================= */
-
-.item-stock{
-    background:#eff6ff;
-    color:#1d4ed8;
-    font-size:13px;
-    font-weight:700;
-    padding:8px 12px;
-    border-radius:10px;
-    margin:0 0 12px;
-}
-
-.item-info{
-    width:100%;
-    background:#f8fafc;
-    border-radius:12px;
-    padding:10px 12px;
-    margin-bottom:14px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:10px;
-}
-
-.item-info span{
-    color:#6b7280;
-    font-size:13px;
-}
-
-.item-info strong{
-    color:#111827;
-    font-size:20px;
-    font-weight:900;
-}
-
-/* =========================
-   CANTIDAD
-========================= */
-
-.cantidad-compra-box{
-    width:100%;
-    display:flex;
-    flex-direction:column;
-    align-items:flex-start;
-    gap:6px;
-    margin-bottom:14px;
-}
-
-.cantidad-compra-box label{
-    font-size:13px;
-    color:#6b7280;
-    font-weight:700;
-}
-
-.cantidad-compra-box input{
-    width:100%;
-    padding:11px 12px;
-    border:1px solid #d1d5db;
-    border-radius:10px;
-    font-size:14px;
-    outline:none;
-    box-sizing:border-box;
-    background:white;
-    transition:border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.cantidad-compra-box input:focus{
-    border-color:#2563eb;
-    box-shadow:0 0 0 3px rgba(37,99,235,0.12);
-}
-
-/* =========================
-   BOTON COMPRAR
-========================= */
-
-.btn-comprar-item{
-    width:100%;
-    background:linear-gradient(135deg,#2563eb,#1d4ed8);
-    color:white;
-    border:none;
-    padding:12px 14px;
-    border-radius:12px;
-    cursor:pointer;
-    font-weight:800;
-    font-size:14px;
-    transition:all 0.2s ease;
-    box-shadow:0 8px 18px rgba(37,99,235,0.20);
-}
-
-.btn-comprar-item:hover{
-    transform:translateY(-1px);
-    box-shadow:0 12px 22px rgba(37,99,235,0.28);
-}
-
-.btn-comprar-item:active{
-    transform:scale(0.99);
-}
-
-/* =========================
-   COLORES SUAVES POR CATEGORIA
-========================= */
-
-.item-card:has(.tipo-item.captura){
-    background:linear-gradient(180deg,#f7fbff 0%, #eef5ff 45%, #ffffff 100%);
-    border-top:5px solid #2563eb;
-}
-
-.item-card:has(.tipo-item.curacion){
-    background:linear-gradient(180deg,#f4fff7 0%, #ebfdf1 45%, #ffffff 100%);
-    border-top:5px solid #16a34a;
-}
-
-.item-card:has(.tipo-item.evolucion){
-    background:linear-gradient(180deg,#fffaf2 0%, #fff2df 45%, #ffffff 100%);
-    border-top:5px solid #f59e0b;
-}
-
-/* Fallback si :has no aplica bien en algún navegador
-.item-card-top .tipo-item.captura ~ *{}
-.item-card-top .tipo-item.curacion ~ *{}
-.item-card-top .tipo-item.evolucion ~ *{} */
-
-/* =========================
-   EMPTY / ERRORES
-========================= */
-
-.empty-box{
-    background:white;
-    border-radius:18px;
-    padding:30px;
-    text-align:center;
-    box-shadow:0 6px 18px rgba(0,0,0,0.08);
-}
-
-/* =========================
-   TABLET
-========================= */
-
-@media (max-width: 1024px){
-    .seccion-pokedex{
-        padding:32px 20px 48px;
-    }
-
-    .pokemart-grid{
-        grid-template-columns:repeat(auto-fit, minmax(210px, 1fr));
-        gap:18px;
-    }
-
-    .saldo-box h3{
-        font-size:30px;
-    }
-}
-
-/* =========================
-   MOBILE
-========================= */
-
-@media (max-width: 768px){
-    .seccion-pokedex{
-        padding:24px 14px 40px;
-    }
-
-    .titulo{
-        font-size:28px;
-        line-height:1.15;
-    }
-
-    .subtitulo{
-        font-size:14px;
-        line-height:1.35;
-        padding:0 6px;
-    }
-
-    .pokemart-saldo{
-        margin-bottom:20px;
-    }
-
-    .saldo-box{
-        padding:18px 16px;
-        border-radius:18px;
-    }
-
-    .saldo-box h3{
-        font-size:28px;
-    }
-
-    .pokemart-grid{
-        grid-template-columns:1fr;
-        gap:16px;
-    }
-
-    .item-card{
-        padding:18px 16px;
-        border-radius:18px;
-    }
-
-    .item-card h3{
-        font-size:20px;
-        min-height:auto;
-    }
-
-    .item-imagen{
-        width:58px;
-        height:58px;
-    }
-
-    .item-descripcion{
-        min-height:auto;
-        font-size:13px;
-    }
-
-    .item-info strong{
-        font-size:18px;
-    }
-
-    .cantidad-compra-box input{
-        font-size:16px;
-    }
-
-    .btn-comprar-item{
-        font-size:14px;
-    }
-}
-
-/* =========================
-   SMALL MOBILE
-========================= */
-
-@media (max-width: 480px){
-    .titulo{
-        font-size:24px;
-    }
-
-    .subtitulo{
-        font-size:13px;
-    }
-
-    .saldo-box{
-        flex-direction:column;
-        text-align:center;
-    }
-
-    .item-card-top{
-        align-items:center;
-    }
-
-    .tipo-item{
-        font-size:11px;
-        padding:5px 9px;
-    }
-}
-
-/* =========================
-   WOW LAYOUT / PREMIUM REFINEMENT
-========================= */
-body{
-    background:
-        radial-gradient(circle at top, rgba(59,130,246,.10), transparent 32%),
-        linear-gradient(180deg, #f4f7fb 0%, #eef3f9 100%);
+.pokemart-compact-page{
+    padding-top: 18px;
 }
 
 .mart-shell{
-    background: linear-gradient(180deg,#ffffff 0%, #f8fbff 100%);
-    border: 1px solid rgba(148,163,184,.18);
-    border-radius: 32px;
-    box-shadow: 0 24px 50px rgba(15,23,42,.08);
-    padding: 26px 24px 28px;
+    border: 1px solid rgba(59,130,246,.12);
+    background: linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(243,247,255,.98) 100%);
+    border-radius: 28px;
+    box-shadow: var(--mart-shadow);
+    padding: 22px;
 }
 
-.mart-hero-head{
-    margin-bottom: 18px;
+.compact-shell{
+    display: grid;
+    gap: 18px;
+}
+
+.encabezado-pokedex{
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+.mart-hero-head.compact{
+    margin-bottom: 0;
+}
+
+.titulo{
+    margin: 0;
+    font-size: clamp(34px, 4vw, 50px);
+    line-height: 1;
+    font-weight: 900;
+    color: var(--mart-text);
+    letter-spacing: -.03em;
+}
+
+.subtitulo{
+    margin: 10px auto 0;
+    color: #5b6780;
+    font-size: 15px;
+    line-height: 1.6;
+    max-width: 640px;
 }
 
 .mart-kicker{
-    display:inline-flex;
-    align-items:center;
-    gap:8px;
-    padding:8px 14px;
-    border-radius:999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 999px;
     background: rgba(37,99,235,.10);
-    color:#1d4ed8;
-    font-size:12px;
-    font-weight:800;
-    letter-spacing:.08em;
-    text-transform:uppercase;
-    margin-bottom:14px;
+    color: var(--mart-blue-dark);
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    margin-bottom: 12px;
 }
 
-.mart-top-grid{
-    display:grid;
-    grid-template-columns:minmax(320px, 420px) 1fr;
-    gap:18px;
-    align-items:stretch;
-    margin-bottom:18px;
+.mart-top-grid.compact-grid{
+    display: grid;
+    grid-template-columns: minmax(260px, 320px) 1fr;
+    gap: 16px;
+    align-items: stretch;
 }
 
 .pokemart-saldo{
-    max-width:none;
-    margin:0;
+    min-width: 0;
 }
 
-.saldo-box.wide{
-    justify-content:space-between;
-    align-items:stretch;
-    min-height:100%;
+.saldo-box{
+    min-height: 100%;
+    background: linear-gradient(135deg, #0f2260 0%, #15337f 58%, #2563eb 100%);
+    border-radius: 24px;
+    padding: 22px 22px;
+    box-shadow: 0 18px 34px rgba(29,78,216,.18);
+    border: 1px solid rgba(255,255,255,.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    color: #fff;
 }
 
-.saldo-box.highlight{
-    background: linear-gradient(135deg,#0f172a 0%, #1d4ed8 100%);
-    color:white;
-    border: none;
-    box-shadow: 0 22px 38px rgba(29,78,216,.22);
+.saldo-box h3{
+    margin: 6px 0 0;
+    font-size: clamp(34px, 5vw, 48px);
+    font-weight: 900;
+    line-height: 1;
+    color: #fff;
 }
 
-.saldo-box.highlight .saldo-label,
-.saldo-box.highlight h3,
-.saldo-box.highlight small{
-    color:white;
+.saldo-main-copy small,
+.saldo-label{
+    margin: 0;
+    display: block;
+    color: rgba(255,255,255,.78);
+    font-size: 13px;
+    line-height: 1.5;
 }
 
-.saldo-main-copy small{
-    display:block;
-    margin-top:10px;
-    font-size:13px;
-    line-height:1.6;
-    opacity:.92;
+.saldo-side-icon,
+.saldo-icono{
+    flex: 0 0 auto;
+    width: 68px;
+    height: 68px;
+    display: grid;
+    place-items: center;
+    border-radius: 20px;
+    background: rgba(255,255,255,.12);
+    font-size: 34px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.14);
 }
 
-.saldo-side-icon{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    width:74px;
-    min-width:74px;
-    border-radius:22px;
-    background: rgba(255,255,255,.14);
-    font-size:34px;
+.mart-hero-panel.compact-panel{
+    min-width: 0;
+    border: 1px solid var(--mart-border);
+    background: linear-gradient(180deg, rgba(255,255,255,.96) 0%, rgba(248,250,255,.96) 100%);
+    border-radius: 24px;
+    padding: 18px;
+    box-shadow: var(--mart-shadow-soft);
+    display: grid;
+    gap: 14px;
 }
 
-.mart-hero-panel{
-    border:1px solid rgba(148,163,184,.18);
-    border-radius:28px;
-    background: linear-gradient(180deg,#ffffff 0%, #f8fafc 100%);
-    padding:20px;
-    display:grid;
-    gap:16px;
+.mart-hero-copy.compact-copy h3{
+    margin: 0 0 6px;
+    font-size: clamp(22px, 2.8vw, 30px);
+    line-height: 1.1;
+    color: var(--mart-text);
 }
 
-.mart-hero-copy h3{
-    margin:0 0 8px;
-    font-size:26px;
-    color:#0f172a;
+.mart-hero-copy.compact-copy p{
+    margin: 0;
+    color: var(--mart-muted);
+    font-size: 14px;
+    line-height: 1.65;
+    max-width: 720px;
 }
 
-.mart-hero-copy p{
-    margin:0;
-    color:#475569;
-    line-height:1.7;
-    font-size:14px;
+.mart-note-grid.compact-notes{
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
 }
 
-.mart-note-grid{
-    display:grid;
-    grid-template-columns:repeat(3, minmax(0,1fr));
-    gap:12px;
+.mart-note-card.compact{
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 13px;
+    border-radius: 18px;
+    background: #fff;
+    border: 1px solid rgba(148,163,184,.18);
+    box-shadow: 0 10px 20px rgba(15,23,42,.04);
 }
 
-.mart-note-card{
-    border-radius:20px;
-    padding:16px;
-    display:flex;
-    gap:12px;
-    align-items:flex-start;
-    border:1px solid rgba(148,163,184,.16);
-    background:#fff;
+.mart-note-card.compact .mart-note-icon{
+    width: 40px;
+    height: 40px;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    font-size: 18px;
+    background: rgba(37,99,235,.08);
+    flex: 0 0 auto;
 }
 
-.mart-note-icon{
-    width:42px;
-    height:42px;
-    min-width:42px;
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    border-radius:14px;
-    background:#eff6ff;
-    font-size:20px;
+.mart-note-card.compact h4{
+    margin: 0 0 4px;
+    font-size: 14px;
+    color: var(--mart-text);
 }
 
-.mart-note-card h4{
-    margin:0 0 6px;
-    font-size:15px;
-    color:#0f172a;
+.mart-note-card.compact p{
+    margin: 0;
+    color: var(--mart-muted);
+    font-size: 12px;
+    line-height: 1.5;
 }
 
-.mart-note-card p{
-    margin:0;
-    font-size:13px;
-    line-height:1.55;
-    color:#475569;
+.mart-note-card.accent-capture .mart-note-icon{background: rgba(37,99,235,.09);}
+.mart-note-card.accent-premium .mart-note-icon{background: rgba(16,185,129,.09);}
+.mart-note-card.accent-use .mart-note-icon{background: rgba(245,158,11,.12);}
+
+.mensaje-compra{
+    padding: 14px 16px;
+    border-radius: 16px;
+    font-weight: 800;
+    text-align: center;
+    box-shadow: 0 8px 18px rgba(15,23,42,.05);
 }
 
-.accent-capture .mart-note-icon{background:#dbeafe;}
-.accent-premium .mart-note-icon{background:#ede9fe;}
-.accent-use .mart-note-icon{background:#dcfce7;}
+.mensaje-ok{
+    background: #dcfce7;
+    color: #166534;
+    border: 1px solid #86efac;
+}
 
-.pokemart-quicknav{
-    display:flex;
-    flex-wrap:wrap;
-    gap:10px;
-    margin:0 0 18px;
+.mensaje-error{
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+}
+
+.oculto{display:none !important;}
+
+.pokemart-quicknav.compact-nav{
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 76px;
+    z-index: 5;
+    background: linear-gradient(180deg, rgba(255,255,255,.92) 0%, rgba(255,255,255,.76) 100%);
+    backdrop-filter: blur(10px);
+    padding: 12px;
+    border-radius: 18px;
+    border: 1px solid rgba(148,163,184,.16);
 }
 
 .pokemart-quicknav-chip{
-    display:inline-flex;
-    align-items:center;
-    gap:8px;
-    padding:10px 14px;
-    border-radius:999px;
-    background:#fff;
-    border:1px solid rgba(148,163,184,.2);
-    color:#0f172a;
-    font-weight:700;
-    font-size:13px;
-    box-shadow:0 8px 18px rgba(15,23,42,.05);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 999px;
+    text-decoration: none;
+    background: #fff;
+    border: 1px solid rgba(148,163,184,.18);
+    color: var(--mart-text);
+    font-size: 13px;
+    font-weight: 800;
+    box-shadow: 0 8px 16px rgba(15,23,42,.04);
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
 }
 
 .pokemart-quicknav-chip:hover{
-    background:#eff6ff;
-    color:#1d4ed8;
+    transform: translateY(-1px);
+    border-color: rgba(37,99,235,.32);
+    box-shadow: 0 12px 20px rgba(37,99,235,.10);
 }
 
-.pokemart-sections{
-    display:grid;
-    gap:24px;
+.pokemart-sections.compact-sections{
+    display: grid;
+    gap: 18px;
 }
 
 .shop-category-section{
-    border:1px solid rgba(148,163,184,.16);
-    border-radius:28px;
-    padding:18px;
-    background:#fff;
-    box-shadow:0 16px 30px rgba(15,23,42,.04);
+    background: linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(248,250,255,.98) 100%);
+    border: 1px solid rgba(148,163,184,.16);
+    border-radius: 26px;
+    box-shadow: var(--mart-shadow-soft);
+    padding: 16px;
 }
 
 .shop-category-header{
-    display:flex;
-    justify-content:space-between;
-    gap:14px;
-    align-items:flex-start;
-    margin-bottom:16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 14px;
 }
 
 .shop-category-kicker{
-    display:inline-flex;
-    align-items:center;
-    gap:8px;
-    padding:8px 12px;
-    border-radius:999px;
-    background:#eff6ff;
-    color:#1d4ed8;
-    font-size:12px;
-    font-weight:800;
-    text-transform:uppercase;
-    letter-spacing:.08em;
-    margin-bottom:8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    background: rgba(37,99,235,.10);
+    color: var(--mart-blue-dark);
+    margin-bottom: 10px;
 }
 
 .shop-category-header h3{
-    margin:0 0 6px;
-    font-size:26px;
-    color:#0f172a;
+    margin: 0 0 6px;
+    font-size: clamp(26px, 3vw, 34px);
+    color: var(--mart-text);
+    line-height: 1.05;
 }
 
 .shop-category-header p{
-    margin:0;
-    color:#475569;
-    font-size:14px;
-    line-height:1.6;
-    max-width:760px;
+    margin: 0;
+    color: var(--mart-muted);
+    font-size: 14px;
+    line-height: 1.6;
+    max-width: 700px;
 }
 
 .shop-category-count{
-    min-width:54px;
-    height:54px;
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    border-radius:18px;
-    background:#0f172a;
-    color:#fff;
-    font-size:20px;
-    font-weight:900;
+    width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    border-radius: 16px;
+    background: #07183f;
+    color: #fff;
+    font-size: 24px;
+    font-weight: 900;
+    flex: 0 0 auto;
 }
 
 .shop-category-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
-    gap:18px;
+    display: grid;
+    gap: 14px;
 }
 
-.capture-priority-grid .item-card{
-    border-top-color:#2563eb;
+.grid-captura,
+.capture-priority-grid{
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.grid-curacion{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.grid-evolucion{
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.grid-otros{
+    grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .item-card{
-    border-radius:24px;
-    padding:18px 16px;
+    position: relative;
+    background: linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(244,247,255,.98) 100%);
+    border-radius: 22px;
+    padding: 14px;
+    box-shadow: 0 14px 26px rgba(15,23,42,.06);
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    overflow: hidden;
+    border: 1px solid rgba(148,163,184,.18);
+    min-height: 318px;
+}
+
+.item-card:hover{
+    transform: translateY(-2px);
+    box-shadow: 0 20px 34px rgba(37,99,235,.10);
+}
+
+.section-captura .item-card{ border-top: 4px solid #2f5fff; }
+.section-curacion .item-card{ border-top: 4px solid #16a34a; }
+.section-evolucion .item-card{ border-top: 4px solid #f59e0b; }
+
+.item-card-top{
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 8px;
 }
 
 .item-card-top-right{
-    display:flex;
-    flex-direction:column;
-    align-items:flex-end;
-    gap:8px;
+    display: grid;
+    gap: 6px;
+    justify-items: end;
 }
 
+.item-imagen{
+    width: 54px;
+    height: 54px;
+    object-fit: contain;
+    image-rendering: pixelated;
+    filter: drop-shadow(0 8px 10px rgba(15,23,42,.12));
+}
+
+.tipo-item,
 .item-micro-pill{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    padding:6px 10px;
-    border-radius:999px;
-    background:#f8fafc;
-    color:#334155;
-    font-size:11px;
-    font-weight:800;
-    text-transform:uppercase;
-    letter-spacing:.06em;
-    border:1px solid rgba(148,163,184,.18);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 28px;
+    padding: 0 12px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    line-height: 1;
+}
+
+.tipo-item{ color: #fff; }
+.tipo-item.captura{ background: linear-gradient(135deg,#2563eb 0%, #1d4ed8 100%); }
+.tipo-item.curacion{ background: linear-gradient(135deg,#16a34a 0%, #15803d 100%); }
+.tipo-item.evolucion{ background: linear-gradient(135deg,#f59e0b 0%, #ea580c 100%); }
+.item-micro-pill{ background: #f8fafc; color: #334155; border: 1px solid rgba(148,163,184,.22); }
+
+.item-card h3{
+    margin: 6px 0 8px;
+    font-size: 18px;
+    line-height: 1.15;
+    color: var(--mart-text);
+    font-weight: 900;
+}
+
+.item-descripcion{
+    margin: 0 0 12px;
+    color: var(--mart-muted);
+    font-size: 13px;
+    line-height: 1.55;
+    min-height: 40px;
 }
 
 .item-card-inline-stats{
-    width:100%;
-    display:grid;
-    grid-template-columns:1fr auto;
-    gap:10px;
-    align-items:center;
-    margin-bottom:12px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: stretch;
+    margin-top: auto;
+    margin-bottom: 12px;
+}
+
+.item-stock,
+.item-info.compact{
+    border-radius: 14px;
+    background: #f8fafc;
+    border: 1px solid rgba(148,163,184,.16);
+    min-height: 46px;
+    display: flex;
+    align-items: center;
+}
+
+.item-stock{
+    justify-content: center;
+    padding: 0 12px;
+    color: #2d4bff;
+    font-size: 12px;
+    font-weight: 800;
 }
 
 .item-info.compact{
-    margin:0;
-    padding:10px 12px;
-    min-width:110px;
+    min-width: 116px;
+    justify-content: space-between;
+    padding: 0 12px;
+    gap: 12px;
+}
+
+.item-info.compact span{
+    color: #64748b;
+    font-size: 12px;
 }
 
 .item-info.compact strong{
-    font-size:18px;
+    color: var(--mart-text);
+    font-size: 28px;
+    font-weight: 900;
+    line-height: 1;
 }
 
-.premium-shop-shell{
-    border-radius:32px;
-    box-shadow:0 30px 60px rgba(15,23,42,.08);
+.cantidad-compra-box{
+    display: grid;
+    gap: 6px;
+    margin-bottom: 12px;
+    text-align: left;
 }
 
-.premium-shop-head{
-    padding:28px 26px 18px;
+.cantidad-compra-box label{
+    font-size: 12px;
+    color: #475569;
+    font-weight: 700;
 }
 
-.premium-shop-title-row{
-    align-items:center;
+.cantidad-compra-box input{
+    width: 100%;
+    height: 44px;
+    border-radius: 14px;
+    border: 1px solid rgba(148,163,184,.28);
+    padding: 0 14px;
+    font-size: 15px;
+    color: var(--mart-text);
+    background: #fff;
+    outline: none;
+    transition: border-color .18s ease, box-shadow .18s ease;
 }
 
-.premium-shop-copy h3{
-    margin:0 0 10px;
-    font-size:clamp(30px,4vw,42px);
+.cantidad-compra-box input:focus{
+    border-color: rgba(37,99,235,.46);
+    box-shadow: 0 0 0 4px rgba(37,99,235,.10);
 }
 
-.premium-shop-summary{
-    grid-template-columns:repeat(3, minmax(0,1fr));
+.btn-comprar-item{
+    width: 100%;
+    height: 46px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--mart-blue) 0%, var(--mart-blue-dark) 100%);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 14px 24px rgba(37,99,235,.18);
+    transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease;
 }
 
-.premium-summary-card{
-    min-height:108px;
+.btn-comprar-item:hover:not(:disabled){
+    transform: translateY(-1px);
+    box-shadow: 0 18px 26px rgba(37,99,235,.22);
 }
 
-.premium-summary-card strong{
-    font-size:34px;
+.btn-comprar-item:disabled{
+    opacity: .6;
+    cursor: not-allowed;
+    box-shadow: none;
 }
 
-.premium-shop-grid{
-    grid-template-columns: repeat(auto-fit, minmax(255px, 1fr));
-    gap:18px;
+/* Loading */
+.skeleton-card,
+.skeleton-saldo{ overflow: hidden; position: relative; }
+.skeleton-card::after,
+.skeleton-saldo::after{
+    content:"";
+    position:absolute;inset:0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.6), transparent);
+    transform: translateX(-100%);
+    animation: martShimmer 1.35s infinite;
+}
+@keyframes martShimmer{100%{transform:translateX(100%);}}
+.skeleton-image,.skeleton-pill,.skeleton-title,.skeleton-line,.skeleton-saldo-icon{background:#e2e8f0;border-radius:14px;}
+.skeleton-image{width:54px;height:54px;}
+.skeleton-pill{width:84px;height:28px;}
+.skeleton-title{height:22px;margin:12px auto 10px;width:68%;}
+.skeleton-line{height:12px;margin:8px auto;width:92%;}
+.skeleton-line.short{width:64%;}
+.skeleton-saldo{min-height:174px;display:flex;align-items:center;gap:16px;padding:22px;}
+.skeleton-saldo-icon{width:68px;height:68px;}
+.skeleton-saldo-text{flex:1;display:grid;gap:10px;}
+
+/* Premium area refinements inside inline block support */
+.premium-shop-surface{max-width:1320px;margin:0 auto 16px;padding:0 20px;}
+.premium-shop-shell{border-radius:28px;box-shadow:var(--mart-shadow) !important;}
+.premium-shop-head{padding:22px 22px 16px !important;gap:12px !important;}
+.premium-shop-copy h3{font-size: clamp(26px, 3.4vw, 40px) !important;line-height:1.05;letter-spacing:-.03em;}
+.premium-shop-copy p{font-size:14px !important;line-height:1.62 !important;max-width:780px !important;}
+.premium-shop-summary{grid-template-columns: repeat(3, minmax(0,1fr)) !important;padding:0 22px 16px !important;gap:12px !important;}
+.premium-summary-card{border-radius:18px !important;padding:14px 16px !important;min-height:82px !important;}
+.premium-summary-card strong{font-size:24px !important;margin-bottom:4px !important;}
+.premium-shop-grid{grid-template-columns: repeat(4, minmax(0,1fr)) !important;padding:0 22px 22px !important;gap:14px !important;}
+.premium-card{border-radius:22px !important;padding:16px !important;gap:12px !important;box-shadow:var(--mart-shadow-soft) !important;}
+.premium-card-badge{width:46px !important;height:46px !important;border-radius:16px !important;font-size:24px !important;}
+.premium-card h4{font-size:19px !important;line-height:1.18 !important;}
+.premium-card p{font-size:13px !important;line-height:1.58 !important;}
+.premium-card-price strong{font-size:24px !important;}
+.premium-card-meta{gap:6px !important;}
+.premium-meta-pill{padding:8px 10px !important;border-radius:12px !important;font-size:12px !important;}
+.premium-card-btn{padding:13px 14px !important;border-radius:14px !important;font-size:14px !important;}
+.premium-card-note{font-size:12px !important;line-height:1.5 !important;}
+.premium-banner-message,.premium-login-box{margin:0 22px 18px !important;border-radius:18px !important;}
+.premium-modal-shell{max-width:640px !important;border-radius:24px !important;}
+
+@media (max-width: 1180px){
+    .mart-top-grid.compact-grid{grid-template-columns: 1fr;}
+    .mart-note-grid.compact-notes{grid-template-columns: 1fr;}
+    .premium-shop-grid{grid-template-columns: repeat(2, minmax(0,1fr)) !important;}
+    .grid-evolucion{grid-template-columns: repeat(3, minmax(0,1fr));}
 }
 
-.premium-card{
-    padding:20px;
-    border-radius:26px;
+@media (max-width: 860px){
+    .seccion-pokedex{padding: 20px 14px 42px;}
+    .mart-shell{padding: 16px; border-radius: 22px;}
+    .pokemart-quicknav.compact-nav{top: 68px;}
+    .shop-category-header{flex-direction: column;}
+    .shop-category-count{width:42px;height:42px;font-size:20px;}
+    .grid-captura,
+    .capture-priority-grid,
+    .grid-curacion,
+    .grid-evolucion,
+    .grid-otros,
+    .premium-shop-summary,
+    .premium-shop-grid{grid-template-columns: 1fr !important;}
+    .item-card{min-height: auto;}
 }
 
-.premium-card-copy h4{
-    margin:0 0 8px;
-    font-size:28px;
-    line-height:1.1;
-}
-
-.premium-card-price-row{
-    display:flex;
-    align-items:flex-end;
-    justify-content:space-between;
-    gap:12px;
-}
-
-.premium-price-type{
-    display:inline-flex;
-    align-items:center;
-    padding:8px 12px;
-    border-radius:999px;
-    background:#f8fafc;
-    color:#475569;
-    font-size:12px;
-    font-weight:800;
-    text-transform:uppercase;
-    letter-spacing:.06em;
-}
-
-.premium-card-meta.compact{
-    grid-template-columns:1fr;
-}
-
-.premium-feature-list{
-    list-style:none;
-    margin:0;
-    padding:0;
-    display:grid;
-    gap:8px;
-}
-
-.premium-feature-list li{
-    position:relative;
-    padding:10px 12px 10px 34px;
-    border-radius:14px;
-    background:#f8fafc;
-    color:#334155;
-    font-size:13px;
-    font-weight:700;
-    line-height:1.5;
-}
-
-.premium-feature-list li::before{
-    content:"✦";
-    position:absolute;
-    left:12px;
-    top:50%;
-    transform:translateY(-50%);
-    color:#1d4ed8;
-    font-weight:900;
-}
-
-@media (max-width: 1024px){
-    .mart-top-grid{
-        grid-template-columns:1fr;
-    }
-
-    .mart-note-grid,
-    .premium-shop-summary{
-        grid-template-columns:1fr;
-    }
-}
-
-@media (max-width: 768px){
-    .mart-shell{
-        padding:18px 14px 22px;
-        border-radius:24px;
-    }
-
-    .shop-category-header{
-        flex-direction:column;
-    }
-
-    .shop-category-count{
-        align-self:flex-start;
-    }
-
-    .item-card-inline-stats{
-        grid-template-columns:1fr;
-    }
-
-    .premium-shop-shell{
-        border-radius:24px;
-    }
-
-    .premium-card-copy h4{
-        font-size:24px;
-    }
+@media (max-width: 560px){
+    .titulo{font-size: 30px;}
+    .subtitulo{font-size: 14px;}
+    .saldo-box{padding: 18px;}
+    .saldo-box h3{font-size: 36px;}
+    .mart-hero-panel.compact-panel{padding: 14px;}
+    .shop-category-section{padding: 14px;}
+    .item-card{padding: 12px; border-radius: 18px;}
+    .item-card-inline-stats{grid-template-columns: 1fr;}
+    .item-info.compact{min-width: 0;}
+    .item-info.compact strong{font-size: 24px;}
 }

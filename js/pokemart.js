@@ -330,21 +330,21 @@ function renderizarHeroResumenPokeMart() {
     const hero = document.getElementById("pokemartHeroNotes");
     if (!hero) return;
     hero.innerHTML = `
-        <article class="mart-note-card accent-capture">
+        <article class="mart-note-card accent-capture compact">
             <span class="mart-note-icon">🎯</span>
             <div>
                 <h4>${pmText("hero_card_capture")}</h4>
                 <p>${pmText("hero_card_capture_desc")}</p>
             </div>
         </article>
-        <article class="mart-note-card accent-premium">
+        <article class="mart-note-card accent-premium compact">
             <span class="mart-note-icon">⚡</span>
             <div>
                 <h4>${pmText("hero_card_premium")}</h4>
                 <p>${pmText("hero_card_premium_desc")}</p>
             </div>
         </article>
-        <article class="mart-note-card accent-use">
+        <article class="mart-note-card accent-use compact">
             <span class="mart-note-icon">🎒</span>
             <div>
                 <h4>${pmText("hero_card_use")}</h4>
@@ -582,7 +582,7 @@ function renderizarTienda() {
     renderizarQuickNavTienda(secciones);
 
     tienda.innerHTML = secciones.map(categoria => `
-        <section class="shop-category-section" id="shop-section-${categoria}">
+        <section class="shop-category-section section-${categoria}" id="shop-section-${categoria}">
             <div class="shop-category-header">
                 <div>
                     <span class="shop-category-kicker">${SHOP_SECTION_ICON[categoria] || "🛒"} ${obtenerTituloSeccionTienda(categoria)}</span>
@@ -591,7 +591,7 @@ function renderizarTienda() {
                 </div>
                 <span class="shop-category-count">${grupos[categoria].length}</span>
             </div>
-            <div class="shop-category-grid ${categoria === "captura" ? "capture-priority-grid" : ""}">
+            <div class="shop-category-grid grid-${categoria} ${categoria === "captura" ? "capture-priority-grid" : ""}">
                 ${grupos[categoria].map(item => renderizarCardItemHTML(item, estaLogueado)).join("")}
             </div>
         </section>
