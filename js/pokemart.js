@@ -13,11 +13,14 @@ const ITEMS_OCULTOS_TEMPORALES = ["Master Ball"];
 
 document.addEventListener("DOMContentLoaded", () => {
     configurarIdiomaPokeMart();
+    registrarEventosPremium();
     cargarTienda();
+    cargarPremiumShop();
 });
 
 document.addEventListener("languageChanged", () => {
     refrescarUIPokeMart();
+    renderizarPremiumCatalogo();
 });
 
 function configurarIdiomaPokeMart() {
@@ -52,6 +55,7 @@ function refrescarUIPokeMart() {
 
     renderizarSaldo();
     renderizarTienda();
+    renderizarPremiumCatalogo();
 
     const mensaje = document.getElementById("mensajeCompra");
     if (mensaje && !mensaje.classList.contains("oculto")) {
@@ -132,6 +136,8 @@ function limpiarEstadoUsuarioTiendaEnMemoria() {
     usuarioTiendaGlobal = null;
     inventarioUsuarioGlobal = [];
     saldoUsuarioGlobal = 0;
+    premiumProductosGlobal = [];
+    premiumBeneficiosGlobal = [];
     limpiarCacheUsuarioTienda();
 }
 
@@ -682,4 +688,424 @@ function traducirDescripcionItemTienda(nombre = "", descripcionOriginal = "") {
 
     const key = mapa[nombre];
     return key ? t(key) : (descripcionOriginal || "");
+}
+
+
+/* =========================================================
+   PREMIUM SHOP / PAYPAL
+========================================================= */
+
+const PREMIUM_SUPPORTED_CODES = [
+    "idle_masters_1m",
+    "battle_exp_x2_pack5",
+    "battle_gold_x2_pack5"
+];
+
+const PREMIUM_COMING_SOON_CODES = [
+    "map_exclusive_rate_1y",
+    "exclusive_pokemon_single",
+    "battle_pass_s1"
+];
+
+const PREMIUM_PRODUCT_META = {
+    idle_masters_1m: {
+        icon: "👑",
+        titleKey: "pokemart_premium_idle_title",
+        descKey: "pokemart_premium_idle_desc",
+        tagKey: "pokemart_premium_tag_subscription",
+        deliveryKey: "pokemart_premium_delivery_benefit",
+        activeBenefitCode: "idle_masters"
+    },
+    battle_exp_x2_pack5: {
+        icon: "⚔️",
+        titleKey: "pokemart_premium_exp_title",
+        descKey: "pokemart_premium_exp_desc",
+        tagKey: "pokemart_premium_tag_booster_pack",
+        deliveryKey: "pokemart_premium_delivery_items"
+    },
+    battle_gold_x2_pack5: {
+        icon: "💰",
+        titleKey: "pokemart_premium_gold_title",
+        descKey: "pokemart_premium_gold_desc",
+        tagKey: "pokemart_premium_tag_booster_pack",
+        deliveryKey: "pokemart_premium_delivery_items"
+    },
+    map_exclusive_rate_1y: {
+        icon: "🗺️",
+        titleKey: "pokemart_premium_maps_title",
+        descKey: "pokemart_premium_maps_desc",
+        tagKey: "pokemart_premium_tag_coming_soon"
+    },
+    exclusive_pokemon_single: {
+        icon: "✨",
+        titleKey: "pokemart_premium_exclusive_title",
+        descKey: "pokemart_premium_exclusive_desc",
+        tagKey: "pokemart_premium_tag_coming_soon"
+    },
+    battle_pass_s1: {
+        icon: "🎟️",
+        titleKey: "pokemart_premium_pass_title",
+        descKey: "pokemart_premium_pass_desc",
+        tagKey: "pokemart_premium_tag_coming_soon"
+    }
+};
+
+let premiumProductosGlobal = [];
+let premiumBeneficiosGlobal = [];
+let premiumProductoSeleccionado = null;
+
+function obtenerCatalogoPagosCompat() {
+    if (typeof obtenerCatalogoPagos === "function") {
+        return obtenerCatalogoPagos();
+    }
+    return fetchAuth(`${API_BASE}/payments/catalogo`);
+}
+
+function obtenerBeneficiosActivosCompat() {
+    if (typeof obtenerBeneficiosActivos === "function") {
+        return obtenerBeneficiosActivos();
+    }
+    return fetchAuth(`${API_BASE}/payments/beneficios/activos`);
+}
+
+function crearOrdenPaypalPagoCompat(productCode) {
+    if (typeof crearOrdenPaypalPago === "function") {
+        return crearOrdenPaypalPago({
+            productCode,
+            quantity: 1,
+            confirmacionAceptada: true,
+            versionTerminos: "v1"
+        });
+    }
+
+    return fetchAuth(`${API_BASE}/payments/paypal/order/create`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            product_code: productCode,
+            quantity: 1,
+            confirmacion_aceptada: true,
+            version_terminos: "v1"
+        })
+    });
+}
+
+function obtenerTituloPremiumProducto(producto) {
+    const meta = PREMIUM_PRODUCT_META[producto?.codigo] || {};
+    return meta.titleKey ? t(meta.titleKey) : (producto?.nombre || "Premium");
+}
+
+function obtenerDescripcionPremiumProducto(producto) {
+    const meta = PREMIUM_PRODUCT_META[producto?.codigo] || {};
+    if (meta.descKey) return t(meta.descKey);
+    return producto?.metadata?.notes || producto?.nombre || "";
+}
+
+function obtenerTagPremiumProducto(producto) {
+    const meta = PREMIUM_PRODUCT_META[producto?.codigo] || {};
+    return meta.tagKey ? t(meta.tagKey) : t("pokemart_premium_tag_featured");
+}
+
+function obtenerIconoPremiumProducto(producto) {
+    return PREMIUM_PRODUCT_META[producto?.codigo]?.icon || "⭐";
+}
+
+function obtenerDeliveryPremiumProducto(producto) {
+    const meta = PREMIUM_PRODUCT_META[producto?.codigo] || {};
+    return meta.deliveryKey ? t(meta.deliveryKey) : t("pokemart_premium_delivery_generic");
+}
+
+function obtenerTipoPremiumProducto(producto) {
+    const tipo = String(producto?.tipo || "").toLowerCase();
+    if (tipo === "suscripcion") return t("pokemart_premium_type_subscription");
+    if (tipo === "pack_item") return t("pokemart_premium_type_pack");
+    if (tipo === "battle_pass") return t("pokemart_premium_type_battle_pass");
+    return producto?.tipo || t("pokemart_premium_type_premium");
+}
+
+function obtenerDuracionPremiumProducto(producto) {
+    if (producto?.duracion_meses) {
+        return t("pokemart_premium_duration_months", { count: producto.duracion_meses });
+    }
+    if (producto?.duracion_dias) {
+        return t("pokemart_premium_duration_days", { count: producto.duracion_dias });
+    }
+    if (producto?.duracion_horas) {
+        return t("pokemart_premium_duration_hours", { count: producto.duracion_horas });
+    }
+    return t("pokemart_premium_duration_instant");
+}
+
+function obtenerEstadoBeneficioActivo(codigoBeneficio) {
+    if (!codigoBeneficio) return null;
+    return premiumBeneficiosGlobal.find(b => String(b?.beneficio_codigo || "") === String(codigoBeneficio) && String(b?.estado || "") === "activo") || null;
+}
+
+function formatearFechaPremium(valor) {
+    if (!valor) return t("pokemart_premium_date_unknown");
+    try {
+        return new Date(valor).toLocaleString(getCurrentLang() === "es" ? "es-PE" : "en-US");
+    } catch (error) {
+        return valor;
+    }
+}
+
+function setPremiumMessage(message = "", type = "ok") {
+    const box = document.getElementById("premiumShopMessage");
+    if (!box) return;
+
+    if (!message) {
+        box.className = "premium-banner-message";
+        box.textContent = "";
+        return;
+    }
+
+    box.className = `premium-banner-message show ${type === "error" ? "error" : "ok"}`;
+    box.textContent = message;
+}
+
+function actualizarResumenPremium() {
+    const countProductos = document.getElementById("premiumProductosCount");
+    const countBeneficios = document.getElementById("premiumBeneficiosCount");
+    const beneficiosHint = document.getElementById("premiumBeneficiosHint");
+
+    if (countProductos) {
+        countProductos.textContent = String(premiumProductosGlobal.length);
+    }
+
+    if (countBeneficios) {
+        countBeneficios.textContent = String(premiumBeneficiosGlobal.length);
+    }
+
+    if (beneficiosHint) {
+        if (!premiumBeneficiosGlobal.length) {
+            beneficiosHint.textContent = t("pokemart_premium_summary_no_active");
+        } else {
+            const beneficio = premiumBeneficiosGlobal[0];
+            beneficiosHint.textContent = t("pokemart_premium_summary_active_until", {
+                code: beneficio.beneficio_codigo,
+                date: formatearFechaPremium(beneficio.expira_en)
+            });
+        }
+    }
+}
+
+function renderizarPremiumCatalogo() {
+    const grid = document.getElementById("premiumCatalogo");
+    const loginBox = document.getElementById("premiumLoginBox");
+    if (!grid) return;
+
+    if (!usuarioAutenticadoTienda()) {
+        grid.innerHTML = "";
+        if (loginBox) loginBox.classList.remove("oculto");
+        actualizarResumenPremium();
+        return;
+    }
+
+    if (loginBox) loginBox.classList.add("oculto");
+
+    const support = premiumProductosGlobal.filter(p => PREMIUM_SUPPORTED_CODES.includes(p.codigo));
+    const coming = premiumProductosGlobal.filter(p => PREMIUM_COMING_SOON_CODES.includes(p.codigo));
+    const ordenados = [
+        ...PREMIUM_SUPPORTED_CODES.map(code => support.find(p => p.codigo === code)).filter(Boolean),
+        ...PREMIUM_COMING_SOON_CODES.map(code => coming.find(p => p.codigo === code)).filter(Boolean)
+    ];
+
+    if (!ordenados.length) {
+        grid.innerHTML = `<div class="premium-login-box"><h4>${t("pokemart_premium_empty_title")}</h4><p>${t("pokemart_premium_empty_text")}</p></div>`;
+        actualizarResumenPremium();
+        return;
+    }
+
+    grid.innerHTML = ordenados.map((producto) => {
+        const isSupported = PREMIUM_SUPPORTED_CODES.includes(producto.codigo);
+        const meta = PREMIUM_PRODUCT_META[producto.codigo] || {};
+        const beneficioActivo = obtenerEstadoBeneficioActivo(meta.activeBenefitCode);
+        const tagExtra = beneficioActivo
+            ? `<span class="premium-card-tag premium-chip-active">${t("pokemart_premium_tag_active")}</span>`
+            : `<span class="premium-card-tag ${isSupported ? "" : "premium-chip-coming"}">${obtenerTagPremiumProducto(producto)}</span>`;
+
+        const note = beneficioActivo
+            ? t("pokemart_premium_active_until", { date: formatearFechaPremium(beneficioActivo.expira_en) })
+            : isSupported
+                ? t("pokemart_premium_note_checkout")
+                : t("pokemart_premium_note_coming_soon");
+
+        return `
+            <article class="premium-card ${isSupported ? "" : "locked"}" data-premium-code="${producto.codigo}">
+                <div class="premium-card-top">
+                    <span class="premium-card-badge">${obtenerIconoPremiumProducto(producto)}</span>
+                    ${tagExtra}
+                </div>
+                <div>
+                    <h4>${obtenerTituloPremiumProducto(producto)}</h4>
+                    <p>${obtenerDescripcionPremiumProducto(producto)}</p>
+                </div>
+                <div class="premium-card-price">
+                    <strong>$${Number(producto.precio_usd || 0).toFixed(0)}</strong>
+                    <span>USD</span>
+                </div>
+                <div class="premium-card-meta">
+                    <span class="premium-meta-pill">⏳ ${obtenerDuracionPremiumProducto(producto)}</span>
+                    <span class="premium-meta-pill">📦 ${obtenerDeliveryPremiumProducto(producto)}</span>
+                </div>
+                <div class="premium-card-footer">
+                    <button class="premium-card-btn ${isSupported ? "" : "secondary"}" data-premium-buy="${producto.codigo}" ${isSupported ? "" : "disabled"}>
+                        ${isSupported ? t("pokemart_premium_buy_now") : t("pokemart_premium_coming_soon") }
+                    </button>
+                    <p class="premium-card-note">${note}</p>
+                </div>
+            </article>
+        `;
+    }).join("");
+
+    actualizarResumenPremium();
+}
+
+async function cargarPremiumShop() {
+    if (!usuarioAutenticadoTienda()) {
+        premiumProductosGlobal = [];
+        premiumBeneficiosGlobal = [];
+        renderizarPremiumCatalogo();
+        return;
+    }
+
+    try {
+        const [catalogoData, beneficiosData] = await Promise.all([
+            obtenerCatalogoPagosCompat(),
+            obtenerBeneficiosActivosCompat()
+        ]);
+
+        premiumProductosGlobal = Array.isArray(catalogoData?.productos) ? catalogoData.productos : [];
+        premiumBeneficiosGlobal = Array.isArray(beneficiosData?.beneficios) ? beneficiosData.beneficios : [];
+        renderizarPremiumCatalogo();
+    } catch (error) {
+        console.error("Error cargando premium shop:", error);
+        premiumProductosGlobal = [];
+        premiumBeneficiosGlobal = [];
+        renderizarPremiumCatalogo();
+        setPremiumMessage(error?.message || t("pokemart_premium_load_error"), "error");
+    }
+}
+
+function abrirModalPremium(productCode) {
+    if (!usuarioAutenticadoTienda()) {
+        setPremiumMessage(t("pokemart_premium_login_text"), "error");
+        return;
+    }
+
+    const producto = premiumProductosGlobal.find(p => p.codigo === productCode);
+    if (!producto) {
+        setPremiumMessage(t("pokemart_premium_product_not_found"), "error");
+        return;
+    }
+
+    premiumProductoSeleccionado = producto;
+
+    const modal = document.getElementById("premiumPurchaseModal");
+    const productName = document.getElementById("premiumModalProductName");
+    const price = document.getElementById("premiumModalPrice");
+    const type = document.getElementById("premiumModalType");
+    const delivery = document.getElementById("premiumModalDelivery");
+    const description = document.getElementById("premiumModalDescription");
+    const errorBox = document.getElementById("premiumModalError");
+    const checkConfirm = document.getElementById("premiumModalCheckConfirm");
+    const checkTerms = document.getElementById("premiumModalCheckTerms");
+
+    if (productName) productName.textContent = obtenerTituloPremiumProducto(producto);
+    if (price) price.textContent = `$${Number(producto.precio_usd || 0).toFixed(2)} USD`;
+    if (type) type.textContent = obtenerTipoPremiumProducto(producto);
+    if (delivery) delivery.textContent = obtenerDeliveryPremiumProducto(producto);
+    if (description) description.innerHTML = `<small>${t("pokemart_premium_modal_details")}</small><strong>${obtenerDescripcionPremiumProducto(producto)}</strong>`;
+    if (errorBox) { errorBox.classList.remove("show"); errorBox.textContent = ""; }
+    if (checkConfirm) checkConfirm.checked = false;
+    if (checkTerms) checkTerms.checked = false;
+
+    if (modal) {
+        modal.classList.add("show");
+        modal.setAttribute("aria-hidden", "false");
+    }
+}
+
+function cerrarModalPremium() {
+    const modal = document.getElementById("premiumPurchaseModal");
+    const errorBox = document.getElementById("premiumModalError");
+    premiumProductoSeleccionado = null;
+    if (errorBox) { errorBox.classList.remove("show"); errorBox.textContent = ""; }
+    if (modal) {
+        modal.classList.remove("show");
+        modal.setAttribute("aria-hidden", "true");
+    }
+}
+
+async function confirmarCompraPremium() {
+    const producto = premiumProductoSeleccionado;
+    const errorBox = document.getElementById("premiumModalError");
+    const checkConfirm = document.getElementById("premiumModalCheckConfirm");
+    const checkTerms = document.getElementById("premiumModalCheckTerms");
+    const confirmBtn = document.getElementById("premiumModalConfirmBtn");
+
+    if (!producto) return;
+
+    if (!checkConfirm?.checked || !checkTerms?.checked) {
+        if (errorBox) {
+            errorBox.textContent = t("pokemart_premium_modal_missing_checks");
+            errorBox.classList.add("show");
+        }
+        return;
+    }
+
+    if (errorBox) {
+        errorBox.textContent = "";
+        errorBox.classList.remove("show");
+    }
+
+    if (confirmBtn) {
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = t("pokemart_premium_redirecting");
+    }
+
+    try {
+        const data = await crearOrdenPaypalPagoCompat(producto.codigo);
+        if (!data?.approval_url) {
+            throw new Error(t("pokemart_premium_checkout_error"));
+        }
+        window.location.href = data.approval_url;
+    } catch (error) {
+        console.error("Error creando orden premium:", error);
+        const message = error?.message || t("pokemart_premium_checkout_error");
+        if (errorBox) {
+            errorBox.textContent = message;
+            errorBox.classList.add("show");
+        }
+        if (confirmBtn) {
+            confirmBtn.disabled = false;
+            confirmBtn.textContent = t("pokemart_premium_modal_pay");
+        }
+    }
+}
+
+function registrarEventosPremium() {
+    document.addEventListener("click", (event) => {
+        const premiumBtn = event.target.closest("[data-premium-buy]");
+        if (premiumBtn) {
+            abrirModalPremium(premiumBtn.dataset.premiumBuy);
+            return;
+        }
+
+        if (event.target.id === "premiumModalCloseBtn" || event.target.id === "premiumModalCancelBtn") {
+            cerrarModalPremium();
+            return;
+        }
+
+        if (event.target.id === "premiumModalConfirmBtn") {
+            confirmarCompraPremium();
+            return;
+        }
+
+        const modal = document.getElementById("premiumPurchaseModal");
+        if (modal && event.target === modal) {
+            cerrarModalPremium();
+        }
+    });
 }
