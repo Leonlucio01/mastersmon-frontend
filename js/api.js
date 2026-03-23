@@ -865,3 +865,123 @@ async function cancelarModoIdle(idleSessionToken = "") {
         throw error;
     }
 }
+
+/* =========================================================
+   PAYMENTS / MONETIZATION
+========================================================= */
+
+async function obtenerCatalogoPagos() {
+    return await fetchAuth(`${API_BASE}/payments/catalogo`);
+}
+
+async function obtenerBeneficiosActivos() {
+    return await fetchAuth(`${API_BASE}/payments/beneficios/activos`);
+}
+
+async function obtenerComprasPagos() {
+    return await fetchAuth(`${API_BASE}/payments/compras`);
+}
+
+async function crearOrdenPaypalPago({
+    productCode,
+    quantity = 1,
+    confirmacionAceptada = true,
+    versionTerminos = "v1"
+}) {
+    if (!productCode) {
+        throw new Error("PRODUCT_CODE_REQUIRED");
+    }
+
+    return await fetchAuth(`${API_BASE}/payments/paypal/order/create`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            product_code: productCode,
+            quantity,
+            confirmacion_aceptada: !!confirmacionAceptada,
+            version_terminos: versionTerminos
+        })
+    });
+}
+
+async function capturarOrdenPaypalPago({
+    compraId,
+    paypalOrderId
+}) {
+    if (!compraId) {
+        throw new Error("COMPRA_ID_REQUIRED");
+    }
+
+    if (!paypalOrderId) {
+        throw new Error("PAYPAL_ORDER_ID_REQUIRED");
+    }
+
+    return await fetchAuth(`${API_BASE}/payments/paypal/order/capture`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            compra_id: Number(compraId),
+            paypal_order_id: String(paypalOrderId)
+        })
+    });
+}
+
+async function usarBoosterPago(itemCode) {
+    if (!itemCode) {
+        throw new Error("ITEM_CODE_REQUIRED");
+    }
+
+    return await fetchAuth(`${API_BASE}/payments/booster/usar`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            item_code: itemCode
+        })
+    });
+}
+
+function obtenerPaypalOrderIdDesdeURL(url = window.location.href) {
+    try {
+        const params = new URL(url).searchParams;
+        return (
+            params.get("token") ||
+            params.get("order_id") ||
+            params.get("orderId") ||
+            ""
+        );
+    } catch (error) {
+        console.warn("No se pudo leer paypal order id desde URL:", error);
+        return "";
+    }
+}
+
+function obtenerPaypalPayerIdDesdeURL(url = window.location.href) {
+    try {
+        const params = new URL(url).searchParams;
+        return (
+            params.get("PayerID") ||
+            params.get("payerId") ||
+            ""
+        );
+    } catch (error) {
+        console.warn("No se pudo leer payer id desde URL:", error);
+        return "";
+    }
+}
+
+async function buscarCompraPorPaypalOrderId(paypalOrderId) {
+    if (!paypalOrderId) return null;
+
+    const data = await obtenerComprasPagos();
+    const compras = Array.isArray(data?.compras) ? data.compras : [];
+
+    return compras.find(compra =>
+        String(compra?.paypal_order_id || "") === String(paypalOrderId)
+    ) || null;
+}
