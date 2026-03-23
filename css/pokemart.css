@@ -462,3 +462,439 @@
         padding:5px 9px;
     }
 }
+
+/* =========================
+   WOW LAYOUT / PREMIUM REFINEMENT
+========================= */
+body{
+    background:
+        radial-gradient(circle at top, rgba(59,130,246,.10), transparent 32%),
+        linear-gradient(180deg, #f4f7fb 0%, #eef3f9 100%);
+}
+
+.mart-shell{
+    background: linear-gradient(180deg,#ffffff 0%, #f8fbff 100%);
+    border: 1px solid rgba(148,163,184,.18);
+    border-radius: 32px;
+    box-shadow: 0 24px 50px rgba(15,23,42,.08);
+    padding: 26px 24px 28px;
+}
+
+.mart-hero-head{
+    margin-bottom: 18px;
+}
+
+.mart-kicker{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 14px;
+    border-radius:999px;
+    background: rgba(37,99,235,.10);
+    color:#1d4ed8;
+    font-size:12px;
+    font-weight:800;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    margin-bottom:14px;
+}
+
+.mart-top-grid{
+    display:grid;
+    grid-template-columns:minmax(320px, 420px) 1fr;
+    gap:18px;
+    align-items:stretch;
+    margin-bottom:18px;
+}
+
+.pokemart-saldo{
+    max-width:none;
+    margin:0;
+}
+
+.saldo-box.wide{
+    justify-content:space-between;
+    align-items:stretch;
+    min-height:100%;
+}
+
+.saldo-box.highlight{
+    background: linear-gradient(135deg,#0f172a 0%, #1d4ed8 100%);
+    color:white;
+    border: none;
+    box-shadow: 0 22px 38px rgba(29,78,216,.22);
+}
+
+.saldo-box.highlight .saldo-label,
+.saldo-box.highlight h3,
+.saldo-box.highlight small{
+    color:white;
+}
+
+.saldo-main-copy small{
+    display:block;
+    margin-top:10px;
+    font-size:13px;
+    line-height:1.6;
+    opacity:.92;
+}
+
+.saldo-side-icon{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:74px;
+    min-width:74px;
+    border-radius:22px;
+    background: rgba(255,255,255,.14);
+    font-size:34px;
+}
+
+.mart-hero-panel{
+    border:1px solid rgba(148,163,184,.18);
+    border-radius:28px;
+    background: linear-gradient(180deg,#ffffff 0%, #f8fafc 100%);
+    padding:20px;
+    display:grid;
+    gap:16px;
+}
+
+.mart-hero-copy h3{
+    margin:0 0 8px;
+    font-size:26px;
+    color:#0f172a;
+}
+
+.mart-hero-copy p{
+    margin:0;
+    color:#475569;
+    line-height:1.7;
+    font-size:14px;
+}
+
+.mart-note-grid{
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0,1fr));
+    gap:12px;
+}
+
+.mart-note-card{
+    border-radius:20px;
+    padding:16px;
+    display:flex;
+    gap:12px;
+    align-items:flex-start;
+    border:1px solid rgba(148,163,184,.16);
+    background:#fff;
+}
+
+.mart-note-icon{
+    width:42px;
+    height:42px;
+    min-width:42px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:14px;
+    background:#eff6ff;
+    font-size:20px;
+}
+
+.mart-note-card h4{
+    margin:0 0 6px;
+    font-size:15px;
+    color:#0f172a;
+}
+
+.mart-note-card p{
+    margin:0;
+    font-size:13px;
+    line-height:1.55;
+    color:#475569;
+}
+
+.accent-capture .mart-note-icon{background:#dbeafe;}
+.accent-premium .mart-note-icon{background:#ede9fe;}
+.accent-use .mart-note-icon{background:#dcfce7;}
+
+.pokemart-quicknav{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin:0 0 18px;
+}
+
+.pokemart-quicknav-chip{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:10px 14px;
+    border-radius:999px;
+    background:#fff;
+    border:1px solid rgba(148,163,184,.2);
+    color:#0f172a;
+    font-weight:700;
+    font-size:13px;
+    box-shadow:0 8px 18px rgba(15,23,42,.05);
+}
+
+.pokemart-quicknav-chip:hover{
+    background:#eff6ff;
+    color:#1d4ed8;
+}
+
+.pokemart-sections{
+    display:grid;
+    gap:24px;
+}
+
+.shop-category-section{
+    border:1px solid rgba(148,163,184,.16);
+    border-radius:28px;
+    padding:18px;
+    background:#fff;
+    box-shadow:0 16px 30px rgba(15,23,42,.04);
+}
+
+.shop-category-header{
+    display:flex;
+    justify-content:space-between;
+    gap:14px;
+    align-items:flex-start;
+    margin-bottom:16px;
+}
+
+.shop-category-kicker{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 12px;
+    border-radius:999px;
+    background:#eff6ff;
+    color:#1d4ed8;
+    font-size:12px;
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    margin-bottom:8px;
+}
+
+.shop-category-header h3{
+    margin:0 0 6px;
+    font-size:26px;
+    color:#0f172a;
+}
+
+.shop-category-header p{
+    margin:0;
+    color:#475569;
+    font-size:14px;
+    line-height:1.6;
+    max-width:760px;
+}
+
+.shop-category-count{
+    min-width:54px;
+    height:54px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:18px;
+    background:#0f172a;
+    color:#fff;
+    font-size:20px;
+    font-weight:900;
+}
+
+.shop-category-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+    gap:18px;
+}
+
+.capture-priority-grid .item-card{
+    border-top-color:#2563eb;
+}
+
+.item-card{
+    border-radius:24px;
+    padding:18px 16px;
+}
+
+.item-card-top-right{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    gap:8px;
+}
+
+.item-micro-pill{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:6px 10px;
+    border-radius:999px;
+    background:#f8fafc;
+    color:#334155;
+    font-size:11px;
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    border:1px solid rgba(148,163,184,.18);
+}
+
+.item-card-inline-stats{
+    width:100%;
+    display:grid;
+    grid-template-columns:1fr auto;
+    gap:10px;
+    align-items:center;
+    margin-bottom:12px;
+}
+
+.item-info.compact{
+    margin:0;
+    padding:10px 12px;
+    min-width:110px;
+}
+
+.item-info.compact strong{
+    font-size:18px;
+}
+
+.premium-shop-shell{
+    border-radius:32px;
+    box-shadow:0 30px 60px rgba(15,23,42,.08);
+}
+
+.premium-shop-head{
+    padding:28px 26px 18px;
+}
+
+.premium-shop-title-row{
+    align-items:center;
+}
+
+.premium-shop-copy h3{
+    margin:0 0 10px;
+    font-size:clamp(30px,4vw,42px);
+}
+
+.premium-shop-summary{
+    grid-template-columns:repeat(3, minmax(0,1fr));
+}
+
+.premium-summary-card{
+    min-height:108px;
+}
+
+.premium-summary-card strong{
+    font-size:34px;
+}
+
+.premium-shop-grid{
+    grid-template-columns: repeat(auto-fit, minmax(255px, 1fr));
+    gap:18px;
+}
+
+.premium-card{
+    padding:20px;
+    border-radius:26px;
+}
+
+.premium-card-copy h4{
+    margin:0 0 8px;
+    font-size:28px;
+    line-height:1.1;
+}
+
+.premium-card-price-row{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:12px;
+}
+
+.premium-price-type{
+    display:inline-flex;
+    align-items:center;
+    padding:8px 12px;
+    border-radius:999px;
+    background:#f8fafc;
+    color:#475569;
+    font-size:12px;
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+}
+
+.premium-card-meta.compact{
+    grid-template-columns:1fr;
+}
+
+.premium-feature-list{
+    list-style:none;
+    margin:0;
+    padding:0;
+    display:grid;
+    gap:8px;
+}
+
+.premium-feature-list li{
+    position:relative;
+    padding:10px 12px 10px 34px;
+    border-radius:14px;
+    background:#f8fafc;
+    color:#334155;
+    font-size:13px;
+    font-weight:700;
+    line-height:1.5;
+}
+
+.premium-feature-list li::before{
+    content:"✦";
+    position:absolute;
+    left:12px;
+    top:50%;
+    transform:translateY(-50%);
+    color:#1d4ed8;
+    font-weight:900;
+}
+
+@media (max-width: 1024px){
+    .mart-top-grid{
+        grid-template-columns:1fr;
+    }
+
+    .mart-note-grid,
+    .premium-shop-summary{
+        grid-template-columns:1fr;
+    }
+}
+
+@media (max-width: 768px){
+    .mart-shell{
+        padding:18px 14px 22px;
+        border-radius:24px;
+    }
+
+    .shop-category-header{
+        flex-direction:column;
+    }
+
+    .shop-category-count{
+        align-self:flex-start;
+    }
+
+    .item-card-inline-stats{
+        grid-template-columns:1fr;
+    }
+
+    .premium-shop-shell{
+        border-radius:24px;
+    }
+
+    .premium-card-copy h4{
+        font-size:24px;
+    }
+}

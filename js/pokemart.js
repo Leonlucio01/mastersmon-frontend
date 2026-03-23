@@ -10,6 +10,92 @@ let usuarioTiendaGlobal = null;
 
 const cantidadesSeleccionadas = {};
 const ITEMS_OCULTOS_TEMPORALES = ["Master Ball"];
+const ITEMS_PREMIUM_SOLO_CODES = ["booster_battle_exp_x2_24h", "booster_battle_gold_x2_24h"];
+const ITEMS_PREMIUM_SOLO_NOMBRES = ["Booster Battle EXP x2 24h", "Booster Battle GOLD x2 24h"];
+const ITEM_SORT_ORDER = {
+    "Poke Ball": 10,
+    "Super Ball": 20,
+    "Great Ball": 20,
+    "Ultra Ball": 30,
+    "Master Ball": 40,
+    "Pocion": 110,
+    "Super Pocion": 120,
+    "Potion": 110,
+    "Super Potion": 120,
+    "Piedra Agua": 210,
+    "Water Stone": 210,
+    "Piedra Hoja": 220,
+    "Leaf Stone": 220,
+    "Piedra Fuego": 230,
+    "Fire Stone": 230,
+    "Piedra Trueno": 240,
+    "Thunder Stone": 240,
+    "Piedra Lunar": 250,
+    "Moon Stone": 250
+};
+const SHOP_SECTION_ORDER = ["captura", "curacion", "evolucion", "otros"];
+const SHOP_SECTION_ICON = {
+    captura: "🎯",
+    curacion: "🧪",
+    evolucion: "✨",
+    otros: "🎒"
+};
+const SHOP_MICRO_COPY = {
+    capture_jump: { es: "Ir a captura", en: "Jump to capture" },
+    healing_jump: { es: "Ir a curación", en: "Jump to healing" },
+    evolution_jump: { es: "Ir a evolución", en: "Jump to evolution" },
+    other_jump: { es: "Ir a otros", en: "Jump to misc" },
+    capture_title: { es: "Captura primero", en: "Capture first" },
+    capture_desc: { es: "Tus Poké Balls y bolas de alto ratio siempre arriba para no perderlas visualmente.", en: "Your Poké Balls and high-rate balls stay at the top so they never get lost visually." },
+    healing_title: { es: "Curación rápida", en: "Quick healing" },
+    healing_desc: { es: "Pociones y consumibles de soporte en una zona separada para reabastecerte rápido.", en: "Potions and support consumables grouped together for quick restocking." },
+    evolution_title: { es: "Evolución ordenada", en: "Evolution stones" },
+    evolution_desc: { es: "Piedras agrupadas para encontrar la correcta sin recorrer toda la tienda.", en: "Stones grouped together so you can find the right one without scanning the whole shop." },
+    other_title: { es: "Otros objetos", en: "Other items" },
+    other_desc: { es: "Objetos fuera de las categorías principales.", en: "Items outside the main categories." },
+    hero_title: { es: "Compra más rápido, visualiza mejor", en: "Buy faster, spot items instantly" },
+    hero_desc: { es: "Reordenamos PokeMart para que las Poké Balls y consumibles clave estén primero, mientras los beneficios premium quedan compactos y explicados.", en: "PokeMart is reorganized so Poké Balls and key consumables stay first, while premium benefits remain compact and clearly explained." },
+    hero_card_capture: { es: "Captura al frente", en: "Capture comes first" },
+    hero_card_capture_desc: { es: "Poké Balls arriba con precio y stock claros.", en: "Poké Balls stay on top with clearer price and stock." },
+    hero_card_premium: { es: "Premium claro", en: "Premium clarified" },
+    hero_card_premium_desc: { es: "Cada pack explica EXP, GOLD y duración antes de pagar.", en: "Each pack explains EXP, GOLD and duration before checkout." },
+    hero_card_use: { es: "Uso rápido", en: "Quick usage" },
+    hero_card_use_desc: { es: "Los boosters premium se entregan al inventario, no a la tienda normal.", en: "Premium boosters go to inventory, not the normal shop." },
+    capture_power_basic: { es: "Ratio base", en: "Base rate" },
+    capture_power_mid: { es: "Mejor ratio", en: "Better ratio" },
+    capture_power_high: { es: "Alta captura", en: "High capture" },
+    healing_power: { es: "Soporte", en: "Support" },
+    evolution_power: { es: "Especial", en: "Special" },
+    premium_idle_feature_1: { es: "+100% EXP vs Legend", en: "+100% EXP vs Legend" },
+    premium_idle_feature_2: { es: "+28% GOLD vs Legend", en: "+28% GOLD vs Legend" },
+    premium_idle_feature_3: { es: "Ultra Ball 12% por tick", en: "Ultra Ball 12% per tick" },
+    premium_idle_feature_4: { es: "Master Ball 0.45% por tick", en: "Master Ball 0.45% per tick" },
+    premium_exp_feature_1: { es: "5 usos en inventario", en: "5 charges in inventory" },
+    premium_exp_feature_2: { es: "x2 EXP en Battle", en: "x2 EXP in Battle" },
+    premium_exp_feature_3: { es: "24h por uso", en: "24h per use" },
+    premium_exp_feature_4: { es: "Activación manual", en: "Manual activation" },
+    premium_gold_feature_1: { es: "5 usos en inventario", en: "5 charges in inventory" },
+    premium_gold_feature_2: { es: "x2 GOLD en Battle", en: "x2 GOLD in Battle" },
+    premium_gold_feature_3: { es: "24h por uso", en: "24h per use" },
+    premium_gold_feature_4: { es: "Activación manual", en: "Manual activation" },
+    premium_maps_feature_1: { es: "Rate exclusivo x1.75", en: "Exclusive rate x1.75" },
+    premium_maps_feature_2: { es: "Duración 365 días", en: "365-day duration" },
+    premium_maps_feature_3: { es: "Solo encuentros de mapa", en: "Map encounters only" },
+    premium_maps_feature_4: { es: "Próximamente", en: "Coming soon" },
+    premium_exclusive_feature_1: { es: "Compra única", en: "One-time purchase" },
+    premium_exclusive_feature_2: { es: "Selección especial", en: "Special selection" },
+    premium_exclusive_feature_3: { es: "Entrega directa", en: "Direct delivery" },
+    premium_exclusive_feature_4: { es: "Próximamente", en: "Coming soon" },
+    premium_pass_feature_1: { es: "Progresión de temporada", en: "Season progression" },
+    premium_pass_feature_2: { es: "Recompensas premium", en: "Premium rewards" },
+    premium_pass_feature_3: { es: "Entrega por hitos", en: "Milestone rewards" },
+    premium_pass_feature_4: { es: "Próximamente", en: "Coming soon" },
+    premium_benefit_active: { es: "Beneficio activo", en: "Benefit active" },
+    premium_inventory_delivery: { es: "Se agrega al inventario", en: "Added to inventory" },
+    premium_meter_offers: { es: "Ofertas activas", en: "Ready offers" },
+    premium_meter_benefits: { es: "Beneficios activos", en: "Active benefits" },
+    premium_meter_checkout: { es: "Checkout seguro", en: "Secure checkout" }
+};
 
 document.addEventListener("DOMContentLoaded", () => {
     configurarIdiomaPokeMart();
@@ -128,14 +214,156 @@ function obtenerClaseTipo(tipo) {
     }
 }
 
-function esItemPremiumSolo(item = {}) {
-    const codigo = String(item?.codigo || "").trim();
+function getPokeMartLang() {
+    try {
+        return typeof getCurrentLang === "function" && getCurrentLang() === "es" ? "es" : "en";
+    } catch (error) {
+        return "en";
+    }
+}
+
+function pmText(key, fallbackEs = "", fallbackEn = "") {
+    const lang = getPokeMartLang();
+    const entry = SHOP_MICRO_COPY[key];
+    if (entry) return entry[lang] || entry.en || entry.es || key;
+    return lang === "es" ? (fallbackEs || fallbackEn || key) : (fallbackEn || fallbackEs || key);
+}
+
+function obtenerCategoriaItemBase(item = {}) {
+    const tipo = String(item?.tipo || "").toLowerCase().trim();
+    if (tipo === "captura") return "captura";
+    if (tipo === "curacion" || tipo === "curación") return "curacion";
+    if (tipo === "evolucion" || tipo === "evolución") return "evolucion";
+    return "otros";
+}
+
+function obtenerPesoOrdenItem(item = {}) {
     const nombre = String(item?.nombre || "").trim();
+    return ITEM_SORT_ORDER[nombre] ?? 999;
+}
+
+function obtenerMicroDetalleItem(item = {}) {
+    const categoria = obtenerCategoriaItemBase(item);
+    if (categoria === "captura") {
+        if (/ultra|master/i.test(item?.nombre || "")) return pmText("capture_power_high");
+        if (/super|great/i.test(item?.nombre || "")) return pmText("capture_power_mid");
+        return pmText("capture_power_basic");
+    }
+    if (categoria === "curacion") return pmText("healing_power");
+    if (categoria === "evolucion") return pmText("evolution_power");
+    return pmText("other_title");
+}
+
+function obtenerTituloSeccionTienda(categoria) {
+    if (categoria === "captura") return pmText("capture_title");
+    if (categoria === "curacion") return pmText("healing_title");
+    if (categoria === "evolucion") return pmText("evolution_title");
+    return pmText("other_title");
+}
+
+function obtenerSubtituloSeccionTienda(categoria) {
+    if (categoria === "captura") return pmText("capture_desc");
+    if (categoria === "curacion") return pmText("healing_desc");
+    if (categoria === "evolucion") return pmText("evolution_desc");
+    return pmText("other_desc");
+}
+
+function renderizarCardItemHTML(item, estaLogueado) {
+    const itemUsuario = inventarioUsuarioGlobal.find(i => Number(i.item_id) === Number(item.id));
+    const cantidadActual = itemUsuario ? itemUsuario.cantidad : 0;
+    const cantidadInput = cantidadesSeleccionadas[item.id] || 1;
+    const nombreTraducido = traducirNombreItemTienda(item.nombre);
+    const tipoTraducido = traducirTipoItemTienda(item.tipo);
+    const descripcionTraducida = traducirDescripcionItemTienda(item.nombre, item.descripcion || "");
+    const detalleMicro = obtenerMicroDetalleItem(item);
+    return `
+        <div class="item-card" data-item-id="${item.id}">
+            <div class="item-card-top">
+                <img
+                    class="item-imagen"
+                    src="${obtenerImagenItem(item.nombre)}"
+                    alt="${nombreTraducido}"
+                    loading="lazy"
+                    decoding="async"
+                >
+                <div class="item-card-top-right">
+                    <span class="${obtenerClaseTipo(item.tipo)}">${tipoTraducido}</span>
+                    <span class="item-micro-pill">${detalleMicro}</span>
+                </div>
+            </div>
+            <h3>${nombreTraducido}</h3>
+            <p class="item-descripcion">${descripcionTraducida}</p>
+            <div class="item-card-inline-stats">
+                <div class="item-stock">${t("pokemart_you_have")}: x${cantidadActual}</div>
+                <div class="item-info compact">
+                    <span>${t("pokemart_price")}</span>
+                    <strong>${item.precio}</strong>
+                </div>
+            </div>
+            <div class="cantidad-compra-box">
+                <label for="cantidad-item-${item.id}">${t("pokemart_quantity")}</label>
+                <input
+                    type="number"
+                    id="cantidad-item-${item.id}"
+                    min="1"
+                    value="${cantidadInput}"
+                    ${estaLogueado ? "" : "disabled"}
+                >
+            </div>
+            <button class="btn-comprar-item" data-item-id="${item.id}" ${estaLogueado ? "" : "disabled"}>
+                ${estaLogueado ? t("pokemart_buy") : t("pokemart_login_button")}
+            </button>
+        </div>
+    `;
+}
+
+function renderizarQuickNavTienda(secciones = []) {
+    const nav = document.getElementById("pokemartQuickNav");
+    if (!nav) return;
+    nav.innerHTML = secciones.map(categoria => {
+        const label = obtenerTituloSeccionTienda(categoria);
+        return `<a class="pokemart-quicknav-chip" href="#shop-section-${categoria}">${SHOP_SECTION_ICON[categoria] || "🛒"} <span>${label}</span></a>`;
+    }).join("");
+}
+
+function renderizarHeroResumenPokeMart() {
+    const hero = document.getElementById("pokemartHeroNotes");
+    if (!hero) return;
+    hero.innerHTML = `
+        <article class="mart-note-card accent-capture">
+            <span class="mart-note-icon">🎯</span>
+            <div>
+                <h4>${pmText("hero_card_capture")}</h4>
+                <p>${pmText("hero_card_capture_desc")}</p>
+            </div>
+        </article>
+        <article class="mart-note-card accent-premium">
+            <span class="mart-note-icon">⚡</span>
+            <div>
+                <h4>${pmText("hero_card_premium")}</h4>
+                <p>${pmText("hero_card_premium_desc")}</p>
+            </div>
+        </article>
+        <article class="mart-note-card accent-use">
+            <span class="mart-note-icon">🎒</span>
+            <div>
+                <h4>${pmText("hero_card_use")}</h4>
+                <p>${pmText("hero_card_use_desc")}</p>
+            </div>
+        </article>
+    `;
+}
+
+function esItemPremiumSolo(item = {}) {
+    const codigo = String(item?.codigo || "").trim().toLowerCase();
+    const nombre = String(item?.nombre || "").trim().toLowerCase();
     const tipo = String(item?.tipo || "").toLowerCase().trim();
 
     if (ITEMS_PREMIUM_SOLO_CODES.includes(codigo)) return true;
-    if (ITEMS_PREMIUM_SOLO_NOMBRES.includes(nombre)) return true;
+    if (ITEMS_PREMIUM_SOLO_NOMBRES.map(v => v.toLowerCase()).includes(nombre)) return true;
     if (tipo === "booster") return true;
+    if (codigo.startsWith("booster_")) return true;
+    if (nombre.includes("booster battle")) return true;
     return false;
 }
 
@@ -286,7 +514,7 @@ function renderizarSaldo() {
 
     if (!usuarioAutenticadoTienda()) {
         saldoBox.innerHTML = `
-            <div class="saldo-box">
+            <div class="saldo-box wide">
                 <span class="saldo-icono">🔒</span>
                 <div>
                     <p class="saldo-label">${t("pokemart_login_required")}</p>
@@ -294,18 +522,22 @@ function renderizarSaldo() {
                 </div>
             </div>
         `;
+        renderizarHeroResumenPokeMart();
         return;
     }
 
     saldoBox.innerHTML = `
-        <div class="saldo-box">
-            <span class="saldo-icono">💰</span>
-            <div>
+        <div class="saldo-box wide highlight">
+            <div class="saldo-main-copy">
                 <p class="saldo-label">${t("pokemart_balance_label")}</p>
                 <h3>${saldoUsuarioGlobal ?? 0}</h3>
+                <small>${pmText("hero_desc")}</small>
             </div>
+            <div class="saldo-side-icon">💰</div>
         </div>
     `;
+
+    renderizarHeroResumenPokeMart();
 }
 
 function renderizarTienda() {
@@ -316,66 +548,55 @@ function renderizarTienda() {
 
     if (!tiendaItemsGlobal.length) {
         tienda.innerHTML = `<p>${t("pokemart_no_items")}</p>`;
+        renderizarQuickNavTienda([]);
         return;
     }
 
     const estaLogueado = usuarioAutenticadoTienda();
-    let html = "";
+    const visibles = tiendaItemsGlobal
+        .filter(item => !ITEMS_OCULTOS_TEMPORALES.includes(item.nombre) && !esItemPremiumSolo(item))
+        .sort((a, b) => {
+            const categoriaA = SHOP_SECTION_ORDER.indexOf(obtenerCategoriaItemBase(a));
+            const categoriaB = SHOP_SECTION_ORDER.indexOf(obtenerCategoriaItemBase(b));
+            if (categoriaA !== categoriaB) return categoriaA - categoriaB;
+            const pesoA = obtenerPesoOrdenItem(a);
+            const pesoB = obtenerPesoOrdenItem(b);
+            if (pesoA !== pesoB) return pesoA - pesoB;
+            return String(a?.nombre || "").localeCompare(String(b?.nombre || ""));
+        });
 
-    for (const item of tiendaItemsGlobal) {
-        if (ITEMS_OCULTOS_TEMPORALES.includes(item.nombre) || esItemPremiumSolo(item)) {
-            continue;
-        }
+    const grupos = {
+        captura: [],
+        curacion: [],
+        evolucion: [],
+        otros: []
+    };
 
-        const itemUsuario = inventarioUsuarioGlobal.find(i => Number(i.item_id) === Number(item.id));
-        const cantidadActual = itemUsuario ? itemUsuario.cantidad : 0;
-        const cantidadInput = cantidadesSeleccionadas[item.id] || 1;
-        const nombreTraducido = traducirNombreItemTienda(item.nombre);
-        const tipoTraducido = traducirTipoItemTienda(item.tipo);
-        const descripcionTraducida = traducirDescripcionItemTienda(item.nombre, item.descripcion || "");
+    visibles.forEach(item => {
+        const categoria = obtenerCategoriaItemBase(item);
+        grupos[categoria] = grupos[categoria] || [];
+        grupos[categoria].push(item);
+    });
 
-        html += `
-            <div class="item-card" data-item-id="${item.id}">
-                <div class="item-card-top">
-                    <img
-                        class="item-imagen"
-                        src="${obtenerImagenItem(item.nombre)}"
-                        alt="${nombreTraducido}"
-                        loading="lazy"
-                        decoding="async"
-                    >
-                    <span class="${obtenerClaseTipo(item.tipo)}">${tipoTraducido}</span>
+    const secciones = SHOP_SECTION_ORDER.filter(categoria => Array.isArray(grupos[categoria]) && grupos[categoria].length > 0);
+    renderizarQuickNavTienda(secciones);
+
+    tienda.innerHTML = secciones.map(categoria => `
+        <section class="shop-category-section" id="shop-section-${categoria}">
+            <div class="shop-category-header">
+                <div>
+                    <span class="shop-category-kicker">${SHOP_SECTION_ICON[categoria] || "🛒"} ${obtenerTituloSeccionTienda(categoria)}</span>
+                    <h3>${obtenerTituloSeccionTienda(categoria)}</h3>
+                    <p>${obtenerSubtituloSeccionTienda(categoria)}</p>
                 </div>
-
-                <h3>${nombreTraducido}</h3>
-                <p class="item-descripcion">${descripcionTraducida}</p>
-
-                <div class="item-stock">${t("pokemart_you_have")}: x${cantidadActual}</div>
-
-                <div class="item-info">
-                    <span>${t("pokemart_price")}</span>
-                    <strong>${item.precio}</strong>
-                </div>
-
-                <div class="cantidad-compra-box">
-                    <label for="cantidad-item-${item.id}">${t("pokemart_quantity")}</label>
-                    <input
-                        type="number"
-                        id="cantidad-item-${item.id}"
-                        min="1"
-                        value="${cantidadInput}"
-                        ${estaLogueado ? "" : "disabled"}
-                    >
-                </div>
-
-                <button class="btn-comprar-item" data-item-id="${item.id}" ${estaLogueado ? "" : "disabled"}>
-                    ${estaLogueado ? t("pokemart_buy") : t("pokemart_login_button")}
-                </button>
+                <span class="shop-category-count">${grupos[categoria].length}</span>
             </div>
-        `;
-    }
+            <div class="shop-category-grid ${categoria === "captura" ? "capture-priority-grid" : ""}">
+                ${grupos[categoria].map(item => renderizarCardItemHTML(item, estaLogueado)).join("")}
+            </div>
+        </section>
+    `).join("");
 
-    tienda.innerHTML = html;
     tiendaRenderizada = true;
 }
 
@@ -836,6 +1057,56 @@ function obtenerDeliveryPremiumProducto(producto) {
     return meta.deliveryKey ? t(meta.deliveryKey) : t("pokemart_premium_delivery_generic");
 }
 
+function obtenerHighlightsPremiumProducto(producto) {
+    const codigo = producto?.codigo;
+    if (codigo === "idle_masters_1m") {
+        return [
+            pmText("premium_idle_feature_1"),
+            pmText("premium_idle_feature_2"),
+            pmText("premium_idle_feature_3"),
+            pmText("premium_idle_feature_4")
+        ];
+    }
+    if (codigo === "battle_exp_x2_pack5") {
+        return [
+            pmText("premium_exp_feature_1"),
+            pmText("premium_exp_feature_2"),
+            pmText("premium_exp_feature_3"),
+            pmText("premium_exp_feature_4")
+        ];
+    }
+    if (codigo === "battle_gold_x2_pack5") {
+        return [
+            pmText("premium_gold_feature_1"),
+            pmText("premium_gold_feature_2"),
+            pmText("premium_gold_feature_3"),
+            pmText("premium_gold_feature_4")
+        ];
+    }
+    if (codigo === "map_exclusive_rate_1y") {
+        return [
+            pmText("premium_maps_feature_1"),
+            pmText("premium_maps_feature_2"),
+            pmText("premium_maps_feature_3"),
+            pmText("premium_maps_feature_4")
+        ];
+    }
+    if (codigo === "exclusive_pokemon_single") {
+        return [
+            pmText("premium_exclusive_feature_1"),
+            pmText("premium_exclusive_feature_2"),
+            pmText("premium_exclusive_feature_3"),
+            pmText("premium_exclusive_feature_4")
+        ];
+    }
+    return [
+        pmText("premium_pass_feature_1"),
+        pmText("premium_pass_feature_2"),
+        pmText("premium_pass_feature_3"),
+        pmText("premium_pass_feature_4")
+    ];
+}
+
 function obtenerTipoPremiumProducto(producto) {
     const tipo = String(producto?.tipo || "").toLowerCase();
     if (tipo === "suscripcion") return t("pokemart_premium_type_subscription");
@@ -943,6 +1214,7 @@ function renderizarPremiumCatalogo() {
         const isSupported = PREMIUM_SUPPORTED_CODES.includes(producto.codigo);
         const meta = PREMIUM_PRODUCT_META[producto.codigo] || {};
         const beneficioActivo = obtenerEstadoBeneficioActivo(meta.activeBenefitCode);
+        const highlights = obtenerHighlightsPremiumProducto(producto);
         const tagExtra = beneficioActivo
             ? `<span class="premium-card-tag premium-chip-active">${t("pokemart_premium_tag_active")}</span>`
             : `<span class="premium-card-tag ${isSupported ? "" : "premium-chip-coming"}">${obtenerTagPremiumProducto(producto)}</span>`;
@@ -959,18 +1231,24 @@ function renderizarPremiumCatalogo() {
                     <span class="premium-card-badge">${obtenerIconoPremiumProducto(producto)}</span>
                     ${tagExtra}
                 </div>
-                <div>
+                <div class="premium-card-copy">
                     <h4>${obtenerTituloPremiumProducto(producto)}</h4>
                     <p>${obtenerDescripcionPremiumProducto(producto)}</p>
                 </div>
-                <div class="premium-card-price">
-                    <strong>$${Number(producto.precio_usd || 0).toFixed(0)}</strong>
-                    <span>USD</span>
+                <div class="premium-card-price-row">
+                    <div class="premium-card-price">
+                        <strong>$${Number(producto.precio_usd || 0).toFixed(0)}</strong>
+                        <span>USD</span>
+                    </div>
+                    <span class="premium-price-type">${obtenerTipoPremiumProducto(producto)}</span>
                 </div>
-                <div class="premium-card-meta">
+                <div class="premium-card-meta compact">
                     <span class="premium-meta-pill">⏳ ${obtenerDuracionPremiumProducto(producto)}</span>
                     <span class="premium-meta-pill">📦 ${obtenerDeliveryPremiumProducto(producto)}</span>
                 </div>
+                <ul class="premium-feature-list">
+                    ${highlights.map(item => `<li>${item}</li>`).join("")}
+                </ul>
                 <div class="premium-card-footer">
                     <button class="premium-card-btn ${isSupported ? "" : "secondary"}" data-premium-buy="${producto.codigo}" ${isSupported ? "" : "disabled"}>
                         ${isSupported ? t("pokemart_premium_buy_now") : t("pokemart_premium_coming_soon") }
