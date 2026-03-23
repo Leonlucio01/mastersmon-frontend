@@ -15,11 +15,22 @@ function paymentSafeJSON(value) {
     }
 }
 
+function paymentDebugEnabled() {
+    try {
+        const params = new URL(window.location.href).searchParams;
+        if (params.get("debug") === "1") return true;
+        if (localStorage.getItem("mastersmon_payment_debug") === "1") return true;
+    } catch (error) {
+        console.warn("No se pudo evaluar debug de payment:", error);
+    }
+    return false;
+}
+
 function paymentSetDebug(data) {
     const box = document.getElementById("paymentDebugBox");
     if (!box) return;
 
-    if (!data) {
+    if (!paymentDebugEnabled() || !data) {
         box.classList.add("oculto");
         box.textContent = "";
         return;
@@ -68,21 +79,55 @@ function paymentRenderCompra(compra = null) {
     if (estado) estado.textContent = paymentSafeText(compra.estado);
 }
 
-function paymentRenderBenefit({ productName = "", benefitCode = "", expireAt = "" } = {}) {
+function paymentHideResultBox() {
     const box = document.getElementById("paymentBenefitBox");
-    const title = document.getElementById("paymentBenefitTitle");
-    const text = document.getElementById("paymentBenefitText");
-    if (!box || !title || !text) return;
+    if (!box) return;
+    box.classList.add("oculto");
+}
+
+function paymentRenderResult({ title = "", text = "" } = {}) {
+    const box = document.getElementById("paymentBenefitBox");
+    const titleEl = document.getElementById("paymentBenefitTitle");
+    const textEl = document.getElementById("paymentBenefitText");
+    if (!box || !titleEl || !textEl) return;
 
     box.classList.remove("oculto");
-    title.textContent = productName ? `${productName} activated` : "Benefit activated";
+    titleEl.textContent = title || "Purchase delivered";
+    textEl.textContent = text || "Your purchase is already available in this account.";
+}
 
-    const parts = [];
-    if (benefitCode) parts.push(`Benefit code: ${benefitCode}.`);
-    if (expireAt) parts.push(`Active until: ${expireAt}.`);
-    if (!parts.length) parts.push("The premium product is already available in your account.");
+function paymentBuildGrantSummary({ compra = null, capture = null, benefit = null } = {}) {
+    const productName = paymentSafeText(compra?.producto_nombre || compra?.producto_codigo, "This purchase");
+    const grantPayload = capture?.grant_payload || {};
+    const deliveredItems = Array.isArray(grantPayload?.items_entregados) ? grantPayload.items_entregados : [];
 
-    text.textContent = parts.join(" ");
+    if (deliveredItems.length) {
+        const itemSummary = deliveredItems
+            .map(item => `${item?.cantidad || 0}x ${item?.item_nombre || item?.item_codigo || "item"}`)
+            .join(", ");
+
+        return {
+            title: `${productName} delivered`,
+            text: `Added to your inventory: ${itemSummary}.`
+        };
+    }
+
+    if (benefit) {
+        const parts = [];
+        if (benefit?.beneficio_codigo) parts.push(`Benefit code: ${benefit.beneficio_codigo}.`);
+        if (benefit?.expira_en) parts.push(`Active until: ${benefit.expira_en}.`);
+        if (!parts.length) parts.push("The premium benefit is already active in your account.");
+
+        return {
+            title: `${productName} activated`,
+            text: parts.join(" ")
+        };
+    }
+
+    return {
+        title: `${productName} delivered`,
+        text: "Your purchase has been confirmed and linked to your Mastersmon account."
+    };
 }
 
 async function paymentTryResolveBenefit(productCode = "") {
@@ -94,7 +139,7 @@ async function paymentTryResolveBenefit(productCode = "") {
             return benefits.find(item => String(item?.beneficio_codigo || "") === "idle_masters") || null;
         }
 
-        return benefits[0] || null;
+        return null;
     } catch (error) {
         console.warn("No se pudo resolver beneficios activos en payment success:", error);
         return null;
@@ -155,6 +200,7 @@ async function paymentInitSuccessPage() {
     }
 
     paymentRenderCompra(compra);
+    paymentHideResultBox();
 
     try {
         if (String(compra.estado || "") === "pagado" && String(compra.grant_status || "") === "entregado") {
@@ -163,13 +209,9 @@ async function paymentInitSuccessPage() {
                 type: "success",
                 icon: "✅",
                 title: "Payment already confirmed",
-                text: "This order had already been synchronized. Your account already has the premium content available."
+                text: "This order had already been synchronized. Your account already has the purchased content available."
             });
-            paymentRenderBenefit({
-                productName: compra.producto_nombre || compra.producto_codigo,
-                benefitCode: benefit?.beneficio_codigo || "",
-                expireAt: benefit?.expira_en || ""
-            });
+            paymentRenderResult(paymentBuildGrantSummary({ compra, benefit }));
             paymentSetDebug({ step: "already_synced", compra, benefit });
             return;
         }
@@ -197,13 +239,9 @@ async function paymentInitSuccessPage() {
             type: "success",
             icon: "🎉",
             title: "Payment confirmed",
-            text: "Your PayPal order was captured successfully and the premium product is now linked to your Mastersmon account."
+            text: "Your PayPal order was captured successfully and the purchased content is now linked to your Mastersmon account."
         });
-        paymentRenderBenefit({
-            productName: compra.producto_nombre || compra.producto_codigo,
-            benefitCode: benefit?.beneficio_codigo || "",
-            expireAt: benefit?.expira_en || ""
-        });
+        paymentRenderResult(paymentBuildGrantSummary({ compra, capture, benefit }));
         paymentSetDebug({ step: "capture_ok", compra, capture, benefit, payerId });
     } catch (error) {
         paymentSetStatus({
@@ -212,6 +250,7 @@ async function paymentInitSuccessPage() {
             title: "Payment could not be synchronized",
             text: error?.message || "The backend could not capture or reconcile this PayPal order."
         });
+        paymentHideResultBox();
         paymentSetDebug({ step: "capture_error", compra, orderId, payerId, error: String(error?.message || error) });
     }
 }
