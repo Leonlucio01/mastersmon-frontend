@@ -128,6 +128,22 @@ function obtenerClaseTipo(tipo) {
     }
 }
 
+function esItemPremiumSolo(item = {}) {
+    const codigo = String(item?.codigo || "").trim();
+    const nombre = String(item?.nombre || "").trim();
+    const tipo = String(item?.tipo || "").toLowerCase().trim();
+
+    if (ITEMS_PREMIUM_SOLO_CODES.includes(codigo)) return true;
+    if (ITEMS_PREMIUM_SOLO_NOMBRES.includes(nombre)) return true;
+    if (tipo === "booster") return true;
+    return false;
+}
+
+function filtrarItemsTiendaPublica(items = []) {
+    if (!Array.isArray(items)) return [];
+    return items.filter(item => !esItemPremiumSolo(item));
+}
+
 function usuarioAutenticadoTienda() {
     return !!getAccessToken();
 }
@@ -307,7 +323,7 @@ function renderizarTienda() {
     let html = "";
 
     for (const item of tiendaItemsGlobal) {
-        if (ITEMS_OCULTOS_TEMPORALES.includes(item.nombre)) {
+        if (ITEMS_OCULTOS_TEMPORALES.includes(item.nombre) || esItemPremiumSolo(item)) {
             continue;
         }
 
@@ -379,7 +395,7 @@ async function cargarCatalogoTienda({ forzar = false } = {}) {
     if (!forzar) {
         const cache = leerCacheTienda();
         if (cache && cache.length > 0) {
-            tiendaItemsGlobal = cache;
+            tiendaItemsGlobal = filtrarItemsTiendaPublica(cache);
             return tiendaItemsGlobal;
         }
     }
@@ -388,8 +404,8 @@ async function cargarCatalogoTienda({ forzar = false } = {}) {
     if (!res.ok) throw new Error("Error al obtener items de la tienda");
 
     const items = await res.json();
-    tiendaItemsGlobal = items;
-    guardarCacheTienda(items);
+    tiendaItemsGlobal = filtrarItemsTiendaPublica(items);
+    guardarCacheTienda(tiendaItemsGlobal);
 
     return tiendaItemsGlobal;
 }
@@ -439,7 +455,7 @@ async function cargarTienda({ forzarCatalogo = false } = {}) {
     const estaLogueado = usuarioAutenticadoTienda();
 
     if (!forzarCatalogo && cacheCatalogo && cacheCatalogo.length > 0) {
-        tiendaItemsGlobal = cacheCatalogo;
+        tiendaItemsGlobal = filtrarItemsTiendaPublica(cacheCatalogo);
 
         if (cacheUsuario.usuario) {
             usuarioTiendaGlobal = cacheUsuario.usuario.usuario || cacheUsuario.usuario;
@@ -523,6 +539,11 @@ async function comprarItem(itemId) {
 
     if (!item) {
         mostrarMensajeCompra(t("pokemart_item_not_found"), "error");
+        return;
+    }
+
+    if (esItemPremiumSolo(item)) {
+        mostrarMensajeCompra(t("pokemart_premium_only_item_error"), "error");
         return;
     }
 
@@ -870,7 +891,8 @@ function actualizarResumenPremium() {
     const beneficiosHint = document.getElementById("premiumBeneficiosHint");
 
     if (countProductos) {
-        countProductos.textContent = String(premiumProductosGlobal.length);
+        const offersReady = premiumProductosGlobal.filter(p => PREMIUM_SUPPORTED_CODES.includes(p.codigo)).length;
+        countProductos.textContent = String(offersReady);
     }
 
     if (countBeneficios) {
