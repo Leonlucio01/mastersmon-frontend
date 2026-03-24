@@ -1,244 +1,227 @@
 <!DOCTYPE html>
+
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pokemon World - Battle Arena</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/menu.css">
-    <link rel="stylesheet" href="css/battle-arena.css">
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Mastersmon - Tactical Arena</title>
+<link href="css/style.css" rel="stylesheet"/>
+<link href="css/menu.css" rel="stylesheet"/>
+<link href="css/battle-arena.css" rel="stylesheet"/>
+<script async="" defer="" src="https://accounts.google.com/gsi/client"></script>
 </head>
 <body>
-    <header class="menu menu-pro">
-        <div class="menu-topbar">
-            <h1 class="logo">Pokemon World</h1>
-
-            <nav class="menu-nav-desktop">
-                <a href="index.html">Pokedex</a>
-                <a href="battle.html" class="active">Play</a>
-                <a href="mypokemon.html">Collection</a>
-                <a href="pokemart.html">Shop</a>
-                <a href="ranking.html">Ranking</a>
-                <a href="#" onclick="return false;">More</a>
-            </nav>
-
-            <div class="menu-auth-area">
-                <div class="lang-switch">
-                    <select id="languageSelect">
-                        <option value="en">EN</option>
-                        <option value="es">ES</option>
-                    </select>
-                </div>
-
-                <div id="loginMenuContainer">
-                    <div id="g_id_onload"
-                         data-client_id="535230935122-vqqd262fjhetd408li95420bb8cas5vb.apps.googleusercontent.com"
-                         data-callback="handleCredentialResponse">
-                    </div>
-
-                    <div class="g_id_signin"
-                         data-type="standard"
-                         data-size="medium"
-                         data-theme="outline"
-                         data-text="signin_with"
-                         data-shape="pill"
-                         data-logo_alignment="left">
-                    </div>
-                </div>
-
-                <div id="usuarioMenu" class="oculto">
-                    <span id="nombreUsuario"></span>
-                    <button id="cerrarSesionMenu" type="button" data-i18n="menu_logout">Salir</button>
-                </div>
-            </div>
-
-            <button class="menu-toggle" id="menuToggle" type="button">☰</button>
-        </div>
-
-        <div class="menu-links-mobile" id="menuMobile">
-            <div class="mobile-panel">
-                <a href="index.html">Pokedex</a>
-                <a href="battle.html" class="active">Play</a>
-                <a href="mypokemon.html">Collection</a>
-                <a href="pokemart.html">Shop</a>
-                <a href="ranking.html">Ranking</a>
-                <a href="#" onclick="return false;">More</a>
-
-                <div class="menu-mobile-user">
-                    <div id="loginMenuContainerMobile">
-                        <div class="g_id_signin"
-                             data-type="standard"
-                             data-size="medium"
-                             data-theme="outline"
-                             data-text="signin_with"
-                             data-shape="pill"
-                             data-logo_alignment="left">
-                        </div>
-                    </div>
-
-                    <div id="usuarioMenuMobile" class="oculto">
-                        <span id="nombreUsuarioMobile"></span>
-                        <button id="cerrarSesionMenuMobile" type="button" data-i18n="menu_logout">Salir</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <main class="battle-arena-page">
-        <section class="arena-hero">
-            <div class="arena-hero-badge" data-i18n="battle_arena_badge">Combate PvE · Fase 1</div>
-            <h1 class="arena-title" data-i18n="battle_arena_title">Battle Arena</h1>
-            <p class="arena-subtitle" data-i18n="battle_arena_subtitle">
+<header class="menu menu-pro">
+<div class="menu-topbar">
+<h1 class="logo">Mastersmon</h1>
+<nav class="menu-nav-desktop">
+<a data-i18n="menu_pokedex" href="index.html">Pokedex</a>
+<div class="menu-dropdown menu-dropdown-play is-active">
+<button aria-expanded="false" class="menu-dropdown-toggle active" data-menu-dropdown-toggle="play" type="button">
+<span data-i18n="menu_play">Play</span>
+<span aria-hidden="true" class="menu-dropdown-caret">▾</span>
+</button>
+<div aria-label="Play" class="menu-dropdown-panel" role="menu">
+<a class="menu-dropdown-link" data-i18n="menu_play_hub" href="battle.html">Hub</a>
+<a class="menu-dropdown-link" data-i18n="menu_play_maps" href="maps.html">Maps</a>
+<a class="menu-dropdown-link active" data-i18n="menu_play_arena" href="battle-arena.html">Arena</a>
+<a class="menu-dropdown-link" data-i18n="menu_play_gyms" href="gyms.html">Gyms</a>
+<a class="menu-dropdown-link" data-i18n="menu_play_idle" href="idle.html">Idle</a>
+</div>
+</div>
+<a data-i18n="menu_collection" href="mypokemon.html">Collection</a>
+<a data-i18n="menu_shop" href="pokemart.html">Shop</a>
+<a data-i18n="menu_ranking" href="ranking.html">Ranking</a>
+<a aria-disabled="true" class="menu-disabled" data-i18n="menu_more" href="#" onclick="return false;">More</a>
+</nav>
+<div class="menu-auth-area">
+<div class="lang-switch">
+<select aria-label="Language" id="languageSelect">
+<option value="en">EN</option>
+<option value="es">ES</option>
+</select>
+</div>
+<div id="loginMenuContainer">
+<div data-callback="handleCredentialResponse" data-client_id="535230935122-vqqd262fjhetd408li95420bb8cas5vb.apps.googleusercontent.com" id="g_id_onload">
+</div>
+<div class="g_id_signin" data-logo_alignment="left" data-shape="pill" data-size="medium" data-text="signin_with" data-theme="outline" data-type="standard">
+</div>
+</div>
+<div class="oculto" id="usuarioMenu">
+<span id="nombreUsuario"></span>
+<button data-i18n="menu_logout" id="cerrarSesionMenu" type="button">Logout</button>
+</div>
+</div>
+<button aria-label="Open menu" class="menu-toggle" id="menuToggle" type="button">☰</button>
+</div>
+<div class="menu-links-mobile" id="menuMobile">
+<div class="mobile-panel">
+<a data-i18n="menu_pokedex" href="index.html">Pokedex</a>
+<button aria-expanded="true" class="menu-mobile-group-toggle active" data-menu-mobile-group-toggle="play" type="button">
+<span data-i18n="menu_play">Play</span>
+<span aria-hidden="true" class="menu-mobile-caret">▾</span>
+</button>
+<div class="menu-mobile-submenu is-open" data-menu-mobile-group="play">
+<a class="menu-mobile-submenu-link" data-i18n="menu_play_hub" href="battle.html">Hub</a>
+<a class="menu-mobile-submenu-link" data-i18n="menu_play_maps" href="maps.html">Maps</a>
+<a class="menu-mobile-submenu-link active" data-i18n="menu_play_arena" href="battle-arena.html">Arena</a>
+<a class="menu-mobile-submenu-link" data-i18n="menu_play_gyms" href="gyms.html">Gyms</a>
+<a class="menu-mobile-submenu-link" data-i18n="menu_play_idle" href="idle.html">Idle</a>
+</div>
+<a data-i18n="menu_collection" href="mypokemon.html">Collection</a>
+<a data-i18n="menu_shop" href="pokemart.html">Shop</a>
+<a data-i18n="menu_ranking" href="ranking.html">Ranking</a>
+<a aria-disabled="true" class="menu-disabled" data-i18n="menu_more" href="#" onclick="return false;">More</a>
+<div class="menu-mobile-user">
+<div class="lang-switch">
+<select aria-label="Language" id="languageSelectMobile">
+<option value="en">EN</option>
+<option value="es">ES</option>
+</select>
+</div>
+<div id="loginMenuContainerMobile">
+<div class="g_id_signin" data-logo_alignment="left" data-shape="pill" data-size="medium" data-text="signin_with" data-theme="outline" data-type="standard">
+</div>
+</div>
+<div class="oculto" id="usuarioMenuMobile">
+<span id="nombreUsuarioMobile"></span>
+<button data-i18n="menu_logout" id="cerrarSesionMenuMobile" type="button">Logout</button>
+</div>
+</div>
+</div>
+</div>
+</header>
+<main class="battle-arena-page">
+<section class="arena-hero">
+<div class="arena-hero-badge" data-i18n="battle_arena_badge">Combate PvE · Fase 1</div>
+<h1 class="arena-title" data-i18n="battle_arena_title">Battle Arena</h1>
+<p class="arena-subtitle" data-i18n="battle_arena_subtitle">
                 Enfrenta una escuadra rival aleatoria usando tu equipo principal de 6 Pokémon.
             </p>
-        </section>
-
-        <div id="arenaModeContext" class="arena-message oculto"></div>
-        <div id="arenaMensaje" class="arena-message oculto"></div>
-
-        <section class="arena-layout">
-            <div class="arena-main-panel">
-                <div class="arena-versus-grid">
-                    <article class="arena-side-card player">
-                        <div class="arena-side-kicker" data-i18n="battle_your_team">Tu equipo</div>
-                        <div id="playerActivePokemon" class="arena-active-card"></div>
-                    </article>
-
-                    <div class="arena-vs-center">
-                        <div class="arena-vs-badge">VS</div>
-                        <div class="arena-turn-box">
-                            <span data-i18n="arena_turn">Turno</span>
-                            <strong id="arenaTurnoActual">1</strong>
-                        </div>
-                    </div>
-
-                    <article class="arena-side-card enemy">
-                        <div class="arena-side-kicker" data-i18n="arena_rival_phase_1">Rival fase 1</div>
-                        <div id="enemyActivePokemon" class="arena-active-card"></div>
-                    </article>
-                </div>
-
-                <div class="arena-actions-panel">
-                    <div class="arena-action-header">
-                        <h3 data-i18n="arena_actions_title">Acciones del turno</h3>
-                        <p data-i18n="arena_actions_hint">Select one of the 4 equipped moves. Physical moves use ATK/DEF and Special moves use SP ATK/SP DEF.</p>
-                    </div>
-
-                    <div class="arena-actions-grid">
-                        <button id="btnArenaAtacar" class="btn-arena btn-arena-primary" type="button" data-i18n="arena_action_attack">
+</section>
+<div class="arena-message oculto" id="arenaMensaje"></div>
+<section class="arena-layout">
+<div class="arena-main-panel">
+<div class="arena-versus-grid">
+<article class="arena-side-card player">
+<div class="arena-side-kicker" data-i18n="battle_your_team">Tu equipo</div>
+<div class="arena-active-card" id="playerActivePokemon"></div>
+</article>
+<div class="arena-vs-center">
+<div class="arena-vs-badge">VS</div>
+<div class="arena-turn-box">
+<span data-i18n="arena_turn">Turno</span>
+<strong id="arenaTurnoActual">1</strong>
+</div>
+</div>
+<article class="arena-side-card enemy">
+<div class="arena-side-kicker" data-i18n="arena_rival_phase_1">Rival fase 1</div>
+<div class="arena-active-card" id="enemyActivePokemon"></div>
+</article>
+</div>
+<div class="arena-actions-panel">
+<div class="arena-action-header">
+<h3 data-i18n="arena_actions_title">Acciones del turno</h3>
+<p data-i18n="arena_actions_hint">Select one of the 4 equipped moves. Physical moves use ATK/DEF and Special moves use SP ATK/SP DEF.</p>
+</div>
+<div class="arena-actions-grid">
+<button class="btn-arena btn-arena-primary" data-i18n="arena_action_attack" id="btnArenaAtacar" type="button">
                             Atacar
                         </button>
-
-                        <button id="btnArenaCambiar" class="btn-arena btn-arena-secondary" type="button" data-i18n="arena_action_change">
+<button class="btn-arena btn-arena-secondary" data-i18n="arena_action_change" id="btnArenaCambiar" type="button">
                             Cambiar Pokémon
                         </button>
-
-                        <button id="btnArenaAuto" class="btn-arena btn-arena-light" type="button" data-i18n="arena_action_auto">
+<button class="btn-arena btn-arena-light" data-i18n="arena_action_auto" id="btnArenaAuto" type="button">
                             Auto turno
                         </button>
-
-                        <button id="btnArenaSalir" class="btn-arena btn-arena-danger" type="button" data-i18n="arena_action_exit">
+<button class="btn-arena btn-arena-danger" data-i18n="arena_action_exit" id="btnArenaSalir" type="button">
                             Salir
                         </button>
-                    </div>
-
-                    <div id="arenaMovesPanel" class="arena-moves-panel oculto">
-                        <div class="arena-moves-panel-head">
-                            <div>
-                                <h4 data-i18n="arena_moves_title">Choose a move</h4>
-                                <p id="arenaMovesPanelSubtitle" data-i18n="arena_moves_subtitle_default">Choose one of the 4 equipped moves of your active Pokémon.</p>
-                            </div>
-                            <button id="btnArenaCerrarMoves" class="arena-moves-close" type="button" data-i18n-aria-label="arena_move_close_panel" aria-label="Close moves panel">✕</button>
-                        </div>
-
-                        <div id="arenaMovesGrid" class="arena-moves-grid"></div>
-                    </div>
-                </div>
-
-                <div class="arena-team-preview-wrap">
-                    <div>
-                        <h3 class="arena-subsection-title" data-i18n="arena_your_squad">Tu escuadrón</h3>
-                        <div id="arenaPlayerTeam" class="arena-team-grid"></div>
-                    </div>
-
-                    <div>
-                        <h3 class="arena-subsection-title" data-i18n="arena_enemy_team">Equipo rival</h3>
-                        <div id="arenaEnemyTeam" class="arena-team-grid enemy-grid"></div>
-                    </div>
-                </div>
-            </div>
-
-            <aside class="arena-side-panel">
-                <section class="arena-log-panel">
-                    <div class="arena-side-panel-header">
-                        <h3 data-i18n="arena_log_title">Registro del combate</h3>
-                        <span class="arena-chip" data-i18n="arena_turns_chip">Turnos</span>
-                    </div>
-                    <div id="arenaBattleLog" class="arena-log-list"></div>
-                </section>
-
-                <section class="arena-status-panel">
-                    <div class="arena-side-panel-header">
-                        <h3 data-i18n="arena_status_title">Estado</h3>
-                        <span class="arena-chip chip-blue" data-i18n="arena_demo_chip">Demo</span>
-                    </div>
-
-                    <div class="arena-status-grid">
-                        <div class="arena-status-card">
-                            <span data-i18n="arena_alive_pokemon">Pokémon vivos</span>
-                            <strong id="arenaPlayerAlive">0</strong>
-                            <small data-i18n="arena_your_team_small">Tu equipo</small>
-                        </div>
-
-                        <div class="arena-status-card">
-                            <span data-i18n="arena_alive_pokemon">Pokémon vivos</span>
-                            <strong id="arenaEnemyAlive">0</strong>
-                            <small data-i18n="arena_enemy_team_small">Rival</small>
-                        </div>
-
-                        <div class="arena-status-card full">
-                            <span data-i18n="arena_general_status">Estado general</span>
-                            <strong id="arenaEstadoGeneral" data-i18n="arena_preparing_combat">Preparando combate</strong>
-                        </div>
-                    </div>
-                </section>
-            </aside>
-        </section>
-    </main>
-
-    <div id="arenaChangeModal" class="arena-modal-overlay oculto">
-        <div class="arena-modal">
-            <div class="arena-modal-icon">⟳</div>
-            <h3 data-i18n="arena_change_title">Cambiar Pokémon</h3>
-            <p data-i18n="arena_change_text">Selecciona un Pokémon vivo de tu equipo.</p>
-            <div id="arenaChangeOptions" class="arena-change-options"></div>
-            <div class="arena-modal-actions">
-                <button id="btnCerrarCambioArena" class="btn-arena btn-arena-light" type="button" data-i18n="arena_cancel">Cancelar</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="arenaResultModal" class="arena-modal-overlay oculto">
-        <div class="arena-modal result-modal">
-            <div id="arenaResultIcon" class="arena-result-icon">🏆</div>
-            <h3 id="arenaResultTitle" data-i18n="arena_victory">¡Victoria!</h3>
-            <p id="arenaResultText" data-i18n="arena_victory_text_default">Has derrotado al equipo rival.</p>
-            <div class="arena-modal-actions">
-                <button id="btnArenaVolverBattle" class="btn-arena btn-arena-secondary" type="button" data-i18n="arena_back_battle">
+</div>
+<div class="arena-moves-panel oculto" id="arenaMovesPanel">
+<div class="arena-moves-panel-head">
+<div>
+<h4 data-i18n="arena_moves_title">Choose a move</h4>
+<p data-i18n="arena_moves_subtitle_default" id="arenaMovesPanelSubtitle">Choose one of the 4 equipped moves of your active Pokémon.</p>
+</div>
+<button aria-label="Close moves panel" class="arena-moves-close" data-i18n-aria-label="arena_move_close_panel" id="btnArenaCerrarMoves" type="button">✕</button>
+</div>
+<div class="arena-moves-grid" id="arenaMovesGrid"></div>
+</div>
+</div>
+<div class="arena-team-preview-wrap">
+<div>
+<h3 class="arena-subsection-title" data-i18n="arena_your_squad">Tu escuadrón</h3>
+<div class="arena-team-grid" id="arenaPlayerTeam"></div>
+</div>
+<div>
+<h3 class="arena-subsection-title" data-i18n="arena_enemy_team">Equipo rival</h3>
+<div class="arena-team-grid enemy-grid" id="arenaEnemyTeam"></div>
+</div>
+</div>
+</div>
+<aside class="arena-side-panel">
+<section class="arena-log-panel">
+<div class="arena-side-panel-header">
+<h3 data-i18n="arena_log_title">Registro del combate</h3>
+<span class="arena-chip" data-i18n="arena_turns_chip">Turnos</span>
+</div>
+<div class="arena-log-list" id="arenaBattleLog"></div>
+</section>
+<section class="arena-status-panel">
+<div class="arena-side-panel-header">
+<h3 data-i18n="arena_status_title">Estado</h3>
+<span class="arena-chip chip-blue" data-i18n="arena_demo_chip">Demo</span>
+</div>
+<div class="arena-status-grid">
+<div class="arena-status-card">
+<span data-i18n="arena_alive_pokemon">Pokémon vivos</span>
+<strong id="arenaPlayerAlive">0</strong>
+<small data-i18n="arena_your_team_small">Tu equipo</small>
+</div>
+<div class="arena-status-card">
+<span data-i18n="arena_alive_pokemon">Pokémon vivos</span>
+<strong id="arenaEnemyAlive">0</strong>
+<small data-i18n="arena_enemy_team_small">Rival</small>
+</div>
+<div class="arena-status-card full">
+<span data-i18n="arena_general_status">Estado general</span>
+<strong data-i18n="arena_preparing_combat" id="arenaEstadoGeneral">Preparando combate</strong>
+</div>
+</div>
+</section>
+</aside>
+</section>
+</main>
+<div class="arena-modal-overlay oculto" id="arenaChangeModal">
+<div class="arena-modal">
+<div class="arena-modal-icon">⟳</div>
+<h3 data-i18n="arena_change_title">Cambiar Pokémon</h3>
+<p data-i18n="arena_change_text">Selecciona un Pokémon vivo de tu equipo.</p>
+<div class="arena-change-options" id="arenaChangeOptions"></div>
+<div class="arena-modal-actions">
+<button class="btn-arena btn-arena-light" data-i18n="arena_cancel" id="btnCerrarCambioArena" type="button">Cancelar</button>
+</div>
+</div>
+</div>
+<div class="arena-modal-overlay oculto" id="arenaResultModal">
+<div class="arena-modal result-modal">
+<div class="arena-result-icon" id="arenaResultIcon">🏆</div>
+<h3 data-i18n="arena_victory" id="arenaResultTitle">¡Victoria!</h3>
+<p data-i18n="arena_victory_text_default" id="arenaResultText">Has derrotado al equipo rival.</p>
+<div class="arena-modal-actions">
+<button class="btn-arena btn-arena-secondary" data-i18n="arena_back_battle" id="btnArenaVolverBattle" type="button">
                     Volver a Battle
                 </button>
-                <button id="btnArenaReintentar" class="btn-arena btn-arena-primary" type="button" data-i18n="arena_retry">
+<button class="btn-arena btn-arena-primary" data-i18n="arena_retry" id="btnArenaReintentar" type="button">
                     Reintentar
                 </button>
-            </div>
-        </div>
-    </div>
-
-    <script src="js/api.js"></script>
-    <script src="js/i18n.js"></script>
-    <script src="js/gmail.js"></script>
-    <script src="js/battle-arena.js"></script>
+</div>
+</div>
+</div>
+<script src="js/api.js"></script>
+<script src="js/i18n.js"></script><script src="js/menu.js"></script>
+<script src="js/gmail.js"></script>
+<script src="js/battle-arena.js"></script>
 </body>
 </html>
