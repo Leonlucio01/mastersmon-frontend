@@ -180,11 +180,70 @@ function configurarEventosIdle() {
 
 function tIdle(key, fallback) {
     try {
-        if (typeof t === "function") return t(key);
+        if (typeof t === "function") {
+            const translated = t(key);
+            if (translated && translated !== key) return translated;
+        }
     } catch (error) {
         // no-op
     }
     return fallback;
+}
+
+function getLocaleIdle() {
+    try {
+        return typeof getCurrentLang === "function" && getCurrentLang() === "es" ? "es-PE" : "en-US";
+    } catch (error) {
+        return "en-US";
+    }
+}
+
+function getIdleTierMeta(tierCode = "ruta") {
+    const tier = normalizarTierIdle(tierCode);
+    const cfg = IDLE_TIER_CONFIG[tier];
+    if (!cfg) return IDLE_TIER_CONFIG.ruta;
+
+    const translated = {
+        ruta: {
+            label: tIdle("idle_tier_route_label", cfg.label),
+            description: tIdle("idle_tier_route_desc", cfg.description),
+            difficulty: tIdle("idle_tier_route_difficulty", cfg.difficulty)
+        },
+        elite: {
+            label: tIdle("idle_tier_elite_label", cfg.label),
+            description: tIdle("idle_tier_elite_desc", cfg.description),
+            difficulty: tIdle("idle_tier_elite_difficulty", cfg.difficulty)
+        },
+        legend: {
+            label: tIdle("idle_tier_legend_label", cfg.label),
+            description: tIdle("idle_tier_legend_desc", cfg.description),
+            difficulty: tIdle("idle_tier_legend_difficulty", cfg.difficulty)
+        }
+    };
+
+    return { ...cfg, ...(translated[tier] || {}) };
+}
+
+function getIdleDropLabel(itemCode = "", fallback = "Item") {
+    const map = {
+        potion: tIdle("item_potion", "Potion"),
+        poke_ball: tIdle("item_poke_ball", "Poké Ball"),
+        super_ball: tIdle("item_super_ball", "Super Ball"),
+        ultra_ball: tIdle("item_ultra_ball", "Ultra Ball")
+    };
+    return map[itemCode] || fallback || itemCode || tIdle("idle_item_generic", "Item");
+}
+
+function formatIdleType(rawType) {
+    if (!rawType) return tIdle("idle_type_unknown", "Unknown type");
+    try {
+        if (typeof traducirTipoPokemon === "function") {
+            return traducirTipoPokemon(String(rawType));
+        }
+    } catch (error) {
+        // no-op
+    }
+    return String(rawType);
 }
 
 function escapeHtmlIdle(value) {
@@ -197,7 +256,7 @@ function escapeHtmlIdle(value) {
 }
 
 function formatNumberIdle(value) {
-    return new Intl.NumberFormat("en-US").format(Number(value || 0));
+    return new Intl.NumberFormat(getLocaleIdle()).format(Number(value || 0));
 }
 
 function formatSecondsIdle(seconds = 0) {
@@ -348,7 +407,7 @@ function renderTierCardsIdle() {
                 <h4>${escapeHtmlIdle(cfg.label)}</h4>
                 <p>${escapeHtmlIdle(cfg.description)}</p>
                 <strong>${formatNumberIdle(estimate.exp)} EXP</strong>
-                <small>${formatNumberIdle(estimate.coins)} Pokédollars · ${Math.round(estimate.successRate * 100)}% success</small>
+                <small>${formatNumberIdle(estimate.coins)} ${escapeHtmlIdle(tIdle("idle_currency_label", "Pokédollars"))} · ${Math.round(estimate.successRate * 100)}% ${escapeHtmlIdle(tIdle("idle_success_short", "success"))}</small>
             </button>
         `;
     }).join("");
@@ -374,27 +433,27 @@ function renderSelectedPlanIdle() {
     const duration = normalizarDuracionIdle(document.getElementById("idleDurationSelect")?.value || idleState.selectedDuration);
     idleState.selectedTier = tierCode;
     idleState.selectedDuration = duration;
-    const cfg = IDLE_TIER_CONFIG[tierCode];
+    const cfg = getIdleTierMeta(tierCode);
     const estimate = computeIdleEstimate(idleState.team, tierCode, duration);
 
     panel.innerHTML = `
-        <h4>${escapeHtmlIdle(cfg.label)} Plan</h4>
+        <h4>${escapeHtmlIdle(cfg.label)} ${escapeHtmlIdle(tIdle("idle_plan_suffix", "plan"))}</h4>
         <p>${escapeHtmlIdle(cfg.description)}</p>
         <div class="idle-selected-plan-grid">
             <article>
-                <span>Duration</span>
+                <span>${escapeHtmlIdle(tIdle("idle_duration_label", "Duration"))}</span>
                 <strong>${escapeHtmlIdle(formatDurationLabelIdle(duration))}</strong>
             </article>
             <article>
-                <span>Tick</span>
+                <span>${escapeHtmlIdle(tIdle("idle_tick_label", "Tick"))}</span>
                 <strong>${escapeHtmlIdle(formatSecondsIdle(cfg.tickSegundos))}</strong>
             </article>
             <article>
-                <span>Difficulty</span>
+                <span>${escapeHtmlIdle(tIdle("idle_difficulty_label", "Difficulty"))}</span>
                 <strong>${escapeHtmlIdle(cfg.difficulty)}</strong>
             </article>
             <article>
-                <span>Estimated wins</span>
+                <span>${escapeHtmlIdle(tIdle("idle_estimated_wins_label", "Estimated wins"))}</span>
                 <strong>${formatNumberIdle(estimate.wins)}</strong>
             </article>
         </div>
@@ -419,7 +478,7 @@ function renderEstimateIdle() {
 
     const successRate = document.getElementById("idleEstimateSuccessRate");
     if (successRate) {
-        successRate.textContent = `Success rate ${Math.round(estimate.successRate * 100)}%`;
+        successRate.textContent = `${tIdle("idle_success_rate_label", "Success rate")} ${Math.round(estimate.successRate * 100)}%`;
     }
 
     const drops = document.getElementById("idleEstimateDrops");
@@ -427,10 +486,10 @@ function renderEstimateIdle() {
         drops.innerHTML = estimate.drops.map(drop => `
             <article class="idle-drop-item">
                 <div>
-                    <strong>${escapeHtmlIdle(drop.label)}</strong>
+                    <strong>${escapeHtmlIdle(getIdleDropLabel(drop.itemCode, drop.label))}</strong>
                     <span>${escapeHtmlIdle(drop.itemCode)}</span>
                 </div>
-                <span>Avg. ${escapeHtmlIdle(drop.expected)} per run</span>
+                <span>${escapeHtmlIdle(tIdle("idle_avg_drop_prefix", "Avg."))} ${escapeHtmlIdle(drop.expected)} ${escapeHtmlIdle(tIdle("idle_per_run_suffix", "per run"))}</span>
             </article>
         `).join("");
     }
@@ -454,23 +513,23 @@ function renderTeamIdle() {
 
     summary.innerHTML = `
         <article class="idle-team-summary-card">
-            <span>Saved members</span>
+            <span>${escapeHtmlIdle(tIdle("idle_saved_members_label", "Saved members"))}</span>
             <strong>${idleState.team.length} / 6</strong>
         </article>
         <article class="idle-team-summary-card">
-            <span>Average level</span>
+            <span>${escapeHtmlIdle(tIdle("idle_average_level_label", "Average level"))}</span>
             <strong>${avgLevel}</strong>
         </article>
         <article class="idle-team-summary-card">
-            <span>Status</span>
-            <strong>${completeTeam ? "Ready" : "Incomplete"}</strong>
+            <span>${escapeHtmlIdle(tIdle("idle_status_label", "Status"))}</span>
+            <strong>${completeTeam ? escapeHtmlIdle(tIdle("idle_status_ready", "Ready")) : escapeHtmlIdle(tIdle("idle_status_incomplete", "Incomplete"))}</strong>
         </article>
     `;
 
     if (!idleState.team.length) {
         grid.innerHTML = `
             <div class="idle-empty-card">
-                No Battle team found yet. Go to <strong>Play Hub</strong>, save a 6-Pokémon team, and then come back to launch Idle Expedition.
+                ${tIdle("idle_no_team_message", "No Battle team found yet. Go to Battle IA, save a 6-Pokémon team, and then come back to launch Idle Expedition.")}
             </div>
         `;
         return;
@@ -478,20 +537,20 @@ function renderTeamIdle() {
 
     grid.innerHTML = idleState.team.map(pokemon => {
         const sprite = pokemon?.imagen || "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png";
-        const shinyTag = pokemon?.es_shiny ? '<span class="idle-team-tag">Shiny</span>' : '';
+        const shinyTag = pokemon?.es_shiny ? `<span class="idle-team-tag">${escapeHtmlIdle(tIdle("pokemon_shiny", "Shiny"))}</span>` : '';
         return `
             <article class="idle-team-card">
                 <div class="idle-team-avatar">
-                    <img src="${escapeHtmlIdle(sprite)}" alt="${escapeHtmlIdle(pokemon?.nombre || 'Pokemon')}" loading="lazy" decoding="async">
+                    <img src="${escapeHtmlIdle(sprite)}" alt="${escapeHtmlIdle(pokemon?.nombre || tIdle('idle_pokemon_fallback', 'Pokemon'))}" loading="lazy" decoding="async">
                 </div>
                 <div class="idle-team-meta">
-                    <h4>${escapeHtmlIdle(pokemon?.nombre || "Unknown")}</h4>
-                    <p>Lv. ${formatNumberIdle(pokemon?.nivel || 0)} · ${escapeHtmlIdle(pokemon?.tipo || "Unknown type")}</p>
+                    <h4>${escapeHtmlIdle(pokemon?.nombre || tIdle("idle_unknown_name", "Unknown"))}</h4>
+                    <p>${escapeHtmlIdle(tIdle("idle_level_prefix", "Lv."))} ${formatNumberIdle(pokemon?.nivel || 0)} · ${escapeHtmlIdle(formatIdleType(pokemon?.tipo || tIdle("idle_type_unknown", "Unknown type")))}</p>
                     <div class="idle-team-tags">
                         <span class="idle-team-tag">HP ${formatNumberIdle(pokemon?.hp_max || pokemon?.hp_actual || 0)}</span>
                         <span class="idle-team-tag">ATK ${formatNumberIdle(pokemon?.ataque || 0)}</span>
                         <span class="idle-team-tag">DEF ${formatNumberIdle(pokemon?.defensa || 0)}</span>
-                        <span class="idle-team-tag">Peak Lv ${highestLevel}</span>
+                        <span class="idle-team-tag">${escapeHtmlIdle(tIdle("idle_peak_level_label", "Peak Lv"))} ${highestLevel}</span>
                         ${shinyTag}
                     </div>
                 </div>
@@ -508,7 +567,7 @@ function renderLastResultIdle() {
     if (!result) {
         panel.innerHTML = `
             <div class="idle-empty-card">
-                No previous claim saved yet. Once you claim an expedition, the latest result will stay visible here.
+                ${tIdle("idle_no_previous_claim", "No previous claim saved yet. Once you claim an expedition, the latest result will stay visible here.")}
             </div>
         `;
         return;
@@ -517,26 +576,26 @@ function renderLastResultIdle() {
     const items = Array.isArray(result?.items_ganados) ? result.items_ganados : [];
     const itemsHtml = items.length
         ? items.map(item => `<span class="idle-team-tag">${escapeHtmlIdle(item.item_code || 'item')} × ${formatNumberIdle(item.cantidad || 0)}</span>`).join("")
-        : '<span class="idle-team-tag">No item drops</span>';
+        : `<span class="idle-team-tag">${escapeHtmlIdle(tIdle("idle_no_item_drops", "No item drops"))}</span>`;
 
     panel.innerHTML = `
         <h4>${escapeHtmlIdle(IDLE_TIER_CONFIG[normalizarTierIdle(result?.tier_codigo || 'ruta')]?.label || 'Route')} Expedition</h4>
-        <p>Latest claim saved locally so you can keep track of your most recent run without touching backend again.</p>
+        <p>${tIdle("idle_latest_claim_copy", "Latest claim saved locally so you can keep track of your most recent run without touching backend again.")}</p>
         <div class="idle-result-grid">
             <article>
                 <span>EXP</span>
                 <strong>${formatNumberIdle(result?.exp_ganada || 0)}</strong>
             </article>
             <article>
-                <span>Pokédollars</span>
+                <span>${escapeHtmlIdle(tIdle("idle_currency_label", "Pokédollars"))}</span>
                 <strong>${formatNumberIdle(result?.pokedolares_ganados || 0)}</strong>
             </article>
             <article>
-                <span>Estimated wins</span>
+                <span>${escapeHtmlIdle(tIdle("idle_estimated_wins_label", "Estimated wins"))}</span>
                 <strong>${formatNumberIdle(result?.victorias_estimadas || 0)}</strong>
             </article>
             <article>
-                <span>Ticks</span>
+                <span>${escapeHtmlIdle(tIdle("idle_ticks_label", "Ticks"))}</span>
                 <strong>${formatNumberIdle(result?.ticks || 0)}</strong>
             </article>
         </div>
@@ -566,28 +625,28 @@ function renderHeroStatusIdle() {
     if (!title || !text) return;
 
     if (!getAccessToken()) {
-        title.textContent = "Login required";
-        text.textContent = "Sign in first to sync expedition state, launch runs, and claim backend rewards.";
+        title.textContent = tIdle("idle_login_required_title", "Login required");
+        text.textContent = tIdle("idle_login_required_text", "Sign in first to sync expedition state, launch runs, and claim backend rewards.");
         return;
     }
 
     const sesion = idleState.idleData?.sesion || null;
     if (!sesion || !idleState.idleData?.activa) {
-        title.textContent = idleState.team.length === 6 ? "Ready to launch" : "Team incomplete";
+        title.textContent = idleState.team.length === 6 ? tIdle("idle_ready_to_launch", "Ready to launch") : tIdle("idle_team_incomplete_title", "Team incomplete");
         text.textContent = idleState.team.length === 6
-            ? "Your saved Battle team is ready for a new Idle Expedition."
-            : "Idle requires exactly 6 Pokémon in the saved Battle team before launching.";
+            ? tIdle("idle_ready_team_text", "Your saved Battle team is ready for a new Idle Expedition.")
+            : tIdle("idle_requires_six_text", "Idle requires exactly 6 Pokémon in the saved Battle team before launching.");
         return;
     }
 
     if (String(sesion.estado || "").toLowerCase() === "reclamable") {
-        title.textContent = "Rewards ready";
-        text.textContent = "The expedition is complete and waiting for you to claim the rewards.";
+        title.textContent = tIdle("idle_rewards_ready_title", "Rewards ready");
+        text.textContent = tIdle("idle_rewards_ready_text", "The expedition is complete and waiting for you to claim the rewards.");
         return;
     }
 
-    title.textContent = "Expedition active";
-    text.textContent = `Your ${traducirTierIdle(idleState.idleData?.sesion?.tier_codigo)} run is currently in progress.`;
+    title.textContent = tIdle("idle_active_title", "Expedition active");
+    text.textContent = `${tIdle("idle_active_text_prefix", "Your")} ${traducirTierIdle(idleState.idleData?.sesion?.tier_codigo)} ${tIdle("idle_active_text_suffix", "run is currently in progress.")}`;
 }
 
 function renderStatusIdle() {
@@ -614,7 +673,7 @@ function renderStatusIdle() {
     idleState.selectedDuration = durationValue;
 
     if (!getAccessToken()) {
-        badge.textContent = "Login";
+        badge.textContent = tIdle("idle_login_badge", "Login");
         timerLabel.textContent = tIdle("battle_idle_remaining", "Remaining");
         timerValue.textContent = "—";
         progressFill.style.width = "0%";
@@ -636,7 +695,7 @@ function renderStatusIdle() {
         progressFill.style.width = "0%";
         progressText.textContent = teamReady
             ? tIdle("battle_idle_status_idle_text", "Choose a tier and duration, then start the expedition.")
-            : "Idle Expedition requires exactly 6 saved Pokémon in your Battle team.";
+            : tIdle("idle_need_six_saved_text", "Idle Expedition requires exactly 6 saved Pokémon in your Battle team.");
         btnStart.disabled = !teamReady;
         btnClaim.disabled = true;
         btnCancel.disabled = true;
@@ -669,7 +728,7 @@ function renderStatusIdle() {
 
     badge.textContent = tIdle("battle_idle_status_active", "Active");
     timerLabel.textContent = tIdle("battle_idle_remaining", "Remaining");
-    progressText.textContent = `Expedition ${traducirTierIdle(activeSession.tier_codigo)} running · ${progress}% complete.`;
+    progressText.textContent = `${tIdle("idle_running_prefix", "Expedition")} ${traducirTierIdle(activeSession.tier_codigo)} ${tIdle("idle_running_middle", "running")} · ${progress}% ${tIdle("idle_complete_suffix", "complete")}.`;
     btnStart.disabled = true;
     btnClaim.disabled = true;
     btnCancel.disabled = false;
@@ -729,7 +788,7 @@ function actualizarRelojVisualIdle() {
 
     timerValue.textContent = formatSecondsIdle(Math.ceil(remainingMs / 1000));
     progressFill.style.width = `${progress}%`;
-    progressText.textContent = `Expedition ${traducirTierIdle(sesion.tier_codigo)} running · ${progress}% complete.`;
+    progressText.textContent = `${tIdle("idle_running_prefix", "Expedition")} ${traducirTierIdle(sesion.tier_codigo)} ${tIdle("idle_running_middle", "running")} · ${progress}% ${tIdle("idle_complete_suffix", "complete")}.`;
 
     if (remainingMs <= 0 && !idleState.countdownFinished) {
         idleState.countdownFinished = true;
@@ -877,7 +936,7 @@ async function reclamarIdlePage() {
 
         const resultado = data?.resultado || {};
         setFeedbackIdle(
-            `Idle rewards claimed: +${formatNumberIdle(resultado?.pokedolares_ganados || 0)} Pokédollars, +${formatNumberIdle(resultado?.exp_ganada || 0)} EXP and ${formatNumberIdle(resultado?.victorias_estimadas || 0)} estimated wins.`,
+            `${tIdle("idle_claim_success_prefix", "Idle rewards claimed:")} +${formatNumberIdle(resultado?.pokedolares_ganados || 0)} ${tIdle("idle_currency_label", "Pokédollars")}, +${formatNumberIdle(resultado?.exp_ganada || 0)} EXP ${tIdle("idle_claim_success_and", "and")} ${formatNumberIdle(resultado?.victorias_estimadas || 0)} ${tIdle("idle_estimated_wins_label", "estimated wins")}.`,
             "success"
         );
     } catch (error) {

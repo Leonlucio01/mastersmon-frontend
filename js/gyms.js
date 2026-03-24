@@ -195,11 +195,24 @@ const gymsState = {
 
 function tGyms(key, fallback) {
     try {
-        if (typeof t === "function") return t(key);
+        if (typeof t === "function") {
+            const translated = t(key);
+            if (translated && translated !== key) return translated;
+        }
     } catch (error) {
         // no-op
     }
     return fallback;
+}
+
+function formatTypeGyms(value = "—") {
+    if (!value || value === "—") return "—";
+    try {
+        if (typeof traducirTipoPokemon === "function") return traducirTipoPokemon(String(value));
+    } catch (error) {
+        // no-op
+    }
+    return String(value);
 }
 
 function escapeHtmlGyms(value) {
@@ -345,19 +358,19 @@ function startGymBattle(gym) {
     if (!gym) return;
 
     if (!isGymAvailable(gym.id) || isGymCleared(gym.id)) {
-        alert("This Gym is not available for a new challenge right now.");
+        alert(tGyms("gyms_not_available_alert", "This Gym is not available for a new challenge right now."));
         return;
     }
 
     if (gymsState.team.length !== 6) {
-        alert("Save a full team of 6 Pokémon in Play Hub before challenging this Gym.");
+        alert(tGyms("gyms_need_team_alert", "Save a full team of 6 Pokémon in Battle IA before challenging this Gym."));
         return;
     }
 
     const averageLevel = getAverageTeamLevel();
     const recommended = Number(gym.recommendedLevel || 1);
     if (averageLevel > 0 && averageLevel < recommended) {
-        const confirmed = window.confirm(`Your team average is Lv. ${averageLevel} and ${gym.city} recommends Lv. ${recommended}. Do you want to continue anyway?`);
+        const confirmed = window.confirm(`${tGyms("gyms_level_warning_prefix", "Your team average is Lv.")} ${averageLevel} ${tGyms("gyms_level_warning_middle", "and")} ${gym.city} ${tGyms("gyms_level_warning_suffix", "recommends Lv.")} ${recommended}. ${tGyms("gyms_continue_anyway", "Do you want to continue anyway?")}`);
         if (!confirmed) return;
     }
 
@@ -369,7 +382,7 @@ function startGymBattle(gym) {
         window.location.href = "battle-arena.html?modo=gym";
     } catch (error) {
         console.error("No se pudo crear la sesión del Gym:", error);
-        alert("Could not start the Gym challenge. Please try again.");
+        alert(tGyms("gyms_start_error_alert", "Could not start the Gym challenge. Please try again."));
     }
 }
 
@@ -415,24 +428,24 @@ function renderOverviewStats() {
 
     const stats = [
         {
-            label: "Badges earned",
+            label: tGyms("gyms_badges_earned", "Badges earned"),
             value: `${getClearedCount()} / ${GYMS_CONFIG.length}`,
-            hint: getClearedCount() ? "Your local badge progress is active." : "Complete the first Gym to start the route."
+            hint: getClearedCount() ? tGyms("gyms_progress_active", "Your local badge progress is active.") : tGyms("gyms_complete_first_hint", "Complete the first Gym to start the route.")
         },
         {
-            label: "Current region",
+            label: tGyms("gyms_current_region", "Current region"),
             value: getCurrentRegionLabel(),
-            hint: "Kanto is the first structured Gym route."
+            hint: tGyms("gyms_kanto_hint", "Kanto is the first structured Gym route.")
         },
         {
-            label: "Suggested team",
+            label: tGyms("gyms_suggested_team", "Suggested team"),
             value: `${gymsState.team.length} / 6 Pokémon`,
-            hint: gymsState.team.length === 6 ? "Your Gym team is ready." : "Save a full team in Play Hub for best results."
+            hint: gymsState.team.length === 6 ? tGyms("gyms_team_ready_hint", "Your Gym team is ready.") : tGyms("gyms_save_team_hint", "Save a full team in Battle IA for best results.")
         },
         {
-            label: "Progression type",
-            value: "Sequential",
-            hint: "Beat one Gym, unlock the next, and scale your rewards."
+            label: tGyms("gyms_progression_type", "Progression type"),
+            value: tGyms("gyms_sequential_value", "Sequential"),
+            hint: tGyms("gyms_sequential_hint", "Beat one Gym, unlock the next, and scale your rewards.")
         }
     ];
 
@@ -452,12 +465,12 @@ function renderGymsGrid() {
     container.innerHTML = GYMS_CONFIG.map(gym => {
         const status = getGymStatus(gym.id);
         const selectedClass = gymsState.selectedGymId === gym.id ? "is-selected" : "";
-        const statusLabel = status === "cleared" ? "Cleared" : status === "open" ? "Open" : "Locked";
+        const statusLabel = status === "cleared" ? tGyms("gyms_status_cleared", "Cleared") : status === "open" ? tGyms("gyms_status_open", "Open") : tGyms("gyms_status_locked", "Locked");
         const primaryLabel = status === "locked"
-            ? "Locked route"
+            ? tGyms("gyms_locked_route", "Locked route")
             : status === "cleared"
-                ? "Select Gym"
-                : "Challenge ready";
+                ? tGyms("gyms_select_gym", "Select Gym")
+                : tGyms("gyms_challenge_ready", "Challenge ready");
 
         return `
             <article class="gym-card ${selectedClass}" data-status="${escapeHtmlGyms(status)}">
@@ -475,23 +488,23 @@ function renderGymsGrid() {
 
                 <div class="gym-meta">
                     <div class="gym-meta-item">
-                        <span>Difficulty</span>
+                        <span>${escapeHtmlGyms(tGyms("gyms_difficulty_label", "Difficulty"))}</span>
                         <strong>${escapeHtmlGyms(gym.difficulty)}</strong>
                     </div>
                     <div class="gym-meta-item">
-                        <span>Recommended</span>
+                        <span>${escapeHtmlGyms(tGyms("gyms_recommended_label", "Recommended"))}</span>
                         <strong>Lv. ${escapeHtmlGyms(gym.recommendedLevel)}</strong>
                     </div>
                     <div class="gym-meta-item">
-                        <span>Reward</span>
+                        <span>${escapeHtmlGyms(tGyms("gyms_reward_label", "Reward"))}</span>
                         <strong>${escapeHtmlGyms(gym.badge.replace(" Badge", ""))}</strong>
                     </div>
                 </div>
 
-                <span class="gym-reward">Badge reward</span>
+                <span class="gym-reward">${escapeHtmlGyms(tGyms("gyms_badge_reward", "Badge reward"))}</span>
 
                 <div class="gym-actions">
-                    <button class="gyms-btn-secondary" type="button" data-select-gym="${escapeHtmlGyms(gym.id)}">Select Gym</button>
+                    <button class="gyms-btn-secondary" type="button" data-select-gym="${escapeHtmlGyms(gym.id)}">${escapeHtmlGyms(tGyms("gyms_select_gym", "Select Gym"))}</button>
                     <button class="gyms-btn-ghost" type="button" data-focus-gym="${escapeHtmlGyms(gym.id)}" ${status === "locked" ? "disabled" : ""}>${escapeHtmlGyms(primaryLabel)}</button>
                 </div>
             </article>
@@ -505,7 +518,7 @@ function renderSelectedGymPanel() {
 
     const gym = getGymById(gymsState.selectedGymId) || getFirstAvailableGym();
     if (!gym) {
-        container.innerHTML = `<p class="gym-empty-note">No Gym available right now.</p>`;
+        container.innerHTML = `<p class="gym-empty-note">${escapeHtmlGyms(tGyms("gyms_no_available", "No Gym available right now."))}</p>`;
         return;
     }
 
@@ -513,16 +526,16 @@ function renderSelectedGymPanel() {
     const teamReady = gymsState.team.length === 6;
     const averageLevel = getAverageTeamLevel();
     const suggestedReady = averageLevel >= gym.recommendedLevel;
-    const statusLabel = status === "cleared" ? "Cleared" : status === "open" ? "Available" : "Locked";
-    const readyText = teamReady ? "Full team saved" : "Team incomplete";
-    const levelText = averageLevel > 0 ? `Avg Lv. ${averageLevel}` : "No level data";
+    const statusLabel = status === "cleared" ? tGyms("gyms_status_cleared", "Cleared") : status === "open" ? "Available" : tGyms("gyms_status_locked", "Locked");
+    const readyText = teamReady ? tGyms("gyms_full_team_saved", "Full team saved") : tGyms("gyms_team_incomplete", "Team incomplete");
+    const levelText = averageLevel > 0 ? `${tGyms("gyms_avg_level_prefix", "Avg Lv.")} ${averageLevel}` : tGyms("gyms_no_level_data", "No level data");
 
     container.innerHTML = `
         <div class="gym-detail-card">
             <div class="gym-detail-head">
                 <div class="gym-detail-title-block">
                     <h4>${escapeHtmlGyms(gym.city)}</h4>
-                    <p>Leader · ${escapeHtmlGyms(gym.leader)} · ${escapeHtmlGyms(gym.type)} specialist</p>
+                    <p>${escapeHtmlGyms(tGyms("gyms_leader_label", "Leader"))} · ${escapeHtmlGyms(gym.leader)} · ${escapeHtmlGyms(formatTypeGyms(gym.type))} ${escapeHtmlGyms(tGyms("gyms_specialist_suffix", "specialist"))}</p>
                 </div>
                 <div class="gym-detail-badges">
                     <span class="gym-status">${escapeHtmlGyms(statusLabel)}</span>
@@ -534,32 +547,32 @@ function renderSelectedGymPanel() {
 
             <div class="gym-detail-meta">
                 <div class="gym-detail-meta-item">
-                    <span>Recommended</span>
+                    <span>${escapeHtmlGyms(tGyms("gyms_recommended_label", "Recommended"))}</span>
                     <strong>Lv. ${escapeHtmlGyms(gym.recommendedLevel)}</strong>
                 </div>
                 <div class="gym-detail-meta-item">
-                    <span>Difficulty</span>
+                    <span>${escapeHtmlGyms(tGyms("gyms_difficulty_label", "Difficulty"))}</span>
                     <strong>${escapeHtmlGyms(gym.difficulty)}</strong>
                 </div>
                 <div class="gym-detail-meta-item">
-                    <span>Style</span>
+                    <span>${escapeHtmlGyms(tGyms("gyms_style_label", "Style"))}</span>
                     <strong>${escapeHtmlGyms(gym.enemyStyle)}</strong>
                 </div>
             </div>
 
             <div class="gym-sidebar-list">
                 <div class="gym-sidebar-item">
-                    <strong>Challenge hint</strong>
+                    <strong>${escapeHtmlGyms(tGyms("gyms_challenge_hint", "Challenge hint"))}</strong>
                     <p>${escapeHtmlGyms(gym.hint)}</p>
                 </div>
                 <div class="gym-sidebar-item">
-                    <strong>Readiness</strong>
-                    <p>${escapeHtmlGyms(readyText)} · ${escapeHtmlGyms(levelText)} · ${suggestedReady ? "Recommended level reached" : "Keep leveling your squad"}</p>
+                    <strong>${escapeHtmlGyms(tGyms("gyms_readiness", "Readiness"))}</strong>
+                    <p>${escapeHtmlGyms(readyText)} · ${escapeHtmlGyms(levelText)} · ${escapeHtmlGyms(suggestedReady ? tGyms("gyms_recommended_reached", "Recommended level reached") : tGyms("gyms_keep_leveling", "Keep leveling your squad"))}</p>
                 </div>
             </div>
 
             <div>
-                <strong style="display:block; margin-bottom:10px; color:#0f172a;">Reward preview</strong>
+                <strong style="display:block; margin-bottom:10px; color:#0f172a;">${escapeHtmlGyms(tGyms("gyms_reward_preview", "Reward preview"))}</strong>
                 <div class="gym-detail-rewards">
                     <span class="gym-badge-chip ${status === "cleared" ? "cleared" : status === "locked" ? "locked" : ""}">${escapeHtmlGyms(gym.badge)}</span>
                     ${gym.rewardSummary.map(item => `<span class="gyms-pill">${escapeHtmlGyms(item)}</span>`).join("")}
@@ -567,9 +580,9 @@ function renderSelectedGymPanel() {
             </div>
 
             <div class="gym-detail-actions">
-                <button class="gyms-btn-secondary" type="button" id="btnGymPrepare" ${status !== "open" ? "disabled" : ""}>Start Gym Battle</button>
-                <button class="gyms-btn" type="button" id="btnGymCompleteDemo" ${status !== "open" ? "disabled" : ""}>Mark cleared (demo)</button>
-                <button class="gyms-btn-danger" type="button" id="btnGymResetProgress">Reset progress</button>
+                <button class="gyms-btn-secondary" type="button" id="btnGymPrepare" ${status !== "open" ? "disabled" : ""}>${escapeHtmlGyms(tGyms("gyms_start_battle", "Start Gym Battle"))}</button>
+                <button class="gyms-btn" type="button" id="btnGymCompleteDemo" ${status !== "open" ? "disabled" : ""}>${escapeHtmlGyms(tGyms("gyms_mark_cleared", "Mark cleared (demo)"))}</button>
+                <button class="gyms-btn-danger" type="button" id="btnGymResetProgress">${escapeHtmlGyms(tGyms("gyms_reset_progress", "Reset progress"))}</button>
             </div>
         </div>
     `;
@@ -609,33 +622,33 @@ function renderTeamPanel() {
     summaryContainer.innerHTML = `
         <div class="gym-team-summary-grid">
             <div class="gym-summary-box">
-                <span>Saved team</span>
+                <span>${escapeHtmlGyms(tGyms("gyms_saved_team", "Saved team"))}</span>
                 <strong>${escapeHtmlGyms(gymsState.team.length)} / 6</strong>
             </div>
             <div class="gym-summary-box">
-                <span>Average level</span>
+                <span>${escapeHtmlGyms(tGyms("gyms_average_level", "Average level"))}</span>
                 <strong>${averageLevel || "—"}</strong>
             </div>
             <div class="gym-summary-box">
-                <span>Dominant type</span>
+                <span>${escapeHtmlGyms(tGyms("gyms_dominant_type", "Dominant type"))}</span>
                 <strong>${escapeHtmlGyms(dominantType)}</strong>
             </div>
         </div>
-        <p class="gym-detail-note">${teamReady ? "Your team is ready for structured Gym progression." : "Go to Play Hub and save a full team if you want Gyms to feel complete."}</p>
+        <p class="gym-detail-note">${teamReady ? escapeHtmlGyms(tGyms("gyms_team_ready_copy", "Your team is ready for structured Gym progression.")) : escapeHtmlGyms(tGyms("gyms_team_missing_copy", "Go to Battle IA and save a full team if you want Gyms to feel complete."))}</p>
     `;
 
     if (!gymsState.team.length) {
-        listContainer.innerHTML = `<div class="gym-team-empty">No team found yet. Save your squad in Battle / Play Hub and it will appear here automatically.</div>`;
+        listContainer.innerHTML = `<div class="gym-team-empty">${escapeHtmlGyms(tGyms("gyms_no_team_found", "No team found yet. Save your squad in Battle IA and it will appear here automatically."))}</div>`;
         return;
     }
 
     listContainer.innerHTML = gymsState.team.map((pokemon, index) => {
         const sprite = getSpriteFromPokemon(pokemon);
         const level = Number(pokemon?.nivel || 0) || "—";
-        const type = pokemon?.tipo || "—";
+        const type = formatTypeGyms(pokemon?.tipo || "—");
         const hp = pokemon?.hp_actual ?? pokemon?.hp_max ?? "—";
         const attack = pokemon?.ataque ?? "—";
-        const shinyBadge = pokemon?.es_shiny ? `<span class="gym-team-chip shiny">Shiny</span>` : "";
+        const shinyBadge = pokemon?.es_shiny ? `<span class="gym-team-chip shiny">${escapeHtmlGyms(tGyms("pokemon_shiny", "Shiny"))}</span>` : "";
 
         return `
             <article class="gym-team-card">
@@ -669,23 +682,23 @@ function renderProgressPanel() {
         <div class="gym-progress-wrap">
             <div class="gym-sidebar-list">
                 <div class="gym-sidebar-item">
-                    <strong>Badges completed</strong>
+                    <strong>${escapeHtmlGyms(tGyms("gyms_badges_completed", "Badges completed"))}</strong>
                     <p>${clearedCount} out of ${GYMS_CONFIG.length} Gyms cleared.</p>
                 </div>
                 <div class="gym-sidebar-item">
-                    <strong>Next Gym</strong>
-                    <p>${escapeHtmlGyms(nextGym ? `${nextGym.city} · ${nextGym.leader}` : "Kanto complete")}</p>
+                    <strong>${escapeHtmlGyms(tGyms("gyms_next_gym", "Next Gym"))}</strong>
+                    <p>${escapeHtmlGyms(nextGym ? `${nextGym.city} · ${nextGym.leader}` : tGyms("gyms_kanto_complete", "Kanto complete"))}</p>
                 </div>
                 <div class="gym-sidebar-item">
-                    <strong>Progression rule</strong>
-                    <p>Sequential unlock. Complete the current Gym to open the next route.</p>
+                    <strong>${escapeHtmlGyms(tGyms("gyms_progression_rule", "Progression rule"))}</strong>
+                    <p>${escapeHtmlGyms(tGyms("gyms_progression_rule_copy", "Sequential unlock. Complete the current Gym to open the next route."))}</p>
                 </div>
             </div>
 
             <div class="gym-progress-bar" aria-hidden="true">
                 <div class="gym-progress-fill" style="width:${percent}%;"></div>
             </div>
-            <p class="gym-progress-note">Progress preview: ${clearedCount} badge${clearedCount === 1 ? "" : "s"} cleared. This currently uses localStorage and is ready to move to backend later.</p>
+            <p class="gym-progress-note">${escapeHtmlGyms(tGyms("gyms_progress_preview_prefix", "Progress preview:"))} ${clearedCount} ${escapeHtmlGyms(tGyms("gyms_badges_word", clearedCount === 1 ? "badge" : "badges"))} ${escapeHtmlGyms(tGyms("gyms_progress_preview_suffix", "cleared. This currently uses localStorage and is ready to move to backend later."))}</p>
 
             <div class="gym-badge-track">
                 ${GYMS_CONFIG.map(gym => {
@@ -733,7 +746,7 @@ function clearGymDemo(gymId) {
 }
 
 function resetGymsProgress() {
-    const confirmed = window.confirm("Reset all local Gym progress and start again from the first Gym?");
+    const confirmed = window.confirm(tGyms("gyms_reset_confirm", "Reset all local Gym progress and start again from the first Gym?"));
     if (!confirmed) return;
 
     gymsState.progress = { clearedGymIds: [] };
