@@ -1937,64 +1937,159 @@
 
 /* =========================================================
    CLEAN BATTLE IA LAYOUT
+   - Unifica Team + Boss dentro de una sola tarjeta visual
 ========================================================= */
 .battle-page-clean{
-    padding-top: 22px;
+    padding-top:22px;
 }
 
 .battle-layout-single{
-    grid-template-columns:minmax(0, 1.55fr) minmax(320px, 360px);
+    grid-template-columns:minmax(0,1.62fr) minmax(300px,340px);
     align-items:start;
-    gap:20px;
+    gap:22px;
+    margin-bottom:24px;
+    padding:22px;
+    border-radius:30px;
+    border:1px solid #e5e7eb;
+    background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);
+    box-shadow:0 18px 40px rgba(15,23,42,0.08);
+    position:relative;
+    overflow:hidden;
+}
+
+.battle-layout-single::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    background:
+        radial-gradient(circle at top right, rgba(59,130,246,0.06), transparent 24%),
+        radial-gradient(circle at bottom left, rgba(239,68,68,0.05), transparent 28%);
 }
 
 .battle-layout-single > *{
     min-width:0;
+    position:relative;
+    z-index:1;
 }
 
 .battle-team-panel-wide{
     width:100%;
 }
 
+.battle-layout-single .battle-team-panel{
+    background:transparent;
+    border:none;
+    box-shadow:none;
+    padding:0;
+    border-radius:0;
+}
+
+.battle-layout-single .battle-panel-description{
+    margin-bottom:20px;
+}
+
 .battle-side-column{
     display:flex;
     flex-direction:column;
     gap:14px;
+    min-width:0;
+    position:relative;
+    padding-left:22px;
+}
+
+.battle-side-column::before{
+    content:"";
+    position:absolute;
+    top:2px;
+    bottom:2px;
+    left:0;
+    width:1px;
+    background:linear-gradient(
+        180deg,
+        rgba(148,163,184,0),
+        rgba(148,163,184,0.55),
+        rgba(148,163,184,0)
+    );
 }
 
 .battle-side-surface{
-    box-shadow:0 12px 28px rgba(15,23,42,0.08);
-    border:1px solid #e5e7eb;
-    background:#ffffff;
-}
-
-.battle-boss-stats-grid-side{
-    grid-template-columns:repeat(2,minmax(0,1fr));
-}
-
-.battle-boss-actions-side .btn-battle{
-    flex:1;
-    min-width:0;
+    box-shadow:none;
+    border:1px solid #e2e8f0;
+    background:linear-gradient(180deg,#f8fafc 0%,#ffffff 100%);
 }
 
 .battle-side-column .battle-boss-card,
 .battle-side-column .battle-boss-ranking-card{
     margin-bottom:0;
+    padding:16px;
+    border-radius:20px;
 }
 
-.battle-side-column .battle-side-card-head,
-.battle-side-column .battle-boss-main,
-.battle-side-column .battle-boss-stats-grid,
-.battle-side-column .battle-boss-actions{
-    margin-bottom:14px;
-}
-
-.battle-side-column .battle-boss-ranking-card .battle-side-card-head{
+.battle-side-column .battle-side-card-head{
     margin-bottom:12px;
+}
+
+.battle-side-column .battle-boss-main{
+    margin-bottom:14px;
+    align-items:flex-start;
+}
+
+.battle-boss-avatar{
+    width:54px;
+    height:54px;
+    border-radius:16px;
+    font-size:26px;
+}
+
+.battle-side-column .battle-boss-info strong{
+    font-size:18px;
+    line-height:1.15;
+}
+
+.battle-side-column .battle-boss-card p{
+    font-size:13px;
+    line-height:1.45;
+}
+
+.battle-boss-stats-grid-side{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:10px;
+}
+
+.battle-side-column .battle-boss-stat{
+    min-height:72px;
+    padding:12px;
+    border-radius:14px;
+}
+
+.battle-side-column .battle-boss-stat span{
+    font-size:11px;
+}
+
+.battle-side-column .battle-boss-stat strong{
+    font-size:14px;
+}
+
+.battle-boss-actions-side{
+    gap:10px;
+}
+
+.battle-boss-actions-side .btn-battle{
+    flex:1;
+    min-width:0;
+    padding:12px 14px;
+    font-size:13px;
 }
 
 .battle-side-column .battle-boss-ranking-list{
     gap:10px;
+}
+
+.battle-side-column .battle-boss-ranking-item,
+.battle-side-column .battle-ranking-empty{
+    border-radius:14px;
+    padding:12px;
 }
 
 .battle-actions-centered{
@@ -2005,28 +2100,47 @@
     margin-bottom:18px;
 }
 
-.battle-page-clean .battle-layout{
-    margin-bottom:24px;
-}
-
 .battle-page-clean .battle-panel,
 .battle-page-clean .battle-side-surface{
     overflow:hidden;
 }
 
-@media (max-width: 1100px){
+@media (max-width:1100px){
     .battle-layout-single{
         grid-template-columns:1fr;
+        padding:20px;
     }
 
     .battle-side-column{
         order:2;
+        padding-left:0;
+        padding-top:18px;
+    }
+
+    .battle-side-column::before{
+        top:0;
+        left:0;
+        right:0;
+        bottom:auto;
+        width:auto;
+        height:1px;
+        background:linear-gradient(
+            90deg,
+            rgba(148,163,184,0),
+            rgba(148,163,184,0.55),
+            rgba(148,163,184,0)
+        );
     }
 }
 
-@media (max-width: 900px){
+@media (max-width:900px){
     .battle-page-clean{
         padding-top:18px;
+    }
+
+    .battle-layout-single{
+        padding:18px;
+        border-radius:24px;
     }
 
     .battle-actions-centered{
@@ -2039,5 +2153,23 @@
 
     .battle-boss-actions-side{
         flex-direction:column;
+    }
+}
+
+@media (max-width:560px){
+    .battle-layout-single{
+        padding:16px;
+    }
+
+    .battle-side-column .battle-boss-card,
+    .battle-side-column .battle-boss-ranking-card{
+        padding:14px;
+        border-radius:18px;
+    }
+
+    .battle-boss-avatar{
+        width:48px;
+        height:48px;
+        font-size:22px;
     }
 }
