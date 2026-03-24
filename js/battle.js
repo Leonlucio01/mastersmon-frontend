@@ -32,10 +32,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 function esVistaBattleIABattle() {
+    if (document.querySelector('[data-battle-view="ia"]')) return true;
     return !document.querySelector("[data-battle-mode]")
         && !document.getElementById("battleBossCard")
         && !document.getElementById("battleIdleCard")
         && !document.getElementById("battleModoActualCard");
+}
+
+function tienePanelBossBattle() {
+    return !!document.getElementById("battleBossCard");
 }
 
 async function inicializarBattle() {
@@ -82,11 +87,11 @@ async function inicializarBattle() {
         renderSlotsEquipoBattle();
         renderColeccionBattle();
         renderResumenEquipoBattle();
+        if (tienePanelBossBattle()) {
+            await cargarEstadoBossBattle(true);
+        }
         if (!esVistaBattleIABattle()) {
-            await Promise.all([
-                cargarEstadoBossBattle(true),
-                cargarEstadoIdleBattle(true)
-            ]);
+            await cargarEstadoIdleBattle(true);
         }
         iniciarHeartbeatActividadBattle();
     } catch (error) {
@@ -102,11 +107,11 @@ async function inicializarBattle() {
                 renderSlotsEquipoBattle();
                 renderColeccionBattle();
                 renderResumenEquipoBattle();
+                if (tienePanelBossBattle()) {
+                    await cargarEstadoBossBattle(true);
+                }
                 if (!esVistaBattleIABattle()) {
-                    await Promise.all([
-                        cargarEstadoBossBattle(true),
-                        cargarEstadoIdleBattle(true)
-                    ]);
+                    await cargarEstadoIdleBattle(true);
                 }
                 iniciarHeartbeatActividadBattle();
             } catch (retryError) {

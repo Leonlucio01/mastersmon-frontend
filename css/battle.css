@@ -1975,3 +1975,49 @@
         justify-content: stretch;
     }
 }
+
+
+/* =========================
+   BATTLE IA + ALPHA BOSS SIDE PANEL
+========================= */
+.battle-layout-ia{
+    grid-template-columns:minmax(0, 1.3fr) 420px;
+    align-items:start;
+}
+
+.battle-side-stack{
+    display:grid;
+    gap:16px;
+}
+
+.battle-side-stack-ia .battle-boss-card,
+.battle-side-stack-ia .battle-boss-ranking-card{
+    margin-bottom:0;
+    background:#fff;
+    border:1px solid #e5e7eb;
+    border-radius:24px;
+    padding:20px;
+    box-shadow:0 12px 28px rgba(15,23,42,0.08);
+}
+
+.battle-side-stack-ia .battle-boss-ranking-card{
+    padding-bottom:18px;
+}
+
+.battle-side-stack-ia .battle-boss-main{
+    margin-bottom:16px;
+}
+
+.battle-side-stack-ia .battle-boss-stats-grid{
+    grid-template-columns:repeat(2, minmax(0,1fr));
+}
+
+.battle-side-stack-ia .battle-boss-ranking-list{
+    min-height:76px;
+}
+
+@media (max-width:1180px){
+    .battle-layout-ia{
+        grid-template-columns:1fr;
+    }
+}
