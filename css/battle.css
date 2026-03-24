@@ -1943,81 +1943,101 @@
 }
 
 .battle-layout-single{
-    grid-template-columns: 1fr;
+    grid-template-columns:minmax(0, 1.55fr) minmax(320px, 360px);
+    align-items:start;
+    gap:20px;
+}
+
+.battle-layout-single > *{
+    min-width:0;
 }
 
 .battle-team-panel-wide{
-    width: 100%;
+    width:100%;
+}
+
+.battle-side-column{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+}
+
+.battle-side-surface{
+    box-shadow:0 12px 28px rgba(15,23,42,0.08);
+    border:1px solid #e5e7eb;
+    background:#ffffff;
+}
+
+.battle-boss-stats-grid-side{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+}
+
+.battle-boss-actions-side .btn-battle{
+    flex:1;
+    min-width:0;
+}
+
+.battle-side-column .battle-boss-card,
+.battle-side-column .battle-boss-ranking-card{
+    margin-bottom:0;
+}
+
+.battle-side-column .battle-side-card-head,
+.battle-side-column .battle-boss-main,
+.battle-side-column .battle-boss-stats-grid,
+.battle-side-column .battle-boss-actions{
+    margin-bottom:14px;
+}
+
+.battle-side-column .battle-boss-ranking-card .battle-side-card-head{
+    margin-bottom:12px;
+}
+
+.battle-side-column .battle-boss-ranking-list{
+    gap:10px;
 }
 
 .battle-actions-centered{
-    justify-content: center;
+    justify-content:center;
 }
 
 .battle-page-clean .battle-dashboard{
-    margin-bottom: 18px;
+    margin-bottom:18px;
 }
 
 .battle-page-clean .battle-layout{
-    margin-bottom: 24px;
+    margin-bottom:24px;
 }
 
-.battle-page-clean .battle-panel{
-    overflow: hidden;
+.battle-page-clean .battle-panel,
+.battle-page-clean .battle-side-surface{
+    overflow:hidden;
+}
+
+@media (max-width: 1100px){
+    .battle-layout-single{
+        grid-template-columns:1fr;
+    }
+
+    .battle-side-column{
+        order:2;
+    }
 }
 
 @media (max-width: 900px){
     .battle-page-clean{
-        padding-top: 18px;
+        padding-top:18px;
     }
 
     .battle-actions-centered{
-        justify-content: stretch;
+        justify-content:stretch;
     }
-}
 
-
-/* =========================
-   BATTLE IA + ALPHA BOSS SIDE PANEL
-========================= */
-.battle-layout-ia{
-    grid-template-columns:minmax(0, 1.3fr) 420px;
-    align-items:start;
-}
-
-.battle-side-stack{
-    display:grid;
-    gap:16px;
-}
-
-.battle-side-stack-ia .battle-boss-card,
-.battle-side-stack-ia .battle-boss-ranking-card{
-    margin-bottom:0;
-    background:#fff;
-    border:1px solid #e5e7eb;
-    border-radius:24px;
-    padding:20px;
-    box-shadow:0 12px 28px rgba(15,23,42,0.08);
-}
-
-.battle-side-stack-ia .battle-boss-ranking-card{
-    padding-bottom:18px;
-}
-
-.battle-side-stack-ia .battle-boss-main{
-    margin-bottom:16px;
-}
-
-.battle-side-stack-ia .battle-boss-stats-grid{
-    grid-template-columns:repeat(2, minmax(0,1fr));
-}
-
-.battle-side-stack-ia .battle-boss-ranking-list{
-    min-height:76px;
-}
-
-@media (max-width:1180px){
-    .battle-layout-ia{
+    .battle-boss-stats-grid-side{
         grid-template-columns:1fr;
+    }
+
+    .battle-boss-actions-side{
+        flex-direction:column;
     }
 }

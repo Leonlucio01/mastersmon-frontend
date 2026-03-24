@@ -32,15 +32,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 function esVistaBattleIABattle() {
-    if (document.querySelector('[data-battle-view="ia"]')) return true;
     return !document.querySelector("[data-battle-mode]")
         && !document.getElementById("battleBossCard")
         && !document.getElementById("battleIdleCard")
         && !document.getElementById("battleModoActualCard");
 }
 
+function esVistaBattleIAFija() {
+    return !document.querySelector("[data-battle-mode]")
+        && !document.getElementById("battleModoActualCard")
+        && !document.getElementById("battleIdleCard");
+}
+
 function tienePanelBossBattle() {
     return !!document.getElementById("battleBossCard");
+}
+
+function tienePanelIdleBattle() {
+    return !!document.getElementById("battleIdleCard");
 }
 
 async function inicializarBattle() {
@@ -63,7 +72,7 @@ async function inicializarBattle() {
     configurarResumenUsuarioBattle();
     cargarModoBattle();
 
-    if (esVistaBattleIABattle()) {
+    if (esVistaBattleIAFija()) {
         battleModoActual = "arena";
         persistirModoBattle();
     }
@@ -73,10 +82,8 @@ async function inicializarBattle() {
     renderSlotsEquipoBattle();
     renderResumenEquipoBattle();
     renderPanelModoActualBattle();
-    if (!esVistaBattleIABattle()) {
-        renderBossBattle();
-        renderIdleBattle();
-    }
+    if (tienePanelBossBattle()) renderBossBattle();
+    if (tienePanelIdleBattle()) renderIdleBattle();
     renderColeccionBattleLoading();
     iniciarRelojModosBattle();
 
@@ -87,11 +94,11 @@ async function inicializarBattle() {
         renderSlotsEquipoBattle();
         renderColeccionBattle();
         renderResumenEquipoBattle();
-        if (tienePanelBossBattle()) {
-            await cargarEstadoBossBattle(true);
-        }
-        if (!esVistaBattleIABattle()) {
-            await cargarEstadoIdleBattle(true);
+        const cargasLaterales = [];
+        if (tienePanelBossBattle()) cargasLaterales.push(cargarEstadoBossBattle(true));
+        if (tienePanelIdleBattle()) cargasLaterales.push(cargarEstadoIdleBattle(true));
+        if (cargasLaterales.length) {
+            await Promise.all(cargasLaterales);
         }
         iniciarHeartbeatActividadBattle();
     } catch (error) {
@@ -107,11 +114,11 @@ async function inicializarBattle() {
                 renderSlotsEquipoBattle();
                 renderColeccionBattle();
                 renderResumenEquipoBattle();
-                if (tienePanelBossBattle()) {
-                    await cargarEstadoBossBattle(true);
-                }
-                if (!esVistaBattleIABattle()) {
-                    await cargarEstadoIdleBattle(true);
+                const cargasLateralesRetry = [];
+                if (tienePanelBossBattle()) cargasLateralesRetry.push(cargarEstadoBossBattle(true));
+                if (tienePanelIdleBattle()) cargasLateralesRetry.push(cargarEstadoIdleBattle(true));
+                if (cargasLateralesRetry.length) {
+                    await Promise.all(cargasLateralesRetry);
                 }
                 iniciarHeartbeatActividadBattle();
             } catch (retryError) {
@@ -133,10 +140,8 @@ function refrescarUIBattlePorIdioma() {
     renderSlotsEquipoBattle();
     renderResumenEquipoBattle();
     renderPanelModoActualBattle();
-    if (!esVistaBattleIABattle()) {
-        renderBossBattle();
-        renderIdleBattle();
-    }
+    if (tienePanelBossBattle()) renderBossBattle();
+    if (tienePanelIdleBattle()) renderIdleBattle();
     renderColeccionBattle();
 }
 
@@ -1158,7 +1163,7 @@ function BATTLE_ARENA_PLAYER_TEAM_KEY_SAFE() {
 
 function cargarModoBattle() {
     const guardado = localStorage.getItem(BATTLE_MODE_STORAGE_KEY) || sessionStorage.getItem(BATTLE_MODE_STORAGE_KEY) || "arena";
-    if (esVistaBattleIABattle()) {
+    if (esVistaBattleIAFija()) {
         battleModoActual = "arena";
     } else {
         battleModoActual = ["arena", "boss", "idle"].includes(String(guardado).toLowerCase()) ? String(guardado).toLowerCase() : "arena";

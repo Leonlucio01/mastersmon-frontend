@@ -116,7 +116,7 @@
         </div>
     </header>
 
-    <main class="battle-page battle-page-clean" data-battle-view="ia">
+    <main class="battle-page battle-page-clean">
         <section class="battle-hero" id="battleOverviewSection">
             <div class="battle-hero-badge" data-i18n="battle_badge">Tactical mode</div>
             <h2 class="battle-title" data-i18n="battle_title">BATTLE</h2>
@@ -171,7 +171,7 @@
             </div>
         </section>
 
-        <section class="battle-layout battle-layout-ia" id="battleTeamSection">
+        <section class="battle-layout battle-layout-single" id="battleTeamSection">
             <div class="battle-panel battle-team-panel battle-team-panel-wide">
                 <div class="battle-panel-header">
                     <div>
@@ -201,52 +201,57 @@
                 </div>
             </div>
 
-            <aside class="battle-side-stack battle-side-stack-ia">
-                <section class="battle-boss-card" id="battleBossCard">
+            <aside class="battle-side-column" id="battleBossSideColumn">
+                <section id="battleBossCard" class="battle-boss-card battle-side-surface">
                     <div class="battle-side-card-head">
                         <div>
-                            <span class="battle-side-card-kicker" data-i18n="battle_world_event">World event</span>
-                            <h4 data-i18n="battle_mode_boss_title">Alpha Boss</h4>
+                            <span class="battle-side-card-kicker" data-i18n="battle_boss_panel_kicker">World event</span>
+                            <h4 data-i18n="battle_boss_title">Alpha Boss</h4>
                         </div>
                         <span id="battleBossEstadoBadge" class="battle-side-card-pill">Closed</span>
                     </div>
 
                     <div class="battle-boss-main">
-                        <div class="battle-boss-avatar">👑</div>
+                        <div class="battle-boss-avatar" aria-hidden="true">👑</div>
                         <div class="battle-boss-info">
-                            <strong id="battleBossNombre">Alpha Boss</strong>
-                            <p id="battleBossDescripcion">Use your 6 Pokémon against a single Alpha Boss that opens at 20:00 server time.</p>
+                            <strong id="battleBossNombre">Alpha Mewtwo</strong>
+                            <p id="battleBossDescripcion">Daily world event at 20:00 server time.</p>
                         </div>
                     </div>
 
-                    <div class="battle-boss-stats-grid">
+                    <div class="battle-boss-stats-grid battle-boss-stats-grid-side">
                         <div class="battle-boss-stat">
                             <span id="battleBossTimerLabel" data-i18n="battle_boss_starts_in">Starts in</span>
-                            <strong id="battleBossTimer">20:00 server</strong>
+                            <strong id="battleBossTimer">—</strong>
                         </div>
                         <div class="battle-boss-stat">
-                            <span data-i18n="battle_boss_top_damage">Damage</span>
+                            <span data-i18n="battle_boss_damage">Your damage</span>
                             <strong id="battleBossDamage">0</strong>
                         </div>
                     </div>
 
-                    <div class="battle-boss-actions">
-                        <button class="btn-battle btn-battle-danger" id="btnIniciarBoss" type="button" data-i18n="battle_boss_enter">Enter Boss</button>
-                        <button class="btn-battle btn-battle-light" id="btnRefrescarBoss" type="button" data-i18n="battle_refresh">Refresh</button>
+                    <div class="battle-boss-actions battle-boss-actions-side">
+                        <button id="btnIniciarBoss" class="btn-battle btn-battle-primary" type="button" data-i18n="battle_boss_enter">
+                            Enter Boss
+                        </button>
+                        <button id="btnRefrescarBoss" class="btn-battle btn-battle-light" type="button" data-i18n="battle_boss_refresh">
+                            Refresh
+                        </button>
                     </div>
                 </section>
 
-                <section class="battle-boss-ranking-card">
+                <section class="battle-boss-card battle-boss-ranking-card battle-side-surface">
                     <div class="battle-side-card-head">
                         <div>
-                            <span class="battle-side-card-kicker" data-i18n="battle_today">Today</span>
+                            <span class="battle-side-card-kicker" data-i18n="battle_boss_today_label">Today</span>
                             <h4 data-i18n="battle_boss_ranking_title">Boss damage ranking</h4>
                         </div>
                     </div>
-                    <div class="battle-boss-ranking-list" id="battleBossRankingList"></div>
+                    <div id="battleBossRankingList" class="battle-boss-ranking-list">
+                        <div class="battle-ranking-empty" data-i18n="battle_boss_ranking_empty">No Boss attempts yet.</div>
+                    </div>
                 </section>
             </aside>
-
         </section>
 
         <section class="battle-roster-section" id="battleRosterSection">
