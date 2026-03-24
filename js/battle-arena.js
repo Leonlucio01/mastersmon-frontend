@@ -22,6 +22,7 @@ let arenaActividadHeartbeat = null;
 let arenaModoActual = "arena";
 let arenaBossActual = null;
 let arenaBossEventoActual = null;
+let arenaGymActual = null;
 
 let arenaMovesPanelAbierto = false;
 let arenaMovimientoJugadorPendiente = null;
@@ -40,6 +41,8 @@ const BATTLE_BOSS_DATA_KEY = "mastersmon_battle_boss_data_v1";
 const BATTLE_BOSS_EVENT_KEY = "mastersmon_battle_boss_event_v1";
 const BATTLE_BOSS_COMBAT_STATE_KEY = "mastersmon_battle_boss_combat_state_v1";
 const BATTLE_BOSS_SESSION_EXPIRES_KEY = "mastersmon_battle_boss_session_expires_v1";
+const BATTLE_GYM_SESSION_KEY = "mastersmon_battle_gym_session_v1";
+const GYMS_PROGRESS_STORAGE_KEY = "mastersmon_gyms_progress_v1";
 const ARENA_ACTIVITY_HEARTBEAT_MS = 60000;
 
 /* =========================================================
@@ -332,9 +335,10 @@ async function inicializarArenaBattle() {
     arenaModoActual = obtenerModoArenaActual();
     arenaBossActual = leerJSONArena(BATTLE_BOSS_DATA_KEY, null);
     arenaBossEventoActual = leerJSONArena(BATTLE_BOSS_EVENT_KEY, null);
+    arenaGymActual = leerJSONArena(BATTLE_GYM_SESSION_KEY, null);
     arenaDificultadActual = arenaModoActual === "boss"
         ? "boss"
-        : (sessionStorage.getItem(BATTLE_ARENA_DIFFICULTY_KEY) || "normal");
+        : (esModoGymArena() ? "gym" : (sessionStorage.getItem(BATTLE_ARENA_DIFFICULTY_KEY) || "normal"));
 
     sincronizarUsuarioArena();
     configurarEventosArena();
@@ -369,14 +373,26 @@ async function inicializarArenaBattle() {
                 generarBossEnemigoArena(bossData?.boss || arenaBossActual);
                 guardarEstadoBossArena();
             }
+        } else if (esModoGymArena()) {
+            if (!existeSesionGymLocalArena()) {
+                throw new Error("No se encontró una sesión activa del Gym. Regresa a Gyms y vuelve a iniciar el desafío.");
+            }
+
+            await cargarEquipoJugadorArena();
+            generarEquipoGymArena(arenaGymActual || obtenerResumenGymArena());
         } else {
             await cargarEquipoJugadorArena();
             await iniciarSesionBatallaArena();
             generarEquipoRivalFase1();
         }
 
+        actualizarHeroModoArena();
         renderArenaCompleta();
-        agregarLogArena(tSafeArena("arena_log_start"), tSafeArena("arena_system"));
+        if (esModoGymArena()) {
+            agregarLogArena(`Desafío iniciado contra ${arenaGymActual?.leader || "Gym Leader"}.`, arenaGymActual?.city || "Gym");
+        } else {
+            agregarLogArena(tSafeArena("arena_log_start"), tSafeArena("arena_system"));
+        }
         ocultarMensajeArena();
         habilitarAccionesArena();
         actualizarBotonAutoTurnoArena();
@@ -506,7 +522,7 @@ function obtenerModoArenaActual() {
     try {
         const params = new URLSearchParams(window.location.search || "");
         const modoUrl = String(params.get("modo") || "").trim().toLowerCase();
-        if (["arena", "boss"].includes(modoUrl)) {
+        if (["arena", "boss", "gym"].includes(modoUrl)) {
             sessionStorage.setItem(BATTLE_ARENA_MODE_KEY, modoUrl);
             return modoUrl;
         }
@@ -515,11 +531,136 @@ function obtenerModoArenaActual() {
     }
 
     const guardado = String(sessionStorage.getItem(BATTLE_ARENA_MODE_KEY) || "arena").trim().toLowerCase();
-    return guardado === "boss" ? "boss" : "arena";
+    if (["boss", "gym"].includes(guardado)) return guardado;
+    return "arena";
 }
 
 function esModoBossArena() {
     return arenaModoActual === "boss";
+}
+
+function esModoGymArena() {
+    return arenaModoActual === "gym";
+}
+
+function obtenerResumenGymArena() {
+    return arenaGymActual || leerJSONArena(BATTLE_GYM_SESSION_KEY, null);
+}
+
+function existeSesionGymLocalArena() {
+    const gym = obtenerResumenGymArena();
+    return Boolean(gym && Array.isArray(gym.enemy_team) && gym.enemy_team.length);
+}
+
+function limpiarSesionGymArena({ limpiarModo = false } = {}) {
+    sessionStorage.removeItem(BATTLE_GYM_SESSION_KEY);
+
+    if (limpiarModo) {
+        sessionStorage.removeItem(BATTLE_ARENA_MODE_KEY);
+    }
+
+    arenaGymActual = null;
+}
+
+function persistirProgresoGymArena(gymId) {
+    if (!gymId) return;
+
+    try {
+        const raw = localStorage.getItem(GYMS_PROGRESS_STORAGE_KEY);
+        const actual = raw ? JSON.parse(raw) : { clearedGymIds: [] };
+        const clearedGymIds = Array.isArray(actual?.clearedGymIds) ? actual.clearedGymIds : [];
+        const nuevo = [...new Set([...clearedGymIds, gymId])];
+        localStorage.setItem(GYMS_PROGRESS_STORAGE_KEY, JSON.stringify({ ...actual, clearedGymIds: nuevo }));
+    } catch (error) {
+        console.warn("No se pudo persistir el progreso del Gym:", error);
+    }
+}
+
+function construirResumenRecompensaGymArena(gym = arenaGymActual) {
+    const level = Number(gym?.recommendedLevel || gym?.targetLevel || 1);
+    return {
+        codigo: `gym-${gym?.gym_id || gym?.id || "route"}`,
+        nombre: gym?.city || "Gym Challenge",
+        badge: gym?.badge || "Badge",
+        leader: gym?.leader || "Leader",
+        exp: Math.max(1000, level * 120),
+        pokedolares: Math.max(1500, level * 180)
+    };
+}
+
+function generarEquipoGymArena(gymData = null) {
+    const gym = gymData || arenaGymActual;
+    if (!gym || !Array.isArray(gym.enemy_team) || !gym.enemy_team.length) {
+        throw new Error("No se encontró una sesión válida del Gym.");
+    }
+
+    arenaGymActual = { ...gym };
+
+    const averagePlayerLevel = calcularPromedioNivelArena(arenaPlayerTeam) || Number(gym.targetLevel || gym.recommendedLevel || 1);
+    const targetLevel = Math.max(Number(gym.targetLevel || gym.recommendedLevel || 1), Math.min(Number(gym.recommendedLevel || 1) + 4, averagePlayerLevel));
+
+    arenaEnemyTeam = gym.enemy_team.slice(0, 6).map((pokemon, index) => {
+        const isLeader = Boolean(pokemon.es_lider || index === gym.enemy_team.length - 1);
+        const nivel = Math.max(1, targetLevel + (isLeader ? 2 : 0));
+        const nivelFactor = Math.max(0, nivel - 1);
+        const hpFinal = Number(pokemon.hp || pokemon.hp_max || 1) + (nivelFactor * (isLeader ? 5 : 4));
+        const ataqueFinal = Number(pokemon.ataque || 1) + (nivelFactor * (isLeader ? 3 : 2));
+        const defensaFinal = Number(pokemon.defensa || 1) + (nivelFactor * 2);
+        const velocidadFinal = Number(pokemon.velocidad || 1) + nivelFactor;
+        const ataqueEspecialFinal = Number(pokemon.ataque_especial ?? pokemon.ataque ?? 1) + (nivelFactor * 2);
+        const defensaEspecialFinal = Number(pokemon.defensa_especial ?? pokemon.defensa ?? 1) + (nivelFactor * 2);
+
+        return normalizarPokemonArena({
+            id: `gym-${gym.gym_id || gym.id || 'route'}-${index + 1}-${pokemon.pokemon_id}`,
+            pokemon_id: Number(pokemon.pokemon_id || 0),
+            nombre: pokemon.nombre || `Gym Pokémon ${index + 1}`,
+            tipo: pokemon.tipo || gym.type || "Normal",
+            nivel,
+            hp_max: hpFinal,
+            hp_actual: hpFinal,
+            ataque: ataqueFinal,
+            defensa: defensaFinal,
+            velocidad: velocidadFinal,
+            ataque_especial: ataqueEspecialFinal,
+            defensa_especial: defensaEspecialFinal,
+            es_lider: isLeader,
+            movimientos_equipados: generarMovimientosRivalArena({
+                pokemon_id: Number(pokemon.pokemon_id || 0),
+                tipo: pokemon.tipo || gym.type || "Normal",
+                ataque: ataqueFinal,
+                ataque_especial: ataqueEspecialFinal
+            }, nivel)
+        }, "enemy", index);
+    });
+
+    arenaEnemyIndex = 0;
+}
+
+function actualizarContextoModoArena() {
+    const context = document.getElementById("arenaModeContext");
+    const btnVolver = document.getElementById("btnArenaVolverBattle");
+    const btnRetry = document.getElementById("btnArenaReintentar");
+
+    if (btnVolver) {
+        btnVolver.textContent = esModoGymArena() ? "Volver a Gyms" : "Volver a Play";
+    }
+
+    if (btnRetry) {
+        btnRetry.textContent = esModoGymArena() ? "Reintentar Gym" : "Reintentar";
+    }
+
+    if (!context) return;
+
+    if (esModoGymArena() && arenaGymActual) {
+        const tipo = traducirTipoPokemonArena(arenaGymActual.type || "Normal");
+        const level = Number(arenaGymActual.targetLevel || arenaGymActual.recommendedLevel || 1);
+        context.textContent = `${arenaGymActual.city || 'Gym'} · Líder ${arenaGymActual.leader || 'Leader'} · ${arenaGymActual.badge || 'Badge'} · ${tipo} · Lv. ${level}`;
+        context.className = "arena-message ok";
+        return;
+    }
+
+    context.className = "arena-message oculto";
+    context.textContent = "";
 }
 
 function leerJSONArena(clave, defecto = null) {
@@ -642,10 +783,17 @@ function manejarSalidaArena() {
 
     if (esModoBossArena()) {
         limpiarSesionBossArena({ limpiarModo: true });
-    } else {
-        sessionStorage.removeItem(BATTLE_ARENA_MODE_KEY);
+        window.location.href = "battle.html";
+        return;
     }
 
+    if (esModoGymArena()) {
+        limpiarSesionGymArena({ limpiarModo: true });
+        window.location.href = "gyms.html";
+        return;
+    }
+
+    sessionStorage.removeItem(BATTLE_ARENA_MODE_KEY);
     window.location.href = "battle.html";
 }
 
@@ -655,6 +803,11 @@ function manejarReintentoArena() {
     if (esModoBossArena()) {
         limpiarSesionBossArena({ limpiarModo: true });
         window.location.href = "battle.html";
+        return;
+    }
+
+    if (esModoGymArena()) {
+        window.location.reload();
         return;
     }
 
@@ -674,6 +827,22 @@ function actualizarHeroModoArena() {
         if (subtitle) subtitle.textContent = tSafeArena("battle_arena_subtitle_boss");
         if (enemyKicker) enemyKicker.textContent = tSafeArena("arena_rival_alpha");
         if (enemySection) enemySection.textContent = tSafeArena("arena_enemy_team_boss");
+        actualizarContextoModoArena();
+        return;
+    }
+
+    if (esModoGymArena()) {
+        if (badge) badge.textContent = arenaGymActual?.badge || "Gym Challenge";
+        if (title) title.textContent = arenaGymActual?.city || "Gym Battle";
+        if (subtitle) {
+            const tipo = traducirTipoPokemonArena(arenaGymActual?.type || "Normal");
+            const leader = arenaGymActual?.leader || "Gym Leader";
+            const style = arenaGymActual?.enemyStyle || "Structured Gym battle";
+            subtitle.textContent = `Desafía a ${leader} en un gimnasio tipo ${tipo}. ${style}.`;
+        }
+        if (enemyKicker) enemyKicker.textContent = `Líder ${arenaGymActual?.leader || "Gym"}`;
+        if (enemySection) enemySection.textContent = `${arenaGymActual?.city || "Gym"} · Equipo líder`;
+        actualizarContextoModoArena();
         return;
     }
 
@@ -682,6 +851,7 @@ function actualizarHeroModoArena() {
     if (subtitle) subtitle.textContent = tSafeArena("battle_arena_subtitle");
     if (enemyKicker) enemyKicker.textContent = tSafeArena("arena_rival_phase_1");
     if (enemySection) enemySection.textContent = tSafeArena("arena_enemy_team");
+    actualizarContextoModoArena();
 }
 
 function generarBossEnemigoArena(boss = null) {
@@ -2394,6 +2564,33 @@ function mostrarResultadoArena(victoria = true, recompensa = null, soloRefresco 
                 exp: recompensaBoss.exp || 0
             });
             if (!soloRefresco) mostrarMensajeArena(tSafeArena("arena_boss_defeat_message"), "warning");
+        }
+
+        modal.classList.remove("oculto");
+        return;
+    }
+
+    if (esModoGymArena()) {
+        const recompensaGym = recompensa || construirResumenRecompensaGymArena();
+
+        if (victoria) {
+            icon.textContent = "🏅";
+            icon.style.background = "#dbeafe";
+            icon.style.color = "#1d4ed8";
+            title.textContent = `¡${arenaGymActual?.badge || "Badge"} obtenida!`;
+            text.textContent = `Has derrotado a ${arenaGymActual?.leader || "Gym Leader"} en ${arenaGymActual?.city || "el gimnasio"}. Recompensa local: +${recompensaGym.pokedolares || 0} Pokédollars, +${recompensaGym.exp || 0} EXP y desbloqueo del siguiente Gym.`;
+            if (!soloRefresco) {
+                mostrarMensajeArena(`Victoria en ${arenaGymActual?.city || "Gym"}. Tu progreso local de medallas fue actualizado.`, "ok");
+            }
+        } else {
+            icon.textContent = "🥊";
+            icon.style.background = "#fee2e2";
+            icon.style.color = "#b91c1c";
+            title.textContent = `Derrota en ${arenaGymActual?.city || "Gym"}`;
+            text.textContent = `El líder ${arenaGymActual?.leader || "Gym Leader"} mantuvo la medalla. Puedes reintentar el desafío con el mismo equipo o volver a Gyms para reorganizar tu escuadrón.`;
+            if (!soloRefresco) {
+                mostrarMensajeArena(`Derrota en ${arenaGymActual?.city || "Gym"}. Puedes volver a intentarlo.`, "error");
+            }
         }
 
         modal.classList.remove("oculto");

@@ -203,6 +203,8 @@ function configurarEventosBattle() {
         });
     });
 
+    configurarAccesosHubBattle();
+
     if (btnBoss) btnBoss.addEventListener("click", iniciarModoBossBattle);
     if (btnBossRefresh) btnBossRefresh.addEventListener("click", () => cargarEstadoBossBattle(false));
     if (btnIdleStart) btnIdleStart.addEventListener("click", iniciarModoIdleBattle);
@@ -309,6 +311,24 @@ function configurarEventosBattle() {
         if (document.visibilityState === "visible") {
             refrescarEstadoIdleBattleSilencioso(true);
         }
+    });
+}
+
+function configurarAccesosHubBattle() {
+    document.querySelectorAll("[data-battle-open-mode]").forEach(control => {
+        control.addEventListener("click", () => {
+            const modo = control.dataset.battleOpenMode || "arena";
+            const destino = control.dataset.battleJump || "";
+
+            seleccionarModoBattle(modo, { persistir: true, refrescar: true });
+
+            if (destino) {
+                const target = document.querySelector(destino);
+                if (target) {
+                    target.scrollIntoView({ behavior: "smooth", block: "start" });
+                }
+            }
+        });
     });
 }
 
@@ -1156,7 +1176,13 @@ function seleccionarModoBattle(modo = "arena", opciones = {}) {
 
 function actualizarUISelectorModoBattle() {
     document.querySelectorAll("[data-battle-mode]").forEach(btn => {
-        btn.classList.toggle("active", btn.dataset.battleMode === battleModoActual);
+        const activo = btn.dataset.battleMode === battleModoActual;
+        btn.classList.toggle("active", activo);
+        btn.setAttribute("aria-pressed", activo ? "true" : "false");
+    });
+
+    document.querySelectorAll("[data-battle-preview-mode]").forEach(card => {
+        card.classList.toggle("is-selected", card.dataset.battlePreviewMode === battleModoActual);
     });
 }
 

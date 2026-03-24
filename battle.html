@@ -88,12 +88,19 @@
     </header>
 
     <main class="battle-page">
-        <section class="battle-hero">
+        <section class="battle-hero" id="battleOverviewSection">
             <div class="battle-hero-badge" data-i18n="battle_badge">Tactical mode</div>
             <h2 class="battle-title" data-i18n="battle_title">BATTLE</h2>
             <p class="battle-subtitle" data-i18n="battle_subtitle">
                 Prepare your team of 6 Pokémon for turn-based RPG battles and experience progression.
             </p>
+
+            <div class="battle-hero-links" aria-label="Battle sections">
+                <a class="battle-hero-link" href="#battleHubSection">Play hub</a>
+                <a class="battle-hero-link" href="#battleOperationsSection">Operations</a>
+                <a class="battle-hero-link" href="#battleTeamSection">Team lab</a>
+                <a class="battle-hero-link" href="#battleRosterSection">Roster</a>
+            </div>
         </section>
 
         <section class="battle-dashboard">
@@ -144,18 +151,112 @@
             </div>
         </section>
 
-        <section class="battle-modes-section">
+        <section class="battle-subnav-section">
+            <div class="battle-subnav" aria-label="Play navigation">
+                <a href="#battleHubSection" class="battle-subnav-link active">Play hub</a>
+                <a href="#battleOperationsSection" class="battle-subnav-link">Operations</a>
+                <a href="#battleTeamSection" class="battle-subnav-link">Team builder</a>
+                <a href="#battleRosterSection" class="battle-subnav-link">Collection</a>
+            </div>
+        </section>
+
+        <section class="battle-hub-section" id="battleHubSection">
+            <div class="battle-panel battle-hub-panel">
+                <div class="battle-panel-header battle-panel-header-tight">
+                    <div>
+                        <span class="battle-panel-kicker">Play hub</span>
+                        <h3>Choose where you want to play next</h3>
+                    </div>
+                    <span class="battle-panel-chip">Hub</span>
+                </div>
+
+                <p class="battle-panel-description battle-panel-description-tight">
+                    Keep Battle as your command center: configure the active mode here, prepare the squad once,
+                    and move to dedicated pages as new modes grow.
+                </p>
+
+                <div class="battle-hub-grid">
+                    <article class="battle-hub-card battle-hub-card-arena" data-battle-preview-mode="arena">
+                        <div class="battle-hub-card-top">
+                            <span class="battle-hub-tag">Core</span>
+                            <span class="battle-hub-icon">⚔️</span>
+                        </div>
+                        <h4>Tactical Arena</h4>
+                        <p>Prepare your team here, tune the rival difficulty, and jump into the 6 vs 6 arena flow.</p>
+                        <div class="battle-hub-actions">
+                            <button type="button" class="battle-hub-button" data-battle-open-mode="arena" data-battle-jump="#battleOperationsSection">Prepare arena</button>
+                            <a href="battle-arena.html?modo=arena" class="battle-hub-link">Open arena page</a>
+                        </div>
+                    </article>
+
+                    <article class="battle-hub-card battle-hub-card-gyms is-locked">
+                        <div class="battle-hub-card-top">
+                            <span class="battle-hub-tag battle-hub-tag-soon">Soon</span>
+                            <span class="battle-hub-icon">🏟️</span>
+                        </div>
+                        <h4>Gyms</h4>
+                        <p>Reserved for leaders, medals, and progression by route or league when the standalone page is ready.</p>
+                        <div class="battle-hub-actions">
+                            <button type="button" class="battle-hub-button battle-hub-button-disabled" disabled>Coming soon</button>
+                            <span class="battle-hub-link battle-hub-link-muted">Dedicated page next</span>
+                        </div>
+                    </article>
+
+                    <article class="battle-hub-card battle-hub-card-boss" data-battle-preview-mode="boss">
+                        <div class="battle-hub-card-top">
+                            <span class="battle-hub-tag battle-hub-tag-event">Daily</span>
+                            <span class="battle-hub-icon">👑</span>
+                        </div>
+                        <h4>Alpha Boss</h4>
+                        <p>Review the live world event status, your damage, and jump into the boss run from this center.</p>
+                        <div class="battle-hub-actions">
+                            <button type="button" class="battle-hub-button" data-battle-open-mode="boss" data-battle-jump="#battleOperationsSection">View boss center</button>
+                            <a href="#battleOperationsSection" class="battle-hub-link">Scroll to event</a>
+                        </div>
+                    </article>
+
+                    <article class="battle-hub-card battle-hub-card-idle" data-battle-preview-mode="idle">
+                        <div class="battle-hub-card-top">
+                            <span class="battle-hub-tag battle-hub-tag-soft">Recommended</span>
+                            <span class="battle-hub-icon">⏳</span>
+                        </div>
+                        <h4>Idle Expedition</h4>
+                        <p>Use the same battle team to launch passive farming while the future standalone page is being prepared.</p>
+                        <div class="battle-hub-actions">
+                            <button type="button" class="battle-hub-button" data-battle-open-mode="idle" data-battle-jump="#battleOperationsSection">Configure idle</button>
+                            <a href="#battleOperationsSection" class="battle-hub-link">Open controls</a>
+                        </div>
+                    </article>
+
+                    <article class="battle-hub-card battle-hub-card-maps">
+                        <div class="battle-hub-card-top">
+                            <span class="battle-hub-tag battle-hub-tag-world">World</span>
+                            <span class="battle-hub-icon">🗺️</span>
+                        </div>
+                        <h4>Maps</h4>
+                        <p>Capture more Pokémon, upgrade your collection, and return here with stronger squads for every mode.</p>
+                        <div class="battle-hub-actions">
+                            <a href="maps.html" class="battle-hub-button battle-hub-button-link">Open maps</a>
+                            <a href="#battleRosterSection" class="battle-hub-link">Review roster first</a>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="battle-modes-section" id="battleOperationsSection">
             <div class="battle-panel battle-modes-panel">
                 <div class="battle-panel-header battle-panel-header-tight">
                     <div>
                         <span class="battle-panel-kicker" data-i18n="battle_modes_kicker">Game modes</span>
-                        <h3 data-i18n="battle_modes_title">Choose your battle mode</h3>
+                        <h3>Operations available in this center</h3>
                     </div>
                     <span class="battle-panel-chip" data-i18n="battle_step_2">Step 2</span>
                 </div>
 
-                <p class="battle-panel-description battle-panel-description-tight" data-i18n="battle_modes_subtitle">
-                    Use your saved team of 6 Pokémon to enter the tactical arena, fight the world Alpha Boss, or farm rewards in Idle Expedition.
+                <p class="battle-panel-description battle-panel-description-tight">
+                    These are the modes that still run directly from Battle. Arena goes to the dedicated combat page,
+                    Boss uses the event flow, and Idle stays managed here until its own page is ready.
                 </p>
 
                 <div class="battle-mode-grid" id="battleModeGrid">
@@ -183,7 +284,7 @@
             </div>
         </section>
 
-        <section class="battle-layout">
+        <section class="battle-layout" id="battleTeamSection">
             <div class="battle-panel battle-team-panel">
                 <div class="battle-panel-header">
                     <div>
@@ -357,7 +458,7 @@
             </div>
         </section>
 
-        <section class="battle-roster-section">
+        <section class="battle-roster-section" id="battleRosterSection">
             <div class="battle-panel battle-roster-panel">
                 <div class="battle-panel-header">
                     <div>

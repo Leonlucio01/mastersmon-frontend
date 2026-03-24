@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokemon World - Gyms</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/menu.css">
+    <link rel="stylesheet" href="css/gyms.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+    <header class="menu menu-pro">
+        <div class="menu-topbar">
+            <h1 class="logo">Pokemon World</h1>
+
+            <nav class="menu-nav-desktop">
+                <a href="index.html">Pokedex</a>
+                <a href="battle.html" class="active">Play</a>
+                <a href="mypokemon.html">Collection</a>
+                <a href="pokemart.html">Shop</a>
+                <a href="ranking.html" data-i18n="menu_ranking">Ranking</a>
+                <a href="#" class="menu-disabled">More</a>
+            </nav>
+
+            <div class="menu-auth-area">
+                <div class="lang-switch">
+                    <select id="languageSelect">
+                        <option value="en">EN</option>
+                        <option value="es">ES</option>
+                    </select>
+                </div>
+
+                <div id="loginMenuContainer">
+                    <div id="g_id_onload"
+                         data-client_id="535230935122-vqqd262fjhetd408li95420bb8cas5vb.apps.googleusercontent.com"
+                         data-callback="handleCredentialResponse">
+                    </div>
+
+                    <div class="g_id_signin"
+                         data-type="standard"
+                         data-size="medium"
+                         data-theme="outline"
+                         data-text="signin_with"
+                         data-shape="pill"
+                         data-logo_alignment="left">
+                    </div>
+                </div>
+
+                <div id="usuarioMenu" class="oculto">
+                    <span id="nombreUsuario"></span>
+                    <button id="cerrarSesionMenu" type="button" data-i18n="menu_logout">Logout</button>
+                </div>
+            </div>
+
+            <button class="menu-toggle" id="menuToggle" type="button">☰</button>
+        </div>
+
+        <div class="menu-links-mobile" id="menuMobile">
+            <div class="mobile-panel">
+                <a href="index.html">Pokedex</a>
+                <a href="battle.html" class="active">Play</a>
+                <a href="mypokemon.html">Collection</a>
+                <a href="pokemart.html">Shop</a>
+                <a href="ranking.html" data-i18n="menu_ranking">Ranking</a>
+                <a href="#" class="menu-disabled">More</a>
+
+                <div class="menu-mobile-user">
+                    <div id="loginMenuContainerMobile">
+                        <div class="g_id_signin"
+                             data-type="standard"
+                             data-size="medium"
+                             data-theme="outline"
+                             data-text="signin_with"
+                             data-shape="pill"
+                             data-logo_alignment="left">
+                        </div>
+                    </div>
+
+                    <div id="usuarioMenuMobile" class="oculto">
+                        <span id="nombreUsuarioMobile"></span>
+                        <button id="cerrarSesionMenuMobile" type="button" data-i18n="menu_logout">Logout</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="gyms-page">
+        <section class="gyms-hero">
+            <div class="gyms-hero-grid">
+                <div>
+                    <div class="gyms-hero-badge">Play · Gym Challenge</div>
+                    <h1 class="gyms-title">GYMS</h1>
+                    <p class="gyms-subtitle">
+                        Challenge regional leaders, unlock badges, and prepare your main squad for structured PvE progression.
+                        This screen is already aligned with the new main menu so later we can connect real Gym battles without rebuilding the page.
+                    </p>
+
+                    <div class="gyms-hero-actions">
+                        <a href="battle.html" class="gyms-btn">← Back to Play Hub</a>
+                        <a href="battle-arena.html" class="gyms-btn-secondary">Open Arena</a>
+                        <a href="maps.html" class="gyms-btn-ghost">Explore Maps</a>
+                    </div>
+                </div>
+
+                <div class="gyms-hero-side">
+                    <article class="gyms-hero-panel">
+                        <span class="gyms-hero-panel-label">Current phase</span>
+                        <h2>Gym system foundation</h2>
+                        <p>
+                            This first version uses a reusable visual shell, local progression, and the same saved team from Battle.
+                        </p>
+                    </article>
+
+                    <article class="gyms-hero-panel">
+                        <span class="gyms-hero-panel-label">Recommended flow</span>
+                        <p>
+                            Build your team in Play Hub → save your squad → select a Gym leader → complete the challenge → unlock the next badge.
+                        </p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="gyms-section">
+            <div class="gyms-section-header">
+                <div>
+                    <span class="gyms-section-kicker">Overview</span>
+                    <h2>Gym Command Overview</h2>
+                    <p>These blocks are ready for local progression now and can later connect to backend badges, unlock conditions, and difficulty rules.</p>
+                </div>
+                <span class="gyms-pill">Prepared for gyms.js</span>
+            </div>
+
+            <div class="gyms-overview" id="gymsOverviewStats"></div>
+        </section>
+
+        <div class="gyms-page-grid">
+            <div>
+                <section class="gyms-section" id="gymsRoadmapSection">
+                    <div class="gyms-section-header">
+                        <div>
+                            <span class="gyms-section-kicker">Kanto run</span>
+                            <h3>Gym Roadmap</h3>
+                            <p>First version uses one region with 8 Gyms, clear rules, and badge progression before expanding to more regions.</p>
+                        </div>
+                        <span class="gyms-pill">Play → Gyms</span>
+                    </div>
+
+                    <div class="gyms-grid" id="gymsGrid"></div>
+                </section>
+
+                <section class="gyms-section">
+                    <div class="gyms-section-header">
+                        <div>
+                            <span class="gyms-section-kicker">Battle flow</span>
+                            <h3>How Gyms should work</h3>
+                            <p>This section stays static as a clean roadmap while the real Gym combat gets added later.</p>
+                        </div>
+                    </div>
+
+                    <div class="gym-timeline">
+                        <article class="gym-timeline-step">
+                            <strong>1</strong>
+                            <h4>Build your squad</h4>
+                            <p>Reuse the same saved team of 6 Pokémon from Play Hub so Gyms feel connected to the rest of Battle.</p>
+                        </article>
+
+                        <article class="gym-timeline-step">
+                            <strong>2</strong>
+                            <h4>Select a leader</h4>
+                            <p>Choose the unlocked Gym and preview its type, difficulty, reward badge, and recommended level.</p>
+                        </article>
+
+                        <article class="gym-timeline-step">
+                            <strong>3</strong>
+                            <h4>Win the badge</h4>
+                            <p>Clear the Gym to register the badge, unlock the next challenge, and scale rewards for later runs.</p>
+                        </article>
+
+                        <article class="gym-timeline-step">
+                            <strong>4</strong>
+                            <h4>Open endgame</h4>
+                            <p>Use the final Gym unlock as a bridge into elite content, events, or special progression modes.</p>
+                        </article>
+                    </div>
+                </section>
+            </div>
+
+            <aside class="gyms-side-stack">
+                <section class="gyms-section">
+                    <div class="gyms-section-header">
+                        <div>
+                            <span class="gyms-section-kicker">Selected gym</span>
+                            <h3>Challenge Details</h3>
+                            <p>Your selected Gym is rendered here with unlock rules, rewards, and a quick action flow.</p>
+                        </div>
+                    </div>
+
+                    <div id="selectedGymPanel"></div>
+                </section>
+
+                <section class="gyms-section">
+                    <div class="gyms-section-header">
+                        <div>
+                            <span class="gyms-section-kicker">Team readiness</span>
+                            <h3>Battle Team Status</h3>
+                            <p>Gyms reuse the same team saved in Play Hub, so there is no duplicated team system.</p>
+                        </div>
+                    </div>
+
+                    <div id="gymTeamSummary"></div>
+                    <div class="gym-team-list" id="gymTeamList"></div>
+                </section>
+
+                <section class="gyms-section">
+                    <div class="gyms-section-header">
+                        <div>
+                            <span class="gyms-section-kicker">Progress</span>
+                            <h3>Regional Progress</h3>
+                            <p>Local badge progression for now. Later this can come from your player profile or backend route.</p>
+                        </div>
+                    </div>
+
+                    <div id="gymProgressPanel"></div>
+                </section>
+
+                <section class="gyms-section">
+                    <div class="gyms-section-header">
+                        <div>
+                            <span class="gyms-section-kicker">Expansion</span>
+                            <h3>Upcoming regions</h3>
+                            <p>Once Kanto works well, you can scale the same structure to more regions without redesigning the shell.</p>
+                        </div>
+                    </div>
+
+                    <div class="gym-region-grid">
+                        <article class="gym-region-card">
+                            <h4>Johto</h4>
+                            <p>Good second region with stronger identity and smooth badge scaling once the first Gym system is stable.</p>
+                            <span class="gyms-pill">Phase 2</span>
+                        </article>
+                        <article class="gym-region-card">
+                            <h4>Hoenn</h4>
+                            <p>Works well after Gym mechanics mature and you want more visual diversity and route identity.</p>
+                            <span class="gyms-pill">Phase 3</span>
+                        </article>
+                        <article class="gym-region-card">
+                            <h4>Seasonal League</h4>
+                            <p>Could become your custom Mastersmon endgame with rotating leaders, rules, and badge tiers.</p>
+                            <span class="gyms-pill">Endgame</span>
+                        </article>
+                    </div>
+                </section>
+            </aside>
+        </div>
+    </main>
+
+    <script src="js/api.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/gmail.js"></script>
+    <script src="js/gyms.js"></script>
+</body>
+</html>

@@ -1933,3 +1933,334 @@
         text-align:left;
     }
 }
+
+/* =========================================================
+   PLAY HUB / NAVEGACIÓN LOCAL
+   - Battle se usa como centro de modos, no como página saturada.
+   - style.css mantiene las bases globales.
+   - menu.css mantiene header y navegación general.
+========================================================= */
+.battle-hero-links{
+    display:flex;
+    justify-content:center;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-top:18px;
+}
+
+.battle-hero-link{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:10px 14px;
+    border-radius:999px;
+    border:1px solid #dbe5f1;
+    background:#ffffff;
+    color:#0f172a;
+    text-decoration:none;
+    font-size:13px;
+    font-weight:800;
+    box-shadow:0 8px 18px rgba(15,23,42,0.06);
+    transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+
+.battle-hero-link:hover{
+    transform:translateY(-2px);
+    border-color:#bfdbfe;
+    box-shadow:0 12px 20px rgba(37,99,235,0.10);
+}
+
+.battle-subnav-section{
+    margin-bottom:24px;
+}
+
+.battle-subnav{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-wrap:wrap;
+    gap:10px;
+}
+
+.battle-subnav-link{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-height:42px;
+    padding:0 16px;
+    border-radius:999px;
+    background:rgba(255,255,255,0.86);
+    border:1px solid #dbe5f1;
+    color:#475569;
+    text-decoration:none;
+    font-size:13px;
+    font-weight:800;
+    box-shadow:0 8px 18px rgba(15,23,42,0.05);
+    transition:transform .18s ease, box-shadow .18s ease, color .18s ease, border-color .18s ease;
+}
+
+.battle-subnav-link:hover,
+.battle-subnav-link.active{
+    color:#1d4ed8;
+    border-color:#bfdbfe;
+    transform:translateY(-1px);
+    box-shadow:0 10px 18px rgba(37,99,235,0.10);
+}
+
+.battle-hub-section{
+    margin-bottom:24px;
+}
+
+.battle-hub-panel{
+    overflow:hidden;
+    position:relative;
+}
+
+.battle-hub-panel::before{
+    content:"";
+    position:absolute;
+    top:-70px;
+    right:-50px;
+    width:220px;
+    height:220px;
+    border-radius:50%;
+    background:radial-gradient(circle, rgba(37,99,235,0.08), transparent 68%);
+    pointer-events:none;
+}
+
+.battle-hub-grid{
+    position:relative;
+    z-index:1;
+    display:grid;
+    grid-template-columns:repeat(5,minmax(0,1fr));
+    gap:14px;
+}
+
+.battle-hub-card{
+    display:flex;
+    flex-direction:column;
+    min-height:250px;
+    padding:18px;
+    border-radius:24px;
+    border:1px solid #dbe5f1;
+    background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);
+    box-shadow:0 12px 28px rgba(15,23,42,0.08);
+    transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+
+.battle-hub-card:hover{
+    transform:translateY(-3px);
+    box-shadow:0 16px 30px rgba(15,23,42,0.10);
+}
+
+.battle-hub-card.is-selected{
+    border-color:#2563eb;
+    box-shadow:0 0 0 3px rgba(37,99,235,0.10), 0 18px 32px rgba(37,99,235,0.14);
+}
+
+.battle-hub-card.is-locked{
+    background:linear-gradient(180deg,#f8fafc 0%,#f1f5f9 100%);
+    border-style:dashed;
+}
+
+.battle-hub-card-arena{
+    background:linear-gradient(180deg,#ffffff 0%,#eff6ff 100%);
+}
+
+.battle-hub-card-boss{
+    background:linear-gradient(180deg,#fffaf0 0%,#fff3d9 100%);
+    border-color:#fcd34d;
+}
+
+.battle-hub-card-idle{
+    background:linear-gradient(180deg,#f6fbff 0%,#ebf5ff 100%);
+    border-color:#bfdbfe;
+}
+
+.battle-hub-card-maps{
+    background:linear-gradient(180deg,#f7fee7 0%,#ecfccb 100%);
+    border-color:#bef264;
+}
+
+.battle-hub-card-top{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:14px;
+}
+
+.battle-hub-tag{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-height:30px;
+    padding:0 11px;
+    border-radius:999px;
+    background:#dbeafe;
+    color:#1d4ed8;
+    font-size:11px;
+    font-weight:900;
+    letter-spacing:.03em;
+    text-transform:uppercase;
+}
+
+.battle-hub-tag-event{
+    background:#fef3c7;
+    color:#b45309;
+}
+
+.battle-hub-tag-soft{
+    background:#dcfce7;
+    color:#15803d;
+}
+
+.battle-hub-tag-world{
+    background:#dcfce7;
+    color:#166534;
+}
+
+.battle-hub-tag-soon{
+    background:#e2e8f0;
+    color:#475569;
+}
+
+.battle-hub-icon{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:54px;
+    height:54px;
+    border-radius:18px;
+    background:rgba(255,255,255,0.75);
+    font-size:28px;
+    box-shadow:0 8px 18px rgba(15,23,42,0.08);
+}
+
+.battle-hub-card h4{
+    margin:0 0 10px;
+    font-size:22px;
+    font-weight:900;
+    color:#111827;
+}
+
+.battle-hub-card p{
+    margin:0;
+    font-size:14px;
+    line-height:1.6;
+    color:#475569;
+}
+
+.battle-hub-actions{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    margin-top:auto;
+    padding-top:18px;
+}
+
+.battle-hub-button,
+.battle-hub-button-link,
+.battle-hub-link{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-height:42px;
+    padding:0 14px;
+    border-radius:14px;
+    text-decoration:none;
+    font-size:13px;
+    font-weight:800;
+    box-sizing:border-box;
+}
+
+.battle-hub-button,
+.battle-hub-button-link{
+    border:none;
+    cursor:pointer;
+    background:linear-gradient(180deg,#2563eb 0%,#1d4ed8 100%);
+    color:#ffffff;
+    box-shadow:0 10px 20px rgba(37,99,235,0.18);
+}
+
+.battle-hub-button:hover,
+.battle-hub-button-link:hover{
+    transform:translateY(-1px);
+}
+
+.battle-hub-button-disabled{
+    background:#cbd5e1;
+    box-shadow:none;
+    cursor:not-allowed;
+}
+
+.battle-hub-link{
+    border:1px solid #dbe5f1;
+    background:rgba(255,255,255,0.85);
+    color:#334155;
+}
+
+.battle-hub-link:hover{
+    border-color:#bfdbfe;
+    color:#1d4ed8;
+}
+
+.battle-hub-link-muted{
+    cursor:default;
+    color:#64748b;
+    background:rgba(255,255,255,0.72);
+}
+
+.battle-hub-link-muted:hover{
+    border-color:#dbe5f1;
+    color:#64748b;
+}
+
+/* El bloque de modos dentro de Battle queda como centro operativo. */
+#battleOperationsSection .battle-panel-description-tight{
+    max-width:860px;
+}
+
+/* Refuerzo visual cuando el modo está activo desde el hub. */
+.battle-mode-card.active .battle-mode-badge{
+    background:#dbeafe;
+    color:#1d4ed8;
+}
+
+@media (max-width:1320px){
+    .battle-hub-grid{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+    }
+}
+
+@media (max-width:980px){
+    .battle-hub-grid{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+    }
+}
+
+@media (max-width:900px){
+    .battle-hero-links,
+    .battle-subnav{
+        justify-content:flex-start;
+    }
+}
+
+@media (max-width:640px){
+    .battle-hub-grid{
+        grid-template-columns:1fr;
+    }
+
+    .battle-hub-card{
+        min-height:auto;
+    }
+
+    .battle-hero-links{
+        gap:8px;
+    }
+
+    .battle-hero-link,
+    .battle-subnav-link{
+        width:100%;
+    }
+}
