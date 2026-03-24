@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pokemon World - Battle</title>
+    <title>Mastersmon - Play</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/menu.css">
     <link rel="stylesheet" href="css/battle.css">
@@ -13,20 +13,20 @@
 
     <header class="menu menu-pro">
         <div class="menu-topbar">
-            <h1 class="logo">Pokemon World</h1>
+            <h1 class="logo">Mastersmon</h1>
 
             <nav class="menu-nav-desktop">
                 <a href="index.html" data-i18n="menu_pokedex">Pokedex</a>
-                <a href="battle.html" class="active" data-i18n="menu_battle">Battle</a>
-                <a href="maps.html" data-i18n="menu_maps">Maps</a>
-                <a href="mypokemon.html" data-i18n="menu_my_pokemon">My Pokemon</a>
-                <a href="pokemart.html" data-i18n="menu_pokemart">PokeMart</a>
+                <a href="battle.html" class="active" data-i18n="menu_play">Play</a>
+                <a href="mypokemon.html" data-i18n="menu_collection">Collection</a>
+                <a href="pokemart.html" data-i18n="menu_shop">Shop</a>
                 <a href="ranking.html" data-i18n="menu_ranking">Ranking</a>
+                <a href="#" class="menu-disabled" data-i18n="menu_more" onclick="return false;" aria-disabled="true">More</a>
             </nav>
 
             <div class="menu-auth-area">
                 <div class="lang-switch">
-                    <select id="languageSelect">
+                    <select id="languageSelect" aria-label="Language">
                         <option value="en">EN</option>
                         <option value="es">ES</option>
                     </select>
@@ -54,19 +54,26 @@
                 </div>
             </div>
 
-            <button class="menu-toggle" id="menuToggle" type="button">☰</button>
+            <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open menu">☰</button>
         </div>
 
         <div class="menu-links-mobile" id="menuMobile">
             <div class="mobile-panel">
                 <a href="index.html" data-i18n="menu_pokedex">Pokedex</a>
-                <a href="battle.html" class="active" data-i18n="menu_battle">Battle</a>
-                <a href="maps.html" data-i18n="menu_maps">Maps</a>
-                <a href="mypokemon.html" data-i18n="menu_my_pokemon">My Pokemon</a>
-                <a href="pokemart.html" data-i18n="menu_pokemart">PokeMart</a>
+                <a href="battle.html" class="active" data-i18n="menu_play">Play</a>
+                <a href="mypokemon.html" data-i18n="menu_collection">Collection</a>
+                <a href="pokemart.html" data-i18n="menu_shop">Shop</a>
                 <a href="ranking.html" data-i18n="menu_ranking">Ranking</a>
+                <a href="#" class="menu-disabled" data-i18n="menu_more" onclick="return false;" aria-disabled="true">More</a>
 
                 <div class="menu-mobile-user">
+                    <div class="lang-switch">
+                        <select id="languageSelectMobile" aria-label="Language">
+                            <option value="en">EN</option>
+                            <option value="es">ES</option>
+                        </select>
+                    </div>
+
                     <div id="loginMenuContainerMobile">
                         <div class="g_id_signin"
                              data-type="standard"
@@ -86,6 +93,12 @@
             </div>
         </div>
     </header>
+
+    <div class="menu-subnav">
+        <div class="menu-subnav-inner">
+            <a href="battle.html" class="menu-subnav-link active" data-i18n="menu_play_hub">Hub</a> <a href="maps.html" class="menu-subnav-link" data-i18n="menu_play_maps">Maps</a> <a href="battle-arena.html" class="menu-subnav-link" data-i18n="menu_play_arena">Arena</a> <a href="gyms.html" class="menu-subnav-link" data-i18n="menu_play_gyms">Gyms</a> <a href="idle.html" class="menu-subnav-link" data-i18n="menu_play_idle">Idle</a>
+        </div>
+    </div>
 
     <main class="battle-page">
         <section class="battle-hero" id="battleOverviewSection">
@@ -527,18 +540,8 @@
 
     <script src="js/api.js"></script>
     <script src="js/i18n.js"></script>
+    <script src="js/menu.js"></script>
     <script src="js/gmail.js"></script>
     <script src="js/battle.js"></script>
-    <script>
-        const menuToggle = document.getElementById("menuToggle");
-        const menuMobile = document.getElementById("menuMobile");
-
-        if (menuToggle && menuMobile) {
-            menuToggle.addEventListener("click", () => {
-                menuMobile.classList.toggle("menu-open");
-            });
-        }
-    </script>
-
 </body>
 </html>

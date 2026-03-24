@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mastersmon - Idle Expedition</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/menu.css">
+    <link rel="stylesheet" href="css/idle.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+    <header class="menu menu-pro">
+        <div class="menu-topbar">
+            <h1 class="logo">Mastersmon</h1>
+
+            <nav class="menu-nav-desktop">
+                <a href="index.html" data-i18n="menu_pokedex">Pokedex</a>
+                <a href="battle.html" class="active" data-i18n="menu_play">Play</a>
+                <a href="mypokemon.html" data-i18n="menu_collection">Collection</a>
+                <a href="pokemart.html" data-i18n="menu_shop">Shop</a>
+                <a href="ranking.html" data-i18n="menu_ranking">Ranking</a>
+                <a href="#" class="menu-disabled" data-i18n="menu_more" onclick="return false;" aria-disabled="true">More</a>
+            </nav>
+
+            <div class="menu-auth-area">
+                <div class="lang-switch">
+                    <select id="languageSelect" aria-label="Language">
+                        <option value="en">EN</option>
+                        <option value="es">ES</option>
+                    </select>
+                </div>
+
+                <div id="loginMenuContainer">
+                    <div id="g_id_onload"
+                         data-client_id="535230935122-vqqd262fjhetd408li95420bb8cas5vb.apps.googleusercontent.com"
+                         data-callback="handleCredentialResponse">
+                    </div>
+
+                    <div class="g_id_signin"
+                         data-type="standard"
+                         data-size="medium"
+                         data-theme="outline"
+                         data-text="signin_with"
+                         data-shape="pill"
+                         data-logo_alignment="left">
+                    </div>
+                </div>
+
+                <div id="usuarioMenu" class="oculto">
+                    <span id="nombreUsuario"></span>
+                    <button id="cerrarSesionMenu" type="button" data-i18n="menu_logout">Logout</button>
+                </div>
+            </div>
+
+            <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open menu">☰</button>
+        </div>
+
+        <div class="menu-links-mobile" id="menuMobile">
+            <div class="mobile-panel">
+                <a href="index.html" data-i18n="menu_pokedex">Pokedex</a>
+                <a href="battle.html" class="active" data-i18n="menu_play">Play</a>
+                <a href="mypokemon.html" data-i18n="menu_collection">Collection</a>
+                <a href="pokemart.html" data-i18n="menu_shop">Shop</a>
+                <a href="ranking.html" data-i18n="menu_ranking">Ranking</a>
+                <a href="#" class="menu-disabled" data-i18n="menu_more" onclick="return false;" aria-disabled="true">More</a>
+
+                <div class="menu-mobile-user">
+                    <div class="lang-switch">
+                        <select id="languageSelectMobile" aria-label="Language">
+                            <option value="en">EN</option>
+                            <option value="es">ES</option>
+                        </select>
+                    </div>
+
+                    <div id="loginMenuContainerMobile">
+                        <div class="g_id_signin"
+                             data-type="standard"
+                             data-size="medium"
+                             data-theme="outline"
+                             data-text="signin_with"
+                             data-shape="pill"
+                             data-logo_alignment="left">
+                        </div>
+                    </div>
+
+                    <div id="usuarioMenuMobile" class="oculto">
+                        <span id="nombreUsuarioMobile"></span>
+                        <button id="cerrarSesionMenuMobile" type="button" data-i18n="menu_logout">Logout</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="menu-subnav">
+        <div class="menu-subnav-inner">
+            <a href="battle.html" class="menu-subnav-link" data-i18n="menu_play_hub">Hub</a> <a href="maps.html" class="menu-subnav-link" data-i18n="menu_play_maps">Maps</a> <a href="battle-arena.html" class="menu-subnav-link" data-i18n="menu_play_arena">Arena</a> <a href="gyms.html" class="menu-subnav-link" data-i18n="menu_play_gyms">Gyms</a> <a href="idle.html" class="menu-subnav-link active" data-i18n="menu_play_idle">Idle</a>
+        </div>
+    </div>
+
+    <main class="idle-page">
+        <section class="idle-hero">
+            <div class="idle-hero-grid">
+                <div>
+                    <div class="idle-hero-badge">Play · Idle Expedition</div>
+                    <h1 class="idle-title" data-i18n="battle_idle_title">Idle Expedition</h1>
+                    <p class="idle-subtitle">
+                        Send your main squad on an expedition that farms EXP, Pokédollars and item drops over time.
+                        This page is now separated from Battle so the Play section can scale with cleaner pages and reusable modules.
+                    </p>
+
+                    <div class="idle-hero-actions">
+                        <a href="battle.html" class="idle-btn">← Back to Play Hub</a>
+                        <a href="gyms.html" class="idle-btn-secondary">Open Gyms</a>
+                        <a href="battle-arena.html" class="idle-btn-ghost">Open Arena</a>
+                    </div>
+                </div>
+
+                <div class="idle-hero-side">
+                    <article class="idle-hero-panel">
+                        <span class="idle-hero-panel-label">Current status</span>
+                        <h2 id="idleHeroStatusTitle">Ready to launch</h2>
+                        <p id="idleHeroStatusText">Choose a tier, set a duration, and launch your next expedition.</p>
+                    </article>
+
+                    <div class="idle-hero-stats">
+                        <article class="idle-hero-stat">
+                            <span>Saved team</span>
+                            <strong id="idleHeroTeamCount">0 / 6</strong>
+                        </article>
+                        <article class="idle-hero-stat">
+                            <span>Average level</span>
+                            <strong id="idleHeroTeamLevel">0</strong>
+                        </article>
+                        <article class="idle-hero-stat">
+                            <span>Estimated EXP</span>
+                            <strong id="idleHeroEstimateExp">0</strong>
+                        </article>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="idle-page-grid">
+            <div class="idle-main-stack">
+                <section class="idle-section idle-control-card">
+                    <div class="idle-section-header">
+                        <div>
+                            <span class="idle-section-kicker" data-i18n="battle_idle_panel_kicker">Auto farming</span>
+                            <h2 data-i18n="battle_idle_title">Idle Expedition</h2>
+                            <p>Uses the same team saved in Play Hub, keeps the Idle backend you already have, and moves the visual shell into its own page.</p>
+                        </div>
+                        <span class="idle-pill">Play → Idle</span>
+                    </div>
+
+                    <div id="idleFeedback" class="idle-feedback oculto"></div>
+
+                    <div class="idle-plan-grid">
+                        <div>
+                            <div class="idle-tier-cards" id="idleTierCards"></div>
+
+                            <div class="idle-config-grid">
+                                <label class="idle-field">
+                                    <span data-i18n="battle_idle_tier">Tier</span>
+                                    <select id="idleTierSelect">
+                                        <option value="ruta" data-i18n="battle_idle_tier_ruta">Route</option>
+                                        <option value="elite" data-i18n="battle_idle_tier_elite">Elite</option>
+                                        <option value="legend" data-i18n="battle_idle_tier_legend">Legend</option>
+                                    </select>
+                                </label>
+
+                                <label class="idle-field">
+                                    <span data-i18n="battle_idle_duration">Duration</span>
+                                    <select id="idleDurationSelect">
+                                        <option value="3600" data-i18n="battle_idle_duration_1h">1 hour</option>
+                                        <option value="7200" data-i18n="battle_idle_duration_2h">2 hours</option>
+                                        <option value="14400" data-i18n="battle_idle_duration_4h">4 hours</option>
+                                        <option value="28800" data-i18n="battle_idle_duration_8h">8 hours</option>
+                                    </select>
+                                </label>
+                            </div>
+                        </div>
+
+                        <aside class="idle-selected-plan" id="idleSelectedPlan"></aside>
+                    </div>
+
+                    <div class="idle-progress-wrap">
+                        <div class="idle-progress-top">
+                            <span id="idleTimerLabel" data-i18n="battle_idle_remaining">Remaining</span>
+                            <strong id="idleTimerValue">—</strong>
+                        </div>
+                        <div class="idle-progress-bar">
+                            <div class="idle-progress-fill" id="idleProgressFill" style="width:0%"></div>
+                        </div>
+                        <div class="idle-progress-foot">
+                            <span class="idle-status-badge" id="idleStatusBadge" data-i18n="battle_idle_status_idle">Ready</span>
+                            <span id="idleProgressText" data-i18n="battle_idle_status_idle_text">Choose a tier and duration, then start the expedition.</span>
+                        </div>
+                    </div>
+
+                    <div class="idle-actions">
+                        <button class="idle-action idle-action-primary" id="btnStartIdlePage" type="button" data-i18n="battle_idle_start">Start idle</button>
+                        <button class="idle-action idle-action-secondary" id="btnClaimIdlePage" type="button" data-i18n="battle_idle_claim">Claim</button>
+                        <button class="idle-action idle-action-light" id="btnCancelIdlePage" type="button" data-i18n="battle_idle_cancel">Cancel idle</button>
+                        <button class="idle-action idle-action-ghost" id="btnRefreshIdlePage" type="button">Refresh state</button>
+                    </div>
+                </section>
+
+                <section class="idle-section">
+                    <div class="idle-section-header">
+                        <div>
+                            <span class="idle-section-kicker">Projected rewards</span>
+                            <h3>Estimated Expedition Output</h3>
+                            <p>The calculations below follow the same general power formula as your current Idle backend, using your saved team stats, selected tier, and duration.</p>
+                        </div>
+                    </div>
+
+                    <div class="idle-estimate-grid">
+                        <article class="idle-estimate-card">
+                            <span>Ticks</span>
+                            <strong id="idleEstimateTicks">0</strong>
+                        </article>
+                        <article class="idle-estimate-card">
+                            <span>Estimated wins</span>
+                            <strong id="idleEstimateWins">0</strong>
+                        </article>
+                        <article class="idle-estimate-card">
+                            <span>Estimated EXP</span>
+                            <strong id="idleEstimateExp">0</strong>
+                        </article>
+                        <article class="idle-estimate-card">
+                            <span>Estimated Pokédollars</span>
+                            <strong id="idleEstimateCoins">0</strong>
+                        </article>
+                    </div>
+
+                    <div class="idle-drop-panel">
+                        <div class="idle-drop-head">
+                            <h4>Possible drops</h4>
+                            <span id="idleEstimateSuccessRate">Success rate 0%</span>
+                        </div>
+                        <div class="idle-drop-list" id="idleEstimateDrops"></div>
+                    </div>
+                </section>
+
+                <section class="idle-section">
+                    <div class="idle-section-header">
+                        <div>
+                            <span class="idle-section-kicker">Expedition flow</span>
+                            <h3>How this page works</h3>
+                            <p>This mode now has its own shell, but it still reuses the current Battle team and the existing Idle routes from your backend.</p>
+                        </div>
+                    </div>
+
+                    <div class="idle-timeline">
+                        <article class="idle-timeline-step">
+                            <strong>1</strong>
+                            <h4>Prepare team</h4>
+                            <p>Idle reads the same 6-Pokémon team saved in Play Hub, so you do not need a second team system here.</p>
+                        </article>
+                        <article class="idle-timeline-step">
+                            <strong>2</strong>
+                            <h4>Choose tier</h4>
+                            <p>Select Route, Elite, or Legend depending on how hard you want the expedition to scale.</p>
+                        </article>
+                        <article class="idle-timeline-step">
+                            <strong>3</strong>
+                            <h4>Run expedition</h4>
+                            <p>The page keeps countdown, progress, backend status refresh, and claim or cancel actions.</p>
+                        </article>
+                        <article class="idle-timeline-step">
+                            <strong>4</strong>
+                            <h4>Claim results</h4>
+                            <p>When the run is complete, claim EXP, Pokédollars, and item drops from the existing Idle endpoints.</p>
+                        </article>
+                    </div>
+                </section>
+            </div>
+
+            <aside class="idle-side-stack">
+                <section class="idle-section">
+                    <div class="idle-section-header">
+                        <div>
+                            <span class="idle-section-kicker">Team readiness</span>
+                            <h3>Saved Battle Team</h3>
+                            <p>Idle Expedition reuses the same team stored in <code>mastersmon_battle_team_v1</code>.</p>
+                        </div>
+                    </div>
+
+                    <div id="idleTeamSummary" class="idle-team-summary"></div>
+                    <div id="idleTeamGrid" class="idle-team-grid"></div>
+                </section>
+
+                <section class="idle-section">
+                    <div class="idle-section-header">
+                        <div>
+                            <span class="idle-section-kicker">Last rewards</span>
+                            <h3>Last claim result</h3>
+                            <p>Useful while you keep the current backend and want the page to show recent outcomes.</p>
+                        </div>
+                    </div>
+
+                    <div id="idleLastResult" class="idle-last-result"></div>
+                </section>
+
+                <section class="idle-section">
+                    <div class="idle-section-header">
+                        <div>
+                            <span class="idle-section-kicker">Future upgrades</span>
+                            <h3>Idle expansion path</h3>
+                            <p>These blocks are only visual right now, but the page is ready for future upgrade systems.</p>
+                        </div>
+                    </div>
+
+                    <div class="idle-upgrade-list">
+                        <article class="idle-upgrade-card">
+                            <h4>Command Center</h4>
+                            <p>Increase overall expedition efficiency and unlock stronger tier visuals later.</p>
+                        </article>
+                        <article class="idle-upgrade-card">
+                            <h4>Energy Core</h4>
+                            <p>Potential future bonus to EXP and expedition pacing.</p>
+                        </article>
+                        <article class="idle-upgrade-card">
+                            <h4>Storage Bay</h4>
+                            <p>Ideal place later for item capacity, premium drop bonuses, or quality upgrades.</p>
+                        </article>
+                        <article class="idle-upgrade-card idle-upgrade-card-disabled">
+                            <h4>Masters Tier</h4>
+                            <p>Already exists in backend logic, but this page keeps the first UI version focused on Route, Elite and Legend.</p>
+                        </article>
+                    </div>
+                </section>
+            </aside>
+        </div>
+    </main>
+
+    <script src="js/api.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/menu.js"></script>
+    <script src="js/gmail.js"></script>
+    <script src="js/idle.js"></script>
+</body>
+</html>
