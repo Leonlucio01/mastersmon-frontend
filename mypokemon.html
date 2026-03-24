@@ -17,24 +17,22 @@
 
             <nav class="menu-nav-desktop">
                 <a href="index.html" data-i18n="menu_pokedex">Pokedex</a>
+                <a href="maps.html" data-i18n="menu_maps">Maps</a>
                 <div class="menu-dropdown menu-dropdown-play">
-                    <button class="menu-dropdown-toggle" type="button" data-menu-dropdown-toggle="play" aria-expanded="false">
-                        <span data-i18n="menu_play">Play</span>
-                        <span class="menu-dropdown-caret" aria-hidden="true">▾</span>
-                    </button>
-                    <div class="menu-dropdown-panel" role="menu" aria-label="Play">
-                    <a href="battle.html" class="menu-dropdown-link" data-i18n="menu_play_hub">Hub</a>
-                    <a href="maps.html" class="menu-dropdown-link" data-i18n="menu_play_maps">Maps</a>
-                    <a href="battle-arena.html" class="menu-dropdown-link" data-i18n="menu_play_arena">Arena</a>
-                    <a href="gyms.html" class="menu-dropdown-link" data-i18n="menu_play_gyms">Gyms</a>
-                    <a href="idle.html" class="menu-dropdown-link" data-i18n="menu_play_idle">Idle</a>
-                    </div>
-                </div>
+    <button class="menu-dropdown-toggle" type="button" data-menu-dropdown-toggle="play" aria-expanded="false">
+        <span data-i18n="menu_play">Battle</span>
+        <span class="menu-dropdown-caret" aria-hidden="true">▾</span>
+    </button>
+    <div class="menu-dropdown-panel" role="menu" aria-label="Battle">
+        <a href="battle.html" class="menu-dropdown-link" data-i18n="menu_play_battle_ia">Battle IA</a>
+        <a href="gyms.html" class="menu-dropdown-link" data-i18n="menu_play_gyms">Gyms</a>
+        <a href="#" class="menu-dropdown-link menu-disabled" onclick="return false;" aria-disabled="true" data-i18n="menu_play_pvp">PvP</a>
+        <a href="idle.html" class="menu-dropdown-link" data-i18n="menu_play_idle">Idle</a>
+    </div>
+</div>
                 <a href="mypokemon.html" class="active" data-i18n="menu_collection">Collection</a>
                 <a href="pokemart.html" data-i18n="menu_shop">Shop</a>
                 <a href="ranking.html" data-i18n="menu_ranking">Ranking</a>
-
-                <a href="#" class="menu-disabled" data-i18n="menu_more" onclick="return false;" aria-disabled="true">More</a>
             </nav>
 
             <div class="menu-auth-area">
@@ -73,21 +71,20 @@
         <div class="menu-links-mobile" id="menuMobile">
             <div class="mobile-panel">
                 <a href="index.html" data-i18n="menu_pokedex">Pokedex</a>
+                <a href="maps.html" data-i18n="menu_maps">Maps</a>
                 <button class="menu-mobile-group-toggle" type="button" data-menu-mobile-group-toggle="play" aria-expanded="false">
-                    <span data-i18n="menu_play">Play</span>
-                    <span class="menu-mobile-caret" aria-hidden="true">▾</span>
-                </button>
-                <div class="menu-mobile-submenu" data-menu-mobile-group="play">
-                    <a href="battle.html" class="menu-mobile-submenu-link" data-i18n="menu_play_hub">Hub</a>
-                    <a href="maps.html" class="menu-mobile-submenu-link" data-i18n="menu_play_maps">Maps</a>
-                    <a href="battle-arena.html" class="menu-mobile-submenu-link" data-i18n="menu_play_arena">Arena</a>
-                    <a href="gyms.html" class="menu-mobile-submenu-link" data-i18n="menu_play_gyms">Gyms</a>
-                    <a href="idle.html" class="menu-mobile-submenu-link" data-i18n="menu_play_idle">Idle</a>
-                </div>
+    <span data-i18n="menu_play">Battle</span>
+    <span class="menu-mobile-caret" aria-hidden="true">▾</span>
+</button>
+<div class="menu-mobile-submenu" data-menu-mobile-group="play">
+    <a href="battle.html" class="menu-mobile-submenu-link" data-i18n="menu_play_battle_ia">Battle IA</a>
+    <a href="gyms.html" class="menu-mobile-submenu-link" data-i18n="menu_play_gyms">Gyms</a>
+    <a href="#" class="menu-mobile-submenu-link menu-disabled" onclick="return false;" aria-disabled="true" data-i18n="menu_play_pvp">PvP</a>
+    <a href="idle.html" class="menu-mobile-submenu-link" data-i18n="menu_play_idle">Idle</a>
+</div>
                 <a href="mypokemon.html" class="active" data-i18n="menu_collection">Collection</a>
                 <a href="pokemart.html" data-i18n="menu_shop">Shop</a>
                 <a href="ranking.html" data-i18n="menu_ranking">Ranking</a>
-                <a href="#" class="menu-disabled" data-i18n="menu_more" onclick="return false;" aria-disabled="true">More</a>
 
                 <div class="menu-mobile-user">
                     <div class="lang-switch">
@@ -116,6 +113,7 @@
             </div>
         </div>
     </header>
+
 
     <section class="seccion-pokedex">
         <div class="encabezado-pokedex">

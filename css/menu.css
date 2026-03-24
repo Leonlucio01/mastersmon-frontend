@@ -42,7 +42,7 @@
     display:flex;
     justify-content:center;
     align-items:center;
-    gap:10px;
+    gap:8px;
     flex-wrap:wrap;
 }
 
@@ -51,7 +51,7 @@
     text-decoration:none;
     font-size:14px;
     font-weight:800;
-    padding:10px 14px;
+    padding:10px 12px;
     border-radius:999px;
     transition:all 0.2s ease;
     border:1px solid transparent;
@@ -355,6 +355,13 @@
     box-shadow:0 8px 18px rgba(255,255,255,0.14);
 }
 
+.menu-subnav-link-disabled{
+    opacity:0.58;
+    cursor:not-allowed;
+    pointer-events:none;
+}
+
+
 @media (max-width: 900px){
     .menu-subnav-inner{
         padding:10px 14px;
@@ -374,7 +381,7 @@
     text-decoration:none;
     font-size:14px;
     font-weight:800;
-    padding:10px 14px;
+    padding:10px 12px;
     border-radius:999px;
     transition:all 0.2s ease;
     border:1px solid transparent;
