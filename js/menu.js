@@ -35,12 +35,22 @@ document.addEventListener("DOMContentLoaded", () => {
     desktopDropdownToggles.forEach((toggle) => {
         toggle.addEventListener("click", (event) => {
             event.preventDefault();
+            event.stopPropagation();
             const dropdown = toggle.closest(".menu-dropdown");
+            if (!dropdown) return;
             const willOpen = !dropdown.classList.contains("is-open");
             closeDesktopDropdowns();
             if (willOpen) {
                 dropdown.classList.add("is-open");
                 toggle.setAttribute("aria-expanded", "true");
+            }
+        });
+    });
+
+    document.querySelectorAll(".menu-dropdown-panel a").forEach((link) => {
+        link.addEventListener("click", () => {
+            if (!link.classList.contains("menu-disabled")) {
+                closeDesktopDropdowns();
             }
         });
     });
@@ -61,6 +71,13 @@ document.addEventListener("DOMContentLoaded", () => {
         const insideDropdown = event.target.closest(".menu-dropdown");
         if (!insideDropdown) {
             closeDesktopDropdowns();
+        }
+    });
+
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+            closeDesktopDropdowns();
+            closeMobileMenu();
         }
     });
 

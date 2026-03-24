@@ -433,40 +433,15 @@ function configurarEventosArena() {
 }
 
 function configurarMenuMobileArena() {
-    const menuToggle = document.getElementById("menuToggle");
-    const menuMobile = document.getElementById("menuMobile");
-
-    if (!menuToggle || !menuMobile) return;
-
-    menuToggle.addEventListener("click", () => {
-        menuMobile.classList.toggle("menu-open");
-    });
+    return;
 }
 
 function cerrarMenuMobileArena() {
-    const menuMobile = document.getElementById("menuMobile");
-    if (menuMobile) {
-        menuMobile.classList.remove("menu-open");
-    }
+    return;
 }
 
 function configurarIdiomaArena() {
-    const languageSelect = document.getElementById("languageSelect");
-
-    if (languageSelect && typeof getCurrentLang === "function") {
-        languageSelect.value = getCurrentLang();
-        languageSelect.addEventListener("change", (e) => {
-            if (typeof setCurrentLang === "function") {
-                setCurrentLang(e.target.value);
-            }
-        });
-    }
-
-    document.addEventListener("languageChanged", refrescarUIArenaPorIdioma);
-
-    if (typeof applyTranslations === "function") {
-        applyTranslations();
-    }
+    return;
 }
 
 function refrescarUIArenaPorIdioma() {

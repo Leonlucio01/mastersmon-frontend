@@ -26,14 +26,17 @@ const BATTLE_IDLE_SESSION_KEY = "mastersmon_battle_idle_session_v1";
 
 let battleActividadTimer = null;
 
-function battleTieneVistaExpandida() {
-    return Boolean(document.getElementById("battleModeGrid") || document.getElementById("battleBossCard") || document.getElementById("battleIdleCard"));
-}
-
-
 document.addEventListener("DOMContentLoaded", () => {
     inicializarBattle();
 });
+
+
+function esVistaBattleIABattle() {
+    return !document.querySelector("[data-battle-mode]")
+        && !document.getElementById("battleBossCard")
+        && !document.getElementById("battleIdleCard")
+        && !document.getElementById("battleModoActualCard");
+}
 
 async function inicializarBattle() {
     const languageSelect = document.getElementById("languageSelect");
@@ -52,25 +55,25 @@ async function inicializarBattle() {
         applyTranslations();
     }
 
-    cargarModoBattle();
     configurarResumenUsuarioBattle();
+    cargarModoBattle();
+
+    if (esVistaBattleIABattle()) {
+        battleModoActual = "arena";
+        persistirModoBattle();
+    }
     configurarEventosBattle();
     cargarEquipoGuardadoBattle();
     cargarDificultadBattle();
     renderSlotsEquipoBattle();
     renderResumenEquipoBattle();
-    renderColeccionBattleLoading();
-
-    if (battleTieneVistaExpandida()) {
-        renderPanelModoActualBattle();
+    renderPanelModoActualBattle();
+    if (!esVistaBattleIABattle()) {
         renderBossBattle();
         renderIdleBattle();
-        iniciarRelojModosBattle();
-    } else {
-        battleModoActual = "arena";
-        persistirModoBattle();
-        actualizarEstadoModoSeleccionadoBattle();
     }
+    renderColeccionBattleLoading();
+    iniciarRelojModosBattle();
 
     try {
         await cargarPokemonUsuarioBattle();
@@ -79,14 +82,12 @@ async function inicializarBattle() {
         renderSlotsEquipoBattle();
         renderColeccionBattle();
         renderResumenEquipoBattle();
-
-        if (battleTieneVistaExpandida()) {
+        if (!esVistaBattleIABattle()) {
             await Promise.all([
                 cargarEstadoBossBattle(true),
                 cargarEstadoIdleBattle(true)
             ]);
         }
-
         iniciarHeartbeatActividadBattle();
     } catch (error) {
         console.error("Error iniciando Battle:", error);
@@ -101,14 +102,12 @@ async function inicializarBattle() {
                 renderSlotsEquipoBattle();
                 renderColeccionBattle();
                 renderResumenEquipoBattle();
-
-                if (battleTieneVistaExpandida()) {
+                if (!esVistaBattleIABattle()) {
                     await Promise.all([
                         cargarEstadoBossBattle(true),
                         cargarEstadoIdleBattle(true)
                     ]);
                 }
-
                 iniciarHeartbeatActividadBattle();
             } catch (retryError) {
                 console.error("Error en reintento de Battle:", retryError);
@@ -128,13 +127,12 @@ function refrescarUIBattlePorIdioma() {
     actualizarUISelectorModoBattle();
     renderSlotsEquipoBattle();
     renderResumenEquipoBattle();
-    renderColeccionBattle();
-
-    if (battleTieneVistaExpandida()) {
-        renderPanelModoActualBattle();
+    renderPanelModoActualBattle();
+    if (!esVistaBattleIABattle()) {
         renderBossBattle();
         renderIdleBattle();
     }
+    renderColeccionBattle();
 }
 
 /* =========================
@@ -977,11 +975,6 @@ function compararPokemonBattle(a, b, orden) {
    ACCIONES
 ========================= */
 async function ejecutarModoSeleccionadoBattle() {
-    if (!battleTieneVistaExpandida()) {
-        battleModoActual = "arena";
-        return iniciarBatallaDemo();
-    }
-
     if (battleModoActual === "boss") return iniciarModoBossBattle();
     if (battleModoActual === "idle") return iniciarModoIdleBattle();
     return iniciarBatallaDemo();
@@ -1159,15 +1152,12 @@ function BATTLE_ARENA_PLAYER_TEAM_KEY_SAFE() {
 }
 
 function cargarModoBattle() {
-    if (!battleTieneVistaExpandida()) {
-        battleModoActual = "arena";
-        persistirModoBattle();
-        actualizarUISelectorModoBattle();
-        return;
-    }
-
     const guardado = localStorage.getItem(BATTLE_MODE_STORAGE_KEY) || sessionStorage.getItem(BATTLE_MODE_STORAGE_KEY) || "arena";
-    battleModoActual = ["arena", "boss", "idle"].includes(String(guardado).toLowerCase()) ? String(guardado).toLowerCase() : "arena";
+    if (esVistaBattleIABattle()) {
+        battleModoActual = "arena";
+    } else {
+        battleModoActual = ["arena", "boss", "idle"].includes(String(guardado).toLowerCase()) ? String(guardado).toLowerCase() : "arena";
+    }
     actualizarUISelectorModoBattle();
 }
 
@@ -1199,16 +1189,6 @@ function actualizarEstadoModoSeleccionadoBattle() {
     const btnIniciar = document.getElementById("btnIniciarBatalla");
     const selectDificultad = document.getElementById("battleDificultadRival");
     const diffCard = document.getElementById("battleDifficultyCard");
-
-    if (!battleTieneVistaExpandida()) {
-        battleModoActual = "arena";
-        if (selectDificultad) selectDificultad.disabled = false;
-        if (diffCard) diffCard.classList.remove("battle-mode-hidden");
-        if (btnIniciar) {
-            btnIniciar.textContent = tBattleSafe("battle_start_arena", "Start battle");
-        }
-        return;
-    }
 
     if (selectDificultad) selectDificultad.disabled = battleModoActual !== "arena";
     if (diffCard) diffCard.classList.toggle("battle-mode-hidden", battleModoActual !== "arena");
@@ -1261,6 +1241,7 @@ function detenerRelojModosBattle() {
 }
 
 function actualizarTemporizadoresLocalesBattle() {
+    if (esVistaBattleIABattle()) return;
     if (battleBossEstadoActual?.hora_inicio && battleBossEstadoActual?.hora_fin) {
         const ahora = Date.now();
         const inicioMs = Date.parse(battleBossEstadoActual.hora_inicio);

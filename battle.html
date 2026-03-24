@@ -1,206 +1,278 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Mastersmon - Battle Team</title>
-<link href="css/style.css" rel="stylesheet"/>
-<link href="css/menu.css" rel="stylesheet"/>
-<link href="css/battle.css" rel="stylesheet"/>
-<script async="" defer="" src="https://accounts.google.com/gsi/client"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mastersmon - Battle IA</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/menu.css">
+    <link rel="stylesheet" href="css/battle.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
-<header class="menu menu-pro">
-<div class="menu-topbar">
-<h1 class="logo">Pokemon World</h1>
-<nav class="menu-nav-desktop">
-<a data-i18n="menu_pokedex" href="index.html">Pokedex</a>
-<a class="active" data-i18n="menu_battle" href="battle.html">Battle</a>
-<a data-i18n="menu_maps" href="maps.html">Maps</a>
-<a data-i18n="menu_my_pokemon" href="mypokemon.html">My Pokemon</a>
-<a data-i18n="menu_pokemart" href="pokemart.html">PokeMart</a>
-<a data-i18n="menu_ranking" href="ranking.html">Ranking</a>
-</nav>
-<div class="menu-auth-area">
-<div class="lang-switch">
-<select id="languageSelect">
-<option value="en">EN</option>
-<option value="es">ES</option>
-</select>
-</div>
-<div id="loginMenuContainer">
-<div data-callback="handleCredentialResponse" data-client_id="535230935122-vqqd262fjhetd408li95420bb8cas5vb.apps.googleusercontent.com" id="g_id_onload">
-</div>
-<div class="g_id_signin" data-logo_alignment="left" data-shape="pill" data-size="medium" data-text="signin_with" data-theme="outline" data-type="standard">
-</div>
-</div>
-<div class="oculto" id="usuarioMenu">
-<span id="nombreUsuario"></span>
-<button data-i18n="menu_logout" id="cerrarSesionMenu" type="button">Logout</button>
-</div>
-</div>
-<button class="menu-toggle" id="menuToggle" type="button">☰</button>
-</div>
-<div class="menu-links-mobile" id="menuMobile">
-<div class="mobile-panel">
-<a data-i18n="menu_pokedex" href="index.html">Pokedex</a>
-<a class="active" data-i18n="menu_battle" href="battle.html">Battle</a>
-<a data-i18n="menu_maps" href="maps.html">Maps</a>
-<a data-i18n="menu_my_pokemon" href="mypokemon.html">My Pokemon</a>
-<a data-i18n="menu_pokemart" href="pokemart.html">PokeMart</a>
-<a data-i18n="menu_ranking" href="ranking.html">Ranking</a>
-<div class="menu-mobile-user">
-<div id="loginMenuContainerMobile">
-<div class="g_id_signin" data-logo_alignment="left" data-shape="pill" data-size="medium" data-text="signin_with" data-theme="outline" data-type="standard">
-</div>
-</div>
-<div class="oculto" id="usuarioMenuMobile">
-<span id="nombreUsuarioMobile"></span>
-<button data-i18n="menu_logout" id="cerrarSesionMenuMobile" type="button">Logout</button>
-</div>
-</div>
-</div>
-</div>
-</header>
-<main class="battle-page">
-<section class="battle-hero">
-<div class="battle-hero-badge" data-i18n="battle_badge">Tactical mode</div>
-<h2 class="battle-title" data-i18n="battle_title">BATTLE</h2>
-<p class="battle-subtitle" data-i18n="battle_subtitle">
+
+    <header class="menu menu-pro">
+        <div class="menu-topbar">
+            <h1 class="logo">Mastersmon</h1>
+
+            <nav class="menu-nav-desktop">
+                <a href="index.html" data-i18n="menu_pokedex">Pokedex</a>
+                <div class="menu-dropdown menu-dropdown-play is-active">
+                    <button class="menu-dropdown-toggle active" type="button" data-menu-dropdown-toggle="play" aria-expanded="false">
+                        <span data-i18n="menu_play">Play</span>
+                        <span class="menu-dropdown-caret" aria-hidden="true">▾</span>
+                    </button>
+                    <div class="menu-dropdown-panel" role="menu" aria-label="Play">
+                        <a href="battle.html" class="menu-dropdown-link active" data-i18n="menu_play_battle_ia">Battle IA</a>
+                        <a href="maps.html" class="menu-dropdown-link" data-i18n="menu_play_maps">Maps</a>
+                        <a href="gyms.html" class="menu-dropdown-link" data-i18n="menu_play_gyms">Gyms</a>
+                        <a href="idle.html" class="menu-dropdown-link" data-i18n="menu_play_idle">Idle</a>
+                        <a href="#" class="menu-dropdown-link menu-disabled" onclick="return false;" aria-disabled="true" data-i18n="menu_play_pvp">PvP</a>
+                    </div>
+                </div>
+                <a href="mypokemon.html" data-i18n="menu_collection">Collection</a>
+                <a href="pokemart.html" data-i18n="menu_shop">Shop</a>
+                <a href="ranking.html" data-i18n="menu_ranking">Ranking</a>
+                <a href="#" class="menu-disabled" data-i18n="menu_more" onclick="return false;" aria-disabled="true">More</a>
+            </nav>
+
+            <div class="menu-auth-area">
+                <div class="lang-switch">
+                    <select id="languageSelect" aria-label="Language">
+                        <option value="en">EN</option>
+                        <option value="es">ES</option>
+                    </select>
+                </div>
+
+                <div id="loginMenuContainer">
+                    <div id="g_id_onload"
+                         data-client_id="535230935122-vqqd262fjhetd408li95420bb8cas5vb.apps.googleusercontent.com"
+                         data-callback="handleCredentialResponse">
+                    </div>
+
+                    <div class="g_id_signin"
+                         data-type="standard"
+                         data-size="medium"
+                         data-theme="outline"
+                         data-text="signin_with"
+                         data-shape="pill"
+                         data-logo_alignment="left">
+                    </div>
+                </div>
+
+                <div id="usuarioMenu" class="oculto">
+                    <span id="nombreUsuario"></span>
+                    <button id="cerrarSesionMenu" type="button" data-i18n="menu_logout">Logout</button>
+                </div>
+            </div>
+
+            <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open menu">☰</button>
+        </div>
+
+        <div class="menu-links-mobile" id="menuMobile">
+            <div class="mobile-panel">
+                <a href="index.html" data-i18n="menu_pokedex">Pokedex</a>
+                <button class="menu-mobile-group-toggle active" type="button" data-menu-mobile-group-toggle="play" aria-expanded="true">
+                    <span data-i18n="menu_play">Play</span>
+                    <span class="menu-mobile-caret" aria-hidden="true">▾</span>
+                </button>
+                <div class="menu-mobile-submenu is-open" data-menu-mobile-group="play">
+                    <a href="battle.html" class="menu-mobile-submenu-link active" data-i18n="menu_play_battle_ia">Battle IA</a>
+                    <a href="maps.html" class="menu-mobile-submenu-link" data-i18n="menu_play_maps">Maps</a>
+                    <a href="gyms.html" class="menu-mobile-submenu-link" data-i18n="menu_play_gyms">Gyms</a>
+                    <a href="idle.html" class="menu-mobile-submenu-link" data-i18n="menu_play_idle">Idle</a>
+                    <a href="#" class="menu-mobile-submenu-link menu-disabled" onclick="return false;" aria-disabled="true" data-i18n="menu_play_pvp">PvP</a>
+                </div>
+                <a href="mypokemon.html" data-i18n="menu_collection">Collection</a>
+                <a href="pokemart.html" data-i18n="menu_shop">Shop</a>
+                <a href="ranking.html" data-i18n="menu_ranking">Ranking</a>
+                <a href="#" class="menu-disabled" data-i18n="menu_more" onclick="return false;" aria-disabled="true">More</a>
+
+                <div class="menu-mobile-user">
+                    <div class="lang-switch">
+                        <select id="languageSelectMobile" aria-label="Language">
+                            <option value="en">EN</option>
+                            <option value="es">ES</option>
+                        </select>
+                    </div>
+
+                    <div id="loginMenuContainerMobile">
+                        <div class="g_id_signin"
+                             data-type="standard"
+                             data-size="medium"
+                             data-theme="outline"
+                             data-text="signin_with"
+                             data-shape="pill"
+                             data-logo_alignment="left">
+                        </div>
+                    </div>
+
+                    <div id="usuarioMenuMobile" class="oculto">
+                        <span id="nombreUsuarioMobile"></span>
+                        <button id="cerrarSesionMenuMobile" type="button" data-i18n="menu_logout">Logout</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="battle-page battle-page-clean">
+        <section class="battle-hero" id="battleOverviewSection">
+            <div class="battle-hero-badge" data-i18n="battle_badge">Tactical mode</div>
+            <h2 class="battle-title" data-i18n="battle_title">BATTLE</h2>
+            <p class="battle-subtitle" data-i18n="battle_subtitle">
                 Prepare your team of 6 Pokémon for turn-based RPG battles and experience progression.
             </p>
-</section>
-<section class="battle-dashboard">
-<div class="battle-summary-card">
-<div class="battle-summary-top">
-<div>
-<span class="battle-summary-label" data-i18n="battle_team_status_label">Team status</span>
-<h3 data-i18n="battle_team_squad_title">Your battle squad</h3>
-</div>
-<div class="battle-summary-counter">
-<strong id="contadorEquipo">0 / 6</strong>
-<span data-i18n="battle_filled_slots">Filled slots</span>
-</div>
-</div>
-<div class="battle-summary-stats">
-<div class="summary-mini-card">
-<span data-i18n="battle_avg_level">Average level</span>
-<strong id="battlePromedioNivel">—</strong>
-</div>
-<div class="summary-mini-card battle-difficulty-card" id="battleDifficultyCard">
-<span data-i18n="battle_enemy_difficulty">Enemy difficulty</span>
-<select class="battle-difficulty-select" id="battleDificultadRival">
-<option data-i18n="battle_difficulty_normal" value="0">Normal · +0 levels</option>
-<option data-i18n="battle_difficulty_challenge" value="2">Challenge · +2 levels</option>
-<option data-i18n="battle_difficulty_expert" value="4">Expert · +4 levels</option>
-<option data-i18n="battle_difficulty_master" value="6">Master · +6 levels</option>
-</select>
-<small data-i18n="battle_difficulty_help" id="battleDificultadTexto">
+        </section>
+
+        <section class="battle-dashboard">
+            <div class="battle-summary-card">
+                <div class="battle-summary-top">
+                    <div>
+                        <span class="battle-summary-label" data-i18n="battle_team_status_label">Team status</span>
+                        <h3 data-i18n="battle_team_squad_title">Your battle squad</h3>
+                    </div>
+
+                    <div class="battle-summary-counter">
+                        <strong id="contadorEquipo">0 / 6</strong>
+                        <span data-i18n="battle_filled_slots">Filled slots</span>
+                    </div>
+                </div>
+
+                <div class="battle-summary-stats">
+                    <div class="summary-mini-card">
+                        <span data-i18n="battle_avg_level">Average level</span>
+                        <strong id="battlePromedioNivel">—</strong>
+                    </div>
+
+                    <div class="summary-mini-card battle-difficulty-card" id="battleDifficultyCard">
+                        <span data-i18n="battle_enemy_difficulty">Enemy difficulty</span>
+                        <select id="battleDificultadRival" class="battle-difficulty-select">
+                            <option value="0" data-i18n="battle_difficulty_normal">Normal · +0 levels</option>
+                            <option value="2" data-i18n="battle_difficulty_challenge">Challenge · +2 levels</option>
+                            <option value="4" data-i18n="battle_difficulty_expert">Expert · +4 levels</option>
+                            <option value="6" data-i18n="battle_difficulty_master">Master · +6 levels</option>
+                        </select>
+                        <small id="battleDificultadTexto" data-i18n="battle_difficulty_help">
                             Rivals will appear close to your team average.
                         </small>
-</div>
-<div class="summary-mini-card">
-<span data-i18n="battle_dominant_type">Dominant type</span>
-<strong id="battleTipoDominante">—</strong>
-</div>
-<div class="summary-mini-card">
-<span data-i18n="battle_team_status">Status</span>
-<strong data-i18n="battle_team_status_preparing" id="battleEstadoEquipo">Preparing</strong>
-</div>
-</div>
-</div>
-</section>
+                    </div>
 
-<section class="battle-layout battle-layout-clean">
-<div class="battle-panel battle-team-panel battle-team-panel-full">
-<div class="battle-panel-header">
-<div>
-<span class="battle-panel-kicker" data-i18n="battle_main_team">Main team</span>
-<h3 data-i18n="battle_build_team_title">Build your team of 6</h3>
-</div>
-<span class="battle-panel-chip" data-i18n="battle_step_1">Arena</span>
-</div>
-<p class="battle-panel-description" data-i18n="battle_team_description">
+                    <div class="summary-mini-card">
+                        <span data-i18n="battle_dominant_type">Dominant type</span>
+                        <strong id="battleTipoDominante">—</strong>
+                    </div>
+
+                    <div class="summary-mini-card">
+                        <span data-i18n="battle_team_status">Status</span>
+                        <strong id="battleEstadoEquipo" data-i18n="battle_team_status_preparing">Preparing</strong>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="battle-layout battle-layout-single" id="battleTeamSection">
+            <div class="battle-panel battle-team-panel battle-team-panel-wide">
+                <div class="battle-panel-header">
+                    <div>
+                        <span class="battle-panel-kicker" data-i18n="battle_main_team">Main team</span>
+                        <h3 data-i18n="battle_build_team_title">Build your team of 6</h3>
+                    </div>
+                    <span class="battle-panel-chip" data-i18n="battle_step_1">Step 1</span>
+                </div>
+
+                <p class="battle-panel-description" data-i18n="battle_team_description">
                     Select the Pokémon you will use in battle. Later you will be able to order them,
                     review roles, and prepare strategies before starting combat.
                 </p>
-<div class="battle-team-grid" id="equipoSlots"></div>
-<div class="battle-actions">
-<button class="btn-battle btn-battle-light" data-i18n="battle_clear_team" id="btnLimpiarEquipo" type="button">
+
+                <div id="equipoSlots" class="battle-team-grid"></div>
+
+                <div class="battle-actions battle-actions-centered">
+                    <button class="btn-battle btn-battle-light" id="btnLimpiarEquipo" type="button" data-i18n="battle_clear_team">
                         Clear team
                     </button>
-<button class="btn-battle btn-battle-secondary" data-i18n="battle_save_team" id="btnGuardarEquipo" type="button">
+                    <button class="btn-battle btn-battle-secondary" id="btnGuardarEquipo" type="button" data-i18n="battle_save_team">
                         Save team
                     </button>
-<button class="btn-battle btn-battle-primary" data-i18n="battle_start_combat" disabled="" id="btnIniciarBatalla" type="button">
+                    <button class="btn-battle btn-battle-primary" id="btnIniciarBatalla" type="button" disabled data-i18n="battle_start_combat">
                         Start battle
                     </button>
-</div>
-</div>
+                </div>
+            </div>
+        </section>
 
-</section>
-<section class="battle-roster-section">
-<div class="battle-panel battle-roster-panel">
-<div class="battle-panel-header">
-<div>
-<span class="battle-panel-kicker" data-i18n="battle_collection">Collection</span>
-<h3 data-i18n="battle_available_roster_title">Pokémon available for the team</h3>
-</div>
-<span class="battle-panel-chip" data-i18n="battle_selection">Selection</span>
-</div>
-<div class="battle-tabs">
-<button class="battle-tab active" data-battle-tab="todos" data-i18n="battle_tab_all" type="button">All</button>
-<button class="battle-tab" data-battle-tab="disponibles" data-i18n="battle_tab_available" type="button">Available</button>
-<button class="battle-tab" data-battle-tab="equipo" data-i18n="battle_tab_in_team" type="button">In team</button>
-</div>
-<div class="battle-filters">
-<input data-i18n-placeholder="battle_search_placeholder" id="buscarPokemonBattle" placeholder="Search by name..." type="text"/>
-<select id="filtroTipoBattle">
-<option data-i18n="battle_all_types" value="">All types</option>
-</select>
-<select id="filtroEstadoBattle">
-<option data-i18n="battle_filter_all" value="todos">All</option>
-<option data-i18n="battle_filter_normal" value="normal">Normal</option>
-<option data-i18n="battle_filter_shiny" value="shiny">Shiny</option>
-</select>
-<select id="filtroOrdenBattle">
-<option data-i18n="battle_sort_id" value="id_pokemon">Pokémon ID</option>
-<option data-i18n="battle_sort_hp" value="hp">HP</option>
-<option data-i18n="battle_sort_atk" value="atk">ATK</option>
-<option data-i18n="battle_sort_def" value="def">DEF</option>
-<option data-i18n="battle_sort_level" value="nivel">Level</option>
-<option data-i18n="battle_sort_recent" value="reciente">Most recent</option>
-</select>
-</div>
-<div class="battle-roster-grid" id="coleccionBattle"></div>
-</div>
-</section>
-</main>
-<div class="battle-modal-overlay oculto" id="battleModal">
-<div class="battle-modal">
-<div class="battle-modal-icon" id="battleModalIcon">✓</div>
-<h3 data-i18n="battle_modal_default_title" id="battleModalTitle">Message</h3>
-<p data-i18n="battle_modal_default_text" id="battleModalText">Modal text</p>
-<div id="battleSingleClose">
-<button class="battle-modal-btn battle-modal-btn-primary" data-i18n="battle_continue" id="battleModalClose" type="button">
+        <section class="battle-roster-section" id="battleRosterSection">
+            <div class="battle-panel battle-roster-panel">
+                <div class="battle-panel-header">
+                    <div>
+                        <span class="battle-panel-kicker" data-i18n="battle_collection">Collection</span>
+                        <h3 data-i18n="battle_available_roster_title">Pokémon available for the team</h3>
+                    </div>
+                    <span class="battle-panel-chip" data-i18n="battle_selection">Selection</span>
+                </div>
+
+                <div class="battle-tabs">
+                    <button class="battle-tab active" type="button" data-battle-tab="todos" data-i18n="battle_tab_all">All</button>
+                    <button class="battle-tab" type="button" data-battle-tab="disponibles" data-i18n="battle_tab_available">Available</button>
+                    <button class="battle-tab" type="button" data-battle-tab="equipo" data-i18n="battle_tab_in_team">In team</button>
+                </div>
+
+                <div class="battle-filters">
+                    <input type="text" id="buscarPokemonBattle" placeholder="Search by name..." data-i18n-placeholder="battle_search_placeholder">
+
+                    <select id="filtroTipoBattle">
+                        <option value="" data-i18n="battle_all_types">All types</option>
+                    </select>
+
+                    <select id="filtroEstadoBattle">
+                        <option value="todos" data-i18n="battle_filter_all">All</option>
+                        <option value="normal" data-i18n="battle_filter_normal">Normal</option>
+                        <option value="shiny" data-i18n="battle_filter_shiny">Shiny</option>
+                    </select>
+
+                    <select id="filtroOrdenBattle">
+                        <option value="id_pokemon" data-i18n="battle_sort_id">Pokémon ID</option>
+                        <option value="hp" data-i18n="battle_sort_hp">HP</option>
+                        <option value="atk" data-i18n="battle_sort_atk">ATK</option>
+                        <option value="def" data-i18n="battle_sort_def">DEF</option>
+                        <option value="nivel" data-i18n="battle_sort_level">Level</option>
+                        <option value="reciente" data-i18n="battle_sort_recent">Most recent</option>
+                    </select>
+                </div>
+
+                <div id="coleccionBattle" class="battle-roster-grid"></div>
+            </div>
+        </section>
+    </main>
+
+    <div id="battleModal" class="battle-modal-overlay oculto">
+        <div class="battle-modal">
+            <div id="battleModalIcon" class="battle-modal-icon">✓</div>
+            <h3 id="battleModalTitle" data-i18n="battle_modal_default_title">Message</h3>
+            <p id="battleModalText" data-i18n="battle_modal_default_text">Modal text</p>
+
+            <div id="battleSingleClose">
+                <button id="battleModalClose" class="battle-modal-btn battle-modal-btn-primary" type="button" data-i18n="battle_continue">
                     Continue
                 </button>
-</div>
-<div class="battle-modal-actions oculto" id="battleConfirmActions">
-<button class="battle-modal-btn battle-modal-btn-light" data-i18n="battle_cancel" id="battleConfirmCancel" type="button">
+            </div>
+
+            <div id="battleConfirmActions" class="battle-modal-actions oculto">
+                <button id="battleConfirmCancel" class="battle-modal-btn battle-modal-btn-light" type="button" data-i18n="battle_cancel">
                     Cancel
                 </button>
-<button class="battle-modal-btn battle-modal-btn-danger" data-i18n="battle_confirm" id="battleConfirmAccept" type="button">
+                <button id="battleConfirmAccept" class="battle-modal-btn battle-modal-btn-danger" type="button" data-i18n="battle_confirm">
                     Confirm
                 </button>
-</div>
-</div>
-</div>
-<script src="js/api.js"></script>
-<script src="js/i18n.js"></script><script src="js/menu.js"></script>
-<script src="js/gmail.js"></script>
-<script src="js/battle.js"></script>
+            </div>
+        </div>
+    </div>
 
+    <script src="js/api.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/menu.js"></script>
+    <script src="js/gmail.js"></script>
+    <script src="js/battle.js"></script>
 </body>
 </html>

@@ -1935,33 +1935,43 @@
 }
 
 
-/* =========================
-   BATTLE CLEAN LAYOUT
-========================= */
-.battle-layout.battle-layout-clean{
-    grid-template-columns:1fr;
+/* =========================================================
+   CLEAN BATTLE IA LAYOUT
+========================================================= */
+.battle-page-clean{
+    padding-top: 22px;
 }
 
-.battle-team-panel-full{
-    width:100%;
+.battle-layout-single{
+    grid-template-columns: 1fr;
 }
 
-.battle-team-panel-full .battle-panel-header{
-    margin-bottom:14px;
+.battle-team-panel-wide{
+    width: 100%;
 }
 
-.battle-team-panel-full .battle-panel-chip{
-    background:linear-gradient(180deg,#eff6ff 0%,#dbeafe 100%);
-    color:#1d4ed8;
-    border-color:#bfdbfe;
+.battle-actions-centered{
+    justify-content: center;
 }
 
-.battle-team-panel-full .battle-actions{
-    margin-top:8px;
+.battle-page-clean .battle-dashboard{
+    margin-bottom: 18px;
 }
 
-@media (max-width: 980px){
-    .battle-layout.battle-layout-clean{
-        grid-template-columns:1fr;
+.battle-page-clean .battle-layout{
+    margin-bottom: 24px;
+}
+
+.battle-page-clean .battle-panel{
+    overflow: hidden;
+}
+
+@media (max-width: 900px){
+    .battle-page-clean{
+        padding-top: 18px;
+    }
+
+    .battle-actions-centered{
+        justify-content: stretch;
     }
 }
