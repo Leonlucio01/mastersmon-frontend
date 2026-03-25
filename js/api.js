@@ -866,6 +866,85 @@ async function cancelarModoIdle(idleSessionToken = "") {
     }
 }
 
+
+
+/* =========================================================
+   GYMS
+========================================================= */
+
+async function obtenerCatalogoGyms() {
+    try {
+        return await fetchAuth(`${API_BASE}/battle/gyms/catalogo`);
+    } catch (error) {
+        console.error("Error en obtenerCatalogoGyms:", error);
+        throw error;
+    }
+}
+
+async function obtenerProgresoGyms() {
+    try {
+        return await fetchAuth(`${API_BASE}/battle/gyms/progreso`);
+    } catch (error) {
+        console.error("Error en obtenerProgresoGyms:", error);
+        throw error;
+    }
+}
+
+async function iniciarGymBattle(gymCodigo = "", usuarioPokemonIds = null, guardarEquipo = true) {
+    try {
+        return await fetchAuth(`${API_BASE}/battle/gyms/iniciar`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                gym_codigo: String(gymCodigo || "").trim(),
+                usuario_pokemon_ids: Array.isArray(usuarioPokemonIds) ? usuarioPokemonIds : null,
+                guardar_equipo: Boolean(guardarEquipo)
+            })
+        });
+    } catch (error) {
+        console.error("Error en iniciarGymBattle:", error);
+        throw error;
+    }
+}
+
+async function reclamarGymBattle(gymSessionToken = "", victoria = false, turnos = 0) {
+    try {
+        return await fetchAuth(`${API_BASE}/battle/gyms/recompensa`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                gym_session_token: String(gymSessionToken || "").trim(),
+                victoria: Boolean(victoria),
+                turnos: Number(turnos) || 0
+            })
+        });
+    } catch (error) {
+        console.error("Error en reclamarGymBattle:", error);
+        throw error;
+    }
+}
+
+async function cancelarGymBattle(gymSessionToken = "") {
+    try {
+        return await fetchAuth(`${API_BASE}/battle/gyms/cancelar`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                gym_session_token: String(gymSessionToken || "").trim()
+            })
+        });
+    } catch (error) {
+        console.error("Error en cancelarGymBattle:", error);
+        throw error;
+    }
+}
+
 /* =========================================================
    PAYMENTS / MONETIZATION
 ========================================================= */

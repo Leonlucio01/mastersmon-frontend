@@ -639,6 +639,9 @@ const gymsState = {
     regionId: "kanto",
     selectedGymId: null,
     team: [],
+    catalogGyms: [],
+    usingBackend: false,
+    backendProgress: null,
     progress: {
         byRegion: {
             kanto: [],
@@ -720,6 +723,78 @@ function buildBadgeImagePath(regionId, badgeSlug) {
     return `${BADGE_ASSET_ROOT}/${regionId}/${badgeSlug}.png`;
 }
 
+
+function getGymTrainerImagePath(gym) {
+    if (gym?.trainerAssetPath) return gym.trainerAssetPath;
+    return buildTrainerImagePath(gym?.region || "kanto", gym?.leaderSlug || "unknown");
+}
+
+function getGymBadgeImagePath(gym) {
+    if (gym?.badgeAssetPath) return gym.badgeAssetPath;
+    return buildBadgeImagePath(gym?.region || "kanto", gym?.badgeSlug || "unknown");
+}
+
+function deriveDifficultyFromOrder(order = 1) {
+    const value = Number(order || 1);
+    if (value >= 8) return "Master";
+    if (value >= 7) return "Elite";
+    if (value >= 6) return "Hard+";
+    if (value >= 5) return "Hard";
+    if (value >= 3) return "Medium";
+    if (value >= 2) return "Easy+";
+    return "Beginner";
+}
+
+function getGymsSource() {
+    return Array.isArray(gymsState.catalogGyms) && gymsState.catalogGyms.length
+        ? gymsState.catalogGyms
+        : GYMS_CONFIG;
+}
+
+function mapBackendGymItem(item) {
+    const region = String(item?.region_codigo || "kanto").toLowerCase();
+    const leaderSlug = String(item?.lider_slug || "").toLowerCase();
+    const badgeSlug = String(item?.medalla_slug || "").toLowerCase();
+    const fallback = GYMS_CONFIG.find(gym => (
+        String(gym.region).toLowerCase() === region &&
+        (String(gym.leaderSlug).toLowerCase() === leaderSlug || String(gym.badgeSlug).toLowerCase() === badgeSlug)
+    )) || null;
+
+    return {
+        ...(fallback || {}),
+        id: String(item?.codigo || fallback?.id || `${region}-${leaderSlug || badgeSlug || "gym"}`),
+        dbId: Number(item?.id || 0),
+        codigo: String(item?.codigo || ""),
+        region,
+        order: Number(item?.orden_region || fallback?.order || 1),
+        city: item?.ciudad || fallback?.city || "Unknown Gym",
+        gymName: fallback?.gymName || item?.ciudad || "Gym",
+        leader: item?.lider_nombre || fallback?.leader || "Leader",
+        leaderSlug: leaderSlug || fallback?.leaderSlug || "leader",
+        type: normalizeTypeKey(item?.tipo_principal || fallback?.type || "normal"),
+        difficulty: fallback?.difficulty || deriveDifficultyFromOrder(item?.orden_region),
+        recommendedLevel: Number(item?.nivel_recomendado || fallback?.recommendedLevel || 1),
+        badge: item?.medalla_nombre || fallback?.badge || "Badge",
+        badgeSlug: badgeSlug || fallback?.badgeSlug || "badge",
+        rewardMoney: Number(item?.reward_pokedolares || fallback?.rewardMoney || 0),
+        rewardExp: Number(item?.reward_exp || fallback?.rewardExp || 0),
+        description: item?.descripcion || fallback?.description || "Gym challenge ready.",
+        hint: item?.pista || fallback?.hint || "Build a balanced team before entering the Gym.",
+        enemyStyle: item?.enemy_style || fallback?.enemyStyle || fallback?.phase || "Regional pressure",
+        phase: item?.fase || fallback?.phase || "Badge route",
+        roster: Array.isArray(fallback?.roster) ? fallback.roster : [],
+        trainerAssetPath: item?.trainer_asset_path || fallback?.trainerAssetPath || buildTrainerImagePath(region, leaderSlug || fallback?.leaderSlug || "leader"),
+        badgeAssetPath: item?.badge_asset_path || fallback?.badgeAssetPath || buildBadgeImagePath(region, badgeSlug || fallback?.badgeSlug || "badge"),
+        desbloqueado: Boolean(item?.desbloqueado),
+        completado: Boolean(item?.completado),
+        intentos: Number(item?.intentos || 0),
+        victorias: Number(item?.victorias || 0),
+        mejorTurnos: item?.mejor_turnos == null ? null : Number(item?.mejor_turnos),
+        gymRequiredCode: item?.gym_requerido_codigo || null,
+        gymRequiredLeader: item?.gym_requerido_lider || null
+    };
+}
+
 function getSpriteFromPokemon(pokemon) {
     const pokemonId = Number(pokemon?.pokemon_id || pokemon?.id || 0);
     if (pokemon?.es_shiny && pokemonId > 0) {
@@ -750,11 +825,13 @@ function setStorageJson(key, value) {
 }
 
 function getGymsForRegion(regionId = gymsState.regionId) {
-    return GYMS_CONFIG.filter(gym => gym.region === regionId).sort((a, b) => a.order - b.order);
+    return getGymsSource()
+        .filter(gym => gym.region === regionId)
+        .sort((a, b) => Number(a.order || 0) - Number(b.order || 0));
 }
 
 function getGymById(gymId) {
-    return GYMS_CONFIG.find(gym => gym.id === gymId) || null;
+    return getGymsSource().find(gym => gym.id === gymId || gym.codigo === gymId) || null;
 }
 
 function getRegionByGymId(gymId) {
@@ -825,10 +902,18 @@ function loadBattleTeam() {
 }
 
 function getRegionClearedIds(regionId = gymsState.regionId) {
+    if (gymsState.usingBackend) {
+        return getGymsForRegion(regionId)
+            .filter(gym => Boolean(gym.completado))
+            .map(gym => gym.id);
+    }
     return Array.isArray(gymsState.progress.byRegion?.[regionId]) ? gymsState.progress.byRegion[regionId] : [];
 }
 
 function isGymCleared(gymId) {
+    const gym = getGymById(gymId);
+    if (!gym) return false;
+    if (gymsState.usingBackend) return Boolean(gym.completado);
     const regionId = getRegionByGymId(gymId);
     if (!regionId) return false;
     return getRegionClearedIds(regionId).includes(gymId);
@@ -837,6 +922,7 @@ function isGymCleared(gymId) {
 function isGymOpen(gymId) {
     const gym = getGymById(gymId);
     if (!gym) return false;
+    if (gymsState.usingBackend) return Boolean(gym.desbloqueado);
     const gyms = getGymsForRegion(gym.region);
     const index = gyms.findIndex(item => item.id === gym.id);
     if (index <= 0) return true;
@@ -865,10 +951,11 @@ function getTotalClearedCount() {
 }
 
 function getTotalGymCount() {
-    return GYMS_CONFIG.length;
+    return getGymsSource().length;
 }
 
 function getAverageTeamLevel() {
+
     if (!gymsState.team.length) return 0;
     const total = gymsState.team.reduce((sum, pokemon) => sum + Number(pokemon?.nivel || 0), 0);
     return Math.round(total / gymsState.team.length);
@@ -894,6 +981,110 @@ function getDominantTeamType() {
 
     const winner = Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0];
     return winner ? getTypeLabel(winner) : "—";
+}
+
+async function loadGymsFromBackend() {
+    if (typeof obtenerCatalogoGyms !== "function" || typeof obtenerProgresoGyms !== "function") {
+        return false;
+    }
+
+    try {
+        const [catalogo, progreso] = await Promise.all([
+            obtenerCatalogoGyms(),
+            obtenerProgresoGyms()
+        ]);
+
+        if (!catalogo?.ok || !Array.isArray(catalogo.gyms)) {
+            throw new Error("Gym catalog is empty.");
+        }
+
+        gymsState.catalogGyms = catalogo.gyms
+            .map(mapBackendGymItem)
+            .sort((a, b) => {
+                if (a.region === b.region) return Number(a.order || 0) - Number(b.order || 0);
+                return REGION_ORDER.indexOf(a.region) - REGION_ORDER.indexOf(b.region);
+            });
+        gymsState.usingBackend = true;
+        gymsState.backendProgress = progreso || null;
+        gymsState.progress = {
+            byRegion: {
+                kanto: getGymsForRegion("kanto").filter(gym => gym.completado).map(gym => gym.id),
+                johto: getGymsForRegion("johto").filter(gym => gym.completado).map(gym => gym.id),
+                hoenn: getGymsForRegion("hoenn").filter(gym => gym.completado).map(gym => gym.id)
+            }
+        };
+        return true;
+    } catch (error) {
+        gymsState.catalogGyms = [];
+        gymsState.usingBackend = false;
+        gymsState.backendProgress = null;
+        console.warn("Could not load Gyms from backend, using local fallback:", error);
+        return false;
+    }
+}
+
+function normalizeSelectedStateFromCatalog() {
+    if (!REGION_ORDER.includes(gymsState.regionId) || !getGymsForRegion(gymsState.regionId).length) {
+        gymsState.regionId = REGION_ORDER.find(regionId => getGymsForRegion(regionId).length > 0) || "kanto";
+    }
+
+    const gyms = getGymsForRegion(gymsState.regionId);
+    const selected = getGymById(gymsState.selectedGymId);
+    if (!selected || selected.region !== gymsState.regionId) {
+        gymsState.selectedGymId = getFirstOpenGym(gymsState.regionId)?.id || gyms[0]?.id || null;
+    }
+
+    persistSelectedState();
+}
+
+function buildGymBattleSessionFromApi(gym, data) {
+    const gymData = data?.gym || {};
+    const normalizedPlayer = Array.isArray(data?.equipo_usuario)
+        ? data.equipo_usuario.map((pokemon, index) => ({
+            ...pokemon,
+            id: Number(pokemon.usuario_pokemon_id || pokemon.id || 0),
+            hp_actual: Number(pokemon.hp ?? pokemon.hp_actual ?? pokemon.hp_max ?? 0),
+            hp_max: Number(pokemon.hp_max ?? pokemon.hp ?? 0),
+            posicion: index + 1,
+            side: "player"
+        }))
+        : [];
+
+    const normalizedEnemy = Array.isArray(data?.equipo_rival)
+        ? data.equipo_rival.map((pokemon, index) => ({
+            ...pokemon,
+            id: `gym-enemy-${index + 1}-${pokemon.pokemon_id || 0}`,
+            hp_actual: Number(pokemon.hp ?? pokemon.hp_actual ?? pokemon.hp_max ?? 0),
+            hp_max: Number(pokemon.hp_max ?? pokemon.hp ?? 0),
+            posicion: Number(pokemon.slot || index + 1),
+            side: "enemy"
+        }))
+        : [];
+
+    return {
+        mode: "gym",
+        gym_session_token: data?.gym_session_token || "",
+        expira_en: data?.expira_en || null,
+        ttl_segundos: Number(data?.ttl_segundos || 0),
+        gym: {
+            id: gym?.id || gymData?.codigo || "gym",
+            codigo: gymData?.codigo || gym?.codigo || "",
+            region: gymData?.region_codigo || gym?.region || "kanto",
+            regionName: gymData?.region_nombre || REGION_CONFIG[gym?.region || "kanto"]?.name || "Region",
+            leader: gymData?.lider_nombre || gym?.leader || "Leader",
+            leaderSlug: gym?.leaderSlug || "leader",
+            badge: gymData?.medalla_nombre || gym?.badge || "Badge",
+            badgeSlug: gym?.badgeSlug || "badge",
+            type: normalizeTypeKey(gymData?.tipo_principal || gym?.type || "normal"),
+            rewardMoney: Number(gymData?.reward_pokedolares || gym?.rewardMoney || 0),
+            rewardExp: Number(gymData?.reward_exp || gym?.rewardExp || 0),
+            trainerAssetPath: gymData?.trainer_asset_path || getGymTrainerImagePath(gym),
+            badgeAssetPath: gymData?.badge_asset_path || getGymBadgeImagePath(gym),
+            city: gym?.city || gym?.gymName || gym?.leader || "Gym"
+        },
+        equipo_usuario: normalizedPlayer,
+        equipo_rival: normalizedEnemy
+    };
 }
 
 function buildEnemyStats(level, slotIndex, isLeader) {
@@ -934,9 +1125,9 @@ function buildGymBattleSession(gym) {
         gym_id: gym.id,
         city: gym.city,
         leader: gym.leader,
-        leader_image: buildTrainerImagePath(gym.region, gym.leaderSlug),
+        leader_image: getGymTrainerImagePath(gym),
         badge: gym.badge,
-        badge_image: buildBadgeImagePath(gym.region, gym.badgeSlug),
+        badge_image: getGymBadgeImagePath(gym),
         type: gym.type,
         difficulty: gym.difficulty,
         recommendedLevel: gym.recommendedLevel,
@@ -949,7 +1140,7 @@ function buildGymBattleSession(gym) {
     };
 }
 
-function startGymBattle(gym) {
+async function startGymBattle(gym) {
     if (!gym) return;
 
     const status = getGymStatus(gym.id);
@@ -958,7 +1149,7 @@ function startGymBattle(gym) {
         return;
     }
     if (status === "cleared") {
-        const retry = window.confirm("You already cleared this Gym locally. Do you want to start the challenge again?");
+        const retry = window.confirm("You already cleared this Gym. Do you want to start the challenge again?");
         if (!retry) return;
     }
 
@@ -973,14 +1164,28 @@ function startGymBattle(gym) {
         if (!confirmed) return;
     }
 
+    const usuarioPokemonIds = gymsState.team
+        .map(pokemon => Number(pokemon?.id || pokemon?.usuario_pokemon_id || 0))
+        .filter(id => !Number.isNaN(id) && id > 0)
+        .slice(0, 6);
+
     try {
+        if (gymsState.usingBackend && typeof iniciarGymBattle === "function") {
+            const data = await iniciarGymBattle(gym.codigo || gym.id, usuarioPokemonIds, true);
+            const session = buildGymBattleSessionFromApi(gym, data);
+            sessionStorage.setItem(GYMS_ARENA_MODE_KEY, "gym");
+            sessionStorage.setItem(GYMS_BATTLE_SESSION_KEY, JSON.stringify(session));
+            window.location.href = "battle-arena.html?modo=gym";
+            return;
+        }
+
         const session = buildGymBattleSession(gym);
         sessionStorage.setItem(GYMS_ARENA_MODE_KEY, "gym");
         sessionStorage.setItem(GYMS_BATTLE_SESSION_KEY, JSON.stringify(session));
         window.location.href = "battle-arena.html?modo=gym";
     } catch (error) {
-        console.error("Could not build the Gym session:", error);
-        alert("Could not start the Gym challenge. Please try again.");
+        console.error("Could not start the Gym challenge:", error);
+        alert(error?.message || "Could not start the Gym challenge. Please try again.");
     }
 }
 
@@ -1090,7 +1295,7 @@ function renderHeroPreview() {
         </div>
         <div class="hero-preview-main">
             <div class="trainer-portrait hero-portrait">
-                <img src="${escapeHtmlGyms(buildTrainerImagePath(gym.region, gym.leaderSlug))}" alt="${escapeHtmlGyms(gym.leader)}" onerror="window.__gymsImageFallback(event, '${escapeHtmlGyms(gym.leader)}')">
+                <img src="${escapeHtmlGyms(getGymTrainerImagePath(gym))}" alt="${escapeHtmlGyms(gym.leader)}" onerror="window.__gymsImageFallback(event, '${escapeHtmlGyms(gym.leader)}')">
             </div>
             <div class="hero-preview-copy">
                 <small>${escapeHtmlGyms(gym.gymName)}</small>
@@ -1098,7 +1303,7 @@ function renderHeroPreview() {
                 <p>${escapeHtmlGyms(getTypeLabel(gym.type))} specialist · ${escapeHtmlGyms(gym.badge)}</p>
             </div>
             <div class="badge-portrait hero-badge-portrait">
-                <img src="${escapeHtmlGyms(buildBadgeImagePath(gym.region, gym.badgeSlug))}" alt="${escapeHtmlGyms(gym.badge)}" onerror="window.__gymsImageFallback(event, '${escapeHtmlGyms(gym.badge)}')">
+                <img src="${escapeHtmlGyms(getGymBadgeImagePath(gym))}" alt="${escapeHtmlGyms(gym.badge)}" onerror="window.__gymsImageFallback(event, '${escapeHtmlGyms(gym.badge)}')">
             </div>
         </div>
         <div class="hero-preview-footer">
@@ -1241,7 +1446,7 @@ function renderGymsGrid() {
 
                 <div class="gym-card-main">
                     <div class="trainer-portrait gym-card-portrait">
-                        <img src="${escapeHtmlGyms(buildTrainerImagePath(gym.region, gym.leaderSlug))}" alt="${escapeHtmlGyms(gym.leader)}" onerror="window.__gymsImageFallback(event, '${escapeHtmlGyms(gym.leader)}')">
+                        <img src="${escapeHtmlGyms(getGymTrainerImagePath(gym))}" alt="${escapeHtmlGyms(gym.leader)}" onerror="window.__gymsImageFallback(event, '${escapeHtmlGyms(gym.leader)}')">
                     </div>
                     <div class="gym-card-copy">
                         <small>${escapeHtmlGyms(gym.gymName)}</small>
@@ -1249,7 +1454,7 @@ function renderGymsGrid() {
                         <p class="gym-city">${escapeHtmlGyms(gym.city)}</p>
                     </div>
                     <div class="badge-portrait gym-card-badge">
-                        <img src="${escapeHtmlGyms(buildBadgeImagePath(gym.region, gym.badgeSlug))}" alt="${escapeHtmlGyms(gym.badge)}" onerror="window.__gymsImageFallback(event, '${escapeHtmlGyms(badgeLabel)}')">
+                        <img src="${escapeHtmlGyms(getGymBadgeImagePath(gym))}" alt="${escapeHtmlGyms(gym.badge)}" onerror="window.__gymsImageFallback(event, '${escapeHtmlGyms(badgeLabel)}')">
                     </div>
                 </div>
 
@@ -1317,7 +1522,7 @@ function renderSelectedGymPanel() {
         <article class="gym-detail-card ${getTypeClass(gym.type)}">
             <div class="gym-detail-hero">
                 <div class="trainer-portrait gym-detail-portrait">
-                    <img src="${escapeHtmlGyms(buildTrainerImagePath(gym.region, gym.leaderSlug))}" alt="${escapeHtmlGyms(gym.leader)}" onerror="window.__gymsImageFallback(event, '${escapeHtmlGyms(gym.leader)}')">
+                    <img src="${escapeHtmlGyms(getGymTrainerImagePath(gym))}" alt="${escapeHtmlGyms(gym.leader)}" onerror="window.__gymsImageFallback(event, '${escapeHtmlGyms(gym.leader)}')">
                 </div>
                 <div class="gym-detail-copy">
                     <div class="gym-detail-topline">
@@ -1329,7 +1534,7 @@ function renderSelectedGymPanel() {
                     <p>${escapeHtmlGyms(gym.city)} · ${escapeHtmlGyms(gym.enemyStyle)}</p>
                 </div>
                 <div class="badge-portrait gym-detail-badge">
-                    <img src="${escapeHtmlGyms(buildBadgeImagePath(gym.region, gym.badgeSlug))}" alt="${escapeHtmlGyms(gym.badge)}" onerror="window.__gymsImageFallback(event, '${escapeHtmlGyms(gym.badge)}')">
+                    <img src="${escapeHtmlGyms(getGymBadgeImagePath(gym))}" alt="${escapeHtmlGyms(gym.badge)}" onerror="window.__gymsImageFallback(event, '${escapeHtmlGyms(gym.badge)}')">
                 </div>
             </div>
 
@@ -1350,7 +1555,7 @@ function renderSelectedGymPanel() {
                 </div>
                 <div class="gym-detail-meta-item">
                     <span>Reward</span>
-                    <strong>$${escapeHtmlGyms(gym.rewardMoney.toLocaleString())}</strong>
+                    <strong>$${escapeHtmlGyms(Number(gym.rewardMoney || 0).toLocaleString())}</strong>
                 </div>
             </div>
 
@@ -1375,8 +1580,8 @@ function renderSelectedGymPanel() {
 
             <div class="gym-detail-actions">
                 <button class="gyms-btn-secondary" type="button" id="btnGymPrepare" ${status === 'locked' ? 'disabled' : ''}>Start Gym Battle</button>
-                <button class="gyms-btn" type="button" id="btnGymCompleteDemo" ${status === 'locked' ? 'disabled' : ''}>Mark cleared (demo)</button>
-                <button class="gyms-btn-danger" type="button" id="btnGymResetProgress">Reset region</button>
+                ${gymsState.usingBackend ? '' : `<button class="gyms-btn" type="button" id="btnGymCompleteDemo" ${status === 'locked' ? 'disabled' : ''}>Mark cleared (demo)</button>`}
+                ${gymsState.usingBackend ? '' : `<button class="gyms-btn-danger" type="button" id="btnGymResetProgress">Reset region</button>`}
             </div>
         </article>
     `;
@@ -1493,7 +1698,7 @@ function renderProgressPanel() {
                     return `
                         <div class="gym-badge-track-item ${status === 'cleared' ? 'cleared' : status === 'locked' ? 'locked' : 'open'}">
                             <div class="badge-portrait gym-badge-track-portrait">
-                                <img src="${escapeHtmlGyms(buildBadgeImagePath(gym.region, gym.badgeSlug))}" alt="${escapeHtmlGyms(gym.badge)}" onerror="window.__gymsImageFallback(event, '${escapeHtmlGyms(badgeShort)}')">
+                                <img src="${escapeHtmlGyms(getGymBadgeImagePath(gym))}" alt="${escapeHtmlGyms(gym.badge)}" onerror="window.__gymsImageFallback(event, '${escapeHtmlGyms(badgeShort)}')">
                             </div>
                             <span>${escapeHtmlGyms(badgeShort)}</span>
                         </div>
@@ -1552,15 +1757,22 @@ function renderAllGymsSections() {
     renderProgressPanel();
 }
 
-function initGymsPage() {
+async function initGymsPage() {
     window.__gymsImageFallback = handleImageFallback;
     setupMenuAndLanguage();
     loadGymsProgress();
     loadBattleTeam();
     loadSelectedState();
+    await loadGymsFromBackend();
+    normalizeSelectedStateFromCatalog();
     bindGymsEvents();
     renderAllGymsSections();
 }
 
-document.addEventListener("DOMContentLoaded", initGymsPage);
+document.addEventListener("DOMContentLoaded", () => {
+    initGymsPage().catch(error => {
+        console.error("Could not initialize Gyms page:", error);
+        renderAllGymsSections();
+    });
+});
 window.addEventListener("languageChanged", renderAllGymsSections);
