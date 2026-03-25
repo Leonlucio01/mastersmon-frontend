@@ -47,6 +47,7 @@
                          data-client_id="535230935122-vqqd262fjhetd408li95420bb8cas5vb.apps.googleusercontent.com"
                          data-callback="handleCredentialResponse">
                     </div>
+
                     <div class="g_id_signin"
                          data-type="standard"
                          data-size="medium"
@@ -116,177 +117,110 @@
         <div class="menu-subnav-inner">
             <a href="battle.html" class="menu-subnav-link" data-i18n="menu_play_battle_ia">Battle IA</a>
             <a href="gyms.html" class="menu-subnav-link active" data-i18n="menu_play_gyms">Gyms</a>
-            <span class="menu-subnav-link menu-subnav-link-disabled" aria-disabled="true" data-i18n="menu_play_pvp">PvP</span>
+            <a href="#" class="menu-subnav-link menu-disabled" onclick="return false;" aria-disabled="true" data-i18n="menu_play_pvp">PvP</a>
             <a href="idle.html" class="menu-subnav-link" data-i18n="menu_play_idle">Idle</a>
         </div>
     </div>
 
     <main class="gyms-page">
         <section class="gyms-hero">
-            <div class="gyms-hero-copy">
-                <span class="gyms-hero-badge">Regional ascent</span>
-                <h1 class="gyms-title">Gym Command</h1>
-                <p class="gyms-subtitle">
-                    Challenge iconic leaders, earn badges, and turn Battle IA into a real PvE progression ladder.
-                    This page is built to feel premium now and stay ready for full backend progression later.
-                </p>
-                <div class="gyms-hero-actions">
-                    <a href="battle.html" class="gyms-btn gyms-btn-primary">← Back to Battle IA</a>
-                    <a href="battle-arena.html" class="gyms-btn gyms-btn-secondary">Open Arena</a>
-                    <a href="maps.html" class="gyms-btn gyms-btn-ghost">Explore Maps</a>
+            <div class="gyms-hero-grid">
+                <div class="gyms-hero-copy">
+                    <span class="gyms-hero-kicker">Regional badge campaign</span>
+                    <h1 class="gyms-title">GYMS</h1>
+                    <p class="gyms-subtitle">
+                        Build your badge route across Kanto, Johto and Hoenn. Each leader carries a themed roster,
+                        a signature badge, and a stronger visual identity ready for real backend progression later.
+                    </p>
+
+                    <div class="gyms-hero-actions">
+                        <a href="battle.html" class="gyms-btn">Open Battle IA</a>
+                        <a href="maps.html" class="gyms-btn-secondary">Catch counters in Maps</a>
+                        <a href="idle.html" class="gyms-btn-ghost">Prepare in Idle</a>
+                    </div>
+
+                    <div class="gyms-hero-statbar" id="gymsHeroStatbar"></div>
                 </div>
-            </div>
 
-            <div class="gyms-hero-side">
-                <article class="gyms-hero-panel gyms-glow-card">
-                    <span class="gyms-hero-panel-label">PvE ladder</span>
-                    <h2>Badge by badge progression</h2>
-                    <p>Start in Kanto, clear one Gym at a time, and open the next challenge through a simple sequential route.</p>
-                </article>
-                <article class="gyms-hero-panel gyms-glow-card">
-                    <span class="gyms-hero-panel-label">Shared squad</span>
-                    <p>Gyms reuse the same saved Battle team, making the whole combat loop feel connected instead of duplicated.</p>
-                </article>
+                <aside class="gyms-hero-preview" id="heroSelectedGymCard"></aside>
             </div>
         </section>
 
-        <section class="gyms-ribbon">
-            <article class="gyms-ribbon-card">
-                <span>Region</span>
-                <strong>Kanto</strong>
-                <small>First structured PvE ladder.</small>
-            </article>
-            <article class="gyms-ribbon-card">
-                <span>Flow</span>
-                <strong>Sequential unlocks</strong>
-                <small>Beat one Gym to open the next.</small>
-            </article>
-            <article class="gyms-ribbon-card">
-                <span>Bridge</span>
-                <strong>Arena & endgame</strong>
-                <small>Gyms can feed future leagues and bosses.</small>
-            </article>
-        </section>
-
-        <section class="gyms-section gyms-glow-card">
-            <div class="gyms-section-head">
+        <section class="gyms-section gyms-overview-shell">
+            <div class="gyms-section-header gyms-section-header-tight">
                 <div>
-                    <span class="gyms-section-kicker">Overview</span>
-                    <h2>Regional command overview</h2>
-                    <p>A high-level summary of your badge route, current squad readiness, and unlock rhythm.</p>
+                    <span class="gyms-section-kicker">Command overview</span>
+                    <h2>Badge progress at a glance</h2>
+                    <p>Everything below still works with local data, so we can perfect the UX now and connect the backend after the contract is locked.</p>
                 </div>
-                <span class="gyms-chip">Kanto operations</span>
+                <span class="gyms-pill">Frontend-ready shell</span>
             </div>
             <div class="gyms-overview" id="gymsOverviewStats"></div>
         </section>
 
-        <div class="gyms-layout">
-            <div class="gyms-main-stack">
-                <section class="gyms-section gyms-glow-card" id="gymsRoadmapSection">
-                    <div class="gyms-section-head">
+        <div class="gyms-page-grid">
+            <section class="gyms-main-column">
+                <section class="gyms-section gyms-region-shell">
+                    <div class="gyms-section-header">
                         <div>
-                            <span class="gyms-section-kicker">Gym roadmap</span>
-                            <h3>Select your next leader</h3>
-                            <p>Every card below is ready for progression status, leader flavor, reward preview, and direct handoff into battle-arena.</p>
+                            <span class="gyms-section-kicker">Route selection</span>
+                            <h3>Choose your region</h3>
+                            <p>Each region keeps its own badge track, leader portraits and themed rewards. This makes the flow easy to scale once progression moves to PostgreSQL.</p>
                         </div>
-                        <span class="gyms-chip">8 badge route</span>
+                        <span class="gyms-pill" id="gymsRegionProgressPill">Kanto route</span>
                     </div>
+
+                    <div class="gym-region-tabs" id="gymRegionTabs"></div>
+                    <div class="gym-region-summary" id="gymRegionSummary"></div>
+                </section>
+
+                <section class="gyms-section gyms-roadmap-shell">
+                    <div class="gyms-section-header">
+                        <div>
+                            <span class="gyms-section-kicker">Leader roadmap</span>
+                            <h3 id="gymsRoadmapTitle">Kanto leaders</h3>
+                            <p id="gymsRoadmapText">Pick a leader to inspect the badge, roster, difficulty and current team readiness.</p>
+                        </div>
+                        <span class="gyms-pill" id="gymsRoadmapCounter">8 gyms</span>
+                    </div>
+
                     <div class="gyms-grid" id="gymsGrid"></div>
                 </section>
+            </section>
 
-                <section class="gyms-section gyms-glow-card">
-                    <div class="gyms-section-head">
+            <aside class="gyms-sidebar-column">
+                <section class="gyms-section gyms-detail-shell">
+                    <div class="gyms-section-header gyms-section-header-tight">
                         <div>
-                            <span class="gyms-section-kicker">System fantasy</span>
-                            <h3>How Gyms should feel in Mastersmon</h3>
-                            <p>Use this roadmap as the design north star while you keep the current local logic light and stable.</p>
+                            <span class="gyms-section-kicker">Selected challenge</span>
+                            <h3>Leader dossier</h3>
                         </div>
-                    </div>
-
-                    <div class="gym-timeline">
-                        <article class="gym-timeline-step">
-                            <strong>1</strong>
-                            <h4>Assemble a core squad</h4>
-                            <p>Make team building matter by letting badges pressure type matchups, durability, and order planning.</p>
-                        </article>
-                        <article class="gym-timeline-step">
-                            <strong>2</strong>
-                            <h4>Preview the leader</h4>
-                            <p>Show the Gym style, recommended level, reward badge, and challenge hint before the fight starts.</p>
-                        </article>
-                        <article class="gym-timeline-step">
-                            <strong>3</strong>
-                            <h4>Win progression</h4>
-                            <p>Clearing a Gym should feel like a milestone that opens the next route and validates the squad build.</p>
-                        </article>
-                        <article class="gym-timeline-step">
-                            <strong>4</strong>
-                            <h4>Scale to endgame</h4>
-                            <p>Later this same page can unlock leagues, seasonal ladders, elite rooms, or special boss chains.</p>
-                        </article>
-                    </div>
-                </section>
-            </div>
-
-            <aside class="gyms-side-stack">
-                <section class="gyms-section gyms-glow-card">
-                    <div class="gyms-section-head">
-                        <div>
-                            <span class="gyms-section-kicker">Selected Gym</span>
-                            <h3>Challenge details</h3>
-                            <p>Instant leader briefing, reward preview, readiness signal, and action controls.</p>
-                        </div>
+                        <span class="gyms-pill">Live preview</span>
                     </div>
                     <div id="selectedGymPanel"></div>
                 </section>
 
-                <section class="gyms-section gyms-glow-card">
-                    <div class="gyms-section-head">
+                <section class="gyms-section gyms-team-shell">
+                    <div class="gyms-section-header gyms-section-header-tight">
                         <div>
-                            <span class="gyms-section-kicker">Team readiness</span>
-                            <h3>Battle squad status</h3>
-                            <p>Gyms read the same saved team from Battle IA, so the squad panel stays aligned with your core loop.</p>
+                            <span class="gyms-section-kicker">Saved squad</span>
+                            <h3>Battle team status</h3>
                         </div>
+                        <span class="gyms-pill">Shared with Battle IA</span>
                     </div>
                     <div id="gymTeamSummary"></div>
-                    <div class="gym-team-list" id="gymTeamList"></div>
+                    <div id="gymTeamList" class="gym-team-list"></div>
                 </section>
 
-                <section class="gyms-section gyms-glow-card">
-                    <div class="gyms-section-head">
+                <section class="gyms-section gyms-progress-shell">
+                    <div class="gyms-section-header gyms-section-header-tight">
                         <div>
-                            <span class="gyms-section-kicker">Progress</span>
-                            <h3>Badge route progress</h3>
-                            <p>Local progression for now, structured in a way that can later move cleanly to backend profile data.</p>
+                            <span class="gyms-section-kicker">Badge route</span>
+                            <h3>Progress and unlocks</h3>
                         </div>
+                        <span class="gyms-pill">Local for now</span>
                     </div>
                     <div id="gymProgressPanel"></div>
-                </section>
-
-                <section class="gyms-section gyms-glow-card">
-                    <div class="gyms-section-head">
-                        <div>
-                            <span class="gyms-section-kicker">Expansion</span>
-                            <h3>Where this page can grow</h3>
-                        </div>
-                    </div>
-                    <div class="gym-region-grid">
-                        <article class="gym-region-card">
-                            <h4>Johto</h4>
-                            <p>A natural second badge route once Kanto is fully stable and readable.</p>
-                            <span class="gyms-chip">Phase 2</span>
-                        </article>
-                        <article class="gym-region-card">
-                            <h4>Hoenn</h4>
-                            <p>Great for more visual identity, stronger leader variety, and richer map crossover.</p>
-                            <span class="gyms-chip">Phase 3</span>
-                        </article>
-                        <article class="gym-region-card">
-                            <h4>Seasonal League</h4>
-                            <p>A custom Mastersmon league could become the long-term badge endgame and event loop.</p>
-                            <span class="gyms-chip">Endgame</span>
-                        </article>
-                    </div>
                 </section>
             </aside>
         </div>
