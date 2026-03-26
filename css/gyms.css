@@ -1626,3 +1626,393 @@ a{
         align-items:flex-start;
     }
 }
+
+
+/* =========================================================
+   18. V2 LIGHT BALANCE + PORTRAIT TUNING
+   ---------------------------------------------------------
+   Ajuste para acercar Gyms al look de las otras páginas:
+   - menos oscuro en fondo y secciones
+   - panels claros con texto oscuro
+   - hero sigue premium pero más vivo
+   - retratos mejor encuadrados
+========================================================= */
+:root{
+    --gyms-light-bg:#dbe5f2;
+    --gyms-light-bg-2:#edf3fb;
+    --gyms-surface:#ffffff;
+    --gyms-surface-2:#f4f8fd;
+    --gyms-surface-3:#edf4fb;
+    --gyms-text-dark:#0f172a;
+    --gyms-text-body:#516277;
+    --gyms-text-soft-dark:#71839a;
+    --gyms-border-soft:rgba(148,163,184,.24);
+    --gyms-shadow-light:0 16px 34px rgba(15,23,42,.08);
+}
+
+body{
+    color:var(--gyms-text-dark);
+    background:
+        radial-gradient(circle at top left, rgba(59,130,246,.10) 0%, transparent 26%),
+        radial-gradient(circle at top right, rgba(14,165,233,.08) 0%, transparent 24%),
+        linear-gradient(180deg, #e7eef8 0%, #dbe6f3 48%, #d8e4f1 100%);
+}
+
+.gyms-page{
+    width:min(1660px, calc(100% - 18px));
+    padding:24px 0 56px;
+}
+
+/* =========================
+   Hero más vivo
+========================= */
+.gyms-hero{
+    border-color:rgba(96,165,250,.18);
+    background:
+        radial-gradient(circle at 0% 0%, rgba(96,165,250,.24) 0%, transparent 30%),
+        radial-gradient(circle at 100% 0%, rgba(34,211,238,.18) 0%, transparent 26%),
+        linear-gradient(135deg, #0f2f62 0%, #12386f 46%, #1a4b89 100%);
+    box-shadow:0 20px 44px rgba(15,23,42,.16);
+}
+
+.gyms-hero::before{
+    background:rgba(255,255,255,.12);
+}
+
+.gyms-hero::after{
+    background:rgba(34,211,238,.16);
+}
+
+.gyms-subtitle{
+    color:rgba(239,246,255,.94);
+}
+
+.gyms-hero-stat{
+    border-color:rgba(191,219,254,.18);
+    background:linear-gradient(180deg, rgba(255,255,255,.12) 0%, rgba(255,255,255,.08) 100%);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.1);
+}
+
+.gyms-hero-stat span{
+    color:#cfe0f5;
+}
+
+.gyms-hero-preview{
+    border-color:rgba(191,219,254,.24);
+    background:
+        radial-gradient(circle at 100% 0%, rgba(255,255,255,.12) 0%, transparent 34%),
+        linear-gradient(145deg, rgba(24,56,103,.95) 0%, rgba(22,46,90,.96) 100%);
+    box-shadow:0 18px 38px rgba(9,18,31,.18);
+}
+
+.hero-preview-copy small{
+    color:#dcedff;
+}
+
+.hero-preview-copy p,
+.hero-preview-footer span,
+.hero-preview-empty{
+    color:#dce9f8;
+}
+
+.hero-preview-footer > div{
+    border-color:rgba(191,219,254,.14);
+    background:rgba(255,255,255,.08);
+}
+
+/* =========================
+   Secciones claras
+========================= */
+.gyms-section{
+    border-color:var(--gyms-border-soft);
+    background:linear-gradient(180deg, rgba(250,253,255,.98) 0%, rgba(239,246,253,.98) 100%);
+    box-shadow:var(--gyms-shadow-light);
+}
+
+.gyms-section-header h2,
+.gyms-section-header h3,
+.gym-region-summary-card h4,
+.gym-roster-stack-head strong{
+    color:var(--gyms-text-dark);
+}
+
+.gyms-section-header p,
+.gym-region-summary-card p,
+.gyms-stat-card small,
+.gym-desc,
+.gym-city,
+.gym-detail-copy p,
+.gym-detail-note,
+.gym-sidebar-item p,
+.gym-progress-note,
+.gym-team-empty{
+    color:var(--gyms-text-body);
+}
+
+.gyms-section-kicker{
+    color:#4f6c8f;
+}
+
+.gyms-section-kicker::before{
+    box-shadow:0 0 16px rgba(79,155,255,.28);
+}
+
+.gyms-pill{
+    background:linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%);
+    color:#1d4ed8;
+    border-color:#bfdbfe;
+    box-shadow:0 6px 14px rgba(37,99,235,.08);
+}
+
+.gyms-overview{
+    gap:16px;
+}
+
+.gyms-stat-card,
+.gym-region-tab,
+.gym-region-summary-card,
+.gym-card,
+.gym-detail-card,
+.gym-team-card,
+.gym-roster-card,
+.gym-badge-track-item,
+.gym-meta-item,
+.gym-detail-meta-item,
+.gym-summary-box,
+.gym-sidebar-item{
+    border-color:var(--gyms-border-soft);
+    background:linear-gradient(180deg, var(--gyms-surface) 0%, var(--gyms-surface-2) 100%);
+    box-shadow:0 10px 22px rgba(15,23,42,.06);
+}
+
+.gyms-stat-card::after,
+.gym-card-glow,
+.gym-roster-card::after{
+    opacity:.48;
+}
+
+.gyms-stat-card span,
+.gym-meta-item span,
+.gym-detail-meta-item span,
+.gym-summary-box span,
+.gym-sidebar-item strong,
+.gym-roster-stack-head span,
+.gym-region-summary-meta span,
+.gym-card-copy small,
+.gym-detail-copy small{
+    color:#64748b;
+}
+
+.gyms-stat-card strong,
+.gym-region-tab span,
+.gym-region-tab strong,
+.gym-region-summary-meta strong,
+.gym-title,
+.gym-detail-copy h4,
+.gym-meta-item strong,
+.gym-detail-meta-item strong,
+.gym-summary-box strong,
+.gym-roster-card-copy strong,
+.gym-team-card-head h4,
+.gym-badge-track-item span{
+    color:var(--gyms-text-dark);
+}
+
+.gym-region-tab small,
+.gym-region-summary-meta span,
+.gym-meta-item span,
+.gym-detail-meta-item span,
+.gym-summary-box span{
+    color:var(--gyms-text-soft-dark);
+}
+
+.gym-region-tab:hover,
+.gym-region-tab.is-active,
+.gym-card:hover,
+.gym-card.is-selected{
+    box-shadow:0 16px 32px rgba(37,99,235,.10);
+}
+
+.gym-region-tab.is-active{
+    outline:2px solid rgba(59,130,246,.10);
+}
+
+.gym-card{
+    border-width:1px;
+}
+
+.gym-card-copy small,
+.gym-detail-copy small{
+    color:#4f80c8;
+}
+
+.gym-roster-preview{
+    gap:8px;
+}
+
+.gym-roster-mini{
+    border-color:rgba(148,163,184,.18);
+    background:linear-gradient(180deg, #ffffff 0%, color-mix(in srgb, var(--type-soft) 54%, #eef5ff 46%) 100%);
+}
+
+.gym-roster-mini img{
+    width:42px;
+    height:42px;
+}
+
+/* =========================
+   Dossier y roster con mejor lectura
+========================= */
+.gym-detail-card{
+    background:linear-gradient(180deg, #fffef8 0%, #f7f7ec 100%);
+}
+
+.gym-detail-note{
+    margin-top:14px;
+}
+
+.gym-detail-side{
+    align-items:flex-end;
+    justify-content:space-between;
+}
+
+.gym-roster-card{
+    background:linear-gradient(180deg, #ffffff 0%, #eef5fd 100%);
+}
+
+.gym-roster-card.is-leader{
+    border-color:rgba(251,191,36,.34);
+    box-shadow:0 12px 26px rgba(251,191,36,.10), inset 0 0 0 1px rgba(251,191,36,.12);
+}
+
+.gym-team-card{
+    background:linear-gradient(180deg, #ffffff 0%, #eef4fb 100%);
+}
+
+.gym-team-card-art{
+    border-color:rgba(148,163,184,.20);
+    background:linear-gradient(180deg, #fbfdff 0%, #eef4fb 100%);
+}
+
+.gym-team-chip{
+    background:linear-gradient(180deg, #f8fbff 0%, #eef3fb 100%);
+    border-color:rgba(148,163,184,.24);
+    color:#41546d;
+}
+
+.gym-team-chip.shiny{
+    background:linear-gradient(180deg, #fff2a8 0%, #ffd566 52%, #f6a623 100%);
+    border-color:rgba(245,158,11,.46);
+    color:#6b3b00;
+    box-shadow:0 10px 22px rgba(245,158,11,.22);
+}
+
+.gym-team-chip.leader{
+    color:#4a2b00;
+}
+
+.gym-progress-bar{
+    background:rgba(148,163,184,.16);
+    border-color:rgba(148,163,184,.20);
+}
+
+.gym-badge-track-item{
+    justify-content:flex-start;
+    min-height:128px;
+    padding:14px 10px 12px;
+}
+
+.gym-badge-track-item span{
+    color:#52657d;
+}
+
+/* =========================
+   Retratos mejor encuadrados
+========================= */
+.trainer-portrait,
+.badge-portrait{
+    border-color:rgba(148,163,184,.18);
+    background:
+        radial-gradient(circle at 50% 100%, rgba(79,155,255,.12) 0%, transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.72) 0%, rgba(234,241,249,.94) 100%);
+}
+
+.gym-card-portrait{
+    height:112px;
+    padding:0;
+}
+
+.gym-card-portrait img{
+    height:112%;
+    transform:translateY(6px) scale(1.02);
+}
+
+.hero-portrait{
+    height:166px;
+    padding:0;
+}
+
+.hero-portrait img{
+    height:114%;
+    transform:translateY(6px) scale(1.03);
+}
+
+.gym-detail-portrait{
+    height:154px;
+    padding:0;
+}
+
+.gym-detail-portrait img{
+    height:116%;
+    transform:translateY(6px) scale(1.03);
+}
+
+.gym-card-badge,
+.hero-badge-portrait,
+.gym-detail-badge,
+.gym-badge-track-portrait{
+    background:linear-gradient(180deg, #ffffff 0%, #eef4fb 100%);
+    border-color:rgba(148,163,184,.20);
+}
+
+/* =========================
+   Responsive final sobre tema claro
+========================= */
+@media (max-width: 980px){
+    .gyms-page{
+        width:min(100%, calc(100% - 14px));
+    }
+
+    .hero-portrait{
+        height:150px;
+    }
+
+    .gym-detail-portrait{
+        height:140px;
+    }
+}
+
+@media (max-width: 720px){
+    .gyms-page{
+        width:min(100%, calc(100% - 12px));
+        padding-top:18px;
+    }
+
+    .gyms-section,
+    .gyms-hero{
+        border-radius:22px;
+    }
+
+    .gym-card-portrait,
+    .hero-portrait,
+    .gym-detail-portrait{
+        height:132px;
+    }
+
+    .gym-card-portrait img,
+    .hero-portrait img,
+    .gym-detail-portrait img{
+        height:110%;
+        transform:translateY(4px) scale(1.01);
+    }
+}
