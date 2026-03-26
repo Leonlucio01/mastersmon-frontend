@@ -2016,3 +2016,111 @@ body{
         transform:translateY(4px) scale(1.01);
     }
 }
+
+
+/* =========================================================
+   GYMS V2 HOTFIX
+   1. STATUS CHIPS VISIBLES
+   2. RETRATOS DE TRAINERS MEJOR ENCUADRADOS
+========================================================= */
+
+/* 1) Status chips: aseguramos contraste real en cards, dossier y hero */
+.gym-card .gym-status,
+.gym-detail-card .gym-status,
+.gyms-hero-preview .hero-preview-status{
+    color:#0f172a !important;
+    border:1px solid rgba(148,163,184,0.34) !important;
+    box-shadow:0 8px 18px rgba(15,23,42,0.08) !important;
+    text-shadow:none !important;
+}
+
+.gym-card[data-status="cleared"] .gym-status,
+.gym-detail-card .gym-status{
+    background:linear-gradient(180deg, #dcfce7 0%, #bbf7d0 100%) !important;
+    color:#166534 !important;
+    border-color:rgba(34,197,94,0.30) !important;
+}
+
+.gym-card[data-status="open"] .gym-status{
+    background:linear-gradient(180deg, #dbeafe 0%, #bfdbfe 100%) !important;
+    color:#1d4ed8 !important;
+    border-color:rgba(59,130,246,0.30) !important;
+}
+
+.gym-card[data-status="locked"] .gym-status{
+    background:linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%) !important;
+    color:#475569 !important;
+    border-color:rgba(148,163,184,0.28) !important;
+}
+
+/* Hero derecho: más contraste en el estado */
+.gyms-hero-preview .hero-preview-status{
+    background:linear-gradient(180deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.14) 100%) !important;
+    color:#f8fafc !important;
+    border-color:rgba(255,255,255,0.18) !important;
+    box-shadow:none !important;
+}
+
+/* Dossier: el estado estaba quedando muy lavado; lo fijamos visible */
+.gym-detail-card .gym-status{
+    background:linear-gradient(180deg, #dbeafe 0%, #bfdbfe 100%) !important;
+    color:#1d4ed8 !important;
+    border-color:rgba(59,130,246,0.30) !important;
+}
+
+/* 2) Retratos de trainers: menos zoom para que entren completos */
+.gym-card .trainer-portrait,
+.gym-detail-card .trainer-portrait,
+.gyms-hero-preview .trainer-portrait{
+    padding:4px 4px 0 !important;
+    display:flex !important;
+    align-items:flex-end !important;
+    justify-content:center !important;
+    overflow:hidden !important;
+}
+
+.gym-card .trainer-portrait img,
+.gym-detail-card .trainer-portrait img,
+.gyms-hero-preview .trainer-portrait img{
+    width:100% !important;
+    height:100% !important;
+    object-fit:contain !important;
+    object-position:center bottom !important;
+    transform:scale(1.03) translateY(2px) !important;
+    transform-origin:center bottom !important;
+    filter:drop-shadow(0 6px 14px rgba(15,23,42,0.10));
+}
+
+/* Card del roadmap: cuadro un poco más amable para que no se sienta cortado */
+.gym-card-portrait{
+    width:78px !important;
+    height:78px !important;
+    border-radius:20px !important;
+}
+
+/* Dossier derecho: un poco más grande pero sin cortar */
+.gym-detail-portrait{
+    width:94px !important;
+    height:94px !important;
+    border-radius:22px !important;
+}
+
+/* Hero superior: más presencia pero sin el zoom agresivo anterior */
+.gyms-hero-preview .trainer-portrait{
+    width:96px !important;
+    height:96px !important;
+    border-radius:24px !important;
+}
+
+/* Ajuste fino para trainers con más espacio arriba */
+.gym-card.type-water .trainer-portrait img,
+.gym-detail-card.type-water .trainer-portrait img,
+.gyms-hero-preview.type-water .trainer-portrait img,
+.gym-card.type-grass .trainer-portrait img,
+.gym-detail-card.type-grass .trainer-portrait img,
+.gyms-hero-preview.type-grass .trainer-portrait img,
+.gym-card.type-electric .trainer-portrait img,
+.gym-detail-card.type-electric .trainer-portrait img,
+.gyms-hero-preview.type-electric .trainer-portrait img{
+    transform:scale(1.00) translateY(3px) !important;
+}
