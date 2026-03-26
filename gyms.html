@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mastersmon - Gyms</title>
+    <title data-i18n="gyms_page_title">Mastersmon - Gyms</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/menu.css">
     <link rel="stylesheet" href="css/gyms.css">
@@ -126,17 +126,14 @@
         <section class="gyms-hero">
             <div class="gyms-hero-grid">
                 <div class="gyms-hero-copy">
-                    <span class="gyms-hero-kicker">Regional badge campaign</span>
+                    <span class="gyms-hero-kicker" data-i18n="gyms_hero_kicker">Regional badge campaign</span>
                     <h1 class="gyms-title">GYMS</h1>
-                    <p class="gyms-subtitle">
-                        Build your badge route across Kanto, Johto and Hoenn. Each leader carries a themed roster,
-                        a signature badge, and a stronger visual identity ready for real backend progression later.
-                    </p>
+                    <p class="gyms-subtitle" data-i18n="gyms_hero_subtitle">Build your badge route across Kanto, Johto and Hoenn. Each leader carries a themed roster, a signature badge, and a stronger visual identity ready for real backend progression later.</p>
 
                     <div class="gyms-hero-actions">
-                        <a href="battle.html" class="gyms-btn">Open Battle IA</a>
-                        <a href="maps.html" class="gyms-btn-secondary">Catch counters in Maps</a>
-                        <a href="idle.html" class="gyms-btn-ghost">Prepare in Idle</a>
+                        <a href="battle.html" class="gyms-btn" data-i18n="gyms_hero_cta_battle">Open Battle IA</a>
+                        <a href="maps.html" class="gyms-btn-secondary" data-i18n="gyms_hero_cta_maps">Catch counters in Maps</a>
+                        <a href="idle.html" class="gyms-btn-ghost" data-i18n="gyms_hero_cta_idle">Prepare in Idle</a>
                     </div>
 
                     <div class="gyms-hero-statbar" id="gymsHeroStatbar"></div>
@@ -149,11 +146,11 @@
         <section class="gyms-section gyms-overview-shell">
             <div class="gyms-section-header gyms-section-header-tight">
                 <div>
-                    <span class="gyms-section-kicker">Command overview</span>
-                    <h2>Badge progress at a glance</h2>
-                    <p>Everything below still works with local data, so we can perfect the UX now and connect the backend after the contract is locked.</p>
+                    <span class="gyms-section-kicker" data-i18n="gyms_overview_kicker">Command overview</span>
+                    <h2 data-i18n="gyms_overview_title">Badge progress at a glance</h2>
+                    <p data-i18n="gyms_overview_copy">Everything below still works with local data, so we can perfect the UX now and connect the backend after the contract is locked.</p>
                 </div>
-                <span class="gyms-pill">Frontend-ready shell</span>
+                <span class="gyms-pill" data-i18n="gyms_frontend_shell">Frontend-ready shell</span>
             </div>
             <div class="gyms-overview" id="gymsOverviewStats"></div>
         </section>
@@ -163,9 +160,9 @@
                 <section class="gyms-section gyms-region-shell">
                     <div class="gyms-section-header">
                         <div>
-                            <span class="gyms-section-kicker">Route selection</span>
-                            <h3>Choose your region</h3>
-                            <p>Each region keeps its own badge track, leader portraits and themed rewards. This makes the flow easy to scale once progression moves to PostgreSQL.</p>
+                            <span class="gyms-section-kicker" data-i18n="gyms_region_kicker">Route selection</span>
+                            <h3 data-i18n="gyms_region_title">Choose your region</h3>
+                            <p data-i18n="gyms_region_copy">Each region keeps its own badge track, leader portraits and themed rewards. This makes the flow easy to scale once progression moves to PostgreSQL.</p>
                         </div>
                         <span class="gyms-pill" id="gymsRegionProgressPill">Kanto route</span>
                     </div>
@@ -177,9 +174,9 @@
                 <section class="gyms-section gyms-roadmap-shell">
                     <div class="gyms-section-header">
                         <div>
-                            <span class="gyms-section-kicker">Leader roadmap</span>
+                            <span class="gyms-section-kicker" data-i18n="gyms_roadmap_kicker">Leader roadmap</span>
                             <h3 id="gymsRoadmapTitle">Kanto leaders</h3>
-                            <p id="gymsRoadmapText">Pick a leader to inspect the badge, roster, difficulty and current team readiness.</p>
+                            <p id="gymsRoadmapText" data-i18n="gyms_roadmap_pick_leader">Pick a leader to inspect the badge, roster, difficulty and current team readiness.</p>
                         </div>
                         <span class="gyms-pill" id="gymsRoadmapCounter">8 gyms</span>
                     </div>
@@ -192,10 +189,10 @@
                 <section class="gyms-section gyms-detail-shell">
                     <div class="gyms-section-header gyms-section-header-tight">
                         <div>
-                            <span class="gyms-section-kicker">Selected challenge</span>
-                            <h3>Leader dossier</h3>
+                            <span class="gyms-section-kicker" data-i18n="gyms_selected_kicker">Selected challenge</span>
+                            <h3 data-i18n="gyms_dossier_title">Leader dossier</h3>
                         </div>
-                        <span class="gyms-pill">Live preview</span>
+                        <span class="gyms-pill" data-i18n="gyms_live_preview">Live preview</span>
                     </div>
                     <div id="selectedGymPanel"></div>
                 </section>
@@ -203,10 +200,10 @@
                 <section class="gyms-section gyms-team-shell">
                     <div class="gyms-section-header gyms-section-header-tight">
                         <div>
-                            <span class="gyms-section-kicker">Saved squad</span>
-                            <h3>Battle team status</h3>
+                            <span class="gyms-section-kicker" data-i18n="gyms_saved_squad_kicker">Saved squad</span>
+                            <h3 data-i18n="gyms_battle_team_status_title">Battle team status</h3>
                         </div>
-                        <span class="gyms-pill">Shared with Battle IA</span>
+                        <span class="gyms-pill" data-i18n="gyms_shared_battle_ia">Shared with Battle IA</span>
                     </div>
                     <div id="gymTeamSummary"></div>
                     <div id="gymTeamList" class="gym-team-list"></div>
@@ -215,10 +212,10 @@
                 <section class="gyms-section gyms-progress-shell">
                     <div class="gyms-section-header gyms-section-header-tight">
                         <div>
-                            <span class="gyms-section-kicker">Badge route</span>
-                            <h3>Progress and unlocks</h3>
+                            <span class="gyms-section-kicker" data-i18n="gyms_badge_route_kicker">Badge route</span>
+                            <h3 data-i18n="gyms_progress_unlocks_title">Progress and unlocks</h3>
                         </div>
-                        <span class="gyms-pill">Local for now</span>
+                        <span class="gyms-pill" data-i18n="gyms_local_for_now">Local for now</span>
                     </div>
                     <div id="gymProgressPanel"></div>
                 </section>

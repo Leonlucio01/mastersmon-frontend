@@ -1187,3 +1187,217 @@ body{
         padding:18px;
     }
 }
+
+
+/* =========================================================
+   GYMS REVAMP OVERRIDES
+   - Más contraste
+   - Panels menos pálidos
+   - Cards con más identidad visual
+========================================================= */
+body{
+    background:
+        radial-gradient(circle at 12% 0%, rgba(37,99,235,0.18) 0%, rgba(37,99,235,0) 26%),
+        radial-gradient(circle at 88% 12%, rgba(14,165,233,0.12) 0%, rgba(14,165,233,0) 24%),
+        linear-gradient(180deg,#eef4ff 0%, #e6eef8 44%, #dde8f4 100%) !important;
+}
+
+.gyms-title{
+    text-shadow:0 10px 26px rgba(15,23,42,0.32);
+}
+
+.gyms-subtitle{
+    color:#e8f1ff;
+}
+
+.gyms-hero{
+    box-shadow:0 34px 68px rgba(2,8,23,0.30), inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+.gyms-hero-preview{
+    background:linear-gradient(180deg, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0.08) 100%);
+    border-color:rgba(255,255,255,0.16);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.18), 0 18px 36px rgba(2,8,23,0.18);
+}
+
+.hero-preview-status{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:8px 12px;
+    border-radius:999px;
+    background:rgba(255,255,255,0.12);
+    border:1px solid rgba(255,255,255,0.16);
+    color:#ffffff;
+    font-size:12px;
+    font-weight:900;
+}
+
+.gyms-section{
+    position:relative;
+    overflow:hidden;
+    background:linear-gradient(180deg, rgba(255,255,255,0.90) 0%, rgba(244,248,255,0.97) 100%);
+    border:1px solid rgba(166,188,220,0.34);
+    box-shadow:0 24px 52px rgba(15,23,42,0.08), inset 0 1px 0 rgba(255,255,255,0.72);
+}
+
+.gyms-section::before{
+    content:"";
+    position:absolute;
+    left:20px;
+    right:20px;
+    top:0;
+    height:1px;
+    background:linear-gradient(90deg, transparent, rgba(59,130,246,0.45), transparent);
+    pointer-events:none;
+}
+
+.gyms-pill{
+    background:linear-gradient(180deg,#eef4ff 0%, #dee9ff 100%);
+    color:#2453d5;
+    border:1px solid #c8d8f3;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.8);
+}
+
+.gyms-stat-card,
+.gym-summary-box,
+.gym-meta-item,
+.gym-detail-meta-item,
+.gym-sidebar-item,
+.gym-team-empty,
+.hero-preview-empty,
+.gym-empty-note{
+    background:linear-gradient(180deg,#ffffff 0%, #f3f8ff 100%);
+    border-color:rgba(166,188,220,0.34);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.84);
+}
+
+.gym-region-tab{
+    background:linear-gradient(180deg, rgba(255,255,255,0.94) 0%, rgba(243,247,255,0.98) 100%) !important;
+    border-color:rgba(166,188,220,0.38);
+    box-shadow:0 10px 24px rgba(15,23,42,0.04), inset 0 1px 0 rgba(255,255,255,0.85);
+}
+
+.gym-region-tab.is-active{
+    transform:translateY(-2px);
+    box-shadow:0 18px 40px rgba(37,99,235,0.16), inset 0 1px 0 rgba(255,255,255,0.9);
+}
+
+.gym-region-summary-card{
+    box-shadow:0 18px 40px rgba(15,23,42,0.08), inset 0 1px 0 rgba(255,255,255,0.85);
+}
+
+.gym-card,
+.gym-detail-card,
+.gym-team-card,
+.gym-roster-card{
+    box-shadow:0 18px 44px rgba(15,23,42,0.09), inset 0 1px 0 rgba(255,255,255,0.8);
+}
+
+.gym-card,
+.gym-detail-card{
+    border-width:1.5px;
+}
+
+.gym-card::after,
+.gym-detail-card::after{
+    content:"";
+    position:absolute;
+    inset:0 0 auto 0;
+    height:4px;
+    background:linear-gradient(90deg, color-mix(in srgb, var(--type-accent) 78%, white) 0%, color-mix(in srgb, var(--type-accent) 32%, white) 100%);
+    opacity:.95;
+}
+
+.gym-card[class*="type-"],
+.gym-detail-card[class*="type-"],
+.gym-team-card[class*="type-"],
+.gym-roster-card[class*="type-"]{
+    background:linear-gradient(180deg, color-mix(in srgb, var(--type-accent) 10%, white) 0%, color-mix(in srgb, var(--type-soft) 68%, white) 28%, #ffffff 100%) !important;
+}
+
+.gym-card.is-selected{
+    transform:translateY(-4px);
+    box-shadow:0 24px 60px rgba(37,99,235,0.18), inset 0 1px 0 rgba(255,255,255,0.9);
+}
+
+.gym-card[data-status="locked"]{
+    opacity:.82;
+    filter:saturate(.88);
+}
+
+.gym-status{
+    background:rgba(15,23,42,0.05);
+    border:1px solid rgba(148,163,184,0.24);
+    color:#34455f;
+}
+
+.gym-type[class*="type-"]{
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.72);
+}
+
+.gym-roster-mini,
+.gym-roster-card img,
+.gym-team-card-art{
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.82), 0 8px 18px rgba(15,23,42,0.07);
+}
+
+.gym-detail-note,
+.gym-desc,
+.gym-city,
+.gym-team-card-body p,
+.gym-progress-note,
+.gyms-section-header p,
+.gym-sidebar-item p,
+.gym-region-summary-card p{
+    color:#51647f;
+}
+
+.gym-team-chip{
+    background:linear-gradient(180deg,#ffffff 0%, #f5f8fd 100%);
+    border:1px solid #d7e1ee;
+    color:#29415e;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.82);
+}
+
+.gym-team-chip.shiny,
+.gym-team-chip.leader{
+    background:linear-gradient(180deg,#fff7ed 0%, #ffedd5 100%);
+    border-color:#fdba74;
+    color:#c2410c;
+}
+
+.gym-progress-wrap{
+    padding:4px;
+    border-radius:24px;
+    background:linear-gradient(180deg, rgba(245,249,255,0.84) 0%, rgba(255,255,255,0.92) 100%);
+}
+
+.gym-progress-bar{
+    background:#d9e5f7;
+}
+
+.gym-progress-fill{
+    background:linear-gradient(90deg,#2563eb 0%, #60a5fa 100%);
+    box-shadow:0 10px 22px rgba(37,99,235,0.26);
+}
+
+.gym-badge-track-item{
+    background:linear-gradient(180deg,#ffffff 0%, #f2f7ff 100%);
+    border-color:rgba(166,188,220,0.34);
+}
+
+.gym-badge-track-item.cleared{
+    box-shadow:0 12px 26px rgba(37,99,235,0.12);
+}
+
+@media (max-width:920px){
+    .gyms-section{
+        border-radius:26px;
+    }
+
+    .gym-card.is-selected,
+    .gym-region-tab.is-active{
+        transform:none;
+    }
+}
