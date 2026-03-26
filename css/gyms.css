@@ -1,3 +1,31 @@
+/* =========================================================
+   MASTERSMON - GYMS.CSS
+   ---------------------------------------------------------
+   Archivo comentado por bloques para mantenimiento rápido
+
+   ÍNDICE
+   1. Variables base y fondo global
+   2. Layout general de la página
+   3. Hero principal y preview derecho
+   4. Secciones / paneles / overview
+   5. Tabs de región y resumen
+   6. Cards de Gym en la grilla
+   7. Detalle del Gym seleccionado
+   8. Equipo del jugador y roster rival
+   9. Progreso y badge track
+   10. Sistema de tipos / colores temáticos
+   11. Responsive base
+   12. Overrides visuales por pases
+   ---------------------------------------------------------
+   Nota:
+   - Las últimas capas del archivo pisan estilos anteriores.
+   - Si algo no cambia visualmente, revisa primero el bloque
+     HOTFIX FINAL GYMS al final del archivo.
+========================================================= */
+
+/* =========================================================
+   1. VARIABLES BASE Y FONDO GLOBAL
+========================================================= */
 :root{
     --gym-bg-1:#071526;
     --gym-bg-2:#10284c;
@@ -16,6 +44,12 @@ body{
         linear-gradient(180deg,#eff4ff 0%, #f8fbff 55%, #edf2fa 100%);
 }
 
+
+/* =========================================================
+   2. LAYOUT GENERAL DE LA PÁGINA
+   - contenedor principal
+   - grid general de columnas
+========================================================= */
 .gyms-page{
     max-width:1340px;
     margin:0 auto;
@@ -23,6 +57,13 @@ body{
     box-sizing:border-box;
 }
 
+
+/* =========================================================
+   3. HERO PRINCIPAL
+   - banner superior
+   - copy principal
+   - acciones rápidas
+========================================================= */
 .gyms-hero{
     position:relative;
     overflow:hidden;
@@ -209,6 +250,13 @@ body{
     font-weight:900;
 }
 
+
+/* =========================================================
+   3.1 PREVIEW DERECHO DEL HERO
+   - líder destacado
+   - badge preview
+   - resumen rápido
+========================================================= */
 .gyms-hero-preview{
     border-radius:28px;
     padding:20px;
@@ -336,6 +384,12 @@ body{
     font-weight:900;
 }
 
+
+/* =========================================================
+   4. GRID PRINCIPAL DE CONTENIDO
+   - columna principal
+   - sidebar derecho
+========================================================= */
 .gyms-page-grid{
     display:grid;
     grid-template-columns:minmax(0,1.18fr) minmax(340px,.84fr);
@@ -348,6 +402,12 @@ body{
     min-width:0;
 }
 
+
+/* =========================================================
+   4.1 SHELLS / SECCIONES GENERALES
+   - panels reutilizables
+   - overview / detail / team / progress
+========================================================= */
 .gyms-section{
     background:var(--gym-panel);
     border:1px solid var(--gym-panel-border);
@@ -466,6 +526,10 @@ body{
     margin-top:6px;
 }
 
+
+/* =========================================================
+   5. TABS DE REGIÓN Y RESUMEN DE REGIÓN
+========================================================= */
 .gym-region-tabs{
     display:grid;
     grid-template-columns:repeat(3,minmax(0,1fr));
@@ -549,12 +613,26 @@ body{
     gap:12px;
 }
 
+
+/* =========================================================
+   6. GRILLA DE GYMS
+   - cards del listado principal
+========================================================= */
 .gyms-grid{
     display:grid;
     grid-template-columns:repeat(2,minmax(0,1fr));
     gap:18px;
 }
 
+
+/* =========================================================
+   6.1 CARD INDIVIDUAL DE GYM
+   - trainer
+   - badge
+   - ciudad / descripción
+   - meta info
+   - mini roster
+========================================================= */
 .gym-card{
     position:relative;
     overflow:hidden;
@@ -686,6 +764,11 @@ body{
     color:#3730a3;
 }
 
+
+/* =========================================================
+   7. DETALLE DEL GYM SELECCIONADO
+   - bloque grande de la derecha o sección inferior
+========================================================= */
 .gym-detail-card{
     display:flex;
     flex-direction:column;
@@ -736,6 +819,12 @@ body{
     margin-bottom:6px;
 }
 
+
+/* =========================================================
+   8. ROSTER RIVAL Y TU TEAM
+   - listado del equipo rival
+   - cards de tu equipo
+========================================================= */
 .gym-roster-stack{
     padding:16px;
     border-radius:24px;
@@ -862,6 +951,10 @@ body{
     border-color:#fdba74;
 }
 
+
+/* =========================================================
+   9. PROGRESO Y BADGE TRACK
+========================================================= */
 .gym-progress-bar{
     width:100%;
     height:14px;
@@ -980,6 +1073,12 @@ body{
     background:#f8fafc;
 }
 
+
+/* =========================================================
+   10. SISTEMA DE TIPOS
+   - variables visuales por tipo Pokémon
+   - glow / fondos / chips / acentos
+========================================================= */
 .type-normal{ --type-accent:#94a3b8; --type-soft:#f1f5f9; --type-ink:#475569; }
 .type-fire{ --type-accent:#f97316; --type-soft:#fff7ed; --type-ink:#c2410c; }
 .type-water{ --type-accent:#38bdf8; --type-soft:#eff6ff; --type-ink:#0369a1; }
@@ -1067,6 +1166,10 @@ body{
     background:color-mix(in srgb, var(--type-soft) 78%, white);
 }
 
+
+/* =========================================================
+   11. RESPONSIVE BASE
+========================================================= */
 @media (max-width:1180px){
     .gyms-hero-grid,
     .gyms-page-grid{
@@ -1190,6 +1293,8 @@ body{
 
 
 /* =========================================================
+   12. PRIMER PASE DE OVERRIDES
+   ---------------------------------------------------------
    GYMS REVAMP OVERRIDES
    - Más contraste
    - Panels menos pálidos
@@ -1404,6 +1509,8 @@ body{
 
 
 /* =========================================================
+   13. SEGUNDO PASE DE REFINAMIENTO
+   ---------------------------------------------------------
    GYMS V2 REFINEMENT
    - Más vivo al estilo Battle
    - Miniaturas reales de roster pensadas para 6 slots
@@ -1650,6 +1757,8 @@ body{
 
 
 /* =========================================================
+   14. TERCER PASE VISUAL PREMIUM
+   ---------------------------------------------------------
    PREMIUM WOW PASS / FINAL POLISH
    - More vivid contrast
    - Richer cards like Battle
@@ -2151,6 +2260,8 @@ body{
 
 
 /* =========================================================
+   15. HOTFIX FINAL PRIORITARIO
+   ---------------------------------------------------------
    HOTFIX FINAL GYMS
    - Hero derecho legible
    - Trainers con menos espacio muerto
