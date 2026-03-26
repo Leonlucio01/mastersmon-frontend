@@ -715,6 +715,29 @@ function getTypeClass(typeKey) {
     return `type-${normalizeTypeKey(typeKey)}`;
 }
 
+
+/* =========================================================
+   TYPES / VISUAL CHIPS
+   - Separa tipos dobles del Pokémon
+   - Construye pills reutilizables para roster y team
+========================================================= */
+function splitPokemonTypes(typeValue) {
+    return String(typeValue || "")
+        .split(/[\/,|-]/)
+        .map(item => normalizeTypeKey(item.trim()))
+        .filter(Boolean)
+        .slice(0, 2);
+}
+
+function buildTypeChipsHtml(typeValue, baseClass = "gym-type-chip") {
+    const types = splitPokemonTypes(typeValue);
+    const safeTypes = types.length ? types : ["normal"];
+
+    return safeTypes.map(typeKey => `
+        <span class="${baseClass} ${getTypeClass(typeKey)}">${escapeHtmlGyms(getTypeLabel(typeKey))}</span>
+    `).join("");
+}
+
 function buildTrainerImagePath(regionId, leaderSlug) {
     return `${TRAINER_ASSET_ROOT}/${regionId}/${leaderSlug}.png`;
 }
@@ -1543,18 +1566,15 @@ function renderSelectedGymPanel() {
     }
 
     const status = getGymStatus(gym.id);
-    const teamReady = gymsState.team.length === 6;
-    const averageLevel = getAverageTeamLevel();
-    const levelReady = averageLevel >= gym.recommendedLevel;
     const rosterHtml = (gym.roster || []).map((pokemon, index) => {
-        const primaryType = String(pokemon.tipo).split("/")[0];
+        const primaryType = splitPokemonTypes(pokemon.tipo)[0] || "normal";
         return `
             <article class="gym-roster-card ${getTypeClass(primaryType)} ${pokemon.leader ? 'is-leader' : ''}">
                 <div class="gym-roster-card-top">
                     <img src="${escapeHtmlGyms(getSpriteFromPokemon(pokemon))}" alt="${escapeHtmlGyms(pokemon.nombre)}">
-                    <div>
+                    <div class="gym-roster-card-copy">
                         <strong>${escapeHtmlGyms(pokemon.nombre)}</strong>
-                        <p>${escapeHtmlGyms(String(pokemon.tipo).split('/').map(getTypeLabel).join(' / '))}</p>
+                        <div class="gym-type-chip-row">${buildTypeChipsHtml(pokemon.tipo)}</div>
                     </div>
                 </div>
                 <span class="gym-team-chip ${pokemon.leader ? 'leader' : ''}">${pokemon.leader ? 'Leader ace' : `Slot ${index + 1}`}</span>
@@ -1571,14 +1591,16 @@ function renderSelectedGymPanel() {
                 <div class="gym-detail-copy">
                     <div class="gym-detail-topline">
                         <span class="gym-status">${escapeHtmlGyms(status === 'cleared' ? 'Cleared' : status === 'open' ? 'Available' : 'Locked')}</span>
-                        <span class="gym-type ${getTypeClass(gym.type)}">${escapeHtmlGyms(getTypeLabel(gym.type))}</span>
                     </div>
                     <small>${escapeHtmlGyms(gym.gymName)}</small>
                     <h4>${escapeHtmlGyms(gym.leader)}</h4>
                     <p>${escapeHtmlGyms(gym.city)} · ${escapeHtmlGyms(gym.enemyStyle)}</p>
                 </div>
-                <div class="badge-portrait gym-detail-badge">
-                    <img src="${escapeHtmlGyms(getGymBadgeImagePath(gym))}" alt="${escapeHtmlGyms(gym.badge)}" onerror="window.__gymsImageFallback(event, '${escapeHtmlGyms(gym.badge)}')">
+                <div class="gym-detail-side">
+                    <span class="gym-type ${getTypeClass(gym.type)}">${escapeHtmlGyms(getTypeLabel(gym.type))}</span>
+                    <div class="badge-portrait gym-detail-badge">
+                        <img src="${escapeHtmlGyms(getGymBadgeImagePath(gym))}" alt="${escapeHtmlGyms(gym.badge)}" onerror="window.__gymsImageFallback(event, '${escapeHtmlGyms(gym.badge)}')">
+                    </div>
                 </div>
             </div>
 
@@ -1608,10 +1630,6 @@ function renderSelectedGymPanel() {
                     <strong>Challenge hint</strong>
                     <p>${escapeHtmlGyms(gym.hint)}</p>
                 </div>
-                <div class="gym-sidebar-item">
-                    <strong>Readiness</strong>
-                    <p>${teamReady ? 'Full team saved' : 'Team incomplete'} · ${averageLevel ? `Avg Lv. ${averageLevel}` : 'No level data'} · ${levelReady ? 'Recommended level reached' : 'Keep leveling your squad'}</p>
-                </div>
             </div>
 
             <div class="gym-roster-stack">
@@ -1637,10 +1655,7 @@ function renderSelectedGymPanel() {
 
 function buildTeamCard(pokemon, index) {
     const sprite = getSpriteFromPokemon(pokemon);
-    const rawType = Array.isArray(pokemon?.tipo)
-        ? pokemon.tipo[0]
-        : String(pokemon?.tipo || "").split(/[\/,|-]/).map(item => item.trim()).filter(Boolean)[0] || "normal";
-    const typeKey = normalizeTypeKey(rawType);
+    const typeKey = splitPokemonTypes(pokemon?.tipo)[0] || "normal";
     const hp = pokemon?.hp_actual ?? pokemon?.hp_max ?? "—";
     const attack = pokemon?.ataque ?? "—";
     const defense = pokemon?.defensa ?? "—";
@@ -1656,7 +1671,7 @@ function buildTeamCard(pokemon, index) {
                     <h4>${index + 1}. ${escapeHtmlGyms(pokemon?.nombre || 'Pokemon')}</h4>
                     ${shinyBadge}
                 </div>
-                <p>${escapeHtmlGyms(String(pokemon?.tipo || '—'))}</p>
+                <div class="gym-type-chip-row gym-team-type-row">${buildTypeChipsHtml(pokemon?.tipo)}</div>
                 <div class="gym-team-card-meta">
                     <span class="gym-team-chip">Lv. ${escapeHtmlGyms(pokemon?.nivel ?? '—')}</span>
                     <span class="gym-team-chip">HP ${escapeHtmlGyms(hp)}</span>

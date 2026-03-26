@@ -2568,3 +2568,260 @@ body{
         transform:scale(1.16) translateY(4px);
     }
 }
+
+
+/* =========================================================
+   16. CLEAN VISUAL PASS / TRAINERS + TYPES + SHINY
+   ---------------------------------------------------------
+   - Ajuste real de portraits de entrenadores
+   - Header del dossier con type chip alineado a la insignia
+   - Types del roster rival y del team en chips separados
+   - Shiny más visible
+   - Meta grid de cards más compacto
+========================================================= */
+
+.gym-card{
+    padding:16px 16px 18px !important;
+    gap:12px !important;
+}
+
+.gym-card-top{
+    margin:0 !important;
+}
+
+.gym-card-main{
+    grid-template-columns:76px minmax(0,1fr) 60px !important;
+    gap:12px !important;
+    margin-top:0 !important;
+    align-items:center !important;
+}
+
+.gym-desc{
+    min-height:54px !important;
+}
+
+.gym-meta-grid{
+    grid-template-columns:0.92fr 1.12fr 0.96fr !important;
+    gap:10px !important;
+}
+
+.gym-meta-item span{
+    font-size:9px !important;
+    line-height:1.05 !important;
+}
+
+.gym-meta-item:nth-child(2) span{
+    font-size:8px !important;
+}
+
+.gym-card .trainer-portrait,
+.gym-detail-card .trainer-portrait,
+.gyms-hero-preview .trainer-portrait{
+    padding:0 !important;
+    overflow:hidden !important;
+    align-items:flex-end !important;
+    justify-content:center !important;
+}
+
+.gym-card .trainer-portrait img{
+    width:auto !important;
+    height:138% !important;
+    max-width:none !important;
+    object-fit:contain !important;
+    object-position:center bottom !important;
+    transform:translateY(12px) !important;
+}
+
+.gym-detail-card .trainer-portrait img{
+    width:auto !important;
+    height:128% !important;
+    max-width:none !important;
+    object-fit:contain !important;
+    object-position:center bottom !important;
+    transform:translateY(10px) !important;
+}
+
+.gyms-hero-preview .trainer-portrait img{
+    width:auto !important;
+    height:122% !important;
+    max-width:none !important;
+    object-fit:contain !important;
+    object-position:center bottom !important;
+    transform:translateY(8px) !important;
+}
+
+.gym-detail-hero{
+    display:grid !important;
+    grid-template-columns:96px minmax(0,1fr) 92px !important;
+    gap:14px !important;
+    align-items:center !important;
+}
+
+.gym-detail-topline{
+    justify-content:flex-start !important;
+    gap:8px !important;
+    margin-bottom:6px !important;
+}
+
+.gym-detail-side{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    justify-content:flex-start;
+    gap:10px;
+    min-width:0;
+}
+
+.gym-detail-side .gym-type{
+    align-self:flex-end;
+}
+
+.gym-type-chip-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    margin-top:8px;
+}
+
+.gym-team-type-row{
+    margin-top:8px;
+    margin-bottom:2px;
+}
+
+.gym-type-chip{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:6px 10px;
+    border-radius:999px;
+    font-size:11px;
+    line-height:1;
+    font-weight:900;
+    white-space:nowrap;
+    color:#ffffff;
+    border:1px solid transparent;
+    box-shadow:0 8px 16px rgba(15,23,42,0.10);
+}
+
+.gym-type-chip.type-normal{ background:#6b7280; }
+.gym-type-chip.type-fire{ background:#f97316; }
+.gym-type-chip.type-water{ background:#3b82f6; }
+.gym-type-chip.type-electric{ background:#eab308; color:#4a2b00; }
+.gym-type-chip.type-grass{ background:#22c55e; }
+.gym-type-chip.type-ice{ background:#06b6d4; }
+.gym-type-chip.type-fighting{ background:#dc2626; }
+.gym-type-chip.type-poison{ background:#a855f7; }
+.gym-type-chip.type-ground{ background:#ca8a04; }
+.gym-type-chip.type-flying{ background:#60a5fa; }
+.gym-type-chip.type-psychic{ background:#ec4899; }
+.gym-type-chip.type-bug{ background:#65a30d; }
+.gym-type-chip.type-rock{ background:#78716c; }
+.gym-type-chip.type-ghost{ background:#7c3aed; }
+.gym-type-chip.type-dragon{ background:#4f46e5; }
+.gym-type-chip.type-dark{ background:#334155; }
+.gym-type-chip.type-steel{ background:#64748b; }
+.gym-type-chip.type-fairy{ background:#f472b6; }
+
+.gym-roster-card{
+    padding:14px !important;
+}
+
+.gym-roster-card-top{
+    align-items:center !important;
+    gap:12px !important;
+}
+
+.gym-roster-card-copy{
+    min-width:0;
+    flex:1;
+}
+
+.gym-roster-card-copy strong{
+    display:block;
+    color:#0b1830;
+    font-size:16px;
+    line-height:1.1;
+    font-weight:900;
+}
+
+.gym-roster-card-top img{
+    width:58px !important;
+    height:58px !important;
+    flex:0 0 58px;
+    border-radius:16px;
+    padding:6px;
+}
+
+.gym-roster-card .gym-team-chip.leader,
+.gym-roster-card .gym-team-chip:not(.leader){
+    margin-top:10px;
+    align-self:flex-start;
+}
+
+.gym-team-card-head{
+    align-items:flex-start !important;
+    gap:12px !important;
+}
+
+.gym-team-card-head h4{
+    flex:1;
+    min-width:0;
+}
+
+.gym-team-card-head .gym-team-chip.shiny{
+    flex:0 0 auto;
+    min-width:72px;
+    padding:8px 12px !important;
+    font-size:11px !important;
+    font-weight:900 !important;
+    color:#ffffff !important;
+    background:linear-gradient(135deg,#f59e0b 0%, #ef4444 100%) !important;
+    border:1px solid rgba(255,255,255,0.34) !important;
+    text-shadow:0 1px 0 rgba(0,0,0,0.14);
+    box-shadow:0 12px 22px rgba(239,68,68,0.22) !important;
+    opacity:1 !important;
+}
+
+.gym-team-card-meta .gym-team-chip{
+    background:rgba(255,255,255,0.88) !important;
+    color:#334155 !important;
+    border:1px solid rgba(148,163,184,0.20) !important;
+}
+
+@media (max-width:920px){
+    .gym-detail-hero{
+        grid-template-columns:1fr !important;
+    }
+
+    .gym-detail-side{
+        flex-direction:row;
+        align-items:center;
+        justify-content:space-between;
+    }
+
+    .gym-detail-side .gym-type{
+        align-self:auto;
+    }
+}
+
+@media (max-width:680px){
+    .gym-card .trainer-portrait img{
+        height:130% !important;
+        transform:translateY(10px) !important;
+    }
+
+    .gym-detail-card .trainer-portrait img{
+        height:122% !important;
+        transform:translateY(8px) !important;
+    }
+
+    .gyms-hero-preview .trainer-portrait img{
+        height:116% !important;
+        transform:translateY(6px) !important;
+    }
+
+    .gym-type-chip{
+        font-size:10px;
+        padding:6px 9px;
+    }
+}
