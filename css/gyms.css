@@ -2124,3 +2124,57 @@ body{
 .gyms-hero-preview.type-electric .trainer-portrait img{
     transform:scale(1.00) translateY(3px) !important;
 }
+
+/* =========================================================
+   HOTFIX FINAL - PROGRESS NOTE VISIBILITY
+   ---------------------------------------------------------
+   Mejora el contraste del texto bajo la barra de progreso
+   en el panel "Progress and unlocks".
+========================================================= */
+.gym-progress-note{
+    margin: 14px 0 16px;
+    font-size: 13px;
+    line-height: 1.55;
+    font-weight: 600;
+    color: #4b5f7d;
+    letter-spacing: 0.01em;
+    text-wrap: balance;
+}
+
+.gyms-progress-shell .gym-progress-note{
+    padding: 0 2px;
+    opacity: 1;
+}
+
+@media (max-width: 768px){
+    .gym-progress-note{
+        font-size: 12px;
+        line-height: 1.5;
+    }
+}
+
+/* =========================================================
+   HOTFIX - MEDALLA OBTENIDA EN DORADO
+   ---------------------------------------------------------
+   Cuando una medalla ya está conseguida (status = cleared),
+   se pinta en dorado / amarillo para que se note visualmente.
+========================================================= */
+.gym-badge-track-item.cleared{
+    background:
+        radial-gradient(circle at top, rgba(251,191,36,0.22) 0%, rgba(251,191,36,0) 46%),
+        linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(254,249,195,0.92) 100%);
+    border-color: rgba(245,158,11,0.42);
+    box-shadow:
+        0 0 0 1px rgba(245,158,11,0.08) inset,
+        0 10px 22px rgba(245,158,11,0.10);
+}
+
+.gym-badge-track-item.cleared .gym-badge-track-portrait{
+    background: linear-gradient(180deg, #fffdf2 0%, #fff7cc 100%);
+    border-color: rgba(245,158,11,0.28);
+    box-shadow: 0 10px 18px rgba(245,158,11,0.12);
+}
+
+.gym-badge-track-item.cleared span{
+    color: #92400e;
+}
