@@ -1401,7 +1401,7 @@ function renderActivePokemonCardArena(pokemon) {
 }
 
 function renderResumenMovimientosActivoArena(pokemon) {
-    const movimientos = obtenerMovimientosEquipadosArena(pokemon, true).slice(0, 4);
+    const movimientos = obtenerMovimientosEquipadosArena(pokemon, true).slice(0, 6);
     if (!movimientos.length) return "";
 
     return `

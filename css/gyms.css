@@ -2148,3 +2148,312 @@ body{
         font-size:14px;
     }
 }
+
+
+/* =========================================================
+   HOTFIX FINAL GYMS
+   - Hero derecho legible
+   - Trainers con menos espacio muerto
+   - Type tags estilo Battle
+   - Shiny con más contraste
+   - Medallas ordenadas sin deformarse
+========================================================= */
+
+.gyms-hero-preview,
+.gyms-hero-preview[class*="type-"]{
+    position:relative;
+    overflow:hidden;
+    background:
+        radial-gradient(circle at 16% 18%, rgba(96,165,250,0.18) 0%, rgba(96,165,250,0) 34%),
+        radial-gradient(circle at 86% 14%, rgba(245,158,11,0.10) 0%, rgba(245,158,11,0) 24%),
+        linear-gradient(135deg, rgba(8,24,49,0.98) 0%, rgba(15,42,86,0.96) 56%, rgba(25,76,161,0.92) 100%) !important;
+    border:1px solid rgba(255,255,255,0.12) !important;
+    box-shadow:
+        0 24px 52px rgba(2,8,23,0.28),
+        inset 0 1px 0 rgba(255,255,255,0.08) !important;
+}
+
+.gyms-hero-preview::before,
+.gyms-hero-preview::after,
+.gyms-hero-preview[class*="type-"]::before,
+.gyms-hero-preview[class*="type-"]::after{
+    display:none !important;
+}
+
+.gyms-hero-preview .hero-preview-status{
+    background:rgba(255,255,255,0.14) !important;
+    border:1px solid rgba(255,255,255,0.18) !important;
+    color:#ffffff !important;
+}
+
+.gyms-hero-preview .hero-preview-copy small{
+    color:#dbeafe !important;
+}
+
+.gyms-hero-preview .hero-preview-copy h2{
+    color:#ffffff !important;
+    text-shadow:0 8px 20px rgba(2,8,23,0.24);
+}
+
+.gyms-hero-preview .hero-preview-copy p,
+.gyms-hero-preview .hero-preview-footer span,
+.gyms-hero-preview .hero-preview-footer strong{
+    color:#e8f1ff !important;
+}
+
+.gyms-hero-preview .hero-preview-footer div{
+    background:rgba(255,255,255,0.08) !important;
+    border:1px solid rgba(255,255,255,0.10) !important;
+}
+
+.gym-card,
+.gym-detail-card{
+    overflow:hidden;
+}
+
+.gym-card{
+    min-height:0 !important;
+    padding:18px 18px 18px !important;
+}
+
+.gym-card .gym-desc{
+    min-height:0 !important;
+}
+
+.gym-card .trainer-portrait,
+.gym-detail-card .trainer-portrait,
+.gyms-hero-preview .trainer-portrait{
+    padding:0 !important;
+    align-items:flex-end !important;
+    justify-content:center !important;
+    overflow:hidden !important;
+}
+
+.gym-card .trainer-portrait img,
+.gym-detail-card .trainer-portrait img,
+.gyms-hero-preview .trainer-portrait img{
+    width:100% !important;
+    height:100% !important;
+    object-fit:contain !important;
+    object-position:center bottom !important;
+    transform:scale(1.22) translateY(6px);
+    transform-origin:center bottom;
+}
+
+.gym-card-main,
+.hero-preview-main,
+.gym-detail-hero{
+    align-items:center !important;
+}
+
+.gym-card .gym-card-main{
+    margin-top:-2px;
+}
+
+.gym-card .gym-card-copy,
+.gym-detail-copy,
+.hero-preview-copy{
+    min-width:0;
+}
+
+.gym-card .gym-card-copy h4,
+.gym-detail-copy h4,
+.hero-preview-copy h2{
+    line-height:1.02;
+}
+
+.gym-card .badge-portrait,
+.gym-detail-card .badge-portrait,
+.gyms-hero-preview .badge-portrait,
+.gyms-hero-preview .hero-badge-portrait{
+    background:linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(236,243,255,0.96) 100%) !important;
+    border:1px solid rgba(186,206,238,0.48) !important;
+    box-shadow:0 12px 24px rgba(15,23,42,0.10), inset 0 1px 0 rgba(255,255,255,0.90) !important;
+}
+
+.gym-card .trainer-portrait,
+.gym-detail-card .trainer-portrait,
+.gyms-hero-preview .trainer-portrait{
+    background:linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(241,246,255,0.96) 100%) !important;
+    border:1px solid rgba(186,206,238,0.48) !important;
+    box-shadow:0 12px 24px rgba(15,23,42,0.10), inset 0 1px 0 rgba(255,255,255,0.90) !important;
+}
+
+.gym-detail-card{
+    background:
+        radial-gradient(circle at top right, rgba(250,204,21,0.14) 0%, rgba(250,204,21,0) 22%),
+        linear-gradient(180deg, rgba(255,251,235,0.98) 0%, rgba(249,244,228,0.98) 100%) !important;
+}
+
+.gym-detail-card .gym-detail-hero{
+    background:linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(244,247,255,0.98) 100%) !important;
+}
+
+.gym-detail-copy small{
+    color:#64748b !important;
+}
+
+.gym-detail-copy h4,
+.gym-card .gym-title{
+    color:#081528 !important;
+}
+
+.gym-detail-copy p,
+.gym-card .gym-desc,
+.gym-card .gym-city{
+    color:#556881 !important;
+}
+
+.gym-type,
+.gym-team-chip.type-normal,
+.gym-team-chip.type-fire,
+.gym-team-chip.type-water,
+.gym-team-chip.type-electric,
+.gym-team-chip.type-grass,
+.gym-team-chip.type-ice,
+.gym-team-chip.type-fighting,
+.gym-team-chip.type-poison,
+.gym-team-chip.type-ground,
+.gym-team-chip.type-flying,
+.gym-team-chip.type-psychic,
+.gym-team-chip.type-bug,
+.gym-team-chip.type-rock,
+.gym-team-chip.type-ghost,
+.gym-team-chip.type-dragon,
+.gym-team-chip.type-dark,
+.gym-team-chip.type-steel,
+.gym-team-chip.type-fairy{
+    color:#ffffff !important;
+    border:none !important;
+    box-shadow:0 8px 16px rgba(15,23,42,0.12) !important;
+}
+
+.gym-type.type-normal{ background:#6b7280 !important; }
+.gym-type.type-fire{ background:#f97316 !important; }
+.gym-type.type-water{ background:#3b82f6 !important; }
+.gym-type.type-electric{ background:#eab308 !important; color:#4a2b00 !important; }
+.gym-type.type-grass{ background:#22c55e !important; }
+.gym-type.type-ice{ background:#06b6d4 !important; }
+.gym-type.type-fighting{ background:#dc2626 !important; }
+.gym-type.type-poison{ background:#a855f7 !important; }
+.gym-type.type-ground{ background:#ca8a04 !important; }
+.gym-type.type-flying{ background:#60a5fa !important; }
+.gym-type.type-psychic{ background:#ec4899 !important; }
+.gym-type.type-bug{ background:#65a30d !important; }
+.gym-type.type-rock{ background:#78716c !important; }
+.gym-type.type-ghost{ background:#7c3aed !important; }
+.gym-type.type-dragon{ background:#4f46e5 !important; }
+.gym-type.type-dark{ background:#334155 !important; }
+.gym-type.type-steel{ background:#64748b !important; }
+.gym-type.type-fairy{ background:#f472b6 !important; }
+
+.gym-roster-card-top p,
+.gym-team-card-body p{
+    display:inline-flex !important;
+    align-items:center;
+    justify-content:center;
+    width:auto !important;
+    max-width:100%;
+    margin-top:8px !important;
+    padding:6px 10px !important;
+    border-radius:999px !important;
+    font-size:11px !important;
+    line-height:1.2 !important;
+    font-weight:900 !important;
+    color:#ffffff !important;
+    box-shadow:0 8px 16px rgba(15,23,42,0.10);
+}
+
+.gym-roster-card.type-normal .gym-roster-card-top p,
+.gym-team-card.type-normal .gym-team-card-body p{ background:#6b7280 !important; }
+.gym-roster-card.type-fire .gym-roster-card-top p,
+.gym-team-card.type-fire .gym-team-card-body p{ background:#f97316 !important; }
+.gym-roster-card.type-water .gym-roster-card-top p,
+.gym-team-card.type-water .gym-team-card-body p{ background:#3b82f6 !important; }
+.gym-roster-card.type-electric .gym-roster-card-top p,
+.gym-team-card.type-electric .gym-team-card-body p{ background:#eab308 !important; color:#4a2b00 !important; }
+.gym-roster-card.type-grass .gym-roster-card-top p,
+.gym-team-card.type-grass .gym-team-card-body p{ background:#22c55e !important; }
+.gym-roster-card.type-ice .gym-roster-card-top p,
+.gym-team-card.type-ice .gym-team-card-body p{ background:#06b6d4 !important; }
+.gym-roster-card.type-fighting .gym-roster-card-top p,
+.gym-team-card.type-fighting .gym-team-card-body p{ background:#dc2626 !important; }
+.gym-roster-card.type-poison .gym-roster-card-top p,
+.gym-team-card.type-poison .gym-team-card-body p{ background:#a855f7 !important; }
+.gym-roster-card.type-ground .gym-roster-card-top p,
+.gym-team-card.type-ground .gym-team-card-body p{ background:#ca8a04 !important; }
+.gym-roster-card.type-flying .gym-roster-card-top p,
+.gym-team-card.type-flying .gym-team-card-body p{ background:#60a5fa !important; }
+.gym-roster-card.type-psychic .gym-roster-card-top p,
+.gym-team-card.type-psychic .gym-team-card-body p{ background:#ec4899 !important; }
+.gym-roster-card.type-bug .gym-roster-card-top p,
+.gym-team-card.type-bug .gym-team-card-body p{ background:#65a30d !important; }
+.gym-roster-card.type-rock .gym-roster-card-top p,
+.gym-team-card.type-rock .gym-team-card-body p{ background:#78716c !important; }
+.gym-roster-card.type-ghost .gym-roster-card-top p,
+.gym-team-card.type-ghost .gym-team-card-body p{ background:#7c3aed !important; }
+.gym-roster-card.type-dragon .gym-roster-card-top p,
+.gym-team-card.type-dragon .gym-team-card-body p{ background:#4f46e5 !important; }
+.gym-roster-card.type-dark .gym-roster-card-top p,
+.gym-team-card.type-dark .gym-team-card-body p{ background:#334155 !important; }
+.gym-roster-card.type-steel .gym-roster-card-top p,
+.gym-team-card.type-steel .gym-team-card-body p{ background:#64748b !important; }
+.gym-roster-card.type-fairy .gym-roster-card-top p,
+.gym-team-card.type-fairy .gym-team-card-body p{ background:#f472b6 !important; }
+
+.gym-team-chip.shiny{
+    background:linear-gradient(135deg, #f59e0b 0%, #f97316 100%) !important;
+    color:#ffffff !important;
+    border:none !important;
+    box-shadow:0 10px 18px rgba(249,115,22,0.26) !important;
+}
+
+.gym-badge-track{
+    grid-template-columns:repeat(4, minmax(0,1fr)) !important;
+    gap:12px !important;
+}
+
+.gym-badge-track-item{
+    min-height:120px !important;
+    padding:12px 10px !important;
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:center !important;
+    justify-content:flex-start !important;
+    gap:10px !important;
+    text-align:center !important;
+}
+
+.gym-badge-track-portrait{
+    margin:0 auto !important;
+}
+
+.gym-badge-track-item span{
+    display:block !important;
+    width:100% !important;
+    font-size:11px !important;
+    line-height:1.22 !important;
+    font-weight:900 !important;
+    text-align:center !important;
+    white-space:normal !important;
+    word-break:break-word !important;
+    overflow-wrap:anywhere !important;
+}
+
+@media (max-width:900px){
+    .gym-badge-track{
+        grid-template-columns:repeat(3, minmax(0,1fr)) !important;
+    }
+}
+
+@media (max-width:680px){
+    .gym-badge-track{
+        grid-template-columns:repeat(2, minmax(0,1fr)) !important;
+    }
+
+    .gym-card .trainer-portrait img,
+    .gym-detail-card .trainer-portrait img,
+    .gyms-hero-preview .trainer-portrait img{
+        transform:scale(1.16) translateY(4px);
+    }
+}
