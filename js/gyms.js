@@ -715,83 +715,6 @@ function getTypeClass(typeKey) {
     return `type-${normalizeTypeKey(typeKey)}`;
 }
 
-
-function tg(key, params = {}, fallback = null) {
-    try {
-        if (typeof t === "function") {
-            const value = t(key, params);
-            if (value !== undefined && value !== null && value !== key) {
-                return String(value);
-            }
-        }
-    } catch (error) {
-        console.warn("Gyms translation fallback:", key, error);
-    }
-    return fallback !== null && fallback !== undefined ? String(fallback) : String(key);
-}
-
-function getRegionCopy(regionId, field) {
-    const region = REGION_CONFIG[regionId] || {};
-    const keyMap = {
-        name: `gyms_region_${regionId}_name`,
-        shortName: `gyms_region_${regionId}_short`,
-        description: `gyms_region_${regionId}_desc`,
-        bannerTitle: `gyms_region_${regionId}_banner`,
-        unlockText: `gyms_region_${regionId}_unlock`,
-        championNote: `gyms_region_${regionId}_champion`
-    };
-    const key = keyMap[field];
-    return key ? tg(key, {}, region[field] ?? regionId) : String(region[field] ?? regionId);
-}
-
-function getRegionName(regionId) {
-    return getRegionCopy(regionId, "name");
-}
-
-function getRegionShortName(regionId) {
-    return getRegionCopy(regionId, "shortName");
-}
-
-function getRegionDescription(regionId) {
-    return getRegionCopy(regionId, "description");
-}
-
-function getRegionBannerTitle(regionId) {
-    return getRegionCopy(regionId, "bannerTitle");
-}
-
-function getRegionUnlockText(regionId) {
-    return getRegionCopy(regionId, "unlockText");
-}
-
-function getRegionChampionNote(regionId) {
-    return getRegionCopy(regionId, "championNote");
-}
-
-function getGymStatusLabel(status, variant = "default") {
-    if (status === "cleared") return tg("gyms_status_cleared", {}, "Cleared");
-    if (status === "open") {
-        if (variant === "ready") return tg("gyms_challenge_ready", {}, "Challenge ready");
-        if (variant === "available") return tg("gyms_available", {}, "Available");
-        return tg("gyms_status_open", {}, "Open");
-    }
-    return tg("gyms_status_locked", {}, "Locked");
-}
-
-function getGymActionLabel(status) {
-    if (status === "cleared") return tg("gyms_replay", {}, "Replay");
-    if (status === "open") return tg("gyms_challenge", {}, "Challenge");
-    return tg("gyms_locked_button", {}, "Locked");
-}
-
-function getBadgeShortLabel(badge) {
-    return String(badge || "")
-        .replace(/\s*badge$/i, "")
-        .replace(/\s*medalla$/i, "")
-        .trim() || String(badge || "");
-}
-
-
 function buildTrainerImagePath(regionId, leaderSlug) {
     return `${TRAINER_ASSET_ROOT}/${regionId}/${leaderSlug}.png`;
 }
@@ -1266,28 +1189,22 @@ async function startGymBattle(gym) {
 
     const status = getGymStatus(gym.id);
     if (status === "locked") {
-        alert(tg("gyms_locked_previous_alert", {}, "This Gym is still locked. Clear the previous leader first."));
+        alert("This Gym is still locked. Clear the previous leader first.");
         return;
     }
     if (status === "cleared") {
-        const retry = window.confirm(tg("gyms_retry_confirm", { gym: gym.gymName || gym.leader }, "You already cleared this Gym. Do you want to start the challenge again?"));
+        const retry = window.confirm("You already cleared this Gym. Do you want to start the challenge again?");
         if (!retry) return;
     }
 
     if (gymsState.team.length !== 6) {
-        alert(tg("gyms_need_team_alert", {}, "Save a full team of 6 Pokémon in Battle IA before starting a Gym challenge."));
+        alert("Save a full team of 6 Pokémon in Battle IA before starting a Gym challenge.");
         return;
     }
 
     const averageLevel = getAverageTeamLevel();
     if (averageLevel && averageLevel < gym.recommendedLevel) {
-        const confirmed = window.confirm(
-            tg(
-                "gyms_level_warning_confirm",
-                { avg: averageLevel, gym: gym.gymName || gym.leader, recommended: gym.recommendedLevel },
-                `Your team average is Lv. ${averageLevel}, while ${gym.gymName} recommends Lv. ${gym.recommendedLevel}. Continue anyway?`
-            )
-        );
+        const confirmed = window.confirm(`Your team average is Lv. ${averageLevel}, while ${gym.gymName} recommends Lv. ${gym.recommendedLevel}. Continue anyway?`);
         if (!confirmed) return;
     }
 
@@ -1312,7 +1229,7 @@ async function startGymBattle(gym) {
         window.location.href = "battle-arena.html?modo=gym";
     } catch (error) {
         console.error("Could not start the Gym challenge:", error);
-        alert(error?.message || tg("gyms_start_error_alert", {}, "Could not start the Gym challenge. Please try again."));
+        alert(error?.message || "Could not start the Gym challenge. Please try again.");
     }
 }
 
@@ -1360,14 +1277,12 @@ function clearGymDemo(gymId) {
 }
 
 function resetCurrentRegionProgress() {
-    const regionId = gymsState.regionId;
-    const confirmed = window.confirm(
-        tg("gyms_reset_region_confirm", { region: getRegionName(regionId) }, `Reset all local progress for ${getRegionName(regionId)}?`)
-    );
+    const region = REGION_CONFIG[gymsState.regionId];
+    const confirmed = window.confirm(`Reset all local progress for ${region.name}?`);
     if (!confirmed) return;
 
-    gymsState.progress.byRegion[regionId] = [];
-    const firstGym = getGymsForRegion(regionId)[0] || null;
+    gymsState.progress.byRegion[gymsState.regionId] = [];
+    const firstGym = getGymsForRegion(gymsState.regionId)[0] || null;
     gymsState.selectedGymId = firstGym?.id || null;
     persistGymsProgress();
     persistSelectedState();
@@ -1392,35 +1307,35 @@ function renderHeroPreview() {
     if (!container || !statbar) return;
 
     const gym = getSelectedGym();
-    const regionId = gymsState.regionId;
-    const cleared = getRegionClearedIds(regionId).length;
-    const total = getGymsForRegion(regionId).length;
+    const region = REGION_CONFIG[gymsState.regionId];
+    const cleared = getRegionClearedIds(gymsState.regionId).length;
+    const total = getGymsForRegion(gymsState.regionId).length;
 
     statbar.innerHTML = `
         <div class="gyms-hero-stat">
-            <span>${escapeHtmlGyms(tg("gyms_current_region", {}, "Current region"))}</span>
-            <strong>${escapeHtmlGyms(getRegionName(regionId))}</strong>
+            <span>Current region</span>
+            <strong>${escapeHtmlGyms(region.name)}</strong>
         </div>
         <div class="gyms-hero-stat">
-            <span>${escapeHtmlGyms(tg("gyms_region_badges_label", {}, "Region badges"))}</span>
+            <span>Region badges</span>
             <strong>${cleared} / ${total}</strong>
         </div>
         <div class="gyms-hero-stat">
-            <span>${escapeHtmlGyms(tg("gyms_saved_team", {}, "Saved team"))}</span>
+            <span>Saved team</span>
             <strong>${escapeHtmlGyms(gymsState.team.length)} / 6</strong>
         </div>
     `;
 
     if (!gym) {
-        container.innerHTML = `<div class="hero-preview-empty">${escapeHtmlGyms(tg("gyms_no_gym_region_yet", {}, "No Gym available in this region yet."))}</div>`;
+        container.innerHTML = `<div class="hero-preview-empty">No Gym available in this region yet.</div>`;
         return;
     }
 
     container.className = `gyms-hero-preview ${getTypeClass(gym.type)}`;
     container.innerHTML = `
         <div class="hero-preview-top">
-            <span class="gyms-pill">${escapeHtmlGyms(getRegionShortName(regionId))}</span>
-            <span class="hero-preview-status">${escapeHtmlGyms(getGymStatusLabel(getGymStatus(gym.id), "ready"))}</span>
+            <span class="gyms-pill">${escapeHtmlGyms(region.shortName)}</span>
+            <span class="hero-preview-status">${escapeHtmlGyms(getGymStatus(gym.id) === "cleared" ? "Cleared" : getGymStatus(gym.id) === "open" ? "Challenge ready" : "Locked")}</span>
         </div>
         <div class="hero-preview-main">
             <div class="trainer-portrait hero-portrait">
@@ -1429,7 +1344,7 @@ function renderHeroPreview() {
             <div class="hero-preview-copy">
                 <small>${escapeHtmlGyms(gym.gymName)}</small>
                 <h2>${escapeHtmlGyms(gym.leader)}</h2>
-                <p>${escapeHtmlGyms(getTypeLabel(gym.type))} ${escapeHtmlGyms(tg("gyms_specialist_suffix", {}, "specialist"))} · ${escapeHtmlGyms(gym.badge)}</p>
+                <p>${escapeHtmlGyms(getTypeLabel(gym.type))} specialist · ${escapeHtmlGyms(gym.badge)}</p>
             </div>
             <div class="badge-portrait hero-badge-portrait">
                 <img src="${escapeHtmlGyms(getGymBadgeImagePath(gym))}" alt="${escapeHtmlGyms(gym.badge)}" onerror="window.__gymsImageFallback(event, '${escapeHtmlGyms(gym.badge)}')">
@@ -1437,16 +1352,16 @@ function renderHeroPreview() {
         </div>
         <div class="hero-preview-footer">
             <div>
-                <span>${escapeHtmlGyms(tg("gyms_recommended_label", {}, "Recommended"))}</span>
+                <span>Recommended</span>
                 <strong>Lv. ${escapeHtmlGyms(gym.recommendedLevel)}</strong>
             </div>
             <div>
-                <span>${escapeHtmlGyms(tg("gyms_style_label", {}, "Style"))}</span>
+                <span>Style</span>
                 <strong>${escapeHtmlGyms(gym.enemyStyle)}</strong>
             </div>
             <div>
-                <span>${escapeHtmlGyms(tg("gyms_unlock_rule", {}, "Unlock rule"))}</span>
-                <strong>${escapeHtmlGyms(getRegionUnlockText(regionId))}</strong>
+                <span>Unlock note</span>
+                <strong>${escapeHtmlGyms(region.unlockText)}</strong>
             </div>
         </div>
     `;
@@ -1460,32 +1375,28 @@ function renderOverviewStats() {
     const totalGyms = getTotalGymCount();
     const averageLevel = getAverageTeamLevel();
     const dominantType = getDominantTeamType();
-    const regionId = gymsState.regionId;
+    const region = REGION_CONFIG[gymsState.regionId];
 
     const stats = [
         {
-            label: tg("gyms_total_badges_label", {}, "Total badges"),
+            label: "Total badges",
             value: `${totalCleared} / ${totalGyms}`,
-            hint: tg("gyms_total_badges_hint", {}, "This progress is currently local, but the visual contract is ready for backend sync.")
+            hint: "This progress is currently local, but the visual contract is ready for backend sync."
         },
         {
-            label: tg("gyms_active_route_label", {}, "Active route"),
-            value: getRegionName(regionId),
-            hint: getRegionDescription(regionId)
+            label: "Active route",
+            value: region.name,
+            hint: region.description
         },
         {
-            label: tg("gyms_saved_team", {}, "Saved team"),
+            label: "Saved team",
             value: `${gymsState.team.length} / 6 Pokémon`,
-            hint: gymsState.team.length === 6
-                ? tg("gyms_team_ready_copy", {}, "Your Battle IA squad is ready for structured Gym progression.")
-                : tg("gyms_save_team_hint", {}, "Save a full team in Battle IA for best results.")
+            hint: gymsState.team.length === 6 ? "Your Battle IA squad is ready for structured Gym attempts." : "Save a full team in Battle IA for the best Gym flow."
         },
         {
-            label: tg("gyms_average_level", {}, "Average level"),
+            label: "Average level",
             value: averageLevel || "—",
-            hint: averageLevel
-                ? tg("gyms_dominant_type_hint", { type: dominantType }, `Dominant type: ${dominantType}`)
-                : tg("gyms_no_saved_squad", {}, "No saved squad detected yet.")
+            hint: averageLevel ? `Dominant type: ${dominantType}` : "No saved squad detected yet."
         }
     ];
 
@@ -1515,39 +1426,38 @@ function renderRegionTabs() {
         const activeClass = regionId === gymsState.regionId ? "is-active" : "";
         return `
             <button class="gym-region-tab ${activeClass} ${getTypeClass(region.accent)}" type="button" data-region-tab="${escapeHtmlGyms(regionId)}">
-                <span>${escapeHtmlGyms(getRegionName(regionId))}</span>
+                <span>${escapeHtmlGyms(region.name)}</span>
                 <strong>${cleared} / ${total}</strong>
-                <small>${escapeHtmlGyms(getRegionShortName(regionId))}</small>
+                <small>${escapeHtmlGyms(region.shortName)}</small>
             </button>
         `;
     }).join("");
 
-    const regionId = gymsState.regionId;
-    const region = REGION_CONFIG[regionId];
-    const cleared = getRegionClearedIds(regionId).length;
-    const total = getGymsForRegion(regionId).length;
-    const nextGym = getFirstOpenGym(regionId);
+    const region = REGION_CONFIG[gymsState.regionId];
+    const cleared = getRegionClearedIds(gymsState.regionId).length;
+    const total = getGymsForRegion(gymsState.regionId).length;
+    const nextGym = getFirstOpenGym(gymsState.regionId);
 
-    pill.textContent = `${getRegionName(regionId)} · ${cleared}/${total} ${tg("gyms_badges_word", {}, "badges")}`;
-    roadTitle.textContent = `${getRegionName(regionId)} ${tg("gyms_leaders_suffix", {}, "leaders")}`;
-    roadText.textContent = `${getRegionDescription(regionId)} ${getRegionChampionNote(regionId)}`;
-    roadCounter.textContent = `${total} ${tg("gyms_gyms_word", {}, "gyms")}`;
+    pill.textContent = `${region.name} · ${cleared}/${total} badges`;
+    roadTitle.textContent = `${region.name} leaders`;
+    roadText.textContent = `${region.description} ${region.championNote}`;
+    roadCounter.textContent = `${total} gyms`;
 
     summaryContainer.innerHTML = `
         <article class="gym-region-summary-card ${getTypeClass(region.accent)}">
             <div>
-                <span class="gyms-section-kicker">${escapeHtmlGyms(getRegionBannerTitle(regionId))}</span>
-                <h4>${escapeHtmlGyms(getRegionName(regionId))} ${escapeHtmlGyms(tg("gyms_route_progress_title", {}, "route progress"))}</h4>
-                <p>${escapeHtmlGyms(getRegionUnlockText(regionId))}</p>
+                <span class="gyms-section-kicker">${escapeHtmlGyms(region.bannerTitle)}</span>
+                <h4>${escapeHtmlGyms(region.name)} route progress</h4>
+                <p>${escapeHtmlGyms(region.unlockText)}</p>
             </div>
             <div class="gym-region-summary-meta">
                 <div>
-                    <span>${escapeHtmlGyms(tg("gyms_current_open_leader", {}, "Current open leader"))}</span>
-                    <strong>${escapeHtmlGyms(nextGym ? nextGym.leader : `${getRegionName(regionId)} ${tg("gyms_route_complete", {}, "complete")}`)}</strong>
+                    <span>Current open leader</span>
+                    <strong>${escapeHtmlGyms(nextGym ? nextGym.leader : `${region.name} complete`)}</strong>
                 </div>
                 <div>
-                    <span>${escapeHtmlGyms(tg("gyms_completion_label", {}, "Completion"))}</span>
-                    <strong>${getRegionProgressPercent(regionId)}%</strong>
+                    <span>Completion</span>
+                    <strong>${getRegionProgressPercent(gymsState.regionId)}%</strong>
                 </div>
             </div>
         </article>
@@ -1562,10 +1472,10 @@ function renderGymsGrid() {
     container.innerHTML = gyms.map(gym => {
         const status = getGymStatus(gym.id);
         const selectedClass = gymsState.selectedGymId === gym.id ? "is-selected" : "";
-        const statusLabel = getGymStatusLabel(status);
-        const badgeLabel = getBadgeShortLabel(gym.badge);
-        const rosterPreview = (gym.roster || []).slice(0, 4).map(pokemon => `
-            <span class="gym-roster-mini ${getTypeClass(String(pokemon.tipo).split('/')[0])}">
+        const statusLabel = status === "cleared" ? "Cleared" : status === "open" ? "Open" : "Locked";
+        const badgeLabel = gym.badge.replace(" Badge", "");
+        const rosterPreview = (gym.roster || []).slice(0, 6).map((pokemon, index) => `
+            <span class="gym-roster-mini ${getTypeClass(String(pokemon.tipo).split('/')[0])}" title="${escapeHtmlGyms(`${index + 1}. ${pokemon.nombre}`)}">
                 <img src="${escapeHtmlGyms(getSpriteFromPokemon(pokemon))}" alt="${escapeHtmlGyms(pokemon.nombre)}">
             </span>
         `).join("");
@@ -1596,15 +1506,15 @@ function renderGymsGrid() {
 
                 <div class="gym-meta-grid">
                     <div class="gym-meta-item">
-                        <span>${escapeHtmlGyms(tg("gyms_difficulty_label", {}, "Difficulty"))}</span>
+                        <span>Difficulty</span>
                         <strong>${escapeHtmlGyms(gym.difficulty)}</strong>
                     </div>
                     <div class="gym-meta-item">
-                        <span>${escapeHtmlGyms(tg("gyms_recommended_label", {}, "Recommended"))}</span>
+                        <span>Recommended</span>
                         <strong>Lv. ${escapeHtmlGyms(gym.recommendedLevel)}</strong>
                     </div>
                     <div class="gym-meta-item">
-                        <span>${escapeHtmlGyms(tg("gyms_badge_reward", {}, "Badge reward"))}</span>
+                        <span>Badge</span>
                         <strong>${escapeHtmlGyms(badgeLabel)}</strong>
                     </div>
                 </div>
@@ -1612,9 +1522,9 @@ function renderGymsGrid() {
                 <div class="gym-roster-preview">${rosterPreview}</div>
 
                 <div class="gym-actions">
-                    <button class="gyms-btn-secondary" type="button" data-select-gym="${escapeHtmlGyms(gym.id)}">${escapeHtmlGyms(tg("gyms_inspect", {}, "Inspect"))}</button>
+                    <button class="gyms-btn-secondary" type="button" data-select-gym="${escapeHtmlGyms(gym.id)}">Inspect</button>
                     <button class="gyms-btn-ghost" type="button" data-focus-gym="${escapeHtmlGyms(gym.id)}" ${status === "locked" ? "disabled" : ""}>
-                        ${escapeHtmlGyms(getGymActionLabel(status))}
+                        ${status === "cleared" ? "Replay" : status === "open" ? "Challenge" : "Locked"}
                     </button>
                 </div>
             </article>
@@ -1628,7 +1538,7 @@ function renderSelectedGymPanel() {
 
     const gym = getSelectedGym();
     if (!gym) {
-        container.innerHTML = `<p class="gym-empty-note">${escapeHtmlGyms(tg("gyms_no_gym_route_now", {}, "No Gym available in this route right now."))}</p>`;
+        container.innerHTML = `<p class="gym-empty-note">No Gym available in this route right now.</p>`;
         return;
     }
 
@@ -1638,9 +1548,6 @@ function renderSelectedGymPanel() {
     const levelReady = averageLevel >= gym.recommendedLevel;
     const rosterHtml = (gym.roster || []).map((pokemon, index) => {
         const primaryType = String(pokemon.tipo).split("/")[0];
-        const slotLabel = pokemon.leader
-            ? tg("gyms_leader_ace", {}, "Leader ace")
-            : `${tg("gyms_slot_label", {}, "Slot")} ${index + 1}`;
         return `
             <article class="gym-roster-card ${getTypeClass(primaryType)} ${pokemon.leader ? 'is-leader' : ''}">
                 <div class="gym-roster-card-top">
@@ -1650,16 +1557,10 @@ function renderSelectedGymPanel() {
                         <p>${escapeHtmlGyms(String(pokemon.tipo).split('/').map(getTypeLabel).join(' / '))}</p>
                     </div>
                 </div>
-                <span class="gym-team-chip ${pokemon.leader ? 'leader' : ''}">${escapeHtmlGyms(slotLabel)}</span>
+                <span class="gym-team-chip ${pokemon.leader ? 'leader' : ''}">${pokemon.leader ? 'Leader ace' : `Slot ${index + 1}`}</span>
             </article>
         `;
     }).join("");
-
-    const readinessParts = [
-        teamReady ? tg("gyms_full_team_saved", {}, "Full team saved") : tg("gyms_team_incomplete", {}, "Team incomplete"),
-        averageLevel ? `${tg("gyms_avg_level_prefix", {}, "Avg Lv.")} ${averageLevel}` : tg("gyms_no_level_data", {}, "No level data"),
-        levelReady ? tg("gyms_recommended_reached", {}, "Recommended level reached") : tg("gyms_keep_leveling", {}, "Keep leveling your squad")
-    ];
 
     container.innerHTML = `
         <article class="gym-detail-card ${getTypeClass(gym.type)}">
@@ -1669,7 +1570,7 @@ function renderSelectedGymPanel() {
                 </div>
                 <div class="gym-detail-copy">
                     <div class="gym-detail-topline">
-                        <span class="gym-status">${escapeHtmlGyms(getGymStatusLabel(status, "available"))}</span>
+                        <span class="gym-status">${escapeHtmlGyms(status === 'cleared' ? 'Cleared' : status === 'open' ? 'Available' : 'Locked')}</span>
                         <span class="gym-type ${getTypeClass(gym.type)}">${escapeHtmlGyms(getTypeLabel(gym.type))}</span>
                     </div>
                     <small>${escapeHtmlGyms(gym.gymName)}</small>
@@ -1685,46 +1586,46 @@ function renderSelectedGymPanel() {
 
             <div class="gym-detail-meta">
                 <div class="gym-detail-meta-item">
-                    <span>${escapeHtmlGyms(tg("gyms_recommended_label", {}, "Recommended"))}</span>
+                    <span>Recommended</span>
                     <strong>Lv. ${escapeHtmlGyms(gym.recommendedLevel)}</strong>
                 </div>
                 <div class="gym-detail-meta-item">
-                    <span>${escapeHtmlGyms(tg("gyms_difficulty_label", {}, "Difficulty"))}</span>
+                    <span>Difficulty</span>
                     <strong>${escapeHtmlGyms(gym.difficulty)}</strong>
                 </div>
                 <div class="gym-detail-meta-item">
-                    <span>${escapeHtmlGyms(tg("gyms_current_region", {}, "Region"))}</span>
-                    <strong>${escapeHtmlGyms(getRegionName(gym.region))}</strong>
+                    <span>Region</span>
+                    <strong>${escapeHtmlGyms(REGION_CONFIG[gym.region].name)}</strong>
                 </div>
                 <div class="gym-detail-meta-item">
-                    <span>${escapeHtmlGyms(tg("gyms_reward_label", {}, "Reward"))}</span>
+                    <span>Reward</span>
                     <strong>$${escapeHtmlGyms(Number(gym.rewardMoney || 0).toLocaleString())}</strong>
                 </div>
             </div>
 
             <div class="gym-sidebar-list">
                 <div class="gym-sidebar-item">
-                    <strong>${escapeHtmlGyms(tg("gyms_challenge_hint", {}, "Challenge hint"))}</strong>
+                    <strong>Challenge hint</strong>
                     <p>${escapeHtmlGyms(gym.hint)}</p>
                 </div>
                 <div class="gym-sidebar-item">
-                    <strong>${escapeHtmlGyms(tg("gyms_readiness", {}, "Readiness"))}</strong>
-                    <p>${escapeHtmlGyms(readinessParts.join(' · '))}</p>
+                    <strong>Readiness</strong>
+                    <p>${teamReady ? 'Full team saved' : 'Team incomplete'} · ${averageLevel ? `Avg Lv. ${averageLevel}` : 'No level data'} · ${levelReady ? 'Recommended level reached' : 'Keep leveling your squad'}</p>
                 </div>
             </div>
 
             <div class="gym-roster-stack">
                 <div class="gym-roster-stack-head">
-                    <strong>${escapeHtmlGyms(tg("gyms_leader_roster_preview", {}, "Leader roster preview"))}</strong>
+                    <strong>Leader roster preview</strong>
                     <span>${escapeHtmlGyms(gym.badge)}</span>
                 </div>
                 <div class="gym-roster-grid">${rosterHtml}</div>
             </div>
 
             <div class="gym-detail-actions">
-                <button class="gyms-btn-secondary" type="button" id="btnGymPrepare" ${status === 'locked' ? 'disabled' : ''}>${escapeHtmlGyms(tg("gyms_start_battle", {}, "Start Gym Battle"))}</button>
-                ${gymsState.usingBackend ? '' : `<button class="gyms-btn" type="button" id="btnGymCompleteDemo" ${status === 'locked' ? 'disabled' : ''}>${escapeHtmlGyms(tg("gyms_mark_cleared", {}, "Mark cleared (demo)"))}</button>`}
-                ${gymsState.usingBackend ? '' : `<button class="gyms-btn-danger" type="button" id="btnGymResetProgress">${escapeHtmlGyms(tg("gyms_reset_region", {}, "Reset region"))}</button>`}
+                <button class="gyms-btn-secondary" type="button" id="btnGymPrepare" ${status === 'locked' ? 'disabled' : ''}>Start Gym Battle</button>
+                ${gymsState.usingBackend ? '' : `<button class="gyms-btn" type="button" id="btnGymCompleteDemo" ${status === 'locked' ? 'disabled' : ''}>Mark cleared (demo)</button>`}
+                ${gymsState.usingBackend ? '' : `<button class="gyms-btn-danger" type="button" id="btnGymResetProgress">Reset region</button>`}
             </div>
         </article>
     `;
@@ -1743,7 +1644,7 @@ function buildTeamCard(pokemon, index) {
     const hp = pokemon?.hp_actual ?? pokemon?.hp_max ?? "—";
     const attack = pokemon?.ataque ?? "—";
     const defense = pokemon?.defensa ?? "—";
-    const shinyBadge = pokemon?.es_shiny ? `<span class="gym-team-chip shiny">${escapeHtmlGyms(tg("gyms_shiny", {}, "Shiny"))}</span>` : "";
+    const shinyBadge = pokemon?.es_shiny ? `<span class="gym-team-chip shiny">Shiny</span>` : "";
 
     return `
         <article class="gym-team-card ${getTypeClass(typeKey)}">
@@ -1779,23 +1680,23 @@ function renderTeamPanel() {
     summaryContainer.innerHTML = `
         <div class="gym-team-summary-grid">
             <div class="gym-summary-box">
-                <span>${escapeHtmlGyms(tg("gyms_saved_team", {}, "Saved team"))}</span>
+                <span>Saved team</span>
                 <strong>${escapeHtmlGyms(gymsState.team.length)} / 6</strong>
             </div>
             <div class="gym-summary-box">
-                <span>${escapeHtmlGyms(tg("gyms_average_level", {}, "Average level"))}</span>
+                <span>Average level</span>
                 <strong>${escapeHtmlGyms(averageLevel || '—')}</strong>
             </div>
             <div class="gym-summary-box">
-                <span>${escapeHtmlGyms(tg("gyms_dominant_type", {}, "Dominant type"))}</span>
+                <span>Dominant type</span>
                 <strong>${escapeHtmlGyms(dominantType)}</strong>
             </div>
         </div>
-        <p class="gym-detail-note">${escapeHtmlGyms(ready ? tg("gyms_team_ready_copy", {}, "Your team is ready for structured Gym progression.") : tg("gyms_team_missing_copy", {}, "Go to Battle IA and save a full team if you want Gyms to feel complete."))}</p>
+        <p class="gym-detail-note">${ready ? 'Your Battle IA squad is ready to enter badge progression.' : 'Save a full team in Battle IA so Gyms feel complete and balanced.'}</p>
     `;
 
     if (!gymsState.team.length) {
-        listContainer.innerHTML = `<div class="gym-team-empty">${escapeHtmlGyms(tg("gyms_no_team_found", {}, "No saved team found yet. Save your squad in Battle IA and it will appear here automatically."))}</div>`;
+        listContainer.innerHTML = `<div class="gym-team-empty">No saved team found yet. Go to Battle IA, lock your squad, and it will appear here automatically.</div>`;
         return;
     }
 
@@ -1806,38 +1707,38 @@ function renderProgressPanel() {
     const container = document.getElementById("gymProgressPanel");
     if (!container) return;
 
-    const regionId = gymsState.regionId;
-    const gyms = getGymsForRegion(regionId);
-    const clearedIds = getRegionClearedIds(regionId);
-    const percent = getRegionProgressPercent(regionId);
-    const nextGym = getFirstOpenGym(regionId);
+    const gyms = getGymsForRegion(gymsState.regionId);
+    const clearedIds = getRegionClearedIds(gymsState.regionId);
+    const percent = getRegionProgressPercent(gymsState.regionId);
+    const nextGym = getFirstOpenGym(gymsState.regionId);
+    const region = REGION_CONFIG[gymsState.regionId];
 
     container.innerHTML = `
         <div class="gym-progress-wrap">
             <div class="gym-sidebar-list">
                 <div class="gym-sidebar-item">
-                    <strong>${escapeHtmlGyms(tg("gyms_badges_completed", {}, "Badges completed"))}</strong>
-                    <p>${escapeHtmlGyms(tg("gyms_badges_completed_copy", { cleared: clearedIds.length, total: gyms.length, region: getRegionName(regionId) }, `${clearedIds.length} out of ${gyms.length} gyms cleared in ${getRegionName(regionId)}.`))}</p>
+                    <strong>Badges completed</strong>
+                    <p>${clearedIds.length} out of ${gyms.length} gyms cleared in ${region.name}.</p>
                 </div>
                 <div class="gym-sidebar-item">
-                    <strong>${escapeHtmlGyms(tg("gyms_next_open_leader", {}, "Next open leader"))}</strong>
-                    <p>${escapeHtmlGyms(nextGym ? `${nextGym.leader} · ${nextGym.badge}` : `${getRegionName(regionId)} ${tg("gyms_route_complete", {}, "route complete")}`)}</p>
+                    <strong>Next open leader</strong>
+                    <p>${escapeHtmlGyms(nextGym ? `${nextGym.leader} · ${nextGym.badge}` : `${region.name} route complete`)}</p>
                 </div>
                 <div class="gym-sidebar-item">
-                    <strong>${escapeHtmlGyms(tg("gyms_unlock_rule", {}, "Unlock rule"))}</strong>
-                    <p>${escapeHtmlGyms(tg("gyms_unlock_rule_copy_local", {}, "Sequential by region for now. Beat one leader to open the next badge in that route."))}</p>
+                    <strong>Unlock rule</strong>
+                    <p>Sequential by region for now. Beat one leader to open the next badge in that route.</p>
                 </div>
             </div>
 
             <div class="gym-progress-bar" aria-hidden="true">
                 <div class="gym-progress-fill" style="width:${percent}%;"></div>
             </div>
-            <p class="gym-progress-note">${escapeHtmlGyms(getRegionChampionNote(regionId))}</p>
+            <p class="gym-progress-note">${region.championNote}</p>
 
             <div class="gym-badge-track">
                 ${gyms.map(gym => {
                     const status = getGymStatus(gym.id);
-                    const badgeShort = getBadgeShortLabel(gym.badge);
+                    const badgeShort = gym.badge.replace(" Badge", "");
                     return `
                         <div class="gym-badge-track-item ${status === 'cleared' ? 'cleared' : status === 'locked' ? 'locked' : 'open'}">
                             <div class="badge-portrait gym-badge-track-portrait">
@@ -1918,7 +1819,4 @@ document.addEventListener("DOMContentLoaded", () => {
         renderAllGymsSections();
     });
 });
-document.addEventListener("languageChanged", () => {
-    setupMenuAndLanguage();
-    renderAllGymsSections();
-});
+document.addEventListener("languageChanged", renderAllGymsSections);
