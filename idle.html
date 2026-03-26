@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mastersmon - Idle Expedition</title>
+    <title data-i18n="idle_page_title">Mastersmon - Idle Expedition</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/menu.css">
     <link rel="stylesheet" href="css/idle.css">
@@ -36,7 +36,7 @@
 
             <div class="menu-auth-area">
                 <div class="lang-switch">
-                    <select id="languageSelect" aria-label="Language">
+                    <select id="languageSelect" data-i18n-aria-label="idle_language_label" aria-label="Language">
                         <option value="en">EN</option>
                         <option value="es">ES</option>
                     </select>
@@ -87,7 +87,7 @@
 
                 <div class="menu-mobile-user">
                     <div class="lang-switch">
-                        <select id="languageSelectMobile" aria-label="Language">
+                        <select id="languageSelectMobile" data-i18n-aria-label="idle_language_label" aria-label="Language">
                             <option value="en">EN</option>
                             <option value="es">ES</option>
                         </select>
@@ -123,39 +123,39 @@
     </div>
 
     <main class="idle-page">
-        <section class="idle-hero">
+        <section class="idle-hero idle-glow-card">
             <div class="idle-hero-copy">
-                <span class="idle-hero-badge">Idle Command</span>
-                <h1 class="idle-title">Idle Expedition</h1>
-                <p class="idle-subtitle">
-                    Turn your saved Battle squad into a passive farming machine. Launch long expeditions,
-                    accumulate EXP, Pokédollars, and drops, then claim everything from a cleaner command center.
+                <span class="idle-hero-badge" data-i18n="idle_hero_badge">Idle Command</span>
+                <h1 class="idle-title" data-i18n="idle_hero_title">Idle Expedition</h1>
+                <p class="idle-subtitle" data-i18n="idle_hero_subtitle">
+                    Send your saved Battle team on passive expeditions, collect EXP, Pokédollars and item drops, and return later to claim everything from a cleaner command center.
                 </p>
+
                 <div class="idle-hero-actions">
-                    <a href="battle.html" class="idle-btn idle-btn-primary">← Back to Battle IA</a>
-                    <a href="gyms.html" class="idle-btn idle-btn-secondary">Open Gyms</a>
-                    <a href="battle-arena.html" class="idle-btn idle-btn-ghost">Open Arena</a>
+                    <a href="battle.html" class="idle-btn idle-btn-primary" data-i18n="idle_hero_cta_battle">← Back to Battle IA</a>
+                    <a href="gyms.html" class="idle-btn idle-btn-secondary" data-i18n="idle_hero_cta_gyms">Open Gyms</a>
+                    <a href="battle-arena.html" class="idle-btn idle-btn-ghost" data-i18n="idle_hero_cta_arena">Open Arena</a>
                 </div>
             </div>
 
             <div class="idle-hero-side">
                 <article class="idle-hero-panel idle-glow-card">
-                    <span class="idle-hero-panel-label">Mission status</span>
+                    <span class="idle-hero-panel-label" data-i18n="idle_mission_status_label">Mission status</span>
                     <h2 id="idleHeroStatusTitle">Ready to launch</h2>
-                    <p id="idleHeroStatusText">Choose a route, set a duration, and deploy your team.</p>
+                    <p id="idleHeroStatusText">Choose a tier, set a duration and deploy your team.</p>
                 </article>
 
                 <div class="idle-hero-stats">
                     <article class="idle-hero-stat idle-glow-card">
-                        <span>Saved team</span>
+                        <span data-i18n="idle_stat_saved_team">Saved team</span>
                         <strong id="idleHeroTeamCount">0 / 6</strong>
                     </article>
                     <article class="idle-hero-stat idle-glow-card">
-                        <span>Average level</span>
+                        <span data-i18n="idle_stat_average_level">Average level</span>
                         <strong id="idleHeroTeamLevel">0</strong>
                     </article>
                     <article class="idle-hero-stat idle-glow-card">
-                        <span>Projected EXP</span>
+                        <span data-i18n="idle_stat_projected_exp">Projected EXP</span>
                         <strong id="idleHeroEstimateExp">0</strong>
                     </article>
                 </div>
@@ -164,19 +164,19 @@
 
         <section class="idle-stat-band">
             <article class="idle-stat-orb">
-                <span>Battle linked</span>
-                <strong>Same saved squad</strong>
-                <small>No duplicate team system required.</small>
+                <span data-i18n="idle_band_linked_label">Battle linked</span>
+                <strong data-i18n="idle_band_linked_title">Same saved squad</strong>
+                <small data-i18n="idle_band_linked_text">No duplicate team system required.</small>
             </article>
             <article class="idle-stat-orb">
-                <span>Loop style</span>
-                <strong>Passive progression</strong>
-                <small>Farm while the player is away.</small>
+                <span data-i18n="idle_band_loop_label">Loop style</span>
+                <strong data-i18n="idle_band_loop_title">Passive progression</strong>
+                <small data-i18n="idle_band_loop_text">Farm while the player is away.</small>
             </article>
             <article class="idle-stat-orb">
-                <span>Reward mix</span>
-                <strong>EXP · Coins · Drops</strong>
-                <small>Built for long-term retention.</small>
+                <span data-i18n="idle_band_rewards_label">Reward mix</span>
+                <strong data-i18n="idle_band_rewards_title">EXP · Coins · Drops</strong>
+                <small data-i18n="idle_band_rewards_text">Built for daily return sessions.</small>
             </article>
         </section>
 
@@ -185,13 +185,13 @@
                 <section class="idle-section idle-glow-card idle-command-card">
                     <div class="idle-section-head">
                         <div>
-                            <span class="idle-section-kicker">Expedition control</span>
-                            <h2>Launch a premium idle run</h2>
-                            <p>
-                                Pick your difficulty tier, choose the duration, preview the output, then deploy the exact team you already saved in Battle IA.
+                            <span class="idle-section-kicker" data-i18n="idle_command_kicker">Expedition control</span>
+                            <h2 data-i18n="idle_command_title">Launch your next Idle run</h2>
+                            <p data-i18n="idle_command_subtitle">
+                                Pick a tier, choose a duration, preview the rewards and send the same team you already saved in Battle IA.
                             </p>
                         </div>
-                        <span class="idle-chip">Battle → Idle</span>
+                        <span class="idle-chip" data-i18n="idle_chip_battle_idle">Battle → Idle</span>
                     </div>
 
                     <div id="idleFeedback" class="idle-feedback oculto"></div>
@@ -202,21 +202,22 @@
 
                             <div class="idle-config-grid">
                                 <label class="idle-field">
-                                    <span>Tier</span>
+                                    <span data-i18n="idle_field_tier">Tier</span>
                                     <select id="idleTierSelect">
-                                        <option value="ruta">Route</option>
-                                        <option value="elite">Elite</option>
-                                        <option value="legend">Legend</option>
+                                        <option value="ruta" data-i18n="battle_idle_tier_ruta">Route</option>
+                                        <option value="elite" data-i18n="battle_idle_tier_elite">Elite</option>
+                                        <option value="legend" data-i18n="battle_idle_tier_legend">Legend</option>
+                                        <option value="masters" data-i18n="battle_idle_tier_masters">Masters</option>
                                     </select>
                                 </label>
 
                                 <label class="idle-field">
-                                    <span>Duration</span>
+                                    <span data-i18n="idle_field_duration">Duration</span>
                                     <select id="idleDurationSelect">
-                                        <option value="3600">1 hour</option>
-                                        <option value="7200">2 hours</option>
-                                        <option value="14400">4 hours</option>
-                                        <option value="28800">8 hours</option>
+                                        <option value="3600" data-i18n="battle_idle_duration_1h">1 hour</option>
+                                        <option value="7200" data-i18n="battle_idle_duration_2h">2 hours</option>
+                                        <option value="14400" data-i18n="battle_idle_duration_4h">4 hours</option>
+                                        <option value="28800" data-i18n="battle_idle_duration_8h">8 hours</option>
                                     </select>
                                 </label>
                             </div>
@@ -227,45 +228,45 @@
 
                     <div class="idle-progress-wrap idle-glow-card">
                         <div class="idle-progress-top">
-                            <span id="idleTimerLabel">Remaining</span>
+                            <span id="idleTimerLabel" data-i18n="battle_idle_remaining">Remaining</span>
                             <strong id="idleTimerValue">—</strong>
                         </div>
                         <div class="idle-progress-bar">
                             <div class="idle-progress-fill" id="idleProgressFill" style="width:0%"></div>
                         </div>
                         <div class="idle-progress-foot">
-                            <span class="idle-status-badge" id="idleStatusBadge">Ready</span>
-                            <span id="idleProgressText">Choose a tier and duration, then start the expedition.</span>
+                            <span class="idle-status-badge" id="idleStatusBadge" data-i18n="battle_idle_status_idle">Ready</span>
+                            <span id="idleProgressText" data-i18n="battle_idle_status_idle_text">Choose a tier and duration, then start the expedition.</span>
                         </div>
                     </div>
 
                     <div class="idle-actions">
-                        <button class="idle-action idle-action-primary" id="btnStartIdlePage" type="button">Start expedition</button>
-                        <button class="idle-action idle-action-secondary" id="btnClaimIdlePage" type="button">Claim rewards</button>
-                        <button class="idle-action idle-action-light" id="btnCancelIdlePage" type="button">Cancel run</button>
-                        <button class="idle-action idle-action-ghost" id="btnRefreshIdlePage" type="button">Refresh state</button>
+                        <button class="idle-action idle-action-primary" id="btnStartIdlePage" type="button" data-i18n="idle_action_start">Start expedition</button>
+                        <button class="idle-action idle-action-secondary" id="btnClaimIdlePage" type="button" data-i18n="idle_action_claim">Claim rewards</button>
+                        <button class="idle-action idle-action-light" id="btnCancelIdlePage" type="button" data-i18n="idle_action_cancel">Cancel run</button>
+                        <button class="idle-action idle-action-ghost" id="btnRefreshIdlePage" type="button" data-i18n="idle_action_refresh">Refresh state</button>
                     </div>
                 </section>
 
                 <section class="idle-section idle-glow-card">
                     <div class="idle-section-head">
                         <div>
-                            <span class="idle-section-kicker">Output forecast</span>
-                            <h3>Projected rewards and drop pressure</h3>
-                            <p>These estimates react to your current squad, chosen tier, and expedition duration.</p>
+                            <span class="idle-section-kicker" data-i18n="idle_forecast_kicker">Output forecast</span>
+                            <h3 data-i18n="idle_forecast_title">Projected rewards and drop pressure</h3>
+                            <p data-i18n="idle_forecast_subtitle">These estimates react to your current team, chosen tier and expedition duration.</p>
                         </div>
                     </div>
 
                     <div class="idle-estimate-grid">
-                        <article class="idle-estimate-card"><span>Ticks</span><strong id="idleEstimateTicks">0</strong></article>
-                        <article class="idle-estimate-card"><span>Estimated wins</span><strong id="idleEstimateWins">0</strong></article>
-                        <article class="idle-estimate-card"><span>Estimated EXP</span><strong id="idleEstimateExp">0</strong></article>
-                        <article class="idle-estimate-card"><span>Estimated Pokédollars</span><strong id="idleEstimateCoins">0</strong></article>
+                        <article class="idle-estimate-card"><span data-i18n="idle_forecast_ticks">Ticks</span><strong id="idleEstimateTicks">0</strong></article>
+                        <article class="idle-estimate-card"><span data-i18n="idle_estimated_wins_label">Estimated wins</span><strong id="idleEstimateWins">0</strong></article>
+                        <article class="idle-estimate-card"><span data-i18n="idle_forecast_exp">Estimated EXP</span><strong id="idleEstimateExp">0</strong></article>
+                        <article class="idle-estimate-card"><span data-i18n="idle_forecast_coins">Estimated Pokédollars</span><strong id="idleEstimateCoins">0</strong></article>
                     </div>
 
                     <div class="idle-drop-panel idle-glow-card">
                         <div class="idle-drop-head">
-                            <h4>Possible drops</h4>
+                            <h4 data-i18n="idle_forecast_drops_title">Possible drops</h4>
                             <span id="idleEstimateSuccessRate">Success rate 0%</span>
                         </div>
                         <div class="idle-drop-list" id="idleEstimateDrops"></div>
@@ -275,10 +276,11 @@
                 <section class="idle-section idle-glow-card">
                     <div class="idle-section-head">
                         <div>
-                            <span class="idle-section-kicker">Squad overview</span>
-                            <h3>Idle expedition team</h3>
-                            <p>Your expedition always reads the same team saved in Battle IA, so this page stays synced with your main combat setup.</p>
+                            <span class="idle-section-kicker" data-i18n="idle_team_kicker">Squad overview</span>
+                            <h3 data-i18n="idle_team_title">Idle expedition team</h3>
+                            <p data-i18n="idle_team_subtitle">Idle always uses the same team saved in Battle IA, so this page stays synced with your main combat setup.</p>
                         </div>
+                        <a href="battle.html" class="idle-inline-link" data-i18n="idle_team_open_battle">Open Battle IA</a>
                     </div>
                     <div id="idleTeamSummary"></div>
                     <div class="idle-team-grid" id="idleTeamGrid"></div>
@@ -286,12 +288,23 @@
             </div>
 
             <aside class="idle-side-stack">
+                <section class="idle-section idle-glow-card idle-masters-section">
+                    <div class="idle-section-head">
+                        <div>
+                            <span class="idle-section-kicker" data-i18n="idle_masters_kicker">Premium tier</span>
+                            <h3 data-i18n="idle_masters_title">Idle Masters</h3>
+                            <p data-i18n="idle_masters_subtitle">A premium Idle mode with stronger rewards and rare Master Ball drop chance.</p>
+                        </div>
+                    </div>
+                    <div id="idleMastersPanel"></div>
+                </section>
+
                 <section class="idle-section idle-glow-card">
                     <div class="idle-section-head">
                         <div>
-                            <span class="idle-section-kicker">Latest claim</span>
-                            <h3>Most recent expedition result</h3>
-                            <p>Keep the last collected result visible so the player understands the value of the idle loop instantly.</p>
+                            <span class="idle-section-kicker" data-i18n="idle_last_claim_kicker">Latest claim</span>
+                            <h3 data-i18n="idle_last_claim_title">Most recent expedition result</h3>
+                            <p data-i18n="idle_last_claim_subtitle">Keep the last collected result visible so the value of the Idle loop is obvious at a glance.</p>
                         </div>
                     </div>
                     <div id="idleLastResult"></div>
@@ -300,48 +313,25 @@
                 <section class="idle-section idle-glow-card">
                     <div class="idle-section-head">
                         <div>
-                            <span class="idle-section-kicker">Expedition flow</span>
-                            <h3>How this page should feel</h3>
+                            <span class="idle-section-kicker" data-i18n="idle_flow_kicker">Expedition flow</span>
+                            <h3 data-i18n="idle_flow_title">How to use this page</h3>
                         </div>
                     </div>
                     <div class="idle-timeline">
                         <article class="idle-timeline-step">
                             <strong>1</strong>
-                            <h4>Prepare the squad</h4>
-                            <p>Save a strong 6-Pokémon team in Battle IA and let Idle reuse it automatically.</p>
+                            <h4 data-i18n="idle_flow_step_1_title">Prepare the squad</h4>
+                            <p data-i18n="idle_flow_step_1_text">Save a full team of 6 Pokémon in Battle IA and Idle will reuse it automatically.</p>
                         </article>
                         <article class="idle-timeline-step">
                             <strong>2</strong>
-                            <h4>Choose pressure</h4>
-                            <p>Route is stable, Elite balances risk and value, and Legend turns the run into premium farming.</p>
+                            <h4 data-i18n="idle_flow_step_2_title">Choose the tier</h4>
+                            <p data-i18n="idle_flow_step_2_text">Route is safer, Elite scales better, Legend pushes harder, and Masters is the premium option.</p>
                         </article>
                         <article class="idle-timeline-step">
                             <strong>3</strong>
-                            <h4>Launch and return</h4>
-                            <p>Once the timer ends, come back and claim a clean summary of EXP, coins, and items.</p>
-                        </article>
-                    </div>
-                </section>
-
-                <section class="idle-section idle-glow-card">
-                    <div class="idle-section-head">
-                        <div>
-                            <span class="idle-section-kicker">Design notes</span>
-                            <h3>Idle expansion path</h3>
-                        </div>
-                    </div>
-                    <div class="idle-insight-list">
-                        <article>
-                            <strong>Next step</strong>
-                            <p>Add region-based expeditions, visual themes, and passive loot tables tied to maps or events.</p>
-                        </article>
-                        <article>
-                            <strong>Retention loop</strong>
-                            <p>Use login streaks, boosted weekends, or premium timers to reinforce return sessions.</p>
-                        </article>
-                        <article>
-                            <strong>Battle synergy</strong>
-                            <p>Make squad strength matter so players feel rewarded for improving stats, levels, and team composition.</p>
+                            <h4 data-i18n="idle_flow_step_3_title">Launch and claim</h4>
+                            <p data-i18n="idle_flow_step_3_text">When the timer ends, come back and claim EXP, coins and item drops in one clean summary.</p>
                         </article>
                     </div>
                 </section>
