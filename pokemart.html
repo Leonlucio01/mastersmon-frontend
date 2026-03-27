@@ -115,8 +115,22 @@
         </div>
     </header>
 
-    <main class="pokemart-page">
-        <section class="pokemart-classic-section">
+    <main class="pokemart-page" id="pokemartPageRoot">
+        <section class="pokemart-auth-gate oculto" id="pokemartAuthGate" aria-live="polite">
+            <div class="pokemart-shell">
+                <div class="pokemart-auth-panel">
+                    <div class="pokemart-auth-badge">🔒 Shop access</div>
+                    <h2 id="pokemartAuthGateTitle">Login required</h2>
+                    <p id="pokemartAuthGateText">Sign in with Google to access PokeMart items, premium products and PayPal checkout.</p>
+                    <div class="pokemart-auth-actions">
+                        <button type="button" class="pokemart-auth-login-btn" id="pokemartGoToLoginBtn">Go to login</button>
+                    </div>
+                    <div class="pokemart-auth-points" id="pokemartAuthGatePoints"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="pokemart-classic-section" id="pokemartStoreSection">
             <div class="pokemart-shell">
                 <div class="pokemart-title-block">
                     <h1 class="titulo pokemart-classic-title" data-i18n="pokemart_title">POKEMART</h1>
@@ -135,7 +149,7 @@
         </section>
 
         <!-- PREMIUM / PAYPAL -->
-        <section class="premium-shop-section" id="paypal-section">
+        <section class="premium-shop-section" id="paypal-section" data-shop-section="premium">
             <div class="pokemart-shell">
                 <div class="premium-shop-shell" id="premiumShopShell" tabindex="-1">
                     <div class="premium-shop-head">

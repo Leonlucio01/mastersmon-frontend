@@ -97,18 +97,143 @@ const SHOP_MICRO_COPY = {
     premium_meter_checkout: { es: "Checkout seguro", en: "Secure checkout" }
 };
 
+const POKEMART_AUTH_GATE_COPY = {
+    es: {
+        title: "Inicia sesión para entrar a PokeMart",
+        text: "Ocultamos los items, el premium shop y PayPal hasta que el usuario se autentique con Google.",
+        button: "Ir al login",
+        badge: "🔒 Acceso requerido",
+        points: [
+            "Catálogo normal bloqueado hasta iniciar sesión.",
+            "Premium Shop y PayPal ocultos sin sesión activa.",
+            "Tus compras y saldo solo cargan para tu cuenta."
+        ]
+    },
+    en: {
+        title: "Sign in to access PokeMart",
+        text: "Items, premium products and PayPal checkout stay hidden until the user signs in with Google.",
+        button: "Go to login",
+        badge: "🔒 Login required",
+        points: [
+            "Normal store stays hidden until you sign in.",
+            "Premium Shop and PayPal stay hidden without an active session.",
+            "Your balance and purchases load only for your account."
+        ]
+    }
+};
+
+function obtenerCopyAuthGatePokeMart() {
+    return getPokeMartLang() === "es" ? POKEMART_AUTH_GATE_COPY.es : POKEMART_AUTH_GATE_COPY.en;
+}
+
+function renderizarAuthGatePokeMart() {
+    const gate = document.getElementById("pokemartAuthGate");
+    if (!gate) return;
+
+    const copy = obtenerCopyAuthGatePokeMart();
+    const badge = gate.querySelector(".pokemart-auth-badge");
+    const title = document.getElementById("pokemartAuthGateTitle");
+    const text = document.getElementById("pokemartAuthGateText");
+    const button = document.getElementById("pokemartGoToLoginBtn");
+    const points = document.getElementById("pokemartAuthGatePoints");
+
+    if (badge) badge.textContent = copy.badge;
+    if (title) title.textContent = copy.title;
+    if (text) text.textContent = copy.text;
+    if (button) button.textContent = copy.button;
+    if (points) {
+        points.innerHTML = copy.points.map(item => `<div class="pokemart-auth-point">${item}</div>`).join("");
+    }
+}
+
+function scrollToPokeMartLogin() {
+    const target = document.getElementById("loginMenuContainer")
+        || document.querySelector("#loginMenuContainer .g_id_signin")
+        || document.querySelector(".menu-auth-area")
+        || document.querySelector(".menu-topbar");
+
+    if (!target) return;
+
+    target.scrollIntoView({ behavior: "smooth", block: "center" });
+
+    const focusable = target.querySelector?.("button, [role='button'], iframe, .g_id_signin") || target;
+    try {
+        if (typeof focusable.focus === "function") {
+            focusable.focus({ preventScroll: true });
+        }
+    } catch (error) {
+        if (typeof focusable.focus === "function") {
+            focusable.focus();
+        }
+    }
+}
+
+function actualizarAccesoPokeMartUI() {
+    const page = document.getElementById("pokemartPageRoot");
+    const gate = document.getElementById("pokemartAuthGate");
+    const store = document.getElementById("pokemartStoreSection");
+    const premium = document.getElementById("paypal-section");
+    const estaLogueado = usuarioAutenticadoTienda();
+
+    renderizarAuthGatePokeMart();
+
+    if (page) {
+        page.classList.toggle("pokemart-page-locked", !estaLogueado);
+        page.classList.toggle("pokemart-page-ready", estaLogueado);
+    }
+    if (gate) gate.classList.toggle("oculto", estaLogueado);
+    if (store) store.classList.toggle("oculto", !estaLogueado);
+    if (premium) premium.classList.toggle("oculto", !estaLogueado);
+}
+
+async function inicializarAccesoPokeMart() {
+    const estaLogueado = usuarioAutenticadoTienda();
+    actualizarAccesoPokeMartUI();
+
+    if (!estaLogueado) {
+        limpiarEstadoUsuarioTiendaEnMemoria();
+        tiendaItemsGlobal = [];
+        tiendaRenderizada = false;
+        renderizarSaldo();
+        renderizarTienda();
+        premiumProductosGlobal = [];
+        premiumBeneficiosGlobal = [];
+        renderizarPremiumCatalogo();
+        limpiarMensajeCompra();
+        setPremiumMessage("");
+        return;
+    }
+
+    await Promise.all([
+        cargarTienda(),
+        cargarPremiumShop()
+    ]);
+    aplicarIntencionPremium({ force: true });
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
     configurarIdiomaPokeMart();
     registrarEventosPremium();
-    cargarTienda();
-    await cargarPremiumShop();
-    aplicarIntencionPremium({ force: true });
+    renderizarAuthGatePokeMart();
+
+    const gateBtn = document.getElementById("pokemartGoToLoginBtn");
+    if (gateBtn) {
+        gateBtn.addEventListener("click", scrollToPokeMartLogin);
+    }
+
+    await inicializarAccesoPokeMart();
 });
 
 document.addEventListener("languageChanged", () => {
+    renderizarAuthGatePokeMart();
+    actualizarAccesoPokeMartUI();
     refrescarUIPokeMart();
     renderizarPremiumCatalogo();
     aplicarIntencionPremium({ force: true, afterRender: true });
+});
+
+document.addEventListener("usuarioSesionActualizada", async () => {
+    await inicializarAccesoPokeMart();
 });
 
 function configurarIdiomaPokeMart() {
@@ -137,6 +262,7 @@ function configurarIdiomaPokeMart() {
 }
 
 function refrescarUIPokeMart() {
+    renderizarAuthGatePokeMart();
     if (typeof applyTranslations === "function") {
         applyTranslations();
     }
@@ -629,6 +755,16 @@ async function cargarTienda({ forzarCatalogo = false } = {}) {
     const cacheCatalogo = leerCacheTienda();
     const cacheUsuario = leerCacheUsuarioTienda();
     const estaLogueado = usuarioAutenticadoTienda();
+
+    if (!estaLogueado) {
+        limpiarEstadoUsuarioTiendaEnMemoria();
+        tiendaItemsGlobal = [];
+        inventarioUsuarioGlobal = [];
+        saldoUsuarioGlobal = 0;
+        if (tienda) tienda.innerHTML = "";
+        if (saldoBox) saldoBox.innerHTML = "";
+        return;
+    }
 
     if (!forzarCatalogo && cacheCatalogo && cacheCatalogo.length > 0) {
         tiendaItemsGlobal = filtrarItemsTiendaPublica(cacheCatalogo);

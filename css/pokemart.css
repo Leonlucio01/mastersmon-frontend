@@ -37,6 +37,99 @@
     background: linear-gradient(180deg, #f1f5f9 0%, #f8fafc 100%);
 }
 
+.pokemart-page-locked{
+    padding-top: 12px;
+}
+
+.pokemart-auth-gate{
+    padding: 26px 0 42px;
+}
+
+.pokemart-auth-panel{
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 34px 32px;
+    border-radius: 34px;
+    background:
+        radial-gradient(circle at top right, rgba(37,99,235,.14), transparent 24%),
+        linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    border: 1px solid rgba(148,163,184,.18);
+    box-shadow: 0 24px 56px rgba(15,23,42,.08);
+    text-align: center;
+}
+
+.pokemart-auth-badge{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 16px;
+    border-radius: 999px;
+    background: rgba(37,99,235,.10);
+    color: #1d4ed8;
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    margin-bottom: 16px;
+}
+
+.pokemart-auth-panel h2{
+    margin: 0 0 12px;
+    font-size: clamp(30px, 4vw, 46px);
+    line-height: 1.04;
+    letter-spacing: -.03em;
+    color: #0f172a;
+}
+
+.pokemart-auth-panel p{
+    margin: 0 auto;
+    max-width: 720px;
+    color: #475569;
+    font-size: 16px;
+    line-height: 1.7;
+}
+
+.pokemart-auth-actions{
+    margin-top: 20px;
+}
+
+.pokemart-auth-login-btn{
+    border: none;
+    border-radius: 16px;
+    padding: 14px 18px;
+    min-width: 190px;
+    background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 16px 30px rgba(37,99,235,.22);
+    transition: transform .18s ease, box-shadow .18s ease;
+}
+
+.pokemart-auth-login-btn:hover{
+    transform: translateY(-1px);
+    box-shadow: 0 20px 34px rgba(37,99,235,.28);
+}
+
+.pokemart-auth-points{
+    margin-top: 22px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0,1fr));
+    gap: 12px;
+}
+
+.pokemart-auth-point{
+    padding: 14px 14px;
+    border-radius: 18px;
+    background: rgba(248,250,252,.95);
+    border: 1px solid rgba(226,232,240,.95);
+    color: #334155;
+    font-size: 13px;
+    line-height: 1.55;
+    font-weight: 700;
+}
+
 .pokemart-shell{
     max-width: 1380px;
     margin: 0 auto;
@@ -1233,4 +1326,34 @@
 
 .premium-card[data-premium-code="idle_masters_1m"] .premium-card-price strong{
     color: #a16207;
+}
+
+
+@media (max-width: 860px){
+    .pokemart-auth-panel{
+        padding: 28px 22px;
+        border-radius: 28px;
+    }
+
+    .pokemart-auth-points{
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 560px){
+    .pokemart-auth-gate{
+        padding: 14px 0 26px;
+    }
+
+    .pokemart-auth-panel h2{
+        font-size: 28px;
+    }
+
+    .pokemart-auth-panel p{
+        font-size: 14px;
+    }
+
+    .pokemart-auth-login-btn{
+        width: 100%;
+    }
 }
