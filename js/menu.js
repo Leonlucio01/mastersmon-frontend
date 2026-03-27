@@ -1,4 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
+    if (window.__mastersmonMenuInitialized) return;
+    window.__mastersmonMenuInitialized = true;
+
     const menuToggle = document.getElementById("menuToggle");
     const menuMobile = document.getElementById("menuMobile");
     const languageSelect = document.getElementById("languageSelect");
@@ -19,7 +22,12 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     if (menuToggle && menuMobile) {
-        menuToggle.addEventListener("click", () => {
+        menuToggle.addEventListener("click", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            if (typeof event.stopImmediatePropagation === "function") {
+                event.stopImmediatePropagation();
+            }
             menuMobile.classList.toggle("menu-open");
         });
 
