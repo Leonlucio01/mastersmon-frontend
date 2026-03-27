@@ -364,9 +364,9 @@ function getPokemonSpriteIdle(pokemon = {}) {
     if (pokemonId > 0) {
         const shiny = Boolean(pokemon?.es_shiny);
         if (shiny) {
-            return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/${pokemonId}.png`;
+            return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${pokemonId}.png`;
         }
-        return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemonId}.png`;
+        return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonId}.png`;
     }
 
     return direct || "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png";
