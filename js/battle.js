@@ -12,6 +12,8 @@ let battleIdleEndsAtMs = 0;
 let battleIdleUltimaSincronizacionMs = 0;
 let battleIdleSyncEnProceso = false;
 let battleIdleCountdownFinalizado = false;
+let battleBeneficiosActivos = [];
+let battleBeneficiosSyncEnProceso = false;
 
 const BATTLE_TEAM_STORAGE_KEY = "mastersmon_battle_team_v1";
 const BATTLE_ENEMY_LEVEL_BONUS_KEY = "mastersmon_battle_enemy_level_bonus_v1";
@@ -81,6 +83,7 @@ async function inicializarBattle() {
     cargarDificultadBattle();
     renderSlotsEquipoBattle();
     renderResumenEquipoBattle();
+    renderBattleBoostersBanner();
     renderPanelModoActualBattle();
     if (tienePanelBossBattle()) renderBossBattle();
     if (tienePanelIdleBattle()) renderIdleBattle();
@@ -94,7 +97,7 @@ async function inicializarBattle() {
         renderSlotsEquipoBattle();
         renderColeccionBattle();
         renderResumenEquipoBattle();
-        const cargasLaterales = [];
+        const cargasLaterales = [cargarBeneficiosActivosBattle(true)];
         if (tienePanelBossBattle()) cargasLaterales.push(cargarEstadoBossBattle(true));
         if (tienePanelIdleBattle()) cargasLaterales.push(cargarEstadoIdleBattle(true));
         if (cargasLaterales.length) {
@@ -114,7 +117,7 @@ async function inicializarBattle() {
                 renderSlotsEquipoBattle();
                 renderColeccionBattle();
                 renderResumenEquipoBattle();
-                const cargasLateralesRetry = [];
+                const cargasLateralesRetry = [cargarBeneficiosActivosBattle(true)];
                 if (tienePanelBossBattle()) cargasLateralesRetry.push(cargarEstadoBossBattle(true));
                 if (tienePanelIdleBattle()) cargasLateralesRetry.push(cargarEstadoIdleBattle(true));
                 if (cargasLateralesRetry.length) {
@@ -139,6 +142,7 @@ function refrescarUIBattlePorIdioma() {
     actualizarUISelectorModoBattle();
     renderSlotsEquipoBattle();
     renderResumenEquipoBattle();
+    renderBattleBoostersBanner();
     renderPanelModoActualBattle();
     if (tienePanelBossBattle()) renderBossBattle();
     if (tienePanelIdleBattle()) renderIdleBattle();
@@ -744,6 +748,174 @@ function renderResumenEquipoBattle() {
     if (resumenVelocidad) resumenVelocidad.textContent = stats.resumenVelocidad;
 }
 
+
+function renderBattleBoostersBanner() {
+    const wrap = document.getElementById("battleBoostersStrip");
+    const title = document.getElementById("battleBoostersTitle");
+    const list = document.getElementById("battleBoostersActive");
+    if (!wrap || !title || !list) return;
+
+    if (!getAccessToken()) {
+        title.textContent = tBattleSafe("battle_boosters_locked_title", "Sign in to use battle boosters");
+        list.innerHTML = `
+            <article class="battle-booster-card is-idle">
+                <div class="battle-booster-top">
+                    <span class="battle-booster-badge">Locked</span>
+                    <div class="battle-booster-icon">🔒</div>
+                </div>
+                <h5>${escapeHtmlBattle(tBattleSafe("battle_boosters_login_title", "Battle boosters"))}</h5>
+                <p>${escapeHtmlBattle(tBattleSafe("battle_boosters_login_text", "Sign in, activate your x2 EXP or x2 GOLD from Collection, and start the arena with the boost already armed."))}</p>
+            </article>
+            <article class="battle-booster-card is-idle">
+                <div class="battle-booster-top">
+                    <span class="battle-booster-badge">Ready</span>
+                    <div class="battle-booster-icon">🎒</div>
+                </div>
+                <h5>${escapeHtmlBattle(tBattleSafe("battle_boosters_manage_title", "Manage your charges"))}</h5>
+                <p>${escapeHtmlBattle(tBattleSafe("battle_boosters_manage_text", "Use each booster manually from Collection. Every activation lasts 24 hours per charge."))}</p>
+            </article>`;
+        return;
+    }
+
+    const activos = obtenerBoostersBatallaActivosBattle();
+    if (!activos.length) {
+        title.textContent = tBattleSafe("battle_boosters_none_title", "No active battle boosters");
+        list.innerHTML = `
+            <article class="battle-booster-card is-idle">
+                <div class="battle-booster-top">
+                    <span class="battle-booster-badge">Inactive</span>
+                    <div class="battle-booster-icon">⚡</div>
+                </div>
+                <h5>${escapeHtmlBattle(tBattleSafe("battle_boosters_exp_title", "EXP x2"))}</h5>
+                <p>${escapeHtmlBattle(tBattleSafe("battle_boosters_none_text_exp", "Activate this boost from Collection before entering Battle IA to double the official EXP reward for the run."))}</p>
+                <div class="battle-booster-meta">
+                    <span class="battle-booster-chip">${escapeHtmlBattle(tBattleSafe("battle_boosters_manual_activation", "Manual activation"))}</span>
+                    <span class="battle-booster-chip strong">24h ${escapeHtmlBattle(tBattleSafe("battle_boosters_per_use", "per use"))}</span>
+                </div>
+            </article>
+            <article class="battle-booster-card is-idle">
+                <div class="battle-booster-top">
+                    <span class="battle-booster-badge">Inactive</span>
+                    <div class="battle-booster-icon">💰</div>
+                </div>
+                <h5>${escapeHtmlBattle(tBattleSafe("battle_boosters_gold_title", "GOLD x2"))}</h5>
+                <p>${escapeHtmlBattle(tBattleSafe("battle_boosters_none_text_gold", "Activate this boost from Collection before entering Battle IA to double the official Pokédollar reward for the run."))}</p>
+                <div class="battle-booster-meta">
+                    <span class="battle-booster-chip">${escapeHtmlBattle(tBattleSafe("battle_boosters_manual_activation", "Manual activation"))}</span>
+                    <span class="battle-booster-chip strong">24h ${escapeHtmlBattle(tBattleSafe("battle_boosters_per_use", "per use"))}</span>
+                </div>
+            </article>`;
+        return;
+    }
+
+    title.textContent = tBattleSafe("battle_boosters_active_title", "Active boosters for your next Battle IA");
+    list.innerHTML = activos.map(renderBoosterActivoBattleCard).join("");
+}
+
+function obtenerBoostersBatallaActivosBattle() {
+    const beneficios = Array.isArray(battleBeneficiosActivos) ? battleBeneficiosActivos : [];
+    return beneficios
+        .filter(item => {
+            const codigo = String(item?.beneficio_codigo || "").toLowerCase();
+            return codigo === "battle_exp_x2" || codigo === "battle_gold_x2";
+        })
+        .sort((a, b) => {
+            const order = codigo => codigo === "battle_exp_x2" ? 0 : 1;
+            return order(String(a?.beneficio_codigo || "")) - order(String(b?.beneficio_codigo || ""));
+        });
+}
+
+function renderBoosterActivoBattleCard(beneficio) {
+    const codigo = String(beneficio?.beneficio_codigo || "").toLowerCase();
+    const esExp = codigo === "battle_exp_x2";
+    const clase = esExp ? "booster-exp" : "booster-gold";
+    const icono = esExp ? "⚡" : "💰";
+    const titulo = esExp
+        ? tBattleSafe("battle_boosters_exp_title", "EXP x2")
+        : tBattleSafe("battle_boosters_gold_title", "GOLD x2");
+    const descripcion = esExp
+        ? tBattleSafe("battle_boosters_exp_active_text", "The next Battle IA sessions you start while this boost is active will lock double EXP in their reward snapshot.")
+        : tBattleSafe("battle_boosters_gold_active_text", "The next Battle IA sessions you start while this boost is active will lock double Pokédollars in their reward snapshot.");
+    const restante = formatearRestanteBeneficioBattle(beneficio?.expira_en);
+    const expiracion = formatearExpiracionBeneficioBattle(beneficio?.expira_en);
+
+    return `
+        <article class="battle-booster-card is-active ${clase}">
+            <div class="battle-booster-top">
+                <span class="battle-booster-badge">${escapeHtmlBattle(tBattleSafe("battle_boosters_active_badge", "Active"))}</span>
+                <div class="battle-booster-icon">${icono}</div>
+            </div>
+            <h5>${escapeHtmlBattle(titulo)}</h5>
+            <p>${escapeHtmlBattle(descripcion)}</p>
+            <div class="battle-booster-meta">
+                <span class="battle-booster-chip strong">${escapeHtmlBattle(restante)}</span>
+                <span class="battle-booster-chip">${escapeHtmlBattle(expiracion)}</span>
+            </div>
+        </article>`;
+}
+
+function formatearRestanteBeneficioBattle(expiraEn) {
+    const restanteMs = obtenerRestanteBeneficioBattleMs(expiraEn);
+    if (restanteMs <= 0) {
+        return tBattleSafe("battle_boosters_expired", "Expired");
+    }
+    return `${tBattleSafe("battle_boosters_time_left", "Time left")}: ${formatSecondsBattle(Math.floor(restanteMs / 1000))}`;
+}
+
+function formatearExpiracionBeneficioBattle(expiraEn) {
+    const expiraMs = Date.parse(expiraEn || "");
+    if (!Number.isFinite(expiraMs)) {
+        return tBattleSafe("battle_boosters_snapshot_hint", "Applies when the battle starts");
+    }
+    try {
+        const texto = new Intl.DateTimeFormat(undefined, {
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+        }).format(new Date(expiraMs));
+        return `${tBattleSafe("battle_boosters_until", "Until")} ${texto}`;
+    } catch (_) {
+        return tBattleSafe("battle_boosters_snapshot_hint", "Applies when the battle starts");
+    }
+}
+
+function obtenerRestanteBeneficioBattleMs(expiraEn) {
+    const expiraMs = Date.parse(expiraEn || "");
+    if (!Number.isFinite(expiraMs)) return 0;
+    return Math.max(0, expiraMs - Date.now());
+}
+
+async function cargarBeneficiosActivosBattle(silencioso = true) {
+    if (!getAccessToken()) {
+        battleBeneficiosActivos = [];
+        renderBattleBoostersBanner();
+        return [];
+    }
+
+    if (battleBeneficiosSyncEnProceso) {
+        return battleBeneficiosActivos;
+    }
+
+    battleBeneficiosSyncEnProceso = true;
+    try {
+        const data = await obtenerBeneficiosActivosBattleApi();
+        battleBeneficiosActivos = Array.isArray(data?.beneficios) ? data.beneficios : [];
+        renderBattleBoostersBanner();
+        return battleBeneficiosActivos;
+    } catch (error) {
+        console.warn("No se pudieron cargar los boosters activos de batalla:", error);
+        battleBeneficiosActivos = [];
+        renderBattleBoostersBanner();
+        if (!silencioso) {
+            mostrarModalBattle(error?.message || tBattleSafe("battle_boosters_load_error", "The active battle boosters could not be loaded."), "error");
+        }
+        return [];
+    } finally {
+        battleBeneficiosSyncEnProceso = false;
+    }
+}
+
 function calcularResumenEquipoBattle() {
     if (!battleEquipo.length) {
         return {
@@ -1299,8 +1471,13 @@ function actualizarTemporizadoresLocalesBattle() {
         }
     }
 
+    if (obtenerBoostersBatallaActivosBattle().some(item => obtenerRestanteBeneficioBattleMs(item?.expira_en) <= 0) && !battleBeneficiosSyncEnProceso) {
+        cargarBeneficiosActivosBattle(true);
+    }
+
     renderBossBattle();
     renderIdleBattle();
+    renderBattleBoostersBanner();
 }
 
 async function cargarEstadoBossBattle(silencioso = true) {
@@ -1560,6 +1737,11 @@ function formatSecondsBattle(seconds = 0) {
     const m = Math.floor((total % 3600) / 60);
     const s = total % 60;
     return [h, m, s].map(v => String(v).padStart(2, "0")).join(":");
+}
+
+async function obtenerBeneficiosActivosBattleApi() {
+    if (typeof obtenerBeneficiosActivos === "function") return await obtenerBeneficiosActivos();
+    return await fetchBattleAuth(`${API_BASE}/payments/beneficios/activos`);
 }
 
 async function obtenerEstadoBossBattleApi() {
