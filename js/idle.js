@@ -1298,7 +1298,7 @@ function renderMastersPanelIdle() {
 
     const featureItems = [
         tIdle("premium_idle_feature_1", "+100% EXP vs Legend"),
-        tIdle("premium_idle_feature_2", "+28% GOLD vs Legend"),
+        tIdle("premium_idle_feature_2", "+100% GOLD vs Legend"),
         tIdle("premium_idle_feature_3", "Ultra Ball 12% per tick"),
         tIdle("premium_idle_feature_4", "Master Ball 0.45% per tick")
     ].map(feature => `<li>${escapeHtmlIdle(feature)}</li>`).join("");

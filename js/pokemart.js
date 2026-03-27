@@ -67,7 +67,7 @@ const SHOP_MICRO_COPY = {
     healing_power: { es: "Soporte", en: "Support" },
     evolution_power: { es: "Especial", en: "Special" },
     premium_idle_feature_1: { es: "+100% EXP vs Legend", en: "+100% EXP vs Legend" },
-    premium_idle_feature_2: { es: "+28% GOLD vs Legend", en: "+28% GOLD vs Legend" },
+    premium_idle_feature_2: { es: "+100% GOLD vs Legend", en: "+100% GOLD vs Legend" },
     premium_idle_feature_3: { es: "Ultra Ball 12% por tick", en: "Ultra Ball 12% per tick" },
     premium_idle_feature_4: { es: "Master Ball 0.45% por tick", en: "Master Ball 0.45% per tick" },
     premium_exp_feature_1: { es: "5 usos en inventario", en: "5 charges in inventory" },
