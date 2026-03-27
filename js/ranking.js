@@ -8,7 +8,6 @@ const RANKING_DEFAULT_LIMIT = 10;
 ========================================================= */
 
 document.addEventListener("DOMContentLoaded", () => {
-    configurarMenuMobileRanking();
     configurarIdiomaRanking();
     configurarEventosRanking();
     cargarRankingPage();
@@ -33,24 +32,6 @@ document.addEventListener("languageChanged", () => {
 /* =========================================================
    MENU MOBILE
 ========================================================= */
-
-function configurarMenuMobileRanking() {
-    const menuToggle = document.getElementById("menuToggle");
-    const menuMobile = document.getElementById("menuMobile");
-
-    if (!menuToggle || !menuMobile) return;
-
-    menuToggle.addEventListener("click", () => {
-        menuMobile.classList.toggle("menu-open");
-    });
-
-    menuMobile.addEventListener("click", (event) => {
-        const link = event.target.closest("a");
-        if (link) {
-            menuMobile.classList.remove("menu-open");
-        }
-    });
-}
 
 function cerrarMenuMobileRanking() {
     const menuMobile = document.getElementById("menuMobile");

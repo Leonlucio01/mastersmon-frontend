@@ -236,7 +236,6 @@ const MAPAS_CONFIG = {
 };
  
 document.addEventListener("DOMContentLoaded", () => {
-    configurarMenuMobile();
     configurarCarruselMaps();
     configurarEventosDelegados();
     configurarMovimientoTeclado();
@@ -307,17 +306,6 @@ async function inicializarMaps() {
 /* =========================
    MENU MOBILE
 ========================= */
-function configurarMenuMobile() {
-    const menuToggle = document.getElementById("menuToggle");
-    const menuMobile = document.getElementById("menuMobile");
- 
-    if (!menuToggle || !menuMobile) return;
- 
-    menuToggle.addEventListener("click", () => {
-        menuMobile.classList.toggle("menu-open");
-    });
-}
- 
 function cerrarMenuMobile() {
     const menuMobile = document.getElementById("menuMobile");
     if (menuMobile) {
