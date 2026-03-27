@@ -85,6 +85,8 @@ const idleState = {
     startedAtMs: 0,
     endsAtMs: 0,
     lastSyncMs: 0,
+    remainingBaseSeconds: 0,
+    totalSessionSeconds: 0,
     syncInProgress: false,
     countdownFinished: false,
     clockInterval: null,
@@ -310,6 +312,64 @@ function getIdleDropLabel(itemCode = "", fallback = "Item") {
         master_ball: tIdle("item_master_ball", "Master Ball")
     };
     return map[itemCode] || fallback || itemCode || tIdle("idle_item_generic", "Item");
+}
+
+
+function getPrimaryTypeKeyIdle(rawType = "") {
+    const first = String(rawType || "")
+        .split(/[\/,|]/)[0]
+        .trim()
+        .toLowerCase();
+
+    const map = {
+        normal: "normal",
+        fuego: "fire", fire: "fire",
+        agua: "water", water: "water",
+        planta: "grass", grass: "grass",
+        electrico: "electric", eléctrico: "electric", electric: "electric",
+        hielo: "ice", ice: "ice",
+        lucha: "fighting", fighting: "fighting",
+        veneno: "poison", poison: "poison",
+        tierra: "ground", ground: "ground",
+        volador: "flying", flying: "flying",
+        psiquico: "psychic", psíquico: "psychic", psychic: "psychic",
+        bicho: "bug", bug: "bug",
+        roca: "rock", rock: "rock",
+        fantasma: "ghost", ghost: "ghost",
+        dragon: "dragon", dragón: "dragon", dragon: "dragon",
+        acero: "steel", steel: "steel",
+        hada: "fairy", fairy: "fairy"
+    };
+
+    return map[first] || "default";
+}
+
+function getPokemonSpriteIdle(pokemon = {}) {
+    const direct = pokemon?.imagen || pokemon?.imagen_url || pokemon?.image || pokemon?.sprite || pokemon?.official_artwork || "";
+    const lowered = String(direct || "").toLowerCase();
+    const looksLikeItemBall = lowered.includes('/items/poke-ball') || lowered.endsWith('poke-ball.png');
+
+    if (direct && !looksLikeItemBall) {
+        return String(direct);
+    }
+
+    const pokemonId = Number(
+        pokemon?.pokemon_id ||
+        pokemon?.id_pokemon ||
+        pokemon?.pokedex_id ||
+        pokemon?.species_id ||
+        0
+    );
+
+    if (pokemonId > 0) {
+        const shiny = Boolean(pokemon?.es_shiny);
+        if (shiny) {
+            return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/${pokemonId}.png`;
+        }
+        return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemonId}.png`;
+    }
+
+    return direct || "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png";
 }
 
 function formatIdleType(rawType) {
@@ -723,11 +783,12 @@ function renderTeamIdle() {
     }
 
     grid.innerHTML = idleState.team.map(pokemon => {
-        const sprite = pokemon?.imagen || "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png";
-        const shinyTag = pokemon?.es_shiny ? `<span class="idle-team-tag">${escapeHtmlIdle(tIdle("pokemon_shiny", "Shiny"))}</span>` : "";
+        const sprite = getPokemonSpriteIdle(pokemon);
+        const primaryType = getPrimaryTypeKeyIdle(pokemon?.tipo || "");
+        const shinyTag = pokemon?.es_shiny ? `<span class="idle-team-tag idle-team-tag-shiny">${escapeHtmlIdle(tIdle("pokemon_shiny", "Shiny"))}</span>` : "";
         return `
-            <article class="idle-team-card">
-                <div class="idle-team-avatar">
+            <article class="idle-team-card idle-team-type-${escapeHtmlIdle(primaryType)}">
+                <div class="idle-team-avatar idle-team-avatar-${escapeHtmlIdle(primaryType)}">
                     <img src="${escapeHtmlIdle(sprite)}" alt="${escapeHtmlIdle(pokemon?.nombre || tIdle("idle_pokemon_fallback", "Pokemon"))}" loading="lazy" decoding="async">
                 </div>
                 <div class="idle-team-meta">
@@ -999,6 +1060,8 @@ function registrarEstadoIdle(data = null) {
         idleState.serverOffsetMs = 0;
         idleState.startedAtMs = 0;
         idleState.endsAtMs = 0;
+        idleState.remainingBaseSeconds = 0;
+        idleState.totalSessionSeconds = 0;
         return;
     }
 
@@ -1009,6 +1072,8 @@ function registrarEstadoIdle(data = null) {
 
     idleState.startedAtMs = Date.parse(data?.sesion?.iniciado_en || "") || 0;
     idleState.endsAtMs = Date.parse(data?.sesion?.termina_en || "") || 0;
+    idleState.remainingBaseSeconds = Math.max(0, Number(data?.sesion?.segundos_restantes || 0));
+    idleState.totalSessionSeconds = Math.max(1, Number(data?.sesion?.duracion_segundos || 1));
 
     const currentTier = normalizarTierIdle(data?.sesion?.tier_codigo || idleState.selectedTier);
     const currentDuration = normalizarDuracionIdle(data?.sesion?.duracion_segundos || idleState.selectedDuration);
@@ -1029,17 +1094,17 @@ function actualizarRelojVisualIdle() {
     const progressText = document.getElementById("idleProgressText");
     if (!timerValue || !progressFill || !progressText) return;
 
-    const nowServerMs = obtenerAhoraServidorIdleMs();
-    const totalMs = Math.max(1000, idleState.endsAtMs - idleState.startedAtMs);
-    const remainingMs = Math.max(0, idleState.endsAtMs - nowServerMs);
-    const elapsedMs = Math.max(0, Math.min(totalMs, nowServerMs - idleState.startedAtMs));
-    const progress = Math.max(0, Math.min(100, Math.round((elapsedMs / totalMs) * 100)));
+    const elapsedSinceSyncSeconds = Math.max(0, Math.floor((Date.now() - Number(idleState.lastSyncMs || Date.now())) / 1000));
+    const totalSeconds = Math.max(1, Number(idleState.totalSessionSeconds || sesion.duracion_segundos || 1));
+    const remainingSeconds = Math.max(0, Number(idleState.remainingBaseSeconds || 0) - elapsedSinceSyncSeconds);
+    const elapsedSeconds = Math.max(0, Math.min(totalSeconds, totalSeconds - remainingSeconds));
+    const progress = Math.max(0, Math.min(100, Math.round((elapsedSeconds / totalSeconds) * 100)));
 
-    timerValue.textContent = formatSecondsIdle(Math.ceil(remainingMs / 1000));
+    timerValue.textContent = formatSecondsIdle(remainingSeconds);
     progressFill.style.width = `${progress}%`;
     progressText.textContent = `${tIdle("idle_running_prefix", "Expedition")} ${traducirTierIdle(sesion.tier_codigo)} ${tIdle("idle_running_middle", "running")} · ${progress}% ${tIdle("idle_complete_suffix", "complete")}.`;
 
-    if (remainingMs <= 0 && !idleState.countdownFinished) {
+    if (remainingSeconds <= 0 && !idleState.countdownFinished) {
         idleState.countdownFinished = true;
         if (idleState.idleData?.sesion) {
             idleState.idleData.sesion.estado = "reclamable";
