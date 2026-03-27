@@ -8,7 +8,7 @@
 const IDLE_TEAM_STORAGE_KEY = "mastersmon_battle_team_v1";
 const IDLE_SESSION_STORAGE_KEY = "mastersmon_battle_idle_session_v1";
 const IDLE_LAST_RESULT_STORAGE_KEY = "mastersmon_idle_last_result_v1";
-const IDLE_PREMIUM_SHOP_URL = "pokemart.html";
+const IDLE_PREMIUM_SHOP_URL = "pokemart.html?focus=paypal&product=idle_masters_1m#paypal-section";
 
 const IDLE_TIER_CONFIG = {
     ruta: {
@@ -301,6 +301,20 @@ function getIdleTierMeta(tierCode = "ruta") {
     };
 
     return { ...cfg, ...(translated[tier] || {}) };
+}
+
+function getIdlePremiumShopUrl() {
+    return IDLE_PREMIUM_SHOP_URL;
+}
+
+function markIdlePremiumShopIntent() {
+    try {
+        sessionStorage.setItem("mastersmon_shop_focus", "paypal");
+        sessionStorage.setItem("mastersmon_shop_product", "idle_masters_1m");
+        sessionStorage.setItem("mastersmon_shop_source", "idle_masters_panel");
+    } catch (error) {
+        // no-op
+    }
 }
 
 function getIdleDropLabel(itemCode = "", fallback = "Item") {
@@ -960,10 +974,16 @@ function renderMastersPanelIdle() {
             </ul>
 
             <div class="idle-masters-actions">
-                <a href="${escapeHtmlIdle(IDLE_PREMIUM_SHOP_URL)}" class="idle-action ${locked ? "idle-action-primary" : "idle-action-ghost"}">${escapeHtmlIdle(locked ? tIdle("idle_masters_go_shop", "Open Shop") : tIdle("idle_masters_manage_shop", "Open Premium Shop"))}</a>
+                <a href="${escapeHtmlIdle(getIdlePremiumShopUrl())}" class="idle-action ${locked ? "idle-action-primary" : "idle-action-ghost"}" data-idle-premium-shop="1">${escapeHtmlIdle(locked ? tIdle("idle_masters_go_shop", "Open Shop") : tIdle("idle_masters_manage_shop", "Open Premium Shop"))}</a>
             </div>
         </div>
     `;
+
+    panel.querySelectorAll('[data-idle-premium-shop="1"]').forEach(link => {
+        link.addEventListener('click', () => {
+            markIdlePremiumShopIntent();
+        });
+    });
 }
 
 function setFeedbackIdle(message = "", type = "info") {

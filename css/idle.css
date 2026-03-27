@@ -48,6 +48,7 @@ body{
     display:grid;
     grid-template-columns:minmax(0,1.45fr) minmax(310px,.92fr);
     gap:22px;
+    align-items:start;
 }
 
 .idle-glow-card{
@@ -394,20 +395,30 @@ body{
 
 .idle-control-layout{
     display:grid;
-    grid-template-columns:minmax(0,1fr) minmax(300px,.90fr);
+    grid-template-columns:1fr;
     gap:18px;
     align-items:start;
 }
 
 .idle-control-main{
     display:grid;
-    gap:16px;
+    gap:18px;
+}
+
+.idle-main-stack,
+.idle-side-stack{
+    align-content:start;
+}
+
+.idle-side-stack > .idle-section,
+.idle-masters-section{
+    align-self:start;
 }
 
 .idle-tier-cards{
     display:grid;
     grid-template-columns:repeat(2, minmax(0, 1fr));
-    gap:14px;
+    gap:16px;
 }
 
 .idle-tier-card{
@@ -416,6 +427,7 @@ body{
     gap:12px;
     text-align:left;
     padding:18px;
+    min-height:224px;
     border-radius:22px;
     border:1px solid var(--idle-border);
     background:linear-gradient(180deg,#ffffff 0%, #f8fbff 100%);
@@ -968,6 +980,7 @@ body{
 .idle-masters-section{
     background:
         linear-gradient(180deg,#fffdf7 0%, #ffffff 100%);
+    min-height:0;
 }
 
 .idle-masters-card{
