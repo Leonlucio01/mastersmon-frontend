@@ -9,10 +9,13 @@ let avatarActualizandoMyPokemon = false;
 let equipandoMovimientoEnCurso = false;
 let movimientosPokemonCache = new Map();
 let avatarCarruselInicio = 0;
+let beneficiosActivosMyPokemon = [];
+let boosterActivandoCodigo = "";
 
 const MY_POKEMON_CACHE_KEY = "mastersmon_mypokemon_cache";
 const MY_POKEMON_ITEMS_CACHE_KEY = "mastersmon_mypokemon_items_cache";
 const MY_POKEMON_RESUMEN_CACHE_KEY = "mastersmon_mypokemon_resumen_cache";
+const MY_POKEMON_BENEFITS_CACHE_KEY = "mastersmon_mypokemon_benefits_cache";
 const MY_POKEMON_AVATAR_DEFAULT = "goku";
 const MY_POKEMON_AVATAR_REGEX = /^[a-z0-9_-]{1,60}$/;
 const AVATARES_VISIBLES_POR_VISTA = 7;
@@ -56,6 +59,7 @@ function limpiarCacheMyPokemon() {
         sessionStorage.removeItem(MY_POKEMON_CACHE_KEY);
         sessionStorage.removeItem(MY_POKEMON_ITEMS_CACHE_KEY);
         sessionStorage.removeItem(MY_POKEMON_RESUMEN_CACHE_KEY);
+        sessionStorage.removeItem(MY_POKEMON_BENEFITS_CACHE_KEY);
     } catch (error) {
         console.warn("No se pudo limpiar cache My Pokemon:", error);
     }
@@ -193,22 +197,35 @@ function obtenerImagenPokemonColeccion(pokemonId, esShiny = false) {
         : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonId}.png`;
 }
 
-function obtenerImagenItemInventario(nombreItem) {
-    const imagenes = {
-        "Poke Ball": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png",
-        "Super Ball": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png",
-        "Ultra Ball": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png",
-        "Master Ball": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/master-ball.png",
-        "Pocion": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/potion.png",
-        "Super Pocion": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/super-potion.png",
+function obtenerImagenItemInventario(nombreItem, itemCode = "") {
+    const imagenesPorCodigo = {
+        "poke_ball": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png",
+        "super_ball": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png",
+        "ultra_ball": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png",
+        "master_ball": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/master-ball.png",
+        "potion": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/potion.png",
+        "super_potion": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/super-potion.png",
+        "booster_battle_exp_x2_24h": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-share.png",
+        "booster_battle_gold_x2_24h": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/nugget.png"
+    };
+
+    const imagenesPorNombre = {
+        "Poke Ball": imagenesPorCodigo.poke_ball,
+        "Super Ball": imagenesPorCodigo.super_ball,
+        "Ultra Ball": imagenesPorCodigo.ultra_ball,
+        "Master Ball": imagenesPorCodigo.master_ball,
+        "Pocion": imagenesPorCodigo.potion,
+        "Super Pocion": imagenesPorCodigo.super_potion,
         "Piedra Fuego": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fire-stone.png",
         "Piedra Agua": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/water-stone.png",
         "Piedra Trueno": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/thunder-stone.png",
         "Piedra Hoja": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/leaf-stone.png",
-        "Piedra Lunar": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/moon-stone.png"
+        "Piedra Lunar": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/moon-stone.png",
+        "Booster Battle EXP x2 24h": imagenesPorCodigo.booster_battle_exp_x2_24h,
+        "Booster Battle GOLD x2 24h": imagenesPorCodigo.booster_battle_gold_x2_24h
     };
 
-    return imagenes[nombreItem] || "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png";
+    return imagenesPorCodigo[itemCode] || imagenesPorNombre[nombreItem] || imagenesPorCodigo.poke_ball;
 }
 
 function obtenerImagenPokemonModal(pokemonId, esShiny = false) {
@@ -253,8 +270,8 @@ function traducirTipoPokemonMyPokemon(tipo = "") {
         .join("/");
 }
 
-function traducirNombreItemMyPokemon(nombreItem = "") {
-    const mapa = {
+function traducirNombreItemMyPokemon(nombreItem = "", itemCode = "") {
+    const mapaPorNombre = {
         "Poke Ball": "item_poke_ball",
         "Super Ball": "item_super_ball",
         "Ultra Ball": "item_ultra_ball",
@@ -267,9 +284,161 @@ function traducirNombreItemMyPokemon(nombreItem = "") {
         "Piedra Hoja": "item_leaf_stone",
         "Piedra Lunar": "item_moon_stone"
     };
+    const mapaPorCodigo = {
+        "booster_battle_exp_x2_24h": "mypokemon_booster_exp_name",
+        "booster_battle_gold_x2_24h": "mypokemon_booster_gold_name"
+    };
 
-    const key = mapa[nombreItem];
-    return key ? t(key) : nombreItem;
+    const key = mapaPorCodigo[itemCode] || mapaPorNombre[nombreItem];
+    if (key) {
+        return tMyPokemon(
+            key,
+            itemCode === "booster_battle_exp_x2_24h"
+                ? "Battle EXP x2 Booster"
+                : itemCode === "booster_battle_gold_x2_24h"
+                    ? "Battle GOLD x2 Booster"
+                    : nombreItem
+        );
+    }
+    return nombreItem;
+}
+
+const BATTLE_BOOSTER_CONFIG_MyPokemon = {
+    booster_battle_exp_x2_24h: {
+        itemCode: "booster_battle_exp_x2_24h",
+        benefitCode: "battle_exp_x2",
+        accent: "exp",
+        titleFallback: "Battle EXP x2 Booster",
+        descriptionFallback: "Manual activation · 24h per use",
+        activeTitleFallback: "EXP x2 active in Battle",
+        buttonFallback: "Use +24h"
+    },
+    booster_battle_gold_x2_24h: {
+        itemCode: "booster_battle_gold_x2_24h",
+        benefitCode: "battle_gold_x2",
+        accent: "gold",
+        titleFallback: "Battle GOLD x2 Booster",
+        descriptionFallback: "Manual activation · 24h per use",
+        activeTitleFallback: "GOLD x2 active in Battle",
+        buttonFallback: "Use +24h"
+    }
+};
+
+function detectarCodigoBoosterMyPokemon(item = {}) {
+    const codigo = String(item?.item_codigo || item?.codigo || "").trim().toLowerCase();
+    if (codigo && BATTLE_BOOSTER_CONFIG_MyPokemon[codigo]) return codigo;
+
+    const nombre = normalizarTextoMyPokemon(item?.nombre || "");
+    if (nombre.includes("booster battle exp x2")) return "booster_battle_exp_x2_24h";
+    if (nombre.includes("booster battle gold x2")) return "booster_battle_gold_x2_24h";
+    return "";
+}
+
+function esBoosterBatallaMyPokemon(item = {}) {
+    return !!detectarCodigoBoosterMyPokemon(item);
+}
+
+function obtenerConfigBoosterBatallaMyPokemon(itemOrCode) {
+    const codigo = typeof itemOrCode === "string"
+        ? String(itemOrCode || "").trim().toLowerCase()
+        : detectarCodigoBoosterMyPokemon(itemOrCode || {});
+    return BATTLE_BOOSTER_CONFIG_MyPokemon[codigo] || null;
+}
+
+function obtenerBeneficioActivoMyPokemon(benefitCode = "") {
+    const codigo = String(benefitCode || "").trim().toLowerCase();
+    return (beneficiosActivosMyPokemon || []).find(
+        beneficio => String(beneficio?.beneficio_codigo || "").trim().toLowerCase() === codigo
+    ) || null;
+}
+
+function formatearTiempoRestanteBeneficioMyPokemon(expiraEn) {
+    if (!expiraEn) {
+        return tMyPokemon("mypokemon_booster_status_active", "Active now");
+    }
+
+    const expira = new Date(expiraEn);
+    if (Number.isNaN(expira.getTime())) {
+        return tMyPokemon("mypokemon_booster_status_active", "Active now");
+    }
+
+    const restanteMs = expira.getTime() - Date.now();
+    if (restanteMs <= 0) {
+        return tMyPokemon("mypokemon_booster_status_expired", "Expired");
+    }
+
+    const totalMin = Math.max(1, Math.floor(restanteMs / 60000));
+    const horas = Math.floor(totalMin / 60);
+    const minutos = totalMin % 60;
+    if (horas > 0) return `${horas}h ${minutos}m`;
+    return `${minutos}m`;
+}
+
+async function obtenerBeneficiosActivosSeguroMyPokemon() {
+    try {
+        const data = await obtenerBeneficiosActivos();
+        return Array.isArray(data?.beneficios) ? data.beneficios : [];
+    } catch (error) {
+        if (esErrorAuthMyPokemon(error)) {
+            return [];
+        }
+        console.error("Error obteniendo beneficios activos:", error);
+        return [];
+    }
+}
+
+function construirTarjetaBoosterActivaMyPokemon(config, beneficio) {
+    const restante = formatearTiempoRestanteBeneficioMyPokemon(beneficio?.expira_en);
+    return `
+        <article class="inventory-booster-active inventory-booster-active-${config.accent}">
+            <div class="inventory-booster-active-icon">
+                <img src="${obtenerImagenItemInventario(config.titleFallback, config.itemCode)}" alt="${escapeHtmlMyPokemon(config.titleFallback)}">
+            </div>
+            <div class="inventory-booster-active-copy">
+                <strong>${escapeHtmlMyPokemon(tMyPokemon(config.benefitCode === "battle_exp_x2" ? "mypokemon_booster_exp_active_title" : "mypokemon_booster_gold_active_title", config.activeTitleFallback))}</strong>
+                <span>${escapeHtmlMyPokemon(tMyPokemon("mypokemon_booster_active_remaining", "Remaining: {time}", { time: restante }))}</span>
+            </div>
+        </article>
+    `;
+}
+
+function construirCardBoosterInventarioMyPokemon(item) {
+    const codigo = detectarCodigoBoosterMyPokemon(item);
+    const config = obtenerConfigBoosterBatallaMyPokemon(codigo);
+    if (!config) return "";
+
+    const beneficioActivo = obtenerBeneficioActivoMyPokemon(config.benefitCode);
+    const restante = beneficioActivo ? formatearTiempoRestanteBeneficioMyPokemon(beneficioActivo.expira_en) : "";
+    const nombreVisual = traducirNombreItemMyPokemon(item.nombre, codigo);
+    const descripcion = tMyPokemon(
+        codigo === "booster_battle_exp_x2_24h" ? "mypokemon_booster_exp_desc" : "mypokemon_booster_gold_desc",
+        config.descriptionFallback
+    );
+
+    return `
+        <article class="inventory-booster-card inventory-booster-card-${config.accent}">
+            <div class="inventory-booster-head">
+                <div class="inventory-booster-icon">
+                    <img src="${obtenerImagenItemInventario(item.nombre, codigo)}" alt="${escapeHtmlMyPokemon(nombreVisual)}">
+                </div>
+                <div class="inventory-booster-copy">
+                    <h4>${escapeHtmlMyPokemon(nombreVisual)}</h4>
+                    <p>${escapeHtmlMyPokemon(descripcion)}</p>
+                </div>
+                <div class="inventory-booster-qty">x${Number(item.cantidad) || 0}</div>
+            </div>
+            <div class="inventory-booster-footer">
+                <div class="inventory-booster-status-wrap">
+                    ${beneficioActivo
+                        ? `<span class="inventory-booster-status is-active">${escapeHtmlMyPokemon(tMyPokemon("mypokemon_booster_status_active_short", `Active · ${restante}`))}</span>`
+                        : `<span class="inventory-booster-status">${escapeHtmlMyPokemon(tMyPokemon("mypokemon_booster_status_ready", "Ready to use"))}</span>`}
+                </div>
+                <button class="inventory-booster-action" type="button" data-use-booster="${codigo}" ${boosterActivandoCodigo === codigo ? "disabled" : ""}>
+                    ${escapeHtmlMyPokemon(tMyPokemon("mypokemon_booster_use_button", config.buttonFallback))}
+                </button>
+            </div>
+        </article>
+    `;
 }
 
 function mostrarMensajeEvolucion(mensaje, tipo = "ok") {
@@ -931,7 +1100,14 @@ function renderInventarioUsuario(items = []) {
     const inventario = document.getElementById("inventarioUsuario");
     if (!inventario) return;
 
-    if (!items.length) {
+    const lista = Array.isArray(items) ? items : [];
+    const boosters = lista.filter(esBoosterBatallaMyPokemon);
+    const itemsGenerales = lista.filter(item => !esBoosterBatallaMyPokemon(item));
+    const boostersActivos = Object.values(BATTLE_BOOSTER_CONFIG_MyPokemon)
+        .map(config => ({ config, beneficio: obtenerBeneficioActivoMyPokemon(config.benefitCode) }))
+        .filter(entry => !!entry.beneficio);
+
+    if (!lista.length && !boostersActivos.length) {
         inventario.innerHTML = `
             <h3>${t("mypokemon_inventory_title")}</h3>
             <p>${t("mypokemon_inventory_empty")}</p>
@@ -940,15 +1116,35 @@ function renderInventarioUsuario(items = []) {
     }
 
     inventario.innerHTML = `
-        <h3>${t("mypokemon_inventory_title")}</h3>
-        <div class="inventario-lista">
-            ${items.map(i => `
-                <span class="item-chip item-chip-con-icono">
-                    <img src="${obtenerImagenItemInventario(i.nombre)}" alt="${traducirNombreItemMyPokemon(i.nombre)}">
-                    <span>${traducirNombreItemMyPokemon(i.nombre)} x${i.cantidad}</span>
-                </span>
-            `).join("")}
+        <div class="inventory-topbar">
+            <div>
+                <h3>${t("mypokemon_inventory_title")}</h3>
+                <p>${escapeHtmlMyPokemon(tMyPokemon("mypokemon_inventory_helper", "Use your items here and activate battle boosters manually."))}</p>
+            </div>
         </div>
+
+        ${boostersActivos.length ? `
+            <div class="inventory-boosters-active-grid">
+                ${boostersActivos.map(entry => construirTarjetaBoosterActivaMyPokemon(entry.config, entry.beneficio)).join("")}
+            </div>
+        ` : ""}
+
+        ${boosters.length ? `
+            <div class="inventory-booster-grid">
+                ${boosters.map(item => construirCardBoosterInventarioMyPokemon(item)).join("")}
+            </div>
+        ` : ""}
+
+        ${itemsGenerales.length ? `
+            <div class="inventario-lista">
+                ${itemsGenerales.map(i => `
+                    <span class="item-chip item-chip-con-icono">
+                        <img src="${obtenerImagenItemInventario(i.nombre, i.item_codigo || i.codigo || "")}" alt="${traducirNombreItemMyPokemon(i.nombre, i.item_codigo || i.codigo || "")}">
+                        <span>${traducirNombreItemMyPokemon(i.nombre, i.item_codigo || i.codigo || "")} x${i.cantidad}</span>
+                    </span>
+                `).join("")}
+            </div>
+        ` : (!boosters.length ? `<p>${escapeHtmlMyPokemon(tMyPokemon("mypokemon_inventory_only_boosters", "Only battle boosters are available right now."))}</p>` : "")}
     `;
 }
 
@@ -1038,9 +1234,11 @@ async function cargarDatosBaseMyPokemon({ forzar = false } = {}) {
             const cachePokemon = leerCacheJSON(MY_POKEMON_CACHE_KEY, null);
             const cacheItems = leerCacheJSON(MY_POKEMON_ITEMS_CACHE_KEY, null);
             const cacheResumen = leerCacheJSON(MY_POKEMON_RESUMEN_CACHE_KEY, null);
+            const cacheBeneficios = leerCacheJSON(MY_POKEMON_BENEFITS_CACHE_KEY, null);
 
             if (Array.isArray(cachePokemon)) {
                 misPokemonData = cachePokemon;
+                beneficiosActivosMyPokemon = Array.isArray(cacheBeneficios) ? cacheBeneficios : [];
                 renderAvatarSelector();
                 renderInventarioUsuario(Array.isArray(cacheItems) ? cacheItems : []);
                 renderResumenColeccion(cacheResumen);
@@ -1067,17 +1265,20 @@ async function cargarDatosBaseMyPokemon({ forzar = false } = {}) {
             estadosEvolucionCache.clear();
         }
 
-        const [pokemons, items, resumenData] = await Promise.all([
+        const [pokemons, items, resumenData, beneficios] = await Promise.all([
             obtenerPokemonUsuarioActual(),
             obtenerItemsUsuarioActual(),
-            obtenerResumenPokedexUsuario(usuario.id)
+            obtenerResumenPokedexUsuario(usuario.id),
+            obtenerBeneficiosActivosSeguroMyPokemon()
         ]);
 
         misPokemonData = Array.isArray(pokemons) ? pokemons : [];
+        beneficiosActivosMyPokemon = Array.isArray(beneficios) ? beneficios : [];
 
         guardarCacheJSON(MY_POKEMON_CACHE_KEY, misPokemonData);
         guardarCacheJSON(MY_POKEMON_ITEMS_CACHE_KEY, Array.isArray(items) ? items : []);
         guardarCacheJSON(MY_POKEMON_RESUMEN_CACHE_KEY, resumenData || null);
+        guardarCacheJSON(MY_POKEMON_BENEFITS_CACHE_KEY, beneficiosActivosMyPokemon);
 
         renderAvatarSelector();
         renderInventarioUsuario(Array.isArray(items) ? items : []);
@@ -1360,10 +1561,11 @@ async function confirmarSoltarPokemon() {
         cerrarModalSoltar();
         mostrarMensajeEvolucion(data.mensaje || t("mypokemon_release_success"), "ok");
 
-        const [pokemons, items, resumenData] = await Promise.all([
+        const [pokemons, items, resumenData, beneficios] = await Promise.all([
             obtenerPokemonUsuarioActual(),
             obtenerItemsUsuarioActual(),
-            obtenerResumenPokedexUsuario(usuario.id)
+            obtenerResumenPokedexUsuario(usuario.id),
+            obtenerBeneficiosActivosSeguroMyPokemon()
         ]);
 
         misPokemonData = Array.isArray(pokemons) ? pokemons : [];
@@ -1652,15 +1854,18 @@ async function confirmarEvolucionItem(usuarioPokemonId, itemId) {
 
         mostrarMensajeEvolucion(evoData.mensaje || t("mypokemon_evolve_success"), "ok");
 
-        const [pokemons, items] = await Promise.all([
+        const [pokemons, items, beneficios] = await Promise.all([
             obtenerPokemonUsuarioActual(),
-            obtenerItemsUsuarioActual()
+            obtenerItemsUsuarioActual(),
+            obtenerBeneficiosActivosSeguroMyPokemon()
         ]);
 
         misPokemonData = Array.isArray(pokemons) ? pokemons : [];
+        beneficiosActivosMyPokemon = Array.isArray(beneficios) ? beneficios : beneficiosActivosMyPokemon;
         guardarCacheJSON(MY_POKEMON_CACHE_KEY, misPokemonData);
 
         guardarCacheJSON(MY_POKEMON_ITEMS_CACHE_KEY, Array.isArray(items) ? items : []);
+        guardarCacheJSON(MY_POKEMON_BENEFITS_CACHE_KEY, beneficiosActivosMyPokemon);
         renderInventarioUsuario(Array.isArray(items) ? items : []);
 
         estadosEvolucionCache.clear();
@@ -1685,6 +1890,87 @@ async function confirmarEvolucionItem(usuarioPokemonId, itemId) {
     }
 }
 
+async function activarBoosterInventarioMyPokemon(itemCode) {
+    const codigo = String(itemCode || "").trim().toLowerCase();
+    const config = obtenerConfigBoosterBatallaMyPokemon(codigo);
+    if (!config) return;
+
+    if (!usuarioAutenticadoMyPokemon()) {
+        mostrarMensajeEvolucion(t("mypokemon_login_required_action"), "error");
+        return;
+    }
+
+    if (boosterActivandoCodigo) {
+        return;
+    }
+
+    boosterActivandoCodigo = codigo;
+    renderInventarioUsuario(leerCacheJSON(MY_POKEMON_ITEMS_CACHE_KEY, []));
+
+    try {
+        const data = await usarBoosterPago(codigo);
+        const [items, beneficios] = await Promise.all([
+            obtenerItemsUsuarioActual(),
+            obtenerBeneficiosActivosSeguroMyPokemon()
+        ]);
+
+        beneficiosActivosMyPokemon = Array.isArray(beneficios) ? beneficios : [];
+        guardarCacheJSON(MY_POKEMON_ITEMS_CACHE_KEY, Array.isArray(items) ? items : []);
+        guardarCacheJSON(MY_POKEMON_BENEFITS_CACHE_KEY, beneficiosActivosMyPokemon);
+        renderInventarioUsuario(Array.isArray(items) ? items : []);
+
+        const restante = data?.consumo?.cantidad_restante;
+        const beneficio = data?.beneficio || {};
+        const nombreBooster = tMyPokemon(
+            codigo === "booster_battle_exp_x2_24h" ? "mypokemon_booster_exp_name" : "mypokemon_booster_gold_name",
+            config.titleFallback
+        );
+        const tiempo = formatearTiempoRestanteBeneficioMyPokemon(beneficio?.expira_en);
+        mostrarMensajeEvolucion(
+            tMyPokemon(
+                "mypokemon_booster_activation_success",
+                "{name} activated. Remaining charges: {charges}. Active for {time}.",
+                {
+                    name: nombreBooster,
+                    charges: restante ?? 0,
+                    time: tiempo,
+                }
+            ),
+            "ok"
+        );
+    } catch (error) {
+        console.error("Error activando booster:", error);
+
+        if (esErrorAuthMyPokemon(error)) {
+            manejarErrorAuthMyPokemon();
+            mostrarMensajeEvolucion(t("mypokemon_login_required_action"), "error");
+        } else {
+            mostrarMensajeEvolucion(
+                error.message || tMyPokemon("mypokemon_booster_activation_error", "Could not activate the booster"),
+                "error"
+            );
+        }
+    } finally {
+        boosterActivandoCodigo = "";
+        renderInventarioUsuario(leerCacheJSON(MY_POKEMON_ITEMS_CACHE_KEY, []));
+    }
+}
+
+function configurarEventosInventarioMyPokemon() {
+    const inventario = document.getElementById("inventarioUsuario");
+    if (!inventario) return;
+
+    inventario.addEventListener("click", async (event) => {
+        const boton = event.target.closest("[data-use-booster]");
+        if (!boton) return;
+
+        const itemCode = boton.dataset.useBooster;
+        if (!itemCode) return;
+
+        await activarBoosterInventarioMyPokemon(itemCode);
+    });
+}
+
 function cerrarModalEvolucion() {
     const modal = document.getElementById("modalEvolucion");
     const contenido = document.getElementById("contenidoModalEvolucion");
@@ -1706,14 +1992,21 @@ async function cargarItemsUsuario({ forzar = false } = {}) {
 
     if (!forzar) {
         const itemsCache = leerCacheJSON(MY_POKEMON_ITEMS_CACHE_KEY, null);
+        const benefitsCache = leerCacheJSON(MY_POKEMON_BENEFITS_CACHE_KEY, null);
         if (Array.isArray(itemsCache)) {
+            beneficiosActivosMyPokemon = Array.isArray(benefitsCache) ? benefitsCache : beneficiosActivosMyPokemon;
             renderInventarioUsuario(itemsCache);
         }
     }
 
     try {
-        const items = await obtenerItemsUsuarioActual();
+        const [items, beneficios] = await Promise.all([
+            obtenerItemsUsuarioActual(),
+            obtenerBeneficiosActivosSeguroMyPokemon()
+        ]);
+        beneficiosActivosMyPokemon = Array.isArray(beneficios) ? beneficios : beneficiosActivosMyPokemon;
         guardarCacheJSON(MY_POKEMON_ITEMS_CACHE_KEY, Array.isArray(items) ? items : []);
+        guardarCacheJSON(MY_POKEMON_BENEFITS_CACHE_KEY, beneficiosActivosMyPokemon);
         renderInventarioUsuario(Array.isArray(items) ? items : []);
     } catch (error) {
         console.error("Error cargando items del usuario:", error);
@@ -1845,6 +2138,7 @@ function configurarEventosSesionMyPokemon() {
 document.addEventListener("DOMContentLoaded", () => {
     configurarSelectorIdiomaMyPokemon();
     configurarEventosAvatarSelector();
+    configurarEventosInventarioMyPokemon();
     configurarEventosMovimientosPokemon();
     configurarEventosSesionMyPokemon();
     renderAvatarSelector();
