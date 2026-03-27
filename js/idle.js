@@ -95,6 +95,49 @@ const idleState = {
     lastResult: null
 };
 
+
+const IDLE_THEME_ACCENTS = {
+    ruta: { solid: "#10b981", soft: "rgba(16,185,129,.20)" },
+    elite: { solid: "#2563eb", soft: "rgba(37,99,235,.20)" },
+    legend: { solid: "#7c3aed", soft: "rgba(124,58,237,.20)" },
+    masters: { solid: "#f59e0b", soft: "rgba(245,158,11,.22)" }
+};
+
+function getIdleVisualTier() {
+    const activeSession = idleState.idleData?.sesion && idleState.idleData?.activa
+        ? idleState.idleData.sesion
+        : null;
+    return normalizarTierIdle(activeSession?.tier_codigo || idleState.selectedTier || "ruta");
+}
+
+function applyIdleVisualTheme(nextTier = null) {
+    const tier = normalizarTierIdle(nextTier || getIdleVisualTier());
+    const root = document.documentElement;
+    const page = document.querySelector('.idle-page');
+    const accents = IDLE_THEME_ACCENTS[tier] || IDLE_THEME_ACCENTS.ruta;
+
+    if (page) {
+        page.setAttribute('data-idle-tier', tier);
+    }
+    if (root) {
+        root.style.setProperty('--idle-current-accent', accents.solid);
+        root.style.setProperty('--idle-current-accent-soft', accents.soft);
+    }
+
+    [
+        'idleCommandSection',
+        'idleForecastSection',
+        'idleTeamSection',
+        'idleLatestClaimSection',
+        'idleMastersSection'
+    ].forEach((id) => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.setAttribute('data-idle-tier', tier);
+        }
+    });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     inicializarIdlePage();
 });
@@ -113,6 +156,7 @@ async function inicializarIdlePage() {
     renderLastResultIdle();
     renderMastersPanelIdle();
     renderStatusIdle();
+    applyIdleVisualTheme();
     applyDocumentMetaIdle();
 
     try {
@@ -130,6 +174,7 @@ async function inicializarIdlePage() {
     renderLastResultIdle();
     renderMastersPanelIdle();
     renderStatusIdle();
+    applyIdleVisualTheme();
 
     iniciarRelojIdle();
 
@@ -146,6 +191,7 @@ async function inicializarIdlePage() {
         renderLastResultIdle();
         renderMastersPanelIdle();
         renderStatusIdle();
+        applyIdleVisualTheme();
     });
 
     document.addEventListener("usuarioSesionActualizada", async () => {
@@ -160,6 +206,7 @@ async function inicializarIdlePage() {
         renderLastResultIdle();
         renderMastersPanelIdle();
         renderStatusIdle();
+        applyIdleVisualTheme();
     });
 }
 
@@ -896,6 +943,8 @@ function renderSelectedPlanIdle() {
     const cfg = getIdleTierMeta(tierCode);
     const estimate = computeIdleEstimate(idleState.team, tierCode, duration);
     const lockedMasters = tierCode === "masters" && !hasMastersBenefitIdle();
+
+    panel.setAttribute("data-idle-tier", tierCode);
 
     panel.innerHTML = `
         <div class="idle-plan-header">

@@ -97,16 +97,18 @@ const SHOP_MICRO_COPY = {
     premium_meter_checkout: { es: "Checkout seguro", en: "Secure checkout" }
 };
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
     configurarIdiomaPokeMart();
     registrarEventosPremium();
     cargarTienda();
-    cargarPremiumShop();
+    await cargarPremiumShop();
+    aplicarIntencionPremium({ force: true });
 });
 
 document.addEventListener("languageChanged", () => {
     refrescarUIPokeMart();
     renderizarPremiumCatalogo();
+    aplicarIntencionPremium({ force: true, afterRender: true });
 });
 
 function configurarIdiomaPokeMart() {
@@ -949,6 +951,95 @@ let premiumProductosGlobal = [];
 let premiumBeneficiosGlobal = [];
 let premiumProductoSeleccionado = null;
 
+let premiumProductoSpotlightCode = "";
+let premiumIntentApplied = false;
+
+function getPremiumShopIntent() {
+    try {
+        const params = new URLSearchParams(window.location.search || "");
+        const focus = String(params.get("focus") || sessionStorage.getItem("mastersmon_shop_focus") || "").trim().toLowerCase();
+        const product = String(params.get("product") || sessionStorage.getItem("mastersmon_shop_product") || "").trim().toLowerCase();
+        const hash = String(window.location.hash || "").trim().toLowerCase();
+        return { focus, product, hash };
+    } catch (error) {
+        return { focus: "", product: "", hash: "" };
+    }
+}
+
+function clearPremiumShopIntent() {
+    try {
+        sessionStorage.removeItem("mastersmon_shop_focus");
+        sessionStorage.removeItem("mastersmon_shop_product");
+        sessionStorage.removeItem("mastersmon_shop_source");
+    } catch (error) {
+        // no-op
+    }
+}
+
+function resaltarPremiumCard(productCode = "", options = {}) {
+    const { scrollCard = false } = options;
+    const cards = Array.from(document.querySelectorAll(".premium-card[data-premium-code]"));
+    cards.forEach(card => card.classList.remove("is-spotlight", "is-spotlight-pulse"));
+
+    if (!productCode) {
+        premiumProductoSpotlightCode = "";
+        return null;
+    }
+
+    const target = document.querySelector(`.premium-card[data-premium-code="${productCode}"]`);
+    if (!target) return null;
+
+    premiumProductoSpotlightCode = productCode;
+    target.classList.add("is-spotlight", "is-spotlight-pulse");
+    if (scrollCard) {
+        target.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+    }
+    window.setTimeout(() => target.classList.remove("is-spotlight-pulse"), 1800);
+    return target;
+}
+
+function aplicarIntencionPremium(options = {}) {
+    const { force = false, afterRender = false } = options;
+    const intent = getPremiumShopIntent();
+    if (!force && premiumIntentApplied && !afterRender) return;
+    if (!intent.focus && !intent.product && intent.hash !== "#paypal-section") return;
+
+    const section = document.getElementById("paypal-section") || document.querySelector(".premium-shop-section");
+    const shell = document.getElementById("premiumShopShell") || document.querySelector(".premium-shop-shell");
+    const loginBox = document.getElementById("premiumLoginBox");
+
+    if (section) {
+        section.classList.add("is-targeted");
+        window.setTimeout(() => section.classList.remove("is-targeted"), 3400);
+    }
+
+    if (!afterRender) {
+        const focusTarget = shell || section;
+        if (focusTarget) {
+            requestAnimationFrame(() => {
+                focusTarget.scrollIntoView({ behavior: "smooth", block: "start" });
+                if (typeof focusTarget.focus === "function") {
+                    try {
+                        focusTarget.focus({ preventScroll: true });
+                    } catch (error) {
+                        focusTarget.focus();
+                    }
+                }
+            });
+        }
+    }
+
+    if (intent.product) {
+        const card = resaltarPremiumCard(intent.product, { scrollCard: false });
+        if (!card && !usuarioAutenticadoTienda() && loginBox) {
+            loginBox.classList.remove("oculto");
+        }
+    }
+
+    premiumIntentApplied = true;
+    clearPremiumShopIntent();
+}
+
 function obtenerCatalogoPagosCompat() {
     if (typeof obtenerCatalogoPagos === "function") {
         return obtenerCatalogoPagos();
@@ -1179,7 +1270,7 @@ function renderizarPremiumCatalogo() {
                 : t("pokemart_premium_note_coming_soon");
 
         return `
-            <article class="premium-card ${isSupported ? "" : "locked"}" data-premium-code="${producto.codigo}">
+            <article class="premium-card ${isSupported ? "" : "locked"} ${premiumProductoSpotlightCode === producto.codigo ? "is-spotlight" : ""}" data-premium-code="${producto.codigo}">
                 <div class="premium-card-top">
                     <span class="premium-card-badge">${obtenerIconoPremiumProducto(producto)}</span>
                     ${tagExtra}
@@ -1213,6 +1304,7 @@ function renderizarPremiumCatalogo() {
     }).join("");
 
     actualizarResumenPremium();
+    aplicarIntencionPremium({ afterRender: true });
 }
 
 async function cargarPremiumShop() {
@@ -1254,6 +1346,7 @@ function abrirModalPremium(productCode) {
     }
 
     premiumProductoSeleccionado = producto;
+    resaltarPremiumCard(productCode, { scrollCard: false });
 
     const modal = document.getElementById("premiumPurchaseModal");
     const productName = document.getElementById("premiumModalProductName");
