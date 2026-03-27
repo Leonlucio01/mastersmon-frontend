@@ -495,6 +495,24 @@ body{
     font-size:13px;
 }
 
+.idle-tier-card-requirement{
+    min-height:42px;
+    padding:10px 12px;
+    border-radius:14px;
+    background:#f8fbff;
+    border:1px solid var(--idle-border);
+    color:var(--idle-muted);
+    font-size:12px;
+    line-height:1.5;
+    font-weight:700;
+}
+
+.idle-tier-card-requirement.is-warning{
+    background:var(--idle-warning-soft);
+    border-color:#fed7aa;
+    color:#9a3412;
+}
+
 .idle-tier-card-footer{
     display:flex;
     justify-content:space-between;
@@ -527,6 +545,19 @@ body{
     color:#1d4ed8;
     background:#eff6ff;
     border-color:#bfdbfe;
+}
+
+
+.idle-mini-chip-gate{
+    color:#475569;
+    background:#f8fafc;
+    border-color:#dbe7f4;
+}
+
+.idle-mini-chip-running{
+    color:#0f766e;
+    background:#ccfbf1;
+    border-color:#99f6e4;
 }
 
 .idle-config-grid{
@@ -634,6 +665,11 @@ body{
     background:var(--idle-warning-soft);
     border-color:#fed7aa;
     color:#9a3412;
+}
+
+
+.idle-tier-card.is-locked:not(.active) {
+    box-shadow:0 12px 26px rgba(245,158,11,.10);
 }
 
 .idle-plan-note a{

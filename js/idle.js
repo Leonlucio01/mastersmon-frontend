@@ -16,8 +16,8 @@ const IDLE_TIER_CONFIG = {
         description: "Stable farming route with safer pacing and consistent rewards.",
         difficulty: "Starter",
         tickSegundos: 45,
-        baseExp: 16,
-        baseCoins: 26,
+        baseExp: 18,
+        baseCoins: 16,
         enemyPower: 1.0,
         accent: "route",
         drops: [
@@ -30,8 +30,8 @@ const IDLE_TIER_CONFIG = {
         description: "Balanced expedition with better scaling and stronger enemy pressure.",
         difficulty: "Mid",
         tickSegundos: 55,
-        baseExp: 28,
-        baseCoins: 52,
+        baseExp: 48,
+        baseCoins: 40,
         enemyPower: 1.25,
         accent: "elite",
         drops: [
@@ -45,8 +45,8 @@ const IDLE_TIER_CONFIG = {
         description: "High-end expedition with tougher scaling and better drop quality.",
         difficulty: "High",
         tickSegundos: 65,
-        baseExp: 42,
-        baseCoins: 84,
+        baseExp: 120,
+        baseCoins: 102,
         enemyPower: 1.55,
         accent: "legend",
         drops: [
@@ -60,8 +60,8 @@ const IDLE_TIER_CONFIG = {
         description: "Premium expedition tier with stronger rewards and rare Master Ball access.",
         difficulty: "Premium",
         tickSegundos: 65,
-        baseExp: 84,
-        baseCoins: 108,
+        baseExp: 240,
+        baseCoins: 203,
         enemyPower: 1.55,
         accent: "masters",
         drops: [
@@ -81,6 +81,8 @@ const idleState = {
     benefits: [],
     mastersBenefit: null,
     mastersActive: false,
+    gymProgress: null,
+    gymProgressLoaded: false,
     serverOffsetMs: 0,
     startedAtMs: 0,
     endsAtMs: 0,
@@ -162,6 +164,7 @@ async function inicializarIdlePage() {
     try {
         await cargarEquipoServidorIdle();
         await cargarBeneficiosActivosIdle();
+        await cargarProgresoGymsIdle();
         await cargarEstadoIdle(true);
     } catch (error) {
         console.warn("No se pudo inicializar Idle completamente:", error);
@@ -198,6 +201,7 @@ async function inicializarIdlePage() {
         cargarEquipoLocalIdle();
         await cargarEquipoServidorIdle();
         await cargarBeneficiosActivosIdle();
+        await cargarProgresoGymsIdle();
         await cargarEstadoIdle(true);
         renderTierCardsIdle();
         renderSelectedPlanIdle();
@@ -468,6 +472,7 @@ function configurarEventosIdle() {
     if (btnCancel) btnCancel.addEventListener("click", cancelarIdlePage);
     if (btnRefresh) btnRefresh.addEventListener("click", async () => {
         await cargarBeneficiosActivosIdle();
+        await cargarProgresoGymsIdle();
         await cargarEstadoIdle(false);
         renderMastersPanelIdle();
         renderStatusIdle();
@@ -784,6 +789,133 @@ function hasMastersBenefitIdle() {
     return Boolean(idleState.mastersActive);
 }
 
+
+function getIdleRegionProgressMap() {
+    const regiones = Array.isArray(idleState.gymProgress?.regiones) ? idleState.gymProgress.regiones : [];
+    return regiones.reduce((acc, region) => {
+        const codigo = String(region?.codigo || '').toLowerCase();
+        if (!codigo) return acc;
+        acc[codigo] = {
+            total: Number(region?.total_gyms || 0),
+            completados: Number(region?.completados || 0),
+            porcentaje: Number(region?.porcentaje || 0)
+        };
+        return acc;
+    }, {});
+}
+
+function isIdleRegionComplete(regionCode = '') {
+    const region = getIdleRegionProgressMap()[String(regionCode || '').toLowerCase()];
+    return Boolean(region && region.total > 0 && region.completados >= region.total);
+}
+
+function getIdleTierUnlockState(tierCode = 'ruta') {
+    const tier = normalizarTierIdle(tierCode);
+    const requiresGymProgress = tier === 'elite' || tier === 'legend';
+    const loggedIn = Boolean(getAccessToken());
+    const progressPending = loggedIn && requiresGymProgress && !idleState.gymProgressLoaded;
+
+    if (tier === 'ruta') {
+        return {
+            tier,
+            locked: false,
+            pending: false,
+            requirementBadge: tIdle('idle_requirement_free_badge', 'Free'),
+            requirementText: tIdle('idle_requirement_route_text', 'Route is open for every player. No Gym or subscription requirement.'),
+            feedbackText: ''
+        };
+    }
+
+    if (tier === 'masters') {
+        const locked = !hasMastersBenefitIdle();
+        return {
+            tier,
+            locked,
+            pending: false,
+            requirementBadge: tIdle('idle_requirement_subscription_badge', 'Subscription'),
+            requirementText: locked
+                ? tIdle('idle_masters_requires_benefit', 'The Masters tier requires the Idle Masters premium benefit before launch.')
+                : tIdle('idle_requirement_masters_ready', 'Idle Masters subscription detected. This premium tier is ready to launch.'),
+            feedbackText: locked
+                ? tIdle('idle_masters_locked_feedback', 'Masters is a premium tier. Activate the Idle Masters benefit in Shop to launch it.')
+                : ''
+        };
+    }
+
+    if (progressPending) {
+        const badgeKey = tier === 'elite' ? 'idle_requirement_kanto_badge' : 'idle_requirement_regions_badge';
+        return {
+            tier,
+            locked: true,
+            pending: true,
+            requirementBadge: tIdle(badgeKey, tier === 'elite' ? 'Kanto clear' : '3 regions'),
+            requirementText: tIdle('idle_requirement_progress_pending', 'Checking your Gym progression to unlock this tier...'),
+            feedbackText: tIdle('idle_requirement_progress_pending', 'Checking your Gym progression to unlock this tier...')
+        };
+    }
+
+    const kantoComplete = isIdleRegionComplete('kanto');
+    const johtoComplete = isIdleRegionComplete('johto');
+    const hoennComplete = isIdleRegionComplete('hoenn');
+    const allRegionsComplete = kantoComplete && johtoComplete && hoennComplete;
+
+    if (tier === 'elite') {
+        const locked = !kantoComplete;
+        return {
+            tier,
+            locked,
+            pending: false,
+            requirementBadge: tIdle('idle_requirement_kanto_badge', 'Kanto clear'),
+            requirementText: locked
+                ? tIdle('idle_requirement_elite_locked', 'Elite unlocks after clearing the full Kanto Gym route.')
+                : tIdle('idle_requirement_elite_ready', 'Kanto route cleared. Elite is unlocked for your account.'),
+            feedbackText: locked
+                ? tIdle('idle_requirement_elite_locked', 'Elite unlocks after clearing the full Kanto Gym route.')
+                : ''
+        };
+    }
+
+    const locked = !allRegionsComplete;
+    return {
+        tier,
+        locked,
+        pending: false,
+        requirementBadge: tIdle('idle_requirement_regions_badge', '3 regions'),
+        requirementText: locked
+            ? tIdle('idle_requirement_legend_locked', 'Legend unlocks after clearing Kanto, Johto and Hoenn Gym routes.')
+            : tIdle('idle_requirement_legend_ready', 'All 3 Gym routes cleared. Legend is unlocked for your account.'),
+        feedbackText: locked
+            ? tIdle('idle_requirement_legend_locked', 'Legend unlocks after clearing Kanto, Johto and Hoenn Gym routes.')
+            : ''
+    };
+}
+
+async function cargarProgresoGymsIdle() {
+    if (!getAccessToken()) {
+        idleState.gymProgress = null;
+        idleState.gymProgressLoaded = false;
+        return null;
+    }
+
+    try {
+        let data = null;
+        if (typeof obtenerProgresoGyms === 'function') {
+            data = await obtenerProgresoGyms();
+        } else if (typeof fetchAuth === 'function' && typeof API_BASE !== 'undefined') {
+            data = await fetchAuth(`${API_BASE}/battle/gyms/progreso`);
+        }
+
+        idleState.gymProgress = data || null;
+        idleState.gymProgressLoaded = Boolean(data?.ok);
+        return data;
+    } catch (error) {
+        console.warn('No se pudo cargar el progreso de Gyms para Idle:', error);
+        idleState.gymProgress = null;
+        idleState.gymProgressLoaded = false;
+        return null;
+    }
+}
+
 function isMastersSelectedLockedIdle() {
     return normalizarTierIdle(idleState.selectedTier) === "masters" && !hasMastersBenefitIdle();
 }
@@ -845,11 +977,13 @@ function renderTierCardsIdle() {
         const isRunning = Boolean(runningTier) && tierCode === runningTier;
         const active = (isSelected || isRunning) ? " active" : "";
         const runningClass = isRunning ? " is-running" : "";
-        const locked = tierCode === "masters" && !hasMastersBenefitIdle();
+        const gate = getIdleTierUnlockState(tierCode);
+        const locked = gate.locked;
         const lockedClass = locked ? " is-locked" : "";
         const estimate = computeIdleEstimate(idleState.team, tierCode, idleState.selectedDuration);
 
         const badges = [];
+        badges.push(`<span class="idle-mini-chip ${locked ? "idle-mini-chip-locked" : "idle-mini-chip-gate"}">${escapeHtmlIdle(gate.requirementBadge)}</span>`);
         if (tierCode === "masters") {
             badges.push(
                 hasMastersBenefitIdle()
@@ -876,6 +1010,7 @@ function renderTierCardsIdle() {
                     <strong>${formatNumberIdle(estimate.exp)} EXP</strong>
                     <small>${formatNumberIdle(estimate.coins)} ${escapeHtmlIdle(tIdle("idle_currency_label", "Pokédollars"))}</small>
                 </div>
+                <div class="idle-tier-card-requirement${locked ? " is-warning" : ""}">${escapeHtmlIdle(gate.requirementText)}</div>
                 <div class="idle-tier-card-footer">
                     <span>${Math.round(estimate.successRate * 100)}% ${escapeHtmlIdle(tIdle("idle_success_short", "success"))}</span>
                     <span>${escapeHtmlIdle(cfg.difficulty)}</span>
@@ -915,7 +1050,8 @@ function renderTierCardsIdle() {
             if (tierSelect) tierSelect.value = idleState.selectedTier;
 
             if (card.dataset.locked === "1") {
-                setFeedbackIdle(tIdle("idle_masters_locked_feedback", "Masters is a premium tier. Activate the Idle Masters benefit in Shop to launch it."), "info");
+                const lockedGate = getIdleTierUnlockState(idleState.selectedTier);
+                setFeedbackIdle(lockedGate.feedbackText || lockedGate.requirementText, lockedGate.pending ? "info" : "warning");
             } else if (document.getElementById("idleFeedback")?.classList.contains("idle-feedback-info")) {
                 setFeedbackIdle("");
             }
@@ -942,7 +1078,8 @@ function renderSelectedPlanIdle() {
 
     const cfg = getIdleTierMeta(tierCode);
     const estimate = computeIdleEstimate(idleState.team, tierCode, duration);
-    const lockedMasters = tierCode === "masters" && !hasMastersBenefitIdle();
+    const gate = getIdleTierUnlockState(tierCode);
+    const lockedMasters = gate.locked && tierCode === "masters";
 
     panel.setAttribute("data-idle-tier", tierCode);
 
@@ -952,10 +1089,7 @@ function renderSelectedPlanIdle() {
                 <h4>${escapeHtmlIdle(cfg.label)} ${escapeHtmlIdle(tIdle("idle_plan_suffix", "plan"))}</h4>
                 <p>${escapeHtmlIdle(cfg.description)}</p>
             </div>
-            ${tierCode === "masters"
-                ? `<span class="idle-mini-chip ${lockedMasters ? "idle-mini-chip-locked" : "idle-mini-chip-active"}">${escapeHtmlIdle(lockedMasters ? tIdle("idle_masters_locked_chip", "Premium") : tIdle("idle_masters_active_chip", "Benefit active"))}</span>`
-                : ""
-            }
+            <span class="idle-mini-chip ${gate.locked ? "idle-mini-chip-locked" : "idle-mini-chip-gate"}">${escapeHtmlIdle(gate.requirementBadge)}</span>
         </div>
 
         <div class="idle-selected-plan-grid">
@@ -977,9 +1111,9 @@ function renderSelectedPlanIdle() {
             </article>
         </div>
 
-        <div class="idle-plan-note ${lockedMasters ? "is-warning" : ""}">
-            ${lockedMasters
-                ? `${escapeHtmlIdle(tIdle("idle_masters_requires_benefit", "The Masters tier requires the Idle Masters premium benefit before launch."))} <a href="${escapeHtmlIdle(IDLE_PREMIUM_SHOP_URL)}">${escapeHtmlIdle(tIdle("idle_masters_go_shop", "Open Shop"))}</a>`
+        <div class="idle-plan-note ${gate.locked ? "is-warning" : ""}">
+            ${gate.locked
+                ? `${escapeHtmlIdle(gate.requirementText)}${tierCode === "masters" ? ` <a href="${escapeHtmlIdle(IDLE_PREMIUM_SHOP_URL)}">${escapeHtmlIdle(tIdle("idle_masters_go_shop", "Open Shop"))}</a>` : ""}`
                 : escapeHtmlIdle(tIdle("idle_plan_note_standard", "This page uses the same team already saved in Battle IA."))
             }
         </div>
@@ -1301,20 +1435,20 @@ function renderStatusIdle() {
     const activeSession = idleState.idleData?.sesion || null;
     if (!activeSession || !idleState.idleData?.activa) {
         const teamReady = obtenerIdsEquipoIdle().length === 6;
-        const lockedMasters = isMastersSelectedLockedIdle();
+        const gate = getIdleTierUnlockState(tierValue);
 
-        badge.textContent = lockedMasters
-            ? tIdle("idle_masters_locked_chip", "Premium")
+        badge.textContent = gate.locked
+            ? gate.requirementBadge
             : tIdle("battle_idle_status_idle", "Ready");
         timerLabel.textContent = tIdle("battle_idle_remaining", "Remaining");
         timerValue.textContent = "—";
         progressFill.style.width = "0%";
-        progressText.textContent = lockedMasters
-            ? tIdle("idle_masters_requires_benefit", "The Masters tier requires the Idle Masters premium benefit before launch.")
+        progressText.textContent = gate.locked
+            ? gate.requirementText
             : (teamReady
                 ? tIdle("battle_idle_status_idle_text", "Choose a tier and duration, then start the expedition.")
                 : tIdle("idle_need_six_saved_text", "Idle Expedition requires exactly 6 saved Pokémon in your Battle team."));
-        btnStart.disabled = !teamReady || lockedMasters;
+        btnStart.disabled = !teamReady || gate.locked;
         btnClaim.disabled = true;
         btnCancel.disabled = true;
         tierSelect.disabled = false;
@@ -1528,13 +1662,16 @@ async function iniciarIdlePage() {
     const tierCodigo = normalizarTierIdle(document.getElementById("idleTierSelect")?.value || idleState.selectedTier);
     const duracionSegundos = normalizarDuracionIdle(document.getElementById("idleDurationSelect")?.value || idleState.selectedDuration);
 
-    if (tierCodigo === "masters" && !hasMastersBenefitIdle()) {
+    const gate = getIdleTierUnlockState(tierCodigo);
+    if (gate.locked) {
         showIdleNoticeModal({
             type: "warning",
-            title: tIdle("idle_modal_premium_title", "Premium benefit required"),
-            message: tIdle("idle_masters_requires_benefit", "The Masters tier requires the Idle Masters premium benefit before launch.")
+            title: tIdle("idle_modal_requirement_title", "Tier requirement not met"),
+            message: gate.requirementText
         });
-        renderMastersPanelIdle();
+        if (tierCodigo === "masters") {
+            renderMastersPanelIdle();
+        }
         renderStatusIdle();
         return;
     }
