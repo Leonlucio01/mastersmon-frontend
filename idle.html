@@ -338,6 +338,23 @@
         </div>
     </main>
 
+
+
+    <div class="idle-modal-backdrop oculto" id="idleNoticeModal" aria-hidden="true">
+        <div class="idle-modal" role="dialog" aria-modal="true" aria-labelledby="idleModalTitle" aria-describedby="idleModalBody">
+            <button class="idle-modal-close" id="idleModalClose" type="button" aria-label="Close">×</button>
+            <div class="idle-modal-icon" id="idleModalIcon" aria-hidden="true">i</div>
+            <div class="idle-modal-copy">
+                <span class="idle-modal-kicker" id="idleModalKicker">Idle notice</span>
+                <h3 id="idleModalTitle">Idle Expedition</h3>
+                <div class="idle-modal-body" id="idleModalBody"></div>
+            </div>
+            <div class="idle-modal-actions">
+                <button class="idle-action idle-action-primary" id="idleModalConfirmBtn" type="button">OK</button>
+            </div>
+        </div>
+    </div>
+
     <script src="js/api.js"></script>
     <script src="js/i18n.js"></script>
     <script src="js/menu.js"></script>

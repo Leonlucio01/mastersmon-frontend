@@ -1446,3 +1446,235 @@ body{
         min-width:0;
     }
 }
+
+
+body.idle-modal-open{
+    overflow:hidden;
+}
+
+.idle-masters-actions .idle-action-ghost{
+    background:linear-gradient(180deg,#eff6ff 0%, #dbeafe 100%);
+    color:var(--idle-primary-strong);
+    border:1px solid #bfdbfe;
+    box-shadow:0 12px 26px rgba(37,99,235,.12);
+}
+
+.idle-masters-actions .idle-action-ghost:hover{
+    background:linear-gradient(180deg,#dbeafe 0%, #bfdbfe 100%);
+    color:#1e40af;
+}
+
+.idle-masters-actions .idle-action-primary{
+    box-shadow:0 16px 30px rgba(16,185,129,.18);
+}
+
+.idle-modal-backdrop{
+    position:fixed;
+    inset:0;
+    z-index:1200;
+    display:grid;
+    place-items:center;
+    padding:24px;
+    background:rgba(15,23,42,.52);
+    backdrop-filter:blur(8px);
+}
+
+.idle-modal{
+    position:relative;
+    width:min(100%, 560px);
+    display:grid;
+    gap:18px;
+    padding:28px;
+    border-radius:28px;
+    background:linear-gradient(180deg,#ffffff 0%, #f8fbff 100%);
+    border:1px solid var(--idle-border);
+    box-shadow:0 30px 70px rgba(15,23,42,.28);
+}
+
+.idle-modal::before{
+    content:"";
+    position:absolute;
+    top:-50px;
+    right:-50px;
+    width:180px;
+    height:180px;
+    border-radius:999px;
+    background:radial-gradient(circle, rgba(37,99,235,.14), transparent 70%);
+    pointer-events:none;
+}
+
+.idle-modal-close{
+    position:absolute;
+    top:14px;
+    right:14px;
+    width:40px;
+    height:40px;
+    border:none;
+    border-radius:14px;
+    display:grid;
+    place-items:center;
+    background:#f8fafc;
+    border:1px solid var(--idle-border);
+    color:var(--idle-muted);
+    font-size:24px;
+    line-height:1;
+    cursor:pointer;
+}
+
+.idle-modal-close:hover{
+    color:var(--idle-text);
+    background:#eff6ff;
+}
+
+.idle-modal-icon{
+    width:58px;
+    height:58px;
+    border-radius:18px;
+    display:grid;
+    place-items:center;
+    font-size:24px;
+    font-weight:900;
+    background:#eff6ff;
+    color:#1d4ed8;
+    border:1px solid #bfdbfe;
+    box-shadow:var(--idle-shadow-soft);
+}
+
+.idle-modal-success .idle-modal-icon{
+    background:#dcfce7;
+    color:#166534;
+    border-color:#bbf7d0;
+}
+
+.idle-modal-warning .idle-modal-icon{
+    background:#fff7ed;
+    color:#b45309;
+    border-color:#fed7aa;
+}
+
+.idle-modal-error .idle-modal-icon{
+    background:#fef2f2;
+    color:#b91c1c;
+    border-color:#fecaca;
+}
+
+.idle-modal-copy{
+    display:grid;
+    gap:10px;
+}
+
+.idle-modal-kicker{
+    display:inline-block;
+    font-size:12px;
+    font-weight:900;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--idle-primary);
+}
+
+.idle-modal-copy h3{
+    margin:0;
+    font-size:30px;
+    line-height:1.06;
+    letter-spacing:-.03em;
+}
+
+.idle-modal-body{
+    color:var(--idle-muted);
+    font-size:15px;
+    line-height:1.72;
+}
+
+.idle-modal-body p{
+    margin:0;
+}
+
+.idle-modal-actions{
+    display:flex;
+    justify-content:flex-end;
+}
+
+.idle-modal-actions .idle-action{
+    min-width:112px;
+}
+
+.idle-modal-claim-shell{
+    display:grid;
+    gap:16px;
+}
+
+.idle-modal-claim-copy{
+    margin:0;
+}
+
+.idle-modal-claim-grid{
+    display:grid;
+    grid-template-columns:repeat(2, minmax(0,1fr));
+    gap:12px;
+}
+
+.idle-modal-claim-grid article{
+    padding:14px 16px;
+    border-radius:18px;
+    background:linear-gradient(180deg,#ffffff 0%, #f8fbff 100%);
+    border:1px solid var(--idle-border);
+    box-shadow:var(--idle-shadow-soft);
+}
+
+.idle-modal-claim-grid span{
+    display:block;
+    color:var(--idle-muted);
+    font-size:12px;
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+}
+
+.idle-modal-claim-grid strong{
+    display:block;
+    margin-top:8px;
+    font-size:24px;
+    line-height:1;
+    color:var(--idle-text);
+}
+
+.idle-modal-claim-drops{
+    display:grid;
+    gap:10px;
+    padding:14px 16px;
+    border-radius:20px;
+    background:linear-gradient(180deg,#ffffff 0%, #f8fbff 100%);
+    border:1px solid var(--idle-border);
+    box-shadow:var(--idle-shadow-soft);
+}
+
+.idle-modal-claim-drops > span{
+    color:var(--idle-muted);
+    font-size:12px;
+    font-weight:900;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+}
+
+@media (max-width: 640px){
+    .idle-modal-backdrop{
+        padding:16px;
+    }
+
+    .idle-modal{
+        padding:22px 18px 18px;
+        border-radius:24px;
+    }
+
+    .idle-modal-copy h3{
+        font-size:26px;
+    }
+
+    .idle-modal-claim-grid{
+        grid-template-columns:1fr;
+    }
+
+    .idle-modal-actions .idle-action{
+        width:100%;
+    }
+}

@@ -102,6 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
 async function inicializarIdlePage() {
     configurarMenuIdle();
     configurarIdiomaIdle();
+    configurarModalIdle();
     configurarEventosIdle();
     cargarResultadoAnteriorIdle();
     cargarEquipoLocalIdle();
@@ -212,6 +213,111 @@ function sincronizarIdiomaVisualIdle(nextLang = null) {
 
 function applyDocumentMetaIdle() {
     document.title = tIdle("idle_page_title", "Mastersmon - Idle Expedition");
+}
+
+function configurarModalIdle() {
+    const modal = document.getElementById("idleNoticeModal");
+    const closeBtn = document.getElementById("idleModalClose");
+    const confirmBtn = document.getElementById("idleModalConfirmBtn");
+
+    if (!modal) return;
+
+    const closeHandler = () => hideIdleNoticeModal();
+
+    if (closeBtn) closeBtn.addEventListener("click", closeHandler);
+    if (confirmBtn) confirmBtn.addEventListener("click", closeHandler);
+
+    modal.addEventListener("click", (event) => {
+        if (event.target === modal) {
+            closeHandler();
+        }
+    });
+
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && !modal.classList.contains("oculto")) {
+            closeHandler();
+        }
+    });
+}
+
+function hideIdleNoticeModal() {
+    const modal = document.getElementById("idleNoticeModal");
+    if (!modal) return;
+    modal.classList.add("oculto");
+    modal.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("idle-modal-open");
+}
+
+function showIdleNoticeModal({
+    type = "info",
+    title = "",
+    message = "",
+    html = "",
+    kicker = "",
+    confirmText = ""
+} = {}) {
+    const modal = document.getElementById("idleNoticeModal");
+    const icon = document.getElementById("idleModalIcon");
+    const kickerEl = document.getElementById("idleModalKicker");
+    const titleEl = document.getElementById("idleModalTitle");
+    const bodyEl = document.getElementById("idleModalBody");
+    const confirmBtn = document.getElementById("idleModalConfirmBtn");
+
+    if (!modal || !icon || !kickerEl || !titleEl || !bodyEl || !confirmBtn) return;
+
+    const normalizedType = String(type || "info").toLowerCase();
+    const typeMap = {
+        success: { icon: "✓", kicker: tIdle("idle_modal_success_kicker", "Expedition updated") },
+        warning: { icon: "!", kicker: tIdle("idle_modal_warning_kicker", "Action required") },
+        error: { icon: "×", kicker: tIdle("idle_modal_error_kicker", "Something went wrong") },
+        info: { icon: "i", kicker: tIdle("idle_modal_info_kicker", "Idle notice") }
+    };
+
+    const currentType = typeMap[normalizedType] || typeMap.info;
+
+    modal.className = `idle-modal-backdrop idle-modal-${normalizedType}`;
+    modal.classList.remove("oculto");
+    modal.setAttribute("aria-hidden", "false");
+    document.body.classList.add("idle-modal-open");
+
+    icon.textContent = currentType.icon;
+    kickerEl.textContent = kicker || currentType.kicker;
+    titleEl.textContent = title || tIdle("idle_modal_default_title", "Idle Expedition");
+    bodyEl.innerHTML = html || `<p>${escapeHtmlIdle(message || tIdle("idle_modal_default_body", "Your Idle Expedition state was updated."))}</p>`;
+    confirmBtn.textContent = confirmText || tIdle("idle_modal_confirm", "OK");
+
+    try {
+        confirmBtn.focus({ preventScroll: true });
+    } catch (error) {
+        confirmBtn.focus();
+    }
+}
+
+function buildIdleClaimModalHtml(result = {}) {
+    const items = Array.isArray(result?.items_ganados) ? result.items_ganados : [];
+    const tierCode = normalizarTierIdle(result?.tier_codigo || "ruta");
+    const dropsHtml = items.length
+        ? items.map(item => {
+            const itemCode = String(item.item_code || item.itemCode || "item");
+            return `<span class="idle-drop-pill idle-drop-pill-${escapeHtmlIdle(itemCode)}">${escapeHtmlIdle(getIdleDropLabel(itemCode, itemCode))} × ${formatNumberIdle(item.cantidad || 0)}</span>`;
+        }).join("")
+        : `<span class="idle-drop-pill idle-drop-pill-empty">${escapeHtmlIdle(tIdle("idle_no_item_drops", "No item drops"))}</span>`;
+
+    return `
+        <div class="idle-modal-claim-shell" data-tier="${escapeHtmlIdle(tierCode)}">
+            <p class="idle-modal-claim-copy">${escapeHtmlIdle(tIdle("idle_claim_modal_intro", "Your expedition was claimed successfully. Here is the summary of this run."))}</p>
+            <div class="idle-modal-claim-grid">
+                <article><span>EXP</span><strong>${formatNumberIdle(result?.exp_ganada || 0)}</strong></article>
+                <article><span>${escapeHtmlIdle(tIdle("idle_currency_label", "Pokédollars"))}</span><strong>${formatNumberIdle(result?.pokedolares_ganados || 0)}</strong></article>
+                <article><span>${escapeHtmlIdle(tIdle("idle_estimated_wins_label", "Estimated wins"))}</span><strong>${formatNumberIdle(result?.victorias_estimadas || 0)}</strong></article>
+                <article><span>${escapeHtmlIdle(tIdle("idle_ticks_label", "Ticks"))}</span><strong>${formatNumberIdle(result?.ticks || 0)}</strong></article>
+            </div>
+            <div class="idle-modal-claim-drops">
+                <span>${escapeHtmlIdle(traducirTierIdle(tierCode))} ${escapeHtmlIdle(tIdle("idle_result_title_suffix", "Expedition"))}</span>
+                <div class="idle-drop-pill-list">${dropsHtml}</div>
+            </div>
+        </div>
+    `;
 }
 
 function configurarEventosIdle() {
@@ -1274,19 +1380,31 @@ async function iniciarIdlePage() {
     setFeedbackIdle("");
 
     if (!getAccessToken()) {
-        setFeedbackIdle(tIdle("battle_mode_requires_login", "You must sign in first."), "warning");
+        showIdleNoticeModal({
+            type: "warning",
+            title: tIdle("idle_modal_login_title", "Login required"),
+            message: tIdle("battle_mode_requires_login", "You must sign in first.")
+        });
         renderStatusIdle();
         return;
     }
 
     if (obtenerIdsEquipoIdle().length !== 6) {
-        setFeedbackIdle(tIdle("battle_need_six", "You need 6 Pokémon in your team."), "warning");
+        showIdleNoticeModal({
+            type: "warning",
+            title: tIdle("idle_modal_team_title", "Incomplete team"),
+            message: tIdle("battle_need_six", "You need 6 Pokémon in your team.")
+        });
         renderStatusIdle();
         return;
     }
 
     if (idleState.idleData?.sesion && ["activa", "reclamable"].includes(String(idleState.idleData.sesion.estado || "").toLowerCase())) {
-        setFeedbackIdle(tIdle("battle_idle_active_message_fixed", "You already have an active Idle Expedition."), "info");
+        showIdleNoticeModal({
+            type: "info",
+            title: tIdle("idle_modal_active_title", "Idle Expedition already in progress"),
+            message: tIdle("battle_idle_active_message_fixed", "You already have an active Idle Expedition.")
+        });
         return;
     }
 
@@ -1294,7 +1412,11 @@ async function iniciarIdlePage() {
     const duracionSegundos = normalizarDuracionIdle(document.getElementById("idleDurationSelect")?.value || idleState.selectedDuration);
 
     if (tierCodigo === "masters" && !hasMastersBenefitIdle()) {
-        setFeedbackIdle(tIdle("idle_masters_requires_benefit", "The Masters tier requires the Idle Masters premium benefit before launch."), "warning");
+        showIdleNoticeModal({
+            type: "warning",
+            title: tIdle("idle_modal_premium_title", "Premium benefit required"),
+            message: tIdle("idle_masters_requires_benefit", "The Masters tier requires the Idle Masters premium benefit before launch.")
+        });
         renderMastersPanelIdle();
         renderStatusIdle();
         return;
@@ -1318,10 +1440,18 @@ async function iniciarIdlePage() {
 
         sessionStorage.setItem(IDLE_SESSION_STORAGE_KEY, String(data.idle_session_token));
         await cargarEstadoIdle(true);
-        setFeedbackIdle(tIdle("battle_idle_started_ok", "Idle Expedition started successfully."), "success");
+        showIdleNoticeModal({
+            type: "success",
+            title: tIdle("idle_modal_started_title", "Expedition launched"),
+            message: tIdle("battle_idle_started_ok", "Idle Expedition started successfully.")
+        });
     } catch (error) {
         console.error("No se pudo iniciar Idle Expedition:", error);
-        setFeedbackIdle(error?.message || tIdle("battle_idle_start_error", "The Idle Expedition could not be started."), "error");
+        showIdleNoticeModal({
+            type: "error",
+            title: tIdle("idle_modal_start_error_title", "Could not start the expedition"),
+            message: error?.message || tIdle("battle_idle_start_error", "The Idle Expedition could not be started.")
+        });
     }
 }
 
@@ -1329,7 +1459,11 @@ async function reclamarIdlePage() {
     setFeedbackIdle("");
 
     if (!getAccessToken()) {
-        setFeedbackIdle(tIdle("battle_mode_requires_login", "You must sign in first."), "warning");
+        showIdleNoticeModal({
+            type: "warning",
+            title: tIdle("idle_modal_login_title", "Login required"),
+            message: tIdle("battle_mode_requires_login", "You must sign in first.")
+        });
         return;
     }
 
@@ -1349,13 +1483,19 @@ async function reclamarIdlePage() {
         await cargarEstadoIdle(true);
 
         const resultado = data?.resultado || {};
-        setFeedbackIdle(
-            `${tIdle("idle_claim_success_prefix", "Idle rewards claimed:")} +${formatNumberIdle(resultado?.pokedolares_ganados || 0)} ${tIdle("idle_currency_label", "Pokédollars")}, +${formatNumberIdle(resultado?.exp_ganada || 0)} EXP ${tIdle("idle_claim_success_and", "and")} ${formatNumberIdle(resultado?.victorias_estimadas || 0)} ${tIdle("idle_estimated_wins_label", "estimated wins")}.`,
-            "success"
-        );
+        showIdleNoticeModal({
+            type: "success",
+            title: tIdle("idle_modal_claim_title", "Rewards claimed successfully"),
+            html: buildIdleClaimModalHtml(resultado),
+            confirmText: tIdle("idle_modal_confirm", "OK")
+        });
     } catch (error) {
         console.error("No se pudo reclamar Idle:", error);
-        setFeedbackIdle(error?.message || tIdle("battle_idle_claim_error", "Idle rewards could not be claimed."), "error");
+        showIdleNoticeModal({
+            type: "error",
+            title: tIdle("idle_modal_claim_error_title", "Could not claim rewards"),
+            message: error?.message || tIdle("battle_idle_claim_error", "Idle rewards could not be claimed.")
+        });
     }
 }
 
@@ -1363,13 +1503,21 @@ async function cancelarIdlePage() {
     setFeedbackIdle("");
 
     if (!getAccessToken()) {
-        setFeedbackIdle(tIdle("battle_mode_requires_login", "You must sign in first."), "warning");
+        showIdleNoticeModal({
+            type: "warning",
+            title: tIdle("idle_modal_login_title", "Login required"),
+            message: tIdle("battle_mode_requires_login", "You must sign in first.")
+        });
         return;
     }
 
     const currentToken = idleState.idleData?.sesion?.token || sessionStorage.getItem(IDLE_SESSION_STORAGE_KEY) || "";
     if (!currentToken) {
-        setFeedbackIdle(tIdle("idle_no_active_session", "There is no active Idle Expedition."), "info");
+        showIdleNoticeModal({
+            type: "info",
+            title: tIdle("idle_modal_no_session_title", "No active expedition"),
+            message: tIdle("idle_no_active_session", "There is no active Idle Expedition.")
+        });
         return;
     }
 
@@ -1389,9 +1537,17 @@ async function cancelarIdlePage() {
 
         sessionStorage.removeItem(IDLE_SESSION_STORAGE_KEY);
         await cargarEstadoIdle(true);
-        setFeedbackIdle(tIdle("battle_idle_cancelled", "Idle Expedition cancelled."), "warning");
+        showIdleNoticeModal({
+            type: "warning",
+            title: tIdle("idle_modal_cancel_title", "Expedition cancelled"),
+            message: tIdle("battle_idle_cancelled", "Idle Expedition cancelled.")
+        });
     } catch (error) {
         console.error("No se pudo cancelar Idle:", error);
-        setFeedbackIdle(error?.message || tIdle("battle_idle_cancel_error", "The Idle Expedition could not be cancelled."), "error");
+        showIdleNoticeModal({
+            type: "error",
+            title: tIdle("idle_modal_cancel_error_title", "Could not cancel the expedition"),
+            message: error?.message || tIdle("battle_idle_cancel_error", "The Idle Expedition could not be cancelled.")
+        });
     }
 }
