@@ -320,6 +320,74 @@ function buildIdleClaimModalHtml(result = {}) {
     `;
 }
 
+
+function buildIdleLaunchModalHtml({ tierCodigo = "ruta", duracionSegundos = 3600, teamCount = 0 } = {}) {
+    const tierMeta = getIdleTierMeta(tierCodigo);
+    const durationLabel = formatDurationLabelIdle(duracionSegundos);
+    const estimate = computeIdleEstimate(idleState.team, tierCodigo, duracionSegundos);
+
+    return `
+        <div class="idle-modal-launch-shell" data-tier="${escapeHtmlIdle(normalizarTierIdle(tierCodigo))}">
+            <div class="idle-modal-launch-banner">
+                <span class="idle-modal-inline-pill">${escapeHtmlIdle(tIdle("idle_modal_launch_badge", "Mission ready"))}</span>
+                <strong>${escapeHtmlIdle(traducirTierIdle(tierCodigo))} ${escapeHtmlIdle(tIdle("idle_result_title_suffix", "Expedition"))}</strong>
+                <p>${escapeHtmlIdle(tIdle("idle_modal_launch_copy", "Your team is now deployed. The timer is already running and rewards will accumulate in the background."))}</p>
+            </div>
+            <div class="idle-modal-launch-grid">
+                <article>
+                    <span>${escapeHtmlIdle(tIdle("idle_tier_label", "Tier"))}</span>
+                    <strong>${escapeHtmlIdle(tierMeta.label)}</strong>
+                </article>
+                <article>
+                    <span>${escapeHtmlIdle(tIdle("idle_duration_label", "Duration"))}</span>
+                    <strong>${escapeHtmlIdle(durationLabel)}</strong>
+                </article>
+                <article>
+                    <span>${escapeHtmlIdle(tIdle("idle_saved_members_label", "Saved members"))}</span>
+                    <strong>${formatNumberIdle(teamCount)} / 6</strong>
+                </article>
+                <article>
+                    <span>${escapeHtmlIdle(tIdle("idle_estimated_wins_label", "Estimated wins"))}</span>
+                    <strong>${formatNumberIdle(estimate.wins)}</strong>
+                </article>
+            </div>
+        </div>
+    `;
+}
+
+function buildIdleActiveModalHtml(session = {}) {
+    const tierCode = normalizarTierIdle(session?.tier_codigo || idleState.selectedTier || "ruta");
+    const remaining = Number(session?.segundos_restantes || 0);
+    const progress = Math.max(0, Math.min(100, Number(session?.progreso_pct || 0)));
+    return `
+        <div class="idle-modal-launch-shell" data-tier="${escapeHtmlIdle(tierCode)}">
+            <div class="idle-modal-launch-banner">
+                <span class="idle-modal-inline-pill">${escapeHtmlIdle(tIdle("idle_modal_active_badge", "Session in progress"))}</span>
+                <strong>${escapeHtmlIdle(traducirTierIdle(tierCode))} ${escapeHtmlIdle(tIdle("idle_result_title_suffix", "Expedition"))}</strong>
+                <p>${escapeHtmlIdle(tIdle("idle_modal_active_copy", "You already have one Idle Expedition running. Claim it when the timer ends or cancel it before launching a new one."))}</p>
+            </div>
+            <div class="idle-modal-launch-grid">
+                <article>
+                    <span>${escapeHtmlIdle(tIdle("idle_tier_label", "Tier"))}</span>
+                    <strong>${escapeHtmlIdle(getIdleTierMeta(tierCode).label)}</strong>
+                </article>
+                <article>
+                    <span>${escapeHtmlIdle(tIdle("battle_idle_remaining", "Remaining"))}</span>
+                    <strong>${escapeHtmlIdle(formatSecondsIdle(remaining))}</strong>
+                </article>
+                <article>
+                    <span>${escapeHtmlIdle(tIdle("battle_idle_progress", "Progress"))}</span>
+                    <strong>${formatNumberIdle(progress)}%</strong>
+                </article>
+                <article>
+                    <span>${escapeHtmlIdle(tIdle("idle_duration_label", "Duration"))}</span>
+                    <strong>${escapeHtmlIdle(formatDurationLabelIdle(Number(session?.duracion_segundos || idleState.selectedDuration || 3600)))}</strong>
+                </article>
+            </div>
+        </div>
+    `;
+}
+
 function configurarEventosIdle() {
     const tierSelect = document.getElementById("idleTierSelect");
     const durationSelect = document.getElementById("idleDurationSelect");
@@ -1403,7 +1471,7 @@ async function iniciarIdlePage() {
         showIdleNoticeModal({
             type: "info",
             title: tIdle("idle_modal_active_title", "Idle Expedition already in progress"),
-            message: tIdle("battle_idle_active_message_fixed", "You already have an active Idle Expedition.")
+            html: buildIdleActiveModalHtml(idleState.idleData?.sesion || {})
         });
         return;
     }
@@ -1443,7 +1511,11 @@ async function iniciarIdlePage() {
         showIdleNoticeModal({
             type: "success",
             title: tIdle("idle_modal_started_title", "Expedition launched"),
-            message: tIdle("battle_idle_started_ok", "Idle Expedition started successfully.")
+            html: buildIdleLaunchModalHtml({
+                tierCodigo,
+                duracionSegundos,
+                teamCount: obtenerIdsEquipoIdle().length
+            })
         });
     } catch (error) {
         console.error("No se pudo iniciar Idle Expedition:", error);
@@ -1540,7 +1612,15 @@ async function cancelarIdlePage() {
         showIdleNoticeModal({
             type: "warning",
             title: tIdle("idle_modal_cancel_title", "Expedition cancelled"),
-            message: tIdle("battle_idle_cancelled", "Idle Expedition cancelled.")
+            html: `
+                <div class="idle-modal-launch-shell">
+                    <div class="idle-modal-launch-banner idle-modal-launch-banner-warning">
+                        <span class="idle-modal-inline-pill">${escapeHtmlIdle(tIdle("idle_modal_cancel_badge", "Run cancelled"))}</span>
+                        <strong>${escapeHtmlIdle(tIdle("idle_modal_cancel_title", "Expedition cancelled"))}</strong>
+                        <p>${escapeHtmlIdle(tIdle("battle_idle_cancelled", "Idle Expedition cancelled."))}</p>
+                    </div>
+                </div>
+            `
         });
     } catch (error) {
         console.error("No se pudo cancelar Idle:", error);
