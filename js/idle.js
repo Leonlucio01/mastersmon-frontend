@@ -598,26 +598,44 @@ function renderTierCardsIdle() {
     const container = document.getElementById("idleTierCards");
     if (!container) return;
 
+    const activeSession = idleState.idleData?.sesion && idleState.idleData?.activa
+        ? idleState.idleData.sesion
+        : null;
+    const runningTier = activeSession ? normalizarTierIdle(activeSession.tier_codigo || "ruta") : null;
+    const runningState = String(activeSession?.estado || "").toLowerCase();
+
     container.innerHTML = Object.keys(IDLE_TIER_CONFIG).map((tierCode) => {
         const cfg = getIdleTierMeta(tierCode);
-        const active = tierCode === idleState.selectedTier ? " active" : "";
+        const isSelected = tierCode === idleState.selectedTier;
+        const isRunning = Boolean(runningTier) && tierCode === runningTier;
+        const active = (isSelected || isRunning) ? " active" : "";
+        const runningClass = isRunning ? " is-running" : "";
         const locked = tierCode === "masters" && !hasMastersBenefitIdle();
         const lockedClass = locked ? " is-locked" : "";
         const estimate = computeIdleEstimate(idleState.team, tierCode, idleState.selectedDuration);
-        const badge = tierCode === "masters"
-            ? (hasMastersBenefitIdle()
-                ? `<span class="idle-mini-chip idle-mini-chip-active">${escapeHtmlIdle(tIdle("idle_masters_active_chip", "Benefit active"))}</span>`
-                : `<span class="idle-mini-chip idle-mini-chip-locked">${escapeHtmlIdle(tIdle("idle_masters_locked_chip", "Premium"))}</span>`)
-            : "";
+
+        const badges = [];
+        if (tierCode === "masters") {
+            badges.push(
+                hasMastersBenefitIdle()
+                    ? `<span class="idle-mini-chip idle-mini-chip-active">${escapeHtmlIdle(tIdle("idle_masters_active_chip", "Benefit active"))}</span>`
+                    : `<span class="idle-mini-chip idle-mini-chip-locked">${escapeHtmlIdle(tIdle("idle_masters_locked_chip", "Premium"))}</span>`
+            );
+        }
+        if (isRunning) {
+            badges.push(`<span class="idle-mini-chip idle-mini-chip-running">${escapeHtmlIdle(runningState === "reclamable" ? tIdle("battle_idle_status_ready", "Ready") : tIdle("battle_idle_status_active", "Active"))}</span>`);
+        } else if (isSelected) {
+            badges.push(`<span class="idle-mini-chip idle-mini-chip-selected">${escapeHtmlIdle(tIdle("battle_mode_selected", "Selected"))}</span>`);
+        }
 
         return `
-            <button type="button" class="idle-tier-card idle-tier-${escapeHtmlIdle(tierCode)}${active}${lockedClass}" data-tier="${escapeHtmlIdle(tierCode)}" data-locked="${locked ? "1" : "0"}">
+            <button type="button" class="idle-tier-card idle-tier-${escapeHtmlIdle(tierCode)}${active}${runningClass}${lockedClass}" data-tier="${escapeHtmlIdle(tierCode)}" data-locked="${locked ? "1" : "0"}">
                 <div class="idle-tier-card-top">
                     <div>
                         <h4>${escapeHtmlIdle(cfg.label)}</h4>
                         <p>${escapeHtmlIdle(cfg.description)}</p>
                     </div>
-                    ${badge}
+                    <div class="idle-tier-card-badges">${badges.join("")}</div>
                 </div>
                 <div class="idle-tier-card-metrics">
                     <strong>${formatNumberIdle(estimate.exp)} EXP</strong>
@@ -633,6 +651,30 @@ function renderTierCardsIdle() {
 
     container.querySelectorAll(".idle-tier-card").forEach(card => {
         card.addEventListener("click", () => {
+            const session = idleState.idleData?.sesion && idleState.idleData?.activa
+                ? idleState.idleData.sesion
+                : null;
+
+            if (session) {
+                const sessionTier = normalizarTierIdle(session.tier_codigo || "ruta");
+                idleState.selectedTier = sessionTier;
+                const tierSelectLocked = document.getElementById("idleTierSelect");
+                if (tierSelectLocked) tierSelectLocked.value = sessionTier;
+                setFeedbackIdle(
+                    tIdle(
+                        "idle_active_tier_locked_feedback",
+                        "An expedition is already in progress. The active tier stays highlighted until you claim or cancel the run."
+                    ),
+                    "info"
+                );
+                renderTierCardsIdle();
+                renderSelectedPlanIdle();
+                renderEstimateIdle();
+                renderMastersPanelIdle();
+                renderStatusIdle();
+                return;
+            }
+
             idleState.selectedTier = normalizarTierIdle(card.dataset.tier || "ruta");
             const tierSelect = document.getElementById("idleTierSelect");
             if (tierSelect) tierSelect.value = idleState.selectedTier;
@@ -813,6 +855,7 @@ function renderLastResultIdle() {
 
     const result = idleState.lastResult;
     if (!result) {
+        panel.removeAttribute("data-tier");
         panel.innerHTML = `
             <div class="idle-empty-card">
                 ${tIdle("idle_no_previous_claim", "No previous claim saved yet. Once you claim an expedition, the latest result will stay visible here.")}
@@ -821,34 +864,59 @@ function renderLastResultIdle() {
         return;
     }
 
+    const tierCode = normalizarTierIdle(result?.tier_codigo || "ruta");
+    panel.setAttribute("data-tier", tierCode);
+
     const items = Array.isArray(result?.items_ganados) ? result.items_ganados : [];
     const itemsHtml = items.length
-        ? items.map(item => `<span class="idle-team-tag">${escapeHtmlIdle(getIdleDropLabel(item.item_code || item.itemCode, item.item_code || item.itemCode || "item"))} × ${formatNumberIdle(item.cantidad || 0)}</span>`).join("")
-        : `<span class="idle-team-tag">${escapeHtmlIdle(tIdle("idle_no_item_drops", "No item drops"))}</span>`;
+        ? items.map(item => {
+            const itemCode = String(item.item_code || item.itemCode || "item");
+            return `<span class="idle-drop-pill idle-drop-pill-${escapeHtmlIdle(itemCode)}">${escapeHtmlIdle(getIdleDropLabel(itemCode, itemCode))} × ${formatNumberIdle(item.cantidad || 0)}</span>`;
+        }).join("")
+        : `<span class="idle-drop-pill idle-drop-pill-empty">${escapeHtmlIdle(tIdle("idle_no_item_drops", "No item drops"))}</span>`;
 
     panel.innerHTML = `
-        <h4>${escapeHtmlIdle(traducirTierIdle(result?.tier_codigo || "ruta"))} ${escapeHtmlIdle(tIdle("idle_result_title_suffix", "Expedition"))}</h4>
-        <p>${tIdle("idle_latest_claim_copy", "Latest claim saved locally so you can keep track of your most recent run without touching backend again.")}</p>
-        <div class="idle-result-grid">
-            <article>
-                <span>EXP</span>
-                <strong>${formatNumberIdle(result?.exp_ganada || 0)}</strong>
-            </article>
-            <article>
-                <span>${escapeHtmlIdle(tIdle("idle_currency_label", "Pokédollars"))}</span>
-                <strong>${formatNumberIdle(result?.pokedolares_ganados || 0)}</strong>
-            </article>
-            <article>
-                <span>${escapeHtmlIdle(tIdle("idle_estimated_wins_label", "Estimated wins"))}</span>
-                <strong>${formatNumberIdle(result?.victorias_estimadas || 0)}</strong>
-            </article>
-            <article>
-                <span>${escapeHtmlIdle(tIdle("idle_ticks_label", "Ticks"))}</span>
-                <strong>${formatNumberIdle(result?.ticks || 0)}</strong>
-            </article>
-        </div>
-        <div class="idle-team-tags idle-team-tags-result">
-            ${itemsHtml}
+        <div class="idle-last-result-shell idle-last-result-tier-${escapeHtmlIdle(tierCode)}">
+            <div class="idle-last-result-top">
+                <div class="idle-last-result-copy">
+                    <span class="idle-mini-chip idle-mini-chip-selected">${escapeHtmlIdle(tIdle("idle_latest_claim_label", "Latest claim"))}</span>
+                    <h4>${escapeHtmlIdle(traducirTierIdle(tierCode))} ${escapeHtmlIdle(tIdle("idle_result_title_suffix", "Expedition"))}</h4>
+                    <p>${tIdle("idle_latest_claim_copy", "Latest claim saved locally so you can keep track of your most recent run without touching backend again.")}</p>
+                </div>
+                <div class="idle-last-result-badge">
+                    <span>${escapeHtmlIdle(tIdle("idle_drop_pressure_label", "Reward mix"))}</span>
+                    <strong>${escapeHtmlIdle(traducirTierIdle(tierCode))}</strong>
+                </div>
+            </div>
+
+            <div class="idle-result-grid">
+                <article>
+                    <span>EXP</span>
+                    <strong>${formatNumberIdle(result?.exp_ganada || 0)}</strong>
+                </article>
+                <article>
+                    <span>${escapeHtmlIdle(tIdle("idle_currency_label", "Pokédollars"))}</span>
+                    <strong>${formatNumberIdle(result?.pokedolares_ganados || 0)}</strong>
+                </article>
+                <article>
+                    <span>${escapeHtmlIdle(tIdle("idle_estimated_wins_label", "Estimated wins"))}</span>
+                    <strong>${formatNumberIdle(result?.victorias_estimadas || 0)}</strong>
+                </article>
+                <article>
+                    <span>${escapeHtmlIdle(tIdle("idle_ticks_label", "Ticks"))}</span>
+                    <strong>${formatNumberIdle(result?.ticks || 0)}</strong>
+                </article>
+            </div>
+
+            <div class="idle-last-result-drops">
+                <div class="idle-last-result-drops-head">
+                    <span>${escapeHtmlIdle(tIdle("idle_rewards_drops_title", "Drops secured"))}</span>
+                    <strong>${formatNumberIdle(items.reduce((sum, item) => sum + Number(item?.cantidad || 0), 0))}</strong>
+                </div>
+                <div class="idle-team-tags idle-team-tags-result idle-drop-pill-list">
+                    ${itemsHtml}
+                </div>
+            </div>
         </div>
     `;
 }
