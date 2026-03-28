@@ -331,6 +331,60 @@
         </div>
     </div>
 
+    <div id="battlePremiumPurchaseModal" class="battle-modal-overlay battle-premium-overlay oculto" aria-hidden="true">
+        <div class="battle-modal battle-premium-modal">
+            <button id="battlePremiumModalCloseBtn" class="battle-premium-close" type="button" aria-label="Close">×</button>
+
+            <div class="battle-premium-badge" id="battlePremiumModalBadge">Booster pack</div>
+            <div id="battlePremiumModalIcon" class="battle-modal-icon">⚡</div>
+            <h3 id="battlePremiumModalTitle">Confirm premium purchase</h3>
+            <p id="battlePremiumModalSubtitle">Review the product details and authorize the payment before opening PayPal.</p>
+
+            <div class="battle-premium-grid">
+                <div class="battle-premium-row">
+                    <small id="battlePremiumModalProductLabel">Product</small>
+                    <strong id="battlePremiumModalProductName">Pack 5 boosters x2 EXP Battle 24h</strong>
+                </div>
+                <div class="battle-premium-row">
+                    <small id="battlePremiumModalPriceLabel">Price</small>
+                    <strong id="battlePremiumModalPrice">$0.00 USD</strong>
+                </div>
+                <div class="battle-premium-row">
+                    <small id="battlePremiumModalTypeLabel">Type</small>
+                    <strong id="battlePremiumModalType">Item pack</strong>
+                </div>
+                <div class="battle-premium-row">
+                    <small id="battlePremiumModalDeliveryLabel">Delivery</small>
+                    <strong id="battlePremiumModalDelivery">Items added to inventory</strong>
+                </div>
+            </div>
+
+            <div class="battle-premium-description-box">
+                <small id="battlePremiumModalDetailsLabel">Description</small>
+                <strong id="battlePremiumModalDescription">Receive 5 consumable boosters. Each one activates x2 EXP in Battle for 24 hours after use.</strong>
+            </div>
+
+            <ul id="battlePremiumModalHighlights" class="battle-premium-highlights"></ul>
+
+            <label class="battle-premium-check">
+                <input type="checkbox" id="battlePremiumModalCheckConfirm">
+                <span id="battlePremiumModalCheckConfirmText">I authorize this payment and understand that the charge will be processed by PayPal.</span>
+            </label>
+
+            <label class="battle-premium-check">
+                <input type="checkbox" id="battlePremiumModalCheckTerms">
+                <span id="battlePremiumModalCheckTermsText">I reviewed the product scope, duration, and delivery details before continuing.</span>
+            </label>
+
+            <div id="battlePremiumModalError" class="battle-premium-error oculto"></div>
+
+            <div class="battle-modal-actions">
+                <button id="battlePremiumModalCancelBtn" class="battle-modal-btn battle-modal-btn-light" type="button">Cancel</button>
+                <button id="battlePremiumModalConfirmBtn" class="battle-modal-btn battle-modal-btn-primary" type="button">Continue to PayPal</button>
+            </div>
+        </div>
+    </div>
+
     <script src="js/api.js"></script>
     <script src="js/i18n.js"></script>
     <script src="js/menu.js"></script>
