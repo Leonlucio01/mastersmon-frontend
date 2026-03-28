@@ -309,6 +309,35 @@ async function obtenerItemsUsuarioActual() {
     }
 }
 
+async function obtenerOnboardingActual() {
+    try {
+        return await fetchAuth(`${API_BASE}/onboarding/me`);
+    } catch (error) {
+        if (error.code === "NO_TOKEN" || error.code === "UNAUTHORIZED") {
+            return { ok: false, habilitado: false, misiones: [], recompensas_aplicadas: [] };
+        }
+        console.error("Error en obtenerOnboardingActual:", error);
+        return { ok: false, habilitado: false, misiones: [], recompensas_aplicadas: [] };
+    }
+}
+
+async function marcarBienvenidaOnboardingVista(vista = true) {
+    try {
+        return await fetchAuth(`${API_BASE}/onboarding/me/bienvenida`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                vista: !!vista
+            })
+        });
+    } catch (error) {
+        console.error("Error en marcarBienvenidaOnboardingVista:", error);
+        throw error;
+    }
+}
+
 async function actualizarAvatarUsuarioActual(avatarId) {
     try {
         const data = await fetchAuth(`${API_BASE}/usuario/me/avatar`, {

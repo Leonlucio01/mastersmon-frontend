@@ -120,6 +120,37 @@
         <img src="img/Banner.png" alt="Pokemon Banner">
     </section>
 
+    <section id="starterJourneySection" class="starter-journey-section oculto" aria-live="polite">
+        <div class="starter-journey-shell">
+            <article class="starter-journey-card">
+                <div class="starter-journey-top">
+                    <div>
+                        <span class="starter-journey-badge" data-i18n="onboarding_panel_badge">Starter Journey</span>
+                        <h2 id="starterJourneyTitle" data-i18n="onboarding_panel_title">Complete your first steps</h2>
+                        <p id="starterJourneyText" data-i18n="onboarding_panel_text">Capture Pokémon, build your team, and win your first Battle IA to unlock onboarding rewards.</p>
+                    </div>
+                    <div class="starter-journey-progress-box">
+                        <small id="starterJourneyProgressLabel" data-i18n="onboarding_progress_label">Progress</small>
+                        <strong id="starterJourneyProgressValue">0 / 3</strong>
+                        <span id="starterJourneyProgressPercent">0%</span>
+                    </div>
+                </div>
+
+                <div id="starterJourneyLiveRewards" class="starter-journey-live-rewards oculto"></div>
+
+                <div id="starterJourneyGrid" class="starter-journey-grid"></div>
+
+                <div class="starter-final-reward" id="starterFinalRewardBox">
+                    <div>
+                        <small data-i18n="onboarding_final_reward_label">Final reward</small>
+                        <strong id="starterFinalRewardTitle" data-i18n="onboarding_final_reward_text">Complete the 3 missions to unlock an extra welcome reward.</strong>
+                    </div>
+                    <div id="starterFinalRewardStatus" class="starter-final-reward-status">—</div>
+                </div>
+            </article>
+        </div>
+    </section>
+
     <section class="seccion-pokedex">
         <div class="encabezado-pokedex">
             <h2 class="titulo" data-i18n="pokedex_title">POKEDEX</h2>
@@ -165,6 +196,18 @@
         <div class="modal-content">
             <span class="cerrar" onclick="cerrarDetalle()">✖</span>
             <div id="contenidoDetalle"></div>
+        </div>
+    </div>
+
+    <div id="starterJourneyModal" class="starter-modal-overlay oculto" aria-hidden="true">
+        <div class="starter-modal-box">
+            <span id="starterJourneyModalBadge" class="starter-modal-badge" data-i18n="onboarding_modal_badge">Welcome trainer</span>
+            <h3 id="starterJourneyModalTitle" data-i18n="onboarding_modal_title">Your first mission path is ready</h3>
+            <p id="starterJourneyModalText" data-i18n="onboarding_modal_text">Start with Maps, build your 6-Pokémon squad in Battle, and win your first Battle IA to unlock beginner rewards.</p>
+            <div class="starter-modal-actions">
+                <button id="starterJourneyModalLater" class="starter-modal-btn starter-modal-btn-light" type="button" data-i18n="onboarding_continue_later">Continue later</button>
+                <button id="starterJourneyModalStart" class="starter-modal-btn starter-modal-btn-primary" type="button" data-i18n="onboarding_start_now">Start now</button>
+            </div>
         </div>
     </div>
 

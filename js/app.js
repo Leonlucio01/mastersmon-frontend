@@ -12,6 +12,272 @@ let evolucionCacheMemoria = {};
 let precargaEvolucionesPromise = null;
 let evolucionesPrecargadas = false;
 
+const onboardingIndexState = {
+    data: null,
+    cargando: false,
+};
+
+function tOnboarding(key, fallback, params = {}) {
+    try {
+        if (typeof t === "function") {
+            const valor = t(key, params);
+            if (valor && valor !== key) return valor;
+        }
+    } catch (error) {
+        // no-op
+    }
+    return fallback;
+}
+
+function escapeHtmlOnboarding(valor) {
+    return String(valor ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
+function obtenerTextoRecompensaOnboarding(codigo) {
+    if (codigo === "capturas") return tOnboarding("onboarding_reward_catch_text", "+5000 Pokédollars and 5 Poké Balls");
+    if (codigo === "equipo") return tOnboarding("onboarding_reward_team_text", "+7000 Pokédollars and 2 Great Balls");
+    if (codigo === "batalla") return tOnboarding("onboarding_reward_battle_text", "+10000 Pokédollars and 2 Ultra Balls");
+    return tOnboarding("onboarding_reward_final_text", "+15000 Pokédollars, 3 Ultra Balls and 2 Super Potions");
+}
+
+function obtenerMisionMetaOnboarding(codigo) {
+    const mapa = {
+        capturas: {
+            titulo: tOnboarding("onboarding_mission_catch_title", "Capture 6 Pokémon"),
+            texto: tOnboarding("onboarding_mission_catch_text", "Explore Maps and catch your first six Pokémon to start your roster."),
+            cta: tOnboarding("onboarding_cta_maps", "Go to Maps"),
+            href: "maps.html",
+            icono: "🧭"
+        },
+        equipo: {
+            titulo: tOnboarding("onboarding_mission_team_title", "Build your 6-Pokémon team"),
+            texto: tOnboarding("onboarding_mission_team_text", "Go to Battle IA and save a full team of 6 Pokémon."),
+            cta: tOnboarding("onboarding_cta_battle", "Go to Battle"),
+            href: "battle.html",
+            icono: "⚔️"
+        },
+        batalla: {
+            titulo: tOnboarding("onboarding_mission_battle_title", "Win your first Battle IA"),
+            texto: tOnboarding("onboarding_mission_battle_text", "Defeat your first AI rival battle to complete the starter path."),
+            cta: tOnboarding("onboarding_cta_battle", "Go to Battle"),
+            href: "battle.html",
+            icono: "🏆"
+        }
+    };
+
+    return mapa[codigo] || {
+        titulo: codigo,
+        texto: codigo,
+        cta: tOnboarding("onboarding_cta_collection", "Open Collection"),
+        href: "mypokemon.html",
+        icono: "⭐"
+    };
+}
+
+function renderizarOnboardingIndex() {
+    const section = document.getElementById("starterJourneySection");
+    const grid = document.getElementById("starterJourneyGrid");
+    const title = document.getElementById("starterJourneyTitle");
+    const text = document.getElementById("starterJourneyText");
+    const progressValue = document.getElementById("starterJourneyProgressValue");
+    const progressPercent = document.getElementById("starterJourneyProgressPercent");
+    const finalStatus = document.getElementById("starterFinalRewardStatus");
+    const finalTitle = document.getElementById("starterFinalRewardTitle");
+    const liveRewards = document.getElementById("starterJourneyLiveRewards");
+
+    if (!section || !grid || !title || !text || !progressValue || !progressPercent || !finalStatus || !finalTitle || !liveRewards) return;
+
+    const data = onboardingIndexState.data;
+
+    if (!usuarioAutenticado() || !data?.habilitado) {
+        section.classList.add("oculto");
+        grid.innerHTML = "";
+        liveRewards.classList.add("oculto");
+        liveRewards.innerHTML = "";
+        return;
+    }
+
+    section.classList.remove("oculto");
+
+    title.textContent = data.tutorial_completado
+        ? tOnboarding("onboarding_complete_title", "Starter Journey completed")
+        : tOnboarding("onboarding_panel_title", "Complete your first steps");
+    text.textContent = data.tutorial_completado
+        ? tOnboarding("onboarding_complete_text", "You already cleared the onboarding path and claimed the welcome rewards.")
+        : tOnboarding("onboarding_panel_text", "Capture Pokémon, build your team, and win your first Battle IA to unlock onboarding rewards.");
+
+    const completadas = Number(data?.progreso?.completadas || 0);
+    const total = Number(data?.progreso?.total || 3);
+    progressValue.textContent = `${completadas} / ${total}`;
+    progressPercent.textContent = `${Number(data?.progreso?.porcentaje || 0)}%`;
+
+    const recompensasRecientes = Array.isArray(data?.recompensas_aplicadas) ? data.recompensas_aplicadas : [];
+    if (recompensasRecientes.length > 0) {
+        liveRewards.classList.remove("oculto");
+        liveRewards.innerHTML = `
+            <strong>${escapeHtmlOnboarding(tOnboarding("onboarding_recent_rewards_title", "Rewards added to your account"))}</strong><br>
+            ${recompensasRecientes.map(recompensa => {
+                const textoItems = Array.isArray(recompensa.items)
+                    ? recompensa.items.map(item => `${Number(item.cantidad || 0)}x ${escapeHtmlOnboarding(item.nombre || item.item_codigo || "Item")}`).join(", ")
+                    : "";
+                const textoPokedolares = Number(recompensa.pokedolares || 0) > 0
+                    ? `+${Number(recompensa.pokedolares || 0)} Pokédollars`
+                    : "";
+                return [textoPokedolares, textoItems].filter(Boolean).join(" · ");
+            }).join("<br>")}
+        `;
+    } else {
+        liveRewards.classList.add("oculto");
+        liveRewards.innerHTML = "";
+    }
+
+    const misiones = Array.isArray(data?.misiones) ? data.misiones : [];
+    grid.innerHTML = misiones.map(mision => {
+        const meta = obtenerMisionMetaOnboarding(mision.codigo);
+        const completada = Boolean(mision.completada);
+        const estadoTexto = completada
+            ? tOnboarding("onboarding_completed_label", "Completed")
+            : tOnboarding("onboarding_pending_label", "Pending");
+        const rewardText = obtenerTextoRecompensaOnboarding(mision.codigo);
+        const progresoTexto = `${Number(mision.actual || 0)} / ${Number(mision.objetivo || 0)}`;
+
+        return `
+            <article class="starter-mission-card ${completada ? "is-complete" : ""}">
+                <div class="starter-mission-top">
+                    <span class="starter-mission-chip ${completada ? "is-complete" : "is-pending"}">${escapeHtmlOnboarding(estadoTexto)}</span>
+                    <div class="starter-mission-icon">${meta.icono}</div>
+                </div>
+                <h3>${escapeHtmlOnboarding(meta.titulo)}</h3>
+                <p>${escapeHtmlOnboarding(meta.texto)}</p>
+                <div class="starter-mission-progress">
+                    <span>${escapeHtmlOnboarding(tOnboarding("onboarding_progress_label", "Progress"))}</span>
+                    <strong>${escapeHtmlOnboarding(progresoTexto)}</strong>
+                </div>
+                <div class="starter-mission-reward">
+                    <strong>${escapeHtmlOnboarding(tOnboarding("onboarding_reward_label", "Reward"))}</strong>
+                    <span>${escapeHtmlOnboarding(rewardText)}</span>
+                </div>
+                <div class="starter-mission-actions">
+                    ${completada
+                        ? `<span class="starter-mission-link">${escapeHtmlOnboarding(tOnboarding("onboarding_done_cta", "Completed"))}</span>`
+                        : `<a class="starter-mission-link" href="${escapeHtmlOnboarding(meta.href)}">${escapeHtmlOnboarding(meta.cta)}</a>`}
+                </div>
+            </article>
+        `;
+    }).join("");
+
+    const finalReclamada = Boolean(data?.recompensa_final?.reclamada);
+    finalTitle.textContent = tOnboarding("onboarding_final_reward_text", "Complete the 3 missions to unlock an extra welcome reward.");
+    finalStatus.textContent = finalReclamada
+        ? tOnboarding("onboarding_final_reward_claimed", "Claimed")
+        : tOnboarding("onboarding_final_reward_pending", "In progress");
+}
+
+function abrirModalOnboardingIndex() {
+    const modal = document.getElementById("starterJourneyModal");
+    if (!modal) return;
+    modal.classList.remove("oculto");
+    modal.setAttribute("aria-hidden", "false");
+}
+
+function cerrarModalOnboardingIndex() {
+    const modal = document.getElementById("starterJourneyModal");
+    if (!modal) return;
+    modal.classList.add("oculto");
+    modal.setAttribute("aria-hidden", "true");
+}
+
+async function cargarOnboardingIndex({ forzar = false } = {}) {
+    if (!usuarioAutenticado()) {
+        onboardingIndexState.data = null;
+        onboardingIndexState.cargando = false;
+        renderizarOnboardingIndex();
+        cerrarModalOnboardingIndex();
+        return null;
+    }
+
+    if (onboardingIndexState.cargando && !forzar) {
+        return onboardingIndexState.data;
+    }
+
+    onboardingIndexState.cargando = true;
+    try {
+        const data = await obtenerOnboardingActual();
+        onboardingIndexState.data = data && typeof data === "object" ? data : null;
+        renderizarOnboardingIndex();
+
+        if (onboardingIndexState.data?.habilitado && !onboardingIndexState.data?.bienvenida_mostrada && !onboardingIndexState.data?.tutorial_completado) {
+            abrirModalOnboardingIndex();
+        } else {
+            cerrarModalOnboardingIndex();
+        }
+
+        return onboardingIndexState.data;
+    } catch (error) {
+        console.error("Error cargando onboarding:", error);
+        onboardingIndexState.data = { ok: false, habilitado: false, mensaje: tOnboarding("onboarding_reset_error", "Could not load the onboarding journey.") };
+        renderizarOnboardingIndex();
+        cerrarModalOnboardingIndex();
+        return onboardingIndexState.data;
+    } finally {
+        onboardingIndexState.cargando = false;
+    }
+}
+
+async function marcarBienvenidaOnboardingIndexYcerrar(scrollPanel = false) {
+    try {
+        if (usuarioAutenticado()) {
+            const data = await marcarBienvenidaOnboardingVista(true);
+            if (data && typeof data === "object") {
+                onboardingIndexState.data = data;
+            }
+        }
+    } catch (error) {
+        console.warn("No se pudo marcar la bienvenida del onboarding:", error);
+    } finally {
+        renderizarOnboardingIndex();
+        cerrarModalOnboardingIndex();
+
+        if (scrollPanel) {
+            const section = document.getElementById("starterJourneySection");
+            if (section) {
+                section.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+        }
+    }
+}
+
+function configurarEventosOnboardingIndex() {
+    const btnStart = document.getElementById("starterJourneyModalStart");
+    const btnLater = document.getElementById("starterJourneyModalLater");
+    const modal = document.getElementById("starterJourneyModal");
+
+    if (btnStart) {
+        btnStart.addEventListener("click", () => {
+            marcarBienvenidaOnboardingIndexYcerrar(true);
+        });
+    }
+
+    if (btnLater) {
+        btnLater.addEventListener("click", () => {
+            marcarBienvenidaOnboardingIndexYcerrar(false);
+        });
+    }
+
+    if (modal) {
+        modal.addEventListener("click", (event) => {
+            if (event.target === modal) {
+                marcarBienvenidaOnboardingIndexYcerrar(false);
+            }
+        });
+    }
+}
+
 function usuarioAutenticado() {
     return !!getAccessToken();
 }
@@ -539,6 +805,11 @@ document.addEventListener("keydown", function(event) {
     }
 });
 
+document.addEventListener("usuarioSesionActualizada", async () => {
+    await cargarEstadoCapturas();
+    await cargarOnboardingIndex({ forzar: true });
+});
+
 document.addEventListener("DOMContentLoaded", async () => {
     evolucionCacheMemoria = leerCacheEvoluciones();
     evolucionesPrecargadas = Object.keys(evolucionCacheMemoria).length > 0;
@@ -547,6 +818,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const filtroTipo = document.getElementById("filtroTipo");
     const btnShiny = document.getElementById("modoShiny");
     const pokedex = document.getElementById("pokedex");
+
+    configurarEventosOnboardingIndex();
 
     if (buscador) {
         buscador.addEventListener("input", aplicarFiltrosVisuales);
@@ -573,6 +846,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         actualizarTextoBotonShiny();
+        renderizarOnboardingIndex();
 
         if (listaPokemonGlobal.length > 0) {
             renderizarPokedex();
@@ -616,5 +890,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     actualizarTextoBotonShiny();
 
     await cargarPokedex();
+    await cargarOnboardingIndex({ forzar: true });
     await precargarEvolucionesGlobal();
 });
