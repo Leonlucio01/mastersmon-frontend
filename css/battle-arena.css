@@ -925,6 +925,259 @@
     flex-wrap: wrap;
 }
 
+
+.arena-modal-actions-stack{
+    width: 100%;
+}
+
+.arena-result-modal{
+    width: min(720px, 100%);
+    text-align: left;
+}
+
+.arena-postbattle-modal .arena-modal-icon,
+.arena-postbattle-modal h3,
+.arena-postbattle-modal > p{
+    text-align: center;
+}
+
+.arena-postbattle-summary{
+    margin: 18px 0 22px;
+    display: grid;
+    gap: 16px;
+}
+
+.arena-postbattle-stats{
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.arena-postbattle-stat{
+    border-radius: 20px;
+    padding: 16px 18px;
+    border: 1px solid #dbe5f1;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    box-shadow: 0 10px 24px rgba(15,23,42,0.06);
+}
+
+.arena-postbattle-stat small{
+    display: block;
+    font-size: 12px;
+    font-weight: 800;
+    color: #64748b;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+}
+
+.arena-postbattle-stat strong{
+    display: block;
+    font-size: 28px;
+    line-height: 1;
+    color: #111827;
+    margin-bottom: 8px;
+}
+
+.arena-postbattle-stat span{
+    display: block;
+    font-size: 13px;
+    line-height: 1.45;
+    color: #475569;
+    font-weight: 700;
+}
+
+.arena-postbattle-stat.is-exp{
+    border-color: rgba(34,197,94,0.24);
+    background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%);
+}
+
+.arena-postbattle-stat.is-gold{
+    border-color: rgba(245,158,11,0.24);
+    background: linear-gradient(180deg, #fffbeb 0%, #ffffff 100%);
+}
+
+.arena-postbattle-section{
+    border-radius: 20px;
+    padding: 16px 18px;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+
+.arena-postbattle-section-header{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.arena-postbattle-section-header h4{
+    margin: 0;
+    font-size: 16px;
+    font-weight: 900;
+    color: #111827;
+}
+
+.arena-postbattle-chips{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.arena-postbattle-chip{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(148,163,184,0.24);
+    background: #ffffff;
+    color: #0f172a;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.arena-postbattle-chip.is-exp{
+    border-color: rgba(34,197,94,0.28);
+    background: #f0fdf4;
+    color: #166534;
+}
+
+.arena-postbattle-chip.is-gold{
+    border-color: rgba(245,158,11,0.28);
+    background: #fffbeb;
+    color: #b45309;
+}
+
+.arena-postbattle-levelups{
+    display: grid;
+    gap: 12px;
+}
+
+.arena-postbattle-levelup-card{
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 12px;
+    align-items: center;
+    padding: 14px;
+    border-radius: 18px;
+    background: #ffffff;
+    border: 1px solid #dbe5f1;
+}
+
+.arena-postbattle-sprite-wrap{
+    width: 68px;
+    height: 68px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 8px 18px rgba(15,23,42,0.06);
+}
+
+.arena-postbattle-sprite-wrap img{
+    width: 56px;
+    height: 56px;
+    object-fit: contain;
+    image-rendering: pixelated;
+}
+
+.arena-postbattle-levelup-main{
+    min-width: 0;
+}
+
+.arena-postbattle-levelup-top{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.arena-postbattle-levelup-top strong{
+    font-size: 18px;
+    color: #111827;
+    line-height: 1.1;
+}
+
+.arena-postbattle-levelup-badge{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #dcfce7 0%, #bbf7d0 100%);
+    color: #166534;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.arena-postbattle-levelup-meta{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 10px;
+    color: #475569;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.arena-postbattle-expbar{
+    width: 100%;
+    height: 10px;
+    border-radius: 999px;
+    background: #e2e8f0;
+    overflow: hidden;
+}
+
+.arena-postbattle-expfill{
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
+}
+
+.arena-postbattle-expmeta{
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 6px;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.arena-postbattle-empty{
+    margin: 0;
+    color: #64748b;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+@media (max-width: 720px){
+    .arena-postbattle-stats{
+        grid-template-columns: 1fr;
+    }
+
+    .arena-postbattle-levelup-card{
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    .arena-postbattle-sprite-wrap{
+        margin: 0 auto;
+    }
+
+    .arena-postbattle-levelup-top,
+    .arena-postbattle-expmeta{
+        justify-content: center;
+    }
+}
+
 .arena-change-options{
     display: grid;
     gap: 10px;

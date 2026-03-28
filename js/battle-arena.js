@@ -772,7 +772,78 @@ async function iniciarSesionGymArenaDesdeStorage() {
     guardarEquipoArenaEnStorages();
 }
 
-function construirResumenRecompensaGymArena(data = null) {
+function clonarSnapshotEquipoArena(team = []) {
+    return (Array.isArray(team) ? team : []).map((pokemon) => ({
+        id: Number(pokemon?.id || 0),
+        pokemon_id: Number(pokemon?.pokemon_id || 0),
+        nombre: String(pokemon?.nombre || "Pokémon"),
+        nivel: Number(pokemon?.nivel || 1),
+        experiencia: Number(pokemon?.experiencia || 0),
+        es_shiny: Boolean(pokemon?.es_shiny)
+    }));
+}
+
+function formatearNumeroArena(value = 0) {
+    return Number(value || 0).toLocaleString("en-US");
+}
+
+function construirLevelUpsPostBattleArena(snapshotPrevio = [], pokemonActualizados = []) {
+    const prevMap = new Map();
+    (Array.isArray(snapshotPrevio) ? snapshotPrevio : []).forEach((pokemon) => {
+        const id = Number(pokemon?.id || 0);
+        if (id > 0) prevMap.set(id, pokemon);
+    });
+
+    return (Array.isArray(pokemonActualizados) ? pokemonActualizados : []).map((actualizado) => {
+        const usuarioPokemonId = Number(actualizado?.usuario_pokemon_id || actualizado?.id || 0);
+        const previo = prevMap.get(usuarioPokemonId) || null;
+        const nivelAntes = Number(previo?.nivel ?? actualizado?.nivel ?? 1);
+        const nivelDespues = Number(actualizado?.nivel ?? nivelAntes);
+        if (nivelDespues <= nivelAntes) return null;
+
+        const experiencia = Number(actualizado?.experiencia ?? previo?.experiencia ?? 0);
+        const expObjetivo = calcularExpObjetivoArena(nivelDespues);
+        const expPercent = Math.max(0, Math.min(100, Math.floor((experiencia / Math.max(1, expObjetivo)) * 100)));
+
+        return {
+            usuario_pokemon_id: usuarioPokemonId,
+            nombre: String(previo?.nombre || actualizado?.nombre || "Pokémon"),
+            pokemon_id: Number(previo?.pokemon_id || actualizado?.pokemon_id || 0),
+            es_shiny: Boolean(previo?.es_shiny || actualizado?.es_shiny),
+            nivelAntes,
+            nivelDespues,
+            experiencia,
+            expObjetivo,
+            expPercent
+        };
+    }).filter(Boolean);
+}
+
+function construirMetaPostBattleArena(data = null, snapshotPrevio = [], fallback = {}) {
+    const expBase = Number(data?.exp_base ?? fallback?.exp ?? 0);
+    const expFinal = Number(data?.exp_ganada ?? fallback?.exp ?? 0);
+    const pokedolaresBase = Number(data?.pokedolares_base ?? fallback?.pokedolares ?? 0);
+    const pokedolaresFinal = Number(data?.pokedolares_ganados ?? fallback?.pokedolares ?? 0);
+
+    return {
+        expBase,
+        expFinal,
+        expBonus: Math.max(0, expFinal - expBase),
+        pokedolaresBase,
+        pokedolaresFinal,
+        pokedolaresBonus: Math.max(0, pokedolaresFinal - pokedolaresBase),
+        expX2Aplicado: Boolean(data?.exp_x2_aplicado || expFinal > expBase),
+        goldX2Aplicado: Boolean(data?.gold_x2_aplicado || pokedolaresFinal > pokedolaresBase),
+        levelUps: construirLevelUpsPostBattleArena(snapshotPrevio, data?.pokemon_actualizados || [])
+    };
+}
+
+function construirResumenRecompensaGymArena(data = null, snapshotPrevio = []) {
+    const meta = construirMetaPostBattleArena(data, snapshotPrevio, {
+        exp: Number(data?.exp_ganada || 0),
+        pokedolares: Number(data?.pokedolares_ganados || 0)
+    });
+
     return {
         codigo: "gym",
         nombre: arenaGymActual?.leader || arenaGymActual?.lider_nombre || "Gym Leader",
@@ -782,7 +853,8 @@ function construirResumenRecompensaGymArena(data = null) {
         victoria: Boolean(data?.victoria),
         turnos: Number(data?.turnos || arenaTurno || 0),
         badgeOtorgada: Boolean(data?.badge_otorgada),
-        data: data || null
+        data: data || null,
+        ...meta
     };
 }
 
@@ -841,8 +913,9 @@ async function procesarRecompensaGymArena(victoria = false) {
     let recompensaConfirmada = false;
 
     try {
+        const snapshotPrevio = clonarSnapshotEquipoArena(arenaPlayerTeam);
         const data = await reclamarRecompensaGymArenaApi(!!victoria, arenaTurno);
-        const recompensa = construirResumenRecompensaGymArena(data);
+        const recompensa = construirResumenRecompensaGymArena(data, snapshotPrevio);
 
         if (typeof data?.pokedolares_actuales !== "undefined") {
             localStorage.setItem("usuario_pokedolares", String(data.pokedolares_actuales));
@@ -977,8 +1050,13 @@ function calcularDamageBossArena() {
     return Math.max(0, hpTotal - hpActual);
 }
 
-function construirResumenRecompensaBossArena(data = null) {
+function construirResumenRecompensaBossArena(data = null, snapshotPrevio = []) {
     const rewardTier = String(data?.reward_tier || "bronze").toLowerCase();
+    const meta = construirMetaPostBattleArena(data, snapshotPrevio, {
+        exp: Number(data?.exp_ganada || 0),
+        pokedolares: Number(data?.pokedolares_ganados || 0)
+    });
+
     return {
         codigo: "boss",
         nombre: arenaBossActual?.nombre || tSafeArena("battle_mode_boss_title"),
@@ -989,7 +1067,8 @@ function construirResumenRecompensaBossArena(data = null) {
         damageTotal: Number(data?.damage_total || 0),
         bossHpTotal: Number(data?.boss_hp_total || arenaBossActual?.hp_total || 0),
         bossDerrotado: Boolean(data?.boss_derrotado),
-        data: data || null
+        data: data || null,
+        ...meta
     };
 }
 
@@ -1002,8 +1081,9 @@ async function procesarRecompensaBossArena(victoria = false) {
     let recompensaConfirmada = false;
 
     try {
+        const snapshotPrevio = clonarSnapshotEquipoArena(arenaPlayerTeam);
         const data = await reclamarRecompensaBossArenaApi(calcularDamageBossArena(), !!victoria, arenaTurno);
-        const recompensa = construirResumenRecompensaBossArena(data);
+        const recompensa = construirResumenRecompensaBossArena(data, snapshotPrevio);
 
         agregarLogArena(
             tfArena("arena_boss_rewards_log", {
@@ -2504,16 +2584,18 @@ function abrirModalCambioArena() {
     modal.classList.remove("oculto");
 }
 
-function construirResumenRecompensaArena(recompensaBase = null, data = null) {
+function construirResumenRecompensaArena(recompensaBase = null, data = null, snapshotPrevio = []) {
     const recompensa = recompensaBase || obtenerRecompensasPorDificultadArena();
     const codigo = data?.recompensa_codigo || recompensa?.codigo || obtenerCodigoDificultadArena();
+    const meta = construirMetaPostBattleArena(data, snapshotPrevio, recompensa);
 
     return {
         codigo,
         nombre: obtenerNombreDificultadArena(codigo),
         exp: Number(data?.exp_ganada ?? recompensa?.exp ?? 0),
         pokedolares: Number(data?.pokedolares_ganados ?? recompensa?.pokedolares ?? 0),
-        data: data || null
+        data: data || null,
+        ...meta
     };
 }
 
@@ -2534,9 +2616,10 @@ async function procesarRecompensasVictoriaArena() {
 
     try {
         const recompensaBase = obtenerRecompensasPorDificultadArena();
+        const snapshotPrevio = clonarSnapshotEquipoArena(arenaPlayerTeam);
         const data = await otorgarRecompensasVictoriaArena();
 
-        const recompensaFinal = construirResumenRecompensaArena(recompensaBase, data);
+        const recompensaFinal = construirResumenRecompensaArena(recompensaBase, data, snapshotPrevio);
 
         agregarLogArena(
             tfArena("arena_rewards_log", {
@@ -2565,12 +2648,115 @@ async function procesarRecompensasVictoriaArena() {
 /* =========================================================
    RESULTADO / LOG
 ========================================================= */
+function renderizarResumenPostBattleArena(victoria = true, recompensa = null) {
+    const summary = document.getElementById("arenaPostBattleSummary");
+    const expValue = document.getElementById("arenaPostBattleExpValue");
+    const expBreakdown = document.getElementById("arenaPostBattleExpBreakdown");
+    const goldValue = document.getElementById("arenaPostBattleGoldValue");
+    const goldBreakdown = document.getElementById("arenaPostBattleGoldBreakdown");
+    const boostersWrap = document.getElementById("arenaPostBattleBoostersWrap");
+    const boostersBox = document.getElementById("arenaPostBattleBoosters");
+    const levelUpsWrap = document.getElementById("arenaPostBattleLevelUpsWrap");
+    const levelUpsList = document.getElementById("arenaPostBattleLevelUpsList");
+
+    if (!summary || !expValue || !expBreakdown || !goldValue || !goldBreakdown || !boostersWrap || !boostersBox || !levelUpsWrap || !levelUpsList) {
+        return;
+    }
+
+    if (!victoria || !recompensa) {
+        summary.classList.add("oculto");
+        boostersWrap.classList.add("oculto");
+        levelUpsWrap.classList.add("oculto");
+        boostersBox.innerHTML = "";
+        levelUpsList.innerHTML = "";
+        return;
+    }
+
+    summary.classList.remove("oculto");
+
+    const expFinal = Number(recompensa?.expFinal ?? recompensa?.exp ?? 0);
+    const expBase = Number(recompensa?.expBase ?? recompensa?.exp ?? 0);
+    const expBonus = Math.max(0, Number(recompensa?.expBonus ?? (expFinal - expBase)));
+    const goldFinal = Number(recompensa?.pokedolaresFinal ?? recompensa?.pokedolares ?? 0);
+    const goldBase = Number(recompensa?.pokedolaresBase ?? recompensa?.pokedolares ?? 0);
+    const goldBonus = Math.max(0, Number(recompensa?.pokedolaresBonus ?? (goldFinal - goldBase)));
+
+    expValue.textContent = `+${formatearNumeroArena(expFinal)}`;
+    expBreakdown.textContent = expBonus > 0
+        ? tfArena("arena_postbattle_with_bonus", { base: formatearNumeroArena(expBase), bonus: formatearNumeroArena(expBonus) })
+        : tfArena("arena_postbattle_base_only", { base: formatearNumeroArena(expBase) });
+
+    goldValue.textContent = `+${formatearNumeroArena(goldFinal)}`;
+    goldBreakdown.textContent = goldBonus > 0
+        ? tfArena("arena_postbattle_with_bonus", { base: formatearNumeroArena(goldBase), bonus: formatearNumeroArena(goldBonus) })
+        : tfArena("arena_postbattle_base_only", { base: formatearNumeroArena(goldBase) });
+
+    const boosterChips = [];
+    if (recompensa?.expX2Aplicado) {
+        boosterChips.push(`<span class="arena-postbattle-chip is-exp">⚡ ${escapeHtmlArena(tSafeArena("arena_postbattle_booster_exp"))}</span>`);
+    }
+    if (recompensa?.goldX2Aplicado) {
+        boosterChips.push(`<span class="arena-postbattle-chip is-gold">💰 ${escapeHtmlArena(tSafeArena("arena_postbattle_booster_gold"))}</span>`);
+    }
+
+    if (boosterChips.length) {
+        boostersWrap.classList.remove("oculto");
+        boostersBox.innerHTML = boosterChips.join("");
+    } else {
+        boostersWrap.classList.add("oculto");
+        boostersBox.innerHTML = "";
+    }
+
+    const levelUps = Array.isArray(recompensa?.levelUps) ? recompensa.levelUps : [];
+    if (levelUps.length) {
+        levelUpsWrap.classList.remove("oculto");
+        levelUpsList.innerHTML = levelUps.map((pokemon) => {
+            const imagen = pokemon?.pokemon_id
+                ? (pokemon?.es_shiny
+                    ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${pokemon.pokemon_id}.png`
+                    : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.pokemon_id}.png`)
+                : "";
+            const levelText = tfArena("arena_postbattle_level_from_to", {
+                from: pokemon.nivelAntes,
+                to: pokemon.nivelDespues
+            });
+            return `
+                <article class="arena-postbattle-levelup-card">
+                    <div class="arena-postbattle-sprite-wrap">
+                        ${imagen ? `<img src="${imagen}" alt="${escapeHtmlArena(pokemon.nombre)}">` : "⭐"}
+                    </div>
+                    <div class="arena-postbattle-levelup-main">
+                        <div class="arena-postbattle-levelup-top">
+                            <strong>${escapeHtmlArena(pokemon.nombre)}</strong>
+                            <span class="arena-postbattle-levelup-badge">LEVEL UP</span>
+                        </div>
+                        <div class="arena-postbattle-levelup-meta">
+                            <span>${escapeHtmlArena(levelText)}</span>
+                        </div>
+                        <div class="arena-postbattle-expbar">
+                            <div class="arena-postbattle-expfill" style="width:${Math.max(0, Math.min(100, Number(pokemon.expPercent || 0)))}%"></div>
+                        </div>
+                        <div class="arena-postbattle-expmeta">
+                            <span>${escapeHtmlArena(tSafeArena("arena_postbattle_next_level"))}</span>
+                            <span>${formatearNumeroArena(pokemon.experiencia)}/${formatearNumeroArena(pokemon.expObjetivo)}</span>
+                        </div>
+                    </div>
+                </article>`;
+        }).join("");
+    } else {
+        levelUpsWrap.classList.remove("oculto");
+        levelUpsList.innerHTML = `<p class="arena-postbattle-empty">${escapeHtmlArena(tSafeArena("arena_postbattle_no_levelups"))}</p>`;
+    }
+}
+
 function mostrarResultadoArena(victoria = true, recompensa = null, soloRefresco = false) {
     cerrarPanelMovimientosArena();
     const modal = document.getElementById("arenaResultModal");
     const icon = document.getElementById("arenaResultIcon");
     const title = document.getElementById("arenaResultTitle");
     const text = document.getElementById("arenaResultText");
+    const btnRetry = document.getElementById("btnArenaReintentar");
+    const btnBack = document.getElementById("btnArenaVolverBattle");
 
     if (!modal || !icon || !title || !text) return;
 
@@ -2591,6 +2777,8 @@ function mostrarResultadoArena(victoria = true, recompensa = null, soloRefresco 
                 coins: recompensaBoss.pokedolares || 0,
                 exp: recompensaBoss.exp || 0
             });
+            if (btnRetry) btnRetry.textContent = tSafeArena("arena_retry");
+            if (btnBack) btnBack.textContent = tSafeArena("arena_back_battle");
             if (!soloRefresco) mostrarMensajeArena(tSafeArena("arena_boss_victory_message"), "ok");
         } else {
             icon.textContent = "⚠";
@@ -2605,9 +2793,12 @@ function mostrarResultadoArena(victoria = true, recompensa = null, soloRefresco 
                 coins: recompensaBoss.pokedolares || 0,
                 exp: recompensaBoss.exp || 0
             });
+            if (btnRetry) btnRetry.textContent = tSafeArena("arena_retry");
+            if (btnBack) btnBack.textContent = tSafeArena("arena_back_battle");
             if (!soloRefresco) mostrarMensajeArena(tSafeArena("arena_boss_defeat_message"), "warning");
         }
 
+        renderizarResumenPostBattleArena(true, recompensaBoss);
         modal.classList.remove("oculto");
         return;
     }
@@ -2622,6 +2813,8 @@ function mostrarResultadoArena(victoria = true, recompensa = null, soloRefresco 
             icon.style.color = "#b45309";
             title.textContent = `${gymLeader} defeated!`;
             text.textContent = `You cleared the Gym, claimed the ${gymBadge}, and earned +${recompensaGym?.pokedolares || 0} Pokédollars and +${recompensaGym?.exp || 0} EXP for your team.`;
+            if (btnRetry) btnRetry.textContent = tSafeArena("arena_retry");
+            if (btnBack) btnBack.textContent = "Back to Gyms";
             if (!soloRefresco) mostrarMensajeArena("Gym badge secured!", "ok");
         } else {
             icon.textContent = "⚔";
@@ -2629,9 +2822,12 @@ function mostrarResultadoArena(victoria = true, recompensa = null, soloRefresco 
             icon.style.color = "#b91c1c";
             title.textContent = `Gym challenge failed`;
             text.textContent = `Your squad fell against ${gymLeader}. The session was closed and no badge was awarded this time.`;
+            if (btnRetry) btnRetry.textContent = "Retry from Gyms";
+            if (btnBack) btnBack.textContent = "Back to Gyms";
             if (!soloRefresco) mostrarMensajeArena("Gym challenge failed.", "warning");
         }
 
+        renderizarResumenPostBattleArena(victoria, recompensaGym);
         modal.classList.remove("oculto");
         return;
     }
@@ -2648,6 +2844,9 @@ function mostrarResultadoArena(victoria = true, recompensa = null, soloRefresco 
             coins: recompensaFinal?.pokedolares ?? 0,
             exp: recompensaFinal?.exp ?? 0
         });
+        if (btnRetry) btnRetry.textContent = tSafeArena("arena_battle_again");
+        if (btnBack) btnBack.textContent = tSafeArena("arena_back_battle");
+        renderizarResumenPostBattleArena(true, recompensaFinal);
 
         if (!soloRefresco) {
             mostrarMensajeArena(tSafeArena("arena_victory_message"), "ok");
@@ -2658,6 +2857,9 @@ function mostrarResultadoArena(victoria = true, recompensa = null, soloRefresco 
         icon.style.color = "#b91c1c";
         title.textContent = tSafeArena("arena_defeat_title");
         text.textContent = tSafeArena("arena_defeat_text");
+        if (btnRetry) btnRetry.textContent = tSafeArena("arena_try_again");
+        if (btnBack) btnBack.textContent = tSafeArena("arena_back_battle");
+        renderizarResumenPostBattleArena(false, null);
 
         if (!soloRefresco) {
             mostrarMensajeArena(tSafeArena("arena_defeat_message"), "error");

@@ -235,10 +235,41 @@
     </div>
 
     <div id="arenaResultModal" class="arena-modal-overlay oculto">
-        <div class="arena-modal arena-result-modal">
+        <div class="arena-modal arena-result-modal arena-postbattle-modal">
             <div id="arenaResultIcon" class="arena-modal-icon">🏆</div>
             <h3 id="arenaResultTitle" data-i18n="arena_victory">Victory!</h3>
             <p id="arenaResultText" data-i18n="arena_victory_text_default">You defeated the rival team.</p>
+
+            <div id="arenaPostBattleSummary" class="arena-postbattle-summary oculto">
+                <div class="arena-postbattle-stats">
+                    <article class="arena-postbattle-stat is-exp">
+                        <small data-i18n="arena_postbattle_exp_label">EXP won</small>
+                        <strong id="arenaPostBattleExpValue">+0</strong>
+                        <span id="arenaPostBattleExpBreakdown">Base 0</span>
+                    </article>
+
+                    <article class="arena-postbattle-stat is-gold">
+                        <small data-i18n="arena_postbattle_gold_label">Pokédollars won</small>
+                        <strong id="arenaPostBattleGoldValue">+0</strong>
+                        <span id="arenaPostBattleGoldBreakdown">Base 0</span>
+                    </article>
+                </div>
+
+                <div id="arenaPostBattleBoostersWrap" class="arena-postbattle-section oculto">
+                    <div class="arena-postbattle-section-header">
+                        <h4 data-i18n="arena_postbattle_boosters_title">Applied boosters</h4>
+                    </div>
+                    <div id="arenaPostBattleBoosters" class="arena-postbattle-chips"></div>
+                </div>
+
+                <div id="arenaPostBattleLevelUpsWrap" class="arena-postbattle-section oculto">
+                    <div class="arena-postbattle-section-header">
+                        <h4 data-i18n="arena_postbattle_levelups_title">Pokémon that leveled up</h4>
+                    </div>
+                    <div id="arenaPostBattleLevelUpsList" class="arena-postbattle-levelups"></div>
+                </div>
+            </div>
+
             <div class="arena-modal-actions arena-modal-actions-stack">
                 <button id="btnArenaVolverBattle" class="btn-arena btn-arena-primary" type="button" data-i18n="arena_back_battle">Back to Battle</button>
                 <button id="btnArenaReintentar" class="btn-arena btn-arena-light" type="button" data-i18n="arena_retry">Retry</button>
