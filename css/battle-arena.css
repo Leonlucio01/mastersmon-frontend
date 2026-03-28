@@ -931,7 +931,7 @@
 }
 
 .arena-result-modal{
-    width: min(720px, 100%);
+    width: min(860px, 100%);
     text-align: left;
 }
 
@@ -944,26 +944,27 @@
 .arena-postbattle-summary{
     margin: 18px 0 22px;
     display: grid;
-    gap: 16px;
+    gap: 14px;
 }
 
 .arena-postbattle-stats{
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px;
+    gap: 12px;
 }
 
 .arena-postbattle-stat{
-    border-radius: 20px;
-    padding: 16px 18px;
+    border-radius: 18px;
+    padding: 14px 16px;
     border: 1px solid #dbe5f1;
     background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
     box-shadow: 0 10px 24px rgba(15,23,42,0.06);
+    min-width: 0;
 }
 
 .arena-postbattle-stat small{
     display: block;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 800;
     color: #64748b;
     margin-bottom: 6px;
@@ -973,7 +974,7 @@
 
 .arena-postbattle-stat strong{
     display: block;
-    font-size: 28px;
+    font-size: 24px;
     line-height: 1;
     color: #111827;
     margin-bottom: 8px;
@@ -998,23 +999,24 @@
 }
 
 .arena-postbattle-section{
-    border-radius: 20px;
-    padding: 16px 18px;
+    border-radius: 18px;
+    padding: 14px 16px;
     border: 1px solid #e2e8f0;
     background: #f8fafc;
+    min-width: 0;
 }
 
 .arena-postbattle-section-header{
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 12px;
+    gap: 10px;
+    margin-bottom: 10px;
 }
 
 .arena-postbattle-section-header h4{
     margin: 0;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 900;
     color: #111827;
 }
@@ -1029,7 +1031,7 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 10px 14px;
+    padding: 9px 12px;
     border-radius: 999px;
     border: 1px solid rgba(148,163,184,0.24);
     background: #ffffff;
@@ -1052,24 +1054,28 @@
 
 .arena-postbattle-levelups{
     display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
+    align-items: stretch;
 }
 
 .arena-postbattle-levelup-card{
     display: grid;
-    grid-template-columns: auto 1fr;
+    grid-template-columns: 64px minmax(0, 1fr);
     gap: 12px;
     align-items: center;
-    padding: 14px;
+    padding: 12px;
     border-radius: 18px;
     background: #ffffff;
     border: 1px solid #dbe5f1;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .arena-postbattle-sprite-wrap{
-    width: 68px;
-    height: 68px;
-    border-radius: 18px;
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1078,8 +1084,8 @@
 }
 
 .arena-postbattle-sprite-wrap img{
-    width: 56px;
-    height: 56px;
+    width: 52px;
+    height: 52px;
     object-fit: contain;
     image-rendering: pixelated;
 }
@@ -1090,46 +1096,52 @@
 
 .arena-postbattle-levelup-top{
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 8px;
+    gap: 10px;
+    margin-bottom: 6px;
 }
 
 .arena-postbattle-levelup-top strong{
-    font-size: 18px;
+    display: block;
+    min-width: 0;
+    font-size: 17px;
     color: #111827;
     line-height: 1.1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .arena-postbattle-levelup-badge{
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 6px 10px;
+    padding: 5px 9px;
     border-radius: 999px;
     background: linear-gradient(180deg, #dcfce7 0%, #bbf7d0 100%);
     color: #166534;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 900;
     letter-spacing: .05em;
     text-transform: uppercase;
     white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .arena-postbattle-levelup-meta{
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 10px;
+    gap: 8px;
+    margin-bottom: 8px;
     color: #475569;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
 }
 
 .arena-postbattle-expbar{
     width: 100%;
-    height: 10px;
+    height: 8px;
     border-radius: 999px;
     background: #e2e8f0;
     overflow: hidden;
@@ -1144,11 +1156,20 @@
 .arena-postbattle-expmeta{
     display: flex;
     justify-content: space-between;
-    gap: 12px;
+    gap: 10px;
     margin-top: 6px;
     color: #64748b;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
+}
+
+.arena-postbattle-expmeta span{
+    min-width: 0;
+}
+
+.arena-postbattle-expmeta span:last-child{
+    text-align: right;
+    white-space: nowrap;
 }
 
 .arena-postbattle-empty{
@@ -1156,6 +1177,17 @@
     color: #64748b;
     font-size: 14px;
     font-weight: 700;
+    grid-column: 1 / -1;
+}
+
+@media (max-width: 860px){
+    .arena-result-modal{
+        width: min(720px, 100%);
+    }
+
+    .arena-postbattle-levelups{
+        grid-template-columns: 1fr;
+    }
 }
 
 @media (max-width: 720px){
@@ -1175,6 +1207,15 @@
     .arena-postbattle-levelup-top,
     .arena-postbattle-expmeta{
         justify-content: center;
+    }
+
+    .arena-postbattle-levelup-top strong{
+        white-space: normal;
+        text-overflow: initial;
+    }
+
+    .arena-postbattle-expmeta span:last-child{
+        text-align: center;
     }
 }
 
