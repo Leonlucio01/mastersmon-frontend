@@ -94,7 +94,9 @@ function renderizarOnboardingIndex() {
 
     const data = onboardingIndexState.data;
 
-    if (!usuarioAutenticado() || !data?.habilitado) {
+    const onboardingCompletado = Boolean(data?.tutorial_completado && data?.recompensa_final?.reclamada);
+
+    if (!usuarioAutenticado() || !data?.habilitado || onboardingCompletado) {
         section.classList.add("oculto");
         grid.innerHTML = "";
         liveRewards.classList.add("oculto");
@@ -254,7 +256,6 @@ async function marcarBienvenidaOnboardingIndexYcerrar(scrollPanel = false) {
 
 function configurarEventosOnboardingIndex() {
     const btnStart = document.getElementById("starterJourneyModalStart");
-    const btnLater = document.getElementById("starterJourneyModalLater");
     const modal = document.getElementById("starterJourneyModal");
 
     if (btnStart) {
@@ -263,16 +264,10 @@ function configurarEventosOnboardingIndex() {
         });
     }
 
-    if (btnLater) {
-        btnLater.addEventListener("click", () => {
-            marcarBienvenidaOnboardingIndexYcerrar(false);
-        });
-    }
-
     if (modal) {
         modal.addEventListener("click", (event) => {
             if (event.target === modal) {
-                marcarBienvenidaOnboardingIndexYcerrar(false);
+                event.preventDefault();
             }
         });
     }

@@ -338,6 +338,142 @@ async function marcarBienvenidaOnboardingVista(vista = true) {
     }
 }
 
+
+const ONBOARDING_REWARD_TOAST_SEEN_KEY = "mastersmon_onboarding_reward_toast_seen_v1";
+
+function obtenerTituloMisionOnboardingToast(codigo = "") {
+    const valor = String(codigo || "").trim().toLowerCase();
+    if (valor === "capturas") return typeof t === "function" ? t("onboarding_mission_catch_title") : "Capture 6 Pokémon";
+    if (valor === "equipo") return typeof t === "function" ? t("onboarding_mission_team_title") : "Build your 6-Pokémon team";
+    if (valor === "batalla") return typeof t === "function" ? t("onboarding_mission_battle_title") : "Win your first Battle IA";
+    return typeof t === "function" ? t("onboarding_complete_title") : "Starter Journey completed";
+}
+
+function obtenerTextoRecompensaOnboardingToast(recompensa = {}) {
+    const partes = [];
+
+    const pokedolares = Number(recompensa?.pokedolares || 0);
+    if (pokedolares > 0) {
+        partes.push(`+${pokedolares} Pokédollars`);
+    }
+
+    const items = Array.isArray(recompensa?.items) ? recompensa.items : [];
+    if (items.length) {
+        partes.push(items.map((item) => {
+            const cantidad = Number(item?.cantidad || 0);
+            const nombre = item?.nombre || item?.item_codigo || "Item";
+            return `${cantidad}x ${nombre}`;
+        }).join(", "));
+    }
+
+    return partes.join(" · ");
+}
+
+function obtenerFirmaRecompensaOnboardingToast(recompensa = {}) {
+    const codigo = String(recompensa?.codigo || "");
+    const pokedolares = Number(recompensa?.pokedolares || 0);
+    const items = Array.isArray(recompensa?.items) ? recompensa.items : [];
+    const itemsFirma = items.map((item) => {
+        const itemId = item?.item_id ?? item?.item_codigo ?? item?.nombre ?? "item";
+        return `${itemId}:${Number(item?.cantidad || 0)}`;
+    }).join("|");
+    return `${codigo}|${pokedolares}|${itemsFirma}`;
+}
+
+function consumirRecompensasNuevasOnboarding(onboardingData, { persistir = true } = {}) {
+    const recompensas = Array.isArray(onboardingData?.recompensas_aplicadas) ? onboardingData.recompensas_aplicadas : [];
+    if (!recompensas.length) return [];
+
+    let memoria = {};
+    if (persistir) {
+        try {
+            memoria = JSON.parse(sessionStorage.getItem(ONBOARDING_REWARD_TOAST_SEEN_KEY) || "{}") || {};
+        } catch (error) {
+            memoria = {};
+        }
+    }
+
+    const nuevas = recompensas.filter((recompensa) => {
+        const firma = obtenerFirmaRecompensaOnboardingToast(recompensa);
+        if (!persistir) return true;
+        if (memoria[firma]) return false;
+        memoria[firma] = Date.now();
+        return true;
+    });
+
+    if (persistir) {
+        try {
+            sessionStorage.setItem(ONBOARDING_REWARD_TOAST_SEEN_KEY, JSON.stringify(memoria));
+        } catch (error) {
+            console.warn("No se pudo guardar memoria de recompensas onboarding:", error);
+        }
+    }
+
+    return nuevas;
+}
+
+function asegurarStackToastsOnboarding() {
+    let stack = document.getElementById("onboardingToastStack");
+    if (stack) return stack;
+
+    stack = document.createElement("div");
+    stack.id = "onboardingToastStack";
+    stack.className = "onboarding-toast-stack";
+    document.body.appendChild(stack);
+    return stack;
+}
+
+function mostrarToastRecompensasOnboarding(onboardingData, opciones = {}) {
+    const recompensas = consumirRecompensasNuevasOnboarding(onboardingData, opciones);
+    if (!recompensas.length) return [];
+
+    const stack = asegurarStackToastsOnboarding();
+    const toasts = [];
+
+    recompensas.forEach((recompensa, index) => {
+        const esFinal = String(recompensa?.codigo || "") === "final";
+        const toast = document.createElement("div");
+        toast.className = `onboarding-toast ${esFinal ? "is-final" : ""}`;
+
+        const titulo = esFinal
+            ? (typeof t === "function" ? t("onboarding_toast_final_title") : "Welcome route completed")
+            : (typeof t === "function" ? t("onboarding_toast_mission_complete") : "Mission completed");
+
+        const subtitulo = obtenerTituloMisionOnboardingToast(recompensa?.codigo);
+        const recompensaTexto = obtenerTextoRecompensaOnboardingToast(recompensa);
+        const botonTexto = typeof t === "function" ? t("onboarding_toast_open_home") : "View progress in Pokedex";
+
+        toast.innerHTML = `
+            <div class="onboarding-toast-head">
+                <span class="onboarding-toast-kicker">${titulo}</span>
+                <button class="onboarding-toast-close" type="button" aria-label="Close">×</button>
+            </div>
+            <strong class="onboarding-toast-title">${subtitulo}</strong>
+            <p class="onboarding-toast-reward-label">${typeof t === "function" ? t("onboarding_toast_reward_label") : "Reward added"}</p>
+            <p class="onboarding-toast-reward-text">${recompensaTexto}</p>
+            <a class="onboarding-toast-link" href="index.html">${botonTexto}</a>
+        `;
+
+        stack.appendChild(toast);
+        toasts.push(toast);
+
+        const cerrar = () => {
+            toast.classList.add("is-leaving");
+            setTimeout(() => toast.remove(), 220);
+        };
+
+        const closeBtn = toast.querySelector(".onboarding-toast-close");
+        if (closeBtn) {
+            closeBtn.addEventListener("click", cerrar);
+        }
+
+        setTimeout(() => toast.classList.add("is-visible"), 30 + (index * 70));
+        setTimeout(cerrar, esFinal ? 7800 : 6200);
+    });
+
+    return recompensas;
+}
+
 async function actualizarAvatarUsuarioActual(avatarId) {
     try {
         const data = await fetchAuth(`${API_BASE}/usuario/me/avatar`, {

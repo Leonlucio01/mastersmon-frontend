@@ -2174,6 +2174,10 @@ async function intentarCaptura(pokemonId, nivel, esShiny, hpActual, hpMaximo, it
                 cargarItemsUsuarioMaps(true)
             ]);
 
+            if (typeof mostrarToastRecompensasOnboarding === "function" && data?.onboarding) {
+                mostrarToastRecompensasOnboarding(data.onboarding);
+            }
+
             itemSeleccionadoMaps = itemId;
             limpiarEncuentroActual();
             renderPanelDerechoVacio();

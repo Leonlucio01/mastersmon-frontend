@@ -58,6 +58,14 @@ const I18N = {
         "onboarding_modal_text": "Start with Maps, build your 6-Pokémon squad in Battle, and win your first Battle IA to unlock beginner rewards.",
         "onboarding_start_now": "Start now",
         "onboarding_continue_later": "Continue later",
+        "onboarding_modal_step_maps": "Catch 6 Pokémon in Maps",
+        "onboarding_modal_step_team": "Save your first 6-Pokémon squad",
+        "onboarding_modal_step_battle": "Win your first Battle IA",
+        "onboarding_modal_primary_hint": "This welcome route can be completed in a few minutes and unlocks instant rewards.",
+        "onboarding_toast_mission_complete": "Mission completed",
+        "onboarding_toast_final_title": "Welcome route completed",
+        "onboarding_toast_reward_label": "Reward added",
+        "onboarding_toast_open_home": "View progress in Pokedex",
         "onboarding_complete_title": "Starter Journey completed",
         "onboarding_complete_text": "You already cleared the onboarding path and claimed the welcome rewards.",
         "onboarding_recent_rewards_title": "Rewards added to your account",
@@ -1096,6 +1104,14 @@ const I18N = {
         "onboarding_modal_text": "Empieza en Maps, arma tu escuadra de 6 en Battle y gana tu primera Battle IA para desbloquear recompensas iniciales.",
         "onboarding_start_now": "Empezar ahora",
         "onboarding_continue_later": "Continuar luego",
+        "onboarding_modal_step_maps": "Captura 6 Pokémon en Maps",
+        "onboarding_modal_step_team": "Guarda tu primera escuadra de 6 Pokémon",
+        "onboarding_modal_step_battle": "Gana tu primera Battle IA",
+        "onboarding_modal_primary_hint": "Esta ruta de bienvenida se completa en pocos minutos y desbloquea recompensas inmediatas.",
+        "onboarding_toast_mission_complete": "Misión completada",
+        "onboarding_toast_final_title": "Ruta de bienvenida completada",
+        "onboarding_toast_reward_label": "Recompensa agregada",
+        "onboarding_toast_open_home": "Ver progreso en Pokedex",
         "onboarding_complete_title": "Starter Journey completado",
         "onboarding_complete_text": "Ya completaste la ruta inicial y reclamaste las recompensas de bienvenida.",
         "onboarding_recent_rewards_title": "Recompensas agregadas a tu cuenta",
@@ -2079,9 +2095,31 @@ const I18N = {
 }
 };
 
+function detectarIdiomaNavegador() {
+    try {
+        const candidatos = Array.isArray(navigator.languages) && navigator.languages.length
+            ? navigator.languages
+            : [navigator.language || navigator.userLanguage || ""];
+
+        for (const valor of candidatos) {
+            const normalizado = String(valor || "").trim().toLowerCase();
+            if (normalizado.startsWith("es")) {
+                return "es";
+            }
+        }
+    } catch (error) {
+        console.warn("No se pudo detectar el idioma del navegador:", error);
+    }
+
+    return "en";
+}
+
 function getCurrentLang() {
     const saved = localStorage.getItem(LANG_STORAGE_KEY);
-    return saved && I18N[saved] ? saved : "en";
+    if (saved && I18N[saved]) {
+        return saved;
+    }
+    return detectarIdiomaNavegador();
 }
 
 function setCurrentLang(lang) {

@@ -554,6 +554,10 @@ async function guardarEquipoServidorBattle(opciones = {}) {
         persistirEquipoBattle();
     }
 
+    if (typeof mostrarToastRecompensasOnboarding === "function" && data?.onboarding) {
+        mostrarToastRecompensasOnboarding(data.onboarding);
+    }
+
     return data;
 }
 

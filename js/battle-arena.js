@@ -3145,5 +3145,9 @@ async function otorgarRecompensasVictoriaArena() {
     await cargarMovimientosEquipoJugadorArena();
     renderArenaCompleta();
 
+    if (typeof mostrarToastRecompensasOnboarding === "function" && data?.onboarding) {
+        mostrarToastRecompensasOnboarding(data.onboarding);
+    }
+
     return data;
 }
