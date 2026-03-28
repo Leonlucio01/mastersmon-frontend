@@ -200,7 +200,7 @@ const RUTA_GREEN_FOREST = crearRutaDesdeGrid(GRID_GREEN_FOREST, {
 });
 
 const MAPAS_RUTAS = {
-    bosque: GRID_GREEN_FOREST,
+    bosque: RUTA_GREEN_FOREST,
     cueva: RUTA_CONTORNO_BASE,
     lago: RUTA_CONTORNO_BASE,
     torre: RUTA_CONTORNO_BASE,
