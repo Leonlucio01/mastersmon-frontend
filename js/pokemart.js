@@ -517,7 +517,7 @@ function renderizarCardItemHTML(item, estaLogueado) {
                 <div class="item-buy-side">
                     <div class="cantidad-compra-box">
                         <label for="cantidad-item-${item.id}">${typeof t === "function" ? t("pokemart_quantity") : "Quantity"}</label>
-                        <input type="text" inputmode="numeric" pattern="[0-9]*" id="cantidad-item-${item.id}" value="${cantidadInput}" placeholder="${pmUi("quantity_placeholder")}" ${estaLogueado ? "" : "disabled"}>
+                        <input type="number" inputmode="numeric" step="1" min="1" id="cantidad-item-${item.id}" value="${cantidadInput}" placeholder="${pmUi("quantity_placeholder")}" ${estaLogueado ? "" : "disabled"}>
                     </div>
                     <div class="item-total-line"><span>${pmUi("total_label")}</span><strong id="item-total-${item.id}">${formatMoneyNumber(total)}</strong></div>
                 </div>
