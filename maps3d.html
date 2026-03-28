@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mastersmon - Maps 3D Prototype</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="maps3d.css">
+    <link rel="stylesheet" href="./maps3d-fixed.css">
 </head>
 <body class="maps3d-body">
     <main class="maps3d-page">
@@ -20,7 +19,7 @@
             </div>
 
             <div class="maps3d-actions">
-                <a class="maps3d-link" href="maps.html">← Volver a Maps</a>
+                <a class="maps3d-link" href="./maps.html">← Volver a Maps</a>
                 <button id="btnResetPlayer" type="button">Reset posición</button>
                 <button id="btnToggleEncounters" type="button">Encuentros: ON</button>
                 <button id="btnToggleDebug" type="button">Debug: OFF</button>
@@ -62,10 +61,11 @@
                 </div>
 
                 <div class="maps3d-card">
-                    <h2>Siguiente mejora</h2>
+                    <h2>Modelo</h2>
                     <p>
-                        Cuando esto te guste, el siguiente paso es reemplazar el personaje de prueba
-                        por un archivo <code>.glb</code> y conectar encuentros reales con tu backend.
+                        Este archivo intenta cargar un personaje desde
+                        <code>./assets/3d/cute-character.glb</code>.
+                        Si falla, usa un personaje de respaldo para que el mapa no se rompa.
                     </p>
                 </div>
             </aside>
@@ -90,6 +90,6 @@
         </section>
     </main>
 
-    <script type="module" src="maps3d.js"></script>
+    <script type="module" src="./maps3d-fixed.js"></script>
 </body>
 </html>
