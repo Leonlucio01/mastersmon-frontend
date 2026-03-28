@@ -14,6 +14,47 @@ let battleIdleSyncEnProceso = false;
 let battleIdleCountdownFinalizado = false;
 let battleBeneficiosActivos = [];
 let battleBeneficiosSyncEnProceso = false;
+let battleCatalogoPremium = {};
+let battlePremiumCheckoutBusy = false;
+
+const BATTLE_PREMIUM_PRODUCT_MAP = {
+    exp: {
+        kind: "exp",
+        productCode: "battle_exp_x2_pack5",
+        benefitCode: "battle_exp_x2",
+        itemCode: "booster_battle_exp_x2_24h",
+        icon: "⚡",
+        title: "EXP x2",
+        fallbackName: "Pack 5 boosters x2 EXP Battle 24h",
+        fallbackPriceUsd: 10,
+        quantity: 5,
+        durationHours: 24,
+        inactiveDescription: "Purchase 5 manual EXP x2 charges and activate one from Collection before entering Battle IA.",
+        activeDescription: "Your EXP x2 booster is active right now. You can still buy extra charges for future Battle IA runs.",
+        benefitBullet: "+100% EXP in Battle IA",
+        usageBullet: "Manual activation from Collection",
+        durationBullet: "24 hours per charge",
+        packBullet: "Includes 5 booster charges"
+    },
+    gold: {
+        kind: "gold",
+        productCode: "battle_gold_x2_pack5",
+        benefitCode: "battle_gold_x2",
+        itemCode: "booster_battle_gold_x2_24h",
+        icon: "💰",
+        title: "GOLD x2",
+        fallbackName: "Pack 5 boosters x2 GOLD Battle 24h",
+        fallbackPriceUsd: 10,
+        quantity: 5,
+        durationHours: 24,
+        inactiveDescription: "Purchase 5 manual GOLD x2 charges and activate one from Collection before entering Battle IA.",
+        activeDescription: "Your GOLD x2 booster is active right now. You can still buy extra charges for future Battle IA runs.",
+        benefitBullet: "+100% Pokédollars in Battle IA",
+        usageBullet: "Manual activation from Collection",
+        durationBullet: "24 hours per charge",
+        packBullet: "Includes 5 booster charges"
+    }
+};
 
 const BATTLE_TEAM_STORAGE_KEY = "mastersmon_battle_team_v1";
 const BATTLE_ENEMY_LEVEL_BONUS_KEY = "mastersmon_battle_enemy_level_bonus_v1";
@@ -79,6 +120,7 @@ async function inicializarBattle() {
         persistirModoBattle();
     }
     configurarEventosBattle();
+    configurarModalPremiumBattle();
     cargarEquipoGuardadoBattle();
     cargarDificultadBattle();
     renderSlotsEquipoBattle();
@@ -97,7 +139,7 @@ async function inicializarBattle() {
         renderSlotsEquipoBattle();
         renderColeccionBattle();
         renderResumenEquipoBattle();
-        const cargasLaterales = [cargarBeneficiosActivosBattle(true)];
+        const cargasLaterales = [cargarBeneficiosActivosBattle(true), cargarCatalogoPremiumBattle(true)];
         if (tienePanelBossBattle()) cargasLaterales.push(cargarEstadoBossBattle(true));
         if (tienePanelIdleBattle()) cargasLaterales.push(cargarEstadoIdleBattle(true));
         if (cargasLaterales.length) {
@@ -117,7 +159,7 @@ async function inicializarBattle() {
                 renderSlotsEquipoBattle();
                 renderColeccionBattle();
                 renderResumenEquipoBattle();
-                const cargasLateralesRetry = [cargarBeneficiosActivosBattle(true)];
+                const cargasLateralesRetry = [cargarBeneficiosActivosBattle(true), cargarCatalogoPremiumBattle(true)];
                 if (tienePanelBossBattle()) cargasLateralesRetry.push(cargarEstadoBossBattle(true));
                 if (tienePanelIdleBattle()) cargasLateralesRetry.push(cargarEstadoIdleBattle(true));
                 if (cargasLateralesRetry.length) {
@@ -147,6 +189,39 @@ function refrescarUIBattlePorIdioma() {
     if (tienePanelBossBattle()) renderBossBattle();
     if (tienePanelIdleBattle()) renderIdleBattle();
     renderColeccionBattle();
+}
+
+
+function configurarModalPremiumBattle() {
+    const modal = document.getElementById("battlePremiumModal");
+    const closeBtn = document.getElementById("battlePremiumModalClose");
+    const cancelBtn = document.getElementById("battlePremiumModalCancel");
+    const payBtn = document.getElementById("battlePremiumModalPay");
+
+    if (!modal) return;
+
+    const closeHandler = () => cerrarModalPremiumBattle();
+
+    if (closeBtn) closeBtn.addEventListener("click", closeHandler);
+    if (cancelBtn) cancelBtn.addEventListener("click", closeHandler);
+    if (payBtn) payBtn.addEventListener("click", continuarCheckoutPremiumBattle);
+
+    modal.addEventListener("click", (event) => {
+        if (event.target === modal) closeHandler();
+    });
+
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && !modal.classList.contains("oculto")) {
+            closeHandler();
+        }
+    });
+}
+
+function cerrarModalPremiumBattle() {
+    const modal = document.getElementById("battlePremiumModal");
+    if (!modal) return;
+    modal.classList.add("oculto");
+    battlePremiumCheckoutBusy = false;
 }
 
 /* =========================
@@ -716,38 +791,6 @@ function renderSlotsEquipoBattle() {
     container.innerHTML = html;
 }
 
-/* =========================
-   RESUMEN
-========================= */
-function renderResumenEquipoBattle() {
-    const contador = document.getElementById("contadorEquipo");
-    if (contador) contador.textContent = `${battleEquipo.length} / 6`;
-
-    const stats = calcularResumenEquipoBattle();
-
-    const promedioNivel = document.getElementById("battlePromedioNivel");
-    const tipoDominante = document.getElementById("battleTipoDominante");
-    const estado = document.getElementById("battleEstadoEquipo");
-    const btnIniciar = document.getElementById("btnIniciarBatalla");
-
-    if (promedioNivel) promedioNivel.textContent = stats.promedioNivel;
-    if (tipoDominante) tipoDominante.textContent = stats.tipoDominante === "—" ? "—" : traducirTipoBattle(stats.tipoDominante);
-    if (estado) estado.textContent = battleEquipo.length === 6 ? t("battle_team_status_ready") : t("battle_team_status_preparing");
-
-    // Lo dejamos siempre habilitado para que el usuario reciba el modal de advertencia
-    if (btnIniciar) btnIniciar.disabled = false;
-
-    actualizarEstadoModoSeleccionadoBattle();
-
-    const resumenAtaque = document.getElementById("battleResumenAtaque");
-    const resumenBalance = document.getElementById("battleResumenBalance");
-    const resumenVelocidad = document.getElementById("battleResumenVelocidad");
-
-    if (resumenAtaque) resumenAtaque.textContent = stats.resumenAtaque;
-    if (resumenBalance) resumenBalance.textContent = stats.resumenBalance;
-    if (resumenVelocidad) resumenVelocidad.textContent = stats.resumenVelocidad;
-}
-
 
 function renderBattleBoostersBanner() {
     const wrap = document.getElementById("battleBoostersStrip");
@@ -778,38 +821,24 @@ function renderBattleBoostersBanner() {
     }
 
     const activos = obtenerBoostersBatallaActivosBattle();
-    if (!activos.length) {
-        title.textContent = tBattleSafe("battle_boosters_none_title", "No active battle boosters");
-        list.innerHTML = `
-            <article class="battle-booster-card is-idle">
-                <div class="battle-booster-top">
-                    <span class="battle-booster-badge">Inactive</span>
-                    <div class="battle-booster-icon">⚡</div>
-                </div>
-                <h5>${escapeHtmlBattle(tBattleSafe("battle_boosters_exp_title", "EXP x2"))}</h5>
-                <p>${escapeHtmlBattle(tBattleSafe("battle_boosters_none_text_exp", "Activate this boost from Collection before entering Battle IA to double the official EXP reward for the run."))}</p>
-                <div class="battle-booster-meta">
-                    <span class="battle-booster-chip">${escapeHtmlBattle(tBattleSafe("battle_boosters_manual_activation", "Manual activation"))}</span>
-                    <span class="battle-booster-chip strong">24h ${escapeHtmlBattle(tBattleSafe("battle_boosters_per_use", "per use"))}</span>
-                </div>
-            </article>
-            <article class="battle-booster-card is-idle">
-                <div class="battle-booster-top">
-                    <span class="battle-booster-badge">Inactive</span>
-                    <div class="battle-booster-icon">💰</div>
-                </div>
-                <h5>${escapeHtmlBattle(tBattleSafe("battle_boosters_gold_title", "GOLD x2"))}</h5>
-                <p>${escapeHtmlBattle(tBattleSafe("battle_boosters_none_text_gold", "Activate this boost from Collection before entering Battle IA to double the official Pokédollar reward for the run."))}</p>
-                <div class="battle-booster-meta">
-                    <span class="battle-booster-chip">${escapeHtmlBattle(tBattleSafe("battle_boosters_manual_activation", "Manual activation"))}</span>
-                    <span class="battle-booster-chip strong">24h ${escapeHtmlBattle(tBattleSafe("battle_boosters_per_use", "per use"))}</span>
-                </div>
-            </article>`;
-        return;
-    }
+    const activosPorCodigo = activos.reduce((acc, item) => {
+        acc[String(item?.beneficio_codigo || "").toLowerCase()] = item;
+        return acc;
+    }, {});
 
-    title.textContent = tBattleSafe("battle_boosters_active_title", "Active boosters for your next Battle IA");
-    list.innerHTML = activos.map(renderBoosterActivoBattleCard).join("");
+    title.textContent = activos.length
+        ? tBattleSafe("battle_boosters_active_title", "Active boosters for your next Battle IA")
+        : tBattleSafe("battle_boosters_none_title", "No active battle boosters");
+
+    list.innerHTML = ["exp", "gold"].map((kind) => {
+        const config = obtenerConfigPremiumBattle(kind);
+        const activo = activosPorCodigo[String(config.benefitCode || "").toLowerCase()] || null;
+        return activo
+            ? renderBoosterActivoBattleCard(activo, kind)
+            : renderBoosterCompraBattleCard(kind);
+    }).join("");
+
+    enlazarCompraBoostersBattle();
 }
 
 function obtenerBoostersBatallaActivosBattle() {
@@ -825,33 +854,57 @@ function obtenerBoostersBatallaActivosBattle() {
         });
 }
 
-function renderBoosterActivoBattleCard(beneficio) {
-    const codigo = String(beneficio?.beneficio_codigo || "").toLowerCase();
-    const esExp = codigo === "battle_exp_x2";
-    const clase = esExp ? "booster-exp" : "booster-gold";
-    const icono = esExp ? "⚡" : "💰";
-    const titulo = esExp
-        ? tBattleSafe("battle_boosters_exp_title", "EXP x2")
-        : tBattleSafe("battle_boosters_gold_title", "GOLD x2");
-    const descripcion = esExp
-        ? tBattleSafe("battle_boosters_exp_active_text", "The next Battle IA sessions you start while this boost is active will lock double EXP in their reward snapshot.")
-        : tBattleSafe("battle_boosters_gold_active_text", "The next Battle IA sessions you start while this boost is active will lock double Pokédollars in their reward snapshot.");
+function renderBoosterCompraBattleCard(kind = "exp") {
+    const config = obtenerConfigPremiumBattle(kind);
+    return `
+        <button type="button" class="battle-booster-card battle-booster-purchase-card is-idle booster-${escapeHtmlBattle(kind)}" data-battle-premium-open="${escapeHtmlBattle(kind)}">
+            <div class="battle-booster-top">
+                <span class="battle-booster-badge">${escapeHtmlBattle(tBattleSafe("battle_boosters_inactive_badge", "Inactive"))}</span>
+                <div class="battle-booster-icon">${escapeHtmlBattle(config.icon)}</div>
+            </div>
+            <h5>${escapeHtmlBattle(config.title)}</h5>
+            <p>${escapeHtmlBattle(config.inactiveDescription)}</p>
+            <div class="battle-booster-meta">
+                <span class="battle-booster-chip">${escapeHtmlBattle(tBattleSafe("battle_boosters_manual_activation", "Manual activation"))}</span>
+                <span class="battle-booster-chip strong">${escapeHtmlBattle(`${config.durationHours}h ${tBattleSafe("battle_boosters_per_use", "per use")}`)}</span>
+            </div>
+            <div class="battle-booster-cta-row">
+                <span class="battle-booster-cta">${escapeHtmlBattle(tBattleSafe("battle_boosters_buy_pack_cta", "Buy pack"))}</span>
+            </div>
+        </button>`;
+}
+
+function renderBoosterActivoBattleCard(beneficio, kindOverride = null) {
+    const codigo = kindOverride || (String(beneficio?.beneficio_codigo || "").toLowerCase() === "battle_gold_x2" ? "gold" : "exp");
+    const config = obtenerConfigPremiumBattle(codigo);
+    const clase = codigo === "exp" ? "booster-exp" : "booster-gold";
     const restante = formatearRestanteBeneficioBattle(beneficio?.expira_en);
     const expiracion = formatearExpiracionBeneficioBattle(beneficio?.expira_en);
 
     return `
-        <article class="battle-booster-card is-active ${clase}">
+        <button type="button" class="battle-booster-card battle-booster-purchase-card is-active ${clase}" data-battle-premium-open="${escapeHtmlBattle(codigo)}">
             <div class="battle-booster-top">
                 <span class="battle-booster-badge">${escapeHtmlBattle(tBattleSafe("battle_boosters_active_badge", "Active"))}</span>
-                <div class="battle-booster-icon">${icono}</div>
+                <div class="battle-booster-icon">${escapeHtmlBattle(config.icon)}</div>
             </div>
-            <h5>${escapeHtmlBattle(titulo)}</h5>
-            <p>${escapeHtmlBattle(descripcion)}</p>
+            <h5>${escapeHtmlBattle(config.title)}</h5>
+            <p>${escapeHtmlBattle(config.activeDescription)}</p>
             <div class="battle-booster-meta">
                 <span class="battle-booster-chip strong">${escapeHtmlBattle(restante)}</span>
                 <span class="battle-booster-chip">${escapeHtmlBattle(expiracion)}</span>
             </div>
-        </article>`;
+            <div class="battle-booster-cta-row">
+                <span class="battle-booster-cta alt">${escapeHtmlBattle(tBattleSafe("battle_boosters_buy_more_cta", "Buy more charges"))}</span>
+            </div>
+        </button>`;
+}
+
+function enlazarCompraBoostersBattle() {
+    document.querySelectorAll("[data-battle-premium-open]").forEach((button) => {
+        button.addEventListener("click", async () => {
+            await abrirModalPremiumBattle(button.dataset.battlePremiumOpen || "exp");
+        });
+    });
 }
 
 function formatearRestanteBeneficioBattle(expiraEn) {
@@ -914,6 +967,314 @@ async function cargarBeneficiosActivosBattle(silencioso = true) {
     } finally {
         battleBeneficiosSyncEnProceso = false;
     }
+}
+
+function obtenerConfigPremiumBattle(kind = "exp") {
+    return BATTLE_PREMIUM_PRODUCT_MAP[String(kind || "exp").toLowerCase()] || BATTLE_PREMIUM_PRODUCT_MAP.exp;
+}
+
+function obtenerProductoFallbackPremiumBattle(kind = "exp") {
+    const config = obtenerConfigPremiumBattle(kind);
+    return {
+        codigo: config.productCode,
+        nombre: config.fallbackName,
+        tipo: "pack_item",
+        precio_usd: config.fallbackPriceUsd,
+        beneficio_codigo: null,
+        duracion_horas: config.durationHours,
+        duracion_dias: null,
+        duracion_meses: null,
+        limite_por_cuenta: null,
+        metadata: {
+            grant_item_codigo: config.itemCode,
+            cantidad: config.quantity,
+            scope: "battle",
+            notes: `${config.title} · ${config.quantity} charges of ${config.durationHours}h each.`
+        }
+    };
+}
+
+async function cargarCatalogoPremiumBattle(force = false) {
+    if (!force && Object.keys(battleCatalogoPremium || {}).length) {
+        return battleCatalogoPremium;
+    }
+
+    if (!getAccessToken()) {
+        battleCatalogoPremium = {
+            exp: obtenerProductoFallbackPremiumBattle("exp"),
+            gold: obtenerProductoFallbackPremiumBattle("gold")
+        };
+        return battleCatalogoPremium;
+    }
+
+    try {
+        let data = null;
+        if (typeof obtenerCatalogoPagos === "function") {
+            data = await obtenerCatalogoPagos();
+        } else {
+            data = await fetchBattleAuth(`${API_BASE}/payments/catalogo`);
+        }
+
+        const productos = Array.isArray(data?.productos) ? data.productos : [];
+        battleCatalogoPremium = {
+            exp: productos.find((item) => String(item?.codigo || "") === BATTLE_PREMIUM_PRODUCT_MAP.exp.productCode) || obtenerProductoFallbackPremiumBattle("exp"),
+            gold: productos.find((item) => String(item?.codigo || "") === BATTLE_PREMIUM_PRODUCT_MAP.gold.productCode) || obtenerProductoFallbackPremiumBattle("gold")
+        };
+        return battleCatalogoPremium;
+    } catch (error) {
+        console.warn("No se pudo cargar el catálogo premium de Battle:", error);
+        battleCatalogoPremium = {
+            exp: obtenerProductoFallbackPremiumBattle("exp"),
+            gold: obtenerProductoFallbackPremiumBattle("gold")
+        };
+        return battleCatalogoPremium;
+    }
+}
+
+function obtenerProductoPremiumBattle(kind = "exp") {
+    const config = obtenerConfigPremiumBattle(kind);
+    return battleCatalogoPremium?.[config.kind] || obtenerProductoFallbackPremiumBattle(config.kind);
+}
+
+function formatUsdBattle(value = 0) {
+    try {
+        return new Intl.NumberFormat(undefined, {
+            style: "currency",
+            currency: "USD"
+        }).format(Number(value || 0));
+    } catch (error) {
+        return `$${Number(value || 0).toFixed(2)}`;
+    }
+}
+
+function obtenerCantidadProductoPremiumBattle(producto = {}, fallback = 5) {
+    return Math.max(1, Number(producto?.metadata?.cantidad || fallback || 1));
+}
+
+function obtenerHorasProductoPremiumBattle(producto = {}, fallback = 24) {
+    return Math.max(1, Number(producto?.duracion_horas || fallback || 24));
+}
+
+function obtenerBeneficioActivoBattlePorCodigo(benefitCode = "") {
+    return (Array.isArray(battleBeneficiosActivos) ? battleBeneficiosActivos : []).find(
+        (item) => String(item?.beneficio_codigo || "").toLowerCase() === String(benefitCode || "").toLowerCase()
+    ) || null;
+}
+
+function construirHtmlModalPremiumBattle(kind = "exp") {
+    const config = obtenerConfigPremiumBattle(kind);
+    const producto = obtenerProductoPremiumBattle(kind);
+    const activo = obtenerBeneficioActivoBattlePorCodigo(config.benefitCode);
+    const cantidad = obtenerCantidadProductoPremiumBattle(producto, config.quantity);
+    const horas = obtenerHorasProductoPremiumBattle(producto, config.durationHours);
+    const bullets = [
+        config.benefitBullet,
+        config.usageBullet,
+        `${horas} ${tBattleSafe("battle_premium_hours_label", "hours")} ${tBattleSafe("battle_boosters_per_use", "per use")}`,
+        `${tBattleSafe("battle_premium_pack_includes", "Pack includes")} ${cantidad} ${tBattleSafe("battle_premium_charges", "charges")}`
+    ].map((item) => `<li>${escapeHtmlBattle(item)}</li>`).join("");
+
+    const statusText = activo
+        ? `${tBattleSafe("battle_boosters_active_badge", "Active")} · ${formatearRestanteBeneficioBattle(activo?.expira_en)}`
+        : tBattleSafe("battle_premium_status_inactive", "Inactive right now");
+
+    const activeBox = activo ? `
+        <div class="battle-premium-active-box">
+            ${escapeHtmlBattle(`${tBattleSafe("battle_premium_active_until", "Currently active until")} ${formatearExpiracionBeneficioBattle(activo?.expira_en)}`)}
+        </div>` : "";
+
+    return `
+        <div class="battle-premium-shell battle-premium-shell-${escapeHtmlBattle(kind)}">
+            <div class="battle-premium-hero">
+                <div class="battle-premium-icon">${escapeHtmlBattle(config.icon)}</div>
+                <div class="battle-premium-copy">
+                    <h4>${escapeHtmlBattle(producto?.nombre || config.fallbackName)}</h4>
+                    <p>${escapeHtmlBattle(producto?.metadata?.notes || config.inactiveDescription)}</p>
+                </div>
+                <div class="battle-premium-price-box">
+                    <span>${escapeHtmlBattle(tBattleSafe("battle_premium_price_label", "Price"))}</span>
+                    <strong>${escapeHtmlBattle(formatUsdBattle(producto?.precio_usd || config.fallbackPriceUsd))}</strong>
+                </div>
+            </div>
+
+            <div class="battle-premium-grid">
+                <article>
+                    <span>${escapeHtmlBattle(tBattleSafe("battle_premium_product_label", "Product"))}</span>
+                    <strong>${escapeHtmlBattle(config.title)}</strong>
+                </article>
+                <article>
+                    <span>${escapeHtmlBattle(tBattleSafe("battle_premium_pack_label", "Pack"))}</span>
+                    <strong>${escapeHtmlBattle(`${cantidad} ${tBattleSafe("battle_premium_charges", "charges")}`)}</strong>
+                </article>
+                <article>
+                    <span>${escapeHtmlBattle(tBattleSafe("battle_premium_duration_label", "Duration"))}</span>
+                    <strong>${escapeHtmlBattle(`${horas}h ${tBattleSafe("battle_boosters_per_use", "per use")}`)}</strong>
+                </article>
+                <article>
+                    <span>${escapeHtmlBattle(tBattleSafe("battle_premium_status_label", "Status"))}</span>
+                    <strong>${escapeHtmlBattle(statusText)}</strong>
+                </article>
+            </div>
+
+            ${activeBox}
+
+            <div class="battle-premium-benefits">
+                <span>${escapeHtmlBattle(tBattleSafe("battle_premium_included_title", "Included details"))}</span>
+                <ul>${bullets}</ul>
+            </div>
+
+            <label class="battle-premium-check">
+                <input type="checkbox" id="battlePremiumAcceptTerms">
+                <span>${escapeHtmlBattle(tBattleSafe("battle_premium_accept_terms", "I reviewed the booster pack details and want to continue to PayPal."))}</span>
+            </label>
+
+            <div class="battle-premium-error oculto" id="battlePremiumModalError"></div>
+        </div>`;
+}
+
+async function abrirModalPremiumBattle(kind = "exp") {
+    if (!getAccessToken()) {
+        mostrarModalBattle(tBattleSafe("battle_mode_requires_login", "You must sign in first."), "warning");
+        return;
+    }
+
+    await cargarCatalogoPremiumBattle();
+
+    const modal = document.getElementById("battlePremiumModal");
+    const kicker = document.getElementById("battlePremiumModalKicker");
+    const title = document.getElementById("battlePremiumModalTitle");
+    const subtitle = document.getElementById("battlePremiumModalSubtitle");
+    const body = document.getElementById("battlePremiumModalBody");
+    const payBtn = document.getElementById("battlePremiumModalPay");
+
+    if (!modal || !kicker || !title || !subtitle || !body || !payBtn) return;
+
+    const config = obtenerConfigPremiumBattle(kind);
+    const producto = obtenerProductoPremiumBattle(kind);
+
+    kicker.textContent = tBattleSafe("battle_premium_kicker", "Battle premium");
+    title.textContent = tBattleSafe("battle_premium_modal_title", "Purchase booster pack");
+    subtitle.textContent = config.kind === "exp"
+        ? tBattleSafe("battle_premium_exp_subtitle", "Buy extra EXP x2 charges without leaving Battle IA.")
+        : tBattleSafe("battle_premium_gold_subtitle", "Buy extra GOLD x2 charges without leaving Battle IA.");
+    body.innerHTML = construirHtmlModalPremiumBattle(config.kind);
+
+    payBtn.dataset.productCode = String(producto?.codigo || config.productCode);
+    payBtn.dataset.productKind = config.kind;
+    payBtn.disabled = false;
+    payBtn.textContent = tBattleSafe("battle_premium_continue_paypal", "Continue to PayPal");
+
+    modal.classList.remove("oculto");
+}
+
+async function continuarCheckoutPremiumBattle() {
+    if (battlePremiumCheckoutBusy) return;
+
+    const payBtn = document.getElementById("battlePremiumModalPay");
+    const errorBox = document.getElementById("battlePremiumModalError");
+    const acceptTerms = document.getElementById("battlePremiumAcceptTerms");
+    const productCode = String(payBtn?.dataset?.productCode || "").trim();
+
+    if (!getAccessToken()) {
+        cerrarModalPremiumBattle();
+        mostrarModalBattle(tBattleSafe("battle_mode_requires_login", "You must sign in first."), "warning");
+        return;
+    }
+
+    if (!productCode) {
+        if (errorBox) {
+            errorBox.textContent = tBattleSafe("battle_premium_missing_product", "The selected product could not be prepared.");
+            errorBox.classList.remove("oculto");
+        }
+        return;
+    }
+
+    if (!acceptTerms?.checked) {
+        if (errorBox) {
+            errorBox.textContent = tBattleSafe("battle_premium_accept_required", "You must confirm the booster details before continuing.");
+            errorBox.classList.remove("oculto");
+        }
+        return;
+    }
+
+    try {
+        battlePremiumCheckoutBusy = true;
+        if (errorBox) {
+            errorBox.textContent = "";
+            errorBox.classList.add("oculto");
+        }
+        if (payBtn) {
+            payBtn.disabled = true;
+            payBtn.textContent = tBattleSafe("battle_premium_redirecting", "Opening PayPal...");
+        }
+
+        const order = typeof crearOrdenPaypalPago === "function"
+            ? await crearOrdenPaypalPago({
+                productCode,
+                quantity: 1,
+                confirmacionAceptada: true,
+                versionTerminos: "battle_booster_modal_v1"
+            })
+            : await fetchBattleAuth(`${API_BASE}/payments/paypal/order/create`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    product_code: productCode,
+                    quantity: 1,
+                    confirmacion_aceptada: true,
+                    version_terminos: "battle_booster_modal_v1"
+                })
+            });
+
+        if (!order?.approval_url) {
+            throw new Error(tBattleSafe("battle_premium_checkout_error", "The secure PayPal order could not be created."));
+        }
+
+        window.location.href = order.approval_url;
+    } catch (error) {
+        console.error("No se pudo iniciar el checkout premium de Battle:", error);
+        if (errorBox) {
+            errorBox.textContent = error?.message || tBattleSafe("battle_premium_checkout_error", "The secure PayPal order could not be created.");
+            errorBox.classList.remove("oculto");
+        }
+        if (payBtn) {
+            payBtn.disabled = false;
+            payBtn.textContent = tBattleSafe("battle_premium_continue_paypal", "Continue to PayPal");
+        }
+        battlePremiumCheckoutBusy = false;
+    }
+}
+
+/* =========================
+   RESUMEN
+========================= */
+function renderResumenEquipoBattle() {
+    const contador = document.getElementById("contadorEquipo");
+    if (contador) contador.textContent = `${battleEquipo.length} / 6`;
+
+    const stats = calcularResumenEquipoBattle();
+
+    const promedioNivel = document.getElementById("battlePromedioNivel");
+    const tipoDominante = document.getElementById("battleTipoDominante");
+    const estado = document.getElementById("battleEstadoEquipo");
+    const btnIniciar = document.getElementById("btnIniciarBatalla");
+
+    if (promedioNivel) promedioNivel.textContent = stats.promedioNivel;
+    if (tipoDominante) tipoDominante.textContent = stats.tipoDominante === "—" ? "—" : traducirTipoBattle(stats.tipoDominante);
+    if (estado) estado.textContent = battleEquipo.length === 6 ? t("battle_team_status_ready") : t("battle_team_status_preparing");
+
+    // Lo dejamos siempre habilitado para que el usuario reciba el modal de advertencia
+    if (btnIniciar) btnIniciar.disabled = false;
+
+    actualizarEstadoModoSeleccionadoBattle();
+
+    const resumenAtaque = document.getElementById("battleResumenAtaque");
+    const resumenBalance = document.getElementById("battleResumenBalance");
+    const resumenVelocidad = document.getElementById("battleResumenVelocidad");
+
+    if (resumenAtaque) resumenAtaque.textContent = stats.resumenAtaque;
+    if (resumenBalance) resumenBalance.textContent = stats.resumenBalance;
+    if (resumenVelocidad) resumenVelocidad.textContent = stats.resumenVelocidad;
 }
 
 function calcularResumenEquipoBattle() {
