@@ -398,11 +398,96 @@ function obtenerSubtituloSeccionTienda(categoria) {
     return pmText("other_desc");
 }
 
+function obtenerTextoCantidadSeleccionada(itemId) {
+    const raw = cantidadesSeleccionadas[itemId];
+    if (raw === undefined || raw === null || raw === "") return "1";
+    return String(raw);
+}
+
+function obtenerCantidadValidaDesdeTexto(texto, fallback = 1) {
+    const valor = parseInt(String(texto ?? "").trim(), 10);
+    if (!Number.isFinite(valor) || valor < 1) return fallback;
+    return valor;
+}
+
+function obtenerCantidadParaTotalDesdeTexto(texto) {
+    const valor = parseInt(String(texto ?? "").trim(), 10);
+    if (!Number.isFinite(valor) || valor < 1) return 0;
+    return valor;
+}
+
+function calcularTotalItemTienda(item, cantidad) {
+    return Number(item?.precio || 0) * Number(cantidad || 0);
+}
+
+function capturarEstadoInputActivoPokeMart() {
+    const active = document.activeElement;
+    if (!active || !active.matches || !active.matches('input[id^="cantidad-item-"]')) {
+        return null;
+    }
+
+    const itemId = Number(active.id.replace("cantidad-item-", ""));
+    return {
+        itemId,
+        value: active.value,
+        selectionStart: typeof active.selectionStart === "number" ? active.selectionStart : null,
+        selectionEnd: typeof active.selectionEnd === "number" ? active.selectionEnd : null
+    };
+}
+
+function restaurarEstadoInputActivoPokeMart(state) {
+    if (!state || !state.itemId) return;
+    const input = document.getElementById(`cantidad-item-${state.itemId}`);
+    if (!input) return;
+    input.focus({ preventScroll: true });
+    if (typeof state.value === "string") {
+        input.value = state.value;
+    }
+    if (typeof state.selectionStart === "number" && typeof state.selectionEnd === "number") {
+        try {
+            input.setSelectionRange(state.selectionStart, state.selectionEnd);
+        } catch (error) {
+            // no-op
+        }
+    }
+}
+
+function actualizarTotalCardItem(itemId) {
+    const item = tiendaItemsGlobal.find(i => Number(i.id) === Number(itemId));
+    if (!item) return;
+
+    const card = document.querySelector(`.item-card[data-item-id="${itemId}"]`);
+    if (!card) return;
+
+    const input = document.getElementById(`cantidad-item-${itemId}`);
+    const raw = input ? input.value : obtenerTextoCantidadSeleccionada(itemId);
+    const cantidad = obtenerCantidadParaTotalDesdeTexto(raw);
+    const total = calcularTotalItemTienda(item, cantidad);
+
+    const totalValue = card.querySelector(".item-total-value");
+    if (totalValue) {
+        totalValue.textContent = String(total);
+    }
+
+    card.classList.toggle("item-card-total-empty", cantidad <= 0);
+}
+
+function normalizarMensajePremiumUsuario(message = "") {
+    const texto = String(message || "").trim();
+    if (!texto) return "";
+    const lower = texto.toLowerCase();
+    if (lower.includes("network_error") || lower.includes("cors") || lower.includes("failed to fetch") || lower.includes("access-control-allow-origin")) {
+        return t("pokemart_premium_soft_error");
+    }
+    return texto;
+}
+
 function renderizarCardItemHTML(item, estaLogueado) {
     const categoria = obtenerCategoriaItemBase(item);
     const itemUsuario = inventarioUsuarioGlobal.find(i => Number(i.item_id) === Number(item.id));
     const cantidadActual = itemUsuario ? itemUsuario.cantidad : 0;
-    const cantidadInput = cantidadesSeleccionadas[item.id] || 1;
+    const cantidadInput = obtenerTextoCantidadSeleccionada(item.id);
+    const totalActual = calcularTotalItemTienda(item, obtenerCantidadValidaDesdeTexto(cantidadInput, 1));
     const nombreTraducido = traducirNombreItemTienda(item.nombre);
     const tipoTraducido = traducirTipoItemTienda(item.tipo);
     const descripcionTraducida = traducirDescripcionItemTienda(item.nombre, item.descripcion || "");
@@ -433,20 +518,28 @@ function renderizarCardItemHTML(item, estaLogueado) {
                 </div>
             </div>
 
-            <div class="cantidad-compra-box">
-                <label for="cantidad-item-${item.id}">${t("pokemart_quantity")}</label>
-                <input
-                    type="number"
-                    id="cantidad-item-${item.id}"
-                    min="1"
-                    value="${cantidadInput}"
-                    ${estaLogueado ? "" : "disabled"}
-                >
-            </div>
+            <div class="item-card-purchase">
+                <div class="cantidad-compra-box">
+                    <label for="cantidad-item-${item.id}">${t("pokemart_quantity")}</label>
+                    <input
+                        type="number"
+                        id="cantidad-item-${item.id}"
+                        min="1"
+                        inputmode="numeric"
+                        value="${cantidadInput}"
+                        ${estaLogueado ? "" : "disabled"}
+                    >
+                </div>
 
-            <button class="btn-comprar-item" data-item-id="${item.id}" ${estaLogueado ? "" : "disabled"}>
-                ${estaLogueado ? t("pokemart_buy") : t("pokemart_login_button")}
-            </button>
+                <div class="item-total-row">
+                    <span>${t("pokemart_total_label")}</span>
+                    <strong><span class="item-total-value">${totalActual}</span> <small>PD</small></strong>
+                </div>
+
+                <button class="btn-comprar-item" data-item-id="${item.id}" ${estaLogueado ? "" : "disabled"}>
+                    ${estaLogueado ? t("pokemart_buy") : t("pokemart_login_button")}
+                </button>
+            </div>
         </article>
     `;
 }
@@ -782,6 +875,7 @@ function renderizarTienda() {
     const tienda = document.getElementById("tiendaItems");
     if (!tienda) return;
 
+    const focusState = capturarEstadoInputActivoPokeMart();
     tienda.innerHTML = "";
 
     if (!tiendaItemsGlobal.length) {
@@ -814,6 +908,7 @@ function renderizarTienda() {
 
     tienda.innerHTML = visibles.map(item => renderizarCardItemHTML(item, estaLogueado)).join("");
     tiendaRenderizada = true;
+    restaurarEstadoInputActivoPokeMart(focusState);
 }
 
 function setBotonComprando(itemId, comprando) {
@@ -975,7 +1070,8 @@ async function comprarItem(itemId) {
 
     const item = tiendaItemsGlobal.find(i => Number(i.id) === Number(itemId));
     const inputCantidad = document.getElementById(`cantidad-item-${itemId}`);
-    const cantidad = parseInt(inputCantidad?.value || "1", 10);
+    const rawCantidad = inputCantidad?.value ?? obtenerTextoCantidadSeleccionada(itemId);
+    const cantidad = obtenerCantidadValidaDesdeTexto(rawCantidad, 0);
 
     if (!cantidad || cantidad < 1) {
         mostrarMensajeCompra(t("pokemart_invalid_quantity"), "error");
@@ -1062,7 +1158,7 @@ async function comprarItem(itemId) {
             }
         }
 
-        cantidadesSeleccionadas[itemId] = 1;
+        cantidadesSeleccionadas[itemId] = "1";
 
         guardarCacheDatosUsuarioTienda();
 
@@ -1070,8 +1166,13 @@ async function comprarItem(itemId) {
         actualizarCardItemComprado(itemId);
 
         const nombreTraducido = traducirNombreItemTienda(item.nombre);
+        const totalTexto = String(total);
         mostrarMensajeCompra(
-            data.mensaje || `${t("pokemart_bought_prefix")} ${cantidad} x ${nombreTraducido}`,
+            data.mensaje || t("pokemart_bought_total_message", {
+                count: cantidad,
+                item: nombreTraducido,
+                total: totalTexto
+            }),
             "ok"
         );
 
@@ -1108,10 +1209,20 @@ document.addEventListener("input", function(event) {
     if (!input) return;
 
     const itemId = Number(input.id.replace("cantidad-item-", ""));
-    const valor = parseInt(input.value || "1", 10);
-
-    cantidadesSeleccionadas[itemId] = !valor || valor < 1 ? 1 : valor;
+    cantidadesSeleccionadas[itemId] = input.value;
+    actualizarTotalCardItem(itemId);
 });
+
+document.addEventListener("blur", function(event) {
+    const input = event.target.closest('input[id^="cantidad-item-"]');
+    if (!input) return;
+
+    const itemId = Number(input.id.replace("cantidad-item-", ""));
+    const cantidadNormalizada = obtenerCantidadValidaDesdeTexto(input.value, 1);
+    input.value = String(cantidadNormalizada);
+    cantidadesSeleccionadas[itemId] = String(cantidadNormalizada);
+    actualizarTotalCardItem(itemId);
+}, true);
 
 window.limpiarCacheUsuarioTienda = limpiarCacheUsuarioTienda;
 window.cargarTienda = cargarTienda;
@@ -1133,9 +1244,10 @@ function actualizarCardItemComprado(itemId) {
 
     const input = document.getElementById(`cantidad-item-${itemId}`);
     if (input) {
-        input.value = cantidadesSeleccionadas[itemId] || 1;
+        input.value = obtenerTextoCantidadSeleccionada(itemId);
     }
 
+    actualizarTotalCardItem(itemId);
     setBotonComprando(itemId, false);
 }
 
@@ -1837,7 +1949,8 @@ async function cargarPremiumShop() {
         premiumComprasGlobal = [];
         renderizarPremiumCatalogo();
         renderizarPremiumHistory();
-        setPremiumMessage(error?.message || t("pokemart_premium_load_error"), "error");
+        const mensajeUsuario = normalizarMensajePremiumUsuario(error?.message || t("pokemart_premium_load_error"));
+        setPremiumMessage(mensajeUsuario, mensajeUsuario ? "error" : "ok");
     }
 }
 

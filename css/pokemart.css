@@ -1675,3 +1675,118 @@
         width: 100%;
     }
 }
+
+
+/* =========================================================
+   POKEMART REDESIGN / HERO + PURCHASE FOOTER
+========================================================= */
+.pokemart-store-hero-card{
+    max-width: 980px;
+    margin: 0 auto 24px;
+    padding: 26px 26px 20px;
+    border-radius: 34px;
+    background:
+        radial-gradient(circle at top right, rgba(37,99,235,.10), transparent 28%),
+        linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    border: 1px solid rgba(226,232,240,.96);
+    box-shadow: 0 24px 56px rgba(15,23,42,.08);
+}
+
+.pokemart-store-hero-card .pokemart-title-block{
+    margin-bottom: 16px;
+}
+
+.pokemart-store-hero-card .pokemart-saldo{
+    max-width: 740px;
+    margin-bottom: 16px;
+}
+
+.pokemart-store-hero-card .saldo-box{
+    box-shadow: 0 16px 34px rgba(15,23,42,.06);
+}
+
+.pokemart-store-hero-card .pokemart-quick-nav-wrap{
+    max-width: 100%;
+    margin: 0 0 14px;
+    position: static;
+    top: auto;
+}
+
+.pokemart-store-hero-card .pokemart-quick-nav{
+    background: #eef2ff;
+    border-color: rgba(199,210,254,.75);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.75);
+}
+
+.pokemart-store-hero-card .mensaje-compra{
+    margin-bottom: 0;
+}
+
+.pokemart-catalog-shell{
+    margin-top: 6px;
+}
+
+.item-card-inline-stats{
+    margin-bottom: 10px;
+}
+
+.item-card-purchase{
+    margin-top: 0;
+    padding: 14px;
+    border-radius: 18px;
+    background: rgba(248,250,252,.92);
+    border: 1px solid rgba(226,232,240,.95);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.7);
+}
+
+.item-total-row{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 12px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: rgba(255,255,255,.92);
+    border: 1px solid rgba(226,232,240,.95);
+}
+
+.item-total-row span{
+    color: var(--mart-muted);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.item-total-row strong{
+    color: var(--mart-text);
+    font-size: 20px;
+    font-weight: 900;
+    line-height: 1;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+}
+
+.item-total-row strong small{
+    font-size: 11px;
+    color: #64748b;
+    letter-spacing: .08em;
+}
+
+.item-card.item-card-total-empty .item-total-row strong{
+    color: #94a3b8;
+}
+
+@media (max-width: 980px){
+    .pokemart-store-hero-card{
+        padding: 22px 18px 18px;
+        border-radius: 28px;
+    }
+}
+
+@media (max-width: 760px){
+    .pokemart-store-hero-card{
+        padding: 18px 14px 16px;
+        border-radius: 24px;
+    }
+}
