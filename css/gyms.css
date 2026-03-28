@@ -1,2524 +1,2180 @@
-.battle-page{
-    max-width:1400px;
+/* =========================================================
+   MASTERSMON - GYMS.CSS (LIMPIO DESDE CERO)
+   ---------------------------------------------------------
+   Base nueva construida solo para gyms.html + gyms.js actuales.
+   No depende del CSS viejo acumulado.
+
+   ÍNDICE
+   01. Variables base y fondo general
+   02. Tipografía, helpers y botones
+   03. Hero principal
+   04. Tarjeta preview del hero
+   05. Secciones base y overview
+   06. Layout principal y columnas
+   07. Tabs de región y resumen de ruta
+   08. Grid de líderes
+   09. Cards de Gym
+   10. Dossier / challenge seleccionado
+   11. Equipo rival
+   12. Team del jugador
+   13. Progreso y medallas
+   14. Chips de tipo estilo battle
+   15. Chips de estado y shiny
+   16. Retratos / assets / fallbacks
+   17. Responsive
+========================================================= */
+
+/* =========================================================
+   01. VARIABLES BASE Y FONDO GENERAL
+========================================================= */
+:root{
+    --gyms-bg-0:#050b14;
+    --gyms-bg-1:#071321;
+    --gyms-bg-2:#0b1727;
+    --gyms-bg-3:#112033;
+    --gyms-panel:#0d1726;
+    --gyms-panel-2:#122033;
+    --gyms-panel-3:#16263a;
+    --gyms-line:rgba(148,163,184,.16);
+    --gyms-line-strong:rgba(148,163,184,.28);
+    --gyms-text:#f8fbff;
+    --gyms-text-soft:#d6e4f5;
+    --gyms-text-muted:#94a9c3;
+    --gyms-shadow:0 22px 50px rgba(0,0,0,.34);
+    --gyms-shadow-soft:0 14px 34px rgba(0,0,0,.24);
+    --gyms-radius-xl:30px;
+    --gyms-radius-lg:24px;
+    --gyms-radius-md:18px;
+    --gyms-radius-sm:14px;
+    --gyms-blue:#4f9bff;
+    --gyms-blue-2:#1d4ed8;
+    --gyms-cyan:#4ddcff;
+    --gyms-gold:#ffd86a;
+    --gyms-red:#ff6b6b;
+    --gyms-green:#63d184;
+    --type-color:#64748b;
+    --type-soft:rgba(100,116,139,.22);
+    --type-soft-strong:rgba(100,116,139,.36);
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    margin:0;
+    color:var(--gyms-text);
+    background:
+        radial-gradient(circle at top left, rgba(59,130,246,.18) 0%, transparent 28%),
+        radial-gradient(circle at top right, rgba(6,182,212,.14) 0%, transparent 30%),
+        linear-gradient(180deg, #07101b 0%, #091321 34%, #050b14 100%);
+}
+
+body::selection{
+    background:rgba(79,155,255,.28);
+}
+
+.gyms-page,
+.gyms-page *{
+    box-sizing:border-box;
+}
+
+.gyms-page{
+    width:min(1440px, calc(100% - 40px));
     margin:0 auto;
-    padding:28px 24px 40px;
+    padding:28px 0 56px;
 }
 
-/* =========================
-   HERO / CABECERA
-========================= */
-.battle-hero{
-    text-align:center;
-    margin-bottom:24px;
+img{
+    max-width:100%;
+    display:block;
 }
 
-.battle-hero-badge{
-    display:inline-block;
+button,
+a{
+    -webkit-tap-highlight-color:transparent;
+}
+
+/* =========================================================
+   02. TIPOGRAFÍA, HELPERS Y BOTONES
+========================================================= */
+.gyms-title{
+    margin:0;
+    font-size:clamp(2.6rem, 4.8vw, 4.4rem);
+    line-height:.96;
+    letter-spacing:.08em;
+    font-weight:900;
+}
+
+.gyms-subtitle,
+.gym-desc,
+.gym-detail-note,
+.gym-sidebar-item p,
+.gyms-stat-card small,
+.hero-preview-copy p,
+.hero-preview-footer span,
+.hero-preview-empty,
+.gym-team-empty,
+.gym-progress-note,
+.gym-region-summary-card p,
+.gym-progress-wrap p{
+    color:var(--gyms-text-soft);
+}
+
+.gyms-section-kicker,
+.gyms-hero-kicker{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:12px;
+    color:#8fd1ff;
+    font-size:.74rem;
+    font-weight:800;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+}
+
+.gyms-hero-kicker::before,
+.gyms-section-kicker::before{
+    content:"";
+    width:10px;
+    height:10px;
+    border-radius:999px;
+    background:linear-gradient(180deg, #7fd7ff 0%, #4f9bff 100%);
+    box-shadow:0 0 18px rgba(79,155,255,.56);
+}
+
+.gyms-pill{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-height:34px;
     padding:8px 14px;
     border-radius:999px;
-    background:linear-gradient(180deg,#eff6ff 0%,#dbeafe 100%);
-    color:#1d4ed8;
-    font-size:13px;
+    border:1px solid rgba(125,211,252,.24);
+    background:rgba(8, 20, 34, .82);
+    color:#dff2ff;
+    font-size:.78rem;
     font-weight:800;
-    margin-bottom:12px;
-    border:1px solid #bfdbfe;
-    box-shadow:0 6px 14px rgba(37,99,235,0.10);
+    line-height:1;
+    text-align:center;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
 }
 
-.battle-title{
-    margin:0 0 8px;
-    font-size:42px;
-    font-weight:900;
-    color:#111827;
-    letter-spacing:.4px;
+.gyms-btn,
+.gyms-btn-secondary,
+.gyms-btn-ghost,
+.gyms-btn-danger{
+    appearance:none;
+    border:none;
+    outline:none;
+    cursor:pointer;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    min-height:48px;
+    padding:12px 18px;
+    border-radius:16px;
+    font-weight:800;
+    font-size:.95rem;
+    transition:transform .18s ease, box-shadow .18s ease, background .18s ease, border-color .18s ease, opacity .18s ease;
 }
 
-.battle-subtitle{
-    margin:0 auto;
-    max-width:760px;
-    font-size:16px;
-    line-height:1.55;
-    color:#6b7280;
+.gyms-btn{
+    background:linear-gradient(180deg, #5fb2ff 0%, #2a7eff 100%);
+    color:#ffffff;
+    box-shadow:0 14px 28px rgba(42,126,255,.32);
 }
 
-/* =========================
-   DASHBOARD
-========================= */
-.battle-dashboard{
-    margin-bottom:24px;
+.gyms-btn-secondary{
+    background:linear-gradient(180deg, #1d3550 0%, #13263b 100%);
+    color:#f3f9ff;
+    border:1px solid rgba(113,189,255,.24);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.08), 0 12px 24px rgba(0,0,0,.18);
 }
 
-.battle-summary-card{
-    background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);
+.gyms-btn-ghost{
+    background:rgba(255,255,255,.04);
+    color:#d7e9ff;
+    border:1px solid rgba(148,163,184,.22);
+}
+
+.gyms-btn-danger{
+    background:linear-gradient(180deg, #ff7f7f 0%, #e44646 100%);
     color:#fff;
-    border-radius:24px;
-    padding:22px 24px;
-    box-shadow:0 18px 40px rgba(15,23,42,0.18);
-    overflow:hidden;
-    position:relative;
+    box-shadow:0 12px 24px rgba(228,70,70,.26);
 }
 
-.battle-summary-card::before{
+.gyms-btn:hover,
+.gyms-btn-secondary:hover,
+.gyms-btn-ghost:hover,
+.gyms-btn-danger:hover{
+    transform:translateY(-1px);
+}
+
+.gyms-btn:disabled,
+.gyms-btn-secondary:disabled,
+.gyms-btn-ghost:disabled,
+.gyms-btn-danger:disabled{
+    cursor:not-allowed;
+    opacity:.52;
+    transform:none;
+    box-shadow:none;
+}
+
+/* =========================================================
+   03. HERO PRINCIPAL
+========================================================= */
+.gyms-hero{
+    position:relative;
+    overflow:hidden;
+    padding:34px;
+    margin-bottom:24px;
+    border-radius:var(--gyms-radius-xl);
+    border:1px solid rgba(125,211,252,.16);
+    background:
+        radial-gradient(circle at 0% 0%, rgba(59,130,246,.22) 0%, transparent 32%),
+        radial-gradient(circle at 100% 0%, rgba(34,211,238,.16) 0%, transparent 28%),
+        linear-gradient(180deg, rgba(9,19,33,.98) 0%, rgba(8,16,29,.96) 100%);
+    box-shadow:var(--gyms-shadow);
+}
+
+.gyms-hero::before,
+.gyms-hero::after{
     content:"";
     position:absolute;
-    top:-60px;
-    right:-60px;
-    width:180px;
-    height:180px;
-    border-radius:999px;
-    background:radial-gradient(circle, rgba(255,255,255,0.12), transparent 70%);
     pointer-events:none;
+    border-radius:999px;
+    filter:blur(8px);
 }
 
-.battle-summary-top{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:20px;
-    margin-bottom:18px;
+.gyms-hero::before{
+    inset:auto auto -120px -80px;
+    width:280px;
+    height:280px;
+    background:rgba(79,155,255,.16);
+}
+
+.gyms-hero::after{
+    inset:-100px -70px auto auto;
+    width:220px;
+    height:220px;
+    background:rgba(77,220,255,.12);
+}
+
+.gyms-hero-grid{
     position:relative;
     z-index:1;
-}
-
-.battle-summary-label{
-    display:inline-block;
-    font-size:12px;
-    font-weight:800;
-    color:#cbd5e1;
-    text-transform:uppercase;
-    letter-spacing:.08em;
-    margin-bottom:6px;
-}
-
-.battle-summary-top h3{
-    margin:0;
-    font-size:26px;
-    font-weight:900;
-}
-
-.battle-summary-counter{
-    min-width:150px;
-    background:rgba(255,255,255,0.08);
-    border:1px solid rgba(255,255,255,0.14);
-    border-radius:18px;
-    padding:14px 16px;
-    text-align:center;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,0.05);
-}
-
-.battle-summary-counter strong{
-    display:block;
-    font-size:28px;
-    line-height:1;
-    margin-bottom:6px;
-}
-
-.battle-summary-counter span{
-    font-size:13px;
-    color:#cbd5e1;
-}
-
-.battle-summary-stats{
     display:grid;
-    grid-template-columns:repeat(4, minmax(0, 1fr));
-    gap:12px;
-    position:relative;
-    z-index:1;
+    grid-template-columns:minmax(0, 1.12fr) minmax(350px, .88fr);
+    gap:24px;
     align-items:stretch;
 }
 
-.summary-mini-card{
-    background:rgba(255,255,255,0.08);
-    border:1px solid rgba(255,255,255,0.12);
-    border-radius:18px;
-    padding:14px 16px;
-    min-height:92px;
+.gyms-hero-copy{
     display:flex;
     flex-direction:column;
     justify-content:center;
+    min-width:0;
 }
 
-.summary-mini-card span{
+.gyms-subtitle{
+    max-width:760px;
+    margin:14px 0 0;
+    font-size:1rem;
+    line-height:1.72;
+}
+
+.gyms-hero-actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    margin-top:24px;
+}
+
+.gyms-hero-statbar{
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0, 1fr));
+    gap:12px;
+    margin-top:22px;
+}
+
+.gyms-hero-stat{
+    min-width:0;
+    padding:14px 16px;
+    border-radius:18px;
+    border:1px solid rgba(148,163,184,.14);
+    background:linear-gradient(180deg, rgba(17,32,51,.9) 0%, rgba(11,23,39,.94) 100%);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+}
+
+.gyms-hero-stat span{
     display:block;
-    font-size:12px;
-    color:#cbd5e1;
-    margin-bottom:6px;
+    color:var(--gyms-text-muted);
+    font-size:.74rem;
+    font-weight:700;
+    letter-spacing:.06em;
+    text-transform:uppercase;
 }
 
-.summary-mini-card strong{
-    font-size:16px;
-    color:#fff;
+.gyms-hero-stat strong{
+    display:block;
+    margin-top:6px;
+    color:#ffffff;
+    font-size:1.08rem;
+    font-weight:900;
+}
+
+/* =========================================================
+   04. TARJETA PREVIEW DEL HERO
+========================================================= */
+.gyms-hero-preview,
+.gym-detail-card,
+.gym-card,
+.gym-region-summary-card,
+.gym-team-card{
+    position:relative;
+    isolation:isolate;
+    --type-color:#64748b;
+    --type-soft:rgba(100,116,139,.20);
+    --type-soft-strong:rgba(100,116,139,.34);
+}
+
+.gyms-hero-preview{
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    min-height:100%;
+    padding:22px;
+    border-radius:26px;
+    border:1px solid rgba(148,163,184,.18);
+    background:
+        linear-gradient(180deg, rgba(15,28,44,.94) 0%, rgba(9,18,31,.96) 100%);
+    box-shadow:var(--gyms-shadow-soft);
+}
+
+.gyms-hero-preview::before,
+.gym-detail-card::before,
+.gym-card::before,
+.gym-region-summary-card::before,
+.gym-team-card::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    background:
+        radial-gradient(circle at 100% 0%, var(--type-soft-strong) 0%, transparent 34%),
+        radial-gradient(circle at 0% 100%, var(--type-soft) 0%, transparent 36%);
+    opacity:1;
+    z-index:-1;
+}
+
+.hero-preview-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:18px;
+}
+
+.hero-preview-status{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-height:32px;
+    padding:8px 12px;
+    border-radius:999px;
+    background:rgba(255,255,255,.06);
+    border:1px solid rgba(148,163,184,.18);
+    color:#f7fbff;
+    font-size:.76rem;
+    font-weight:800;
+    white-space:nowrap;
+}
+
+.hero-preview-main{
+    display:grid;
+    grid-template-columns:160px minmax(0, 1fr) 78px;
+    gap:18px;
+    align-items:end;
+}
+
+.hero-preview-copy{
+    min-width:0;
+    padding-bottom:6px;
+}
+
+.hero-preview-copy small{
+    display:block;
+    color:#7ccfff;
+    font-size:.78rem;
+    font-weight:800;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+}
+
+.hero-preview-copy h2{
+    margin:8px 0 10px;
+    color:#ffffff;
+    font-size:clamp(1.55rem, 2vw, 2rem);
+    line-height:1.02;
+}
+
+.hero-preview-copy p{
+    margin:0;
+    font-size:.97rem;
+    line-height:1.6;
+}
+
+.hero-preview-footer{
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0, 1fr));
+    gap:12px;
+    margin-top:20px;
+}
+
+.hero-preview-footer > div{
+    min-width:0;
+    padding:12px 13px;
+    border-radius:16px;
+    border:1px solid rgba(148,163,184,.14);
+    background:rgba(255,255,255,.04);
+}
+
+.hero-preview-footer span{
+    display:block;
+    font-size:.7rem;
+    font-weight:800;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+}
+
+.hero-preview-footer strong{
+    display:block;
+    margin-top:6px;
+    color:#ffffff;
+    font-size:.96rem;
+    line-height:1.3;
+}
+
+.hero-preview-empty{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:250px;
+    padding:20px;
+    border-radius:22px;
+    border:1px dashed rgba(148,163,184,.24);
+    text-align:center;
+    font-weight:700;
+}
+
+/* =========================================================
+   05. SECCIONES BASE Y OVERVIEW
+========================================================= */
+.gyms-section{
+    padding:22px;
+    border-radius:var(--gyms-radius-lg);
+    border:1px solid var(--gyms-line);
+    background:linear-gradient(180deg, rgba(13,23,38,.94) 0%, rgba(9,18,31,.96) 100%);
+    box-shadow:var(--gyms-shadow-soft);
+}
+
+.gyms-overview-shell,
+.gyms-region-shell,
+.gyms-roadmap-shell,
+.gyms-detail-shell,
+.gyms-team-shell,
+.gyms-progress-shell{
+    backdrop-filter:blur(10px);
+}
+
+.gyms-section-header{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:18px;
+    margin-bottom:18px;
+}
+
+.gyms-section-header-tight{
+    margin-bottom:16px;
+}
+
+.gyms-section-header h2,
+.gyms-section-header h3,
+.gym-region-summary-card h4{
+    margin:0;
+    color:#ffffff;
+    line-height:1.08;
+}
+
+.gyms-section-header h2{
+    font-size:1.6rem;
+}
+
+.gyms-section-header h3{
+    font-size:1.32rem;
+}
+
+.gyms-section-header p,
+.gym-region-summary-card p{
+    margin:8px 0 0;
+    line-height:1.62;
+    font-size:.96rem;
+}
+
+.gyms-overview{
+    display:grid;
+    grid-template-columns:repeat(4, minmax(0, 1fr));
+    gap:14px;
+}
+
+.gyms-stat-card{
+    position:relative;
+    overflow:hidden;
+    min-width:0;
+    padding:16px;
+    border-radius:20px;
+    border:1px solid rgba(148,163,184,.14);
+    background:linear-gradient(180deg, rgba(18,32,51,.9) 0%, rgba(11,22,37,.96) 100%);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+}
+
+.gyms-stat-card::after{
+    content:"";
+    position:absolute;
+    inset:auto -20px -40px auto;
+    width:110px;
+    height:110px;
+    border-radius:999px;
+    background:rgba(79,155,255,.08);
+    filter:blur(14px);
+}
+
+.gyms-stat-card span{
+    display:block;
+    color:var(--gyms-text-muted);
+    font-size:.72rem;
+    font-weight:800;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+}
+
+.gyms-stat-card strong{
+    display:block;
+    margin-top:9px;
+    color:#ffffff;
+    font-size:1.38rem;
+    line-height:1.08;
+}
+
+.gyms-stat-card small{
+    display:block;
+    margin-top:10px;
+    font-size:.84rem;
+    line-height:1.56;
+}
+
+/* =========================================================
+   06. LAYOUT PRINCIPAL Y COLUMNAS
+========================================================= */
+.gyms-page-grid{
+    display:grid;
+    grid-template-columns:minmax(0, 1.2fr) minmax(340px, .8fr);
+    gap:20px;
+    align-items:start;
+}
+
+.gyms-main-column,
+.gyms-sidebar-column{
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+}
+
+/* =========================================================
+   07. TABS DE REGIÓN Y RESUMEN DE RUTA
+========================================================= */
+.gym-region-tabs{
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0, 1fr));
+    gap:12px;
+}
+
+.gym-region-tab{
+    position:relative;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:6px;
+    width:100%;
+    min-height:92px;
+    padding:16px 16px 15px;
+    border:none;
+    border-radius:20px;
+    border:1px solid rgba(148,163,184,.16);
+    background:linear-gradient(180deg, rgba(18,30,47,.94) 0%, rgba(12,21,35,.98) 100%);
+    color:#ffffff;
+    cursor:pointer;
+    text-align:left;
+    box-shadow:var(--gyms-shadow-soft);
+    transition:transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+
+.gym-region-tab::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:radial-gradient(circle at 100% 0%, var(--type-soft-strong) 0%, transparent 40%);
+    pointer-events:none;
+}
+
+.gym-region-tab span{
+    position:relative;
+    z-index:1;
+    font-size:.92rem;
+    font-weight:800;
+}
+
+.gym-region-tab strong{
+    position:relative;
+    z-index:1;
+    font-size:1.22rem;
+    line-height:1;
+}
+
+.gym-region-tab small{
+    position:relative;
+    z-index:1;
+    color:var(--gyms-text-muted);
+    font-size:.74rem;
+    font-weight:800;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+}
+
+.gym-region-tab:hover,
+.gym-region-tab.is-active{
+    transform:translateY(-2px);
+    border-color:var(--type-soft-strong);
+    box-shadow:0 18px 34px rgba(0,0,0,.26);
+}
+
+.gym-region-tab.is-active{
+    outline:2px solid rgba(255,255,255,.06);
+}
+
+.gym-region-summary{
+    margin-top:14px;
+}
+
+.gym-region-summary-card{
+    overflow:hidden;
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:18px;
+    padding:18px;
+    border-radius:22px;
+    border:1px solid rgba(148,163,184,.16);
+    background:linear-gradient(180deg, rgba(17,29,45,.94) 0%, rgba(11,20,34,.98) 100%);
+}
+
+.gym-region-summary-meta{
+    display:grid;
+    grid-template-columns:repeat(2, minmax(120px, 1fr));
+    gap:12px;
+    min-width:min(100%, 320px);
+}
+
+.gym-region-summary-meta > div{
+    min-width:0;
+    padding:12px 14px;
+    border-radius:16px;
+    border:1px solid rgba(148,163,184,.14);
+    background:rgba(255,255,255,.04);
+}
+
+.gym-region-summary-meta span{
+    display:block;
+    color:var(--gyms-text-muted);
+    font-size:.72rem;
+    font-weight:800;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+}
+
+.gym-region-summary-meta strong{
+    display:block;
+    margin-top:6px;
+    color:#ffffff;
+    font-size:1rem;
+    line-height:1.3;
+}
+
+/* =========================================================
+   08. GRID DE LÍDERES
+========================================================= */
+.gyms-grid{
+    display:grid;
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap:16px;
+}
+
+/* =========================================================
+   09. CARDS DE GYM
+========================================================= */
+.gym-card{
+    overflow:hidden;
+    min-width:0;
+    padding:18px;
+    border-radius:24px;
+    border:1px solid rgba(148,163,184,.16);
+    background:linear-gradient(180deg, rgba(16,29,46,.96) 0%, rgba(10,19,31,.98) 100%);
+    box-shadow:var(--gyms-shadow-soft);
+    transition:transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+
+.gym-card:hover,
+.gym-card.is-selected{
+    transform:translateY(-3px);
+    border-color:var(--type-soft-strong);
+    box-shadow:0 22px 42px rgba(0,0,0,.3);
+}
+
+.gym-card-glow{
+    position:absolute;
+    inset:-50px -30px auto auto;
+    width:120px;
+    height:120px;
+    border-radius:999px;
+    background:var(--type-soft-strong);
+    filter:blur(28px);
+    pointer-events:none;
+    opacity:.7;
+}
+
+.gym-card-top{
+    position:relative;
+    z-index:1;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:14px;
+}
+
+.gym-card-main{
+    display:grid;
+    grid-template-columns:116px minmax(0, 1fr) 72px;
+    gap:14px;
+    align-items:end;
+}
+
+.gym-card-copy{
+    min-width:0;
+    padding-bottom:4px;
+}
+
+.gym-card-copy small{
+    display:block;
+    color:#89cbff;
+    font-size:.72rem;
+    font-weight:800;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+}
+
+.gym-title{
+    margin:8px 0 8px;
+    color:#ffffff;
+    font-size:1.34rem;
+    line-height:1.02;
+}
+
+.gym-city{
+    margin:0;
+    color:#d8e7f6;
+    font-size:.93rem;
+}
+
+.gym-desc{
+    margin:14px 0 0;
+    font-size:.92rem;
+    line-height:1.6;
+    min-height:88px;
+}
+
+.gym-meta-grid{
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0, 1fr));
+    gap:10px;
+    margin-top:14px;
+}
+
+.gym-meta-item,
+.gym-detail-meta-item,
+.gym-summary-box,
+.gym-sidebar-item{
+    min-width:0;
+    padding:12px 12px 11px;
+    border-radius:16px;
+    border:1px solid rgba(148,163,184,.14);
+    background:linear-gradient(180deg, rgba(255,255,255,.055) 0%, rgba(255,255,255,.03) 100%);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.03);
+}
+
+.gym-meta-item span,
+.gym-detail-meta-item span,
+.gym-summary-box span,
+.gym-sidebar-item strong,
+.gym-roster-stack-head span{
+    display:block;
+    color:var(--gyms-text-muted);
+    font-size:.64rem;
+    font-weight:800;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+}
+
+.gym-meta-item strong,
+.gym-detail-meta-item strong,
+.gym-summary-box strong{
+    display:block;
+    margin-top:6px;
+    color:#ffffff;
+    font-size:.93rem;
+    line-height:1.2;
+    font-weight:900;
+    word-break:break-word;
+}
+
+.gym-roster-preview{
+    display:grid;
+    grid-template-columns:repeat(6, minmax(0, 1fr));
+    gap:10px;
+    margin-top:14px;
+}
+
+.gym-actions{
+    display:grid;
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap:10px;
+    margin-top:14px;
+}
+
+/* =========================================================
+   10. DOSSIER / CHALLENGE SELECCIONADO
+========================================================= */
+#selectedGymPanel{
+    min-width:0;
+}
+
+.gym-empty-note{
+    margin:0;
+    padding:18px;
+    border-radius:18px;
+    border:1px dashed rgba(148,163,184,.22);
+    color:var(--gyms-text-soft);
+    text-align:center;
+}
+
+.gym-detail-card{
+    overflow:hidden;
+    padding:20px;
+    border-radius:26px;
+    border:1px solid rgba(148,163,184,.16);
+    background:linear-gradient(180deg, rgba(16,29,46,.97) 0%, rgba(10,18,30,.98) 100%);
+    box-shadow:var(--gyms-shadow-soft);
+}
+
+.gym-detail-hero{
+    display:grid;
+    grid-template-columns:136px minmax(0, 1fr) 92px;
+    gap:16px;
+    align-items:end;
+}
+
+.gym-detail-copy{
+    min-width:0;
+    padding-bottom:4px;
+}
+
+.gym-detail-topline{
+    display:flex;
+    align-items:center;
+    justify-content:flex-start;
+    margin-bottom:8px;
+}
+
+.gym-detail-copy small{
+    display:block;
+    color:#8fd1ff;
+    font-size:.74rem;
+    font-weight:800;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+}
+
+.gym-detail-copy h4{
+    margin:8px 0;
+    color:#ffffff;
+    font-size:1.58rem;
+    line-height:1.02;
+}
+
+.gym-detail-copy p{
+    margin:0;
+    color:#d9e8f8;
+    font-size:.96rem;
+    line-height:1.6;
+}
+
+.gym-detail-side{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    justify-content:flex-end;
+    gap:12px;
+    min-width:0;
+}
+
+.gym-detail-note{
+    margin:16px 0 0;
+    font-size:.95rem;
+    line-height:1.72;
+}
+
+.gym-detail-meta{
+    display:grid;
+    grid-template-columns:repeat(4, minmax(0, 1fr));
+    gap:10px;
+    margin-top:16px;
+}
+
+.gym-sidebar-list{
+    display:grid;
+    gap:10px;
+    margin-top:16px;
+}
+
+.gym-sidebar-item strong{
+    margin-bottom:8px;
+    color:#ffffff;
+    font-size:.76rem;
+}
+
+.gym-sidebar-item p{
+    margin:0;
+    font-size:.92rem;
+    line-height:1.56;
+}
+
+.gym-detail-actions{
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0, 1fr));
+    gap:10px;
+    margin-top:18px;
+}
+
+/* =========================================================
+   11. EQUIPO RIVAL
+========================================================= */
+.gym-roster-stack{
+    margin-top:18px;
+}
+
+.gym-roster-stack-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:12px;
+}
+
+.gym-roster-stack-head strong{
+    color:#ffffff;
+    font-size:1rem;
+}
+
+.gym-roster-grid{
+    display:grid;
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap:12px;
+}
+
+.gym-roster-card{
+    position:relative;
+    overflow:hidden;
+    min-width:0;
+    padding:14px;
+    border-radius:20px;
+    border:1px solid rgba(148,163,184,.14);
+    background:linear-gradient(180deg, rgba(19,33,52,.96) 0%, rgba(12,20,33,.98) 100%);
+}
+
+.gym-roster-card::after{
+    content:"";
+    position:absolute;
+    inset:auto -18px -34px auto;
+    width:88px;
+    height:88px;
+    border-radius:999px;
+    background:var(--type-soft);
+    filter:blur(18px);
+    pointer-events:none;
+}
+
+.gym-roster-card.is-leader{
+    border-color:rgba(255,216,106,.3);
+    box-shadow:0 14px 28px rgba(255,216,106,.08), inset 0 0 0 1px rgba(255,216,106,.12);
+}
+
+.gym-roster-card-top{
+    position:relative;
+    z-index:1;
+    display:grid;
+    grid-template-columns:74px minmax(0, 1fr);
+    gap:12px;
+    align-items:center;
+}
+
+.gym-roster-card-top img{
+    width:74px;
+    height:74px;
+    object-fit:contain;
+    image-rendering:auto;
+    filter:drop-shadow(0 10px 18px rgba(0,0,0,.24));
+}
+
+.gym-roster-card-copy{
+    min-width:0;
+}
+
+.gym-roster-card-copy strong{
+    display:block;
+    color:#ffffff;
+    font-size:1rem;
     line-height:1.2;
 }
 
-.battle-difficulty-card{
+.gym-type-chip-row{
     display:flex;
-    flex-direction:column;
-    justify-content:center;
-    gap:6px;
-    min-height:92px;
+    flex-wrap:wrap;
+    gap:7px;
+    margin-top:9px;
 }
 
-.battle-difficulty-select{
-    width:100%;
-    height:42px;
-    border:1px solid rgba(147,197,253,0.35);
-    border-radius:14px;
-    padding:0 42px 0 14px;
-    font-size:14px;
-    font-weight:800;
-    color:#ffffff;
-    background:linear-gradient(180deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.06) 100%);
-    outline:none;
-    box-sizing:border-box;
-    appearance:none;
-    -webkit-appearance:none;
-    -moz-appearance:none;
-    cursor:pointer;
-    box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.08),
-        0 6px 16px rgba(15,23,42,0.16);
-    transition:border-color .18s ease, background .18s ease, box-shadow .18s ease;
-    background-image:
-        linear-gradient(45deg, transparent 50%, #dbeafe 50%),
-        linear-gradient(135deg, #dbeafe 50%, transparent 50%);
-    background-position:
-        calc(100% - 18px) calc(50% - 3px),
-        calc(100% - 12px) calc(50% - 3px);
-    background-size:6px 6px, 6px 6px;
-    background-repeat:no-repeat;
-}
-
-.battle-difficulty-select:hover{
-    background:linear-gradient(180deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.08) 100%);
-    border-color:rgba(147,197,253,0.55);
-    box-shadow:
-        inset 0 1px 0 rgba(255,255,255,0.10),
-        0 8px 18px rgba(15,23,42,0.18);
-}
-
-.battle-difficulty-select:focus{
-    border-color:#60a5fa;
-    box-shadow:
-        0 0 0 3px rgba(59,130,246,0.18),
-        0 8px 18px rgba(15,23,42,0.18);
-}
-
-.battle-difficulty-select option{
-    color:#111827;
-    background:#ffffff;
-}
-
-.battle-difficulty-card small{
-    display:none;
-}
-
-/* =========================
-   LAYOUT PRINCIPAL
-========================= */
-.battle-layout{
-    display:grid;
-    grid-template-columns:1.35fr .9fr;
-    gap:24px;
-    margin-bottom:24px;
-}
-
-.battle-panel{
-    background:#fff;
-    border-radius:24px;
-    padding:22px;
-    box-shadow:0 12px 28px rgba(15,23,42,0.08);
-    border:1px solid #e5e7eb;
-}
-
-.battle-team-panel{
-    display:flex;
-    flex-direction:column;
-}
-
-.battle-panel-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-start;
-    gap:16px;
-    margin-bottom:12px;
-}
-
-.battle-panel-kicker{
-    display:inline-block;
-    font-size:12px;
-    font-weight:800;
-    text-transform:uppercase;
-    letter-spacing:.08em;
-    color:#64748b;
-    margin-bottom:6px;
-}
-
-.battle-panel-header h3{
-    margin:0;
-    font-size:28px;
-    font-weight:900;
-    color:#111827;
-}
-
-.battle-panel-chip{
-    flex-shrink:0;
-    background:linear-gradient(180deg,#eef2ff 0%,#e0e7ff 100%);
-    color:#4338ca;
-    border:1px solid #c7d2fe;
-    border-radius:999px;
-    padding:8px 14px;
-    font-size:12px;
-    font-weight:800;
-}
-
-.battle-panel-chip.chip-red{
-    background:linear-gradient(180deg,#fef2f2 0%,#fee2e2 100%);
-    color:#b91c1c;
-    border-color:#fecaca;
-}
-
-.battle-panel-description{
-    margin:0 0 18px;
-    font-size:15px;
-    line-height:1.6;
-    color:#475569;
-}
-
-/* =========================
-   EQUIPO
-========================= */
-.battle-team-grid{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:14px;
-    margin-bottom:16px;
-}
-
-.battle-team-slot{
-    position:relative;
-    min-height:130px;
-    border-radius:22px;
-    padding:16px 18px;
-    overflow:hidden;
-    border:1px solid #dbe5f1;
-    background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);
-    transition:transform .16s ease, box-shadow .16s ease, border-color .16s ease;
-    box-shadow:
-        0 10px 24px rgba(0,0,0,0.06),
-        inset 0 1px 0 rgba(255,255,255,0.65);
-}
-
-.battle-team-slot::before{
-    content:"";
-    position:absolute;
-    inset:0;
-    background:
-        radial-gradient(circle at top left, rgba(255,255,255,0.65), transparent 35%),
-        linear-gradient(180deg, rgba(255,255,255,0.35), transparent 42%);
-    pointer-events:none;
-}
-
-.battle-team-slot:hover{
-    transform:translateY(-2px);
-    box-shadow:0 14px 24px rgba(15,23,42,0.08);
-}
-
-.battle-team-slot.empty{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    border:1px dashed #cbd5e1;
-    background:linear-gradient(180deg,#f8fafc 0%,#f1f5f9 100%);
-}
-
-.team-slot-index{
-    position:absolute;
-    top:12px;
-    left:12px;
-    width:31px;
-    height:31px;
-    border-radius:50%;
-    background:#e2e8f0;
-    color:#0f172a;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:13px;
-    font-weight:900;
-    z-index:2;
-}
-
-.team-slot-content{
-    text-align:center;
-    position:relative;
-    z-index:1;
-}
-
-.team-slot-icon{
-    width:48px;
-    height:48px;
-    margin:0 auto 10px;
-    border-radius:50%;
-    background:#ffffff;
-    border:1px solid #dbeafe;
-    color:#2563eb;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:26px;
-    font-weight:700;
-}
-
-.team-slot-content h4{
-    margin:0 0 6px;
-    font-size:18px;
-    font-weight:800;
-    color:#111827;
-}
-
-.team-slot-content p{
-    margin:0;
-    font-size:14px;
-    color:#64748b;
-}
-
-.battle-team-slot.filled{
-    display:flex;
-    align-items:center;
-    justify-content:flex-start;
-}
-
-.team-slot-filled{
-    display:flex;
-    align-items:center;
-    gap:14px;
-    width:100%;
-    position:relative;
-    z-index:1;
-}
-
-.team-slot-sprite{
-    width:72px;
-    height:72px;
-    object-fit:contain;
-    flex-shrink:0;
-    margin-left:6px;
-    image-rendering:pixelated;
-    filter:drop-shadow(0 6px 10px rgba(15,23,42,0.12));
-}
-
-.team-slot-info{
-    display:flex;
-    flex-direction:column;
-    align-items:flex-start;
-    justify-content:center;
-    flex:1;
+/* =========================================================
+   12. TEAM DEL JUGADOR
+========================================================= */
+#gymTeamSummary,
+#gymTeamList{
     min-width:0;
 }
 
-.team-slot-headline{
-    display:flex;
-    align-items:center;
-    gap:8px;
-    flex-wrap:wrap;
-    margin-bottom:2px;
-}
-
-.team-slot-info h4{
-    margin:0;
-    font-size:17px;
-    font-weight:900;
-    color:#111827;
-}
-
-.team-slot-info p{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    margin:4px 0 10px;
-    padding:7px 14px;
-    border-radius:999px;
-    font-size:13px;
-    font-weight:800;
-    line-height:1;
-    color:#ffffff;
-    min-width:78px;
-    width:fit-content;
-    max-width:100%;
-    box-shadow:0 6px 12px rgba(0,0,0,0.10);
-}
-
-.team-slot-meta{
-    display:flex;
-    flex-wrap:wrap;
-    gap:8px;
-    align-items:center;
-}
-
-.team-slot-meta span{
-    display:inline-block;
-    padding:5px 9px;
-    border-radius:999px;
-    font-size:11px;
-    font-weight:800;
-    line-height:1;
-}
-
-.meta-level{
-    background:#dbeafe;
-    color:#1d4ed8;
-}
-
-.meta-hp{
-    background:#d9f99d;
-    color:#3f6212;
-}
-
-.meta-atk{
-    background:#fee2e2;
-    color:#b91c1c;
-}
-
-.meta-def{
-    background:#ede9fe;
-    color:#6d28d9;
-}
-
-.team-slot-exp-wrap{
-    width: 100%;
-    margin-top: 10px;
-}
-
-.team-slot-exp-label{
-    font-size: 12px;
-    font-weight: 800;
-    color: #374151;
-    margin-bottom: 6px;
-}
-
-.team-slot-exp-bar{
-    width: 100%;
-    height: 8px;
-    background: #e5e7eb;
-    border-radius: 999px;
-    overflow: hidden;
-}
-
-.team-slot-exp-fill{
-    height: 100%;
-    background: linear-gradient(90deg, #22c55e, #16a34a);
-    border-radius: 999px;
-    transition: width .24s ease;
-}
-
-.team-slot-remove{
-    position:absolute;
-    top:10px;
-    right:10px;
-    width:32px;
-    height:32px;
-    border:0;
-    border-radius:50%;
-    background:rgba(239,68,68,0.12);
-    color:#dc2626;
-    font-size:19px;
-    font-weight:900;
-    cursor:pointer;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    z-index:3;
-    transition:background .15s ease, transform .15s ease;
-}
-
-.team-slot-remove:hover{
-    background:rgba(239,68,68,0.18);
-    transform:scale(1.05);
-}
-
-.team-slot-lead{
-    border:1px solid #f6cf75 !important;
-    box-shadow:0 12px 22px rgba(245,158,11,0.10);
-}
-
-.team-lead-badge{
-    display:inline-block;
-    padding:5px 9px;
-    border-radius:999px;
-    background:#fef3c7;
-    color:#b45309;
-    font-size:11px;
-    font-weight:900;
-}
-
-.team-shiny-icon{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    width:22px;
-    height:22px;
-    border-radius:999px;
-    background:linear-gradient(180deg,#fff4cc 0%,#fde68a 100%);
-    color:#b45309;
-    font-size:12px;
-    font-weight:900;
-    line-height:1;
-    box-shadow:0 2px 6px rgba(245,158,11,0.18);
-}
-
-/* =========================
-   BOTONES ACCIÓN
-========================= */
-.battle-actions{
-    display:flex;
-    flex-wrap:wrap;
-    gap:12px;
-    margin-top:auto;
-    padding-top:8px;
-    justify-content:center;
-}
-
-.btn-battle{
-    border:0;
-    border-radius:14px;
-    padding:12px 18px;
-    font-size:14px;
-    font-weight:800;
-    cursor:pointer;
-    transition:transform .15s ease, box-shadow .15s ease, opacity .15s ease;
-}
-
-.btn-battle:hover{
-    transform:translateY(-1px);
-    opacity:.97;
-}
-
-.btn-battle-light{
-    background:#e2e8f0;
-    color:#0f172a;
-}
-
-.btn-battle-secondary{
-    background:linear-gradient(180deg,#2563eb 0%,#1d4ed8 100%);
-    color:#fff;
-    box-shadow:0 10px 20px rgba(37,99,235,.18);
-}
-
-.btn-battle-primary{
-    background:linear-gradient(180deg,#ef4444 0%,#dc2626 100%);
-    color:#fff;
-    box-shadow:0 10px 20px rgba(220,38,38,.18);
-}
-
-/* =========================
-   PANEL DERECHO
-========================= */
-.battle-feature-list{
+.gym-team-summary-grid{
     display:grid;
-    gap:14px;
-    margin-bottom:18px;
+    grid-template-columns:repeat(3, minmax(0, 1fr));
+    gap:10px;
 }
 
-.battle-feature-card{
-    display:flex;
+.gym-team-list{
+    display:grid;
+    gap:12px;
+    margin-top:14px;
+}
+
+.gym-team-card{
+    overflow:hidden;
+    display:grid;
+    grid-template-columns:108px minmax(0, 1fr);
     gap:14px;
-    align-items:flex-start;
+    align-items:center;
+    padding:14px;
+    border-radius:22px;
+    border:1px solid rgba(148,163,184,.16);
+    background:linear-gradient(180deg, rgba(18,32,51,.97) 0%, rgba(11,19,31,.98) 100%);
+    box-shadow:var(--gyms-shadow-soft);
+}
+
+.gym-team-card-art{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:98px;
+    border-radius:18px;
+    border:1px solid rgba(148,163,184,.14);
+    background:linear-gradient(180deg, rgba(255,255,255,.08) 0%, rgba(255,255,255,.04) 100%);
+}
+
+.gym-team-card-art img{
+    width:86px;
+    height:86px;
+    object-fit:contain;
+    filter:drop-shadow(0 10px 18px rgba(0,0,0,.26));
+}
+
+.gym-team-card-body{
+    min-width:0;
+}
+
+.gym-team-card-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+}
+
+.gym-team-card-head h4{
+    margin:0;
+    color:#ffffff;
+    font-size:1.04rem;
+    line-height:1.2;
+}
+
+.gym-team-type-row{
+    margin-top:10px;
+}
+
+.gym-team-card-meta{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:12px;
+}
+
+.gym-team-empty{
     padding:16px;
     border-radius:18px;
-    background:#f8fafc;
-    border:1px solid #e2e8f0;
+    border:1px dashed rgba(148,163,184,.22);
+    text-align:center;
+    line-height:1.6;
 }
 
-.feature-icon{
-    width:48px;
-    height:48px;
-    border-radius:14px;
-    background:linear-gradient(180deg,#fee2e2 0%,#fecaca 100%);
-    color:#b91c1c;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:22px;
-    font-weight:900;
-    flex-shrink:0;
+/* =========================================================
+   13. PROGRESO Y MEDALLAS
+========================================================= */
+.gym-progress-wrap{
+    min-width:0;
 }
 
-.battle-feature-card h4{
-    margin:0 0 6px;
-    font-size:18px;
-    font-weight:800;
-    color:#111827;
-}
-
-.battle-feature-card p{
-    margin:0;
-    font-size:14px;
-    line-height:1.55;
-    color:#475569;
-}
-
-.battle-preview-card{
-    border-radius:20px;
-    padding:18px;
-    background:linear-gradient(180deg,#fff7ed 0%,#ffedd5 100%);
-    border:1px solid #fdba74;
-}
-
-.battle-preview-header{
-    margin-bottom:12px;
-}
-
-.preview-badge{
-    display:inline-block;
-    padding:6px 10px;
+.gym-progress-bar{
+    position:relative;
+    overflow:hidden;
+    height:14px;
+    margin-top:16px;
     border-radius:999px;
-    background:rgba(255,255,255,0.65);
-    color:#c2410c;
-    font-size:12px;
-    font-weight:800;
-    margin-bottom:8px;
+    background:rgba(255,255,255,.07);
+    border:1px solid rgba(148,163,184,.14);
 }
 
-.battle-preview-header h4{
-    margin:0;
-    font-size:20px;
-    font-weight:900;
-    color:#9a3412;
+.gym-progress-fill{
+    position:absolute;
+    inset:0 auto 0 0;
+    border-radius:inherit;
+    background:linear-gradient(90deg, #4ddcff 0%, #4f9bff 55%, #8f67ff 100%);
+    box-shadow:0 0 18px rgba(79,155,255,.34);
 }
 
-.battle-flow{
-    margin:0;
-    padding-left:18px;
-    color:#9a3412;
+.gym-progress-note{
+    margin:12px 0 0;
+    font-size:.92rem;
+    line-height:1.58;
 }
 
-.battle-flow li{
-    margin-bottom:10px;
-    line-height:1.5;
-    font-size:14px;
-    font-weight:600;
-}
-
-.battle-arena-preview{
-    margin-bottom:16px;
-    border-radius:22px;
-    padding:18px;
-    background:linear-gradient(135deg,#0f172a 0%,#1e3a8a 100%);
-    color:#fff;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,0.08);
-}
-
-.battle-arena-badge{
-    display:inline-block;
-    margin-bottom:12px;
-    padding:6px 10px;
-    border-radius:999px;
-    background:rgba(255,255,255,0.14);
-    font-size:12px;
-    font-weight:800;
-}
-
-.battle-arena-content{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
+.gym-badge-track{
+    display:grid;
+    grid-template-columns:repeat(4, minmax(0, 1fr));
     gap:12px;
+    margin-top:16px;
 }
 
-.arena-side{
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:8px;
-    font-size:13px;
-    font-weight:800;
-}
-
-.arena-orb{
-    width:58px;
-    height:58px;
-    border-radius:50%;
-    background:radial-gradient(circle at 35% 30%, #60a5fa, #1d4ed8);
-    box-shadow:0 0 0 6px rgba(255,255,255,0.08);
-}
-
-.arena-orb.rival{
-    background:radial-gradient(circle at 35% 30%, #fca5a5, #dc2626);
-}
-
-.arena-vs{
-    font-size:24px;
-    font-weight:900;
-    color:#fde68a;
-}
-
-/* =========================
-   COLECCIÓN
-========================= */
-.battle-roster-section{
-    margin-bottom:18px;
-}
-
-.battle-tabs{
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
-    margin-bottom:14px;
-}
-
-.battle-tab{
-    border:1px solid #c7d2fe;
-    background:#eef2ff;
-    color:#4338ca;
-    border-radius:999px;
-    padding:10px 14px;
-    font-size:13px;
-    font-weight:800;
-    cursor:pointer;
-}
-
-.battle-tab.active{
-    background:linear-gradient(180deg,#2563eb 0%,#1d4ed8 100%);
-    color:#fff;
-    border-color:#2563eb;
-    box-shadow:0 10px 20px rgba(37,99,235,0.18);
-}
-
-.battle-quick-filters{
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
-    margin-bottom:14px;
-}
-
-.battle-chip-filter{
-    border:1px solid #dbeafe;
-    background:#f8fafc;
-    color:#334155;
-    border-radius:999px;
-    padding:8px 12px;
-    font-size:12px;
-    font-weight:800;
-    cursor:pointer;
-}
-
-.battle-chip-clear{
-    background:#fff7ed;
-    border-color:#fdba74;
-    color:#c2410c;
-}
-
-/* filtros compactos */
-.battle-filters{
-    display:grid;
-    grid-template-columns:minmax(0,1.45fr) minmax(0,.8fr) minmax(0,.7fr) minmax(0,.7fr);
-    gap:10px;
-    margin-bottom:14px;
-    align-items:center;
-}
-
-.battle-filters > *{
-    min-width:0;
-}
-
-.battle-filters input,
-.battle-filters select{
-    width:100%;
-    height:42px;
-    min-width:0;
-    border:1px solid #cfd8e6;
-    border-radius:12px;
-    padding:0 14px;
-    font-size:14px;
-    font-weight:600;
-    color:#0f172a;
-    background:#fff;
-    outline:none;
-    box-shadow:0 2px 6px rgba(15,23,42,0.04);
-    transition:border-color .15s ease, box-shadow .15s ease, background .15s ease;
-    box-sizing:border-box;
-}
-
-.battle-filters input::placeholder{
-    color:#94a3b8;
-    font-weight:500;
-}
-
-.battle-filters input:focus,
-.battle-filters select:focus{
-    border-color:#93c5fd;
-    box-shadow:0 0 0 3px rgba(59,130,246,0.10);
-    background:#fff;
-}
-
-.battle-filters input:hover,
-.battle-filters select:hover{
-    border-color:#b8c7db;
-}
-
-.battle-filters select{
-    appearance:none;
-    -webkit-appearance:none;
-    -moz-appearance:none;
-    padding-right:38px;
-    cursor:pointer;
-    background-image:
-        linear-gradient(45deg, transparent 50%, #64748b 50%),
-        linear-gradient(135deg, #64748b 50%, transparent 50%);
-    background-position:
-        calc(100% - 18px) calc(50% - 3px),
-        calc(100% - 12px) calc(50% - 3px);
-    background-size:6px 6px, 6px 6px;
-    background-repeat:no-repeat;
-}
-
-/* grid colección */
-.battle-roster-grid{
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:14px;
-}
-
-.battle-pokemon-card{
-    min-height:310px;
+.gym-badge-track-item{
     display:flex;
     flex-direction:column;
     align-items:center;
     justify-content:flex-start;
-    border:1px solid #dbe5f1;
-    border-radius:22px;
-    padding:18px 14px 12px;
+    gap:9px;
+    min-width:0;
+    padding:12px 10px;
+    border-radius:18px;
+    border:1px solid rgba(148,163,184,.14);
+    background:linear-gradient(180deg, rgba(18,32,51,.94) 0%, rgba(12,20,34,.98) 100%);
     text-align:center;
-    box-shadow:
-        0 10px 24px rgba(0,0,0,0.06),
-        inset 0 1px 0 rgba(255,255,255,0.65);
-    transition:transform .16s ease, box-shadow .16s ease, border-color .16s ease;
-    position:relative;
-    overflow:hidden;
+    transition:transform .18s ease, border-color .18s ease;
 }
 
-.battle-pokemon-card::before{
-    content:"";
-    position:absolute;
-    inset:0;
-    background:
-        radial-gradient(circle at top left, rgba(255,255,255,0.65), transparent 35%),
-        linear-gradient(180deg, rgba(255,255,255,0.35), transparent 42%);
-    pointer-events:none;
+.gym-badge-track-item:hover{
+    transform:translateY(-1px);
 }
 
-.battle-pokemon-card:hover{
-    transform:translateY(-3px);
-    box-shadow:0 14px 24px rgba(15,23,42,0.08);
-}
-
-.battle-pokemon-sprite{
-    width:84px;
-    height:84px;
-    object-fit:contain;
-    margin:4px auto 10px;
-    image-rendering:pixelated;
-    filter:drop-shadow(0 6px 10px rgba(15,23,42,0.10));
-    position:relative;
-    z-index:1;
-}
-
-.battle-card-name-row{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:8px;
-    min-height:38px;
-    margin-bottom:2px;
-    position:relative;
-    z-index:1;
-}
-
-.battle-card-name-row h4{
-    margin:0;
-    font-size:16px;
-    font-weight:900;
-    color:#111827;
-}
-
-.battle-card-shiny-dot{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    width:22px;
-    height:22px;
-    border-radius:999px;
-    background:linear-gradient(180deg,#fff4cc 0%,#fde68a 100%);
-    color:#b45309;
-    font-size:12px;
-    font-weight:900;
-    line-height:1;
-    box-shadow:0 2px 6px rgba(245,158,11,0.18);
-}
-
-.battle-pokemon-card p{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    margin:6px 0 14px;
-    padding:7px 14px;
-    border-radius:999px;
-    font-size:13px;
+.gym-badge-track-item span{
+    display:block;
+    color:#eff7ff;
+    font-size:.72rem;
     font-weight:800;
-    line-height:1;
-    color:#ffffff;
-    min-width:78px;
-    width:fit-content;
-    max-width:100%;
-    box-shadow:0 6px 12px rgba(0,0,0,0.10);
-    position:relative;
-    z-index:1;
+    line-height:1.28;
+    word-break:break-word;
 }
 
-.battle-card-meta{
-    display:flex;
+.gym-badge-track-item.open{
+    border-color:rgba(79,155,255,.28);
+}
+
+.gym-badge-track-item.cleared{
+    border-color:rgba(99,209,132,.3);
+    box-shadow:0 0 0 1px rgba(99,209,132,.12) inset;
+}
+
+.gym-badge-track-item.locked{
+    opacity:.74;
+}
+
+/* =========================================================
+   14. CHIPS DE TIPO ESTILO BATTLE
+========================================================= */
+.gym-status,
+.gym-type,
+.gym-type-chip,
+.gym-roster-mini,
+.gym-region-tab,
+.gym-region-summary-card,
+.gym-card,
+.gym-detail-card,
+.gyms-hero-preview,
+.gym-team-card{
+    --type-color:#6b7280;
+    --type-soft:rgba(107,114,128,.22);
+    --type-soft-strong:rgba(107,114,128,.38);
+}
+
+.gym-status,
+.gym-type,
+.gym-type-chip,
+.gym-team-chip{
+    display:inline-flex;
+    align-items:center;
     justify-content:center;
-    gap:8px;
-    flex-wrap:wrap;
-    margin-bottom:10px;
-    min-height:30px;
-    position:relative;
-    z-index:1;
-}
-
-.battle-card-meta-pro{
-    min-height:auto;
-    row-gap:8px;
-}
-
-.battle-card-level,
-.battle-card-hp,
-.battle-card-atk,
-.battle-card-def{
-    display:inline-block;
+    min-height:28px;
     padding:6px 10px;
     border-radius:999px;
-    font-size:11px;
-    font-weight:800;
-    line-height:1;
-}
-
-.battle-card-level{
-    background:#dbeafe;
-    color:#1d4ed8;
-}
-
-.battle-card-hp{
-    background:#d9f99d;
-    color:#3f6212;
-}
-
-.battle-card-atk{
-    background:#fee2e2;
-    color:#b91c1c;
-}
-
-.battle-card-def{
-    background:#ede9fe;
-    color:#6d28d9;
-}
-
-.battle-card-exp-wrap{
-    width: 100%;
-    margin: 2px 0 12px;
-    position: relative;
-    z-index: 1;
-}
-
-.battle-card-exp-label{
-    font-size: 12px;
-    font-weight: 800;
-    color: #374151;
-    margin-bottom: 6px;
-}
-
-.battle-card-exp-bar{
-    width: 100%;
-    height: 8px;
-    background: #e5e7eb;
-    border-radius: 999px;
-    overflow: hidden;
-}
-
-.battle-card-exp-fill{
-    height: 100%;
-    background: linear-gradient(90deg, #22c55e, #16a34a);
-    border-radius: 999px;
-    transition: width .24s ease;
-}
-
-.battle-card-btn{
-    width:100%;
-    margin-top:auto;
-    border:0;
-    border-radius:12px;
-    padding:11px 14px;
-    min-height:44px;
-    background:#dbeafe;
-    color:#1d4ed8;
-    font-size:14px;
-    font-weight:800;
-    cursor:pointer;
-    transition:transform .15s ease, box-shadow .15s ease, opacity .15s ease, background .15s ease;
-    position:relative;
-    z-index:1;
-}
-
-.battle-card-btn:hover:not(:disabled){
-    transform:translateY(-1px);
-    box-shadow:0 10px 16px rgba(37,99,235,0.14);
-    background:#cfe1ff;
-}
-
-.battle-card-btn:disabled{
-    opacity:1;
-}
-
-.battle-card-btn.in-team{
-    background:#dcfce7;
-    color:#15803d;
-}
-
-.battle-card-btn.in-team:disabled{
-    cursor:default;
-}
-
-.battle-card-btn:disabled:not(.in-team){
-    cursor:not-allowed;
-}
-
-.battle-pokemon-card.selected{
-    border-color:#86efac;
-    box-shadow:0 10px 20px rgba(34,197,94,0.12);
-}
-
-/* =========================
-   COLORES POR TIPO
-   Homogéneo con pokedex
-========================= */
-
-/* fondos cards */
-.type-planta{
-    background:linear-gradient(180deg,#f2fff3 0%, #e9f9ec 45%, #ffffff 100%);
-    border-top:5px solid #4CAF50;
-}
-
-.type-fuego{
-    background:linear-gradient(180deg,#fff6f2 0%, #ffe9dc 45%, #ffffff 100%);
-    border-top:5px solid #f97316;
-}
-
-.type-agua{
-    background:linear-gradient(180deg,#f1f7ff 0%, #e4f0ff 45%, #ffffff 100%);
-    border-top:5px solid #3b82f6;
-}
-
-.type-electrico{
-    background:linear-gradient(180deg,#fffde9 0%, #fff6c7 45%, #ffffff 100%);
-    border-top:5px solid #eab308;
-}
-
-.type-hielo{
-    background:linear-gradient(180deg,#eefcff 0%, #daf6ff 45%, #ffffff 100%);
-    border-top:5px solid #06b6d4;
-}
-
-.type-lucha{
-    background:linear-gradient(180deg,#fff3f3 0%, #ffe2e2 45%, #ffffff 100%);
-    border-top:5px solid #dc2626;
-}
-
-.type-veneno{
-    background:linear-gradient(180deg,#fcf4ff 0%, #f2e1ff 45%, #ffffff 100%);
-    border-top:5px solid #a855f7;
-}
-
-.type-tierra{
-    background:linear-gradient(180deg,#fff9ec 0%, #f8ebcb 45%, #ffffff 100%);
-    border-top:5px solid #ca8a04;
-}
-
-.type-volador{
-    background:linear-gradient(180deg,#f8fbff 0%, #e8f0ff 45%, #ffffff 100%);
-    border-top:5px solid #60a5fa;
-}
-
-.type-psiquico{
-    background:linear-gradient(180deg,#fff1f7 0%, #ffdceb 45%, #ffffff 100%);
-    border-top:5px solid #ec4899;
-}
-
-.type-bicho{
-    background:linear-gradient(180deg,#f8ffe8 0%, #edf8d0 45%, #ffffff 100%);
-    border-top:5px solid #65a30d;
-}
-
-.type-roca{
-    background:linear-gradient(180deg,#fafaf9 0%, #f0ece6 45%, #ffffff 100%);
-    border-top:5px solid #78716c;
-}
-
-.type-fantasma{
-    background:linear-gradient(180deg,#f7f4ff 0%, #ebe5ff 45%, #ffffff 100%);
-    border-top:5px solid #7c3aed;
-}
-
-.type-dragon{
-    background:linear-gradient(180deg,#f1f3ff 0%, #dfe5ff 45%, #ffffff 100%);
-    border-top:5px solid #4f46e5;
-}
-
-.type-acero{
-    background:linear-gradient(180deg,#f6f9fc 0%, #e6edf5 45%, #ffffff 100%);
-    border-top:5px solid #64748b;
-}
-
-.type-hada{
-    background:linear-gradient(180deg,#fff2f8 0%, #ffdfee 45%, #ffffff 100%);
-    border-top:5px solid #f472b6;
-}
-
-.type-normal,
-.type-default{
-    background:linear-gradient(180deg,#fafafa 0%, #efefef 45%, #ffffff 100%);
-    border-top:5px solid #6b7280;
-}
-
-/* badge tipo */
-.battle-team-slot.type-planta .team-slot-info p,
-.battle-pokemon-card.type-planta p{ background:#4CAF50; }
-
-.battle-team-slot.type-fuego .team-slot-info p,
-.battle-pokemon-card.type-fuego p{ background:#f97316; }
-
-.battle-team-slot.type-agua .team-slot-info p,
-.battle-pokemon-card.type-agua p{ background:#3b82f6; }
-
-.battle-team-slot.type-electrico .team-slot-info p,
-.battle-pokemon-card.type-electrico p{ background:#eab308; }
-
-.battle-team-slot.type-hielo .team-slot-info p,
-.battle-pokemon-card.type-hielo p{ background:#06b6d4; }
-
-.battle-team-slot.type-lucha .team-slot-info p,
-.battle-pokemon-card.type-lucha p{ background:#dc2626; }
-
-.battle-team-slot.type-veneno .team-slot-info p,
-.battle-pokemon-card.type-veneno p{ background:#a855f7; }
-
-.battle-team-slot.type-tierra .team-slot-info p,
-.battle-pokemon-card.type-tierra p{ background:#ca8a04; }
-
-.battle-team-slot.type-volador .team-slot-info p,
-.battle-pokemon-card.type-volador p{ background:#60a5fa; }
-
-.battle-team-slot.type-psiquico .team-slot-info p,
-.battle-pokemon-card.type-psiquico p{ background:#ec4899; }
-
-.battle-team-slot.type-bicho .team-slot-info p,
-.battle-pokemon-card.type-bicho p{ background:#65a30d; }
-
-.battle-team-slot.type-roca .team-slot-info p,
-.battle-pokemon-card.type-roca p{ background:#78716c; }
-
-.battle-team-slot.type-fantasma .team-slot-info p,
-.battle-pokemon-card.type-fantasma p{ background:#7c3aed; }
-
-.battle-team-slot.type-dragon .team-slot-info p,
-.battle-pokemon-card.type-dragon p{ background:#4f46e5; }
-
-.battle-team-slot.type-acero .team-slot-info p,
-.battle-pokemon-card.type-acero p{ background:#64748b; }
-
-.battle-team-slot.type-hada .team-slot-info p,
-.battle-pokemon-card.type-hada p{ background:#f472b6; }
-
-.battle-team-slot.type-normal .team-slot-info p,
-.battle-pokemon-card.type-normal p,
-.battle-team-slot.type-default .team-slot-info p,
-.battle-pokemon-card.type-default p{ background:#6b7280; }
-
-/* =========================
-   EMPTY / MENSAJES
-========================= */
-.battle-empty-state{
-    grid-column:1 / -1;
-    text-align:center;
-    background:#f8fafc;
-    border:1px dashed #cbd5e1;
-    border-radius:20px;
-    padding:26px 18px;
-}
-
-.battle-empty-state h4{
-    margin:0 0 8px;
-    font-size:20px;
+    font-size:.72rem;
     font-weight:900;
-    color:#111827;
+    line-height:1;
+    white-space:nowrap;
 }
 
-.battle-empty-state p{
-    margin:0;
-    color:#64748b;
-    line-height:1.5;
+.gym-status{
+    background:rgba(255,255,255,.06);
+    border:1px solid rgba(148,163,184,.16);
+    color:#ffffff;
 }
 
-/* =========================
-   MODAL
-========================= */
-.battle-modal-overlay{
-    position:fixed;
-    inset:0;
-    background:rgba(15,23,42,0.48);
-    backdrop-filter:blur(3px);
+.gym-type,
+.gym-type-chip{
+    border:1px solid rgba(255,255,255,.1);
+    background:var(--type-color);
+    color:#ffffff;
+    box-shadow:0 8px 20px rgba(0,0,0,.18);
+}
+
+.gym-type{
+    align-self:flex-end;
+    min-height:30px;
+    padding:7px 12px;
+}
+
+.gym-roster-mini{
     display:flex;
     align-items:center;
     justify-content:center;
-    padding:18px;
-    z-index:3000;
+    aspect-ratio:1 / 1;
+    border-radius:16px;
+    border:1px solid rgba(255,255,255,.08);
+    background:linear-gradient(180deg, rgba(255,255,255,.06) 0%, var(--type-soft) 100%);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
 }
 
-.battle-modal-overlay.oculto{
-    display:none;
+.gym-roster-mini img{
+    width:44px;
+    height:44px;
+    object-fit:contain;
+    filter:drop-shadow(0 6px 12px rgba(0,0,0,.24));
 }
 
-.battle-modal{
-    width:min(420px, 100%);
-    background:#fff;
+/* =========================================================
+   15. CHIPS DE ESTADO Y SHINY
+========================================================= */
+.gym-team-chip{
+    background:rgba(255,255,255,.07);
+    border:1px solid rgba(148,163,184,.14);
+    color:#f7fbff;
+}
+
+.gym-team-chip.leader{
+    background:linear-gradient(180deg, #ffe28f 0%, #f8b93b 100%);
+    border-color:rgba(255,216,106,.36);
+    color:#352100;
+    box-shadow:0 10px 22px rgba(248,185,59,.24);
+}
+
+.gym-team-chip.shiny{
+    background:linear-gradient(180deg, #fff2b3 0%, #ffd866 48%, #ffb938 100%);
+    border-color:rgba(255,220,109,.42);
+    color:#2b1b00;
+    text-shadow:none;
+    box-shadow:0 12px 24px rgba(255,185,56,.3);
+}
+
+/* =========================================================
+   16. RETRATOS / ASSETS / FALLBACKS
+========================================================= */
+.trainer-portrait,
+.badge-portrait{
+    position:relative;
+    overflow:hidden;
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
     border-radius:24px;
-    padding:28px 24px 22px;
-    text-align:center;
-    box-shadow:0 22px 48px rgba(15,23,42,0.20);
-    border:1px solid #e5e7eb;
+    border:1px solid rgba(148,163,184,.14);
+    background:
+        radial-gradient(circle at 50% 100%, rgba(255,255,255,.1) 0%, transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.08) 0%, rgba(255,255,255,.04) 100%);
 }
 
-.battle-modal-icon{
+.trainer-portrait img,
+.badge-portrait img{
+    width:100%;
+    height:100%;
+}
+
+.gym-card-portrait{
+    height:122px;
+    padding:0 4px 0;
+}
+
+.gym-card-portrait img{
+    width:auto;
+    height:120%;
+    max-width:none;
+    object-fit:contain;
+    object-position:center bottom;
+    transform:translateY(6px) scale(1.08);
+    transform-origin:center bottom;
+}
+
+.hero-portrait{
+    height:190px;
+    padding:0 6px 0;
+}
+
+.hero-portrait img{
+    width:auto;
+    height:124%;
+    max-width:none;
+    object-fit:contain;
+    object-position:center bottom;
+    transform:translateY(10px) scale(1.14);
+    transform-origin:center bottom;
+}
+
+.gym-detail-portrait{
+    height:174px;
+    padding:0 6px 0;
+}
+
+.gym-detail-portrait img{
+    width:auto;
+    height:126%;
+    max-width:none;
+    object-fit:contain;
+    object-position:center bottom;
+    transform:translateY(10px) scale(1.12);
+    transform-origin:center bottom;
+}
+
+.gym-card-badge,
+.hero-badge-portrait,
+.gym-detail-badge,
+.gym-badge-track-portrait{
+    align-items:center;
+    justify-content:center;
+}
+
+.gym-card-badge{
+    width:72px;
+    height:72px;
+    border-radius:20px;
+    padding:10px;
+}
+
+.hero-badge-portrait,
+.gym-detail-badge{
+    width:86px;
+    height:86px;
+    border-radius:24px;
+    padding:12px;
+}
+
+.gym-badge-track-portrait{
     width:68px;
     height:68px;
-    margin:0 auto 14px;
-    border-radius:50%;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:30px;
-    font-weight:900;
-}
-
-.battle-modal h3{
-    margin:0 0 8px;
-    font-size:28px;
-    font-weight:900;
-    color:#111827;
-}
-
-.battle-modal p{
-    margin:0 0 20px;
-    font-size:15px;
-    line-height:1.55;
-    color:#475569;
-    font-weight:600;
-}
-
-.battle-modal-actions{
-    display:flex;
-    gap:12px;
-    justify-content:center;
-}
-
-.battle-modal-btn{
-    border:0;
-    border-radius:14px;
-    padding:12px 18px;
-    font-size:14px;
-    font-weight:800;
-    cursor:pointer;
-    min-width:120px;
-}
-
-.battle-modal-btn-primary{
-    background:linear-gradient(180deg,#2563eb 0%,#1d4ed8 100%);
-    color:#fff;
-}
-
-.battle-modal-btn-danger{
-    background:linear-gradient(180deg,#ef4444 0%,#dc2626 100%);
-    color:#fff;
-}
-
-.battle-modal-btn-light{
-    background:#e2e8f0;
-    color:#0f172a;
-}
-
-.battle-modal-ok .battle-modal-icon{
-    background:#dcfce7;
-    color:#15803d;
-}
-
-.battle-modal-warning .battle-modal-icon{
-    background:#ffedd5;
-    color:#c2410c;
-}
-
-.battle-modal-error .battle-modal-icon{
-    background:#fee2e2;
-    color:#b91c1c;
-}
-
-.battle-modal-info .battle-modal-icon{
-    background:#dbeafe;
-    color:#1d4ed8;
-}
-
-.oculto{
-    display:none !important;
-}
-
-/* =========================
-   RESPONSIVE
-========================= */
-@media (max-width:1180px){
-    .battle-layout{
-        grid-template-columns:1fr;
-    }
-
-    .battle-summary-stats{
-        grid-template-columns:repeat(2, minmax(0,1fr));
-    }
-
-    .battle-roster-grid{
-        grid-template-columns:repeat(3,1fr);
-    }
-
-    .battle-filters{
-        grid-template-columns:repeat(2, minmax(0,1fr));
-    }
-}
-
-@media (max-width:900px){
-    .battle-page{
-        padding:22px 16px 34px;
-    }
-
-    .battle-summary-top{
-        flex-direction:column;
-        align-items:flex-start;
-    }
-
-    .battle-summary-stats{
-        grid-template-columns:1fr;
-    }
-
-    .battle-team-grid{
-        grid-template-columns:1fr;
-    }
-
-    .battle-filters{
-        grid-template-columns:minmax(0,1fr);
-    }
-
-    .battle-roster-grid{
-        grid-template-columns:repeat(2,1fr);
-    }
-
-    .battle-title{
-        font-size:34px;
-    }
-
-    .battle-modal-actions{
-        flex-direction:column;
-    }
-
-    .battle-modal-btn{
-        width:100%;
-    }
-}
-
-@media (max-width:560px){
-    .battle-roster-grid{
-        grid-template-columns:1fr;
-    }
-
-    .battle-panel{
-        padding:18px;
-    }
-
-    .battle-panel-header{
-        flex-direction:column;
-        align-items:flex-start;
-    }
-
-    .battle-panel-header h3{
-        font-size:24px;
-    }
-
-    .battle-actions{
-        flex-direction:column;
-    }
-
-    .btn-battle{
-        width:100%;
-    }
-
-    .battle-tabs,
-    .battle-quick-filters{
-        gap:8px;
-    }
-
-    .battle-filters input,
-    .battle-filters select{
-        height:46px;
-    }
-}
-/* =========================
-   MODOS / BOSS / IDLE
-========================= */
-.battle-modes-section{
-    margin-bottom:24px;
-}
-
-.battle-modes-panel{
-    padding:22px;
-}
-
-.battle-panel-header-tight{
-    margin-bottom:8px;
-}
-
-.battle-panel-description-tight{
-    margin-bottom:16px;
-}
-
-.battle-mode-grid{
-    display:grid;
-    grid-template-columns:repeat(3,minmax(0,1fr));
-    gap:14px;
-}
-
-.battle-mode-card{
-    position:relative;
-    border:1px solid #dbe5f1;
-    border-radius:22px;
-    background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);
-    padding:18px 16px;
-    text-align:left;
-    cursor:pointer;
-    transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
-    box-shadow:0 10px 24px rgba(15,23,42,0.06);
-}
-
-.battle-mode-card:hover{
-    transform:translateY(-2px);
-    box-shadow:0 14px 26px rgba(15,23,42,0.10);
-}
-
-.battle-mode-card.active{
-    border-color:#2563eb;
-    box-shadow:0 0 0 3px rgba(37,99,235,0.10), 0 16px 30px rgba(37,99,235,0.12);
-}
-
-.battle-mode-card[data-battle-mode="boss"]{
-    background:linear-gradient(180deg,#fffaf0 0%,#fff3d9 100%);
-    border-color:#fcd34d;
-}
-
-.battle-mode-card[data-battle-mode="idle"]{
-    background:linear-gradient(180deg,#f6fbff 0%,#ebf5ff 100%);
-    border-color:#bfdbfe;
-}
-
-.battle-mode-icon{
-    width:52px;
-    height:52px;
     border-radius:18px;
+    padding:10px;
+}
+
+.asset-fallback{
     display:flex;
     align-items:center;
     justify-content:center;
-    font-size:26px;
-    margin-bottom:12px;
-    background:#eff6ff;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,0.65);
-}
-
-.battle-mode-card[data-battle-mode="boss"] .battle-mode-icon{
-    background:#fff2c6;
-}
-
-.battle-mode-card[data-battle-mode="idle"] .battle-mode-icon{
-    background:#e0f2fe;
-}
-
-.battle-mode-card h4{
-    margin:0 0 8px;
-    font-size:20px;
-    font-weight:900;
-    color:#111827;
-}
-
-.battle-mode-card p{
-    margin:0;
-    font-size:14px;
-    line-height:1.55;
-    color:#475569;
-}
-
-.battle-mode-badge{
-    position:absolute;
-    top:14px;
-    right:14px;
-    padding:6px 10px;
-    border-radius:999px;
-    background:#dbeafe;
-    color:#1d4ed8;
-    font-size:11px;
-    font-weight:900;
-    letter-spacing:.02em;
-}
-
-.battle-mode-badge-accent{
-    background:#fef3c7;
-    color:#b45309;
-}
-
-.battle-mode-badge-soft{
-    background:#dcfce7;
-    color:#15803d;
-}
-
-.battle-current-mode-card,
-.battle-boss-card,
-.battle-idle-card{
-    border-radius:22px;
-    border:1px solid #e2e8f0;
-    background:#f8fafc;
-    padding:18px;
-    margin-bottom:16px;
-}
-
-.battle-current-mode-card{
-    background:linear-gradient(135deg,#eff6ff 0%,#f8fbff 100%);
-    border-color:#c7d2fe;
-}
-
-.battle-current-mode-top,
-.battle-side-card-head{
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-start;
-    gap:10px;
-    margin-bottom:12px;
-}
-
-.battle-current-mode-label,
-.battle-side-card-kicker{
-    display:inline-block;
-    font-size:11px;
-    font-weight:900;
-    letter-spacing:.08em;
-    text-transform:uppercase;
-    color:#64748b;
-    margin-bottom:6px;
-}
-
-.battle-current-mode-pill,
-.battle-side-card-pill{
-    flex-shrink:0;
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    min-width:84px;
-    min-height:34px;
-    padding:7px 12px;
-    border-radius:999px;
-    background:#e2e8f0;
-    color:#0f172a;
-    font-size:12px;
-    font-weight:900;
-}
-
-.battle-side-card-pill-blue{
-    background:#dbeafe;
-    color:#1d4ed8;
-}
-
-.battle-current-mode-card h4,
-.battle-side-card-head h4{
-    margin:0;
-    font-size:20px;
-    font-weight:900;
-    color:#111827;
-}
-
-.battle-current-mode-card p,
-.battle-boss-card p,
-.battle-idle-card p{
-    margin:0;
-    color:#475569;
-    line-height:1.55;
-    font-size:14px;
-}
-
-.battle-current-mode-card small{
-    display:block;
-    margin-top:10px;
-    color:#1e40af;
-    font-weight:700;
-}
-
-.battle-boss-main{
-    display:flex;
-    gap:14px;
-    align-items:center;
-    margin-bottom:14px;
-}
-
-.battle-boss-avatar{
-    width:58px;
-    height:58px;
-    border-radius:18px;
-    background:linear-gradient(180deg,#fff2c6 0%,#fde68a 100%);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:28px;
-    flex-shrink:0;
-    box-shadow:0 8px 18px rgba(245,158,11,0.14);
-}
-
-.battle-boss-info strong{
-    display:block;
-    font-size:20px;
-    color:#111827;
-    margin-bottom:4px;
-}
-
-.battle-boss-stats-grid{
-    display:grid;
-    grid-template-columns:repeat(3,minmax(0,1fr));
-    gap:10px;
-    margin-bottom:14px;
-}
-
-.battle-boss-stat,
-.battle-idle-field{
-    background:#ffffff;
-    border:1px solid #e2e8f0;
-    border-radius:16px;
-    padding:12px 14px;
-}
-
-.battle-boss-stat span,
-.battle-idle-field span{
-    display:block;
-    font-size:12px;
-    color:#64748b;
-    margin-bottom:6px;
-}
-
-.battle-boss-stat strong{
-    display:block;
-    font-size:15px;
-    color:#111827;
-}
-
-.battle-boss-actions,
-.battle-idle-actions{
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
-}
-
-.battle-idle-config-grid{
-    display:grid;
-    grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:10px;
-    margin-bottom:12px;
-}
-
-.battle-idle-field select{
     width:100%;
-    height:42px;
-    border:1px solid #cfd8e6;
-    border-radius:12px;
-    padding:0 12px;
-    font-size:14px;
-    font-weight:700;
-    color:#0f172a;
-    background:#fff;
-    box-sizing:border-box;
-}
-
-.battle-idle-progress-wrap{
-    margin-bottom:14px;
-}
-
-.battle-idle-progress-top{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:10px;
-    margin-bottom:8px;
-}
-
-.battle-idle-progress-top span{
-    color:#64748b;
-    font-size:13px;
-    font-weight:700;
-}
-
-.battle-idle-progress-top strong{
-    color:#111827;
-    font-size:15px;
-    font-weight:900;
-}
-
-.battle-idle-progress-bar{
-    width:100%;
-    height:10px;
-    border-radius:999px;
-    background:#e5e7eb;
-    overflow:hidden;
-}
-
-.battle-idle-progress-fill{
     height:100%;
-    border-radius:999px;
-    background:linear-gradient(90deg,#2563eb 0%,#0ea5e9 100%);
-    transition:width .25s ease;
-}
-
-#battleIdleProgressText{
-    display:block;
-    margin-top:8px;
-    color:#475569;
-    font-size:13px;
-    font-weight:700;
-}
-
-.battle-boss-ranking-card{
-    margin-bottom:0;
-}
-
-.battle-boss-ranking-list{
-    display:grid;
-    gap:10px;
-}
-
-.battle-boss-ranking-item,
-.battle-ranking-empty{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:12px;
-    padding:12px 14px;
-    border-radius:16px;
-    background:rgba(255,255,255,0.7);
-    border:1px solid rgba(194,65,12,0.12);
-}
-
-.battle-ranking-empty{
-    justify-content:center;
-    color:#9a3412;
-    font-weight:700;
-}
-
-.battle-boss-ranking-left{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    min-width:0;
-}
-
-.battle-boss-ranking-place{
-    width:32px;
-    height:32px;
-    border-radius:50%;
-    background:#fff7ed;
-    color:#c2410c;
-    display:flex;
-    align-items:center;
-    justify-content:center;
+    color:#eef7ff;
+    font-size:1rem;
     font-weight:900;
-    flex-shrink:0;
+    letter-spacing:.06em;
+    text-transform:uppercase;
 }
 
-.battle-boss-ranking-name{
-    font-size:14px;
-    font-weight:900;
-    color:#7c2d12;
+/* =========================================================
+   17. TYPES - COLORES COMO BATTLE
+========================================================= */
+.type-grass{ --type-color:#4CAF50; --type-soft:rgba(76,175,80,.2); --type-soft-strong:rgba(76,175,80,.36); }
+.type-fire{ --type-color:#f97316; --type-soft:rgba(249,115,22,.2); --type-soft-strong:rgba(249,115,22,.36); }
+.type-water{ --type-color:#3b82f6; --type-soft:rgba(59,130,246,.2); --type-soft-strong:rgba(59,130,246,.38); }
+.type-electric{ --type-color:#eab308; --type-soft:rgba(234,179,8,.22); --type-soft-strong:rgba(234,179,8,.4); }
+.type-ice{ --type-color:#06b6d4; --type-soft:rgba(6,182,212,.22); --type-soft-strong:rgba(6,182,212,.38); }
+.type-fighting{ --type-color:#dc2626; --type-soft:rgba(220,38,38,.22); --type-soft-strong:rgba(220,38,38,.4); }
+.type-poison{ --type-color:#a855f7; --type-soft:rgba(168,85,247,.22); --type-soft-strong:rgba(168,85,247,.38); }
+.type-ground{ --type-color:#ca8a04; --type-soft:rgba(202,138,4,.22); --type-soft-strong:rgba(202,138,4,.4); }
+.type-flying{ --type-color:#60a5fa; --type-soft:rgba(96,165,250,.22); --type-soft-strong:rgba(96,165,250,.38); }
+.type-psychic{ --type-color:#ec4899; --type-soft:rgba(236,72,153,.22); --type-soft-strong:rgba(236,72,153,.38); }
+.type-bug{ --type-color:#65a30d; --type-soft:rgba(101,163,13,.22); --type-soft-strong:rgba(101,163,13,.38); }
+.type-rock{ --type-color:#78716c; --type-soft:rgba(120,113,108,.22); --type-soft-strong:rgba(120,113,108,.38); }
+.type-ghost{ --type-color:#7c3aed; --type-soft:rgba(124,58,237,.22); --type-soft-strong:rgba(124,58,237,.38); }
+.type-dragon{ --type-color:#4f46e5; --type-soft:rgba(79,70,229,.22); --type-soft-strong:rgba(79,70,229,.38); }
+.type-steel{ --type-color:#64748b; --type-soft:rgba(100,116,139,.22); --type-soft-strong:rgba(100,116,139,.38); }
+.type-fairy{ --type-color:#f472b6; --type-soft:rgba(244,114,182,.22); --type-soft-strong:rgba(244,114,182,.38); }
+.type-normal,
+.type-default{ --type-color:#6b7280; --type-soft:rgba(107,114,128,.22); --type-soft-strong:rgba(107,114,128,.38); }
+.type-dark{ --type-color:#334155; --type-soft:rgba(51,65,85,.22); --type-soft-strong:rgba(51,65,85,.38); }
+
+.type-electric.gym-type,
+.type-electric.gym-type-chip,
+.type-ground.gym-type,
+.type-ground.gym-type-chip,
+.type-ice.gym-type,
+.type-ice.gym-type-chip,
+.type-fairy.gym-type,
+.type-fairy.gym-type-chip{
+    color:#1e293b;
 }
 
-.battle-boss-ranking-meta{
-    display:block;
-    font-size:12px;
-    color:#9a3412;
-    margin-top:2px;
-}
+/* =========================================================
+   18. RESPONSIVE
+========================================================= */
+@media (max-width: 1260px){
+    .gyms-page{
+        width:min(1400px, calc(100% - 28px));
+    }
 
-.battle-boss-ranking-right{
-    text-align:right;
-    flex-shrink:0;
-}
+    .gyms-page-grid{
+        grid-template-columns:minmax(0, 1.08fr) minmax(320px, .92fr);
+    }
 
-.battle-boss-ranking-right strong{
-    display:block;
-    color:#7c2d12;
-    font-size:15px;
-}
+    .gym-card-main{
+        grid-template-columns:102px minmax(0, 1fr) 68px;
+    }
 
-.battle-boss-ranking-right span{
-    font-size:12px;
-    color:#9a3412;
-    font-weight:700;
-}
-
-.battle-boss-clear-badge{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    margin-top:5px;
-    padding:5px 8px;
-    border-radius:999px;
-    background:#dcfce7;
-    color:#15803d;
-    font-size:11px;
-    font-weight:900;
-}
-
-.battle-mode-hidden{
-    opacity:.45;
-    pointer-events:none;
-}
-
-@media (max-width: 1180px){
-    .battle-mode-grid,
-    .battle-boss-stats-grid{
-        grid-template-columns:1fr;
+    .gym-detail-meta{
+        grid-template-columns:repeat(2, minmax(0, 1fr));
     }
 }
 
-@media (max-width: 960px){
-    .battle-idle-config-grid{
-        grid-template-columns:1fr;
-    }
-}
-
-@media (max-width: 720px){
-    .battle-mode-grid{
+@media (max-width: 1100px){
+    .gyms-hero-grid,
+    .gyms-page-grid{
         grid-template-columns:1fr;
     }
 
-    .battle-boss-actions,
-    .battle-idle-actions{
-        flex-direction:column;
+    .gyms-overview{
+        grid-template-columns:repeat(2, minmax(0, 1fr));
     }
 
-    .battle-boss-actions .btn-battle,
-    .battle-idle-actions .btn-battle{
+    .gym-region-tabs,
+    .gyms-grid,
+    .gym-roster-grid,
+    .gym-detail-actions{
+        grid-template-columns:repeat(2, minmax(0, 1fr));
+    }
+
+    .hero-preview-main{
+        grid-template-columns:148px minmax(0, 1fr) 76px;
+    }
+
+    .gyms-sidebar-column{
+        position:static;
+    }
+}
+
+@media (max-width: 820px){
+    .gyms-page{
+        width:min(100%, calc(100% - 18px));
+        padding:20px 0 40px;
+    }
+
+    .gyms-hero,
+    .gyms-section{
+        padding:18px;
+        border-radius:22px;
+    }
+
+    .gyms-hero-statbar,
+    .gym-team-summary-grid,
+    .gym-detail-meta,
+    .hero-preview-footer,
+    .gym-region-summary-meta,
+    .gym-badge-track,
+    .gym-actions,
+    .gym-meta-grid,
+    .gym-region-tabs,
+    .gyms-grid,
+    .gym-roster-grid,
+    .gyms-overview,
+    .gym-detail-actions{
+        grid-template-columns:1fr;
+    }
+
+    .hero-preview-main,
+    .gym-card-main,
+    .gym-detail-hero,
+    .gym-team-card{
+        grid-template-columns:1fr;
+        align-items:start;
+    }
+
+    .hero-preview-copy,
+    .gym-card-copy,
+    .gym-detail-copy{
+        padding-bottom:0;
+    }
+
+    .gym-card-portrait,
+    .hero-portrait,
+    .gym-detail-portrait{
         width:100%;
+        max-width:220px;
+        margin:0 auto;
     }
 
-    .battle-boss-ranking-item{
+    .gym-card-badge,
+    .hero-badge-portrait,
+    .gym-detail-badge{
+        margin-left:auto;
+        margin-right:auto;
+    }
+
+    .gym-detail-side{
+        align-items:center;
+    }
+
+    .gym-roster-preview{
+        grid-template-columns:repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 560px){
+    .gyms-title{
+        font-size:2.3rem;
+    }
+
+    .gyms-hero-actions,
+    .gym-actions,
+    .gym-detail-actions{
+        display:grid;
+        grid-template-columns:1fr;
+    }
+
+    .hero-preview-top,
+    .gym-card-top,
+    .gym-roster-stack-head,
+    .gyms-section-header{
         flex-direction:column;
         align-items:flex-start;
     }
 
-    .battle-boss-ranking-right{
-        text-align:left;
+    .hero-preview-top .hero-preview-status,
+    .gym-card-top .gym-type,
+    .gym-detail-side .gym-type,
+    .gyms-section-header .gyms-pill{
+        align-self:flex-start;
+    }
+
+    .gym-roster-preview{
+        grid-template-columns:repeat(2, minmax(0, 1fr));
+    }
+
+    .gym-team-card-head{
+        flex-direction:column;
+        align-items:flex-start;
     }
 }
 
 
 /* =========================================================
-   CLEAN BATTLE IA LAYOUT
-   - Unifica Team + Boss dentro de una sola tarjeta visual
+   18. V2 LIGHT BALANCE + PORTRAIT TUNING
+   ---------------------------------------------------------
+   Ajuste para acercar Gyms al look de las otras páginas:
+   - menos oscuro en fondo y secciones
+   - panels claros con texto oscuro
+   - hero sigue premium pero más vivo
+   - retratos mejor encuadrados
 ========================================================= */
-.battle-page-clean{
-    padding-top:22px;
+:root{
+    --gyms-light-bg:#dbe5f2;
+    --gyms-light-bg-2:#edf3fb;
+    --gyms-surface:#ffffff;
+    --gyms-surface-2:#f4f8fd;
+    --gyms-surface-3:#edf4fb;
+    --gyms-text-dark:#0f172a;
+    --gyms-text-body:#516277;
+    --gyms-text-soft-dark:#71839a;
+    --gyms-border-soft:rgba(148,163,184,.24);
+    --gyms-shadow-light:0 16px 34px rgba(15,23,42,.08);
 }
 
-.battle-layout-single{
-    grid-template-columns:minmax(0,1.62fr) minmax(300px,340px);
-    align-items:start;
-    gap:22px;
-    margin-bottom:24px;
-    padding:22px;
-    border-radius:30px;
-    border:1px solid #e5e7eb;
-    background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);
-    box-shadow:0 18px 40px rgba(15,23,42,0.08);
-    position:relative;
-    overflow:hidden;
-}
-
-.battle-layout-single::before{
-    content:"";
-    position:absolute;
-    inset:0;
-    pointer-events:none;
+body{
+    color:var(--gyms-text-dark);
     background:
-        radial-gradient(circle at top right, rgba(59,130,246,0.06), transparent 24%),
-        radial-gradient(circle at bottom left, rgba(239,68,68,0.05), transparent 28%);
+        radial-gradient(circle at top left, rgba(59,130,246,.10) 0%, transparent 26%),
+        radial-gradient(circle at top right, rgba(14,165,233,.08) 0%, transparent 24%),
+        linear-gradient(180deg, #e7eef8 0%, #dbe6f3 48%, #d8e4f1 100%);
 }
 
-.battle-layout-single > *{
-    min-width:0;
-    position:relative;
-    z-index:1;
-}
-
-.battle-team-panel-wide{
-    width:100%;
-}
-
-.battle-layout-single .battle-team-panel{
-    background:transparent;
-    border:none;
-    box-shadow:none;
-    padding:0;
-    border-radius:0;
-}
-
-.battle-layout-single .battle-panel-description{
-    margin-bottom:20px;
-}
-
-.battle-side-column{
-    display:flex;
-    flex-direction:column;
-    gap:14px;
-    min-width:0;
-    position:relative;
-    padding-left:22px;
-}
-
-.battle-side-column::before{
-    content:"";
-    position:absolute;
-    top:2px;
-    bottom:2px;
-    left:0;
-    width:1px;
-    background:linear-gradient(
-        180deg,
-        rgba(148,163,184,0),
-        rgba(148,163,184,0.55),
-        rgba(148,163,184,0)
-    );
-}
-
-.battle-side-surface{
-    box-shadow:none;
-    border:1px solid #e2e8f0;
-    background:linear-gradient(180deg,#f8fafc 0%,#ffffff 100%);
-}
-
-.battle-side-column .battle-boss-card,
-.battle-side-column .battle-boss-ranking-card{
-    margin-bottom:0;
-    padding:16px;
-    border-radius:20px;
-}
-
-.battle-side-column .battle-side-card-head{
-    margin-bottom:12px;
-}
-
-.battle-side-column .battle-boss-main{
-    margin-bottom:14px;
-    align-items:flex-start;
-}
-
-.battle-boss-avatar{
-    width:54px;
-    height:54px;
-    border-radius:16px;
-    font-size:26px;
-}
-
-.battle-side-column .battle-boss-info strong{
-    font-size:18px;
-    line-height:1.15;
-}
-
-.battle-side-column .battle-boss-card p{
-    font-size:13px;
-    line-height:1.45;
-}
-
-.battle-boss-stats-grid-side{
-    grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:10px;
-}
-
-.battle-side-column .battle-boss-stat{
-    min-height:72px;
-    padding:12px;
-    border-radius:14px;
-}
-
-.battle-side-column .battle-boss-stat span{
-    font-size:11px;
-}
-
-.battle-side-column .battle-boss-stat strong{
-    font-size:14px;
-}
-
-.battle-boss-actions-side{
-    gap:10px;
-}
-
-.battle-boss-actions-side .btn-battle{
-    flex:1;
-    min-width:0;
-    padding:12px 14px;
-    font-size:13px;
-}
-
-.battle-side-column .battle-boss-ranking-list{
-    gap:10px;
-}
-
-.battle-side-column .battle-boss-ranking-item,
-.battle-side-column .battle-ranking-empty{
-    border-radius:14px;
-    padding:12px;
-}
-
-.battle-actions-centered{
-    justify-content:center;
-}
-
-.battle-page-clean .battle-dashboard{
-    margin-bottom:18px;
-}
-
-.battle-page-clean .battle-panel,
-.battle-page-clean .battle-side-surface{
-    overflow:hidden;
-}
-
-@media (max-width:1100px){
-    .battle-layout-single{
-        grid-template-columns:1fr;
-        padding:20px;
-    }
-
-    .battle-side-column{
-        order:2;
-        padding-left:0;
-        padding-top:18px;
-    }
-
-    .battle-side-column::before{
-        top:0;
-        left:0;
-        right:0;
-        bottom:auto;
-        width:auto;
-        height:1px;
-        background:linear-gradient(
-            90deg,
-            rgba(148,163,184,0),
-            rgba(148,163,184,0.55),
-            rgba(148,163,184,0)
-        );
-    }
-}
-
-@media (max-width:900px){
-    .battle-page-clean{
-        padding-top:18px;
-    }
-
-    .battle-layout-single{
-        padding:18px;
-        border-radius:24px;
-    }
-
-    .battle-actions-centered{
-        justify-content:stretch;
-    }
-
-    .battle-boss-stats-grid-side{
-        grid-template-columns:1fr;
-    }
-
-    .battle-boss-actions-side{
-        flex-direction:column;
-    }
-}
-
-@media (max-width:560px){
-    .battle-layout-single{
-        padding:16px;
-    }
-
-    .battle-side-column .battle-boss-card,
-    .battle-side-column .battle-boss-ranking-card{
-        padding:14px;
-        border-radius:18px;
-    }
-
-    .battle-boss-avatar{
-        width:48px;
-        height:48px;
-        font-size:22px;
-    }
+.gyms-page{
+    width:min(1660px, calc(100% - 18px));
+    padding:24px 0 56px;
 }
 
 /* =========================
-   BATTLE PREMIUM PURCHASE MODAL
+   Hero más vivo
 ========================= */
-.battle-booster-purchase-card{
-    appearance:none;
-    width:100%;
-    text-align:left;
-    cursor:pointer;
+.gyms-hero{
+    border-color:rgba(96,165,250,.18);
+    background:
+        radial-gradient(circle at 0% 0%, rgba(96,165,250,.24) 0%, transparent 30%),
+        radial-gradient(circle at 100% 0%, rgba(34,211,238,.18) 0%, transparent 26%),
+        linear-gradient(135deg, #0f2f62 0%, #12386f 46%, #1a4b89 100%);
+    box-shadow:0 20px 44px rgba(15,23,42,.16);
 }
 
-.battle-booster-purchase-card:hover{
-    transform:translateY(-2px);
-    box-shadow:0 16px 30px rgba(15,23,42,0.12);
+.gyms-hero::before{
+    background:rgba(255,255,255,.12);
 }
 
-.battle-booster-purchase-card .battle-booster-cta-row{
-    margin-top:14px;
-    display:flex;
-    justify-content:flex-start;
-    position:relative;
-    z-index:1;
+.gyms-hero::after{
+    background:rgba(34,211,238,.16);
 }
 
-.battle-booster-cta{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    min-height:34px;
-    padding:0 12px;
-    border-radius:999px;
-    background:rgba(255,255,255,0.16);
-    color:#ffffff;
-    font-size:12px;
-    font-weight:900;
-    letter-spacing:.03em;
-    border:1px solid rgba(255,255,255,0.14);
+.gyms-subtitle{
+    color:rgba(239,246,255,.94);
 }
 
-.battle-booster-cta.alt{
-    background:rgba(15,23,42,0.26);
+.gyms-hero-stat{
+    border-color:rgba(191,219,254,.18);
+    background:linear-gradient(180deg, rgba(255,255,255,.12) 0%, rgba(255,255,255,.08) 100%);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.1);
 }
 
-.battle-premium-modal-overlay{
-    position:fixed;
-    inset:0;
-    z-index:3200;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:18px;
-    background:rgba(15,23,42,0.56);
-    backdrop-filter:blur(6px);
+.gyms-hero-stat span{
+    color:#cfe0f5;
 }
 
-.battle-premium-modal-overlay.oculto{
-    display:none;
+.gyms-hero-preview{
+    border-color:rgba(191,219,254,.24);
+    background:
+        radial-gradient(circle at 100% 0%, rgba(255,255,255,.12) 0%, transparent 34%),
+        linear-gradient(145deg, rgba(24,56,103,.95) 0%, rgba(22,46,90,.96) 100%);
+    box-shadow:0 18px 38px rgba(9,18,31,.18);
 }
 
-.battle-premium-modal{
-    width:min(760px, 100%);
-    background:linear-gradient(180deg,#ffffff 0%,#fffaf2 100%);
-    border-radius:28px;
-    padding:26px 24px 22px;
-    box-shadow:0 24px 60px rgba(15,23,42,0.24);
-    border:1px solid #fde68a;
-    position:relative;
-    overflow:hidden;
+.hero-preview-copy small{
+    color:#dcedff;
 }
 
-.battle-premium-modal::before{
-    content:"";
-    position:absolute;
-    inset:0 auto auto 0;
-    width:100%;
-    height:5px;
-    background:linear-gradient(90deg,#f59e0b,#facc15,#f97316);
+.hero-preview-copy p,
+.hero-preview-footer span,
+.hero-preview-empty{
+    color:#dce9f8;
 }
 
-.battle-premium-close{
-    position:absolute;
-    top:14px;
-    right:14px;
-    width:40px;
-    height:40px;
-    border:1px solid #fde68a;
-    background:#ffffff;
-    color:#92400e;
-    border-radius:14px;
-    font-size:24px;
-    line-height:1;
-    cursor:pointer;
+.hero-preview-footer > div{
+    border-color:rgba(191,219,254,.14);
+    background:rgba(255,255,255,.08);
 }
 
-.battle-premium-modal-top{
-    padding-right:46px;
-    margin-bottom:18px;
+/* =========================
+   Secciones claras
+========================= */
+.gyms-section{
+    border-color:var(--gyms-border-soft);
+    background:linear-gradient(180deg, rgba(250,253,255,.98) 0%, rgba(239,246,253,.98) 100%);
+    box-shadow:var(--gyms-shadow-light);
 }
 
-.battle-premium-kicker{
-    display:inline-flex;
-    align-items:center;
-    min-height:30px;
-    padding:0 12px;
-    border-radius:999px;
-    background:#fff7ed;
-    color:#b45309;
-    border:1px solid #fed7aa;
-    font-size:11px;
-    font-weight:900;
-    text-transform:uppercase;
-    letter-spacing:.08em;
-    margin-bottom:12px;
+.gyms-section-header h2,
+.gyms-section-header h3,
+.gym-region-summary-card h4,
+.gym-roster-stack-head strong{
+    color:var(--gyms-text-dark);
 }
 
-.battle-premium-modal-top h3{
-    margin:0 0 8px;
-    font-size:34px;
-    font-weight:900;
-    color:#111827;
-    letter-spacing:-.03em;
+.gyms-section-header p,
+.gym-region-summary-card p,
+.gyms-stat-card small,
+.gym-desc,
+.gym-city,
+.gym-detail-copy p,
+.gym-detail-note,
+.gym-sidebar-item p,
+.gym-progress-note,
+.gym-team-empty{
+    color:var(--gyms-text-body);
 }
 
-.battle-premium-modal-top p{
-    margin:0;
-    color:#475569;
-    line-height:1.6;
-    font-size:15px;
-    font-weight:600;
+.gyms-section-kicker{
+    color:#4f6c8f;
 }
 
-.battle-premium-modal-body{
-    display:grid;
+.gyms-section-kicker::before{
+    box-shadow:0 0 16px rgba(79,155,255,.28);
+}
+
+.gyms-pill{
+    background:linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%);
+    color:#1d4ed8;
+    border-color:#bfdbfe;
+    box-shadow:0 6px 14px rgba(37,99,235,.08);
+}
+
+.gyms-overview{
     gap:16px;
 }
 
-.battle-premium-modal-actions{
-    display:flex;
-    justify-content:flex-end;
-    gap:12px;
-    margin-top:18px;
+.gyms-stat-card,
+.gym-region-tab,
+.gym-region-summary-card,
+.gym-card,
+.gym-detail-card,
+.gym-team-card,
+.gym-roster-card,
+.gym-badge-track-item,
+.gym-meta-item,
+.gym-detail-meta-item,
+.gym-summary-box,
+.gym-sidebar-item{
+    border-color:var(--gyms-border-soft);
+    background:linear-gradient(180deg, var(--gyms-surface) 0%, var(--gyms-surface-2) 100%);
+    box-shadow:0 10px 22px rgba(15,23,42,.06);
 }
 
-.battle-premium-shell{
-    display:grid;
-    gap:16px;
+.gyms-stat-card::after,
+.gym-card-glow,
+.gym-roster-card::after{
+    opacity:.48;
 }
 
-.battle-premium-hero{
-    display:grid;
-    grid-template-columns:auto minmax(0,1fr) auto;
-    gap:14px;
-    align-items:start;
-}
-
-.battle-premium-icon{
-    width:58px;
-    height:58px;
-    border-radius:18px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:28px;
-    background:linear-gradient(180deg,#eff6ff 0%,#dbeafe 100%);
-    box-shadow:0 10px 20px rgba(37,99,235,0.12);
-}
-
-.battle-premium-shell-gold .battle-premium-icon{
-    background:linear-gradient(180deg,#fff7ed 0%,#fde68a 100%);
-    box-shadow:0 10px 20px rgba(245,158,11,0.14);
-}
-
-.battle-premium-copy h4{
-    margin:0 0 8px;
-    font-size:24px;
-    font-weight:900;
-    color:#111827;
-}
-
-.battle-premium-copy p{
-    margin:0;
-    color:#475569;
-    line-height:1.6;
-    font-size:14px;
-}
-
-.battle-premium-price-box{
-    min-width:144px;
-    padding:14px 16px;
-    border-radius:20px;
-    background:linear-gradient(180deg,#ffffff 0%,#fff7ed 100%);
-    border:1px solid #fed7aa;
-    text-align:right;
-}
-
-.battle-premium-price-box span{
-    display:block;
-    font-size:11px;
-    font-weight:900;
-    text-transform:uppercase;
-    letter-spacing:.08em;
-    color:#9a3412;
-}
-
-.battle-premium-price-box strong{
-    display:block;
-    margin-top:8px;
-    font-size:28px;
-    color:#b45309;
-    line-height:1;
-}
-
-.battle-premium-grid{
-    display:grid;
-    grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:12px;
-}
-
-.battle-premium-grid article{
-    border:1px solid #e5e7eb;
-    background:#ffffff;
-    border-radius:18px;
-    padding:14px 16px;
-    box-shadow:0 8px 18px rgba(15,23,42,0.06);
-}
-
-.battle-premium-grid span{
-    display:block;
-    font-size:11px;
-    font-weight:900;
-    text-transform:uppercase;
-    letter-spacing:.08em;
+.gyms-stat-card span,
+.gym-meta-item span,
+.gym-detail-meta-item span,
+.gym-summary-box span,
+.gym-sidebar-item strong,
+.gym-roster-stack-head span,
+.gym-region-summary-meta span,
+.gym-card-copy small,
+.gym-detail-copy small{
     color:#64748b;
-    margin-bottom:8px;
 }
 
-.battle-premium-grid strong{
-    display:block;
-    font-size:20px;
-    font-weight:900;
-    color:#111827;
-    line-height:1.15;
+.gyms-stat-card strong,
+.gym-region-tab span,
+.gym-region-tab strong,
+.gym-region-summary-meta strong,
+.gym-title,
+.gym-detail-copy h4,
+.gym-meta-item strong,
+.gym-detail-meta-item strong,
+.gym-summary-box strong,
+.gym-roster-card-copy strong,
+.gym-team-card-head h4,
+.gym-badge-track-item span{
+    color:var(--gyms-text-dark);
 }
 
-.battle-premium-benefits{
-    border:1px solid #fde68a;
-    background:linear-gradient(180deg,#ffffff 0%,#fffaf0 100%);
-    border-radius:20px;
-    padding:15px 16px;
+.gym-region-tab small,
+.gym-region-summary-meta span,
+.gym-meta-item span,
+.gym-detail-meta-item span,
+.gym-summary-box span{
+    color:var(--gyms-text-soft-dark);
 }
 
-.battle-premium-benefits > span{
-    display:block;
-    font-size:12px;
-    font-weight:900;
-    text-transform:uppercase;
-    letter-spacing:.08em;
-    color:#92400e;
-    margin-bottom:10px;
+.gym-region-tab:hover,
+.gym-region-tab.is-active,
+.gym-card:hover,
+.gym-card.is-selected{
+    box-shadow:0 16px 32px rgba(37,99,235,.10);
 }
 
-.battle-premium-benefits ul{
-    margin:0;
-    padding-left:18px;
-    display:grid;
+.gym-region-tab.is-active{
+    outline:2px solid rgba(59,130,246,.10);
+}
+
+.gym-card{
+    border-width:1px;
+}
+
+.gym-card-copy small,
+.gym-detail-copy small{
+    color:#4f80c8;
+}
+
+.gym-roster-preview{
     gap:8px;
-    color:#374151;
-    font-size:14px;
-    line-height:1.55;
-    font-weight:700;
 }
 
-.battle-premium-active-box{
-    border:1px solid #bbf7d0;
-    background:#ecfdf5;
-    color:#047857;
-    border-radius:16px;
-    padding:12px 14px;
-    font-size:13px;
-    font-weight:800;
-    line-height:1.55;
+.gym-roster-mini{
+    border-color:rgba(148,163,184,.18);
+    background:linear-gradient(180deg, #ffffff 0%, color-mix(in srgb, var(--type-soft) 54%, #eef5ff 46%) 100%);
 }
 
-.battle-premium-check{
-    display:flex;
-    align-items:flex-start;
-    gap:10px;
-    border:1px solid #e5e7eb;
-    background:#ffffff;
-    border-radius:16px;
-    padding:14px 16px;
+.gym-roster-mini img{
+    width:42px;
+    height:42px;
 }
 
-.battle-premium-check input{
-    margin-top:3px;
-    accent-color:#f59e0b;
+/* =========================
+   Dossier y roster con mejor lectura
+========================= */
+.gym-detail-card{
+    background:linear-gradient(180deg, #fffef8 0%, #f7f7ec 100%);
 }
 
-.battle-premium-check span{
-    color:#111827;
-    font-size:14px;
-    line-height:1.55;
-    font-weight:700;
+.gym-detail-note{
+    margin-top:14px;
 }
 
-.battle-premium-error{
-    border:1px solid #fecaca;
-    background:#fef2f2;
-    color:#b91c1c;
-    border-radius:16px;
-    padding:12px 14px;
-    font-size:13px;
-    font-weight:800;
-    line-height:1.55;
+.gym-detail-side{
+    align-items:flex-end;
+    justify-content:space-between;
 }
 
-@media (max-width: 760px){
-    .battle-premium-modal{
-        padding:22px 18px 18px;
-        border-radius:24px;
+.gym-roster-card{
+    background:linear-gradient(180deg, #ffffff 0%, #eef5fd 100%);
+}
+
+.gym-roster-card.is-leader{
+    border-color:rgba(251,191,36,.34);
+    box-shadow:0 12px 26px rgba(251,191,36,.10), inset 0 0 0 1px rgba(251,191,36,.12);
+}
+
+.gym-team-card{
+    background:linear-gradient(180deg, #ffffff 0%, #eef4fb 100%);
+}
+
+.gym-team-card-art{
+    border-color:rgba(148,163,184,.20);
+    background:linear-gradient(180deg, #fbfdff 0%, #eef4fb 100%);
+}
+
+.gym-team-chip{
+    background:linear-gradient(180deg, #f8fbff 0%, #eef3fb 100%);
+    border-color:rgba(148,163,184,.24);
+    color:#41546d;
+}
+
+.gym-team-chip.shiny{
+    background:linear-gradient(180deg, #fff2a8 0%, #ffd566 52%, #f6a623 100%);
+    border-color:rgba(245,158,11,.46);
+    color:#6b3b00;
+    box-shadow:0 10px 22px rgba(245,158,11,.22);
+}
+
+.gym-team-chip.leader{
+    color:#4a2b00;
+}
+
+.gym-progress-bar{
+    background:rgba(148,163,184,.16);
+    border-color:rgba(148,163,184,.20);
+}
+
+.gym-badge-track-item{
+    justify-content:flex-start;
+    min-height:128px;
+    padding:14px 10px 12px;
+}
+
+.gym-badge-track-item span{
+    color:#52657d;
+}
+
+/* =========================
+   Retratos mejor encuadrados
+========================= */
+.trainer-portrait,
+.badge-portrait{
+    border-color:rgba(148,163,184,.18);
+    background:
+        radial-gradient(circle at 50% 100%, rgba(79,155,255,.12) 0%, transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.72) 0%, rgba(234,241,249,.94) 100%);
+}
+
+.gym-card-portrait{
+    height:112px;
+    padding:0;
+}
+
+.gym-card-portrait img{
+    height:112%;
+    transform:translateY(6px) scale(1.02);
+}
+
+.hero-portrait{
+    height:166px;
+    padding:0;
+}
+
+.hero-portrait img{
+    height:114%;
+    transform:translateY(6px) scale(1.03);
+}
+
+.gym-detail-portrait{
+    height:154px;
+    padding:0;
+}
+
+.gym-detail-portrait img{
+    height:116%;
+    transform:translateY(6px) scale(1.03);
+}
+
+.gym-card-badge,
+.hero-badge-portrait,
+.gym-detail-badge,
+.gym-badge-track-portrait{
+    background:linear-gradient(180deg, #ffffff 0%, #eef4fb 100%);
+    border-color:rgba(148,163,184,.20);
+}
+
+/* =========================
+   Responsive final sobre tema claro
+========================= */
+@media (max-width: 980px){
+    .gyms-page{
+        width:min(100%, calc(100% - 14px));
     }
 
-    .battle-premium-modal-top{
-        padding-right:0;
+    .hero-portrait{
+        height:150px;
     }
 
-    .battle-premium-modal-top h3{
-        font-size:28px;
+    .gym-detail-portrait{
+        height:140px;
+    }
+}
+
+@media (max-width: 720px){
+    .gyms-page{
+        width:min(100%, calc(100% - 12px));
+        padding-top:18px;
     }
 
-    .battle-premium-hero,
-    .battle-premium-grid,
-    .battle-premium-modal-actions{
-        grid-template-columns:1fr;
+    .gyms-section,
+    .gyms-hero{
+        border-radius:22px;
     }
 
-    .battle-premium-price-box{
-        min-width:0;
-        text-align:left;
+    .gym-card-portrait,
+    .hero-portrait,
+    .gym-detail-portrait{
+        height:132px;
     }
 
-    .battle-premium-modal-actions{
-        display:grid;
+    .gym-card-portrait img,
+    .hero-portrait img,
+    .gym-detail-portrait img{
+        height:110%;
+        transform:translateY(4px) scale(1.01);
     }
+}
 
-    .battle-premium-modal-actions .battle-modal-btn{
-        width:100%;
+
+/* =========================================================
+   GYMS V2 HOTFIX
+   1. STATUS CHIPS VISIBLES
+   2. RETRATOS DE TRAINERS MEJOR ENCUADRADOS
+========================================================= */
+
+/* 1) Status chips: aseguramos contraste real en cards, dossier y hero */
+.gym-card .gym-status,
+.gym-detail-card .gym-status,
+.gyms-hero-preview .hero-preview-status{
+    color:#0f172a !important;
+    border:1px solid rgba(148,163,184,0.34) !important;
+    box-shadow:0 8px 18px rgba(15,23,42,0.08) !important;
+    text-shadow:none !important;
+}
+
+.gym-card[data-status="cleared"] .gym-status,
+.gym-detail-card .gym-status{
+    background:linear-gradient(180deg, #dcfce7 0%, #bbf7d0 100%) !important;
+    color:#166534 !important;
+    border-color:rgba(34,197,94,0.30) !important;
+}
+
+.gym-card[data-status="open"] .gym-status{
+    background:linear-gradient(180deg, #dbeafe 0%, #bfdbfe 100%) !important;
+    color:#1d4ed8 !important;
+    border-color:rgba(59,130,246,0.30) !important;
+}
+
+.gym-card[data-status="locked"] .gym-status{
+    background:linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%) !important;
+    color:#475569 !important;
+    border-color:rgba(148,163,184,0.28) !important;
+}
+
+/* Hero derecho: más contraste en el estado */
+.gyms-hero-preview .hero-preview-status{
+    background:linear-gradient(180deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.14) 100%) !important;
+    color:#f8fafc !important;
+    border-color:rgba(255,255,255,0.18) !important;
+    box-shadow:none !important;
+}
+
+/* Dossier: el estado estaba quedando muy lavado; lo fijamos visible */
+.gym-detail-card .gym-status{
+    background:linear-gradient(180deg, #dbeafe 0%, #bfdbfe 100%) !important;
+    color:#1d4ed8 !important;
+    border-color:rgba(59,130,246,0.30) !important;
+}
+
+/* 2) Retratos de trainers: menos zoom para que entren completos */
+.gym-card .trainer-portrait,
+.gym-detail-card .trainer-portrait,
+.gyms-hero-preview .trainer-portrait{
+    padding:4px 4px 0 !important;
+    display:flex !important;
+    align-items:flex-end !important;
+    justify-content:center !important;
+    overflow:hidden !important;
+}
+
+.gym-card .trainer-portrait img,
+.gym-detail-card .trainer-portrait img,
+.gyms-hero-preview .trainer-portrait img{
+    width:100% !important;
+    height:100% !important;
+    object-fit:contain !important;
+    object-position:center bottom !important;
+    transform:scale(1.03) translateY(2px) !important;
+    transform-origin:center bottom !important;
+    filter:drop-shadow(0 6px 14px rgba(15,23,42,0.10));
+}
+
+/* Card del roadmap: cuadro un poco más amable para que no se sienta cortado */
+.gym-card-portrait{
+    width:78px !important;
+    height:78px !important;
+    border-radius:20px !important;
+}
+
+/* Dossier derecho: un poco más grande pero sin cortar */
+.gym-detail-portrait{
+    width:94px !important;
+    height:94px !important;
+    border-radius:22px !important;
+}
+
+/* Hero superior: más presencia pero sin el zoom agresivo anterior */
+.gyms-hero-preview .trainer-portrait{
+    width:96px !important;
+    height:96px !important;
+    border-radius:24px !important;
+}
+
+/* Ajuste fino para trainers con más espacio arriba */
+.gym-card.type-water .trainer-portrait img,
+.gym-detail-card.type-water .trainer-portrait img,
+.gyms-hero-preview.type-water .trainer-portrait img,
+.gym-card.type-grass .trainer-portrait img,
+.gym-detail-card.type-grass .trainer-portrait img,
+.gyms-hero-preview.type-grass .trainer-portrait img,
+.gym-card.type-electric .trainer-portrait img,
+.gym-detail-card.type-electric .trainer-portrait img,
+.gyms-hero-preview.type-electric .trainer-portrait img{
+    transform:scale(1.00) translateY(3px) !important;
+}
+
+/* =========================================================
+   HOTFIX FINAL - PROGRESS NOTE VISIBILITY
+   ---------------------------------------------------------
+   Mejora el contraste del texto bajo la barra de progreso
+   en el panel "Progress and unlocks".
+========================================================= */
+.gym-progress-note{
+    margin: 14px 0 16px;
+    font-size: 13px;
+    line-height: 1.55;
+    font-weight: 600;
+    color: #4b5f7d;
+    letter-spacing: 0.01em;
+    text-wrap: balance;
+}
+
+.gyms-progress-shell .gym-progress-note{
+    padding: 0 2px;
+    opacity: 1;
+}
+
+@media (max-width: 768px){
+    .gym-progress-note{
+        font-size: 12px;
+        line-height: 1.5;
     }
+}
+
+/* =========================================================
+   HOTFIX - MEDALLA OBTENIDA EN DORADO
+   ---------------------------------------------------------
+   Cuando una medalla ya está conseguida (status = cleared),
+   se pinta en dorado / amarillo para que se note visualmente.
+========================================================= */
+.gym-badge-track-item.cleared{
+    background:
+        radial-gradient(circle at top, rgba(251,191,36,0.22) 0%, rgba(251,191,36,0) 46%),
+        linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(254,249,195,0.92) 100%);
+    border-color: rgba(245,158,11,0.42);
+    box-shadow:
+        0 0 0 1px rgba(245,158,11,0.08) inset,
+        0 10px 22px rgba(245,158,11,0.10);
+}
+
+.gym-badge-track-item.cleared .gym-badge-track-portrait{
+    background: linear-gradient(180deg, #fffdf2 0%, #fff7cc 100%);
+    border-color: rgba(245,158,11,0.28);
+    box-shadow: 0 10px 18px rgba(245,158,11,0.12);
+}
+
+.gym-badge-track-item.cleared span{
+    color: #92400e;
 }
