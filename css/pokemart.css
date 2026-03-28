@@ -1329,7 +1329,235 @@
 }
 
 
+
+
+/* =========================================================
+   PREMIUM HISTORY / PURCHASES
+========================================================= */
+
+.premium-history-wrap{
+    margin-top: 18px;
+    padding: 22px;
+    border-radius: 28px;
+    border: 1px solid rgba(148,163,184,.14);
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    box-shadow: var(--mart-shadow-soft);
+}
+
+.premium-history-head{
+    margin-bottom: 14px;
+}
+
+.premium-history-tabs{
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 18px;
+    padding: 6px;
+    border-radius: 18px;
+    background: #eff6ff;
+    border: 1px solid rgba(147,197,253,.34);
+}
+
+.premium-history-tab{
+    border: none;
+    background: transparent;
+    color: #475569;
+    border-radius: 14px;
+    padding: 12px 14px;
+    font-size: 14px;
+    font-weight: 900;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: background .18s ease, color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+
+.premium-history-tab:hover{
+    color: #0f172a;
+    background: rgba(255,255,255,.62);
+}
+
+.premium-history-tab.active{
+    color: #0f172a;
+    background: #ffffff;
+    box-shadow: 0 10px 22px rgba(37,99,235,.10);
+}
+
+.premium-history-tab-count{
+    min-width: 28px;
+    height: 28px;
+    padding: 0 8px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(37,99,235,.10);
+    color: #1d4ed8;
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.premium-history-grid{
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.premium-history-card,
+.premium-history-empty{
+    border-radius: 24px;
+    padding: 18px;
+    border: 1px solid rgba(148,163,184,.18);
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    box-shadow: 0 16px 30px rgba(15,23,42,.05);
+}
+
+.premium-history-card-benefit{
+    background: linear-gradient(180deg, #f8fffb 0%, #f8fbff 100%);
+}
+
+.premium-history-card-top{
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+.premium-history-card-ident{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.premium-history-card-ident h4{
+    margin: 4px 0 0;
+    font-size: 20px;
+    line-height: 1.1;
+    color: var(--mart-text);
+}
+
+.premium-history-overline{
+    display: inline-block;
+    color: var(--mart-muted);
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+}
+
+.premium-history-icon,
+.premium-history-empty-icon{
+    display: inline-grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 18px;
+    background: rgba(37,99,235,.10);
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.premium-history-status{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 900;
+    white-space: nowrap;
+    border: 1px solid rgba(148,163,184,.18);
+    color: #334155;
+    background: #eef2f7;
+}
+
+.premium-history-status.is-ok{
+    color: #166534;
+    background: rgba(34,197,94,.10);
+    border-color: rgba(34,197,94,.24);
+}
+
+.premium-history-status.is-warn{
+    color: #b45309;
+    background: rgba(245,158,11,.10);
+    border-color: rgba(245,158,11,.24);
+}
+
+.premium-history-status.is-muted{
+    color: #64748b;
+    background: rgba(148,163,184,.10);
+    border-color: rgba(148,163,184,.22);
+}
+
+.premium-history-meta-grid{
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.premium-history-meta-box{
+    padding: 14px;
+    border-radius: 18px;
+    background: #f8fafc;
+    border: 1px solid rgba(226,232,240,.95);
+}
+
+.premium-history-meta-box.full-width{
+    grid-column: 1 / -1;
+}
+
+.premium-history-meta-box small{
+    display: block;
+    margin-bottom: 6px;
+    color: var(--mart-muted);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.premium-history-meta-box strong{
+    display: block;
+    color: var(--mart-text);
+    font-size: 15px;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+.premium-history-empty{
+    grid-column: 1 / -1;
+    text-align: center;
+}
+
+.premium-history-empty h4{
+    margin: 14px 0 8px;
+    font-size: 22px;
+    color: var(--mart-text);
+}
+
+.premium-history-empty p{
+    margin: 0 auto;
+    max-width: 560px;
+    color: var(--mart-muted);
+    line-height: 1.65;
+}
+
 @media (max-width: 860px){
+    .premium-history-grid{
+        grid-template-columns: 1fr;
+    }
+
+    .premium-history-wrap{
+        padding: 18px;
+    }
+
+    .premium-history-tab{
+        flex: 1 1 220px;
+        justify-content: space-between;
+    }
+
     .pokemart-auth-panel{
         padding: 28px 22px;
         border-radius: 28px;
@@ -1341,6 +1569,28 @@
 }
 
 @media (max-width: 560px){
+    .premium-history-tabs{
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+
+    .premium-history-card-top{
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .premium-history-status{
+        align-self: flex-start;
+    }
+
+    .premium-history-meta-grid{
+        grid-template-columns: 1fr;
+    }
+
+    .premium-history-meta-box.full-width{
+        grid-column: auto;
+    }
+
     .pokemart-auth-gate{
         padding: 14px 0 26px;
     }

@@ -229,6 +229,7 @@ document.addEventListener("languageChanged", () => {
     actualizarAccesoPokeMartUI();
     refrescarUIPokeMart();
     renderizarPremiumCatalogo();
+    renderizarPremiumHistory();
     aplicarIntencionPremium({ force: true, afterRender: true });
 });
 
@@ -270,6 +271,7 @@ function refrescarUIPokeMart() {
     renderizarSaldo();
     renderizarTienda();
     renderizarPremiumCatalogo();
+    renderizarPremiumHistory();
 
     const mensaje = document.getElementById("mensajeCompra");
     if (mensaje && !mensaje.classList.contains("oculto")) {
@@ -1085,7 +1087,9 @@ const PREMIUM_PRODUCT_META = {
 
 let premiumProductosGlobal = [];
 let premiumBeneficiosGlobal = [];
+let premiumComprasGlobal = [];
 let premiumProductoSeleccionado = null;
+let premiumHistoryTabActual = "purchases";
 
 let premiumProductoSpotlightCode = "";
 let premiumIntentApplied = false;
@@ -1188,6 +1192,14 @@ function obtenerBeneficiosActivosCompat() {
         return obtenerBeneficiosActivos();
     }
     return fetchAuth(`${API_BASE}/payments/beneficios/activos`);
+}
+
+
+function obtenerComprasPagosCompat() {
+    if (typeof obtenerComprasPagos === "function") {
+        return obtenerComprasPagos();
+    }
+    return fetchAuth(`${API_BASE}/payments/compras`);
 }
 
 function crearOrdenPaypalPagoCompat(productCode) {
@@ -1322,6 +1334,225 @@ function formatearFechaPremium(valor) {
     }
 }
 
+function escapeHtmlPremium(value) {
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
+function obtenerTituloCompraPremium(compra = {}) {
+    if (compra?.producto_codigo && PREMIUM_PRODUCT_META[compra.producto_codigo]) {
+        return obtenerTituloPremiumProducto({ codigo: compra.producto_codigo, nombre: compra.producto_nombre || "Premium" });
+    }
+    return compra?.producto_nombre || compra?.producto_codigo || t("pokemart_history_unknown_product");
+}
+
+function obtenerMetaBeneficioPremium(beneficioCodigo = "") {
+    const codigo = String(beneficioCodigo || "").trim().toLowerCase();
+    if (codigo === "battle_exp_x2") {
+        return { icon: "⚡", title: t("pokemart_history_benefit_exp_title") };
+    }
+    if (codigo === "battle_gold_x2") {
+        return { icon: "💰", title: t("pokemart_history_benefit_gold_title") };
+    }
+    if (codigo === "idle_masters") {
+        return { icon: "👑", title: t("pokemart_history_benefit_idle_title") };
+    }
+    if (codigo === "map_exclusive_rate") {
+        return { icon: "🗺️", title: t("pokemart_history_benefit_maps_title") };
+    }
+    return { icon: "⭐", title: beneficioCodigo || t("pokemart_history_unknown_benefit") };
+}
+
+function obtenerTituloBeneficioPremium(beneficio = {}) {
+    return obtenerMetaBeneficioPremium(beneficio?.beneficio_codigo).title;
+}
+
+function obtenerIconoBeneficioPremium(beneficio = {}) {
+    return obtenerMetaBeneficioPremium(beneficio?.beneficio_codigo).icon;
+}
+
+function obtenerLabelEstadoCompraPremium(estado = "") {
+    const valor = String(estado || "").trim().toLowerCase();
+    if (valor === "pagado") return t("pokemart_history_status_paid");
+    if (valor === "pendiente") return t("pokemart_history_status_pending");
+    if (valor === "cancelado") return t("pokemart_history_status_cancelled");
+    if (valor === "fallido") return t("pokemart_history_status_failed");
+    return estado || t("pokemart_history_status_pending");
+}
+
+function obtenerLabelGrantStatusPremium(estado = "") {
+    const valor = String(estado || "").trim().toLowerCase();
+    if (valor === "entregado") return t("pokemart_history_grant_delivered");
+    if (valor === "pendiente") return t("pokemart_history_grant_pending");
+    if (valor === "consumido") return t("pokemart_history_grant_consumed");
+    return estado || t("pokemart_history_grant_pending");
+}
+
+function obtenerLabelEstadoBeneficioPremium(estado = "") {
+    const valor = String(estado || "").trim().toLowerCase();
+    if (valor === "activo") return t("pokemart_history_status_active");
+    if (valor === "expirado") return t("pokemart_history_status_expired");
+    if (valor === "consumido") return t("pokemart_history_status_consumed");
+    return estado || t("pokemart_history_status_active");
+}
+
+function obtenerClaseEstadoPremium(estado = "") {
+    const valor = String(estado || "").trim().toLowerCase();
+    if (valor === "pagado" || valor === "activo" || valor === "entregado") return "is-ok";
+    if (valor === "pendiente") return "is-warn";
+    if (valor === "expirado" || valor === "consumido" || valor === "cancelado" || valor === "fallido") return "is-muted";
+    return "";
+}
+
+function formatearMontoCompraPremium(compra = {}) {
+    const monto = Number(compra?.monto || 0);
+    const moneda = String(compra?.moneda || "USD").trim().toUpperCase() || "USD";
+    return `$${monto.toFixed(2)} ${moneda}`;
+}
+
+function obtenerFechaCompraPremium(compra = {}) {
+    return compra?.pagado_en || compra?.entregado_en || null;
+}
+
+function obtenerUsosRestantesBeneficioPremium(beneficio = {}) {
+    if (beneficio?.usos_totales == null) return null;
+    const total = Number(beneficio.usos_totales || 0);
+    const consumidos = Number(beneficio.usos_consumidos || 0);
+    return Math.max(0, total - consumidos);
+}
+
+function actualizarResumenHistorialPremium() {
+    const purchasesCount = document.getElementById("premiumPurchasesCount");
+    const benefitsCount = document.getElementById("premiumBenefitsCountHistory");
+    if (purchasesCount) purchasesCount.textContent = String(premiumComprasGlobal.length);
+    if (benefitsCount) benefitsCount.textContent = String(premiumBeneficiosGlobal.length);
+}
+
+function cambiarTabHistorialPremium(tab = "purchases") {
+    premiumHistoryTabActual = tab === "benefits" ? "benefits" : "purchases";
+    renderizarPremiumHistory();
+}
+
+function renderizarPremiumHistory() {
+    const purchasesPanel = document.getElementById("premiumHistoryPurchasesPanel");
+    const benefitsPanel = document.getElementById("premiumHistoryBenefitsPanel");
+    const purchasesList = document.getElementById("premiumPurchasesList");
+    const benefitsList = document.getElementById("premiumBenefitsList");
+    const tabButtons = document.querySelectorAll("[data-premium-history-tab]");
+
+    if (!purchasesPanel || !benefitsPanel || !purchasesList || !benefitsList) return;
+
+    const showPurchases = premiumHistoryTabActual !== "benefits";
+    purchasesPanel.classList.toggle("oculto", !showPurchases);
+    benefitsPanel.classList.toggle("oculto", showPurchases);
+
+    tabButtons.forEach((btn) => {
+        const isActive = btn.dataset.premiumHistoryTab === premiumHistoryTabActual;
+        btn.classList.toggle("active", isActive);
+        btn.setAttribute("aria-selected", isActive ? "true" : "false");
+    });
+
+    actualizarResumenHistorialPremium();
+
+    if (!usuarioAutenticadoTienda()) {
+        purchasesList.innerHTML = "";
+        benefitsList.innerHTML = "";
+        return;
+    }
+
+    if (!premiumComprasGlobal.length) {
+        purchasesList.innerHTML = `
+            <article class="premium-history-empty">
+                <span class="premium-history-empty-icon">🧾</span>
+                <h4>${escapeHtmlPremium(t("pokemart_history_empty_purchases_title"))}</h4>
+                <p>${escapeHtmlPremium(t("pokemart_history_empty_purchases_text"))}</p>
+            </article>
+        `;
+    } else {
+        purchasesList.innerHTML = premiumComprasGlobal.map((compra) => {
+            const fecha = obtenerFechaCompraPremium(compra);
+            const grantStatus = compra?.grant_status ? `
+                <div class="premium-history-meta-box full-width">
+                    <small>${escapeHtmlPremium(t("pokemart_history_card_delivery"))}</small>
+                    <strong>${escapeHtmlPremium(obtenerLabelGrantStatusPremium(compra.grant_status))}</strong>
+                </div>
+            ` : "";
+            return `
+                <article class="premium-history-card">
+                    <div class="premium-history-card-top">
+                        <div class="premium-history-card-ident">
+                            <span class="premium-history-icon">${escapeHtmlPremium(obtenerIconoPremiumProducto({ codigo: compra?.producto_codigo }))}</span>
+                            <div>
+                                <small class="premium-history-overline">${escapeHtmlPremium(t("pokemart_history_tab_purchases"))}</small>
+                                <h4>${escapeHtmlPremium(obtenerTituloCompraPremium(compra))}</h4>
+                            </div>
+                        </div>
+                        <span class="premium-history-status ${obtenerClaseEstadoPremium(compra?.estado)}">${escapeHtmlPremium(obtenerLabelEstadoCompraPremium(compra?.estado))}</span>
+                    </div>
+                    <div class="premium-history-meta-grid">
+                        <div class="premium-history-meta-box">
+                            <small>${escapeHtmlPremium(t("pokemart_history_card_amount"))}</small>
+                            <strong>${escapeHtmlPremium(formatearMontoCompraPremium(compra))}</strong>
+                        </div>
+                        <div class="premium-history-meta-box">
+                            <small>${escapeHtmlPremium(t("pokemart_history_card_date"))}</small>
+                            <strong>${escapeHtmlPremium(formatearFechaPremium(fecha))}</strong>
+                        </div>
+                        ${grantStatus}
+                    </div>
+                </article>
+            `;
+        }).join("");
+    }
+
+    if (!premiumBeneficiosGlobal.length) {
+        benefitsList.innerHTML = `
+            <article class="premium-history-empty">
+                <span class="premium-history-empty-icon">✨</span>
+                <h4>${escapeHtmlPremium(t("pokemart_history_empty_benefits_title"))}</h4>
+                <p>${escapeHtmlPremium(t("pokemart_history_empty_benefits_text"))}</p>
+            </article>
+        `;
+    } else {
+        benefitsList.innerHTML = premiumBeneficiosGlobal.map((beneficio) => {
+            const restantes = obtenerUsosRestantesBeneficioPremium(beneficio);
+            const consumidos = Number(beneficio?.usos_consumidos || 0);
+            return `
+                <article class="premium-history-card premium-history-card-benefit">
+                    <div class="premium-history-card-top">
+                        <div class="premium-history-card-ident">
+                            <span class="premium-history-icon">${escapeHtmlPremium(obtenerIconoBeneficioPremium(beneficio))}</span>
+                            <div>
+                                <small class="premium-history-overline">${escapeHtmlPremium(t("pokemart_history_tab_benefits"))}</small>
+                                <h4>${escapeHtmlPremium(obtenerTituloBeneficioPremium(beneficio))}</h4>
+                            </div>
+                        </div>
+                        <span class="premium-history-status ${obtenerClaseEstadoPremium(beneficio?.estado)}">${escapeHtmlPremium(obtenerLabelEstadoBeneficioPremium(beneficio?.estado))}</span>
+                    </div>
+                    <div class="premium-history-meta-grid">
+                        <div class="premium-history-meta-box">
+                            <small>${escapeHtmlPremium(t("pokemart_history_card_expires"))}</small>
+                            <strong>${escapeHtmlPremium(formatearFechaPremium(beneficio?.expira_en))}</strong>
+                        </div>
+                        <div class="premium-history-meta-box">
+                            <small>${escapeHtmlPremium(t("pokemart_history_card_remaining_uses"))}</small>
+                            <strong>${escapeHtmlPremium(restantes == null ? t("pokemart_history_unlimited") : String(restantes))}</strong>
+                        </div>
+                        <div class="premium-history-meta-box full-width">
+                            <small>${escapeHtmlPremium(t("pokemart_history_card_used_uses"))}</small>
+                            <strong>${escapeHtmlPremium(beneficio?.usos_totales == null ? t("pokemart_history_not_applicable") : `${consumidos} / ${Number(beneficio?.usos_totales || 0)}`)}</strong>
+                        </div>
+                    </div>
+                </article>
+            `;
+        }).join("");
+    }
+}
+
 function setPremiumMessage(message = "", type = "ok") {
     const box = document.getElementById("premiumShopMessage");
     if (!box) return;
@@ -1340,6 +1571,7 @@ function actualizarResumenPremium() {
     const countProductos = document.getElementById("premiumProductosCount");
     const countBeneficios = document.getElementById("premiumBeneficiosCount");
     const beneficiosHint = document.getElementById("premiumBeneficiosHint");
+    actualizarResumenHistorialPremium();
 
     if (countProductos) {
         const offersReady = premiumProductosGlobal.filter(p => PREMIUM_SUPPORTED_CODES.includes(p.codigo)).length;
@@ -1447,24 +1679,31 @@ async function cargarPremiumShop() {
     if (!usuarioAutenticadoTienda()) {
         premiumProductosGlobal = [];
         premiumBeneficiosGlobal = [];
+        premiumComprasGlobal = [];
         renderizarPremiumCatalogo();
+        renderizarPremiumHistory();
         return;
     }
 
     try {
-        const [catalogoData, beneficiosData] = await Promise.all([
+        const [catalogoData, beneficiosData, comprasData] = await Promise.all([
             obtenerCatalogoPagosCompat(),
-            obtenerBeneficiosActivosCompat()
+            obtenerBeneficiosActivosCompat(),
+            obtenerComprasPagosCompat()
         ]);
 
         premiumProductosGlobal = Array.isArray(catalogoData?.productos) ? catalogoData.productos : [];
         premiumBeneficiosGlobal = Array.isArray(beneficiosData?.beneficios) ? beneficiosData.beneficios : [];
+        premiumComprasGlobal = Array.isArray(comprasData?.compras) ? comprasData.compras : [];
         renderizarPremiumCatalogo();
+        renderizarPremiumHistory();
     } catch (error) {
         console.error("Error cargando premium shop:", error);
         premiumProductosGlobal = [];
         premiumBeneficiosGlobal = [];
+        premiumComprasGlobal = [];
         renderizarPremiumCatalogo();
+        renderizarPremiumHistory();
         setPremiumMessage(error?.message || t("pokemart_premium_load_error"), "error");
     }
 }
@@ -1569,6 +1808,12 @@ async function confirmarCompraPremium() {
 
 function registrarEventosPremium() {
     document.addEventListener("click", (event) => {
+        const historyTabBtn = event.target.closest("[data-premium-history-tab]");
+        if (historyTabBtn) {
+            cambiarTabHistorialPremium(historyTabBtn.dataset.premiumHistoryTab);
+            return;
+        }
+
         const premiumBtn = event.target.closest("[data-premium-buy]");
         if (premiumBtn) {
             abrirModalPremium(premiumBtn.dataset.premiumBuy);

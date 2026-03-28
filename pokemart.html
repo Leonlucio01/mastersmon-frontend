@@ -215,6 +215,38 @@
 
                         <div id="premiumCatalogo" class="premium-shop-grid"></div>
                     </div>
+
+                    <div class="premium-history-wrap" id="premiumHistoryWrap">
+                        <div class="premium-shop-catalog-head premium-history-head">
+                            <div>
+                                <span class="premium-shop-mini-kicker" data-i18n="pokemart_history_kicker">Account history</span>
+                                <h4 data-i18n="pokemart_history_title">Purchases and active benefits</h4>
+                                <p data-i18n="pokemart_history_subtitle">
+                                    Review your recent PayPal purchases and the premium benefits currently active on your account.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="premium-history-tabs" role="tablist" aria-label="Premium history">
+                            <button type="button" class="premium-history-tab active" id="premiumHistoryTabPurchases" data-premium-history-tab="purchases" aria-selected="true">
+                                <span data-i18n="pokemart_history_tab_purchases">Purchases</span>
+                                <span class="premium-history-tab-count" id="premiumPurchasesCount">0</span>
+                            </button>
+                            <button type="button" class="premium-history-tab" id="premiumHistoryTabBenefits" data-premium-history-tab="benefits" aria-selected="false">
+                                <span data-i18n="pokemart_history_tab_benefits">Active Benefits</span>
+                                <span class="premium-history-tab-count" id="premiumBenefitsCountHistory">0</span>
+                            </button>
+                        </div>
+
+                        <div class="premium-history-panels" id="premiumHistoryPanels">
+                            <section class="premium-history-panel" id="premiumHistoryPurchasesPanel" role="tabpanel" aria-labelledby="premiumHistoryTabPurchases">
+                                <div id="premiumPurchasesList" class="premium-history-grid"></div>
+                            </section>
+                            <section class="premium-history-panel oculto" id="premiumHistoryBenefitsPanel" role="tabpanel" aria-labelledby="premiumHistoryTabBenefits">
+                                <div id="premiumBenefitsList" class="premium-history-grid"></div>
+                            </section>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
