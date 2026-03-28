@@ -115,16 +115,6 @@
     </header>
 
 
-    
-<div class="menu-subnav">
-    <div class="menu-subnav-inner">
-        <a href="battle.html" class="menu-subnav-link active" data-i18n="menu_play_battle_ia">Battle IA</a>
-        <a href="gyms.html" class="menu-subnav-link" data-i18n="menu_play_gyms">Gyms</a>
-        <span class="menu-subnav-link menu-subnav-link-disabled" aria-disabled="true" data-i18n="menu_play_pvp">PvP</span>
-        <a href="idle.html" class="menu-subnav-link" data-i18n="menu_play_idle">Idle</a>
-    </div>
-</div>
-
 <main class="battle-page battle-page-clean">
         <section class="battle-hero" id="battleOverviewSection">
             <div class="battle-hero-badge" data-i18n="battle_badge">Tactical mode</div>
@@ -176,6 +166,17 @@
                         <span data-i18n="battle_team_status">Status</span>
                         <strong id="battleEstadoEquipo" data-i18n="battle_team_status_preparing">Preparing</strong>
                     </div>
+                </div>
+
+                <div class="battle-boosters-strip" id="battleBoostersStrip">
+                    <div class="battle-boosters-head">
+                        <div>
+                            <span class="battle-boosters-kicker">Battle boosters</span>
+                            <h4 id="battleBoostersTitle">Boosters ready for this run</h4>
+                        </div>
+                        <a href="mypokemon.html" class="battle-boosters-manage-link">Manage in Collection</a>
+                    </div>
+                    <div id="battleBoostersActive" class="battle-boosters-list"></div>
                 </div>
             </div>
         </section>
@@ -326,24 +327,6 @@
                 <button id="battleConfirmAccept" class="battle-modal-btn battle-modal-btn-danger" type="button" data-i18n="battle_confirm">
                     Confirm
                 </button>
-            </div>
-        </div>
-    </div>
-
-
-
-    <div id="battlePremiumModal" class="battle-premium-modal-overlay oculto">
-        <div class="battle-premium-modal" role="dialog" aria-modal="true" aria-labelledby="battlePremiumModalTitle">
-            <button id="battlePremiumModalClose" class="battle-premium-close" type="button" aria-label="Close">×</button>
-            <div class="battle-premium-modal-top">
-                <span id="battlePremiumModalKicker" class="battle-premium-kicker">Battle premium</span>
-                <h3 id="battlePremiumModalTitle">Purchase booster pack</h3>
-                <p id="battlePremiumModalSubtitle">Purchase extra charges directly from Battle IA and continue to PayPal.</p>
-            </div>
-            <div id="battlePremiumModalBody" class="battle-premium-modal-body"></div>
-            <div class="battle-premium-modal-actions">
-                <button id="battlePremiumModalCancel" class="battle-modal-btn battle-modal-btn-light" type="button">Close</button>
-                <button id="battlePremiumModalPay" class="battle-modal-btn battle-modal-btn-primary" type="button">Continue to PayPal</button>
             </div>
         </div>
     </div>
