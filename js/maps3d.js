@@ -492,13 +492,13 @@ function intersectsCollider(x, z) {
 }
 
 function movePlayer(delta) {
-    const forward =
-        Number(keyState['KeyW'] || keyState['ArrowUp']) -
-        Number(keyState['KeyS'] || keyState['ArrowDown']);
+    const up = (keyState['KeyW'] || keyState['ArrowUp']) ? 1 : 0;
+    const down = (keyState['KeyS'] || keyState['ArrowDown']) ? 1 : 0;
+    const right = (keyState['KeyD'] || keyState['ArrowRight']) ? 1 : 0;
+    const left = (keyState['KeyA'] || keyState['ArrowLeft']) ? 1 : 0;
 
-    const strafe =
-        Number(keyState['KeyD'] || keyState['ArrowRight']) -
-        Number(keyState['KeyA'] || keyState['ArrowLeft']);
+    const forward = up - down;
+    const strafe = right - left;
 
     moveDirection.set(strafe, 0, -forward);
 
@@ -511,7 +511,7 @@ function movePlayer(delta) {
     moveDirection.normalize();
 
     const speed =
-        BASE_SPEED * (keyState['ShiftLeft'] || keyState['ShiftRight'] ? RUN_MULTIPLIER : 1);
+        BASE_SPEED * ((keyState['ShiftLeft'] || keyState['ShiftRight']) ? RUN_MULTIPLIER : 1);
 
     hudSpeed.textContent = speed.toFixed(1);
 
@@ -519,6 +519,11 @@ function movePlayer(delta) {
     worldDirection.applyAxisAngle(new THREE.Vector3(0, 1, 0), camera.rotation.y);
     worldDirection.y = 0;
     worldDirection.normalize();
+
+    if (!Number.isFinite(worldDirection.x) || !Number.isFinite(worldDirection.z)) {
+        hudSpeed.textContent = '0.0';
+        return;
+    }
 
     const targetRotation = Math.atan2(worldDirection.x, worldDirection.z);
     player.rotation.y = THREE.MathUtils.lerp(
@@ -635,9 +640,18 @@ function closeEncounter() {
 function resetPlayer() {
     player.position.set(0, 0, 16);
     player.rotation.y = Math.PI;
+
+    Object.keys(keyState).forEach((key) => {
+        keyState[key] = false;
+    });
+
     encounterLocked = false;
     closeEncounter();
+    hudSpeed.textContent = '0.0';
+    activeTerrain = 'Path';
+    hudTerrain.textContent = 'Path';
     hudMessage.textContent = 'Posición reiniciada correctamente.';
+    recenterCameraInstant();
 }
 
 function updateHud() {
