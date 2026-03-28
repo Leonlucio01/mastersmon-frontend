@@ -1,5 +1,5 @@
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js';
-import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/loaders/GLTFLoader.js';
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 const viewport = document.getElementById('maps3dViewport');
 const hudPosition = document.getElementById('hudPosition');
@@ -22,7 +22,7 @@ const RUN_MULTIPLIER = 1.55;
 const CAMERA_HEIGHT = 9;
 const CAMERA_DISTANCE = 11.5;
 const ENCOUNTER_COOLDOWN_MS = 3500;
-const PLAYER_MODEL_URL = './assets/3d/cute-character.glb';
+const PLAYER_MODEL_URL = '/assets/3d/cute-character.glb';
 const PLAYER_TARGET_HEIGHT = 4.8;
 
 const wildPokemons = [
@@ -44,12 +44,17 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xbfe9ff);
 scene.fog = new THREE.Fog(0xbfe9ff, 42, 110);
 
-const camera = new THREE.PerspectiveCamera(58, viewport.clientWidth / viewport.clientHeight, 0.1, 300);
+const camera = new THREE.PerspectiveCamera(
+    58,
+    Math.max(1, viewport.clientWidth) / Math.max(1, viewport.clientHeight),
+    0.1,
+    300
+);
 camera.position.set(0, CAMERA_HEIGHT, CAMERA_DISTANCE);
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.setSize(viewport.clientWidth, viewport.clientHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.setSize(Math.max(1, viewport.clientWidth), Math.max(1, viewport.clientHeight));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 viewport.appendChild(renderer.domElement);
@@ -99,12 +104,18 @@ function createGround() {
         metalness: 0
     });
 
-    const northSouthPath = new THREE.Mesh(new THREE.BoxGeometry(8, 0.12, WORLD_SIZE - 12), pathMaterial);
+    const northSouthPath = new THREE.Mesh(
+        new THREE.BoxGeometry(8, 0.12, WORLD_SIZE - 12),
+        pathMaterial
+    );
     northSouthPath.position.set(0, 0.06, 0);
     northSouthPath.receiveShadow = true;
     scene.add(northSouthPath);
 
-    const eastWestPath = new THREE.Mesh(new THREE.BoxGeometry(WORLD_SIZE - 18, 0.12, 8), pathMaterial);
+    const eastWestPath = new THREE.Mesh(
+        new THREE.BoxGeometry(WORLD_SIZE - 18, 0.12, 8),
+        pathMaterial
+    );
     eastWestPath.position.set(0, 0.065, 6);
     eastWestPath.receiveShadow = true;
     scene.add(eastWestPath);
@@ -180,8 +191,7 @@ function addTree(x, z, scale = 1) {
         minX: x - half,
         maxX: x + half,
         minZ: z - half,
-        maxZ: z + half,
-        debugMesh: null
+        maxZ: z + half
     });
 }
 
@@ -200,8 +210,7 @@ function addRock(x, z, sx = 1, sy = 1, sz = 1) {
         minX: x - sx * 1.1,
         maxX: x + sx * 1.1,
         minZ: z - sz * 1.1,
-        maxZ: z + sz * 1.1,
-        debugMesh: null
+        maxZ: z + sz * 1.1
     });
 }
 
@@ -240,8 +249,7 @@ function addBuilding(x, z, width, depth, color = 0xf6ead3) {
         minX: x - width / 2,
         maxX: x + width / 2,
         minZ: z - depth / 2,
-        maxZ: z + depth / 2,
-        debugMesh: null
+        maxZ: z + depth / 2
     });
 }
 
@@ -268,32 +276,50 @@ function populateWorld() {
 function createFallbackPlayerVisual() {
     const fallback = new THREE.Group();
 
-    const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.8, 1.6, 6, 12), makeMaterial(0x1d4ed8));
+    const body = new THREE.Mesh(
+        new THREE.CapsuleGeometry(0.8, 1.6, 6, 12),
+        makeMaterial(0x1d4ed8)
+    );
     body.position.y = 2.05;
     body.castShadow = true;
     fallback.add(body);
 
-    const head = new THREE.Mesh(new THREE.SphereGeometry(0.72, 20, 20), makeMaterial(0xf6c6a9));
+    const head = new THREE.Mesh(
+        new THREE.SphereGeometry(0.72, 20, 20),
+        makeMaterial(0xf6c6a9)
+    );
     head.position.y = 3.5;
     head.castShadow = true;
     fallback.add(head);
 
-    const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.76, 0.76, 0.32, 24), makeMaterial(0xd62839));
+    const cap = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.76, 0.76, 0.32, 24),
+        makeMaterial(0xd62839)
+    );
     cap.position.y = 4.02;
     cap.castShadow = true;
     fallback.add(cap);
 
-    const visor = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.12, 0.5), makeMaterial(0x8c1120));
+    const visor = new THREE.Mesh(
+        new THREE.BoxGeometry(0.8, 0.12, 0.5),
+        makeMaterial(0x8c1120)
+    );
     visor.position.set(0, 3.86, 0.5);
     visor.castShadow = true;
     fallback.add(visor);
 
-    const backpack = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.2, 0.52), makeMaterial(0x334155));
+    const backpack = new THREE.Mesh(
+        new THREE.BoxGeometry(1.1, 1.2, 0.52),
+        makeMaterial(0x334155)
+    );
     backpack.position.set(0, 2.05, -0.68);
     backpack.castShadow = true;
     fallback.add(backpack);
 
-    const leftLeg = new THREE.Mesh(new THREE.BoxGeometry(0.42, 1.25, 0.42), makeMaterial(0x1f2937));
+    const leftLeg = new THREE.Mesh(
+        new THREE.BoxGeometry(0.42, 1.25, 0.42),
+        makeMaterial(0x1f2937)
+    );
     const rightLeg = leftLeg.clone();
     leftLeg.position.set(-0.27, 0.68, 0);
     rightLeg.position.set(0.27, 0.68, 0);
@@ -302,7 +328,10 @@ function createFallbackPlayerVisual() {
     fallback.add(leftLeg);
     fallback.add(rightLeg);
 
-    const leftArm = new THREE.Mesh(new THREE.BoxGeometry(0.34, 1.2, 0.34), makeMaterial(0xf6c6a9));
+    const leftArm = new THREE.Mesh(
+        new THREE.BoxGeometry(0.34, 1.2, 0.34),
+        makeMaterial(0xf6c6a9)
+    );
     const rightArm = leftArm.clone();
     leftArm.position.set(-1.02, 2.15, 0);
     rightArm.position.set(1.02, 2.15, 0);
@@ -324,6 +353,7 @@ function fitModelToGround(root, targetHeight = PLAYER_TARGET_HEIGHT) {
     const box = new THREE.Box3().setFromObject(root);
     const size = new THREE.Vector3();
     const center = new THREE.Vector3();
+
     box.getSize(size);
     box.getCenter(center);
 
@@ -376,6 +406,7 @@ function loadPlayerModel(player) {
                 if (node.isMesh) {
                     node.castShadow = true;
                     node.receiveShadow = true;
+
                     if (Array.isArray(node.material)) {
                         node.material.forEach((material) => {
                             material.transparent = false;
@@ -415,6 +446,7 @@ scene.add(debugGroup);
 
 function updateDebugMeshes() {
     debugGroup.clear();
+
     if (!debugEnabled) return;
 
     const boxMaterial = new THREE.MeshBasicMaterial({ color: 0xff4d4f, wireframe: true });
@@ -451,19 +483,22 @@ function clampToWorld(value) {
 }
 
 function intersectsCollider(x, z) {
-    return colliders.some((collider) => {
-        return (
-            x + PLAYER_RADIUS > collider.minX &&
-            x - PLAYER_RADIUS < collider.maxX &&
-            z + PLAYER_RADIUS > collider.minZ &&
-            z - PLAYER_RADIUS < collider.maxZ
-        );
-    });
+    return colliders.some((collider) => (
+        x + PLAYER_RADIUS > collider.minX &&
+        x - PLAYER_RADIUS < collider.maxX &&
+        z + PLAYER_RADIUS > collider.minZ &&
+        z - PLAYER_RADIUS < collider.maxZ
+    ));
 }
 
 function movePlayer(delta) {
-    const forward = Number(keyState['KeyW'] || keyState['ArrowUp']) - Number(keyState['KeyS'] || keyState['ArrowDown']);
-    const strafe = Number(keyState['KeyD'] || keyState['ArrowRight']) - Number(keyState['KeyA'] || keyState['ArrowLeft']);
+    const forward =
+        Number(keyState['KeyW'] || keyState['ArrowUp']) -
+        Number(keyState['KeyS'] || keyState['ArrowDown']);
+
+    const strafe =
+        Number(keyState['KeyD'] || keyState['ArrowRight']) -
+        Number(keyState['KeyA'] || keyState['ArrowLeft']);
 
     moveDirection.set(strafe, 0, -forward);
 
@@ -474,7 +509,10 @@ function movePlayer(delta) {
     }
 
     moveDirection.normalize();
-    const speed = BASE_SPEED * (keyState['ShiftLeft'] || keyState['ShiftRight'] ? RUN_MULTIPLIER : 1);
+
+    const speed =
+        BASE_SPEED * (keyState['ShiftLeft'] || keyState['ShiftRight'] ? RUN_MULTIPLIER : 1);
+
     hudSpeed.textContent = speed.toFixed(1);
 
     worldDirection.copy(moveDirection);
@@ -483,7 +521,11 @@ function movePlayer(delta) {
     worldDirection.normalize();
 
     const targetRotation = Math.atan2(worldDirection.x, worldDirection.z);
-    player.rotation.y = THREE.MathUtils.lerp(player.rotation.y, targetRotation, Math.min(1, delta * 10));
+    player.rotation.y = THREE.MathUtils.lerp(
+        player.rotation.y,
+        targetRotation,
+        Math.min(1, delta * 10)
+    );
 
     const nextX = clampToWorld(player.position.x + worldDirection.x * speed * delta);
     const nextZ = clampToWorld(player.position.z + worldDirection.z * speed * delta);
@@ -533,14 +575,12 @@ function updateCamera(delta) {
 }
 
 function getCurrentGrassZone() {
-    return grassZones.find((zone) => {
-        return (
-            player.position.x >= zone.minX &&
-            player.position.x <= zone.maxX &&
-            player.position.z >= zone.minZ &&
-            player.position.z <= zone.maxZ
-        );
-    }) || null;
+    return grassZones.find((zone) => (
+        player.position.x >= zone.minX &&
+        player.position.x <= zone.maxX &&
+        player.position.z >= zone.minZ &&
+        player.position.z <= zone.maxZ
+    )) || null;
 }
 
 function maybeTriggerEncounter() {
@@ -625,8 +665,8 @@ function tick() {
 }
 
 window.addEventListener('resize', () => {
-    const width = viewport.clientWidth;
-    const height = viewport.clientHeight;
+    const width = Math.max(1, viewport.clientWidth);
+    const height = Math.max(1, viewport.clientHeight);
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
     renderer.setSize(width, height);

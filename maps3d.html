@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mastersmon - Maps 3D Prototype</title>
     <link rel="stylesheet" href="./css/maps3d.css">
+
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"
+      }
+    }
+    </script>
 </head>
 <body class="maps3d-body">
     <main class="maps3d-page">
@@ -64,7 +73,7 @@
                     <h2>Modelo</h2>
                     <p>
                         Este archivo intenta cargar un personaje desde
-                        <code>./assets/3d/cute-character.glb</code>.
+                        <code>/assets/3d/cute-character.glb</code>.
                         Si falla, usa un personaje de respaldo para que el mapa no se rompa.
                     </p>
                 </div>
