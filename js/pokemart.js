@@ -451,10 +451,103 @@ function renderizarCardItemHTML(item, estaLogueado) {
     `;
 }
 
-function renderizarQuickNavTienda(secciones = []) {
+function obtenerQuickNavItemsPokeMart() {
+    return [
+        {
+            key: "items",
+            label: t("pokemart_quick_nav_items"),
+            targetId: "pokemartStoreSection",
+            icon: "🛍️"
+        },
+        {
+            key: "premium",
+            label: t("pokemart_quick_nav_premium"),
+            targetId: "paypal-section",
+            icon: "💎"
+        },
+        {
+            key: "history",
+            label: t("pokemart_quick_nav_history"),
+            targetId: "premiumHistoryWrap",
+            icon: "🧾"
+        }
+    ];
+}
+
+function scrollToQuickNavTargetPokeMart(targetId) {
+    const target = document.getElementById(targetId);
+    if (!target) return;
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function actualizarQuickNavActivaPokeMart() {
     const nav = document.getElementById("pokemartQuickNav");
     if (!nav) return;
-    nav.innerHTML = "";
+
+    const items = obtenerQuickNavItemsPokeMart();
+    const viewportMark = window.scrollY + 160;
+    let activeKey = items[0]?.key || "items";
+
+    for (const item of items) {
+        const section = document.getElementById(item.targetId);
+        if (!section) continue;
+        if (section.offsetTop <= viewportMark) {
+            activeKey = item.key;
+        }
+    }
+
+    nav.querySelectorAll("[data-pokemart-quick-nav]").forEach((btn) => {
+        const isActive = btn.dataset.pokemartQuickNav === activeKey;
+        btn.classList.toggle("active", isActive);
+        btn.setAttribute("aria-current", isActive ? "true" : "false");
+    });
+}
+
+function registrarScrollQuickNavPokeMart() {
+    if (window.__pokemartQuickNavScrollBound) return;
+    window.__pokemartQuickNavScrollBound = true;
+    window.addEventListener("scroll", actualizarQuickNavActivaPokeMart, { passive: true });
+    window.addEventListener("resize", actualizarQuickNavActivaPokeMart);
+}
+
+function renderizarQuickNavTienda(secciones = []) {
+    const nav = document.getElementById("pokemartQuickNav");
+    const wrap = document.getElementById("pokemartQuickNavWrap");
+    if (!nav || !wrap) return;
+
+    if (!usuarioAutenticadoTienda()) {
+        wrap.classList.add("oculto");
+        nav.innerHTML = "";
+        return;
+    }
+
+    const items = obtenerQuickNavItemsPokeMart();
+    wrap.classList.remove("oculto");
+    nav.innerHTML = items.map((item) => `
+        <button
+            type="button"
+            class="pokemart-quick-nav-btn"
+            data-pokemart-quick-nav="${item.key}"
+            data-target-id="${item.targetId}"
+            aria-current="false"
+        >
+            <span class="pokemart-quick-nav-icon" aria-hidden="true">${item.icon}</span>
+            <span>${item.label}</span>
+        </button>
+    `).join("");
+
+    nav.querySelectorAll("[data-target-id]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+            actualizarQuickNavActivaPokeMart();
+            scrollToQuickNavTargetPokeMart(btn.dataset.targetId || "");
+            nav.querySelectorAll("[data-pokemart-quick-nav]").forEach((node) => node.classList.remove("active"));
+            btn.classList.add("active");
+            btn.setAttribute("aria-current", "true");
+        });
+    });
+
+    registrarScrollQuickNavPokeMart();
+    requestAnimationFrame(actualizarQuickNavActivaPokeMart);
 }
 
 function renderizarHeroResumenPokeMart() {
