@@ -10,8 +10,6 @@
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
-
-    <!-- HEADER -->
     <header class="menu menu-pro">
         <div class="menu-topbar">
             <h1 class="logo">Mastersmon</h1>
@@ -117,7 +115,7 @@
 
     <main class="pokemart-page" id="pokemartPageRoot">
         <section class="pokemart-auth-gate oculto" id="pokemartAuthGate" aria-live="polite">
-            <div class="pokemart-shell">
+            <div class="pokemart-shell compact">
                 <div class="pokemart-auth-panel">
                     <div class="pokemart-auth-badge">🔒 Shop access</div>
                     <h2 id="pokemartAuthGateTitle">Login required</h2>
@@ -130,144 +128,115 @@
             </div>
         </section>
 
-        <section class="pokemart-classic-section" id="pokemartStoreSection">
-            <div class="pokemart-shell">
-                <div class="pokemart-store-hero-card">
-                    <div class="pokemart-title-block">
-                        <h1 class="titulo pokemart-classic-title" data-i18n="pokemart_title">POKEMART</h1>
-                        <p class="subtitulo pokemart-classic-subtitle" data-i18n="pokemart_subtitle">
-                            Compra Poké Balls, pociones y piedras de evolución
-                        </p>
-                    </div>
-
-                    <div id="saldoUsuario" class="pokemart-saldo"></div>
-
-                    <nav class="pokemart-quick-nav-wrap" id="pokemartQuickNavWrap" aria-label="PokeMart quick navigation">
-                        <div class="pokemart-quick-nav" id="pokemartQuickNav"></div>
-                    </nav>
-
-                    <div id="mensajeCompra" class="mensaje-compra oculto"></div>
+        <section class="pokemart-hub" id="pokemartHub">
+            <div class="pokemart-shell compact">
+                <div class="pokemart-title-block compact">
+                    <h1 class="titulo pokemart-classic-title" data-i18n="pokemart_title">POKEMART</h1>
+                    <p class="subtitulo pokemart-classic-subtitle" data-i18n="pokemart_subtitle">Compra Poké Balls, pociones y piedras de evolución</p>
                 </div>
 
-                <section class="pokemart-catalog-shell" aria-label="PokeMart catalog">
-                    <div id="tiendaItems" class="pokemart-classic-grid"></div>
+                <div id="saldoUsuario" class="pokemart-saldo"></div>
+                <div id="mensajeCompra" class="mensaje-compra oculto"></div>
+
+                <nav class="pokemart-view-switch" id="pokemartViewSwitch" aria-label="PokeMart views">
+                    <button type="button" class="pokemart-view-btn active" data-pokemart-view="items" id="pokemartViewBtnItems">Items</button>
+                    <button type="button" class="pokemart-view-btn" data-pokemart-view="premium" id="pokemartViewBtnPremium">Premium</button>
+                    <button type="button" class="pokemart-view-btn" data-pokemart-view="history" id="pokemartViewBtnHistory">History</button>
+                </nav>
+
+                <section class="pokemart-panel" id="pokemartStoreSection" data-pokemart-panel="items">
+                    <div class="pokemart-items-head">
+                        <div>
+                            <span class="pokemart-panel-kicker" id="pokemartItemsKicker">Standard shop</span>
+                            <h3 id="pokemartItemsTitle">Buy items without leaving the page</h3>
+                            <p id="pokemartItemsSubtitle">Choose quantity, review the total, and buy instantly with Pokédollars.</p>
+                        </div>
+                    </div>
+                    <div id="tiendaItems" class="pokemart-items-groups"></div>
                 </section>
-            </div>
-        </section>
 
-        <!-- PREMIUM / PAYPAL -->
-        <section class="premium-shop-section" id="paypal-section" data-shop-section="premium">
-            <div class="pokemart-shell">
-                <div class="premium-shop-shell" id="premiumShopShell" tabindex="-1">
-                    <div class="premium-shop-head">
-                        <div class="premium-shop-head-copy">
-                            <span class="premium-shop-kicker" data-i18n="pokemart_premium_kicker">Premium shop</span>
-                            <h3 data-i18n="pokemart_premium_title">Premium benefits for Mastersmon</h3>
-                            <p data-i18n="pokemart_premium_subtitle">
-                                Unlock premium subscriptions and battle boosters with secure PayPal checkout.
-                            </p>
-                        </div>
-
-                        <div class="premium-shop-secure">
-                            <span class="premium-shop-secure-icon">🛡️</span>
-                            <span data-i18n="pokemart_premium_secure">Secure PayPal checkout</span>
-                        </div>
-                    </div>
-
-                    <div class="premium-shop-summary">
-                        <div class="premium-summary-card">
-                            <small data-i18n="pokemart_premium_summary_products">Available offers</small>
-                            <strong id="premiumProductosCount">0</strong>
-                            <p data-i18n="pokemart_premium_summary_products_hint">
-                                Premium products ready for your account.
-                            </p>
-                        </div>
-
-                        <div class="premium-summary-card">
-                            <small data-i18n="pokemart_premium_summary_active">Active benefits</small>
-                            <strong id="premiumBeneficiosCount">0</strong>
-                            <p id="premiumBeneficiosHint" data-i18n="pokemart_premium_summary_active_hint">
-                                Your current premium subscriptions and temporary boosts.
-                            </p>
-                        </div>
-
-                        <div class="premium-summary-card">
-                            <small data-i18n="pokemart_premium_summary_checkout">Checkout</small>
-                            <strong data-i18n="pokemart_premium_summary_checkout_value">PayPal</strong>
-                            <p data-i18n="pokemart_premium_summary_checkout_hint">
-                                Each purchase asks for confirmation before opening PayPal.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div id="premiumShopMessage" class="premium-banner-message"></div>
-
-                    <div id="premiumLoginBox" class="premium-login-box oculto">
-                        <h4 data-i18n="pokemart_premium_login_title">Login required for premium shop</h4>
-                        <p data-i18n="pokemart_premium_login_text">
-                            Sign in with Google to load premium products, verify active benefits, and continue to secure checkout.
-                        </p>
-                    </div>
-
-                    <div class="premium-shop-catalog-wrap" id="premiumCatalogWrap">
-                        <div class="premium-shop-catalog-head">
-                            <div>
-                                <span class="premium-shop-mini-kicker" data-i18n="pokemart_premium_catalog_kicker">PayPal products</span>
-                                <h4 data-i18n="pokemart_premium_catalog_title">Compact premium offers</h4>
-                                <p data-i18n="pokemart_premium_catalog_subtitle">
-                                    Subscriptions, boosters and special benefits in a smaller and cleaner section.
-                                </p>
+                <section class="pokemart-panel oculto" id="paypal-section" data-pokemart-panel="premium">
+                    <div class="premium-shop-shell" id="premiumShopShell" tabindex="-1">
+                        <div class="premium-shop-head compact">
+                            <div class="premium-shop-head-copy">
+                                <span class="premium-shop-kicker" data-i18n="pokemart_premium_kicker">Premium shop</span>
+                                <h3 data-i18n="pokemart_premium_title">Premium benefits for Mastersmon</h3>
+                                <p data-i18n="pokemart_premium_subtitle">Unlock premium subscriptions and battle boosters with secure PayPal checkout.</p>
+                            </div>
+                            <div class="premium-shop-secure">
+                                <span class="premium-shop-secure-icon">🛡️</span>
+                                <span data-i18n="pokemart_premium_secure">Secure PayPal checkout</span>
                             </div>
                         </div>
 
-                        <div id="premiumCatalogo" class="premium-shop-grid"></div>
-                    </div>
-
-                    <div class="premium-history-wrap" id="premiumHistoryWrap" data-shop-section="history">
-                        <div class="premium-shop-catalog-head premium-history-head">
-                            <div>
-                                <span class="premium-shop-mini-kicker" data-i18n="pokemart_history_kicker">Account history</span>
-                                <h4 data-i18n="pokemart_history_title">Purchases and active benefits</h4>
-                                <p data-i18n="pokemart_history_subtitle">
-                                    Review your recent PayPal purchases and the premium benefits currently active on your account.
-                                </p>
+                        <div class="premium-shop-summary">
+                            <div class="premium-summary-card">
+                                <small data-i18n="pokemart_premium_summary_products">Available offers</small>
+                                <strong id="premiumProductosCount">0</strong>
+                                <p data-i18n="pokemart_premium_summary_products_hint">Premium products ready for your account.</p>
+                            </div>
+                            <div class="premium-summary-card">
+                                <small data-i18n="pokemart_premium_summary_active">Active benefits</small>
+                                <strong id="premiumBeneficiosCount">0</strong>
+                                <p id="premiumBeneficiosHint" data-i18n="pokemart_premium_summary_active_hint">Your current premium subscriptions and temporary boosts.</p>
+                            </div>
+                            <div class="premium-summary-card">
+                                <small data-i18n="pokemart_premium_summary_checkout">Checkout</small>
+                                <strong data-i18n="pokemart_premium_summary_checkout_value">PayPal</strong>
+                                <p data-i18n="pokemart_premium_summary_checkout_hint">Each purchase asks for confirmation before opening PayPal.</p>
                             </div>
                         </div>
 
-                        <div class="premium-history-tabs" role="tablist" aria-label="Premium history">
-                            <button type="button" class="premium-history-tab active" id="premiumHistoryTabPurchases" data-premium-history-tab="purchases" aria-selected="true">
-                                <span data-i18n="pokemart_history_tab_purchases">Purchases</span>
-                                <span class="premium-history-tab-count" id="premiumPurchasesCount">0</span>
-                            </button>
-                            <button type="button" class="premium-history-tab" id="premiumHistoryTabBenefits" data-premium-history-tab="benefits" aria-selected="false">
-                                <span data-i18n="pokemart_history_tab_benefits">Active Benefits</span>
-                                <span class="premium-history-tab-count" id="premiumBenefitsCountHistory">0</span>
-                            </button>
+                        <div id="premiumShopMessage" class="premium-soft-message oculto"></div>
+
+                        <div id="premiumLoginBox" class="premium-login-box oculto">
+                            <h4 data-i18n="pokemart_premium_login_title">Login required for premium shop</h4>
+                            <p data-i18n="pokemart_premium_login_text">Sign in with Google to load premium products, verify active benefits, and continue to secure checkout.</p>
                         </div>
 
-                        <div class="premium-history-panels" id="premiumHistoryPanels">
-                            <section class="premium-history-panel" id="premiumHistoryPurchasesPanel" role="tabpanel" aria-labelledby="premiumHistoryTabPurchases">
-                                <div id="premiumPurchasesList" class="premium-history-grid"></div>
-                            </section>
-                            <section class="premium-history-panel oculto" id="premiumHistoryBenefitsPanel" role="tabpanel" aria-labelledby="premiumHistoryTabBenefits">
-                                <div id="premiumBenefitsList" class="premium-history-grid"></div>
-                            </section>
+                        <div class="premium-shop-catalog-wrap" id="premiumCatalogWrap">
+                            <div class="premium-shop-catalog-head">
+                                <div>
+                                    <span class="premium-shop-mini-kicker" data-i18n="pokemart_premium_catalog_kicker">PayPal products</span>
+                                    <h4 data-i18n="pokemart_premium_catalog_title">Compact premium offers</h4>
+                                    <p data-i18n="pokemart_premium_catalog_subtitle">Subscriptions, boosters and special benefits in a smaller and cleaner section.</p>
+                                </div>
+                            </div>
+                            <div id="premiumCatalogo" class="premium-shop-grid"></div>
                         </div>
                     </div>
-                </div>
+                </section>
+
+                <section class="pokemart-panel oculto" id="premiumHistorySection" data-pokemart-panel="history">
+                    <div class="premium-history-shell" id="premiumHistoryWrap">
+                        <div class="premium-history-head">
+                            <div>
+                                <span class="premium-shop-mini-kicker" id="premiumHistoryKicker">Account history</span>
+                                <h4 id="premiumHistoryTitle">Purchases and active benefits</h4>
+                                <p id="premiumHistorySubtitle">Review your recent premium purchases and the benefits currently linked to your account.</p>
+                            </div>
+                            <div class="premium-history-badges" id="premiumHistoryBadges"></div>
+                        </div>
+
+                        <div class="premium-history-tabs" id="premiumHistoryTabs">
+                            <button type="button" class="premium-history-tab active" data-history-tab="purchases" id="premiumHistoryTabPurchases">Purchases</button>
+                            <button type="button" class="premium-history-tab" data-history-tab="benefits" id="premiumHistoryTabBenefits">Active benefits</button>
+                        </div>
+
+                        <div id="premiumHistoryMessage" class="premium-soft-message oculto"></div>
+                        <div id="premiumHistoryList" class="premium-history-list"></div>
+                    </div>
+                </section>
             </div>
         </section>
     </main>
 
-    <!-- PREMIUM PURCHASE MODAL -->
     <div id="premiumPurchaseModal" class="premium-modal-backdrop" aria-hidden="true">
         <div class="premium-modal" role="dialog" aria-modal="true" aria-labelledby="premiumModalTitle">
             <div class="premium-modal-head">
                 <div>
                     <h3 id="premiumModalTitle" data-i18n="pokemart_premium_modal_title">Confirm premium purchase</h3>
-                    <p id="premiumModalSubtitle" data-i18n="pokemart_premium_modal_subtitle">
-                        Review the product details and authorize the payment before opening PayPal.
-                    </p>
+                    <p id="premiumModalSubtitle" data-i18n="pokemart_premium_modal_subtitle">Review the product details and authorize the payment before opening PayPal.</p>
                 </div>
                 <button type="button" class="premium-modal-close" id="premiumModalCloseBtn" aria-label="Close">×</button>
             </div>
@@ -278,17 +247,14 @@
                         <small data-i18n="pokemart_premium_modal_product">Product</small>
                         <strong id="premiumModalProductName">-</strong>
                     </div>
-
                     <div class="premium-modal-box">
                         <small data-i18n="pokemart_premium_modal_price">Price</small>
                         <strong id="premiumModalPrice">-</strong>
                     </div>
-
                     <div class="premium-modal-box">
                         <small data-i18n="pokemart_premium_modal_type">Type</small>
                         <strong id="premiumModalType">-</strong>
                     </div>
-
                     <div class="premium-modal-box">
                         <small data-i18n="pokemart_premium_modal_delivery">Delivery</small>
                         <strong id="premiumModalDelivery">-</strong>
@@ -300,16 +266,11 @@
                 <div class="premium-modal-checks">
                     <label class="premium-modal-check">
                         <input type="checkbox" id="premiumModalCheckConfirm">
-                        <span data-i18n="pokemart_premium_modal_check_authorize">
-                            I authorize this payment and understand that the charge will be processed by PayPal.
-                        </span>
+                        <span data-i18n="pokemart_premium_modal_check_authorize">I authorize this payment and understand that the charge will be processed by PayPal.</span>
                     </label>
-
                     <label class="premium-modal-check">
                         <input type="checkbox" id="premiumModalCheckTerms">
-                        <span data-i18n="pokemart_premium_modal_check_terms">
-                            I reviewed the product scope, duration, and delivery details before continuing.
-                        </span>
+                        <span data-i18n="pokemart_premium_modal_check_terms">I reviewed the product scope, duration, and delivery details before continuing.</span>
                     </label>
                 </div>
 
@@ -317,12 +278,8 @@
             </div>
 
             <div class="premium-modal-actions">
-                <button type="button" class="premium-card-btn secondary" id="premiumModalCancelBtn" data-i18n="pokemart_premium_modal_cancel">
-                    Cancel
-                </button>
-                <button type="button" class="premium-card-btn" id="premiumModalConfirmBtn" data-i18n="pokemart_premium_modal_pay">
-                    Continue to PayPal
-                </button>
+                <button type="button" class="premium-card-btn secondary" id="premiumModalCancelBtn" data-i18n="pokemart_premium_modal_cancel">Cancel</button>
+                <button type="button" class="premium-card-btn" id="premiumModalConfirmBtn" data-i18n="pokemart_premium_modal_pay">Continue to PayPal</button>
             </div>
         </div>
     </div>

@@ -1,1792 +1,306 @@
-/* =========================================================
-   POKEMART - CLASSIC STORE + PREMIUM PAYPAL
-   - Tienda normal arriba con look clásico del screenshot
-   - Premium / PayPal abajo
-   - Compatible con pokemart.js actual
-========================================================= */
-
 :root{
-    --mart-bg: #eef2f7;
-    --mart-surface: #ffffff;
-    --mart-surface-soft: #f8fafc;
-    --mart-border: rgba(148,163,184,.18);
-    --mart-text: #0f172a;
-    --mart-muted: #64748b;
-    --mart-blue: #2563eb;
-    --mart-blue-dark: #1d4ed8;
-    --mart-green: #16a34a;
-    --mart-green-dark: #15803d;
-    --mart-orange: #f59e0b;
-    --mart-orange-dark: #ea580c;
-    --mart-red: #dc2626;
-    --mart-paypal: #0a2540;
-    --mart-shadow: 0 18px 40px rgba(15,23,42,.08);
-    --mart-shadow-soft: 0 12px 24px rgba(15,23,42,.06);
-    --mart-radius-xl: 30px;
-    --mart-radius-lg: 24px;
-    --mart-radius-md: 18px;
-    --mart-radius-sm: 14px;
+    --mart-bg:#eef3f8;
+    --mart-surface:#ffffff;
+    --mart-surface-soft:#f8fbff;
+    --mart-border:rgba(148,163,184,.18);
+    --mart-border-strong:rgba(37,99,235,.18);
+    --mart-text:#0f172a;
+    --mart-muted:#64748b;
+    --mart-blue:#2563eb;
+    --mart-blue-dark:#1d4ed8;
+    --mart-green:#16a34a;
+    --mart-orange:#f59e0b;
+    --mart-red:#dc2626;
+    --mart-radius-xl:30px;
+    --mart-radius-lg:24px;
+    --mart-radius-md:18px;
+    --mart-shadow:0 18px 40px rgba(15,23,42,.08);
+    --mart-shadow-soft:0 10px 24px rgba(15,23,42,.06);
 }
 
-.oculto{
-    display: none !important;
-}
+.oculto{display:none !important;}
 
 .pokemart-page{
-    min-height: 100vh;
-    background: linear-gradient(180deg, #f1f5f9 0%, #f8fafc 100%);
+    min-height:100vh;
+    background:linear-gradient(180deg,#f1f5f9 0%,#f8fafc 100%);
+    padding-bottom:38px;
 }
 
-.pokemart-page-locked{
-    padding-top: 12px;
+.pokemart-shell.compact{
+    max-width:1220px;
+    margin:0 auto;
+    padding:24px 18px 0;
 }
 
-.pokemart-auth-gate{
-    padding: 26px 0 42px;
-}
-
-.pokemart-auth-panel{
-    max-width: 880px;
-    margin: 0 auto;
-    padding: 34px 32px;
-    border-radius: 34px;
-    background:
-        radial-gradient(circle at top right, rgba(37,99,235,.14), transparent 24%),
-        linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
-    border: 1px solid rgba(148,163,184,.18);
-    box-shadow: 0 24px 56px rgba(15,23,42,.08);
-    text-align: center;
-}
-
-.pokemart-auth-badge{
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px 16px;
-    border-radius: 999px;
-    background: rgba(37,99,235,.10);
-    color: #1d4ed8;
-    font-size: 12px;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: .08em;
-    margin-bottom: 16px;
-}
-
-.pokemart-auth-panel h2{
-    margin: 0 0 12px;
-    font-size: clamp(30px, 4vw, 46px);
-    line-height: 1.04;
-    letter-spacing: -.03em;
-    color: #0f172a;
-}
-
-.pokemart-auth-panel p{
-    margin: 0 auto;
-    max-width: 720px;
-    color: #475569;
-    font-size: 16px;
-    line-height: 1.7;
-}
-
-.pokemart-auth-actions{
-    margin-top: 20px;
-}
-
-.pokemart-auth-login-btn{
-    border: none;
-    border-radius: 16px;
-    padding: 14px 18px;
-    min-width: 190px;
-    background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
-    color: #fff;
-    font-size: 15px;
-    font-weight: 900;
-    cursor: pointer;
-    box-shadow: 0 16px 30px rgba(37,99,235,.22);
-    transition: transform .18s ease, box-shadow .18s ease;
-}
-
-.pokemart-auth-login-btn:hover{
-    transform: translateY(-1px);
-    box-shadow: 0 20px 34px rgba(37,99,235,.28);
-}
-
-.pokemart-auth-points{
-    margin-top: 22px;
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0,1fr));
-    gap: 12px;
-}
-
-.pokemart-auth-point{
-    padding: 14px 14px;
-    border-radius: 18px;
-    background: rgba(248,250,252,.95);
-    border: 1px solid rgba(226,232,240,.95);
-    color: #334155;
-    font-size: 13px;
-    line-height: 1.55;
-    font-weight: 700;
-}
-
-.pokemart-shell{
-    max-width: 1380px;
-    margin: 0 auto;
-    padding: 26px 20px 0;
-}
-
-.titulo{
-    margin: 0;
-    color: var(--mart-text);
-}
-
-.subtitulo{
-    margin: 0;
-    color: var(--mart-muted);
-}
-
-/* =========================================================
-   CABECERA CLÁSICA
-========================================================= */
-
-.pokemart-classic-section{
-    padding: 10px 0 10px;
-}
-
-.pokemart-title-block{
-    text-align: center;
-    margin-bottom: 18px;
+.pokemart-title-block.compact{
+    text-align:center;
+    margin-bottom:18px;
 }
 
 .pokemart-classic-title{
-    font-size: clamp(40px, 4.2vw, 58px);
-    line-height: .95;
-    font-weight: 900;
-    letter-spacing: -.03em;
+    font-size:clamp(42px,4.8vw,68px);
+    line-height:.95;
+    font-weight:900;
+    letter-spacing:-.04em;
+    color:var(--mart-text);
+    margin:0;
 }
 
 .pokemart-classic-subtitle{
-    margin: 10px auto 0;
-    max-width: 760px;
-    font-size: 16px;
-    line-height: 1.6;
+    margin:10px auto 0;
+    max-width:760px;
+    color:var(--mart-muted);
+    font-size:16px;
+    line-height:1.65;
 }
 
-/* =========================================================
-   SALDO
-========================================================= */
-
-.pokemart-saldo{
-    max-width: 760px;
-    margin: 0 auto 22px;
+.pokemart-auth-gate{padding:20px 0 8px;}
+.pokemart-auth-panel{
+    max-width:880px;
+    margin:0 auto;
+    padding:34px 32px;
+    border-radius:34px;
+    background:radial-gradient(circle at top right, rgba(37,99,235,.14), transparent 24%), linear-gradient(180deg,#ffffff 0%,#f8fbff 100%);
+    border:1px solid var(--mart-border);
+    box-shadow:0 24px 56px rgba(15,23,42,.08);
+    text-align:center;
 }
-
-.pokemart-quick-nav-wrap{
-    max-width: 980px;
-    margin: 0 auto 18px;
-    position: sticky;
-    top: 88px;
-    z-index: 30;
+.pokemart-auth-badge{
+    display:inline-flex;align-items:center;justify-content:center;
+    padding:10px 16px;border-radius:999px;background:rgba(37,99,235,.10);color:#1d4ed8;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px;
 }
-
-.pokemart-quick-nav{
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0,1fr));
-    gap: 10px;
-    padding: 10px;
-    border-radius: 22px;
-    background: rgba(255,255,255,.88);
-    border: 1px solid rgba(226,232,240,.96);
-    box-shadow: 0 14px 30px rgba(15,23,42,.08);
-    backdrop-filter: blur(14px);
+.pokemart-auth-panel h2{margin:0 0 12px;font-size:clamp(30px,4vw,46px);line-height:1.04;color:#0f172a;}
+.pokemart-auth-panel p{margin:0 auto;max-width:720px;color:#475569;font-size:16px;line-height:1.7;}
+.pokemart-auth-actions{margin-top:20px;}
+.pokemart-auth-login-btn{
+    border:none;border-radius:16px;padding:14px 18px;min-width:190px;background:linear-gradient(180deg,#2563eb 0%,#1d4ed8 100%);color:#fff;font-size:15px;font-weight:900;cursor:pointer;box-shadow:0 16px 30px rgba(37,99,235,.22);
 }
+.pokemart-auth-points{margin-top:22px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;}
+.pokemart-auth-point{padding:14px;border-radius:18px;background:rgba(248,250,252,.95);border:1px solid rgba(226,232,240,.95);color:#334155;font-size:13px;line-height:1.55;font-weight:700;}
 
-.pokemart-quick-nav-btn{
-    border: none;
-    border-radius: 16px;
-    min-height: 54px;
-    padding: 12px 14px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    background: transparent;
-    color: #475569;
-    font-size: 13px;
-    font-weight: 900;
-    letter-spacing: .04em;
-    text-transform: uppercase;
-    cursor: pointer;
-    box-shadow: none;
-    transition: background-color .16s ease, color .16s ease, box-shadow .16s ease;
-}
-
-.pokemart-quick-nav-btn:hover{
-    background: rgba(37,99,235,.08);
-    color: #1d4ed8;
-}
-
-.pokemart-quick-nav-btn.active{
-    background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
-    color: #fff;
-    box-shadow: 0 10px 18px rgba(37,99,235,.20);
-}
-
-.pokemart-quick-nav-icon{
-    font-size: 15px;
-    line-height: 1;
-}
-
+.pokemart-saldo{max-width:740px;margin:0 auto 16px;}
 .saldo-box{
-    background: var(--mart-surface);
-    border: 1px solid rgba(226,232,240,.95);
-    border-radius: 28px;
-    box-shadow: var(--mart-shadow);
-    padding: 20px 26px;
+    background:var(--mart-surface);
+    border:1px solid rgba(226,232,240,.95);
+    border-radius:28px;
+    box-shadow:var(--mart-shadow);
+    padding:20px 26px;
 }
-
-.saldo-box.classic{
-    text-align: center;
-}
-
-.saldo-box.login{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 14px;
-    text-align: left;
-}
-
-.saldo-label{
-    display: block;
-    margin: 0 0 6px;
-    color: var(--mart-muted);
-    font-size: 14px;
-    font-weight: 600;
-}
-
-.saldo-value-row{
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 14px;
-}
-
-.saldo-value-row h3,
-.saldo-box h3{
-    margin: 0;
-    font-size: clamp(40px, 4vw, 54px);
-    line-height: 1;
-    font-weight: 900;
-    color: var(--mart-text);
-}
-
-.saldo-icono,
-.saldo-side-icon{
-    display: inline-grid;
-    place-items: center;
-    width: 54px;
-    height: 54px;
-    border-radius: 18px;
-    background: linear-gradient(180deg, #fff8dc 0%, #fef3c7 100%);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.85), 0 8px 18px rgba(245,158,11,.16);
-    font-size: 28px;
-}
-
-.saldo-side-icon.locked{
-    background: linear-gradient(180deg, #eef2f7 0%, #e2e8f0 100%);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.9);
-}
-
-.saldo-box.login h3{
-    font-size: clamp(28px, 3vw, 38px);
-}
-
-.saldo-help{
-    display: block;
-    margin-top: 8px;
-    font-size: 12px;
-    color: var(--mart-muted);
-}
-
-/* =========================================================
-   MENSAJES
-========================================================= */
+.saldo-box.classic{text-align:center;}
+.saldo-box.login{display:flex;align-items:center;justify-content:center;gap:14px;text-align:left;}
+.saldo-label{display:block;margin:0 0 6px;color:var(--mart-muted);font-size:14px;font-weight:700;}
+.saldo-value-row{display:inline-flex;align-items:center;justify-content:center;gap:14px;}
+.saldo-value-row h3,.saldo-box h3{margin:0;font-size:clamp(42px,4vw,56px);line-height:1;font-weight:900;color:var(--mart-text);}
+.saldo-icono,.saldo-side-icon{display:inline-grid;place-items:center;width:54px;height:54px;border-radius:18px;background:linear-gradient(180deg,#fff8dc 0%,#fef3c7 100%);font-size:28px;box-shadow:inset 0 1px 0 rgba(255,255,255,.75),0 10px 18px rgba(245,158,11,.16);}
+.saldo-side-icon.locked{background:linear-gradient(180deg,#eff6ff 0%,#dbeafe 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.75),0 10px 18px rgba(37,99,235,.12);}
 
 .mensaje-compra{
-    max-width: 860px;
-    margin: 0 auto 18px;
-    padding: 14px 18px;
-    border-radius: 16px;
-    text-align: center;
-    font-weight: 800;
-    box-shadow: 0 10px 22px rgba(15,23,42,.06);
-}
-
-.mensaje-ok{
-    background: #dcfce7;
-    border: 1px solid #86efac;
-    color: #166534;
-}
-
-.mensaje-error{
-    background: #fee2e2;
-    border: 1px solid #fca5a5;
-    color: #991b1b;
-}
-
-/* =========================================================
-   CATALOGO CLÁSICO
-========================================================= */
-
-.pokemart-catalog-shell{
-    background: transparent;
-}
-
-.pokemart-classic-grid,
-#tiendaItems{
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 20px;
-    align-items: stretch;
-}
-
-.item-card{
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    min-height: 392px;
-    padding: 18px 18px 16px;
-    border-radius: 24px;
-    border: 1px solid rgba(226,232,240,.95);
-    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
-    box-shadow: 0 12px 24px rgba(15,23,42,.06);
-    overflow: hidden;
-    text-align: center;
-    transition: border-color .16s ease, box-shadow .16s ease, background .16s ease;
-}
-
-.item-card:hover{
-    border-color: rgba(37,99,235,.26);
-    box-shadow: 0 16px 28px rgba(15,23,42,.09);
-}
-
-.item-card::before{
-    content: "";
-    position: absolute;
-    inset: 0 0 auto 0;
-    height: 4px;
-    background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
-}
-
-.item-card.item-card-curacion,
-.item-card:has(.tipo-item.curacion){
-    background: linear-gradient(180deg, #f6fff8 0%, #f4fbf6 42%, #ffffff 100%);
-}
-
-.item-card.item-card-curacion::before,
-.item-card:has(.tipo-item.curacion)::before{
-    background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
-}
-
-.item-card.item-card-evolucion,
-.item-card:has(.tipo-item.evolucion){
-    background: linear-gradient(180deg, #fffaf2 0%, #fff7ea 42%, #ffffff 100%);
-}
-
-.item-card.item-card-evolucion::before,
-.item-card:has(.tipo-item.evolucion)::before{
-    background: linear-gradient(180deg, #fbbf24 0%, #f59e0b 100%);
-}
-
-.item-card-top{
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 10px;
-    margin-bottom: 14px;
-}
-
-.item-imagen{
-    width: 62px;
-    height: 62px;
-    object-fit: contain;
-    image-rendering: pixelated;
-    filter: drop-shadow(0 8px 12px rgba(15,23,42,.14));
-}
-
-.item-card-top-right{
-    display: flex;
-    align-items: flex-start;
-    justify-content: flex-end;
-}
-
-.tipo-item{
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 7px 12px;
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 800;
-    color: #fff;
-    box-shadow: 0 8px 16px rgba(15,23,42,.10);
-    white-space: nowrap;
-}
-
-.tipo-item.captura{ background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%); }
-.tipo-item.curacion{ background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%); }
-.tipo-item.evolucion{ background: linear-gradient(180deg, #fbbf24 0%, #f59e0b 100%); }
-
-.item-card h3{
-    margin: 4px 0 10px;
-    font-size: 18px;
-    line-height: 1.25;
-    color: var(--mart-text);
-    font-weight: 900;
-    min-height: 46px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.item-descripcion{
-    margin: 0 0 14px;
-    min-height: 58px;
-    color: #475569;
-    font-size: 14px;
-    line-height: 1.45;
-}
-
-.item-card-inline-stats{
-    display: grid;
-    gap: 12px;
-    margin-top: auto;
-    margin-bottom: 14px;
-}
-
-.item-stock{
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    align-self: center;
-    padding: 8px 14px;
-    border-radius: 999px;
-    background: #eff6ff;
-    color: #2563eb;
-    font-size: 13px;
-    font-weight: 800;
-}
-
-.item-info{
-    width: 100%;
-    border-radius: 14px;
-    background: rgba(255,255,255,.96);
-    border: 1px solid rgba(226,232,240,.95);
-    padding: 12px 14px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-}
-
-.item-info span{
-    color: var(--mart-muted);
-    font-size: 13px;
-    font-weight: 600;
-}
-
-.item-info strong{
-    color: var(--mart-text);
-    font-size: 22px;
-    font-weight: 900;
-}
-
-.cantidad-compra-box{
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-    margin-bottom: 12px;
-    text-align: left;
-}
-
-.cantidad-compra-box label{
-    color: var(--mart-muted);
-    font-size: 13px;
-    font-weight: 700;
-}
-
-.cantidad-compra-box input{
-    width: 100%;
-    height: 44px;
-    padding: 0 12px;
-    border: 1px solid #dbe3ee;
-    border-radius: 12px;
-    background: #fff;
-    color: var(--mart-text);
-    font-size: 14px;
-    outline: none;
-    box-sizing: border-box;
-    transition: border-color .18s ease, box-shadow .18s ease;
-}
-
-.cantidad-compra-box input:focus{
-    border-color: #60a5fa;
-    box-shadow: 0 0 0 3px rgba(37,99,235,.12);
-}
-
-.btn-comprar-item{
-    width: 100%;
-    min-height: 46px;
-    border: none;
-    border-radius: 14px;
-    background: linear-gradient(180deg, #2f6af1 0%, #2557d6 100%);
-    color: #fff;
-    font-size: 15px;
-    font-weight: 900;
-    cursor: pointer;
-    box-shadow: 0 12px 22px rgba(37,99,235,.22);
-    transition: box-shadow .18s ease, opacity .18s ease, filter .18s ease;
-}
-
-.btn-comprar-item:hover:not(:disabled){
-    filter: brightness(1.02);
-    box-shadow: 0 14px 24px rgba(37,99,235,.24);
-}
-
-.btn-comprar-item:disabled{
-    cursor: not-allowed;
-    opacity: .68;
-    box-shadow: none;
-}
-
-.empty-box,
-.pokemart-empty-box{
-    grid-column: 1 / -1;
-    padding: 28px;
-    border-radius: 22px;
-    text-align: center;
-    background: #fff;
-    border: 1px dashed rgba(148,163,184,.36);
-    box-shadow: var(--mart-shadow-soft);
-    color: var(--mart-muted);
-}
-
-/* =========================================================
-   PREMIUM / PAYPAL
-========================================================= */
-.premium-shop-section{
-    padding: 18px 0 46px;
-}
-
-.premium-shop-shell{
-    overflow: hidden;
-    border: 1px solid rgba(148,163,184,.16);
-    border-radius: 30px;
-    background:
-        radial-gradient(circle at top right, rgba(59,130,246,.10), transparent 24%),
-        linear-gradient(180deg, rgba(255,255,255,.99) 0%, rgba(248,250,255,.98) 100%);
-    box-shadow: var(--mart-shadow);
-}
-
-.premium-shop-head{
-    display: flex;
-    justify-content: space-between;
-    gap: 16px;
-    align-items: flex-start;
-    padding: 24px 24px 18px;
-}
-
-.premium-shop-head-copy{
-    min-width: 0;
-}
-
-.premium-shop-kicker{
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 14px;
-    border-radius: 999px;
-    background: rgba(10,37,64,.08);
-    color: var(--mart-paypal);
-    font-size: 12px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: .08em;
-    margin-bottom: 12px;
-}
-
-.premium-shop-head h3{
-    margin: 0 0 8px;
-    font-size: clamp(28px, 3.2vw, 42px);
-    line-height: 1.05;
-    letter-spacing: -.03em;
-    color: var(--mart-text);
-}
-
-.premium-shop-head p{
-    margin: 0;
-    color: var(--mart-muted);
-    font-size: 14px;
-    line-height: 1.65;
-    max-width: 760px;
-}
-
-.premium-shop-secure{
-    flex: 0 0 auto;
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 16px;
-    border-radius: 999px;
-    background: rgba(16,185,129,.08);
-    border: 1px solid rgba(16,185,129,.14);
-    color: #047857;
-    font-size: 13px;
-    font-weight: 800;
-    white-space: nowrap;
-}
-
-.premium-shop-secure-icon{
-    font-size: 14px;
-}
-
-.premium-shop-summary{
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0,1fr));
-    gap: 14px;
-    padding: 0 24px 18px;
-}
-
-.premium-summary-card{
-    border-radius: 20px;
-    padding: 15px 16px;
-    min-height: 96px;
-    background: rgba(255,255,255,.94);
-    border: 1px solid rgba(148,163,184,.16);
-    box-shadow: var(--mart-shadow-soft);
-}
-
-.premium-summary-card small{
-    display: block;
-    margin-bottom: 6px;
-    color: #64748b;
-    font-size: 11px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: .08em;
-}
-
-.premium-summary-card strong{
-    display: block;
-    margin-bottom: 4px;
-    color: var(--mart-text);
-    font-size: 28px;
-    line-height: 1;
-    font-weight: 900;
-}
-
-.premium-summary-card p{
-    margin: 0;
-    color: var(--mart-muted);
-    font-size: 13px;
-    line-height: 1.55;
-}
-
-.premium-banner-message{
-    margin: 0 24px 18px;
-    padding: 16px 18px;
-    border-radius: 18px;
-    display: none;
-}
-
-.premium-banner-message.show{
-    display: block;
-}
-
-.premium-banner-message.ok{
-    background: rgba(16,185,129,.10);
-    border: 1px solid rgba(16,185,129,.18);
-    color: #047857;
-}
-
-.premium-banner-message.error{
-    background: rgba(239,68,68,.09);
-    border: 1px solid rgba(239,68,68,.16);
-    color: #b91c1c;
-}
-
-.premium-login-box{
-    margin: 0 24px 18px;
-    padding: 18px;
-    border-radius: 22px;
-    border: 1px dashed rgba(148,163,184,.48);
-    background: #fff;
-    color: #334155;
-}
-
-.premium-login-box h4{
-    margin: 0 0 8px;
-    font-size: 22px;
-    color: #0f172a;
-}
-
-.premium-login-box p{
-    margin: 0;
-    font-size: 14px;
-    line-height: 1.6;
-}
-
-.premium-shop-catalog-wrap{
-    padding: 0 24px 24px;
-}
-
-.premium-shop-catalog-head{
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    gap: 14px;
-    margin-bottom: 14px;
-}
-
-.premium-shop-mini-kicker{
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 7px 12px;
-    border-radius: 999px;
-    background: rgba(37,99,235,.10);
-    color: var(--mart-blue-dark);
-    font-size: 12px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: .08em;
-    margin-bottom: 10px;
-}
-
-.premium-shop-catalog-head h4{
-    margin: 0 0 6px;
-    font-size: clamp(24px, 2.6vw, 30px);
-    line-height: 1.08;
-    color: var(--mart-text);
-}
-
-.premium-shop-catalog-head p{
-    margin: 0;
-    color: var(--mart-muted);
-    font-size: 14px;
-    line-height: 1.62;
-    max-width: 760px;
-}
-
-.premium-shop-grid{
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0,1fr));
-    gap: 14px;
-}
-
-.premium-shop-grid:empty{
-    display: none;
-}
-
-.premium-card{
-    height: 100%;
-    border-radius: 24px;
-    padding: 16px;
-    border: 1px solid rgba(148,163,184,.16);
-    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
-    box-shadow: 0 16px 34px rgba(15,23,42,.05);
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.premium-card.locked{
-    opacity: .82;
-    background: linear-gradient(180deg, #fbfbfe 0%, #f8fafc 100%);
-}
-
-.premium-card-top{
-    display: flex;
-    justify-content: space-between;
-    gap: 12px;
-    align-items: flex-start;
-}
-
-.premium-card-badge{
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 48px;
-    height: 48px;
-    border-radius: 16px;
-    background: rgba(59,130,246,.10);
-    font-size: 24px;
-}
-
-.premium-card-tag{
-    padding: 7px 12px;
-    border-radius: 999px;
-    background: rgba(15,23,42,.06);
-    color: #334155;
-    font-size: 11px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: .06em;
-}
-
-.premium-card h4{
-    margin: 0;
-    font-size: 21px;
-    line-height: 1.18;
-    color: #0f172a;
-}
-
-.premium-card p{
-    margin: 0;
-    color: #475569;
-    font-size: 13px;
-    line-height: 1.58;
-}
-
-.premium-card-price{
-    display: flex;
-    align-items: baseline;
-    gap: 6px;
-    font-weight: 900;
-    color: #0f172a;
-}
-
-.premium-card-price strong{
-    font-size: 28px;
-    line-height: 1;
-}
-
-.premium-card-price span{
-    font-size: 13px;
-    color: #475569;
-    font-weight: 700;
-}
-
-.premium-card-meta{
-    display: grid;
-    gap: 7px;
-}
-
-.premium-meta-pill{
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 9px 11px;
-    border-radius: 12px;
-    background: #f8fafc;
-    color: #334155;
-    font-size: 12px;
-    font-weight: 700;
-}
-
-.premium-card-footer{
-    margin-top: auto;
-    display: grid;
-    gap: 10px;
-}
-
-.premium-card-btn{
-    border: none;
-    border-radius: 14px;
-    padding: 13px 14px;
-    font-size: 14px;
-    font-weight: 800;
-    cursor: pointer;
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-    color: #fff;
-    transition: transform .2s ease, box-shadow .2s ease, opacity .2s ease;
-}
-
-.premium-card-btn:hover{
-    transform: translateY(-1px);
-    box-shadow: 0 10px 20px rgba(37,99,235,.22);
-}
-
-.premium-card-btn.secondary{
-    background: #e2e8f0;
-    color: #0f172a;
-}
-
-.premium-card-btn[disabled]{
-    cursor: not-allowed;
-    opacity: .65;
-    transform: none;
-    box-shadow: none;
-}
-
-.premium-card-note{
-    font-size: 12px;
-    color: #64748b;
-    line-height: 1.5;
-}
-
-.premium-chip-active{
-    background: rgba(16,185,129,.12);
-    color: #047857;
-}
-
-.premium-chip-coming{
-    background: rgba(245,158,11,.12);
-    color: #b45309;
-}
-
-/* =========================================================
-   MODAL PREMIUM
-========================================================= */
-
-.premium-modal-backdrop{
-    position: fixed;
-    inset: 0;
-    background: rgba(15,23,42,.56);
-    backdrop-filter: blur(4px);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    z-index: 2000;
-}
-
-.premium-modal-backdrop.show{
-    display: flex;
-}
-
-.premium-modal{
-    width: min(720px, 100%);
-    background: #fff;
-    border-radius: 28px;
-    box-shadow: 0 30px 70px rgba(15,23,42,.22);
-    overflow: hidden;
-}
-
-.premium-modal-head{
-    padding: 24px 24px 18px;
-    border-bottom: 1px solid rgba(148,163,184,.18);
-    display: flex;
-    justify-content: space-between;
-    gap: 12px;
-    align-items: flex-start;
-}
-
-.premium-modal-head h3{
-    margin: 0 0 8px;
-    font-size: 30px;
-    color: #0f172a;
-    line-height: 1.08;
-}
-
-.premium-modal-head p{
-    margin: 0;
-    color: #475569;
-    line-height: 1.6;
-    font-size: 14px;
-}
-
-.premium-modal-close{
-    border: none;
-    background: #eef2ff;
-    color: #1d4ed8;
-    width: 42px;
-    height: 42px;
-    border-radius: 14px;
-    font-size: 22px;
-    font-weight: 700;
-    cursor: pointer;
-}
-
-.premium-modal-body{
-    padding: 22px 24px;
-    display: grid;
-    gap: 18px;
-}
-
-.premium-modal-grid{
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px,1fr));
-    gap: 12px;
-}
-
-.premium-modal-box{
-    padding: 14px 16px;
-    border-radius: 18px;
-    background: #f8fafc;
-    border: 1px solid rgba(148,163,184,.16);
-}
-
-.premium-modal-box small{
-    display: block;
-    color: #64748b;
-    font-size: 11px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: .08em;
-    margin-bottom: 8px;
-}
-
-.premium-modal-box strong{
-    display: block;
-    color: #0f172a;
-    font-size: 18px;
-    line-height: 1.2;
-}
-
-.premium-modal-description-box{
-    line-height: 1.6;
-    color: #334155;
-}
-
-.premium-modal-checks{
-    display: grid;
-    gap: 12px;
-    padding: 16px;
-    border-radius: 18px;
-    background: rgba(37,99,235,.05);
-}
-
-.premium-modal-check{
-    display: flex;
-    gap: 12px;
-    align-items: flex-start;
-    font-size: 14px;
-    line-height: 1.55;
-    color: #334155;
-}
-
-.premium-modal-check input{
-    margin-top: 3px;
-    width: 18px;
-    height: 18px;
-}
-
-.premium-modal-error{
-    display: none;
-    padding: 14px 16px;
-    border-radius: 16px;
-    background: rgba(239,68,68,.09);
-    border: 1px solid rgba(239,68,68,.14);
-    color: #b91c1c;
-    font-size: 14px;
-    font-weight: 700;
-}
-
-.premium-modal-error.show{
-    display: block;
-}
-
-.premium-modal-actions{
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-    flex-wrap: wrap;
-    padding: 0 24px 24px;
-}
-
-/* =========================================================
-   SKELETON LOADING
-========================================================= */
-
-.skeleton-card,
-.skeleton-saldo{
-    overflow: hidden;
-    position: relative;
-}
-
-.skeleton-card::after,
-.skeleton-saldo::after{
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,.6), transparent);
-    transform: translateX(-100%);
-    animation: martShimmer 1.35s infinite;
-}
-
-@keyframes martShimmer{
-    100%{
-        transform: translateX(100%);
-    }
-}
-
-.skeleton-image,
-.skeleton-pill,
-.skeleton-title,
-.skeleton-line,
-.skeleton-saldo-icon{
-    background: #e2e8f0;
-    border-radius: 14px;
-}
-
-.skeleton-image{
-    width: 58px;
-    height: 58px;
-}
-
-.skeleton-pill{
-    width: 84px;
-    height: 30px;
-}
-
-.skeleton-title{
-    height: 22px;
-    margin: 12px auto 10px;
-    width: 68%;
-}
-
-.skeleton-line{
-    height: 12px;
-    margin: 8px auto;
-    width: 92%;
-}
-
-.skeleton-line.short{
-    width: 64%;
-}
-
-.skeleton-saldo{
-    min-height: 160px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 22px;
-    border-radius: 24px;
-}
-
-.skeleton-saldo-icon{
-    width: 68px;
-    height: 68px;
-}
-
-.skeleton-saldo-text{
-    flex: 1;
-    display: grid;
-    gap: 10px;
-}
-
-
-/* =========================================================
-   SKELETON LOADING
-========================================================= */
-
-.skeleton-card,
-.skeleton-saldo{
-    overflow: hidden;
-    position: relative;
-}
-
-.skeleton-card::after,
-.skeleton-saldo::after{
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,.6), transparent);
-    transform: translateX(-100%);
-    animation: martShimmer 1.35s infinite;
-}
-
-@keyframes martShimmer{
-    100%{ transform: translateX(100%); }
-}
-
-.skeleton-image,
-.skeleton-pill,
-.skeleton-title,
-.skeleton-line,
-.skeleton-saldo-icon{
-    background: #e2e8f0;
-    border-radius: 14px;
-}
-
-.skeleton-image{
-    width: 58px;
-    height: 58px;
-}
-
-.skeleton-pill{
-    width: 84px;
-    height: 30px;
-}
-
-.skeleton-title{
-    height: 22px;
-    margin: 12px auto 10px;
-    width: 68%;
-}
-
-.skeleton-line{
-    height: 12px;
-    margin: 8px auto;
-    width: 92%;
-}
-
-.skeleton-line.short{ width: 64%; }
-
-.skeleton-saldo{
-    min-height: 120px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 22px;
-    border-radius: 24px;
-}
-
-.skeleton-saldo-icon{
-    width: 68px;
-    height: 68px;
-}
-
-.skeleton-saldo-text{
-    flex: 1;
-    display: grid;
-    gap: 10px;
-}
-
-/* =========================================================
-   RESPONSIVE
-========================================================= */
-
-@media (max-width: 1240px){
-    .pokemart-classic-grid,
-    #tiendaItems{ grid-template-columns: repeat(4, minmax(0,1fr)); }
-    .premium-shop-grid{ grid-template-columns: repeat(3, minmax(0,1fr)); }
-}
-
-@media (max-width: 980px){
-    .pokemart-shell{ padding: 20px 14px 0; }
-    .pokemart-quick-nav-wrap{ top: 82px; }
-    .pokemart-classic-grid,
-    #tiendaItems{ grid-template-columns: repeat(3, minmax(0,1fr)); }
-    .premium-shop-head{ flex-direction: column; align-items: flex-start; padding: 20px 18px 16px; }
-    .premium-shop-summary{ grid-template-columns: 1fr; padding: 0 18px 16px; }
-    .premium-shop-catalog-wrap{ padding: 0 18px 18px; }
-    .premium-shop-grid{ grid-template-columns: repeat(2, minmax(0,1fr)); }
-    .premium-banner-message,
-    .premium-login-box{ margin-left: 18px; margin-right: 18px; }
-    .premium-modal-head,
-    .premium-modal-body,
-    .premium-modal-actions{ padding-left: 18px; padding-right: 18px; }
-}
-
-@media (max-width: 760px){
-    .pokemart-classic-title{ font-size: 40px; }
-    .pokemart-quick-nav{ grid-template-columns: 1fr; gap: 8px; }
-    .pokemart-quick-nav-btn{ min-height: 48px; font-size: 12px; }
-    .pokemart-quick-nav-wrap{ top: 76px; }
-    .pokemart-classic-subtitle{ font-size: 14px; }
-    .pokemart-classic-grid,
-    #tiendaItems{ grid-template-columns: repeat(2, minmax(0,1fr)); }
-    .premium-shop-grid{ grid-template-columns: 1fr; }
-    .premium-modal-head h3{ font-size: 24px; }
-}
-
-@media (max-width: 560px){
-    .pokemart-classic-section{ padding-top: 8px; }
-    .pokemart-quick-nav-wrap{ margin-bottom: 14px; top: 72px; }
-    .pokemart-quick-nav{ padding: 8px; border-radius: 18px; }
-    .pokemart-classic-title{ font-size: 34px; }
-    .pokemart-classic-subtitle{ font-size: 13px; }
-    .saldo-box{ padding: 18px; }
-    .saldo-box.login{ flex-direction: column; text-align: center; }
-    .saldo-value-row h3,
-    .saldo-box h3{ font-size: 36px; }
-    .pokemart-classic-grid,
-    #tiendaItems{ grid-template-columns: 1fr; gap: 16px; }
-    .item-card{ min-height: auto; padding: 16px; border-radius: 22px; }
-    .item-descripcion{ min-height: auto; }
-    .item-info strong{ font-size: 20px; }
-    .premium-modal{ border-radius: 22px; }
-    .premium-modal-grid{ grid-template-columns: 1fr; }
-}
-
-
-/* =========================================================
-   PREMIUM SHOP FOCUS / PAYPAL TARGET
-========================================================= */
-.premium-shop-section{
-    scroll-margin-top: 94px;
-}
-
-
-#pokemartStoreSection,
-#premiumHistoryWrap{
-    scroll-margin-top: 154px;
-}
-
-.premium-shop-section.is-targeted .premium-shop-shell{
-    border-color: rgba(37,99,235,.28);
-    box-shadow: 0 22px 56px rgba(37,99,235,.16), 0 0 0 4px rgba(37,99,235,.08);
-}
-
-#premiumShopShell:focus{
-    outline: none;
-}
-
-.premium-card{
-    position: relative;
-    overflow: hidden;
-    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease;
-}
-
-.premium-card::after{
-    content: "";
-    position: absolute;
-    right: -34px;
-    top: -34px;
-    width: 96px;
-    height: 96px;
-    border-radius: 999px;
-    background: radial-gradient(circle, rgba(37,99,235,.10), transparent 72%);
-    pointer-events: none;
-}
-
-.premium-card:hover{
-    transform: translateY(-4px);
-    box-shadow: 0 20px 36px rgba(15,23,42,.10);
-}
-
-.premium-card.is-spotlight{
-    border-color: rgba(37,99,235,.34);
-    background: linear-gradient(180deg, #ffffff 0%, #f5f9ff 100%);
-    box-shadow: 0 26px 46px rgba(37,99,235,.16), 0 0 0 4px rgba(59,130,246,.08);
-    transform: translateY(-4px);
-}
-
-.premium-card.is-spotlight[data-premium-code="idle_masters_1m"]{
-    border-color: rgba(245,158,11,.42);
-    background: linear-gradient(180deg, #fffef8 0%, #fff8e7 100%);
-    box-shadow: 0 28px 48px rgba(245,158,11,.18), 0 0 0 4px rgba(245,158,11,.10);
-}
-
-.premium-card.is-spotlight .premium-card-btn{
-    box-shadow: 0 14px 26px rgba(37,99,235,.26);
-}
-
-.premium-card.is-spotlight[data-premium-code="idle_masters_1m"] .premium-card-badge{
-    background: linear-gradient(180deg, #fff7d6 0%, #fef3c7 100%);
-}
-
-.premium-card.is-spotlight-pulse::before{
-    content: "";
-    position: absolute;
-    inset: -1px;
-    border-radius: inherit;
-    border: 1px solid rgba(255,255,255,.85);
-    animation: premiumSpotlightPulse 1.7s ease-out;
-    pointer-events: none;
-}
-
-@keyframes premiumSpotlightPulse {
-    0% { opacity: .95; transform: scale(1); }
-    100% { opacity: 0; transform: scale(1.04); }
-}
-
-.premium-card[data-premium-code="idle_masters_1m"] .premium-card-tag{
-    background: rgba(245,158,11,.12);
-    color: #b45309;
-}
-
-.premium-card[data-premium-code="idle_masters_1m"] .premium-card-price strong{
-    color: #a16207;
-}
-
-
-
-
-/* =========================================================
-   PREMIUM HISTORY / PURCHASES
-========================================================= */
-
-.premium-history-wrap{
-    margin-top: 18px;
-    padding: 22px;
-    border-radius: 28px;
-    border: 1px solid rgba(148,163,184,.14);
-    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
-    box-shadow: var(--mart-shadow-soft);
-}
-
+    max-width:760px;margin:0 auto 16px;padding:14px 16px;border-radius:18px;font-weight:800;border:1px solid rgba(16,185,129,.18);background:#ecfdf5;color:#166534;box-shadow:var(--mart-shadow-soft);
+}
+.mensaje-compra.error{background:#fff1f2;border-color:rgba(239,68,68,.18);color:#b91c1c;}
+
+.pokemart-view-switch{
+    max-width:960px;
+    margin:0 auto 18px;
+    padding:6px;
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:8px;
+    border-radius:24px;
+    background:rgba(255,255,255,.8);
+    border:1px solid rgba(226,232,240,.95);
+    box-shadow:var(--mart-shadow-soft);
+    position:sticky;
+    top:82px;
+    z-index:20;
+    backdrop-filter:blur(10px);
+}
+.pokemart-view-btn{
+    border:none;background:transparent;color:#475569;border-radius:18px;padding:16px 18px;font-size:15px;font-weight:900;cursor:pointer;transition:background .18s ease,color .18s ease, box-shadow .18s ease;
+}
+.pokemart-view-btn.active{background:linear-gradient(180deg,#2563eb 0%,#1d4ed8 100%);color:#fff;box-shadow:0 14px 26px rgba(37,99,235,.25);}
+
+.pokemart-panel{
+    background:linear-gradient(180deg,#ffffff 0%,#f9fbff 100%);
+    border:1px solid var(--mart-border);
+    border-radius:30px;
+    padding:22px;
+    box-shadow:var(--mart-shadow);
+}
+
+.pokemart-items-head,
+.premium-shop-head,
 .premium-history-head{
-    margin-bottom: 14px;
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:16px;
+    margin-bottom:18px;
 }
-
-.premium-history-tabs{
-    display: inline-flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 18px;
-    padding: 6px;
-    border-radius: 18px;
-    background: #eff6ff;
-    border: 1px solid rgba(147,197,253,.34);
+.pokemart-panel-kicker,
+.premium-shop-kicker,
+.premium-shop-mini-kicker{
+    display:inline-flex;
+    align-items:center;
+    padding:8px 14px;
+    border-radius:999px;
+    background:#dbeafe;
+    color:#1d4ed8;
+    font-size:12px;
+    font-weight:900;
+    text-transform:uppercase;
+    letter-spacing:.08em;
 }
+.pokemart-items-head h3,
+.premium-shop-head h3,
+.premium-history-head h4{margin:12px 0 8px;font-size:clamp(26px,3vw,40px);line-height:1.05;color:var(--mart-text);}
+.pokemart-items-head p,
+.premium-shop-head p,
+.premium-history-head p{margin:0;color:var(--mart-muted);max-width:760px;line-height:1.65;}
 
-.premium-history-tab{
-    border: none;
-    background: transparent;
-    color: #475569;
-    border-radius: 14px;
-    padding: 12px 14px;
-    font-size: 14px;
-    font-weight: 900;
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-    transition: background .18s ease, color .18s ease, box-shadow .18s ease, transform .18s ease;
+.pokemart-items-groups{display:flex;flex-direction:column;gap:20px;}
+.pokemart-category-section{display:flex;flex-direction:column;gap:14px;}
+.pokemart-category-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding-bottom:4px;border-bottom:1px solid rgba(226,232,240,.9);}
+.pokemart-category-copy h4{margin:0 0 6px;font-size:22px;color:var(--mart-text);}
+.pokemart-category-copy p{margin:0;color:var(--mart-muted);line-height:1.55;}
+.pokemart-category-chip{display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border-radius:999px;background:#eff6ff;color:#1d4ed8;font-size:13px;font-weight:800;}
+.pokemart-classic-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;}
+.item-card{
+    display:flex;flex-direction:column;gap:14px;
+    min-height:100%;
+    padding:18px;
+    border-radius:24px;
+    background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);
+    border:1px solid rgba(226,232,240,.95);
+    box-shadow:var(--mart-shadow-soft);
 }
-
-.premium-history-tab:hover{
-    color: #0f172a;
-    background: rgba(255,255,255,.62);
+.item-card-curacion{background:linear-gradient(180deg,#fcfffd 0%,#f6fff8 100%);border-top:4px solid rgba(34,197,94,.9);}
+.item-card-captura{border-top:4px solid rgba(59,130,246,.9);}
+.item-card-evolucion{background:linear-gradient(180deg,#fffdfa 0%,#fff7ed 100%);border-top:4px solid rgba(245,158,11,.95);}
+.item-card-otros{border-top:4px solid rgba(148,163,184,.95);}
+.item-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
+.item-imagen{width:68px;height:68px;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 8px 14px rgba(15,23,42,.12));}
+.item-card h3{margin:0;font-size:30px;line-height:1;font-weight:900;color:var(--mart-text);}
+.item-descripcion{margin:0;color:var(--mart-muted);line-height:1.6;min-height:72px;}
+.tipo-item{display:inline-flex;align-items:center;justify-content:center;padding:8px 12px;border-radius:999px;font-size:12px;font-weight:900;color:#334155;background:#e2e8f0;}
+.tipo-item.captura{background:linear-gradient(180deg,#3b82f6 0%,#2563eb 100%);color:#fff;}
+.tipo-item.curacion{background:linear-gradient(180deg,#22c55e 0%,#16a34a 100%);color:#fff;}
+.tipo-item.evolucion{background:linear-gradient(180deg,#fbbf24 0%,#f59e0b 100%);color:#fff;}
+.item-card-inline-stats{display:grid;grid-template-columns:1.1fr .9fr;gap:10px;align-items:stretch;}
+.item-stock,.item-info.compact,.item-total-line{background:#f1f5f9;border:1px solid rgba(226,232,240,.95);border-radius:16px;padding:10px 12px;}
+.item-stock{display:flex;align-items:center;justify-content:center;font-weight:900;color:#2563eb;}
+.item-info.compact span,.item-total-line span{display:block;font-size:12px;color:var(--mart-muted);margin-bottom:4px;font-weight:700;}
+.item-info.compact strong,.item-total-line strong{font-size:18px;color:var(--mart-text);font-weight:900;}
+.cantidad-compra-box label{display:block;margin-bottom:8px;font-size:13px;font-weight:800;color:#64748b;}
+.cantidad-compra-box input{
+    width:100%;height:48px;border-radius:16px;border:1px solid rgba(203,213,225,.95);padding:0 14px;font-size:16px;font-weight:800;box-sizing:border-box;background:#fff;color:var(--mart-text);
 }
-
-.premium-history-tab.active{
-    color: #0f172a;
-    background: #ffffff;
-    box-shadow: 0 10px 22px rgba(37,99,235,.10);
+.item-buy-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end;}
+.item-buy-side{display:flex;flex-direction:column;gap:10px;}
+.btn-comprar-item,.premium-card-btn{
+    border:none;border-radius:16px;padding:14px 16px;background:linear-gradient(180deg,#2563eb 0%,#1d4ed8 100%);color:#fff;font-size:16px;font-weight:900;cursor:pointer;box-shadow:0 12px 22px rgba(37,99,235,.22);
 }
+.btn-comprar-item:disabled,.premium-card-btn:disabled{opacity:.55;cursor:not-allowed;box-shadow:none;}
+.premium-card-btn.secondary{background:#e2e8f0;color:#0f172a;box-shadow:none;}
+.empty-box{padding:24px;border-radius:20px;background:#f8fafc;border:1px dashed rgba(148,163,184,.45);color:var(--mart-muted);text-align:center;font-weight:700;}
 
-.premium-history-tab-count{
-    min-width: 28px;
-    height: 28px;
-    padding: 0 8px;
-    border-radius: 999px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(37,99,235,.10);
-    color: #1d4ed8;
-    font-size: 12px;
-    font-weight: 900;
+.premium-shop-shell,
+.premium-history-shell{
+    background:linear-gradient(180deg,#ffffff 0%,#f8fbff 100%);
+    border:1px solid rgba(37,99,235,.10);
+    border-radius:26px;
+    padding:22px;
 }
+.premium-shop-head.compact{margin-bottom:18px;}
+.premium-shop-secure{display:inline-flex;align-items:center;gap:10px;padding:12px 16px;border-radius:999px;background:#ecfdf5;color:#047857;font-weight:900;border:1px solid rgba(16,185,129,.22);}
+.premium-shop-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:16px;}
+.premium-summary-card{padding:18px;border-radius:22px;background:#fff;border:1px solid rgba(226,232,240,.95);box-shadow:var(--mart-shadow-soft);}
+.premium-summary-card small{display:block;color:var(--mart-muted);font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.premium-summary-card strong{display:block;font-size:40px;line-height:1;font-weight:900;color:var(--mart-text);margin-bottom:8px;}
+.premium-summary-card p{margin:0;color:var(--mart-muted);line-height:1.55;}
+.premium-soft-message{margin-bottom:16px;padding:13px 14px;border-radius:16px;background:#f8fafc;border:1px solid rgba(226,232,240,.95);color:#475569;font-weight:700;}
+.premium-soft-message.error{background:#fff1f2;border-color:rgba(239,68,68,.16);color:#b91c1c;}
+.premium-soft-message.ok{background:#ecfdf5;border-color:rgba(16,185,129,.16);color:#166534;}
+.premium-login-box{padding:18px;border-radius:20px;background:#f8fafc;border:1px dashed rgba(148,163,184,.45);margin-bottom:16px;}
+.premium-login-box h4{margin:0 0 6px;font-size:20px;color:var(--mart-text);}
+.premium-login-box p{margin:0;color:var(--mart-muted);line-height:1.6;}
+.premium-shop-catalog-head{margin-bottom:14px;}
+.premium-shop-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;}
+.premium-card{display:flex;flex-direction:column;gap:14px;padding:18px;border-radius:24px;background:#fff;border:1px solid rgba(226,232,240,.95);box-shadow:var(--mart-shadow-soft);min-height:100%;}
+.premium-card.locked{opacity:.82;}
+.premium-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
+.premium-card-badge{display:grid;place-items:center;width:52px;height:52px;border-radius:16px;background:#eff6ff;font-size:28px;}
+.premium-card-tag{display:inline-flex;align-items:center;justify-content:center;padding:8px 12px;border-radius:999px;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:900;}
+.premium-chip-active{background:#ecfdf5;color:#047857;}
+.premium-chip-coming{background:#fff7ed;color:#c2410c;}
+.premium-card-copy h4{margin:0 0 8px;font-size:22px;color:var(--mart-text);line-height:1.15;}
+.premium-card-copy p{margin:0;color:var(--mart-muted);line-height:1.6;min-height:74px;}
+.premium-card-price-row{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;}
+.premium-card-price strong{font-size:38px;line-height:1;font-weight:900;color:var(--mart-text);}
+.premium-card-price span,.premium-price-type{color:var(--mart-muted);font-weight:800;}
+.premium-card-meta{display:flex;flex-wrap:wrap;gap:8px;}
+.premium-meta-pill{display:inline-flex;align-items:center;gap:8px;padding:9px 12px;border-radius:999px;background:#f8fafc;border:1px solid rgba(226,232,240,.95);color:#475569;font-size:13px;font-weight:800;}
+.premium-feature-list{margin:0;padding-left:20px;color:#334155;display:grid;gap:6px;}
+.premium-feature-list li{line-height:1.55;}
+.premium-card-footer{margin-top:auto;display:grid;gap:10px;}
+.premium-card-note{margin:0;color:var(--mart-muted);line-height:1.5;font-size:13px;}
 
-.premium-history-grid{
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 16px;
-}
+.premium-history-badges{display:flex;flex-wrap:wrap;gap:8px;}
+.premium-history-badge{display:inline-flex;align-items:center;gap:8px;padding:9px 12px;border-radius:999px;background:#f8fafc;border:1px solid rgba(226,232,240,.95);color:#334155;font-size:13px;font-weight:800;}
+.premium-history-tabs{display:inline-grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;background:#f8fafc;padding:6px;border-radius:18px;border:1px solid rgba(226,232,240,.95);margin-bottom:16px;}
+.premium-history-tab{border:none;background:transparent;border-radius:12px;padding:12px 16px;font-weight:900;color:#475569;cursor:pointer;}
+.premium-history-tab.active{background:#fff;color:#0f172a;box-shadow:0 8px 18px rgba(15,23,42,.08);}
+.premium-history-list{display:grid;gap:14px;}
+.premium-history-card{padding:18px;border-radius:22px;background:#fff;border:1px solid rgba(226,232,240,.95);box-shadow:var(--mart-shadow-soft);display:grid;gap:12px;}
+.premium-history-card-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;}
+.premium-history-card h5{margin:0;font-size:22px;line-height:1.15;color:var(--mart-text);}
+.premium-history-card-sub{margin:4px 0 0;color:var(--mart-muted);font-weight:700;}
+.premium-status{display:inline-flex;align-items:center;justify-content:center;padding:8px 12px;border-radius:999px;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;}
+.premium-status.paid,.premium-status.delivered,.premium-status.active{background:#ecfdf5;color:#047857;}
+.premium-status.pending{background:#eff6ff;color:#1d4ed8;}
+.premium-status.error,.premium-status.failed,.premium-status.expired,.premium-status.inactive{background:#fff1f2;color:#be123c;}
+.premium-history-meta{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;}
+.premium-history-meta-box{padding:12px;border-radius:16px;background:#f8fafc;border:1px solid rgba(226,232,240,.95);}
+.premium-history-meta-box span{display:block;font-size:12px;font-weight:800;color:var(--mart-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;}
+.premium-history-meta-box strong{font-size:15px;color:var(--mart-text);font-weight:900;line-height:1.35;}
+.premium-history-note{margin:0;color:var(--mart-muted);line-height:1.55;}
 
-.premium-history-card,
-.premium-history-empty{
-    border-radius: 24px;
-    padding: 18px;
-    border: 1px solid rgba(148,163,184,.18);
-    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-    box-shadow: 0 16px 30px rgba(15,23,42,.05);
-}
-
-.premium-history-card-benefit{
-    background: linear-gradient(180deg, #f8fffb 0%, #f8fbff 100%);
-}
-
-.premium-history-card-top{
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 14px;
-    margin-bottom: 14px;
-}
-
-.premium-history-card-ident{
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    min-width: 0;
-}
-
-.premium-history-card-ident h4{
-    margin: 4px 0 0;
-    font-size: 20px;
-    line-height: 1.1;
-    color: var(--mart-text);
-}
-
-.premium-history-overline{
-    display: inline-block;
-    color: var(--mart-muted);
-    font-size: 11px;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: .08em;
-}
-
-.premium-history-icon,
-.premium-history-empty-icon{
-    display: inline-grid;
-    place-items: center;
-    width: 52px;
-    height: 52px;
-    border-radius: 18px;
-    background: rgba(37,99,235,.10);
-    font-size: 24px;
-    flex-shrink: 0;
-}
-
-.premium-history-status{
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 8px 12px;
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 900;
-    white-space: nowrap;
-    border: 1px solid rgba(148,163,184,.18);
-    color: #334155;
-    background: #eef2f7;
-}
-
-.premium-history-status.is-ok{
-    color: #166534;
-    background: rgba(34,197,94,.10);
-    border-color: rgba(34,197,94,.24);
-}
-
-.premium-history-status.is-warn{
-    color: #b45309;
-    background: rgba(245,158,11,.10);
-    border-color: rgba(245,158,11,.24);
-}
-
-.premium-history-status.is-muted{
-    color: #64748b;
-    background: rgba(148,163,184,.10);
-    border-color: rgba(148,163,184,.22);
-}
-
-.premium-history-meta-grid{
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-}
-
-.premium-history-meta-box{
-    padding: 14px;
-    border-radius: 18px;
-    background: #f8fafc;
-    border: 1px solid rgba(226,232,240,.95);
-}
-
-.premium-history-meta-box.full-width{
-    grid-column: 1 / -1;
-}
-
-.premium-history-meta-box small{
-    display: block;
-    margin-bottom: 6px;
-    color: var(--mart-muted);
-    font-size: 12px;
-    font-weight: 700;
-}
-
-.premium-history-meta-box strong{
-    display: block;
-    color: var(--mart-text);
-    font-size: 15px;
-    line-height: 1.4;
-    word-break: break-word;
-}
-
-.premium-history-empty{
-    grid-column: 1 / -1;
-    text-align: center;
-}
-
-.premium-history-empty h4{
-    margin: 14px 0 8px;
-    font-size: 22px;
-    color: var(--mart-text);
-}
-
-.premium-history-empty p{
-    margin: 0 auto;
-    max-width: 560px;
-    color: var(--mart-muted);
-    line-height: 1.65;
-}
-
-@media (max-width: 860px){
-    .premium-history-grid{
-        grid-template-columns: 1fr;
-    }
-
-    .premium-history-wrap{
-        padding: 18px;
-    }
-
-    .premium-history-tab{
-        flex: 1 1 220px;
-        justify-content: space-between;
-    }
-
-    .pokemart-auth-panel{
-        padding: 28px 22px;
-        border-radius: 28px;
-    }
-
-    .pokemart-auth-points{
-        grid-template-columns: 1fr;
-    }
-}
-
-@media (max-width: 560px){
-    .premium-history-tabs{
-        display: grid;
-        grid-template-columns: 1fr;
-    }
-
-    .premium-history-card-top{
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .premium-history-status{
-        align-self: flex-start;
-    }
-
-    .premium-history-meta-grid{
-        grid-template-columns: 1fr;
-    }
-
-    .premium-history-meta-box.full-width{
-        grid-column: auto;
-    }
-
-    .pokemart-auth-gate{
-        padding: 14px 0 26px;
-    }
-
-    .pokemart-auth-panel h2{
-        font-size: 28px;
-    }
-
-    .pokemart-auth-panel p{
-        font-size: 14px;
-    }
-
-    .pokemart-auth-login-btn{
-        width: 100%;
-    }
-}
-
-
-/* =========================================================
-   POKEMART REDESIGN / HERO + PURCHASE FOOTER
-========================================================= */
-.pokemart-store-hero-card{
-    max-width: 980px;
-    margin: 0 auto 24px;
-    padding: 26px 26px 20px;
-    border-radius: 34px;
-    background:
-        radial-gradient(circle at top right, rgba(37,99,235,.10), transparent 28%),
-        linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
-    border: 1px solid rgba(226,232,240,.96);
-    box-shadow: 0 24px 56px rgba(15,23,42,.08);
-}
-
-.pokemart-store-hero-card .pokemart-title-block{
-    margin-bottom: 16px;
-}
-
-.pokemart-store-hero-card .pokemart-saldo{
-    max-width: 740px;
-    margin-bottom: 16px;
-}
-
-.pokemart-store-hero-card .saldo-box{
-    box-shadow: 0 16px 34px rgba(15,23,42,.06);
-}
-
-.pokemart-store-hero-card .pokemart-quick-nav-wrap{
-    max-width: 100%;
-    margin: 0 0 14px;
-    position: static;
-    top: auto;
-}
-
-.pokemart-store-hero-card .pokemart-quick-nav{
-    background: #eef2ff;
-    border-color: rgba(199,210,254,.75);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.75);
-}
-
-.pokemart-store-hero-card .mensaje-compra{
-    margin-bottom: 0;
-}
-
-.pokemart-catalog-shell{
-    margin-top: 6px;
-}
-
-.item-card-inline-stats{
-    margin-bottom: 10px;
-}
-
-.item-card-purchase{
-    margin-top: 0;
-    padding: 14px;
-    border-radius: 18px;
-    background: rgba(248,250,252,.92);
-    border: 1px solid rgba(226,232,240,.95);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.7);
-}
-
-.item-total-row{
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    margin-bottom: 12px;
-    padding: 10px 12px;
-    border-radius: 14px;
-    background: rgba(255,255,255,.92);
-    border: 1px solid rgba(226,232,240,.95);
-}
-
-.item-total-row span{
-    color: var(--mart-muted);
-    font-size: 13px;
-    font-weight: 700;
-}
-
-.item-total-row strong{
-    color: var(--mart-text);
-    font-size: 20px;
-    font-weight: 900;
-    line-height: 1;
-    display: inline-flex;
-    align-items: baseline;
-    gap: 6px;
-}
-
-.item-total-row strong small{
-    font-size: 11px;
-    color: #64748b;
-    letter-spacing: .08em;
-}
-
-.item-card.item-card-total-empty .item-total-row strong{
-    color: #94a3b8;
-}
+.premium-modal-backdrop{position:fixed;inset:0;background:rgba(3,7,18,.64);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:18px;z-index:2000;}
+.premium-modal-backdrop.show{display:flex;}
+.premium-modal{width:min(820px,calc(100vw - 32px));max-height:92vh;overflow:auto;background:#fff;border-radius:28px;border:1px solid rgba(226,232,240,.95);box-shadow:0 30px 60px rgba(15,23,42,.24);}
+.premium-modal-head,.premium-modal-body,.premium-modal-actions{padding:22px 24px;}
+.premium-modal-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;border-bottom:1px solid rgba(226,232,240,.95);}
+.premium-modal-head h3{margin:0 0 8px;font-size:30px;color:var(--mart-text);}
+.premium-modal-head p{margin:0;color:var(--mart-muted);line-height:1.6;}
+.premium-modal-close{width:42px;height:42px;border:none;border-radius:14px;background:#f1f5f9;color:#0f172a;font-size:28px;cursor:pointer;}
+.premium-modal-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+.premium-modal-box{padding:14px;border-radius:18px;background:#f8fafc;border:1px solid rgba(226,232,240,.95);}
+.premium-modal-box small{display:block;font-size:12px;color:var(--mart-muted);font-weight:800;margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em;}
+.premium-modal-box strong{font-size:18px;color:var(--mart-text);}
+.premium-modal-description-box{margin-top:14px;}
+.premium-modal-checks{display:grid;gap:10px;margin-top:16px;}
+.premium-modal-check{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:16px;background:#f8fafc;border:1px solid rgba(226,232,240,.95);}
+.premium-modal-check input{margin-top:3px;}
+.premium-modal-error{margin-top:14px;padding:12px 14px;border-radius:16px;background:#fff1f2;border:1px solid rgba(239,68,68,.16);color:#b91c1c;font-weight:700;display:none;}
+.premium-modal-error.show{display:block;}
+.premium-modal-actions{display:flex;justify-content:flex-end;gap:10px;border-top:1px solid rgba(226,232,240,.95);}
 
 @media (max-width: 980px){
-    .pokemart-store-hero-card{
-        padding: 22px 18px 18px;
-        border-radius: 28px;
-    }
+    .pokemart-auth-points,.premium-shop-summary,.premium-history-meta,.premium-shop-grid,.pokemart-classic-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
 }
-
 @media (max-width: 760px){
-    .pokemart-store-hero-card{
-        padding: 18px 14px 16px;
-        border-radius: 24px;
-    }
+    .pokemart-view-switch{top:74px;}
+    .premium-shop-summary,.premium-history-meta,.premium-shop-grid,.pokemart-classic-grid,.pokemart-auth-points,.premium-modal-grid{grid-template-columns:1fr;}
+    .item-card-inline-stats,.item-buy-row{grid-template-columns:1fr;}
+    .pokemart-items-head,.premium-shop-head,.premium-history-head{flex-direction:column;}
+}
+@media (max-width: 560px){
+    .pokemart-shell.compact{padding:16px 12px 0;}
+    .pokemart-view-switch{grid-template-columns:1fr;}
+    .pokemart-view-btn{padding:14px;}
+    .pokemart-panel,.premium-shop-shell,.premium-history-shell{padding:16px; border-radius:24px;}
+    .item-card h3{font-size:26px;}
+    .saldo-box{padding:18px;}
+    .saldo-box.login{flex-direction:column;text-align:center;}
+    .saldo-value-row h3,.saldo-box h3{font-size:36px;}
 }
