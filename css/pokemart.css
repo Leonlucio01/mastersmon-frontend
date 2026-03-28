@@ -218,7 +218,8 @@
     letter-spacing: .04em;
     text-transform: uppercase;
     cursor: pointer;
-    transition: all .18s ease;
+    box-shadow: none;
+    transition: background-color .16s ease, color .16s ease, box-shadow .16s ease;
 }
 
 .pokemart-quick-nav-btn:hover{
@@ -229,7 +230,7 @@
 .pokemart-quick-nav-btn.active{
     background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
     color: #fff;
-    box-shadow: 0 12px 22px rgba(37,99,235,.24);
+    box-shadow: 0 10px 18px rgba(37,99,235,.20);
 }
 
 .pokemart-quick-nav-icon{
@@ -363,12 +364,12 @@
     box-shadow: 0 12px 24px rgba(15,23,42,.06);
     overflow: hidden;
     text-align: center;
-    transition: transform .18s ease, box-shadow .18s ease;
+    transition: border-color .16s ease, box-shadow .16s ease, background .16s ease;
 }
 
 .item-card:hover{
-    transform: translateY(-3px);
-    box-shadow: 0 18px 30px rgba(15,23,42,.10);
+    border-color: rgba(37,99,235,.26);
+    box-shadow: 0 16px 28px rgba(15,23,42,.09);
 }
 
 .item-card::before{
@@ -548,12 +549,12 @@
     font-weight: 900;
     cursor: pointer;
     box-shadow: 0 12px 22px rgba(37,99,235,.22);
-    transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease;
+    transition: box-shadow .18s ease, opacity .18s ease, filter .18s ease;
 }
 
 .btn-comprar-item:hover:not(:disabled){
-    transform: translateY(-1px);
-    box-shadow: 0 16px 26px rgba(37,99,235,.28);
+    filter: brightness(1.02);
+    box-shadow: 0 14px 24px rgba(37,99,235,.24);
 }
 
 .btn-comprar-item:disabled{
