@@ -8,7 +8,7 @@
 const IDLE_TEAM_STORAGE_KEY = "mastersmon_battle_team_v1";
 const IDLE_SESSION_STORAGE_KEY = "mastersmon_battle_idle_session_v1";
 const IDLE_LAST_RESULT_STORAGE_KEY = "mastersmon_idle_last_result_v1";
-const IDLE_PREMIUM_SHOP_URL = "pokemart.html?focus=paypal&product=idle_masters_1m#paypal-section";
+const IDLE_PREMIUM_PRODUCT_CODE = "idle_masters_1m";
 
 const IDLE_TIER_CONFIG = {
     ruta: {
@@ -83,6 +83,8 @@ const idleState = {
     mastersActive: false,
     gymProgress: null,
     gymProgressLoaded: false,
+    premiumProduct: null,
+    premiumCheckoutBusy: false,
     serverOffsetMs: 0,
     startedAtMs: 0,
     endsAtMs: 0,
@@ -96,7 +98,6 @@ const idleState = {
     selectedDuration: 3600,
     lastResult: null
 };
-
 
 const IDLE_THEME_ACCENTS = {
     ruta: { solid: "#10b981", soft: "rgba(16,185,129,.20)" },
@@ -115,27 +116,27 @@ function getIdleVisualTier() {
 function applyIdleVisualTheme(nextTier = null) {
     const tier = normalizarTierIdle(nextTier || getIdleVisualTier());
     const root = document.documentElement;
-    const page = document.querySelector('.idle-page');
+    const page = document.querySelector(".idle-page");
     const accents = IDLE_THEME_ACCENTS[tier] || IDLE_THEME_ACCENTS.ruta;
 
     if (page) {
-        page.setAttribute('data-idle-tier', tier);
+        page.setAttribute("data-idle-tier", tier);
     }
     if (root) {
-        root.style.setProperty('--idle-current-accent', accents.solid);
-        root.style.setProperty('--idle-current-accent-soft', accents.soft);
+        root.style.setProperty("--idle-current-accent", accents.solid);
+        root.style.setProperty("--idle-current-accent-soft", accents.soft);
     }
 
     [
-        'idleCommandSection',
-        'idleForecastSection',
-        'idleTeamSection',
-        'idleLatestClaimSection',
-        'idleMastersSection'
+        "idleCommandSection",
+        "idleForecastSection",
+        "idleTeamSection",
+        "idleLatestClaimSection",
+        "idleMastersSection"
     ].forEach((id) => {
         const element = document.getElementById(id);
         if (element) {
-            element.setAttribute('data-idle-tier', tier);
+            element.setAttribute("data-idle-tier", tier);
         }
     });
 }
@@ -148,6 +149,7 @@ async function inicializarIdlePage() {
     configurarMenuIdle();
     configurarIdiomaIdle();
     configurarModalIdle();
+    configurarModalPremiumIdle();
     configurarEventosIdle();
     cargarResultadoAnteriorIdle();
     cargarEquipoLocalIdle();
@@ -165,6 +167,7 @@ async function inicializarIdlePage() {
         await cargarEquipoServidorIdle();
         await cargarBeneficiosActivosIdle();
         await cargarProgresoGymsIdle();
+        await cargarProductoPremiumIdle();
         await cargarEstadoIdle(true);
     } catch (error) {
         console.warn("No se pudo inicializar Idle completamente:", error);
@@ -202,6 +205,7 @@ async function inicializarIdlePage() {
         await cargarEquipoServidorIdle();
         await cargarBeneficiosActivosIdle();
         await cargarProgresoGymsIdle();
+        await cargarProductoPremiumIdle(true);
         await cargarEstadoIdle(true);
         renderTierCardsIdle();
         renderSelectedPlanIdle();
@@ -291,12 +295,48 @@ function configurarModalIdle() {
     });
 }
 
+function configurarModalPremiumIdle() {
+    const modal = document.getElementById("idlePremiumModal");
+    const closeBtn = document.getElementById("idlePremiumModalClose");
+    const cancelBtn = document.getElementById("idlePremiumModalCancel");
+    const payBtn = document.getElementById("idlePremiumModalPay");
+
+    if (!modal) return;
+
+    const closeHandler = () => hideIdlePremiumModal();
+
+    if (closeBtn) closeBtn.addEventListener("click", closeHandler);
+    if (cancelBtn) cancelBtn.addEventListener("click", closeHandler);
+    if (payBtn) payBtn.addEventListener("click", continuarCheckoutPremiumIdle);
+
+    modal.addEventListener("click", (event) => {
+        if (event.target === modal) {
+            closeHandler();
+        }
+    });
+
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && !modal.classList.contains("oculto")) {
+            closeHandler();
+        }
+    });
+}
+
 function hideIdleNoticeModal() {
     const modal = document.getElementById("idleNoticeModal");
     if (!modal) return;
     modal.classList.add("oculto");
     modal.setAttribute("aria-hidden", "true");
     document.body.classList.remove("idle-modal-open");
+}
+
+function hideIdlePremiumModal() {
+    const modal = document.getElementById("idlePremiumModal");
+    if (!modal) return;
+    modal.classList.add("oculto");
+    modal.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("idle-modal-open");
+    idleState.premiumCheckoutBusy = false;
 }
 
 function showIdleNoticeModal({
@@ -344,6 +384,278 @@ function showIdleNoticeModal({
     }
 }
 
+function getIdlePremiumFallbackProduct() {
+    return {
+        codigo: IDLE_PREMIUM_PRODUCT_CODE,
+        nombre: tIdle("idle_premium_product_name", "Idle Masters 1 month"),
+        tipo: "suscripcion",
+        precio_usd: 20,
+        beneficio_codigo: "idle_masters",
+        duracion_meses: 1,
+        duracion_dias: null,
+        duracion_horas: null,
+        limite_por_cuenta: 1,
+        metadata: {
+            scope: "idle",
+            notes: tIdle("idle_premium_product_note", "Unlocks the Masters tier in Idle for 30 days.")
+        }
+    };
+}
+
+async function cargarProductoPremiumIdle(force = false) {
+    if (!force && idleState.premiumProduct?.codigo === IDLE_PREMIUM_PRODUCT_CODE) {
+        return idleState.premiumProduct;
+    }
+
+    if (!getAccessToken()) {
+        idleState.premiumProduct = getIdlePremiumFallbackProduct();
+        return idleState.premiumProduct;
+    }
+
+    try {
+        let data = null;
+
+        if (typeof obtenerCatalogoPagos === "function") {
+            data = await obtenerCatalogoPagos();
+        } else if (typeof fetchAuth === "function" && typeof API_BASE !== "undefined") {
+            data = await fetchAuth(`${API_BASE}/payments/catalogo`);
+        }
+
+        const productos = Array.isArray(data?.productos) ? data.productos : [];
+        const found = productos.find(producto => String(producto?.codigo || "") === IDLE_PREMIUM_PRODUCT_CODE);
+
+        idleState.premiumProduct = found || getIdlePremiumFallbackProduct();
+        return idleState.premiumProduct;
+    } catch (error) {
+        console.warn("No se pudo cargar el producto premium Idle Masters:", error);
+        idleState.premiumProduct = getIdlePremiumFallbackProduct();
+        return idleState.premiumProduct;
+    }
+}
+
+function formatUsdIdle(value = 0) {
+    try {
+        return new Intl.NumberFormat(getLocaleIdle(), {
+            style: "currency",
+            currency: "USD"
+        }).format(Number(value || 0));
+    } catch (error) {
+        return `$${Number(value || 0).toFixed(2)}`;
+    }
+}
+
+function getIdlePremiumDurationLabel(product = {}) {
+    const months = Number(product?.duracion_meses || 0);
+    const days = Number(product?.duracion_dias || 0);
+    const hours = Number(product?.duracion_horas || 0);
+
+    if (months > 0) return `${months} ${months === 1 ? tIdle("idle_premium_month", "month") : tIdle("idle_premium_months", "months")}`;
+    if (days > 0) return `${days} ${days === 1 ? tIdle("idle_premium_day", "day") : tIdle("idle_premium_days", "days")}`;
+    if (hours > 0) return `${hours} ${hours === 1 ? tIdle("idle_premium_hour", "hour") : tIdle("idle_premium_hours", "hours")}`;
+    return tIdle("idle_premium_instant", "Instant");
+}
+
+function getIdlePremiumTypeLabel(product = {}) {
+    const tipo = String(product?.tipo || "").toLowerCase();
+    if (tipo === "suscripcion") return tIdle("idle_premium_type_subscription", "Subscription");
+    if (tipo === "pack_item") return tIdle("idle_premium_type_pack", "Pack");
+    if (tipo === "battle_pass") return tIdle("idle_premium_type_battle_pass", "Battle Pass");
+    return tIdle("idle_premium_type_premium", "Premium");
+}
+
+function getIdlePremiumFeatureItems() {
+    return [
+        tIdle("premium_idle_feature_1", "+100% EXP vs Legend"),
+        tIdle("premium_idle_feature_2", "+100% GOLD vs Legend"),
+        tIdle("premium_idle_feature_3", "Ultra Ball 12% per tick"),
+        tIdle("premium_idle_feature_4", "Master Ball 0.45% per tick")
+    ];
+}
+
+function buildIdlePremiumModalHtml(product = {}, options = {}) {
+    const { source = "panel" } = options;
+    const featureItems = getIdlePremiumFeatureItems()
+        .map(item => `<li>${escapeHtmlIdle(item)}</li>`)
+        .join("");
+
+    const note = String(product?.metadata?.notes || tIdle("idle_premium_default_note", "Premium access for the Masters Idle tier."));
+    const activeUntil = idleState.mastersBenefit?.expira_en
+        ? formatDateTimeIdle(idleState.mastersBenefit.expira_en)
+        : "";
+
+    const sourceLabelMap = {
+        panel: tIdle("idle_premium_source_panel", "Opened from Masters panel"),
+        tier_card: tIdle("idle_premium_source_card", "Opened from tier card"),
+        selected_plan: tIdle("idle_premium_source_plan", "Opened from selected plan"),
+        start_button: tIdle("idle_premium_source_start", "Opened from launch button")
+    };
+
+    return `
+        <div class="idle-premium-shell">
+            <div class="idle-premium-head">
+                <div>
+                    <span class="idle-premium-source">${escapeHtmlIdle(sourceLabelMap[source] || sourceLabelMap.panel)}</span>
+                    <h4>${escapeHtmlIdle(product?.nombre || tIdle("idle_premium_product_name", "Idle Masters 1 month"))}</h4>
+                    <p>${escapeHtmlIdle(note)}</p>
+                </div>
+                <div class="idle-premium-price-box">
+                    <span>${escapeHtmlIdle(tIdle("idle_premium_price_label", "Price"))}</span>
+                    <strong>${escapeHtmlIdle(formatUsdIdle(product?.precio_usd || 0))}</strong>
+                </div>
+            </div>
+
+            <div class="idle-premium-grid">
+                <article>
+                    <span>${escapeHtmlIdle(tIdle("idle_premium_modal_type", "Type"))}</span>
+                    <strong>${escapeHtmlIdle(getIdlePremiumTypeLabel(product))}</strong>
+                </article>
+                <article>
+                    <span>${escapeHtmlIdle(tIdle("idle_premium_modal_duration", "Duration"))}</span>
+                    <strong>${escapeHtmlIdle(getIdlePremiumDurationLabel(product))}</strong>
+                </article>
+                <article>
+                    <span>${escapeHtmlIdle(tIdle("idle_premium_modal_scope", "Scope"))}</span>
+                    <strong>${escapeHtmlIdle(String(product?.metadata?.scope || "idle").toUpperCase())}</strong>
+                </article>
+                <article>
+                    <span>${escapeHtmlIdle(tIdle("idle_premium_modal_status", "Status"))}</span>
+                    <strong>${escapeHtmlIdle(idleState.mastersActive ? tIdle("idle_masters_active_chip", "Benefit active") : tIdle("idle_masters_locked_chip", "Premium"))}</strong>
+                </article>
+            </div>
+
+            ${activeUntil ? `
+                <div class="idle-premium-active-box">
+                    ${escapeHtmlIdle(tIdle("idle_masters_active_until", "Active until {date}", { date: activeUntil }))}
+                </div>
+            ` : ""}
+
+            <div class="idle-premium-benefits">
+                <span>${escapeHtmlIdle(tIdle("idle_premium_benefits_title", "Included benefits"))}</span>
+                <ul>${featureItems}</ul>
+            </div>
+
+            ${idleState.mastersActive ? `
+                <div class="idle-premium-info-box">
+                    ${escapeHtmlIdle(tIdle("idle_premium_already_active", "This benefit is already active on your account."))}
+                </div>
+            ` : `
+                <label class="idle-premium-check">
+                    <input type="checkbox" id="idlePremiumAcceptTerms">
+                    <span>${escapeHtmlIdle(tIdle("idle_premium_accept_terms", "I reviewed the details and want to continue to secure PayPal checkout."))}</span>
+                </label>
+                <div class="idle-premium-error oculto" id="idlePremiumModalError"></div>
+            `}
+        </div>
+    `;
+}
+
+async function abrirModalPremiumIdle(options = {}) {
+    if (!getAccessToken()) {
+        showIdleNoticeModal({
+            type: "warning",
+            title: tIdle("idle_modal_login_title", "Login required"),
+            message: tIdle("battle_mode_requires_login", "You must sign in first.")
+        });
+        return;
+    }
+
+    const modal = document.getElementById("idlePremiumModal");
+    const body = document.getElementById("idlePremiumModalBody");
+    const kicker = document.getElementById("idlePremiumModalKicker");
+    const title = document.getElementById("idlePremiumModalTitle");
+    const payBtn = document.getElementById("idlePremiumModalPay");
+
+    if (!modal || !body || !kicker || !title || !payBtn) return;
+
+    const product = await cargarProductoPremiumIdle();
+    kicker.textContent = tIdle("idle_premium_modal_kicker", "Premium Idle");
+    title.textContent = tIdle("idle_premium_modal_title", "Unlock Idle Masters");
+    body.innerHTML = buildIdlePremiumModalHtml(product, options);
+
+    payBtn.dataset.productCode = String(product?.codigo || IDLE_PREMIUM_PRODUCT_CODE);
+    payBtn.disabled = Boolean(idleState.mastersActive);
+    payBtn.textContent = idleState.mastersActive
+        ? tIdle("idle_premium_active_cta", "Benefit active")
+        : tIdle("idle_premium_continue_paypal", "Continue to PayPal");
+
+    modal.classList.remove("oculto");
+    modal.setAttribute("aria-hidden", "false");
+    document.body.classList.add("idle-modal-open");
+}
+
+async function continuarCheckoutPremiumIdle() {
+    if (idleState.premiumCheckoutBusy) return;
+
+    const payBtn = document.getElementById("idlePremiumModalPay");
+    const errorBox = document.getElementById("idlePremiumModalError");
+    const acceptTerms = document.getElementById("idlePremiumAcceptTerms");
+    const productCode = String(payBtn?.dataset?.productCode || IDLE_PREMIUM_PRODUCT_CODE);
+
+    if (!getAccessToken()) {
+        hideIdlePremiumModal();
+        showIdleNoticeModal({
+            type: "warning",
+            title: tIdle("idle_modal_login_title", "Login required"),
+            message: tIdle("battle_mode_requires_login", "You must sign in first.")
+        });
+        return;
+    }
+
+    if (idleState.mastersActive) {
+        hideIdlePremiumModal();
+        return;
+    }
+
+    if (!acceptTerms?.checked) {
+        if (errorBox) {
+            errorBox.textContent = tIdle("idle_premium_accept_required", "You must confirm the purchase details before continuing.");
+            errorBox.classList.remove("oculto");
+        }
+        return;
+    }
+
+    try {
+        idleState.premiumCheckoutBusy = true;
+
+        if (errorBox) {
+            errorBox.textContent = "";
+            errorBox.classList.add("oculto");
+        }
+
+        if (payBtn) {
+            payBtn.disabled = true;
+            payBtn.textContent = tIdle("idle_premium_redirecting", "Opening PayPal...");
+        }
+
+        const order = await crearOrdenPaypalPago({
+            productCode,
+            quantity: 1,
+            confirmacionAceptada: true,
+            versionTerminos: "idle_masters_modal_v1"
+        });
+
+        if (!order?.approval_url) {
+            throw new Error(tIdle("idle_premium_checkout_error", "The secure PayPal order could not be created."));
+        }
+
+        window.location.href = order.approval_url;
+    } catch (error) {
+        console.error("No se pudo iniciar el checkout premium de Idle:", error);
+
+        if (errorBox) {
+            errorBox.textContent = error?.message || tIdle("idle_premium_checkout_error", "The secure PayPal order could not be created.");
+            errorBox.classList.remove("oculto");
+        }
+
+        if (payBtn) {
+            payBtn.disabled = false;
+            payBtn.textContent = tIdle("idle_premium_continue_paypal", "Continue to PayPal");
+        }
+
+        idleState.premiumCheckoutBusy = false;
+    }
+}
+
 function buildIdleClaimModalHtml(result = {}) {
     const items = Array.isArray(result?.items_ganados) ? result.items_ganados : [];
     const tierCode = normalizarTierIdle(result?.tier_codigo || "ruta");
@@ -370,7 +682,6 @@ function buildIdleClaimModalHtml(result = {}) {
         </div>
     `;
 }
-
 
 function buildIdleLaunchModalHtml({ tierCodigo = "ruta", duracionSegundos = 3600, teamCount = 0 } = {}) {
     const tierMeta = getIdleTierMeta(tierCodigo);
@@ -473,6 +784,7 @@ function configurarEventosIdle() {
     if (btnRefresh) btnRefresh.addEventListener("click", async () => {
         await cargarBeneficiosActivosIdle();
         await cargarProgresoGymsIdle();
+        await cargarProductoPremiumIdle(true);
         await cargarEstadoIdle(false);
         renderMastersPanelIdle();
         renderStatusIdle();
@@ -529,20 +841,6 @@ function getIdleTierMeta(tierCode = "ruta") {
     return { ...cfg, ...(translated[tier] || {}) };
 }
 
-function getIdlePremiumShopUrl() {
-    return IDLE_PREMIUM_SHOP_URL;
-}
-
-function markIdlePremiumShopIntent() {
-    try {
-        sessionStorage.setItem("mastersmon_shop_focus", "paypal");
-        sessionStorage.setItem("mastersmon_shop_product", "idle_masters_1m");
-        sessionStorage.setItem("mastersmon_shop_source", "idle_masters_panel");
-    } catch (error) {
-        // no-op
-    }
-}
-
 function getIdleDropLabel(itemCode = "", fallback = "Item") {
     const map = {
         potion: tIdle("item_potion", "Potion"),
@@ -553,7 +851,6 @@ function getIdleDropLabel(itemCode = "", fallback = "Item") {
     };
     return map[itemCode] || fallback || itemCode || tIdle("idle_item_generic", "Item");
 }
-
 
 function getPrimaryTypeKeyIdle(rawType = "") {
     const first = String(rawType || "")
@@ -587,7 +884,7 @@ function getPrimaryTypeKeyIdle(rawType = "") {
 function getPokemonSpriteIdle(pokemon = {}) {
     const direct = pokemon?.imagen || pokemon?.imagen_url || pokemon?.image || pokemon?.sprite || pokemon?.official_artwork || "";
     const lowered = String(direct || "").toLowerCase();
-    const looksLikeItemBall = lowered.includes('/items/poke-ball') || lowered.endsWith('poke-ball.png');
+    const looksLikeItemBall = lowered.includes("/items/poke-ball") || lowered.endsWith("poke-ball.png");
 
     if (direct && !looksLikeItemBall) {
         return String(direct);
@@ -789,11 +1086,10 @@ function hasMastersBenefitIdle() {
     return Boolean(idleState.mastersActive);
 }
 
-
 function getIdleRegionProgressMap() {
     const regiones = Array.isArray(idleState.gymProgress?.regiones) ? idleState.gymProgress.regiones : [];
     return regiones.reduce((acc, region) => {
-        const codigo = String(region?.codigo || '').toLowerCase();
+        const codigo = String(region?.codigo || "").toLowerCase();
         if (!codigo) return acc;
         acc[codigo] = {
             total: Number(region?.total_gyms || 0),
@@ -804,74 +1100,74 @@ function getIdleRegionProgressMap() {
     }, {});
 }
 
-function isIdleRegionComplete(regionCode = '') {
-    const region = getIdleRegionProgressMap()[String(regionCode || '').toLowerCase()];
+function isIdleRegionComplete(regionCode = "") {
+    const region = getIdleRegionProgressMap()[String(regionCode || "").toLowerCase()];
     return Boolean(region && region.total > 0 && region.completados >= region.total);
 }
 
-function getIdleTierUnlockState(tierCode = 'ruta') {
+function getIdleTierUnlockState(tierCode = "ruta") {
     const tier = normalizarTierIdle(tierCode);
-    const requiresGymProgress = tier === 'elite' || tier === 'legend';
+    const requiresGymProgress = tier === "elite" || tier === "legend";
     const loggedIn = Boolean(getAccessToken());
     const progressPending = loggedIn && requiresGymProgress && !idleState.gymProgressLoaded;
 
-    if (tier === 'ruta') {
+    if (tier === "ruta") {
         return {
             tier,
             locked: false,
             pending: false,
-            requirementBadge: tIdle('idle_requirement_free_badge', 'Free'),
-            requirementText: tIdle('idle_requirement_route_text', 'Route is open for every player. No Gym or subscription requirement.'),
-            feedbackText: ''
+            requirementBadge: tIdle("idle_requirement_free_badge", "Free"),
+            requirementText: tIdle("idle_requirement_route_text", "Route is open for every player. No Gym or subscription requirement."),
+            feedbackText: ""
         };
     }
 
-    if (tier === 'masters') {
+    if (tier === "masters") {
         const locked = !hasMastersBenefitIdle();
         return {
             tier,
             locked,
             pending: false,
-            requirementBadge: tIdle('idle_requirement_subscription_badge', 'Subscription'),
+            requirementBadge: tIdle("idle_requirement_subscription_badge", "Subscription"),
             requirementText: locked
-                ? tIdle('idle_masters_requires_benefit', 'The Masters tier requires the Idle Masters premium benefit before launch.')
-                : tIdle('idle_requirement_masters_ready', 'Idle Masters subscription detected. This premium tier is ready to launch.'),
+                ? tIdle("idle_masters_requires_benefit", "The Masters tier requires the Idle Masters premium benefit before launch.")
+                : tIdle("idle_requirement_masters_ready", "Idle Masters subscription detected. This premium tier is ready to launch."),
             feedbackText: locked
-                ? tIdle('idle_masters_locked_feedback', 'Masters is a premium tier. Activate the Idle Masters benefit in Shop to launch it.')
-                : ''
+                ? tIdle("idle_masters_locked_feedback", "Masters is a premium tier. Activate the Idle Masters benefit in Shop to launch it.")
+                : ""
         };
     }
 
     if (progressPending) {
-        const badgeKey = tier === 'elite' ? 'idle_requirement_kanto_badge' : 'idle_requirement_regions_badge';
+        const badgeKey = tier === "elite" ? "idle_requirement_kanto_badge" : "idle_requirement_regions_badge";
         return {
             tier,
             locked: true,
             pending: true,
-            requirementBadge: tIdle(badgeKey, tier === 'elite' ? 'Kanto clear' : '3 regions'),
-            requirementText: tIdle('idle_requirement_progress_pending', 'Checking your Gym progression to unlock this tier...'),
-            feedbackText: tIdle('idle_requirement_progress_pending', 'Checking your Gym progression to unlock this tier...')
+            requirementBadge: tIdle(badgeKey, tier === "elite" ? "Kanto clear" : "3 regions"),
+            requirementText: tIdle("idle_requirement_progress_pending", "Checking your Gym progression to unlock this tier..."),
+            feedbackText: tIdle("idle_requirement_progress_pending", "Checking your Gym progression to unlock this tier...")
         };
     }
 
-    const kantoComplete = isIdleRegionComplete('kanto');
-    const johtoComplete = isIdleRegionComplete('johto');
-    const hoennComplete = isIdleRegionComplete('hoenn');
+    const kantoComplete = isIdleRegionComplete("kanto");
+    const johtoComplete = isIdleRegionComplete("johto");
+    const hoennComplete = isIdleRegionComplete("hoenn");
     const allRegionsComplete = kantoComplete && johtoComplete && hoennComplete;
 
-    if (tier === 'elite') {
+    if (tier === "elite") {
         const locked = !kantoComplete;
         return {
             tier,
             locked,
             pending: false,
-            requirementBadge: tIdle('idle_requirement_kanto_badge', 'Kanto clear'),
+            requirementBadge: tIdle("idle_requirement_kanto_badge", "Kanto clear"),
             requirementText: locked
-                ? tIdle('idle_requirement_elite_locked', 'Elite unlocks after clearing the full Kanto Gym route.')
-                : tIdle('idle_requirement_elite_ready', 'Kanto route cleared. Elite is unlocked for your account.'),
+                ? tIdle("idle_requirement_elite_locked", "Elite unlocks after clearing the full Kanto Gym route.")
+                : tIdle("idle_requirement_elite_ready", "Kanto route cleared. Elite is unlocked for your account."),
             feedbackText: locked
-                ? tIdle('idle_requirement_elite_locked', 'Elite unlocks after clearing the full Kanto Gym route.')
-                : ''
+                ? tIdle("idle_requirement_elite_locked", "Elite unlocks after clearing the full Kanto Gym route.")
+                : ""
         };
     }
 
@@ -880,13 +1176,13 @@ function getIdleTierUnlockState(tierCode = 'ruta') {
         tier,
         locked,
         pending: false,
-        requirementBadge: tIdle('idle_requirement_regions_badge', '3 regions'),
+        requirementBadge: tIdle("idle_requirement_regions_badge", "3 regions"),
         requirementText: locked
-            ? tIdle('idle_requirement_legend_locked', 'Legend unlocks after clearing Kanto, Johto and Hoenn Gym routes.')
-            : tIdle('idle_requirement_legend_ready', 'All 3 Gym routes cleared. Legend is unlocked for your account.'),
+            ? tIdle("idle_requirement_legend_locked", "Legend unlocks after clearing Kanto, Johto and Hoenn Gym routes.")
+            : tIdle("idle_requirement_legend_ready", "All 3 Gym routes cleared. Legend is unlocked for your account."),
         feedbackText: locked
-            ? tIdle('idle_requirement_legend_locked', 'Legend unlocks after clearing Kanto, Johto and Hoenn Gym routes.')
-            : ''
+            ? tIdle("idle_requirement_legend_locked", "Legend unlocks after clearing Kanto, Johto and Hoenn Gym routes.")
+            : ""
     };
 }
 
@@ -899,9 +1195,9 @@ async function cargarProgresoGymsIdle() {
 
     try {
         let data = null;
-        if (typeof obtenerProgresoGyms === 'function') {
+        if (typeof obtenerProgresoGyms === "function") {
             data = await obtenerProgresoGyms();
-        } else if (typeof fetchAuth === 'function' && typeof API_BASE !== 'undefined') {
+        } else if (typeof fetchAuth === "function" && typeof API_BASE !== "undefined") {
             data = await fetchAuth(`${API_BASE}/battle/gyms/progreso`);
         }
 
@@ -909,7 +1205,7 @@ async function cargarProgresoGymsIdle() {
         idleState.gymProgressLoaded = Boolean(data?.ok);
         return data;
     } catch (error) {
-        console.warn('No se pudo cargar el progreso de Gyms para Idle:', error);
+        console.warn("No se pudo cargar el progreso de Gyms para Idle:", error);
         idleState.gymProgress = null;
         idleState.gymProgressLoaded = false;
         return null;
@@ -984,6 +1280,7 @@ function renderTierCardsIdle() {
 
         const badges = [];
         badges.push(`<span class="idle-mini-chip ${locked ? "idle-mini-chip-locked" : "idle-mini-chip-gate"}">${escapeHtmlIdle(gate.requirementBadge)}</span>`);
+
         if (tierCode === "masters") {
             badges.push(
                 hasMastersBenefitIdle()
@@ -991,6 +1288,7 @@ function renderTierCardsIdle() {
                     : `<span class="idle-mini-chip idle-mini-chip-locked">${escapeHtmlIdle(tIdle("idle_masters_locked_chip", "Premium"))}</span>`
             );
         }
+
         if (isRunning) {
             badges.push(`<span class="idle-mini-chip idle-mini-chip-running">${escapeHtmlIdle(runningState === "reclamable" ? tIdle("battle_idle_status_ready", "Ready") : tIdle("battle_idle_status_active", "Active"))}</span>`);
         } else if (isSelected) {
@@ -1020,7 +1318,7 @@ function renderTierCardsIdle() {
     }).join("");
 
     container.querySelectorAll(".idle-tier-card").forEach(card => {
-        card.addEventListener("click", () => {
+        card.addEventListener("click", async () => {
             const session = idleState.idleData?.sesion && idleState.idleData?.activa
                 ? idleState.idleData.sesion
                 : null;
@@ -1030,6 +1328,7 @@ function renderTierCardsIdle() {
                 idleState.selectedTier = sessionTier;
                 const tierSelectLocked = document.getElementById("idleTierSelect");
                 if (tierSelectLocked) tierSelectLocked.value = sessionTier;
+
                 setFeedbackIdle(
                     tIdle(
                         "idle_active_tier_locked_feedback",
@@ -1037,6 +1336,7 @@ function renderTierCardsIdle() {
                     ),
                     "info"
                 );
+
                 renderTierCardsIdle();
                 renderSelectedPlanIdle();
                 renderEstimateIdle();
@@ -1051,7 +1351,13 @@ function renderTierCardsIdle() {
 
             if (card.dataset.locked === "1") {
                 const lockedGate = getIdleTierUnlockState(idleState.selectedTier);
-                setFeedbackIdle(lockedGate.feedbackText || lockedGate.requirementText, lockedGate.pending ? "info" : "warning");
+
+                if (idleState.selectedTier === "masters" && !lockedGate.pending) {
+                    setFeedbackIdle("");
+                    await abrirModalPremiumIdle({ source: "tier_card" });
+                } else {
+                    setFeedbackIdle(lockedGate.feedbackText || lockedGate.requirementText, lockedGate.pending ? "info" : "warning");
+                }
             } else if (document.getElementById("idleFeedback")?.classList.contains("idle-feedback-info")) {
                 setFeedbackIdle("");
             }
@@ -1079,7 +1385,6 @@ function renderSelectedPlanIdle() {
     const cfg = getIdleTierMeta(tierCode);
     const estimate = computeIdleEstimate(idleState.team, tierCode, duration);
     const gate = getIdleTierUnlockState(tierCode);
-    const lockedMasters = gate.locked && tierCode === "masters";
 
     panel.setAttribute("data-idle-tier", tierCode);
 
@@ -1113,11 +1418,24 @@ function renderSelectedPlanIdle() {
 
         <div class="idle-plan-note ${gate.locked ? "is-warning" : ""}">
             ${gate.locked
-                ? `${escapeHtmlIdle(gate.requirementText)}${tierCode === "masters" ? ` <a href="${escapeHtmlIdle(IDLE_PREMIUM_SHOP_URL)}">${escapeHtmlIdle(tIdle("idle_masters_go_shop", "Open Shop"))}</a>` : ""}`
+                ? `
+                    ${escapeHtmlIdle(gate.requirementText)}
+                    ${tierCode === "masters" ? `
+                        <button type="button" class="idle-plan-premium-trigger" data-open-idle-premium-modal="1">
+                            ${escapeHtmlIdle(tIdle("idle_masters_subscribe_now", "Unlock Masters now"))}
+                        </button>
+                    ` : ""}
+                `
                 : escapeHtmlIdle(tIdle("idle_plan_note_standard", "This page uses the same team already saved in Battle IA."))
             }
         </div>
     `;
+
+    panel.querySelectorAll('[data-open-idle-premium-modal="1"]').forEach(btn => {
+        btn.addEventListener("click", async () => {
+            await abrirModalPremiumIdle({ source: "selected_plan" });
+        });
+    });
 }
 
 function renderEstimateIdle() {
@@ -1331,14 +1649,20 @@ function renderMastersPanelIdle() {
             </ul>
 
             <div class="idle-masters-actions">
-                <a href="${escapeHtmlIdle(getIdlePremiumShopUrl())}" class="idle-action ${locked ? "idle-action-primary" : "idle-action-ghost"}" data-idle-premium-shop="1">${escapeHtmlIdle(locked ? tIdle("idle_masters_go_shop", "Open Shop") : tIdle("idle_masters_manage_shop", "Open Premium Shop"))}</a>
+                <button
+                    type="button"
+                    class="idle-action ${locked ? "idle-action-primary" : "idle-action-ghost"}"
+                    data-open-idle-premium-modal="1"
+                >
+                    ${escapeHtmlIdle(locked ? tIdle("idle_masters_go_shop", "Unlock with PayPal") : tIdle("idle_masters_manage_shop", "View premium details"))}
+                </button>
             </div>
         </div>
     `;
 
-    panel.querySelectorAll('[data-idle-premium-shop="1"]').forEach(link => {
-        link.addEventListener('click', () => {
-            markIdlePremiumShopIntent();
+    panel.querySelectorAll('[data-open-idle-premium-modal="1"]').forEach(button => {
+        button.addEventListener("click", async () => {
+            await abrirModalPremiumIdle({ source: "panel" });
         });
     });
 }
@@ -1664,14 +1988,16 @@ async function iniciarIdlePage() {
 
     const gate = getIdleTierUnlockState(tierCodigo);
     if (gate.locked) {
-        showIdleNoticeModal({
-            type: "warning",
-            title: tIdle("idle_modal_requirement_title", "Tier requirement not met"),
-            message: gate.requirementText
-        });
         if (tierCodigo === "masters") {
-            renderMastersPanelIdle();
+            await abrirModalPremiumIdle({ source: "start_button" });
+        } else {
+            showIdleNoticeModal({
+                type: "warning",
+                title: tIdle("idle_modal_requirement_title", "Tier requirement not met"),
+                message: gate.requirementText
+            });
         }
+
         renderStatusIdle();
         return;
     }
