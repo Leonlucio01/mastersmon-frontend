@@ -583,3 +583,25 @@
         padding: 0 0 12px;
     }
 }
+
+
+.shop-feedback-backdrop{position:fixed;inset:0;background:rgba(3,7,18,.64);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:18px;z-index:2100;}
+.shop-feedback-backdrop.show{display:flex;}
+.shop-feedback-modal{width:min(560px,calc(100vw - 32px));max-height:92vh;overflow:auto;background:#fff;border-radius:28px;border:1px solid rgba(226,232,240,.95);box-shadow:0 30px 60px rgba(15,23,42,.24);}
+.shop-feedback-head,.shop-feedback-body,.shop-feedback-actions{padding:22px 24px;}
+.shop-feedback-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;border-bottom:1px solid rgba(226,232,240,.95);}
+.shop-feedback-head-copy{display:grid;gap:10px;}
+.shop-feedback-badge{display:inline-flex;align-items:center;justify-content:center;width:max-content;padding:8px 12px;border-radius:999px;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;}
+.shop-feedback-badge.is-success{background:rgba(22,163,74,.10);color:#15803d;}
+.shop-feedback-badge.is-error{background:rgba(239,68,68,.10);color:#b91c1c;}
+.shop-feedback-head h3{margin:0;font-size:30px;color:var(--mart-text);line-height:1.04;}
+.shop-feedback-head p{margin:0;color:var(--mart-muted);line-height:1.6;}
+.shop-feedback-close{width:42px;height:42px;border:none;border-radius:14px;background:#f1f5f9;color:#0f172a;font-size:28px;cursor:pointer;}
+.shop-feedback-body{display:grid;grid-template-columns:84px 1fr;gap:18px;align-items:center;}
+.shop-feedback-icon-wrap{display:flex;justify-content:center;align-items:flex-start;}
+.shop-feedback-icon{width:72px;height:72px;border-radius:22px;display:grid;place-items:center;font-size:34px;font-weight:900;box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 16px 30px rgba(15,23,42,.10);}
+.shop-feedback-icon.is-success{background:linear-gradient(180deg,#dcfce7 0%,#bbf7d0 100%);color:#15803d;}
+.shop-feedback-icon.is-error{background:linear-gradient(180deg,#fee2e2 0%,#fecaca 100%);color:#b91c1c;}
+.shop-feedback-message{font-size:16px;line-height:1.7;color:#334155;font-weight:700;white-space:pre-line;}
+.shop-feedback-actions{display:flex;justify-content:flex-end;gap:10px;border-top:1px solid rgba(226,232,240,.95);}
+@media (max-width:700px){.shop-feedback-body{grid-template-columns:1fr;text-align:center;}.shop-feedback-icon-wrap{justify-content:center;}.shop-feedback-actions{justify-content:stretch;}.shop-feedback-actions .premium-card-btn{width:100%;}}

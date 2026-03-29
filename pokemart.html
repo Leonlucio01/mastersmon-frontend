@@ -288,6 +288,31 @@
         </div>
     </div>
 
+
+    <div id="shopFeedbackModal" class="shop-feedback-backdrop" aria-hidden="true">
+        <div class="shop-feedback-modal" role="dialog" aria-modal="true" aria-labelledby="shopFeedbackTitle">
+            <div class="shop-feedback-head">
+                <div class="shop-feedback-head-copy">
+                    <span id="shopFeedbackBadge" class="shop-feedback-badge is-success">Purchase complete</span>
+                    <h3 id="shopFeedbackTitle">Purchase completed</h3>
+                    <p id="shopFeedbackSubtitle">The result of your shop action appears here.</p>
+                </div>
+                <button type="button" class="shop-feedback-close" id="shopFeedbackCloseBtn" aria-label="Close">×</button>
+            </div>
+
+            <div class="shop-feedback-body">
+                <div class="shop-feedback-icon-wrap">
+                    <div id="shopFeedbackIcon" class="shop-feedback-icon is-success">✓</div>
+                </div>
+                <div id="shopFeedbackMessage" class="shop-feedback-message"></div>
+            </div>
+
+            <div class="shop-feedback-actions">
+                <button type="button" class="premium-card-btn" id="shopFeedbackOkBtn">Awesome</button>
+            </div>
+        </div>
+    </div>
+
     <script src="js/api.js"></script>
     <script src="js/i18n.js"></script>
     <script src="js/menu.js"></script>
