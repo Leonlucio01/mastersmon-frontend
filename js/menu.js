@@ -351,27 +351,6 @@ function ensureIdleAlertStyles() {
             position:relative;
         }
 
-        .menu-dropdown.menu-dropdown-play.menu-idle-ready-wrapper{
-            gap:8px;
-        }
-
-        .menu-dropdown.menu-dropdown-play.menu-idle-ready-wrapper > .menu-idle-ready-pill{
-            flex:0 0 auto;
-            white-space:nowrap;
-        }
-
-        .menu-dropdown.is-open > .menu-dropdown-toggle + .menu-idle-ready-pill,
-        .menu-dropdown.is-open > .menu-idle-ready-pill{
-            color:#d1fae5 !important;
-            border-color:rgba(94,234,212,.35) !important;
-            background:rgba(16,185,129,.16) !important;
-        }
-
-        .menu-dropdown.is-open > .menu-dropdown-toggle + .menu-idle-ready-pill::before,
-        .menu-dropdown.is-open > .menu-idle-ready-pill::before{
-            background:#6ee7b7 !important;
-        }
-
         .menu-idle-ready-link{
             box-shadow:inset 0 0 0 1px rgba(16,185,129,.18);
         }
@@ -460,15 +439,8 @@ function aplicarEstadoVisualIdleMenu(activo = false, tierCode = "") {
     idleAlertReadyState = Boolean(activo);
     ensureIdleAlertStyles();
 
-    const desktopPlayWrappers = [
-        ...document.querySelectorAll('.menu-dropdown.menu-dropdown-play')
-    ];
-
-    const desktopPlayToggles = [
-        ...document.querySelectorAll('[data-menu-dropdown-toggle="play"]')
-    ];
-
-    const mobilePlayToggles = [
+    const playTargets = [
+        ...document.querySelectorAll('[data-menu-dropdown-toggle="play"]'),
         ...document.querySelectorAll('[data-menu-mobile-group-toggle="play"]')
     ];
 
@@ -476,15 +448,7 @@ function aplicarEstadoVisualIdleMenu(activo = false, tierCode = "") {
         ...document.querySelectorAll('a[href="idle.html"]')
     ];
 
-    desktopPlayWrappers.forEach((element) => {
-        element.classList.toggle("menu-idle-ready-wrapper", idleAlertReadyState);
-    });
-
-    desktopPlayToggles.forEach((element) => {
-        element.classList.toggle("menu-idle-ready", idleAlertReadyState);
-    });
-
-    mobilePlayToggles.forEach((element) => {
+    playTargets.forEach((element) => {
         element.classList.toggle("menu-idle-ready", idleAlertReadyState);
     });
 
@@ -498,28 +462,13 @@ function aplicarEstadoVisualIdleMenu(activo = false, tierCode = "") {
 
     const texts = getIdleAlertTexts();
     const tierLabel = traducirTierIdleGlobal(tierCode);
-    const tooltip = `${tierLabel} ${texts.expeditionSuffix}`;
 
-    desktopPlayWrappers.forEach((wrapper) => {
-        if (!wrapper) return;
-        const pill = document.createElement("span");
-        pill.className = "menu-idle-ready-pill";
-        pill.textContent = texts.liveChip;
-        pill.setAttribute("title", tooltip);
-        const panel = wrapper.querySelector('.menu-dropdown-panel');
-        if (panel) {
-            wrapper.insertBefore(pill, panel);
-        } else {
-            wrapper.appendChild(pill);
-        }
-    });
-
-    mobilePlayToggles.forEach((element) => {
+    playTargets.forEach((element) => {
         if (!element) return;
         const pill = document.createElement("span");
         pill.className = "menu-idle-ready-pill";
         pill.textContent = texts.liveChip;
-        pill.setAttribute("title", tooltip);
+        pill.setAttribute("title", `${tierLabel} ${texts.expeditionSuffix}`);
         element.appendChild(pill);
     });
 }
