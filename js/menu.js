@@ -87,6 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
             closeDesktopDropdowns();
             closeMobileMenu();
             cerrarBossToastGlobal();
+            cerrarIdleToastGlobal();
         }
     });
 
@@ -119,11 +120,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     iniciarAlertaBossGlobal();
+    iniciarAlertaIdleGlobal();
 });
 
 let bossAlertPollTimer = null;
 let bossAlertToastElement = null;
 let bossAlertLiveState = false;
+
+let idleAlertPollTimer = null;
+let idleAlertToastElement = null;
+let idleAlertReadyState = false;
+
 
 function getBossAlertTexts() {
     const lang = typeof getCurrentLang === "function" ? getCurrentLang() : "en";
@@ -301,6 +308,308 @@ function iniciarAlertaBossGlobal() {
         if (event.key === "access_token" && !event.newValue) {
             aplicarEstadoVisualBossMenu(false);
             cerrarBossToastGlobal();
+        }
+    });
+}
+
+
+
+function ensureIdleAlertStyles() {
+    if (document.getElementById("mastersmon-idle-alert-styles")) return;
+
+    const style = document.createElement("style");
+    style.id = "mastersmon-idle-alert-styles";
+    style.textContent = `
+        .menu-idle-ready-pill{
+            display:inline-flex;
+            align-items:center;
+            gap:6px;
+            margin-left:8px;
+            padding:5px 10px;
+            border-radius:999px;
+            border:1px solid rgba(94,234,212,.35);
+            background:rgba(16,185,129,.16);
+            color:#d1fae5;
+            font-size:11px;
+            font-weight:800;
+            letter-spacing:.04em;
+            text-transform:uppercase;
+            box-shadow:0 0 18px rgba(16,185,129,.18);
+        }
+
+        .menu-idle-ready-pill::before{
+            content:"";
+            width:7px;
+            height:7px;
+            border-radius:999px;
+            background:#6ee7b7;
+            box-shadow:0 0 12px rgba(110,231,183,.9);
+            flex:0 0 7px;
+        }
+
+        .menu-idle-ready{
+            position:relative;
+        }
+
+        .menu-idle-ready-link{
+            box-shadow:inset 0 0 0 1px rgba(16,185,129,.18);
+        }
+
+        .menu-boss-toast.menu-idle-toast .menu-boss-toast-glow{
+            background:
+                radial-gradient(circle at top left, rgba(16,185,129,.28), transparent 55%),
+                radial-gradient(circle at bottom right, rgba(59,130,246,.18), transparent 60%);
+        }
+
+        .menu-boss-toast.menu-idle-toast .menu-boss-toast-badge{
+            background:rgba(16,185,129,.14);
+            color:#047857;
+            border-color:rgba(16,185,129,.22);
+        }
+
+        @media (max-width: 720px){
+            .menu-idle-ready-pill{
+                margin-left:6px;
+                padding:4px 8px;
+                font-size:10px;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+function getIdleAlertTexts() {
+    const fallbackEs = {
+        badge: "IDLE LISTO",
+        title: "Recompensas listas para reclamar",
+        description: "Tu temporizador de Idle terminó. Entra a Idle y reclama las recompensas ahora.",
+        action: "Ir a Idle",
+        dismiss: "Cerrar",
+        liveChip: "Idle listo",
+        expeditionSuffix: "Expedición"
+    };
+
+    const fallbackEn = {
+        badge: "IDLE READY",
+        title: "Rewards ready to claim",
+        description: "Your Idle timer finished. Open Idle and claim the rewards now.",
+        action: "Go to Idle",
+        dismiss: "Dismiss",
+        liveChip: "Idle ready",
+        expeditionSuffix: "Expedition"
+    };
+
+    const es = typeof getCurrentLang === "function" && getCurrentLang() === "es";
+    const base = es ? fallbackEs : fallbackEn;
+
+    if (typeof t === "function") {
+        return {
+            badge: t("idle_global_badge") || base.badge,
+            title: t("idle_global_title") || base.title,
+            description: t("idle_global_text") || base.description,
+            action: t("idle_global_action") || base.action,
+            dismiss: t("idle_global_dismiss") || base.dismiss,
+            liveChip: t("idle_global_live_chip") || base.liveChip,
+            expeditionSuffix: t("idle_global_name_suffix") || base.expeditionSuffix
+        };
+    }
+
+    return base;
+}
+
+function traducirTierIdleGlobal(tierCode = "ruta") {
+    const tier = String(tierCode || "ruta").trim().toLowerCase();
+    const fallback = tier === "masters"
+        ? "Masters"
+        : tier === "legend"
+            ? "Legend"
+            : tier === "elite"
+                ? "Elite"
+                : "Route";
+
+    if (typeof t !== "function") return fallback;
+
+    if (tier === "masters") return t("battle_idle_tier_masters") || "Masters";
+    if (tier === "legend") return t("battle_idle_tier_legend") || "Legend";
+    if (tier === "elite") return t("battle_idle_tier_elite") || "Elite";
+    return t("battle_idle_tier_ruta") || "Route";
+}
+
+function aplicarEstadoVisualIdleMenu(activo = false, tierCode = "") {
+    idleAlertReadyState = Boolean(activo);
+    ensureIdleAlertStyles();
+
+    const playTargets = [
+        ...document.querySelectorAll('[data-menu-dropdown-toggle="play"]'),
+        ...document.querySelectorAll('[data-menu-mobile-group-toggle="play"]')
+    ];
+
+    const idleLinks = [
+        ...document.querySelectorAll('a[href="idle.html"]')
+    ];
+
+    playTargets.forEach((element) => {
+        element.classList.toggle("menu-idle-ready", idleAlertReadyState);
+    });
+
+    idleLinks.forEach((element) => {
+        element.classList.toggle("menu-idle-ready-link", idleAlertReadyState);
+    });
+
+    document.querySelectorAll(".menu-idle-ready-pill").forEach((pill) => pill.remove());
+
+    if (!idleAlertReadyState) return;
+
+    const texts = getIdleAlertTexts();
+    const tierLabel = traducirTierIdleGlobal(tierCode);
+
+    playTargets.forEach((element) => {
+        if (!element) return;
+        const pill = document.createElement("span");
+        pill.className = "menu-idle-ready-pill";
+        pill.textContent = texts.liveChip;
+        pill.setAttribute("title", `${tierLabel} ${texts.expeditionSuffix}`);
+        element.appendChild(pill);
+    });
+}
+
+function cerrarIdleToastGlobal() {
+    if (!idleAlertToastElement) return;
+
+    idleAlertToastElement.classList.remove("is-visible");
+    idleAlertToastElement.classList.add("is-leaving");
+
+    const node = idleAlertToastElement;
+    idleAlertToastElement = null;
+
+    window.setTimeout(() => {
+        node.remove();
+    }, 220);
+}
+
+function abrirIdlePageGlobal() {
+    window.location.href = "idle.html";
+}
+
+function mostrarIdleToastGlobal(payload = {}) {
+    const texts = getIdleAlertTexts();
+    const tierLabel = traducirTierIdleGlobal(payload?.sesion?.tier_codigo || "ruta");
+    const expeditionName = `${tierLabel} ${texts.expeditionSuffix}`.trim();
+
+    cerrarIdleToastGlobal();
+
+    const toast = document.createElement("div");
+    toast.className = "menu-boss-toast menu-idle-toast";
+    toast.setAttribute("role", "status");
+    toast.setAttribute("aria-live", "polite");
+
+    toast.innerHTML = `
+        <div class="menu-boss-toast-glow" aria-hidden="true"></div>
+        <button type="button" class="menu-boss-toast-close" aria-label="${texts.dismiss}">×</button>
+        <div class="menu-boss-toast-badge">${texts.badge}</div>
+        <div class="menu-boss-toast-title">${texts.title}</div>
+        <div class="menu-boss-toast-name">${expeditionName}</div>
+        <div class="menu-boss-toast-text">${texts.description}</div>
+        <div class="menu-boss-toast-actions">
+            <button type="button" class="menu-boss-toast-action">${texts.action}</button>
+        </div>
+    `;
+
+    const closeBtn = toast.querySelector(".menu-boss-toast-close");
+    const actionBtn = toast.querySelector(".menu-boss-toast-action");
+
+    if (closeBtn) {
+        closeBtn.addEventListener("click", cerrarIdleToastGlobal);
+    }
+
+    if (actionBtn) {
+        actionBtn.addEventListener("click", abrirIdlePageGlobal);
+    }
+
+    document.body.appendChild(toast);
+    idleAlertToastElement = toast;
+
+    requestAnimationFrame(() => {
+        toast.classList.add("is-visible");
+    });
+}
+
+function getIdleAlertShownKey(token = "") {
+    const safeToken = String(token || "").trim();
+    return safeToken ? `mastersmon_idle_ready_alert_shown_${safeToken}` : "";
+}
+
+function procesarEstadoIdleGlobal(data = null, forceToast = false) {
+    const session = data?.sesion || null;
+    const sessionState = String(session?.estado || "").toLowerCase();
+    const ready = Boolean(session) && sessionState === "reclamable";
+
+    aplicarEstadoVisualIdleMenu(ready, session?.tier_codigo || "");
+
+    if (!ready) {
+        cerrarIdleToastGlobal();
+        return;
+    }
+
+    const shownKey = getIdleAlertShownKey(session?.token || session?.id || "");
+    const alreadyShown = shownKey ? localStorage.getItem(shownKey) === "1" : false;
+
+    if (forceToast || !alreadyShown) {
+        if (shownKey) {
+            localStorage.setItem(shownKey, "1");
+        }
+        mostrarIdleToastGlobal({ sesion: session });
+    }
+}
+
+async function verificarIdleGlobal(forceToast = false) {
+    if (typeof obtenerEstadoIdle !== "function") return;
+    if (typeof getAccessToken === "function" && !getAccessToken()) {
+        aplicarEstadoVisualIdleMenu(false);
+        cerrarIdleToastGlobal();
+        return;
+    }
+
+    try {
+        const estado = await obtenerEstadoIdle();
+        procesarEstadoIdleGlobal(estado, forceToast);
+    } catch (error) {
+        if (error && (error.code === "NO_TOKEN" || error.code === "UNAUTHORIZED")) {
+            aplicarEstadoVisualIdleMenu(false);
+            cerrarIdleToastGlobal();
+            return;
+        }
+        console.warn("No se pudo consultar el estado de Idle:", error);
+    }
+}
+
+function iniciarAlertaIdleGlobal() {
+    if (window.__mastersmonIdleAlertInitialized) return;
+    window.__mastersmonIdleAlertInitialized = true;
+
+    ensureIdleAlertStyles();
+    verificarIdleGlobal(false);
+
+    idleAlertPollTimer = window.setInterval(() => {
+        verificarIdleGlobal(false);
+    }, 30000);
+
+    document.addEventListener("visibilitychange", () => {
+        if (!document.hidden) {
+            verificarIdleGlobal(false);
+        }
+    });
+
+    document.addEventListener("mastersmonIdleStateChanged", (event) => {
+        const session = event?.detail?.session || null;
+        procesarEstadoIdleGlobal({ sesion: session }, false);
+    });
+
+    window.addEventListener("storage", (event) => {
+        if (!event || !event.key) return;
+        if (event.key === "access_token" && !event.newValue) {
+            aplicarEstadoVisualIdleMenu(false);
+            cerrarIdleToastGlobal();
         }
     });
 }
