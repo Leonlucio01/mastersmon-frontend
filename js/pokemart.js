@@ -297,8 +297,7 @@ function captureFocusState() {
     if (!active || !active.id || !active.id.startsWith("cantidad-item-")) return null;
     return {
         id: active.id,
-        start: typeof active.selectionStart === "number" ? active.selectionStart : null,
-        end: typeof active.selectionEnd === "number" ? active.selectionEnd : null
+        value: String(active.value || "")
     };
 }
 
@@ -307,9 +306,8 @@ function restoreFocusState(state) {
     const input = document.getElementById(state.id);
     if (!input) return;
     input.focus({ preventScroll: true });
-    if (typeof state.start === "number" && typeof state.end === "number") {
-        try { input.setSelectionRange(state.start, state.end); } catch (_) {}
-    }
+    const end = String(input.value || "").length;
+    try { input.setSelectionRange(end, end); } catch (_) {}
 }
 
 function getStoredView() {
@@ -572,9 +570,14 @@ function renderizarTienda() {
 }
 
 function sanitizeQuantityValue(value) {
-    const digits = String(value || "").replace(/\D+/g, "");
-    const parsed = Number(digits || 1);
+    const digits = String(value ?? "").replace(/\D+/g, "");
+    if (!digits) return 1;
+    const parsed = Number(digits);
     return Math.max(1, parsed);
+}
+
+function sanitizeQuantityDraft(value) {
+    return String(value ?? "").replace(/\D+/g, "");
 }
 
 function actualizarTotalCard(itemId) {
@@ -1197,7 +1200,13 @@ function registrarEventosPokeMart() {
         const input = event.target.closest('input[id^="cantidad-item-"]');
         if (!input) return;
         const itemId = Number(input.id.replace("cantidad-item-", ""));
-        cantidadesSeleccionadas[itemId] = sanitizeQuantityValue(input.value);
+        const draft = sanitizeQuantityDraft(input.value);
+        if (draft !== input.value) {
+            const end = draft.length;
+            input.value = draft;
+            try { input.setSelectionRange(end, end); } catch (_) {}
+        }
+        cantidadesSeleccionadas[itemId] = sanitizeQuantityValue(draft || 1);
         actualizarTotalCard(itemId);
     });
 
