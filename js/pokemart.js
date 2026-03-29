@@ -1376,9 +1376,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     registrarEventosPokeMart();
     const gateBtn = document.getElementById("pokemartGoToLoginBtn");
     if (gateBtn) gateBtn.addEventListener("click", scrollToPokeMartLogin);
-    pokemartVistaActiva = getStoredView();
+    pokemartVistaActiva = "items";
+    try { sessionStorage.setItem(POKEMART_VIEW_KEY, "items"); } catch (_) {}
     pokemartHistoryTabActiva = getStoredHistoryTab();
-    guardarVistaPokeMart(pokemartVistaActiva);
+    guardarVistaPokeMart("items");
     guardarHistoryTab(pokemartHistoryTabActiva);
     await inicializarAccesoPokeMart();
 });
