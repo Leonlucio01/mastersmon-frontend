@@ -16,6 +16,7 @@ let premiumProductoSeleccionado = null;
 let pokemartVistaActiva = "items";
 let pokemartHistoryTabActiva = "purchases";
 let pokemartDeferredCatalogRender = false;
+let pokemartFeedbackModalState = null;
 
 const cantidadesSeleccionadas = {};
 const ITEMS_OCULTOS_TEMPORALES = ["Master Ball"];
@@ -113,7 +114,14 @@ const PM_UI = {
         section_other: "Otros objetos",
         section_other_desc: "Objetos fuera de las categorías principales.",
         premium_error_soft: "El catálogo premium no se pudo cargar completamente. Puedes intentar de nuevo más tarde.",
-        premium_history_login: "Inicia sesión para ver tu historial premium."
+        premium_history_login: "Inicia sesión para ver tu historial premium.",
+        feedback_success_badge: "Compra completada",
+        feedback_success_title: "Compra realizada con éxito",
+        feedback_success_subtitle: "Tu inventario y tu saldo ya fueron actualizados.",
+        feedback_error_badge: "Acción no completada",
+        feedback_error_title: "No se pudo completar la compra",
+        feedback_error_subtitle: "Revisa el detalle y vuelve a intentarlo.",
+        feedback_ok_button: "Entendido"
     },
     en: {
         view_items: "🛍️ Items",
@@ -158,7 +166,14 @@ const PM_UI = {
         section_other: "Other items",
         section_other_desc: "Items outside the main categories.",
         premium_error_soft: "The premium catalog could not be fully loaded. Please try again later.",
-        premium_history_login: "Sign in to view your premium history."
+        premium_history_login: "Sign in to view your premium history.",
+        feedback_success_badge: "Purchase completed",
+        feedback_success_title: "Purchase completed successfully",
+        feedback_success_subtitle: "Your inventory and balance were updated.",
+        feedback_error_badge: "Action not completed",
+        feedback_error_title: "The purchase could not be completed",
+        feedback_error_subtitle: "Review the detail and try again.",
+        feedback_ok_button: "Got it"
     }
 };
 
@@ -646,20 +661,81 @@ function setBotonComprando(itemId, comprando) {
     btn.textContent = comprando ? (typeof t === "function" ? t("pokemart_buying") : "Buying...") : (typeof t === "function" ? t("pokemart_buy") : "Buy");
 }
 
+function obtenerConfigModalFeedback(type = "ok") {
+    const isError = type === "error";
+    return {
+        badge: pmUi(isError ? "feedback_error_badge" : "feedback_success_badge"),
+        title: pmUi(isError ? "feedback_error_title" : "feedback_success_title"),
+        subtitle: pmUi(isError ? "feedback_error_subtitle" : "feedback_success_subtitle"),
+        icon: isError ? "!" : "✓",
+        classes: isError ? "is-error" : "is-success"
+    };
+}
+
+function actualizarModalFeedbackPokeMart() {
+    if (!pokemartFeedbackModalState?.message) return;
+
+    const modal = document.getElementById("shopFeedbackModal");
+    const badge = document.getElementById("shopFeedbackBadge");
+    const title = document.getElementById("shopFeedbackTitle");
+    const subtitle = document.getElementById("shopFeedbackSubtitle");
+    const icon = document.getElementById("shopFeedbackIcon");
+    const message = document.getElementById("shopFeedbackMessage");
+    const okBtn = document.getElementById("shopFeedbackOkBtn");
+
+    if (!modal || !badge || !title || !subtitle || !icon || !message || !okBtn) return;
+
+    const config = obtenerConfigModalFeedback(pokemartFeedbackModalState.type || "ok");
+    badge.textContent = config.badge;
+    badge.className = `shop-feedback-badge ${config.classes}`;
+    title.textContent = config.title;
+    subtitle.textContent = config.subtitle;
+    icon.textContent = config.icon;
+    icon.className = `shop-feedback-icon ${config.classes}`;
+    message.textContent = pokemartFeedbackModalState.message;
+    okBtn.textContent = pmUi("feedback_ok_button");
+}
+
+function abrirModalFeedbackPokeMart(message = "", type = "ok") {
+    const modal = document.getElementById("shopFeedbackModal");
+    if (!modal || !message) return;
+
+    pokemartFeedbackModalState = { message: String(message), type: type === "error" ? "error" : "ok" };
+    actualizarModalFeedbackPokeMart();
+    modal.classList.add("show");
+    modal.setAttribute("aria-hidden", "false");
+
+    const okBtn = document.getElementById("shopFeedbackOkBtn");
+    if (okBtn) {
+        setTimeout(() => {
+            try { okBtn.focus({ preventScroll: true }); } catch (_) { okBtn.focus(); }
+        }, 20);
+    }
+}
+
+function cerrarModalFeedbackPokeMart() {
+    const modal = document.getElementById("shopFeedbackModal");
+    if (!modal) return;
+    modal.classList.remove("show");
+    modal.setAttribute("aria-hidden", "true");
+    pokemartFeedbackModalState = null;
+}
+
 function mostrarMensajeCompra(message = "", type = "ok") {
     const box = document.getElementById("mensajeCompra");
-    if (!box) return;
-    if (!message) {
+    if (box) {
         box.textContent = "";
         box.className = "mensaje-compra oculto";
+    }
+    if (!message) {
+        cerrarModalFeedbackPokeMart();
         return;
     }
-    box.textContent = message;
-    box.className = `mensaje-compra ${type === "error" ? "error" : ""}`.trim();
+    abrirModalFeedbackPokeMart(message, type);
 }
 
 function limpiarMensajeCompra() {
-    mostrarMensajeCompra("");
+    cerrarModalFeedbackPokeMart();
 }
 
 function actualizarCardItemComprado(itemId) {
@@ -1246,8 +1322,17 @@ function registrarEventosPokeMart() {
             confirmarCompraPremium();
             return;
         }
+        if (event.target.id === "shopFeedbackCloseBtn" || event.target.id === "shopFeedbackOkBtn") {
+            cerrarModalFeedbackPokeMart();
+            return;
+        }
         const modal = document.getElementById("premiumPurchaseModal");
-        if (modal && event.target === modal) cerrarModalPremium();
+        if (modal && event.target === modal) {
+            cerrarModalPremium();
+            return;
+        }
+        const feedbackModal = document.getElementById("shopFeedbackModal");
+        if (feedbackModal && event.target === feedbackModal) cerrarModalFeedbackPokeMart();
     });
 
     document.addEventListener("input", event => {
@@ -1278,6 +1363,14 @@ function registrarEventosPokeMart() {
     }, true);
 }
 
+document.addEventListener("keydown", event => {
+    if (event.key !== "Escape") return;
+    const premiumModal = document.getElementById("premiumPurchaseModal");
+    if (premiumModal?.classList.contains("show")) cerrarModalPremium();
+    const feedbackModal = document.getElementById("shopFeedbackModal");
+    if (feedbackModal?.classList.contains("show")) cerrarModalFeedbackPokeMart();
+});
+
 document.addEventListener("DOMContentLoaded", async () => {
     configurarIdiomaPokeMart();
     registrarEventosPokeMart();
@@ -1298,6 +1391,7 @@ document.addEventListener("languageChanged", () => {
     renderizarTienda();
     renderizarPremiumCatalogo();
     renderizarHistorialPremium();
+    actualizarModalFeedbackPokeMart();
 });
 
 document.addEventListener("usuarioSesionActualizada", async () => {
