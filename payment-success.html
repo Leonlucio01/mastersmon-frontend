@@ -82,6 +82,21 @@
             margin-bottom: 20px;
         }
 
+        .payment-status-box.is-success {
+            border-color: #bbf7d0;
+            background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%);
+        }
+
+        .payment-status-box.is-error {
+            border-color: #fecaca;
+            background: linear-gradient(180deg, #fff5f5 0%, #ffffff 100%);
+        }
+
+        .payment-status-box.is-warning {
+            border-color: #fde68a;
+            background: linear-gradient(180deg, #fffbeb 0%, #ffffff 100%);
+        }
+
         .payment-status-icon {
             width: 58px;
             height: 58px;
@@ -96,82 +111,82 @@
         }
 
         .payment-status-title {
-            margin: 0 0 6px;
-            font-size: 24px;
+            margin: 0 0 8px;
             color: #0f172a;
+            font-size: clamp(24px, 2.4vw, 36px);
         }
 
         .payment-status-text {
             margin: 0;
-            font-size: 15px;
-            line-height: 1.7;
             color: #475569;
+            line-height: 1.7;
+            white-space: pre-wrap;
         }
 
-        .payment-status-box.success {
-            border-color: rgba(34, 197, 94, 0.25);
-            background: linear-gradient(180deg, #f5fff8 0%, #effcf4 100%);
+        .payment-loading {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .payment-status-box.success .payment-status-icon {
-            border-color: rgba(34, 197, 94, 0.25);
-            box-shadow: 0 10px 22px rgba(34, 197, 94, 0.14);
+        .payment-spinner {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid #bfdbfe;
+            border-top-color: #2563eb;
+            animation: paymentSpin 0.8s linear infinite;
         }
 
-        .payment-status-box.error {
-            border-color: rgba(239, 68, 68, 0.2);
-            background: linear-gradient(180deg, #fff8f8 0%, #fff1f2 100%);
-        }
-
-        .payment-status-box.error .payment-status-icon {
-            border-color: rgba(239, 68, 68, 0.2);
-            box-shadow: 0 10px 22px rgba(239, 68, 68, 0.12);
+        @keyframes paymentSpin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
         .payment-grid {
             display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 16px;
-            margin-bottom: 22px;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 14px;
+            margin-bottom: 20px;
         }
 
         .payment-info-card {
-            padding: 18px 18px 16px;
-            border-radius: 20px;
             border: 1px solid #e2e8f0;
-            background: #ffffff;
+            border-radius: 18px;
+            padding: 16px;
+            background: #f8fafc;
         }
 
         .payment-info-label {
             display: block;
-            margin-bottom: 8px;
             font-size: 12px;
-            letter-spacing: 0.08em;
             text-transform: uppercase;
-            font-weight: 800;
+            letter-spacing: 0.08em;
             color: #64748b;
+            font-weight: 800;
+            margin-bottom: 8px;
         }
 
         .payment-info-value {
             margin: 0;
-            font-size: 20px;
-            font-weight: 800;
             color: #0f172a;
+            font-size: 16px;
+            font-weight: 800;
             word-break: break-word;
         }
 
         .payment-benefit {
-            margin-top: 12px;
-            padding: 18px 18px 16px;
+            margin-bottom: 20px;
             border-radius: 20px;
-            border: 1px solid #dcfce7;
-            background: linear-gradient(180deg, #f6fff8 0%, #f0fdf4 100%);
+            border: 1px solid #bbf7d0;
+            background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%);
+            padding: 18px 20px;
         }
 
         .payment-benefit h3 {
             margin: 0 0 8px;
-            font-size: 20px;
-            color: #14532d;
+            color: #166534;
+            font-size: 18px;
         }
 
         .payment-benefit p {
@@ -184,19 +199,18 @@
             display: flex;
             flex-wrap: wrap;
             gap: 14px;
-            margin-top: 24px;
         }
 
         .payment-btn {
             appearance: none;
+            text-decoration: none;
             border: 0;
             border-radius: 16px;
             padding: 14px 22px;
             font-size: 15px;
             font-weight: 800;
             cursor: pointer;
-            text-decoration: none;
-            transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+            transition: transform 0.18s ease;
         }
 
         .payment-btn:hover {
@@ -204,89 +218,60 @@
         }
 
         .payment-btn-primary {
-            color: #fff;
             background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
+            color: #fff;
             box-shadow: 0 12px 24px rgba(37, 99, 235, 0.22);
         }
 
         .payment-btn-secondary {
-            color: #0f172a;
             background: #eef2f7;
+            color: #0f172a;
             box-shadow: inset 0 0 0 1px #dbe4f0;
         }
 
         .payment-side {
-            padding: 24px;
+            padding: 26px 22px;
         }
 
         .payment-side h3 {
             margin: 0 0 16px;
-            font-size: 22px;
+            font-size: 18px;
             color: #0f172a;
         }
 
         .payment-side-list {
             display: grid;
-            gap: 14px;
+            gap: 12px;
         }
 
         .payment-side-item {
-            padding: 16px;
+            border: 1px solid #e2e8f0;
             border-radius: 18px;
             background: #f8fafc;
-            border: 1px solid #e2e8f0;
+            padding: 16px;
         }
 
         .payment-side-item strong {
             display: block;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             color: #0f172a;
         }
 
         .payment-side-item span {
+            display: block;
             color: #475569;
-            line-height: 1.6;
-            font-size: 14px;
+            line-height: 1.7;
         }
 
         .payment-debug {
-            margin-top: 22px;
+            margin-top: 20px;
             padding: 16px;
             border-radius: 18px;
             background: #0f172a;
             color: #e2e8f0;
-            font-family: Consolas, monospace;
             font-size: 12px;
             line-height: 1.6;
-            white-space: pre-wrap;
-            word-break: break-word;
-        }
-
-        .payment-debug.oculto {
-            display: none;
-        }
-
-        .payment-loading {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 700;
-            color: #1d4ed8;
-        }
-
-        .payment-spinner {
-            width: 18px;
-            height: 18px;
-            border-radius: 999px;
-            border: 2px solid rgba(37, 99, 235, 0.18);
-            border-top-color: #2563eb;
-            animation: payment-spin 0.8s linear infinite;
-        }
-
-        @keyframes payment-spin {
-            to {
-                transform: rotate(360deg);
-            }
+            overflow: auto;
         }
 
         .oculto {
@@ -297,6 +282,10 @@
             .payment-shell {
                 grid-template-columns: 1fr;
             }
+
+            .payment-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
         }
 
         @media (max-width: 640px) {
@@ -305,8 +294,7 @@
             }
 
             .payment-hero,
-            .payment-content,
-            .payment-side {
+            .payment-content {
                 padding-left: 18px;
                 padding-right: 18px;
             }
@@ -314,25 +302,20 @@
             .payment-grid {
                 grid-template-columns: 1fr;
             }
-
-            .payment-title {
-                font-size: 30px;
-            }
         }
     </style>
 </head>
 <body>
     <header class="menu menu-pro">
         <div class="menu-topbar">
-            <h1 class="logo">Pokemon World</h1>
+            <h1 class="logo">Mastersmon</h1>
 
             <nav class="menu-nav-desktop">
                 <a href="index.html" data-i18n="menu_pokedex">Pokedex</a>
-                <a href="battle.html" data-i18n="menu_battle">Battle</a>
                 <a href="maps.html" data-i18n="menu_maps">Maps</a>
+                <a href="battle.html" data-i18n="menu_battle">Battle</a>
                 <a href="mypokemon.html" data-i18n="menu_my_pokemon">My Pokemon</a>
                 <a href="pokemart.html" data-i18n="menu_pokemart">PokeMart</a>
-                <a href="ranking.html" data-i18n="menu_ranking">Ranking</a>
             </nav>
 
             <div class="menu-auth-area">
@@ -365,19 +348,25 @@
                 </div>
             </div>
 
-            <button class="menu-toggle" id="menuToggle" type="button">☰</button>
+            <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open menu">☰</button>
         </div>
 
         <div class="menu-links-mobile" id="menuMobile">
             <div class="mobile-panel">
                 <a href="index.html" data-i18n="menu_pokedex">Pokedex</a>
-                <a href="battle.html" data-i18n="menu_battle">Battle</a>
                 <a href="maps.html" data-i18n="menu_maps">Maps</a>
+                <a href="battle.html" data-i18n="menu_battle">Battle</a>
                 <a href="mypokemon.html" data-i18n="menu_my_pokemon">My Pokemon</a>
                 <a href="pokemart.html" data-i18n="menu_pokemart">PokeMart</a>
-                <a href="ranking.html" data-i18n="menu_ranking">Ranking</a>
 
                 <div class="menu-mobile-user">
+                    <div class="lang-switch">
+                        <select id="languageSelectMobile" aria-label="Language">
+                            <option value="en">EN</option>
+                            <option value="es">ES</option>
+                        </select>
+                    </div>
+
                     <div id="loginMenuContainerMobile">
                         <div class="g_id_signin"
                              data-type="standard"
@@ -388,6 +377,7 @@
                              data-logo_alignment="left">
                         </div>
                     </div>
+
                     <div id="usuarioMenuMobile" class="oculto">
                         <span id="nombreUsuarioMobile"></span>
                         <button id="cerrarSesionMenuMobile" type="button" data-i18n="menu_logout">Salir</button>
@@ -409,7 +399,7 @@
                 </div>
 
                 <div class="payment-content">
-                    <div id="paymentSuccessStatus" class="payment-status-box">
+                    <div id="paymentSuccessStatus" class="payment-status-box is-loading">
                         <div class="payment-status-icon">💳</div>
                         <div>
                             <h2 id="paymentSuccessTitle" class="payment-status-title">Validating your payment…</h2>
