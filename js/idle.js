@@ -766,6 +766,83 @@ function buildIdleActiveModalHtml(session = {}) {
     `;
 }
 
+
+function getIdleCompletionAlertToken(session = null) {
+    const currentSession = session || idleState.idleData?.sesion || null;
+    return String(currentSession?.token || sessionStorage.getItem(IDLE_SESSION_STORAGE_KEY) || "");
+}
+
+function wasIdleCompletionAlertShown(token = "") {
+    if (!token) return false;
+    return String(sessionStorage.getItem(IDLE_COMPLETION_ALERT_TOKEN_KEY) || "") === String(token);
+}
+
+function markIdleCompletionAlertShown(token = "") {
+    if (!token) return;
+    sessionStorage.setItem(IDLE_COMPLETION_ALERT_TOKEN_KEY, String(token));
+}
+
+function clearIdleCompletionAlert() {
+    sessionStorage.removeItem(IDLE_COMPLETION_ALERT_TOKEN_KEY);
+}
+
+function buildIdleCompletionReadyModalHtml(session = {}) {
+    const tierCode = normalizarTierIdle(session?.tier_codigo || idleState.selectedTier || "ruta");
+    const durationSeconds = normalizarDuracionIdle(session?.duracion_segundos || idleState.selectedDuration || 3600);
+    const estimate = computeIdleEstimate(idleState.team, tierCode, durationSeconds);
+
+    return `
+        <div class="idle-modal-launch-shell" data-tier="${escapeHtmlIdle(tierCode)}">
+            <div class="idle-modal-launch-banner">
+                <span class="idle-modal-inline-pill">${escapeHtmlIdle(tIdle("idle_modal_ready_badge", "Rewards ready"))}</span>
+                <strong>${escapeHtmlIdle(traducirTierIdle(tierCode))} ${escapeHtmlIdle(tIdle("idle_result_title_suffix", "Expedition"))}</strong>
+                <p>${escapeHtmlIdle(tIdle("idle_modal_ready_copy", "The expedition timer finished and the rewards are ready to claim right now."))}</p>
+            </div>
+            <div class="idle-modal-launch-grid">
+                <article>
+                    <span>${escapeHtmlIdle(tIdle("idle_tier_label", "Tier"))}</span>
+                    <strong>${escapeHtmlIdle(getIdleTierMeta(tierCode).label)}</strong>
+                </article>
+                <article>
+                    <span>${escapeHtmlIdle(tIdle("idle_duration_label", "Duration"))}</span>
+                    <strong>${escapeHtmlIdle(formatDurationLabelIdle(durationSeconds))}</strong>
+                </article>
+                <article>
+                    <span>EXP</span>
+                    <strong>${formatNumberIdle(estimate.exp)}</strong>
+                </article>
+                <article>
+                    <span>${escapeHtmlIdle(tIdle("idle_currency_label", "Pokédollars"))}</span>
+                    <strong>${formatNumberIdle(estimate.coins)}</strong>
+                </article>
+            </div>
+        </div>
+    `;
+}
+
+function maybeShowIdleCompletionReadyModal(session = null) {
+    const currentSession = session || idleState.idleData?.sesion || null;
+    if (!currentSession) return false;
+
+    const sessionState = String(currentSession.estado || "").toLowerCase();
+    if (sessionState !== "reclamable") return false;
+
+    const token = getIdleCompletionAlertToken(currentSession);
+    if (!token || wasIdleCompletionAlertShown(token)) return false;
+
+    markIdleCompletionAlertShown(token);
+
+    showIdleNoticeModal({
+        type: "success",
+        title: tIdle("idle_modal_ready_title", "Expedition completed"),
+        html: buildIdleCompletionReadyModalHtml(currentSession),
+        confirmText: tIdle("idle_modal_ready_cta", "Claim rewards"),
+        onConfirm: () => reclamarIdlePage()
+    });
+
+    return true;
+}
+
 function configurarEventosIdle() {
     const tierSelect = document.getElementById("idleTierSelect");
     const durationSelect = document.getElementById("idleDurationSelect");
