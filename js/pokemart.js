@@ -15,6 +15,7 @@ let premiumComprasGlobal = [];
 let premiumProductoSeleccionado = null;
 let pokemartVistaActiva = "items";
 let pokemartHistoryTabActiva = "purchases";
+let pokemartDeferredCatalogRender = false;
 
 const cantidadesSeleccionadas = {};
 const ITEMS_OCULTOS_TEMPORALES = ["Master Ball"];
@@ -310,6 +311,49 @@ function restoreFocusState(state) {
     try { input.setSelectionRange(end, end); } catch (_) {}
 }
 
+function getFocusedQuantityInput() {
+    const active = document.activeElement;
+    if (!active || active.tagName !== "INPUT" || !active.id || !active.id.startsWith("cantidad-item-")) {
+        return null;
+    }
+    return active;
+}
+
+function refrescarCardsTiendaSinReRender() {
+    if (!tiendaRenderizada) return false;
+
+    const cards = document.querySelectorAll(".item-card[data-item-id]");
+    if (!cards.length) return false;
+
+    cards.forEach(card => {
+        const itemId = Number(card.dataset.itemId || 0);
+        if (!itemId) return;
+
+        const itemUsuario = inventarioUsuarioGlobal.find(i => Number(i.item_id) === itemId);
+        const cantidadActual = Number(itemUsuario?.cantidad || 0);
+        const stock = card.querySelector(".item-stock");
+        if (stock) {
+            stock.textContent = `${typeof t === "function" ? t("pokemart_you_have") : "You have"}: x${formatMoneyNumber(cantidadActual)}`;
+        }
+
+        const input = document.getElementById(`cantidad-item-${itemId}`);
+        if (input && document.activeElement !== input) {
+            input.value = String(cantidadesSeleccionadas[itemId] || 1);
+        }
+
+        actualizarTotalCard(itemId);
+        setBotonComprando(itemId, false);
+    });
+
+    return true;
+}
+
+function ejecutarRenderDiferidoTienda() {
+    if (!pokemartDeferredCatalogRender) return;
+    pokemartDeferredCatalogRender = false;
+    renderizarTienda({ force: true });
+}
+
 function getStoredView() {
     try {
         const v = sessionStorage.getItem(POKEMART_VIEW_KEY);
@@ -524,9 +568,18 @@ function renderizarCardItemHTML(item, estaLogueado) {
         </article>`;
 }
 
-function renderizarTienda() {
+function renderizarTienda(options = {}) {
+    const { force = false } = options;
     const tienda = document.getElementById("tiendaItems");
     if (!tienda) return;
+
+    const focusedQuantityInput = getFocusedQuantityInput();
+    if (!force && focusedQuantityInput && tiendaRenderizada) {
+        pokemartDeferredCatalogRender = true;
+        refrescarCardsTiendaSinReRender();
+        return;
+    }
+
     const focusState = captureFocusState();
 
     if (!tiendaItemsGlobal.length) {
@@ -567,6 +620,7 @@ function renderizarTienda() {
 
     tiendaRenderizada = true;
     restoreFocusState(focusState);
+    pokemartDeferredCatalogRender = false;
 }
 
 function sanitizeQuantityValue(value) {
@@ -1218,6 +1272,9 @@ function registrarEventosPokeMart() {
         cantidadesSeleccionadas[itemId] = clean;
         input.value = String(clean);
         actualizarTotalCard(itemId);
+        if (pokemartDeferredCatalogRender) {
+            requestAnimationFrame(() => ejecutarRenderDiferidoTienda());
+        }
     }, true);
 }
 
