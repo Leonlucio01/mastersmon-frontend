@@ -8,6 +8,7 @@
 const IDLE_TEAM_STORAGE_KEY = "mastersmon_battle_team_v1";
 const IDLE_SESSION_STORAGE_KEY = "mastersmon_battle_idle_session_v1";
 const IDLE_LAST_RESULT_STORAGE_KEY = "mastersmon_idle_last_result_v1";
+const IDLE_COMPLETION_ALERT_TOKEN_KEY = "mastersmon_idle_completion_alert_v1";
 const IDLE_PREMIUM_PRODUCT_CODE = "idle_masters_1m";
 
 const IDLE_TIER_CONFIG = {
@@ -96,7 +97,8 @@ const idleState = {
     clockInterval: null,
     selectedTier: "ruta",
     selectedDuration: 3600,
-    lastResult: null
+    lastResult: null,
+    noticeConfirmAction: null
 };
 
 const IDLE_THEME_ACCENTS = {
@@ -278,9 +280,20 @@ function configurarModalIdle() {
     if (!modal) return;
 
     const closeHandler = () => hideIdleNoticeModal();
+    const confirmHandler = async () => {
+        const action = idleState.noticeConfirmAction;
+        hideIdleNoticeModal();
+        if (typeof action === "function") {
+            try {
+                await action();
+            } catch (error) {
+                console.warn("No se pudo ejecutar la acción del modal Idle:", error);
+            }
+        }
+    };
 
     if (closeBtn) closeBtn.addEventListener("click", closeHandler);
-    if (confirmBtn) confirmBtn.addEventListener("click", closeHandler);
+    if (confirmBtn) confirmBtn.addEventListener("click", confirmHandler);
 
     modal.addEventListener("click", (event) => {
         if (event.target === modal) {
@@ -328,6 +341,7 @@ function hideIdleNoticeModal() {
     modal.classList.add("oculto");
     modal.setAttribute("aria-hidden", "true");
     document.body.classList.remove("idle-modal-open");
+    idleState.noticeConfirmAction = null;
 }
 
 function hideIdlePremiumModal() {
@@ -345,7 +359,8 @@ function showIdleNoticeModal({
     message = "",
     html = "",
     kicker = "",
-    confirmText = ""
+    confirmText = "",
+    onConfirm = null
 } = {}) {
     const modal = document.getElementById("idleNoticeModal");
     const icon = document.getElementById("idleModalIcon");
@@ -376,6 +391,7 @@ function showIdleNoticeModal({
     titleEl.textContent = title || tIdle("idle_modal_default_title", "Idle Expedition");
     bodyEl.innerHTML = html || `<p>${escapeHtmlIdle(message || tIdle("idle_modal_default_body", "Your Idle Expedition state was updated."))}</p>`;
     confirmBtn.textContent = confirmText || tIdle("idle_modal_confirm", "OK");
+    idleState.noticeConfirmAction = typeof onConfirm === "function" ? onConfirm : null;
 
     try {
         confirmBtn.focus({ preventScroll: true });
@@ -1831,6 +1847,7 @@ function registrarEstadoIdle(data = null) {
         idleState.endsAtMs = 0;
         idleState.remainingBaseSeconds = 0;
         idleState.totalSessionSeconds = 0;
+        clearIdleCompletionAlert();
         return;
     }
 
@@ -1881,6 +1898,7 @@ function actualizarRelojVisualIdle() {
             idleState.idleData.sesion.segundos_restantes = 0;
         }
         renderStatusIdle();
+        maybeShowIdleCompletionReadyModal(idleState.idleData?.sesion || null);
         cargarEstadoIdle(true);
     }
 }
@@ -1936,6 +1954,7 @@ async function cargarEstadoIdle(silent = true) {
         renderTierCardsIdle();
         renderMastersPanelIdle();
         renderStatusIdle();
+        maybeShowIdleCompletionReadyModal(data?.sesion || null);
         return data;
     } catch (error) {
         if (!silent) {
@@ -2019,6 +2038,7 @@ async function iniciarIdlePage() {
         }
 
         sessionStorage.setItem(IDLE_SESSION_STORAGE_KEY, String(data.idle_session_token));
+        clearIdleCompletionAlert();
         await cargarEstadoIdle(true);
         showIdleNoticeModal({
             type: "success",
@@ -2062,6 +2082,7 @@ async function reclamarIdlePage() {
         }
 
         sessionStorage.removeItem(IDLE_SESSION_STORAGE_KEY);
+        clearIdleCompletionAlert();
         persistirResultadoAnteriorIdle(data?.resultado || null);
         renderLastResultIdle();
         await cargarEstadoIdle(true);
@@ -2120,6 +2141,7 @@ async function cancelarIdlePage() {
         }
 
         sessionStorage.removeItem(IDLE_SESSION_STORAGE_KEY);
+        clearIdleCompletionAlert();
         await cargarEstadoIdle(true);
         showIdleNoticeModal({
             type: "warning",
