@@ -211,30 +211,161 @@ const MAPAS_CONFIG = {
     bosque: {
         card: "img/maps/cards/bosque_verde.png",
         escenario: "img/maps/escenarios/bosque_verde_1.png",
-        clase: "zona-bosque"
+        clase: "zona-bosque",
+        accent: "#16a34a",
+        accentSoft: "rgba(22, 163, 74, 0.14)",
+        surface: "#f0fdf4",
+        surfaceStrong: "#dcfce7",
+        glow: "rgba(34, 197, 94, 0.24)",
+        buttonBg: "linear-gradient(135deg, #16a34a, #22c55e)",
+        headerBg: "linear-gradient(180deg, rgba(240,253,244,0.98) 0%, rgba(255,255,255,0.98) 100%)"
     },
     cueva: {
         card: "img/maps/cards/cueva_roca.png",
         escenario: "img/maps/escenarios/caverna_roca_1.png",
-        clase: "zona-cueva"
+        clase: "zona-cueva",
+        accent: "#7c3aed",
+        accentSoft: "rgba(124, 58, 237, 0.14)",
+        surface: "#f5f3ff",
+        surfaceStrong: "#ede9fe",
+        glow: "rgba(139, 92, 246, 0.24)",
+        buttonBg: "linear-gradient(135deg, #7c3aed, #8b5cf6)",
+        headerBg: "linear-gradient(180deg, rgba(245,243,255,0.98) 0%, rgba(255,255,255,0.98) 100%)"
     },
     lago: {
         card: "img/maps/cards/lago_azul.png",
         escenario: "img/maps/escenarios/lago_azul_1.png",
-        clase: "zona-lago"
+        clase: "zona-lago",
+        accent: "#2563eb",
+        accentSoft: "rgba(37, 99, 235, 0.14)",
+        surface: "#eff6ff",
+        surfaceStrong: "#dbeafe",
+        glow: "rgba(59, 130, 246, 0.24)",
+        buttonBg: "linear-gradient(135deg, #2563eb, #3b82f6)",
+        headerBg: "linear-gradient(180deg, rgba(239,246,255,0.98) 0%, rgba(255,255,255,0.98) 100%)"
     },
     torre: {
         card: "img/maps/cards/torre_batalla.png",
         escenario: "img/maps/escenarios/torre_batalla_1.png",
-        clase: "zona-torre"
+        clase: "zona-torre",
+        accent: "#dc2626",
+        accentSoft: "rgba(220, 38, 38, 0.14)",
+        surface: "#fef2f2",
+        surfaceStrong: "#fee2e2",
+        glow: "rgba(248, 113, 113, 0.24)",
+        buttonBg: "linear-gradient(135deg, #dc2626, #ef4444)",
+        headerBg: "linear-gradient(180deg, rgba(254,242,242,0.98) 0%, rgba(255,255,255,0.98) 100%)"
+    },
+    volcan: {
+        card: "img/maps/cards/torre_batalla.png",
+        escenario: "img/maps/escenarios/torre_batalla_1.png",
+        clase: "zona-volcan",
+        accent: "#ea580c",
+        accentSoft: "rgba(234, 88, 12, 0.14)",
+        surface: "#fff7ed",
+        surfaceStrong: "#ffedd5",
+        glow: "rgba(249, 115, 22, 0.24)",
+        buttonBg: "linear-gradient(135deg, #ea580c, #f97316)",
+        headerBg: "linear-gradient(180deg, rgba(255,247,237,0.98) 0%, rgba(255,255,255,0.98) 100%)"
+    },
+    nieve: {
+        card: "img/maps/cards/lago_azul.png",
+        escenario: "img/maps/escenarios/lago_azul_1.png",
+        clase: "zona-nieve",
+        accent: "#0891b2",
+        accentSoft: "rgba(8, 145, 178, 0.14)",
+        surface: "#ecfeff",
+        surfaceStrong: "#cffafe",
+        glow: "rgba(34, 211, 238, 0.20)",
+        buttonBg: "linear-gradient(135deg, #0891b2, #06b6d4)",
+        headerBg: "linear-gradient(180deg, rgba(236,254,255,0.98) 0%, rgba(255,255,255,0.98) 100%)"
+    },
+    pantano: {
+        card: "img/maps/cards/bosque_verde.png",
+        escenario: "img/maps/escenarios/bosque_verde_1.png",
+        clase: "zona-pantano",
+        accent: "#4d7c0f",
+        accentSoft: "rgba(77, 124, 15, 0.14)",
+        surface: "#f7fee7",
+        surfaceStrong: "#ecfccb",
+        glow: "rgba(132, 204, 22, 0.22)",
+        buttonBg: "linear-gradient(135deg, #4d7c0f, #65a30d)",
+        headerBg: "linear-gradient(180deg, rgba(247,254,231,0.98) 0%, rgba(255,255,255,0.98) 100%)"
+    },
+    fantasma: {
+        card: "img/maps/cards/torre_batalla.png",
+        escenario: "img/maps/escenarios/torre_batalla_1.png",
+        clase: "zona-fantasma",
+        accent: "#6d28d9",
+        accentSoft: "rgba(109, 40, 217, 0.14)",
+        surface: "#faf5ff",
+        surfaceStrong: "#f3e8ff",
+        glow: "rgba(168, 85, 247, 0.24)",
+        buttonBg: "linear-gradient(135deg, #6d28d9, #8b5cf6)",
+        headerBg: "linear-gradient(180deg, rgba(250,245,255,0.98) 0%, rgba(255,255,255,0.98) 100%)"
+    },
+    electrico: {
+        card: "img/maps/cards/lago_azul.png",
+        escenario: "img/maps/escenarios/lago_azul_1.png",
+        clase: "zona-electrico",
+        accent: "#ca8a04",
+        accentSoft: "rgba(202, 138, 4, 0.16)",
+        surface: "#fefce8",
+        surfaceStrong: "#fef3c7",
+        glow: "rgba(250, 204, 21, 0.24)",
+        buttonBg: "linear-gradient(135deg, #ca8a04, #eab308)",
+        headerBg: "linear-gradient(180deg, rgba(254,252,232,0.98) 0%, rgba(255,255,255,0.98) 100%)"
+    },
+    desierto: {
+        card: "img/maps/cards/cueva_roca.png",
+        escenario: "img/maps/escenarios/caverna_roca_1.png",
+        clase: "zona-desierto",
+        accent: "#b45309",
+        accentSoft: "rgba(180, 83, 9, 0.14)",
+        surface: "#fffbeb",
+        surfaceStrong: "#fef3c7",
+        glow: "rgba(245, 158, 11, 0.24)",
+        buttonBg: "linear-gradient(135deg, #b45309, #d97706)",
+        headerBg: "linear-gradient(180deg, rgba(255,251,235,0.98) 0%, rgba(255,255,255,0.98) 100%)"
+    },
+    cielo: {
+        card: "img/maps/cards/lago_azul.png",
+        escenario: "img/maps/escenarios/lago_azul_1.png",
+        clase: "zona-cielo",
+        accent: "#0284c7",
+        accentSoft: "rgba(2, 132, 199, 0.14)",
+        surface: "#f0f9ff",
+        surfaceStrong: "#e0f2fe",
+        glow: "rgba(14, 165, 233, 0.24)",
+        buttonBg: "linear-gradient(135deg, #0284c7, #0ea5e9)",
+        headerBg: "linear-gradient(180deg, rgba(240,249,255,0.98) 0%, rgba(255,255,255,0.98) 100%)"
     },
     default: {
         card: "img/maps/cards/bosque_verde.png",
         escenario: "img/maps/escenarios/bosque_verde_1.png",
-        clase: ""
+        clase: "zona-default",
+        accent: "#475569",
+        accentSoft: "rgba(71, 85, 105, 0.14)",
+        surface: "#f8fafc",
+        surfaceStrong: "#e2e8f0",
+        glow: "rgba(100, 116, 139, 0.18)",
+        buttonBg: "linear-gradient(135deg, #2563eb, #3b82f6)",
+        headerBg: "linear-gradient(180deg, rgba(248,250,252,0.98) 0%, rgba(255,255,255,0.98) 100%)"
     }
 };
- 
+
+const MAPS_REGION_BY_GENERATION = {
+    1: "kanto",
+    2: "johto",
+    3: "hoenn",
+    4: "sinnoh",
+    5: "unova",
+    6: "kalos",
+    7: "alola",
+    8: "galar",
+    9: "paldea"
+};
+
 document.addEventListener("DOMContentLoaded", () => {
     configurarCarruselMaps();
     configurarEventosDelegados();
@@ -648,7 +779,44 @@ function tMaps(key, fallback) {
     const valor = t(key);
     return valor && valor !== key ? valor : fallback;
 }
- 
+
+function getCurrentLangMapsSafe() {
+    return typeof getCurrentLang === "function" ? getCurrentLang() : "en";
+}
+
+function reemplazarParametrosTextoMaps(texto, params = {}) {
+    return String(texto || "").replace(/\{(\w+)\}/g, (_, key) => {
+        return params[key] !== undefined ? String(params[key]) : `{${key}}`;
+    });
+}
+
+function tMapsLocal(key, fallbackEn, fallbackEs = fallbackEn, params = {}) {
+    let valor = "";
+    if (typeof t === "function") {
+        try {
+            valor = t(key, params);
+        } catch (error) {
+            valor = "";
+        }
+    }
+
+    if (!valor || valor === key) {
+        valor = getCurrentLangMapsSafe() === "es" ? fallbackEs : fallbackEn;
+    }
+
+    return reemplazarParametrosTextoMaps(valor, params);
+}
+
+function normalizarTextoMaps(valor = "") {
+    return String(valor || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[_-]+/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+}
+
 function leerStorageJSON(clave, defecto = null) {
     try {
         const raw = localStorage.getItem(clave);
@@ -1407,72 +1575,274 @@ function obtenerEstadoCapturaMapa(pokemonId, esShiny, listaPokemonUsuario = []) 
 /* =========================
    ZONAS
 ========================= */
-function obtenerClaveZona(nombreZona = "") {
-    const nombre = String(nombreZona || "").toLowerCase().trim();
- 
-    if (nombre.includes("bosque") || nombre.includes("forest")) return "bosque";
-    if (nombre.includes("cueva") || nombre.includes("cave")) return "cueva";
-    if (nombre.includes("lago") || nombre.includes("lake")) return "lago";
-    if (nombre.includes("torre") || nombre.includes("tower")) return "torre";
- 
+function detectarClaveZonaPorTextoMaps(texto = "") {
+    const valor = normalizarTextoMaps(texto);
+
+    if (!valor) return "";
+    if (/(bosque|forest|jungla|jungle|selva|grove|green)/.test(valor)) return "bosque";
+    if (/(cueva|cave|cavern|caverna|gruta|mina|mine|roca|rock)/.test(valor)) return "cueva";
+    if (/(lago|lake|water|rio|river|reef|coast|shore|ocean|mar|coral)/.test(valor)) return "lago";
+    if (/(torre|tower|battle tower|fort|castle|citadel)/.test(valor)) return "torre";
+    if (/(volcan|volcano|magma|lava|crater)/.test(valor)) return "volcan";
+    if (/(pantano|swamp|marsh|bog|poison marsh)/.test(valor)) return "pantano";
+    if (/(nieve|snow|ice|frozen|glacier|icy)/.test(valor)) return "nieve";
+    if (/(fantasma|ghost|shadow|haunted|spirit|phantom)/.test(valor)) return "fantasma";
+    if (/(electrico|electric|power|plant|generator|factory)/.test(valor)) return "electrico";
+    if (/(desierto|desert|dune|sand|sandy)/.test(valor)) return "desierto";
+    if (/(cielo|sky|cloud|wind|storm|air)/.test(valor)) return "cielo";
+
+    return "";
+}
+
+function obtenerClaveZona(zona = null) {
+    if (typeof zona === "string") {
+        return detectarClaveZonaPorTextoMaps(zona) || "default";
+    }
+
+    const candidatos = [
+        zona?.tema_visual,
+        zona?.tipo_ambiente,
+        zona?.nombre,
+        zona?.descripcion
+    ];
+
+    for (const valor of candidatos) {
+        const clave = detectarClaveZonaPorTextoMaps(valor);
+        if (clave) return clave;
+    }
+
     return "default";
 }
- 
-function obtenerConfigZona(nombreZona = "") {
-    const clave = obtenerClaveZona(nombreZona);
-    return MAPAS_CONFIG[clave] || MAPAS_CONFIG.default;
+
+function inferirGeneracionZonaMaps(zona = null, claveZona = "default") {
+    const texto = normalizarTextoMaps([
+        zona?.region_codigo,
+        zona?.nombre,
+        zona?.descripcion,
+        zona?.tipo_ambiente
+    ].filter(Boolean).join(" "));
+
+    const mapa = [
+        { match: /(gen\s*1|generation\s*1|kanto)/, generacion: 1 },
+        { match: /(gen\s*2|generation\s*2|johto)/, generacion: 2 },
+        { match: /(gen\s*3|generation\s*3|hoenn)/, generacion: 3 },
+        { match: /(gen\s*4|generation\s*4|sinnoh)/, generacion: 4 },
+        { match: /(gen\s*5|generation\s*5|unova)/, generacion: 5 },
+        { match: /(gen\s*6|generation\s*6|kalos)/, generacion: 6 },
+        { match: /(gen\s*7|generation\s*7|alola)/, generacion: 7 },
+        { match: /(gen\s*8|generation\s*8|galar)/, generacion: 8 },
+        { match: /(gen\s*9|generation\s*9|paldea)/, generacion: 9 }
+    ];
+
+    const encontrado = mapa.find(item => item.match.test(texto));
+    if (encontrado) return encontrado.generacion;
+
+    if (["bosque", "cueva", "lago", "torre"].includes(claveZona)) {
+        return 1;
+    }
+
+    return null;
 }
- 
+
+function inferirRegionZonaMaps(zona = null, generacion = null, claveZona = "default") {
+    const texto = normalizarTextoMaps([
+        zona?.region_codigo,
+        zona?.nombre,
+        zona?.descripcion,
+        zona?.tipo_ambiente
+    ].filter(Boolean).join(" "));
+
+    const regiones = [
+        { match: /kanto/, codigo: "kanto" },
+        { match: /johto/, codigo: "johto" },
+        { match: /hoenn/, codigo: "hoenn" },
+        { match: /sinnoh/, codigo: "sinnoh" },
+        { match: /unova/, codigo: "unova" },
+        { match: /kalos/, codigo: "kalos" },
+        { match: /alola/, codigo: "alola" },
+        { match: /galar/, codigo: "galar" },
+        { match: /paldea/, codigo: "paldea" }
+    ];
+
+    const encontrado = regiones.find(item => item.match.test(texto));
+    if (encontrado) return encontrado.codigo;
+
+    if (generacion && MAPS_REGION_BY_GENERATION[generacion]) {
+        return MAPS_REGION_BY_GENERATION[generacion];
+    }
+
+    if (["bosque", "cueva", "lago", "torre"].includes(claveZona)) {
+        return "kanto";
+    }
+
+    return "frontier";
+}
+
+function construirVisualZonaMaps(zona = null) {
+    const clave = obtenerClaveZona(zona);
+    const config = MAPAS_CONFIG[clave] || MAPAS_CONFIG.default;
+    const generacion = inferirGeneracionZonaMaps(zona, clave);
+    const region = inferirRegionZonaMaps(zona, generacion, clave);
+
+    return {
+        clave,
+        config,
+        generacion,
+        region
+    };
+}
+
+function enriquecerZonasVisualMaps(zonas = []) {
+    return (Array.isArray(zonas) ? zonas : []).map(zona => ({
+        ...zona,
+        __maps_visual: construirVisualZonaMaps(zona)
+    }));
+}
+
+function obtenerVisualZonaMaps(zona = null) {
+    if (zona && typeof zona === "object" && zona.__maps_visual) {
+        return zona.__maps_visual;
+    }
+    return construirVisualZonaMaps(zona);
+}
+
+function obtenerConfigZona(zona = null) {
+    return obtenerVisualZonaMaps(zona).config || MAPAS_CONFIG.default;
+}
+
+function obtenerVarsCssZonaMaps(zona = null) {
+    const config = obtenerConfigZona(zona);
+    return [
+        `--map-accent:${config.accent || MAPAS_CONFIG.default.accent}`,
+        `--map-accent-soft:${config.accentSoft || MAPAS_CONFIG.default.accentSoft}`,
+        `--map-surface:${config.surface || MAPAS_CONFIG.default.surface}`,
+        `--map-surface-strong:${config.surfaceStrong || MAPAS_CONFIG.default.surfaceStrong}`,
+        `--map-glow:${config.glow || MAPAS_CONFIG.default.glow}`,
+        `--map-button-bg:${config.buttonBg || MAPAS_CONFIG.default.buttonBg}`,
+        `--map-header-bg:${config.headerBg || MAPAS_CONFIG.default.headerBg}`
+    ].join(";");
+}
+
+function obtenerTextoRegionMaps(codigo = "frontier") {
+    const mapa = {
+        kanto: ["Kanto", "Kanto"],
+        johto: ["Johto", "Johto"],
+        hoenn: ["Hoenn", "Hoenn"],
+        sinnoh: ["Sinnoh", "Sinnoh"],
+        unova: ["Unova", "Unova"],
+        kalos: ["Kalos", "Kalos"],
+        alola: ["Alola", "Alola"],
+        galar: ["Galar", "Galar"],
+        paldea: ["Paldea", "Paldea"],
+        frontier: ["Frontier", "Frontera"]
+    };
+
+    const [en, es] = mapa[codigo] || mapa.frontier;
+    return getCurrentLangMapsSafe() === "es" ? es : en;
+}
+
+function obtenerTextoGeneracionMaps(generacion = null) {
+    if (!generacion) {
+        return getCurrentLangMapsSafe() === "es" ? "Sin gen" : "No gen";
+    }
+    return `Gen ${Number(generacion)}`;
+}
+
+function obtenerTextoBiomaMaps(clave = "default") {
+    const mapa = {
+        bosque: ["Forest", "Bosque"],
+        cueva: ["Cave", "Cueva"],
+        lago: ["Lake", "Lago"],
+        torre: ["Tower", "Torre"],
+        volcan: ["Volcano", "Volcán"],
+        nieve: ["Snow", "Nieve"],
+        pantano: ["Swamp", "Pantano"],
+        fantasma: ["Ghost", "Fantasma"],
+        electrico: ["Electric", "Eléctrico"],
+        desierto: ["Desert", "Desierto"],
+        cielo: ["Sky", "Cielo"],
+        default: ["Adventure", "Aventura"]
+    };
+
+    const [en, es] = mapa[clave] || mapa.default;
+    return getCurrentLangMapsSafe() === "es" ? es : en;
+}
+
+function obtenerTextoDificultadZonaMaps(zona = null) {
+    const nivelMax = Number(zona?.nivel_max || zona?.nivelMin || 0);
+
+    if (nivelMax <= 12) {
+        return getCurrentLangMapsSafe() === "es" ? "Inicio" : "Starter";
+    }
+    if (nivelMax <= 25) {
+        return getCurrentLangMapsSafe() === "es" ? "Media" : "Standard";
+    }
+    if (nivelMax <= 45) {
+        return getCurrentLangMapsSafe() === "es" ? "Avanzada" : "Advanced";
+    }
+    return getCurrentLangMapsSafe() === "es" ? "Élite" : "Elite";
+}
+
+function obtenerTextoEspeciesZonaMaps(zona = null) {
+    const total = Array.isArray(zona?.pokemones) ? zona.pokemones.length : 0;
+    return tMapsLocal("maps_zone_species_count", "{count} species", "{count} especies", {
+        count: total
+    });
+}
+
+function obtenerImagenCardZonaMaps(zona = null) {
+    if (zona?.imagen) {
+        return String(zona.imagen);
+    }
+    return obtenerConfigZona(zona).card;
+}
+
 function obtenerNombreZonaTraducido(zona = null) {
     const nombreOriginal = typeof zona === "string"
         ? zona
         : (zona?.nombre || "");
- 
-    const clave = obtenerClaveZona(nombreOriginal);
- 
+
+    const clave = obtenerClaveZona(zona);
+
     const mapa = {
         bosque: "maps_zone_bosque_name",
         cueva: "maps_zone_cueva_name",
         lago: "maps_zone_lago_name",
         torre: "maps_zone_torre_name"
     };
- 
+
     const key = mapa[clave];
     const traducido = key ? t(key) : "";
- 
+
     return traducido && traducido !== key
         ? traducido
         : nombreOriginal;
 }
- 
+
 function obtenerDescripcionZonaTraducida(zona = null) {
-    const nombreOriginal = typeof zona === "string"
-        ? zona
-        : (zona?.nombre || "");
- 
     const descripcionOriginal = typeof zona === "object"
         ? (zona?.descripcion || "")
         : "";
- 
-    const clave = obtenerClaveZona(nombreOriginal);
- 
+
+    const clave = obtenerClaveZona(zona);
+
     const mapa = {
         bosque: "maps_zone_bosque_desc",
         cueva: "maps_zone_cueva_desc",
         lago: "maps_zone_lago_desc",
         torre: "maps_zone_torre_desc"
     };
- 
+
     const key = mapa[clave];
     const traducida = key ? t(key) : "";
- 
+
     if (traducida && traducida !== key) {
         return traducida;
     }
- 
+
     return descripcionOriginal || t("maps_default_zone_desc");
 }
- 
+
 function traducirTipoPokemonMaps(tipo = "") {
     const mapa = {
         "Normal": "type_normal",
@@ -1510,20 +1880,20 @@ function traducirTipoPokemonMaps(tipo = "") {
 async function cargarZonas() {
     const cache = leerCacheZonas();
     if (cache && cache.length > 0) {
-        zonasCache = cache;
+        zonasCache = enriquecerZonasVisualMaps(cache);
         mapasPorVista = obtenerMapasPorVista();
         mapaInicio = Math.min(mapaInicio, Math.max(0, zonasCache.length - 1));
         renderizarZonas();
     }
- 
+
     const zonas = await fetchJson(`${API_BASE}/zonas`);
-    zonasCache = Array.isArray(zonas) ? zonas : [];
+    zonasCache = enriquecerZonasVisualMaps(Array.isArray(zonas) ? zonas : []);
     guardarCacheZonas(zonasCache);
- 
+
     mapasPorVista = obtenerMapasPorVista();
     mapaInicio = 0;
 }
- 
+
 function mostrarCargaZonas() {
     const container = document.getElementById("zonasContainer");
     if (!container) return;
@@ -1570,9 +1940,9 @@ function mostrarErrorZonas() {
 function renderizarZonas() {
     const container = document.getElementById("zonasContainer");
     if (!container) return;
- 
+
     const visibles = obtenerZonasVisibles();
- 
+
     if (!visibles.length) {
         container.innerHTML = `
             <article class="map-card">
@@ -1584,28 +1954,48 @@ function renderizarZonas() {
         `;
         return;
     }
- 
+
     container.innerHTML = visibles.map(zona => {
-        const config = obtenerConfigZona(zona.nombre);
+        const visual = obtenerVisualZonaMaps(zona);
+        const config = visual.config;
         const activa = zonaSeleccionadaActual && Number(zonaSeleccionadaActual.id) === Number(zona.id);
- 
+
         const nombreZonaUI = obtenerNombreZonaTraducido(zona);
         const descripcionZonaUI = obtenerDescripcionZonaTraducida(zona);
- 
+        const regionLabel = obtenerTextoRegionMaps(visual.region);
+        const generationLabel = obtenerTextoGeneracionMaps(visual.generacion);
+        const biomeLabel = obtenerTextoBiomaMaps(visual.clave);
+        const speciesLabel = obtenerTextoEspeciesZonaMaps(zona);
+        const difficultyLabel = obtenerTextoDificultadZonaMaps(zona);
+        const imageSrc = obtenerImagenCardZonaMaps(zona);
+        const cssVars = obtenerVarsCssZonaMaps(zona);
+
         return `
-            <article class="map-card ${config.clase} ${activa ? "map-card-activa" : ""}">
+            <article class="map-card ${config.clase} ${activa ? "map-card-activa" : ""}" style="${cssVars}">
                 <div class="map-img-wrap">
-                    <img src="${config.card}" alt="${nombreZonaUI}" class="map-img" loading="lazy" decoding="async">
+                    <span class="map-card-badge">${difficultyLabel}</span>
+                    <img src="${imageSrc}" alt="${nombreZonaUI}" class="map-img" loading="lazy" decoding="async">
                 </div>
- 
+
                 <div class="map-info">
+                    <div class="map-chip-row">
+                        <span class="map-chip map-chip-region">${regionLabel}</span>
+                        <span class="map-chip map-chip-generation">${generationLabel}</span>
+                        <span class="map-chip map-chip-biome">${biomeLabel}</span>
+                    </div>
+
                     <h3>${nombreZonaUI}</h3>
                     <p>${descripcionZonaUI}</p>
- 
+
+                    <div class="map-stats-row">
+                        <span class="map-stat-pill">${speciesLabel}</span>
+                        <span class="map-threat-chip">${difficultyLabel}</span>
+                    </div>
+
                     <div class="map-actions">
                         <span class="map-level">${t("maps_level")} ${zona.nivel_min} - ${zona.nivel_max}</span>
                         <button class="btn-map ${activa ? "btn-map-activa" : ""}" type="button" data-zona-id="${zona.id}">
-                            ${t("maps_view")}
+                            ${activa ? tMapsLocal("maps_zone_active", "Exploring", "Explorando") : t("maps_view")}
                         </button>
                     </div>
                 </div>
@@ -1613,7 +2003,7 @@ function renderizarZonas() {
         `;
     }).join("");
 }
- 
+
 async function seleccionarZona(zonaId) {
     const zona = zonasCache.find(z => Number(z.id) === Number(zonaId));
     if (!zona) return;
@@ -1687,27 +2077,48 @@ async function seleccionarZona(zonaId) {
  
 function renderizarZonaExploracion() {
     if (!zonaSeleccionadaActual) return;
- 
+
     const encuentro = document.getElementById("encuentroContainer");
     if (!encuentro) return;
- 
-    const config = obtenerConfigZona(zonaSeleccionadaActual.nombre);
+
+    const visual = obtenerVisualZonaMaps(zonaSeleccionadaActual);
+    const config = visual.config;
     const claseZona = config.clase;
     const nombreZonaUI = obtenerNombreZonaTraducido(zonaSeleccionadaActual);
- 
+    const descripcionZonaUI = obtenerDescripcionZonaTraducida(zonaSeleccionadaActual);
+    const regionLabel = obtenerTextoRegionMaps(visual.region);
+    const generationLabel = obtenerTextoGeneracionMaps(visual.generacion);
+    const biomeLabel = obtenerTextoBiomaMaps(visual.clave);
+    const speciesLabel = obtenerTextoEspeciesZonaMaps(zonaSeleccionadaActual);
+    const difficultyLabel = obtenerTextoDificultadZonaMaps(zonaSeleccionadaActual);
+
     encuentro.className = "encuentro-box";
     if (claseZona) {
         encuentro.classList.add(claseZona);
     }
- 
+    encuentro.style.cssText = obtenerVarsCssZonaMaps(zonaSeleccionadaActual);
+
     encuentro.innerHTML = `
         <div class="encuentro-layout-mapa">
             <div class="mapa-exploracion-panel">
                 <div class="mapa-exploracion-header">
+                    <div class="mapa-exploracion-kicker-row">
+                        <span class="mapa-exploracion-kicker">${difficultyLabel}</span>
+                        <div class="mapa-exploracion-chips">
+                            <span class="mapa-meta-chip">${regionLabel}</span>
+                            <span class="mapa-meta-chip">${generationLabel}</span>
+                            <span class="mapa-meta-chip">${biomeLabel}</span>
+                        </div>
+                    </div>
                     <h3>${nombreZonaUI}</h3>
-                    <p>${t("maps_explore_hint")}</p>
+                    <p>${descripcionZonaUI || t("maps_explore_hint")}</p>
+                    <div class="mapa-exploracion-stats">
+                        <span>${t("maps_level")} ${zonaSeleccionadaActual.nivel_min} - ${zonaSeleccionadaActual.nivel_max}</span>
+                        <span>${speciesLabel}</span>
+                        <span>${t("maps_explore_hint")}</span>
+                    </div>
                 </div>
- 
+
                 <div class="mapa-exploracion-box">
                     <img
                         id="imgMapaExploracion"
@@ -1716,57 +2127,60 @@ function renderizarZonaExploracion() {
                         loading="eager"
                         decoding="async"
                     >
- 
+
                     <div id="jugadoresMapaLayer" class="jugadores-mapa-layer"></div>
- 
+
                     <div
                         id="avatarMapa"
                         class="avatar-mapa"
                         aria-label="${obtenerNombreEntrenadorMaps()}"
                     ></div>
                 </div>
- 
+
                 <div class="mapa-ui-inferior">
                     <div class="mapa-evento-box">
-                        <div class="mapa-evento-titulo">${t("maps_zone_pokemon")}</div>
+                        <div class="mapa-evento-head">
+                            <div class="mapa-evento-titulo">${t("maps_zone_pokemon")}</div>
+                            <span class="mapa-evento-resumen">${speciesLabel}</span>
+                        </div>
                         ${renderMiniaturasZona(zonaSeleccionadaActual)}
                     </div>
- 
+
                     <div class="mapa-movimiento">
                         <button class="move-up" data-move="up" type="button" aria-label="${t("maps_move_up")}">
                             <img src="img/maps/move/north_able.png" alt="${t("maps_move_up")}">
                         </button>
- 
+
                         <button class="move-left" data-move="left" type="button" aria-label="${t("maps_move_left")}">
                             <img src="img/maps/move/west_able.png" alt="${t("maps_move_left")}">
                         </button>
- 
+
                         <div class="move-center">
                             <img src="img/maps/move/center.png" alt="${t("maps_center")}">
                         </div>
- 
+
                         <button class="move-right" data-move="right" type="button" aria-label="${t("maps_move_right")}">
                             <img src="img/maps/move/east_able.png" alt="${t("maps_move_right")}">
                         </button>
- 
+
                         <button class="move-down" data-move="down" type="button" aria-label="${t("maps_move_down")}">
                             <img src="img/maps/move/south_able.png" alt="${t("maps_move_down")}">
                         </button>
                     </div>
                 </div>
             </div>
- 
+
             <div class="encuentro-lateral">
                 <div id="encuentroInfoPanel" class="encuentro-info-panel"></div>
                 <div id="encuentroAccionPanel" class="encuentro-accion-panel"></div>
             </div>
         </div>
     `;
- 
+
     renderizarAvatarMapa();
     renderizarJugadoresMapa();
 }
- 
+
 function renderMiniaturasZona(zona = null) {
     const pokemonesZona = Array.isArray(zona?.pokemones) ? zona.pokemones : [];
  
