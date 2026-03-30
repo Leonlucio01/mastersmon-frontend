@@ -5,6 +5,12 @@ let listaPokemonUsuarioMaps = [];
 let zonasCache = [];
 let mapaInicio = 0;
 let mapasPorVista = 4;
+let mapsFiltrosEstado = {
+    search: "",
+    region: "all",
+    generation: "all",
+    biome: "all"
+};
  
 let zonaSeleccionadaActual = null;
 let encuentroActual = null;
@@ -22,7 +28,7 @@ let jugadoresZonaMaps = new Map();
 let presenciaZonaActivaId = null;
 let ultimoNodoReportadoMaps = null;
  
-const MAPS_ZONAS_CACHE_KEY = "mastersmon_maps_zonas_cache_v2";
+const MAPS_ZONAS_CACHE_KEY = "mastersmon_maps_zonas_cache_v3";
 const MAPS_AVATAR_POSICIONES_KEY = "mastersmon_maps_avatar_posiciones_v1";
 const MAPS_AVATAR_DEFAULT_ID = "steven";
 const MAPS_AVATAR_ID_REGEX = /^[a-z0-9_-]{1,60}$/;
@@ -366,8 +372,281 @@ const MAPS_REGION_BY_GENERATION = {
     9: "paldea"
 };
 
+
+const MAPS_REGION_ORDER = ["kanto", "johto", "hoenn", "sinnoh", "unova", "kalos", "alola", "galar", "paldea", "frontier"];
+
+function mapsZoneMatchesFilters(zona = null, filtros = mapsFiltrosEstado) {
+    if (!zona) return false;
+
+    const visual = obtenerVisualZonaMaps(zona);
+    const search = normalizarTextoMaps(filtros?.search || "");
+    const region = String(filtros?.region || "all").trim().toLowerCase();
+    const generation = String(filtros?.generation || "all").trim().toLowerCase();
+    const biome = String(filtros?.biome || "all").trim().toLowerCase();
+
+    if (region !== "all" && String(visual.region || "").toLowerCase() !== region) {
+        return false;
+    }
+
+    if (generation !== "all" && String(visual.generacion || "") !== generation) {
+        return false;
+    }
+
+    if (biome !== "all" && String(visual.clave || "default").toLowerCase() !== biome) {
+        return false;
+    }
+
+    if (search) {
+        const textoZona = normalizarTextoMaps([
+            zona?.codigo,
+            zona?.nombre,
+            zona?.descripcion,
+            zona?.tipo_ambiente,
+            zona?.region_codigo,
+            zona?.tema_visual,
+            visual.region,
+            visual.clave
+        ].filter(Boolean).join(" "));
+
+        if (!textoZona.includes(search)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+function obtenerZonasFiltradas(includeSelected = true) {
+    const base = Array.isArray(zonasCache) ? zonasCache : [];
+    const filtradas = base.filter(zona => mapsZoneMatchesFilters(zona));
+
+    if (includeSelected && zonaSeleccionadaActual) {
+        const selectedId = Number(zonaSeleccionadaActual.id);
+        const yaIncluida = filtradas.some(zona => Number(zona.id) === selectedId);
+        if (!yaIncluida) {
+            const zonaReal = base.find(zona => Number(zona.id) === selectedId);
+            if (zonaReal) {
+                return [zonaReal, ...filtradas];
+            }
+        }
+    }
+
+    return filtradas;
+}
+
+function obtenerConteoZonasFiltradasReal() {
+    return (Array.isArray(zonasCache) ? zonasCache : []).filter(zona => mapsZoneMatchesFilters(zona)).length;
+}
+
+function reiniciarCarruselSegunFiltrosMaps() {
+    const lista = obtenerZonasFiltradas();
+    if (!lista.length) {
+        mapaInicio = 0;
+        return;
+    }
+
+    mapaInicio = Math.min(mapaInicio, Math.max(0, lista.length - 1));
+}
+
+function popularSelectMaps(element, options, allLabel) {
+    if (!element) return;
+
+    const current = String(element.value || "all");
+    element.innerHTML = `<option value="all">${allLabel}</option>`;
+
+    options.forEach(option => {
+        const opt = document.createElement("option");
+        opt.value = String(option.value);
+        opt.textContent = option.label;
+        element.appendChild(opt);
+    });
+
+    const allowed = new Set(["all", ...options.map(option => String(option.value))]);
+    element.value = allowed.has(current) ? current : "all";
+}
+
+function construirOpcionesRegionMaps() {
+    const disponibles = new Set();
+    (Array.isArray(zonasCache) ? zonasCache : []).forEach(zona => {
+        const region = String(obtenerVisualZonaMaps(zona).region || "frontier").toLowerCase();
+        if (region) disponibles.add(region);
+    });
+
+    const ordenadas = MAPS_REGION_ORDER.filter(region => disponibles.has(region));
+    return ordenadas.map(region => ({ value: region, label: obtenerTextoRegionMaps(region) }));
+}
+
+function construirOpcionesGeneracionMaps() {
+    const generaciones = Array.from(new Set(
+        (Array.isArray(zonasCache) ? zonasCache : [])
+            .map(zona => Number(obtenerVisualZonaMaps(zona).generacion || 0))
+            .filter(valor => Number.isFinite(valor) && valor > 0)
+    )).sort((a, b) => a - b);
+
+    return generaciones.map(generacion => ({
+        value: String(generacion),
+        label: obtenerTextoGeneracionMaps(generacion)
+    }));
+}
+
+function construirOpcionesBiomaMaps() {
+    const biomas = Array.from(new Set(
+        (Array.isArray(zonasCache) ? zonasCache : [])
+            .map(zona => String(obtenerVisualZonaMaps(zona).clave || "default").toLowerCase())
+            .filter(Boolean)
+    ));
+
+    biomas.sort((a, b) => obtenerTextoBiomaMaps(a).localeCompare(obtenerTextoBiomaMaps(b), undefined, { sensitivity: "base" }));
+
+    return biomas.map(clave => ({ value: clave, label: obtenerTextoBiomaMaps(clave) }));
+}
+
+function renderizarOpcionesFiltrosMaps() {
+    popularSelectMaps(
+        document.getElementById("filtroMapsRegion"),
+        construirOpcionesRegionMaps(),
+        tMapsLocal("maps_filter_all_regions", "All regions", "Todas las regiones")
+    );
+
+    popularSelectMaps(
+        document.getElementById("filtroMapsGeneration"),
+        construirOpcionesGeneracionMaps(),
+        tMapsLocal("maps_filter_all_generations", "All generations", "Todas las generaciones")
+    );
+
+    popularSelectMaps(
+        document.getElementById("filtroMapsBiome"),
+        construirOpcionesBiomaMaps(),
+        tMapsLocal("maps_filter_all_biomes", "All biomes", "Todos los biomas")
+    );
+
+    const searchInput = document.getElementById("buscarMapaInput");
+    if (searchInput) {
+        searchInput.placeholder = tMapsLocal(
+            "maps_filter_search_placeholder",
+            "Search maps, regions or biomes...",
+            "Buscar mapas, regiones o biomas..."
+        );
+        searchInput.value = String(mapsFiltrosEstado.search || "");
+    }
+}
+
+function renderizarResumenFiltrosMaps() {
+    const results = document.getElementById("mapsFilterResultsText");
+    const chips = document.getElementById("mapsFilterActiveChips");
+    if (!results || !chips) return;
+
+    const totalReal = Array.isArray(zonasCache) ? zonasCache.length : 0;
+    const filtradasReal = obtenerConteoZonasFiltradasReal();
+
+    const regionCountEl = document.getElementById("mapsDiscoveryRegionCount");
+    const generationCountEl = document.getElementById("mapsDiscoveryGenerationCount");
+    if (regionCountEl) {
+        regionCountEl.textContent = String(construirOpcionesRegionMaps().length || 0);
+    }
+    if (generationCountEl) {
+        generationCountEl.textContent = String(construirOpcionesGeneracionMaps().length || 0);
+    }
+
+    results.textContent = tMapsLocal(
+        "maps_filter_results_summary",
+        "Showing {shown} of {total} maps",
+        "Mostrando {shown} de {total} mapas",
+        { shown: filtradasReal, total: totalReal }
+    );
+
+    const activos = [];
+    if (mapsFiltrosEstado.region !== "all") {
+        activos.push(obtenerTextoRegionMaps(mapsFiltrosEstado.region));
+    }
+    if (mapsFiltrosEstado.generation !== "all") {
+        activos.push(obtenerTextoGeneracionMaps(Number(mapsFiltrosEstado.generation)));
+    }
+    if (mapsFiltrosEstado.biome !== "all") {
+        activos.push(obtenerTextoBiomaMaps(mapsFiltrosEstado.biome));
+    }
+    if (String(mapsFiltrosEstado.search || "").trim()) {
+        activos.push(`“${String(mapsFiltrosEstado.search).trim()}”`);
+    }
+
+    chips.innerHTML = activos.length
+        ? activos.map(texto => `<span class="maps-active-filter-chip">${texto}</span>`).join("")
+        : `<span class="maps-active-filter-chip is-neutral">${tMapsLocal("maps_filter_no_active", "No active filters", "Sin filtros activos")}</span>`;
+}
+
+function aplicarFiltrosMaps({ preserveStart = false } = {}) {
+    if (!preserveStart) {
+        mapaInicio = 0;
+    }
+
+    reiniciarCarruselSegunFiltrosMaps();
+    renderizarResumenFiltrosMaps();
+    renderizarZonas();
+}
+
+function resetearFiltrosMaps() {
+    mapsFiltrosEstado = {
+        search: "",
+        region: "all",
+        generation: "all",
+        biome: "all"
+    };
+
+    renderizarOpcionesFiltrosMaps();
+    aplicarFiltrosMaps();
+}
+
+function configurarFiltrosMaps() {
+    const searchInput = document.getElementById("buscarMapaInput");
+    const selectRegion = document.getElementById("filtroMapsRegion");
+    const selectGeneration = document.getElementById("filtroMapsGeneration");
+    const selectBiome = document.getElementById("filtroMapsBiome");
+    const resetButton = document.getElementById("btnMapsFiltersReset");
+
+    if (searchInput && !searchInput.dataset.mapsBound) {
+        searchInput.dataset.mapsBound = "1";
+        searchInput.addEventListener("input", (event) => {
+            mapsFiltrosEstado.search = String(event.target.value || "");
+            aplicarFiltrosMaps();
+        });
+    }
+
+    if (selectRegion && !selectRegion.dataset.mapsBound) {
+        selectRegion.dataset.mapsBound = "1";
+        selectRegion.addEventListener("change", (event) => {
+            mapsFiltrosEstado.region = String(event.target.value || "all");
+            aplicarFiltrosMaps();
+        });
+    }
+
+    if (selectGeneration && !selectGeneration.dataset.mapsBound) {
+        selectGeneration.dataset.mapsBound = "1";
+        selectGeneration.addEventListener("change", (event) => {
+            mapsFiltrosEstado.generation = String(event.target.value || "all");
+            aplicarFiltrosMaps();
+        });
+    }
+
+    if (selectBiome && !selectBiome.dataset.mapsBound) {
+        selectBiome.dataset.mapsBound = "1";
+        selectBiome.addEventListener("change", (event) => {
+            mapsFiltrosEstado.biome = String(event.target.value || "all");
+            aplicarFiltrosMaps();
+        });
+    }
+
+    if (resetButton && !resetButton.dataset.mapsBound) {
+        resetButton.dataset.mapsBound = "1";
+        resetButton.addEventListener("click", () => resetearFiltrosMaps());
+    }
+
+    renderizarOpcionesFiltrosMaps();
+    renderizarResumenFiltrosMaps();
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     configurarCarruselMaps();
+    configurarFiltrosMaps();
     configurarEventosDelegados();
     configurarMovimientoTeclado();
     configurarSelectorIdiomaMaps();
@@ -478,6 +757,8 @@ function configurarSelectorIdiomaMaps() {
         }
  
         if (zonasCache.length > 0) {
+            renderizarOpcionesFiltrosMaps();
+            renderizarResumenFiltrosMaps();
             renderizarZonas();
         }
  
@@ -515,6 +796,7 @@ function configurarEventosSesionMaps() {
         sincronizarUsuarioLocalMaps(usuario);
  
         if (zonasCache.length > 0) {
+            renderizarResumenFiltrosMaps();
             renderizarZonas();
         }
  
@@ -718,34 +1000,39 @@ function configurarCarruselMaps() {
     }
 }
  
+
 function moverCarrusel(direccion) {
-    if (!zonasCache.length) return;
- 
+    const lista = obtenerZonasFiltradas();
+    if (!lista.length) return;
+
     mapaInicio += direccion;
- 
+
     if (mapaInicio < 0) {
-        mapaInicio = zonasCache.length - 1;
+        mapaInicio = lista.length - 1;
     }
- 
-    if (mapaInicio >= zonasCache.length) {
+
+    if (mapaInicio >= lista.length) {
         mapaInicio = 0;
     }
- 
+
     renderizarZonas();
 }
- 
+
 function obtenerZonasVisibles() {
-    if (!zonasCache.length) return [];
- 
+    const lista = obtenerZonasFiltradas();
+    if (!lista.length) return [];
+
     const visibles = [];
- 
-    for (let i = 0; i < mapasPorVista; i++) {
-        const index = (mapaInicio + i) % zonasCache.length;
-        visibles.push(zonasCache[index]);
+    const total = Math.min(mapasPorVista, lista.length);
+
+    for (let i = 0; i < total; i++) {
+        const index = (mapaInicio + i) % lista.length;
+        visibles.push(lista[index]);
     }
- 
+
     return visibles;
 }
+
  
 /* =========================
    CACHE SIMPLE
@@ -1791,10 +2078,20 @@ function obtenerTextoEspeciesZonaMaps(zona = null) {
 }
 
 function obtenerImagenCardZonaMaps(zona = null) {
+    if (zona?.card_imagen) {
+        return String(zona.card_imagen);
+    }
     if (zona?.imagen) {
         return String(zona.imagen);
     }
     return obtenerConfigZona(zona).card;
+}
+
+function obtenerImagenEscenarioZonaMaps(zona = null) {
+    if (zona?.escenario_imagen) {
+        return String(zona.escenario_imagen);
+    }
+    return obtenerConfigZona(zona).escenario;
 }
 
 function obtenerNombreZonaTraducido(zona = null) {
@@ -1883,6 +2180,8 @@ async function cargarZonas() {
         zonasCache = enriquecerZonasVisualMaps(cache);
         mapasPorVista = obtenerMapasPorVista();
         mapaInicio = Math.min(mapaInicio, Math.max(0, zonasCache.length - 1));
+        renderizarOpcionesFiltrosMaps();
+        renderizarResumenFiltrosMaps();
         renderizarZonas();
     }
 
@@ -1892,6 +2191,8 @@ async function cargarZonas() {
 
     mapasPorVista = obtenerMapasPorVista();
     mapaInicio = 0;
+    renderizarOpcionesFiltrosMaps();
+    renderizarResumenFiltrosMaps();
 }
 
 function mostrarCargaZonas() {
@@ -1944,11 +2245,12 @@ function renderizarZonas() {
     const visibles = obtenerZonasVisibles();
 
     if (!visibles.length) {
+        const hayZonas = Array.isArray(zonasCache) && zonasCache.length > 0;
         container.innerHTML = `
             <article class="map-card">
                 <div class="map-info">
-                    <h3>${t("maps_no_zones")}</h3>
-                    <p>${t("maps_add_zones_db")}</p>
+                    <h3>${hayZonas ? tMapsLocal("maps_filter_empty_title", "No maps match your filters", "No hay mapas con esos filtros") : t("maps_no_zones")}</h3>
+                    <p>${hayZonas ? tMapsLocal("maps_filter_empty_text", "Adjust your filters or reset them to see more zones.", "Ajusta tus filtros o reinícialos para ver más zonas.") : t("maps_add_zones_db")}</p>
                 </div>
             </article>
         `;
@@ -2122,7 +2424,7 @@ function renderizarZonaExploracion() {
                 <div class="mapa-exploracion-box">
                     <img
                         id="imgMapaExploracion"
-                        src="${config.escenario}"
+                        src="${obtenerImagenEscenarioZonaMaps(zonaSeleccionadaActual)}"
                         alt="${nombreZonaUI}"
                         loading="eager"
                         decoding="async"
