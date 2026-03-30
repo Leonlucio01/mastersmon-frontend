@@ -28,7 +28,7 @@ let jugadoresZonaMaps = new Map();
 let presenciaZonaActivaId = null;
 let ultimoNodoReportadoMaps = null;
  
-const MAPS_ZONAS_CACHE_KEY = "mastersmon_maps_zonas_cache_v4";
+const MAPS_ZONAS_CACHE_KEY = "mastersmon_maps_zonas_cache_v5";
 const MAPS_AVATAR_POSICIONES_KEY = "mastersmon_maps_avatar_posiciones_v1";
 const MAPS_AVATAR_DEFAULT_ID = "steven";
 const MAPS_AVATAR_ID_REGEX = /^[a-z0-9_-]{1,60}$/;
@@ -215,8 +215,8 @@ const MAPAS_RUTAS = {
  
 const MAPAS_CONFIG = {
     bosque: {
-        card: "img/maps/cards/bosque_verde.png",
-        escenario: "img/maps/escenarios/bosque_verde_1.png",
+        card: "img/maps/cards/kanto/bosque_verde.png",
+        escenario: "img/maps/escenarios/kanto/bosque_verde.png",
         clase: "zona-bosque",
         accent: "#16a34a",
         accentSoft: "rgba(22, 163, 74, 0.14)",
@@ -227,8 +227,8 @@ const MAPAS_CONFIG = {
         headerBg: "linear-gradient(180deg, rgba(240,253,244,0.98) 0%, rgba(255,255,255,0.98) 100%)"
     },
     cueva: {
-        card: "img/maps/cards/cueva_roca.png",
-        escenario: "img/maps/escenarios/caverna_roca_1.png",
+        card: "img/maps/cards/kanto/cueva_roca.png",
+        escenario: "img/maps/escenarios/kanto/caverna_roca.png",
         clase: "zona-cueva",
         accent: "#7c3aed",
         accentSoft: "rgba(124, 58, 237, 0.14)",
@@ -239,8 +239,8 @@ const MAPAS_CONFIG = {
         headerBg: "linear-gradient(180deg, rgba(245,243,255,0.98) 0%, rgba(255,255,255,0.98) 100%)"
     },
     lago: {
-        card: "img/maps/cards/lago_azul.png",
-        escenario: "img/maps/escenarios/lago_azul_1.png",
+        card: "img/maps/cards/kanto/lago_azul.png",
+        escenario: "img/maps/escenarios/kanto/lago_azul.png",
         clase: "zona-lago",
         accent: "#2563eb",
         accentSoft: "rgba(37, 99, 235, 0.14)",
@@ -251,8 +251,8 @@ const MAPAS_CONFIG = {
         headerBg: "linear-gradient(180deg, rgba(239,246,255,0.98) 0%, rgba(255,255,255,0.98) 100%)"
     },
     torre: {
-        card: "img/maps/cards/cueva_roca.png",
-        escenario: "img/maps/escenarios/caverna_fuego_1.png",
+        card: "img/maps/cards/kanto/torre_batalla.png",
+        escenario: "img/maps/escenarios/kanto/torre_batalla.png",
         clase: "zona-torre",
         accent: "#dc2626",
         accentSoft: "rgba(220, 38, 38, 0.14)",
@@ -263,8 +263,8 @@ const MAPAS_CONFIG = {
         headerBg: "linear-gradient(180deg, rgba(254,242,242,0.98) 0%, rgba(255,255,255,0.98) 100%)"
     },
     volcan: {
-        card: "img/maps/cards/torre_batalla.png",
-        escenario: "img/maps/escenarios/torre_batalla_1.png",
+        card: "img/maps/cards/hoenn/caverna_fuego.png",
+        escenario: "img/maps/escenarios/hoenn/caverna_fuego.png",
         clase: "zona-volcan",
         accent: "#ea580c",
         accentSoft: "rgba(234, 88, 12, 0.14)",
@@ -275,8 +275,8 @@ const MAPAS_CONFIG = {
         headerBg: "linear-gradient(180deg, rgba(255,247,237,0.98) 0%, rgba(255,255,255,0.98) 100%)"
     },
     nieve: {
-        card: "img/maps/cards/lago_azul.png",
-        escenario: "img/maps/escenarios/lago_azul_1.png",
+        card: "img/maps/cards/zona_especial/cumbre_nevada.png",
+        escenario: "img/maps/escenarios/zona_especial/cumbre_nevada.png",
         clase: "zona-nieve",
         accent: "#0891b2",
         accentSoft: "rgba(8, 145, 178, 0.14)",
@@ -287,8 +287,8 @@ const MAPAS_CONFIG = {
         headerBg: "linear-gradient(180deg, rgba(236,254,255,0.98) 0%, rgba(255,255,255,0.98) 100%)"
     },
     pantano: {
-        card: "img/maps/cards/bosque_verde.png",
-        escenario: "img/maps/escenarios/bosque_verde_1.png",
+        card: "img/maps/cards/zona_especial/pantano_toxico.png",
+        escenario: "img/maps/escenarios/zona_especial/pantano_toxico.png",
         clase: "zona-pantano",
         accent: "#4d7c0f",
         accentSoft: "rgba(77, 124, 15, 0.14)",
@@ -299,8 +299,8 @@ const MAPAS_CONFIG = {
         headerBg: "linear-gradient(180deg, rgba(247,254,231,0.98) 0%, rgba(255,255,255,0.98) 100%)"
     },
     fantasma: {
-        card: "img/maps/cards/torre_batalla.png",
-        escenario: "img/maps/escenarios/torre_batalla_1.png",
+        card: "img/maps/cards/zona_especial/torre_fantasma.png",
+        escenario: "img/maps/escenarios/zona_especial/torre_fantasma.png",
         clase: "zona-fantasma",
         accent: "#6d28d9",
         accentSoft: "rgba(109, 40, 217, 0.14)",
@@ -311,8 +311,8 @@ const MAPAS_CONFIG = {
         headerBg: "linear-gradient(180deg, rgba(250,245,255,0.98) 0%, rgba(255,255,255,0.98) 100%)"
     },
     electrico: {
-        card: "img/maps/cards/lago_azul.png",
-        escenario: "img/maps/escenarios/lago_azul_1.png",
+        card: "img/maps/cards/zona_especial/pico_trueno.png",
+        escenario: "img/maps/escenarios/zona_especial/pico_trueno.png",
         clase: "zona-electrico",
         accent: "#ca8a04",
         accentSoft: "rgba(202, 138, 4, 0.16)",
@@ -323,8 +323,8 @@ const MAPAS_CONFIG = {
         headerBg: "linear-gradient(180deg, rgba(254,252,232,0.98) 0%, rgba(255,255,255,0.98) 100%)"
     },
     desierto: {
-        card: "img/maps/cards/cueva_roca.png",
-        escenario: "img/maps/escenarios/caverna_roca_1.png",
+        card: "img/maps/cards/zona_especial/desierto_dorado.png",
+        escenario: "img/maps/escenarios/zona_especial/desierto_dorado.png",
         clase: "zona-desierto",
         accent: "#b45309",
         accentSoft: "rgba(180, 83, 9, 0.14)",
@@ -335,8 +335,8 @@ const MAPAS_CONFIG = {
         headerBg: "linear-gradient(180deg, rgba(255,251,235,0.98) 0%, rgba(255,255,255,0.98) 100%)"
     },
     cielo: {
-        card: "img/maps/cards/lago_azul.png",
-        escenario: "img/maps/escenarios/lago_azul_1.png",
+        card: "img/maps/cards/hoenn/pilar_del_cielo.png",
+        escenario: "img/maps/escenarios/hoenn/pilar_del_cielo.png",
         clase: "zona-cielo",
         accent: "#0284c7",
         accentSoft: "rgba(2, 132, 199, 0.14)",
@@ -347,8 +347,8 @@ const MAPAS_CONFIG = {
         headerBg: "linear-gradient(180deg, rgba(240,249,255,0.98) 0%, rgba(255,255,255,0.98) 100%)"
     },
     default: {
-        card: "img/maps/cards/bosque_verde.png",
-        escenario: "img/maps/escenarios/bosque_verde_1.png",
+        card: "img/maps/cards/kanto/bosque_verde.png",
+        escenario: "img/maps/escenarios/kanto/bosque_verde.png",
         clase: "zona-default",
         accent: "#475569",
         accentSoft: "rgba(71, 85, 105, 0.14)",
@@ -393,122 +393,262 @@ const MAPS_REGION_ICONS = {
 const MAPS_ZONE_COPY_BY_CODE = {
     kanto_green_forest: {
         en: {
-            name: "Kanto Green Forest",
-            desc: "An opening forest route built for bug, grass and fast starter captures."
+            name: "Green Forest",
+            desc: "A classic starter forest with fast captures, open paths and early route pacing."
         },
         es: {
-            name: "Bosque Verde de Kanto",
-            desc: "Una ruta inicial de bosque pensada para capturas rápidas de tipo bicho y planta."
+            name: "Bosque Verde",
+            desc: "Un bosque clásico de inicio, con capturas rápidas, caminos abiertos y ritmo de ruta temprana."
         }
     },
     kanto_rock_cave: {
         en: {
-            name: "Kanto Rock Cave",
-            desc: "A compact cave route with rocky encounters and a sharper level climb."
+            name: "Rock Cave",
+            desc: "A rocky cave route with tighter corridors and stronger early encounters."
         },
         es: {
-            name: "Cueva Roca de Kanto",
-            desc: "Una cueva compacta con encuentros rocosos y una subida de nivel más marcada."
+            name: "Cueva Roca",
+            desc: "Una cueva rocosa con corredores más cerrados y encuentros tempranos más fuertes."
         }
     },
     kanto_blue_lake: {
         en: {
-            name: "Kanto Blue Lake",
-            desc: "A fresh water route with classic lake encounters and balanced progression."
+            name: "Blue Lake",
+            desc: "A calm water route with balanced progression and classic lake encounters."
         },
         es: {
-            name: "Lago Azul de Kanto",
-            desc: "Una ruta acuática clásica con encuentros de lago y progreso equilibrado."
+            name: "Lago Azul",
+            desc: "Una ruta de agua tranquila, con progreso equilibrado y encuentros clásicos de lago."
         }
     },
     kanto_battle_tower: {
         en: {
-            name: "Kanto Battle Tower",
-            desc: "A tactical route that feels like the bridge between early maps and harder content."
+            name: "Battle Tower",
+            desc: "A tactical route that bridges the first maps with more demanding content."
         },
         es: {
-            name: "Torre Batalla de Kanto",
+            name: "Torre Batalla",
             desc: "Una ruta táctica que conecta los primeros mapas con contenido más exigente."
         }
     },
     johto_whisper_forest: {
         en: {
-            name: "Johto Whisper Forest",
-            desc: "A calm regional forest with nocturnal encounters and smoother mid-game pacing."
+            name: "Ancient Forest",
+            desc: "A mystical Johto forest with older trees, calmer pacing and stronger mid-game encounters."
         },
         es: {
-            name: "Bosque Susurro de Johto",
-            desc: "Un bosque sereno con encuentros nocturnos y un ritmo mid game más suave."
+            name: "Bosque Ancestral",
+            desc: "Un bosque místico de Johto, con árboles antiguos, ritmo sereno y encuentros mid-game más fuertes."
         }
     },
     johto_ember_cavern: {
         en: {
-            name: "Johto Ember Cavern",
-            desc: "A warm cavern route using your fire-themed scenario to open volcanic progression."
+            name: "Deep Ruins",
+            desc: "An ancient stone route with ruins, fossils and a more sacred rocky progression."
         },
         es: {
-            name: "Caverna Ascua de Johto",
-            desc: "Una caverna cálida que aprovecha tu escenario de fuego para abrir la ruta volcánica."
+            name: "Ruinas Profundas",
+            desc: "Una ruta de piedra antigua, con ruinas, fósiles y una progresión rocosa más sagrada."
         }
     },
     johto_silver_lake: {
         en: {
-            name: "Johto Silver Lake",
-            desc: "A reflective lake route with calmer captures, electric fish and steady rewards."
+            name: "Whirlpool Lake",
+            desc: "A reflective sacred lake with calmer captures and a distinct Johto identity."
         },
         es: {
-            name: "Lago Plata de Johto",
-            desc: "Una ruta de lago con capturas más calmadas, peces eléctricos y progreso estable."
+            name: "Lago Remolino",
+            desc: "Un lago sagrado y reflejante, con capturas más calmadas y una identidad clara de Johto."
         }
     },
     johto_guardian_tower: {
         en: {
-            name: "Johto Guardian Tower",
-            desc: "A mystical tower route suited for psychic, ghost and watchful aerial encounters."
+            name: "Bell Tower",
+            desc: "A spiritual tower route for psychic, fire and ghost progression in Johto."
         },
         es: {
-            name: "Torre Guardián de Johto",
-            desc: "Una torre mística ideal para encuentros psíquicos, fantasma y voladores vigilantes."
+            name: "Torre Campana",
+            desc: "Una torre espiritual para progresión psíquica, fuego y fantasma dentro de Johto."
         }
     },
     hoenn_rain_forest: {
         en: {
-            name: "Hoenn Rain Forest",
-            desc: "A denser forest route with stronger wild teams and a more adventurous biome mix."
+            name: "Tropical Forest",
+            desc: "A lush Hoenn forest with denser vegetation, wetter terrain and stronger captures."
         },
         es: {
-            name: "Bosque Lluvia de Hoenn",
-            desc: "Un bosque más denso con equipos salvajes más fuertes y un bioma más aventurero."
+            name: "Bosque Tropical",
+            desc: "Un bosque frondoso de Hoenn, con vegetación más densa, terreno húmedo y capturas más fuertes."
         }
     },
     hoenn_magma_cavern: {
         en: {
-            name: "Hoenn Magma Cavern",
-            desc: "A hotter cavern route designed for your fire map and stronger volcanic pacing."
+            name: "Fire Cavern",
+            desc: "A hot volcanic route with lava pressure and stronger late-regional pacing."
         },
         es: {
-            name: "Caverna Magma de Hoenn",
-            desc: "Una caverna ardiente diseñada para tu mapa de fuego y un progreso volcánico más fuerte."
+            name: "Caverna Fuego",
+            desc: "Una ruta volcánica ardiente, con presión de lava y una progresión regional más intensa."
         }
     },
-    hoenn_tide_lake: {
+    hoenn_coral_coast: {
         en: {
-            name: "Hoenn Tide Lake",
-            desc: "A stronger water route with sea-like variety while still fitting your current lake asset."
+            name: "Coral Lagoon",
+            desc: "A brighter coast-lake route with coral colors and a more adventurous Hoenn feel."
         },
         es: {
-            name: "Lago Marea de Hoenn",
-            desc: "Una ruta de agua más fuerte con variedad marina, pero usando tu asset actual de lago."
+            name: "Laguna Coral",
+            desc: "Una ruta de agua más viva, con colores coral y una sensación más aventurera de Hoenn."
         }
     },
-    hoenn_sky_tower: {
+    hoenn_sky_pillar: {
         en: {
-            name: "Hoenn Sky Tower",
-            desc: "A high-route finale with flying pressure, rarer encounters and a world-map feel."
+            name: "Sky Pillar",
+            desc: "A high route built for flying, dragon and advanced regional progression."
         },
         es: {
-            name: "Torre Cielo de Hoenn",
-            desc: "Un cierre de ruta más alto, con presión voladora, encuentros raros y sensación de mapa mundial."
+            name: "Pilar del Cielo",
+            desc: "Una ruta elevada pensada para volador, dragón y progresión regional avanzada."
+        }
+    },
+    frontier_snow_summit: {
+        en: {
+            name: "Snow Summit",
+            desc: "A frozen high route with thin air, ice stone and more demanding encounters."
+        },
+        es: {
+            name: "Cumbre Nevada",
+            desc: "Una ruta helada y elevada, con aire delgado, roca congelada y encuentros más exigentes."
+        }
+    },
+    cumbre_nevada: {
+        en: {
+            name: "Snow Summit",
+            desc: "A frozen high route with thin air, ice stone and more demanding encounters."
+        },
+        es: {
+            name: "Cumbre Nevada",
+            desc: "Una ruta helada y elevada, con aire delgado, roca congelada y encuentros más exigentes."
+        }
+    },
+    frontier_golden_desert: {
+        en: {
+            name: "Golden Desert",
+            desc: "An arid sand route with buried ruins and a more punishing frontier pace."
+        },
+        es: {
+            name: "Desierto Dorado",
+            desc: "Una ruta árida de arena pesada, con ruinas enterradas y un ritmo frontier más castigador."
+        }
+    },
+    desierto_dorado: {
+        en: {
+            name: "Golden Desert",
+            desc: "An arid sand route with buried ruins and a more punishing frontier pace."
+        },
+        es: {
+            name: "Desierto Dorado",
+            desc: "Una ruta árida de arena pesada, con ruinas enterradas y un ritmo frontier más castigador."
+        }
+    },
+    frontier_moon_garden: {
+        en: {
+            name: "Moon Garden",
+            desc: "A mystical night garden with dim glow, hidden paths and a spiritual frontier mood."
+        },
+        es: {
+            name: "Jardín Lunar",
+            desc: "Un jardín místico nocturno, con brillo tenue, caminos secretos y una atmósfera espiritual."
+        }
+    },
+    jardin_lunar: {
+        en: {
+            name: "Moon Garden",
+            desc: "A mystical night garden with dim glow, hidden paths and a spiritual frontier mood."
+        },
+        es: {
+            name: "Jardín Lunar",
+            desc: "Un jardín místico nocturno, con brillo tenue, caminos secretos y una atmósfera espiritual."
+        }
+    },
+    frontier_toxic_swamp: {
+        en: {
+            name: "Toxic Swamp",
+            desc: "A dense hostile swamp with tight routes, sticky ground and constant pressure."
+        },
+        es: {
+            name: "Pantano Tóxico",
+            desc: "Un pantano denso y hostil, con rutas cerradas, suelo pegajoso y presión constante."
+        }
+    },
+    pantano_toxico: {
+        en: {
+            name: "Toxic Swamp",
+            desc: "A dense hostile swamp with tight routes, sticky ground and constant pressure."
+        },
+        es: {
+            name: "Pantano Tóxico",
+            desc: "Un pantano denso y hostil, con rutas cerradas, suelo pegajoso y presión constante."
+        }
+    },
+    frontier_thunder_peak: {
+        en: {
+            name: "Thunder Peak",
+            desc: "A high-energy mountain route with open stone and aggressive electric encounters."
+        },
+        es: {
+            name: "Pico Trueno",
+            desc: "Una ruta de altura con energía eléctrica, piedra abierta y encuentros más agresivos."
+        }
+    },
+    pico_trueno: {
+        en: {
+            name: "Thunder Peak",
+            desc: "A high-energy mountain route with open stone and aggressive electric encounters."
+        },
+        es: {
+            name: "Pico Trueno",
+            desc: "Una ruta de altura con energía eléctrica, piedra abierta y encuentros más agresivos."
+        }
+    },
+    frontier_dragon_sanctuary: {
+        en: {
+            name: "Dragon Sanctuary",
+            desc: "A sacred advanced zone with aerial pressure and a strong legendary identity."
+        },
+        es: {
+            name: "Santuario Dragón",
+            desc: "Una zona sagrada de final avanzado, con presión aérea y una fuerte identidad legendaria."
+        }
+    },
+    santuario_dragon: {
+        en: {
+            name: "Dragon Sanctuary",
+            desc: "A sacred advanced zone with aerial pressure and a strong legendary identity."
+        },
+        es: {
+            name: "Santuario Dragón",
+            desc: "Una zona sagrada de final avanzado, con presión aérea y una fuerte identidad legendaria."
+        }
+    },
+    frontier_ghost_tower: {
+        en: {
+            name: "Ghost Tower",
+            desc: "A darker special tower built for rare encounters and a heavy supernatural atmosphere."
+        },
+        es: {
+            name: "Torre Fantasma",
+            desc: "Una torre especial más oscura, perfecta para encuentros raros y una atmósfera sobrenatural pesada."
+        }
+    },
+    torre_fantasma: {
+        en: {
+            name: "Ghost Tower",
+            desc: "A darker special tower built for rare encounters and a heavy supernatural atmosphere."
+        },
+        es: {
+            name: "Torre Fantasma",
+            desc: "Una torre especial más oscura, perfecta para encuentros raros y una atmósfera sobrenatural pesada."
         }
     }
 };
