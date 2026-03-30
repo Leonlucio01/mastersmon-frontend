@@ -136,59 +136,6 @@
                 <p class="subtitulo-maps" data-i18n="maps_subtitle">Choose an area, enter the map, and move to find wild Pokémon</p>
             </div>
 
-            <div class="maps-discovery-toolbar" id="mapsDiscoveryToolbar">
-                <div class="maps-discovery-summary">
-                    <div class="maps-discovery-copy">
-                        <span class="maps-discovery-badge" data-i18n="maps_explorer_hub_badge">Explorer Hub</span>
-                        <h2 data-i18n="maps_explorer_hub_title">Find your next route</h2>
-                        <p data-i18n="maps_explorer_hub_text">Filter by region, generation, and biome to jump faster into the maps that match your progression.</p>
-                    </div>
-
-                    <div class="maps-discovery-stats">
-                        <div class="maps-discovery-stat">
-                            <span data-i18n="maps_filter_region_label">Region</span>
-                            <strong id="mapsDiscoveryRegionCount">—</strong>
-                        </div>
-                        <div class="maps-discovery-stat">
-                            <span data-i18n="maps_filter_generation_label">Generation</span>
-                            <strong id="mapsDiscoveryGenerationCount">—</strong>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="maps-filters-grid">
-                    <label class="maps-filter-field">
-                        <span data-i18n="maps_filter_search_label">Search</span>
-                        <input id="buscarMapaInput" type="text" placeholder="Search maps, regions or biomes...">
-                    </label>
-
-                    <label class="maps-filter-field">
-                        <span data-i18n="maps_filter_region_label">Region</span>
-                        <select id="filtroMapsRegion"></select>
-                    </label>
-
-                    <label class="maps-filter-field">
-                        <span data-i18n="maps_filter_generation_label">Generation</span>
-                        <select id="filtroMapsGeneration"></select>
-                    </label>
-
-                    <label class="maps-filter-field">
-                        <span data-i18n="maps_filter_biome_label">Biome</span>
-                        <select id="filtroMapsBiome"></select>
-                    </label>
-                </div>
-
-                <div class="maps-filters-footer">
-                    <div>
-                        <div id="mapsFilterResultsText" class="maps-filter-results"></div>
-                        <div id="mapsFilterActiveChips" class="maps-filter-active-chips"></div>
-                    </div>
-
-                    <button id="btnMapsFiltersReset" type="button" class="btn-maps-reset" data-i18n="maps_filter_reset">Reset filters</button>
-                </div>
-            </div>
-
-
             <section class="maps-region-showcase-shell" id="mapsRegionShowcaseShell">
                 <div class="maps-region-showcase-top">
                     <div class="maps-region-showcase-copy">
@@ -198,7 +145,13 @@
                     </div>
                 </div>
 
-                <div class="maps-region-showcase-grid" id="mapsRegionShowcase"></div>
+                <div class="maps-region-showcase-carousel">
+                    <button class="maps-arrow maps-region-arrow maps-region-arrow-left" id="btnRegionPrev" type="button" aria-label="Previous region">‹</button>
+                    <div class="maps-region-showcase-viewport">
+                        <div class="maps-region-showcase-grid" id="mapsRegionShowcase"></div>
+                    </div>
+                    <button class="maps-arrow maps-region-arrow maps-region-arrow-right" id="btnRegionNext" type="button" aria-label="Next region">›</button>
+                </div>
             </section>
 
             <div class="maps-carousel-wrapper">
@@ -239,6 +192,6 @@
     <script src="js/i18n.js?v=5"></script>
     <script src="js/menu.js"></script>
     <script src="js/gmail.js"></script>
-    <script src="js/maps.js?v=6"></script>
+    <script src="js/maps.js?v=7"></script>
 </body>
 </html>

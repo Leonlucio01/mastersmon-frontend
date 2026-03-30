@@ -908,41 +908,15 @@
     background:#f8fafc;
 }
 
-.encuentro-pokemon-showcase.fondo-zona.zona-bosque{
+.encuentro-pokemon-showcase.fondo-zona{
     background-image:
-        linear-gradient(rgba(255,255,255,0.35), rgba(255,255,255,0.45)),
-        url("../img/maps/cards/bosque_verde.png");
+        linear-gradient(rgba(255,255,255,0.32), rgba(255,255,255,0.44)),
+        var(--encounter-zone-bg-image);
     background-size:cover;
     background-position:center;
     background-repeat:no-repeat;
 }
 
-.encuentro-pokemon-showcase.fondo-zona.zona-cueva{
-    background-image:
-        linear-gradient(rgba(255,255,255,0.35), rgba(255,255,255,0.45)),
-        url("../img/maps/cards/cueva_roca.png");
-    background-size:cover;
-    background-position:center;
-    background-repeat:no-repeat;
-}
-
-.encuentro-pokemon-showcase.fondo-zona.zona-lago{
-    background-image:
-        linear-gradient(rgba(255,255,255,0.30), rgba(255,255,255,0.42)),
-        url("../img/maps/cards/lago_azul.png");
-    background-size:cover;
-    background-position:center;
-    background-repeat:no-repeat;
-}
-
-.encuentro-pokemon-showcase.fondo-zona.zona-torre{
-    background-image:
-        linear-gradient(rgba(255,255,255,0.35), rgba(255,255,255,0.45)),
-        url("../img/maps/cards/torre_batalla.png");
-    background-size:cover;
-    background-position:center;
-    background-repeat:no-repeat;
-}
 
 .encuentro-pokemon-aura{
     position:absolute;
@@ -1433,6 +1407,23 @@
     color:#64748b;
     font-size:15px;
     line-height:1.5;
+}
+
+.maps-region-showcase-carousel{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+}
+
+.maps-region-showcase-viewport{
+    flex:1 1 auto;
+    min-width:0;
+    overflow:hidden;
+}
+
+.maps-region-arrow{
+    flex-shrink:0;
 }
 
 .maps-region-showcase-grid{
@@ -2411,18 +2402,33 @@
     background:linear-gradient(180deg, color-mix(in srgb, var(--map-surface) 82%, white), #ffffff);
 }
 
-.encuentro-pokemon-showcase.fondo-zona.zona-volcan,
-.encuentro-pokemon-showcase.fondo-zona.zona-fantasma,
-.encuentro-pokemon-showcase.fondo-zona.zona-electrico,
-.encuentro-pokemon-showcase.fondo-zona.zona-nieve,
-.encuentro-pokemon-showcase.fondo-zona.zona-pantano,
-.encuentro-pokemon-showcase.fondo-zona.zona-desierto,
-.encuentro-pokemon-showcase.fondo-zona.zona-cielo,
-.encuentro-pokemon-showcase.fondo-zona.zona-default{
+.encuentro-pokemon-showcase.fondo-zona:not([style*="--encounter-zone-bg-image"]) {
     background-image:none;
     background:
         radial-gradient(circle at center, rgba(255,255,255,0.52), transparent 46%),
         linear-gradient(180deg, color-mix(in srgb, var(--map-surface) 84%, white), #ffffff 100%);
+}
+
+@media (max-width: 1100px){
+    .maps-region-showcase-grid{
+        grid-template-columns:repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 768px){
+    .maps-region-showcase-carousel{
+        gap:10px;
+    }
+
+    .maps-region-arrow{
+        width:40px;
+        height:40px;
+        font-size:24px;
+    }
+
+    .maps-region-showcase-grid{
+        grid-template-columns:1fr;
+    }
 }
 
 @media (max-width: 1024px){
@@ -2528,6 +2534,7 @@
 ========================================================= */
 
 .maps-discovery-toolbar{
+    display:none !important;
     margin:0 auto 24px;
     padding:22px;
     border-radius:24px;
