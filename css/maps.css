@@ -1375,6 +1375,294 @@
 }
 
 
+
+/* =========================================================
+   PHASE 3 - REGION SHOWCASE
+========================================================= */
+
+.maps-region-showcase-shell{
+    margin-top:24px;
+    margin-bottom:12px;
+    padding:22px;
+    border-radius:28px;
+    background:
+        radial-gradient(circle at top left, rgba(37,99,235,0.10), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(16,185,129,0.10), transparent 28%),
+        linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    border:1px solid rgba(219,234,254,0.95);
+    box-shadow:0 18px 42px rgba(15,23,42,0.08);
+}
+
+.maps-region-showcase-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:18px;
+    margin-bottom:16px;
+}
+
+.maps-region-showcase-copy{
+    max-width:760px;
+}
+
+.maps-region-showcase-badge{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:7px 12px;
+    border-radius:999px;
+    background:#dbeafe;
+    color:#1d4ed8;
+    font-size:12px;
+    font-weight:900;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+    margin-bottom:12px;
+}
+
+.maps-region-showcase-copy h3{
+    margin:0;
+    font-size:28px;
+    line-height:1.08;
+    color:#0f172a;
+    font-weight:900;
+}
+
+.maps-region-showcase-copy p{
+    margin:8px 0 0;
+    color:#64748b;
+    font-size:15px;
+    line-height:1.5;
+}
+
+.maps-region-showcase-grid{
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0, 1fr));
+    gap:16px;
+}
+
+.maps-region-card{
+    position:relative;
+    overflow:hidden;
+    border-radius:24px;
+    background:#ffffff;
+    border:1px solid rgba(191,219,254,0.9);
+    box-shadow:0 14px 30px rgba(15,23,42,0.08);
+    transition:transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+}
+
+.maps-region-card:hover{
+    transform:translateY(-3px);
+    box-shadow:0 20px 36px rgba(15,23,42,0.12);
+}
+
+.maps-region-card.is-active{
+    border-color:var(--region-accent, #2563eb);
+    box-shadow:0 0 0 2px color-mix(in srgb, var(--region-accent, #2563eb) 18%, white 82%), 0 20px 38px rgba(15,23,42,0.12);
+}
+
+.maps-region-card-visual{
+    position:relative;
+    height:150px;
+    overflow:hidden;
+    background:linear-gradient(180deg, #e2e8f0, #f8fafc);
+}
+
+.maps-region-card-visual::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:linear-gradient(180deg, rgba(15,23,42,0.03) 0%, rgba(15,23,42,0.22) 100%);
+    pointer-events:none;
+}
+
+.maps-region-card-visual img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+    transition:transform .28s ease;
+}
+
+.maps-region-card:hover .maps-region-card-visual img{
+    transform:scale(1.04);
+}
+
+.maps-region-card-emoji{
+    position:absolute;
+    top:14px;
+    left:14px;
+    z-index:2;
+    width:42px;
+    height:42px;
+    border-radius:16px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:22px;
+    background:rgba(255,255,255,0.86);
+    box-shadow:0 10px 18px rgba(15,23,42,0.14);
+    backdrop-filter:blur(6px);
+}
+
+.maps-region-card-chip{
+    position:absolute;
+    right:14px;
+    top:14px;
+    z-index:2;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:7px 11px;
+    border-radius:999px;
+    background:rgba(255,255,255,0.88);
+    color:#0f172a;
+    font-size:12px;
+    font-weight:900;
+    box-shadow:0 8px 16px rgba(15,23,42,0.12);
+}
+
+.maps-region-card-body{
+    padding:18px 18px 20px;
+}
+
+.maps-region-card-head{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    align-items:flex-start;
+    margin-bottom:10px;
+}
+
+.maps-region-card-head h4{
+    margin:0;
+    font-size:24px;
+    line-height:1.05;
+    color:#0f172a;
+    font-weight:900;
+}
+
+.maps-region-card-subtitle{
+    display:block;
+    margin-top:6px;
+    color:#64748b;
+    font-size:13px;
+    font-weight:800;
+}
+
+.maps-region-card-status{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:6px 10px;
+    border-radius:999px;
+    background:var(--region-soft, #eff6ff);
+    color:var(--region-accent, #2563eb);
+    font-size:12px;
+    font-weight:900;
+    white-space:nowrap;
+}
+
+.maps-region-card-text{
+    margin:0 0 14px;
+    color:#475569;
+    font-size:14px;
+    line-height:1.5;
+    min-height:64px;
+}
+
+.maps-region-card-stats{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-bottom:14px;
+}
+
+.maps-region-card-pill{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:8px 11px;
+    border-radius:999px;
+    background:#f8fafc;
+    border:1px solid rgba(226,232,240,0.95);
+    color:#0f172a;
+    font-size:12px;
+    font-weight:800;
+}
+
+.maps-region-card-biomes{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-bottom:16px;
+}
+
+.maps-region-biome-chip{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:7px 10px;
+    border-radius:999px;
+    background:var(--region-soft, #eff6ff);
+    color:var(--region-accent, #2563eb);
+    font-size:11px;
+    font-weight:900;
+    text-transform:uppercase;
+    letter-spacing:.03em;
+}
+
+.maps-region-card-actions{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+}
+
+.maps-region-featured-label{
+    color:#64748b;
+    font-size:12px;
+    font-weight:800;
+}
+
+.maps-region-featured-name{
+    display:block;
+    margin-top:4px;
+    color:#0f172a;
+    font-size:14px;
+    font-weight:900;
+}
+
+.btn-maps-region{
+    border:none;
+    cursor:pointer;
+    padding:11px 16px;
+    border-radius:14px;
+    color:#ffffff;
+    font-size:14px;
+    font-weight:900;
+    background:linear-gradient(135deg, var(--region-accent, #2563eb), color-mix(in srgb, var(--region-accent, #2563eb) 76%, white 24%));
+    box-shadow:0 12px 22px color-mix(in srgb, var(--region-accent, #2563eb) 20%, transparent 80%);
+    transition:transform .18s ease, box-shadow .18s ease, opacity .18s ease;
+}
+
+.btn-maps-region:hover{
+    transform:translateY(-1px);
+}
+
+.btn-maps-region.is-secondary{
+    background:linear-gradient(135deg, #0f172a, #1e293b);
+    box-shadow:0 12px 22px rgba(15,23,42,0.18);
+}
+
+.btn-maps-region:disabled{
+    opacity:.72;
+    cursor:default;
+    transform:none;
+}
+
+
+
 /* =========================================================
    16. RESPONSIVE TABLET
 ========================================================= */

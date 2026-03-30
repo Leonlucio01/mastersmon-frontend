@@ -28,7 +28,7 @@ let jugadoresZonaMaps = new Map();
 let presenciaZonaActivaId = null;
 let ultimoNodoReportadoMaps = null;
  
-const MAPS_ZONAS_CACHE_KEY = "mastersmon_maps_zonas_cache_v3";
+const MAPS_ZONAS_CACHE_KEY = "mastersmon_maps_zonas_cache_v4";
 const MAPS_AVATAR_POSICIONES_KEY = "mastersmon_maps_avatar_posiciones_v1";
 const MAPS_AVATAR_DEFAULT_ID = "steven";
 const MAPS_AVATAR_ID_REGEX = /^[a-z0-9_-]{1,60}$/;
@@ -251,8 +251,8 @@ const MAPAS_CONFIG = {
         headerBg: "linear-gradient(180deg, rgba(239,246,255,0.98) 0%, rgba(255,255,255,0.98) 100%)"
     },
     torre: {
-        card: "img/maps/cards/torre_batalla.png",
-        escenario: "img/maps/escenarios/torre_batalla_1.png",
+        card: "img/maps/cards/cueva_roca.png",
+        escenario: "img/maps/escenarios/caverna_fuego_1.png",
         clase: "zona-torre",
         accent: "#dc2626",
         accentSoft: "rgba(220, 38, 38, 0.14)",
@@ -375,6 +375,146 @@ const MAPS_REGION_BY_GENERATION = {
 
 const MAPS_REGION_ORDER = ["kanto", "johto", "hoenn", "sinnoh", "unova", "kalos", "alola", "galar", "paldea", "frontier"];
 
+
+const MAPS_REGION_SHOWCASE_ORDER = ["kanto", "johto", "hoenn", "frontier", "sinnoh", "unova", "kalos", "alola", "galar", "paldea"];
+const MAPS_REGION_ICONS = {
+    kanto: "🌿",
+    johto: "🕯️",
+    hoenn: "🌊",
+    sinnoh: "⛰️",
+    unova: "⚙️",
+    kalos: "✨",
+    alola: "🌴",
+    galar: "🏟️",
+    paldea: "🧭",
+    frontier: "🗺️"
+};
+
+const MAPS_ZONE_COPY_BY_CODE = {
+    kanto_green_forest: {
+        en: {
+            name: "Kanto Green Forest",
+            desc: "An opening forest route built for bug, grass and fast starter captures."
+        },
+        es: {
+            name: "Bosque Verde de Kanto",
+            desc: "Una ruta inicial de bosque pensada para capturas rápidas de tipo bicho y planta."
+        }
+    },
+    kanto_rock_cave: {
+        en: {
+            name: "Kanto Rock Cave",
+            desc: "A compact cave route with rocky encounters and a sharper level climb."
+        },
+        es: {
+            name: "Cueva Roca de Kanto",
+            desc: "Una cueva compacta con encuentros rocosos y una subida de nivel más marcada."
+        }
+    },
+    kanto_blue_lake: {
+        en: {
+            name: "Kanto Blue Lake",
+            desc: "A fresh water route with classic lake encounters and balanced progression."
+        },
+        es: {
+            name: "Lago Azul de Kanto",
+            desc: "Una ruta acuática clásica con encuentros de lago y progreso equilibrado."
+        }
+    },
+    kanto_battle_tower: {
+        en: {
+            name: "Kanto Battle Tower",
+            desc: "A tactical route that feels like the bridge between early maps and harder content."
+        },
+        es: {
+            name: "Torre Batalla de Kanto",
+            desc: "Una ruta táctica que conecta los primeros mapas con contenido más exigente."
+        }
+    },
+    johto_whisper_forest: {
+        en: {
+            name: "Johto Whisper Forest",
+            desc: "A calm regional forest with nocturnal encounters and smoother mid-game pacing."
+        },
+        es: {
+            name: "Bosque Susurro de Johto",
+            desc: "Un bosque sereno con encuentros nocturnos y un ritmo mid game más suave."
+        }
+    },
+    johto_ember_cavern: {
+        en: {
+            name: "Johto Ember Cavern",
+            desc: "A warm cavern route using your fire-themed scenario to open volcanic progression."
+        },
+        es: {
+            name: "Caverna Ascua de Johto",
+            desc: "Una caverna cálida que aprovecha tu escenario de fuego para abrir la ruta volcánica."
+        }
+    },
+    johto_silver_lake: {
+        en: {
+            name: "Johto Silver Lake",
+            desc: "A reflective lake route with calmer captures, electric fish and steady rewards."
+        },
+        es: {
+            name: "Lago Plata de Johto",
+            desc: "Una ruta de lago con capturas más calmadas, peces eléctricos y progreso estable."
+        }
+    },
+    johto_guardian_tower: {
+        en: {
+            name: "Johto Guardian Tower",
+            desc: "A mystical tower route suited for psychic, ghost and watchful aerial encounters."
+        },
+        es: {
+            name: "Torre Guardián de Johto",
+            desc: "Una torre mística ideal para encuentros psíquicos, fantasma y voladores vigilantes."
+        }
+    },
+    hoenn_rain_forest: {
+        en: {
+            name: "Hoenn Rain Forest",
+            desc: "A denser forest route with stronger wild teams and a more adventurous biome mix."
+        },
+        es: {
+            name: "Bosque Lluvia de Hoenn",
+            desc: "Un bosque más denso con equipos salvajes más fuertes y un bioma más aventurero."
+        }
+    },
+    hoenn_magma_cavern: {
+        en: {
+            name: "Hoenn Magma Cavern",
+            desc: "A hotter cavern route designed for your fire map and stronger volcanic pacing."
+        },
+        es: {
+            name: "Caverna Magma de Hoenn",
+            desc: "Una caverna ardiente diseñada para tu mapa de fuego y un progreso volcánico más fuerte."
+        }
+    },
+    hoenn_tide_lake: {
+        en: {
+            name: "Hoenn Tide Lake",
+            desc: "A stronger water route with sea-like variety while still fitting your current lake asset."
+        },
+        es: {
+            name: "Lago Marea de Hoenn",
+            desc: "Una ruta de agua más fuerte con variedad marina, pero usando tu asset actual de lago."
+        }
+    },
+    hoenn_sky_tower: {
+        en: {
+            name: "Hoenn Sky Tower",
+            desc: "A high-route finale with flying pressure, rarer encounters and a world-map feel."
+        },
+        es: {
+            name: "Torre Cielo de Hoenn",
+            desc: "Un cierre de ruta más alto, con presión voladora, encuentros raros y sensación de mapa mundial."
+        }
+    }
+};
+
+
+
 function mapsZoneMatchesFilters(zona = null, filtros = mapsFiltrosEstado) {
     if (!zona) return false;
 
@@ -405,7 +545,9 @@ function mapsZoneMatchesFilters(zona = null, filtros = mapsFiltrosEstado) {
             zona?.region_codigo,
             zona?.tema_visual,
             visual.region,
-            visual.clave
+            visual.clave,
+            obtenerNombreZonaTraducido(zona),
+            obtenerDescripcionZonaTraducida(zona)
         ].filter(Boolean).join(" "));
 
         if (!textoZona.includes(search)) {
@@ -574,6 +716,160 @@ function renderizarResumenFiltrosMaps() {
         : `<span class="maps-active-filter-chip is-neutral">${tMapsLocal("maps_filter_no_active", "No active filters", "Sin filtros activos")}</span>`;
 }
 
+
+function obtenerStoryRegionMaps(region = "frontier") {
+    const key = {
+        kanto: "maps_region_story_kanto",
+        johto: "maps_region_story_johto",
+        hoenn: "maps_region_story_hoenn",
+        frontier: "maps_region_story_frontier"
+    }[region] || "maps_region_story_frontier";
+
+    return tMapsLocal(
+        key,
+        region === "kanto"
+            ? "Classic opening routes focused on fast catches, simple caves and a clean early-game flow."
+            : region === "johto"
+                ? "A calmer mid-game region with mystical forests, ember caverns and taller tower runs."
+                : region === "hoenn"
+                    ? "A stronger route set with rainy forests, magma caverns and a more adventurous late map vibe."
+                    : "Special routes outside the main regional journey.",
+        region === "kanto"
+            ? "Rutas clásicas de inicio, ideales para capturas rápidas, cuevas simples y un early game limpio."
+            : region === "johto"
+                ? "Una región intermedia más serena, con bosques místicos, cavernas de fuego y torres más exigentes."
+                : region === "hoenn"
+                    ? "Un set de rutas más fuerte, con bosques lluviosos, cavernas de magma y una aventura más épica."
+                    : "Rutas especiales fuera del recorrido regional principal."
+    );
+}
+
+function obtenerResumenRegionesMaps() {
+    const regiones = new Map();
+
+    (Array.isArray(zonasCache) ? zonasCache : []).forEach(zona => {
+        const visual = obtenerVisualZonaMaps(zona);
+        const region = String(visual.region || "frontier").toLowerCase();
+        if (!regiones.has(region)) {
+            regiones.set(region, {
+                codigo: region,
+                generacion: visual.generacion || null,
+                zonas: [],
+                featured: null,
+                biomas: new Set(),
+                nivel_min: Number(zona?.nivel_min || 0),
+                nivel_max: Number(zona?.nivel_max || 0)
+            });
+        }
+
+        const item = regiones.get(region);
+        item.zonas.push(zona);
+        item.biomas.add(String(visual.clave || "default").toLowerCase());
+        item.nivel_min = Math.min(item.nivel_min || Number(zona?.nivel_min || 0), Number(zona?.nivel_min || 0));
+        item.nivel_max = Math.max(item.nivel_max || Number(zona?.nivel_max || 0), Number(zona?.nivel_max || 0));
+
+        if (!item.featured || Number(zona?.orden || zona?.id || 0) < Number(item.featured?.orden || item.featured?.id || 0)) {
+            item.featured = zona;
+        }
+
+        if (!item.generacion && visual.generacion) {
+            item.generacion = visual.generacion;
+        }
+    });
+
+    return Array.from(regiones.values())
+        .sort((a, b) => {
+            const orderA = MAPS_REGION_SHOWCASE_ORDER.indexOf(a.codigo);
+            const orderB = MAPS_REGION_SHOWCASE_ORDER.indexOf(b.codigo);
+            return (orderA === -1 ? 999 : orderA) - (orderB === -1 ? 999 : orderB);
+        });
+}
+
+function renderizarShowcaseRegionesMaps() {
+    const container = document.getElementById("mapsRegionShowcase");
+    if (!container) return;
+
+    const resumen = obtenerResumenRegionesMaps();
+
+    if (!resumen.length) {
+        container.innerHTML = "";
+        return;
+    }
+
+    container.innerHTML = resumen.map(region => {
+        const featured = region.featured;
+        const visual = obtenerVisualZonaMaps(featured);
+        const regionLabel = obtenerTextoRegionMaps(region.codigo);
+        const generationLabel = obtenerTextoGeneracionMaps(region.generacion);
+        const imageSrc = obtenerImagenCardZonaMaps(featured);
+        const icon = MAPS_REGION_ICONS[region.codigo] || MAPS_REGION_ICONS.frontier;
+        const routesLabel = tMapsLocal("maps_region_maps_count", "{count} routes", "{count} rutas", {
+            count: region.zonas.length
+        });
+        const biomesLabel = tMapsLocal("maps_region_biomes_count", "{count} biomes", "{count} biomas", {
+            count: region.biomas.size
+        });
+        const rangeLabel = tMapsLocal("maps_region_level_span", "Lv. {min} - {max}", "Nv. {min} - {max}", {
+            min: Number(region.nivel_min || 1),
+            max: Number(region.nivel_max || region.nivel_min || 1)
+        });
+        const featuredLabel = tMapsLocal("maps_region_featured_badge", "Featured route", "Ruta destacada");
+        const actionLabel = String(mapsFiltrosEstado.region || "all") === region.codigo
+            ? tMapsLocal("maps_region_focus_active", "Region active", "Región activa")
+            : tMapsLocal("maps_region_focus", "Focus region", "Enfocar región");
+
+        const biomeChips = Array.from(region.biomas)
+            .slice(0, 3)
+            .map(biome => `<span class="maps-region-biome-chip">${obtenerTextoBiomaMaps(biome)}</span>`)
+            .join("");
+
+        const activeClass = String(mapsFiltrosEstado.region || "all") === region.codigo ? "is-active" : "";
+
+        return `
+            <article class="maps-region-card ${activeClass}" style="--region-accent:${obtenerConfigZona(featured).accent};--region-soft:${obtenerConfigZona(featured).accentSoft};">
+                <div class="maps-region-card-visual">
+                    <span class="maps-region-card-emoji">${icon}</span>
+                    <span class="maps-region-card-chip">${generationLabel}</span>
+                    <img src="${imageSrc}" alt="${regionLabel}" loading="lazy" decoding="async">
+                </div>
+
+                <div class="maps-region-card-body">
+                    <div class="maps-region-card-head">
+                        <div>
+                            <h4>${regionLabel}</h4>
+                            <span class="maps-region-card-subtitle">${routesLabel}</span>
+                        </div>
+                        <span class="maps-region-card-status">${biomesLabel}</span>
+                    </div>
+
+                    <p class="maps-region-card-text">${obtenerStoryRegionMaps(region.codigo)}</p>
+
+                    <div class="maps-region-card-stats">
+                        <span class="maps-region-card-pill">${rangeLabel}</span>
+                        <span class="maps-region-card-pill">${tMapsLocal("maps_region_featured_badge", "Featured route", "Ruta destacada")}</span>
+                    </div>
+
+                    <div class="maps-region-card-biomes">
+                        ${biomeChips}
+                    </div>
+
+                    <div class="maps-region-card-actions">
+                        <div>
+                            <span class="maps-region-featured-label">${featuredLabel}</span>
+                            <strong class="maps-region-featured-name">${obtenerNombreZonaTraducido(featured)}</strong>
+                        </div>
+
+                        <button class="btn-maps-region ${activeClass ? "is-secondary" : ""}" type="button" data-region-focus="${region.codigo}">
+                            ${actionLabel}
+                        </button>
+                    </div>
+                </div>
+            </article>
+        `;
+    }).join("");
+}
+
+
 function aplicarFiltrosMaps({ preserveStart = false } = {}) {
     if (!preserveStart) {
         mapaInicio = 0;
@@ -581,6 +877,7 @@ function aplicarFiltrosMaps({ preserveStart = false } = {}) {
 
     reiniciarCarruselSegunFiltrosMaps();
     renderizarResumenFiltrosMaps();
+    renderizarShowcaseRegionesMaps();
     renderizarZonas();
 }
 
@@ -602,6 +899,7 @@ function configurarFiltrosMaps() {
     const selectGeneration = document.getElementById("filtroMapsGeneration");
     const selectBiome = document.getElementById("filtroMapsBiome");
     const resetButton = document.getElementById("btnMapsFiltersReset");
+    const regionShowcase = document.getElementById("mapsRegionShowcase");
 
     if (searchInput && !searchInput.dataset.mapsBound) {
         searchInput.dataset.mapsBound = "1";
@@ -640,8 +938,21 @@ function configurarFiltrosMaps() {
         resetButton.addEventListener("click", () => resetearFiltrosMaps());
     }
 
+    if (regionShowcase && !regionShowcase.dataset.mapsBound) {
+        regionShowcase.dataset.mapsBound = "1";
+        regionShowcase.addEventListener("click", (event) => {
+            const button = event.target.closest("[data-region-focus]");
+            if (!button) return;
+            const region = String(button.dataset.regionFocus || "all");
+            mapsFiltrosEstado.region = (mapsFiltrosEstado.region === region) ? "all" : region;
+            renderizarOpcionesFiltrosMaps();
+            aplicarFiltrosMaps();
+        });
+    }
+
     renderizarOpcionesFiltrosMaps();
     renderizarResumenFiltrosMaps();
+    renderizarShowcaseRegionesMaps();
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -759,6 +1070,7 @@ function configurarSelectorIdiomaMaps() {
         if (zonasCache.length > 0) {
             renderizarOpcionesFiltrosMaps();
             renderizarResumenFiltrosMaps();
+            renderizarShowcaseRegionesMaps();
             renderizarZonas();
         }
  
@@ -797,6 +1109,7 @@ function configurarEventosSesionMaps() {
  
         if (zonasCache.length > 0) {
             renderizarResumenFiltrosMaps();
+            renderizarShowcaseRegionesMaps();
             renderizarZonas();
         }
  
@@ -857,6 +1170,7 @@ function configurarEventosSesionMaps() {
                 await salirPresenciaMaps(true);
  
                 if (zonasCache.length > 0) {
+                    renderizarShowcaseRegionesMaps();
                     renderizarZonas();
                 }
  
@@ -2099,6 +2413,13 @@ function obtenerNombreZonaTraducido(zona = null) {
         ? zona
         : (zona?.nombre || "");
 
+    const zonaCodigo = typeof zona === "object" ? String(zona?.codigo || "").trim().toLowerCase() : "";
+    const lang = getCurrentLangMapsSafe();
+
+    if (zonaCodigo && MAPS_ZONE_COPY_BY_CODE[zonaCodigo]?.[lang]?.name) {
+        return MAPS_ZONE_COPY_BY_CODE[zonaCodigo][lang].name;
+    }
+
     const clave = obtenerClaveZona(zona);
 
     const mapa = {
@@ -2120,6 +2441,13 @@ function obtenerDescripcionZonaTraducida(zona = null) {
     const descripcionOriginal = typeof zona === "object"
         ? (zona?.descripcion || "")
         : "";
+
+    const zonaCodigo = typeof zona === "object" ? String(zona?.codigo || "").trim().toLowerCase() : "";
+    const lang = getCurrentLangMapsSafe();
+
+    if (zonaCodigo && MAPS_ZONE_COPY_BY_CODE[zonaCodigo]?.[lang]?.desc) {
+        return MAPS_ZONE_COPY_BY_CODE[zonaCodigo][lang].desc;
+    }
 
     const clave = obtenerClaveZona(zona);
 
@@ -2182,6 +2510,7 @@ async function cargarZonas() {
         mapaInicio = Math.min(mapaInicio, Math.max(0, zonasCache.length - 1));
         renderizarOpcionesFiltrosMaps();
         renderizarResumenFiltrosMaps();
+        renderizarShowcaseRegionesMaps();
         renderizarZonas();
     }
 
