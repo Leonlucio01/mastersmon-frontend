@@ -28,7 +28,7 @@ let jugadoresZonaMaps = new Map();
 let presenciaZonaActivaId = null;
 let ultimoNodoReportadoMaps = null;
  
-const MAPS_ZONAS_CACHE_KEY = "mastersmon_maps_zonas_cache_v6";
+const MAPS_ZONAS_CACHE_KEY = "mastersmon_maps_zonas_cache_v7";
 let mapsRegionShowcaseStart = 0;
 const MAPS_AVATAR_POSICIONES_KEY = "mastersmon_maps_avatar_posiciones_v1";
 const MAPS_AVATAR_DEFAULT_ID = "steven";
@@ -216,8 +216,8 @@ const MAPAS_RUTAS = {
  
 const MAPAS_CONFIG = {
     bosque: {
-        card: "img/maps/cards/bosque_verde.png",
-        escenario: "img/maps/escenarios/bosque_verde_1.png",
+        card: "/img/maps/cards/kanto/bosque_verde.png",
+        escenario: "/img/maps/escenarios/kanto/bosque_verde.png",
         clase: "zona-bosque",
         accent: "#16a34a",
         accentSoft: "rgba(22, 163, 74, 0.14)",
@@ -228,8 +228,8 @@ const MAPAS_CONFIG = {
         headerBg: "linear-gradient(180deg, rgba(240,253,244,0.98) 0%, rgba(255,255,255,0.98) 100%)"
     },
     cueva: {
-        card: "img/maps/cards/cueva_roca.png",
-        escenario: "img/maps/escenarios/caverna_roca_1.png",
+        card: "/img/maps/cards/kanto/cueva_roca.png",
+        escenario: "/img/maps/escenarios/kanto/caverna_roca.png",
         clase: "zona-cueva",
         accent: "#7c3aed",
         accentSoft: "rgba(124, 58, 237, 0.14)",
@@ -240,8 +240,8 @@ const MAPAS_CONFIG = {
         headerBg: "linear-gradient(180deg, rgba(245,243,255,0.98) 0%, rgba(255,255,255,0.98) 100%)"
     },
     lago: {
-        card: "img/maps/cards/lago_azul.png",
-        escenario: "img/maps/escenarios/lago_azul_1.png",
+        card: "/img/maps/cards/kanto/lago_azul.png",
+        escenario: "/img/maps/escenarios/kanto/lago_azul.png",
         clase: "zona-lago",
         accent: "#2563eb",
         accentSoft: "rgba(37, 99, 235, 0.14)",
@@ -252,8 +252,8 @@ const MAPAS_CONFIG = {
         headerBg: "linear-gradient(180deg, rgba(239,246,255,0.98) 0%, rgba(255,255,255,0.98) 100%)"
     },
     torre: {
-        card: "img/maps/cards/cueva_roca.png",
-        escenario: "img/maps/escenarios/caverna_fuego_1.png",
+        card: "/img/maps/cards/kanto/torre_batalla.png",
+        escenario: "/img/maps/escenarios/kanto/torre_batalla.png",
         clase: "zona-torre",
         accent: "#dc2626",
         accentSoft: "rgba(220, 38, 38, 0.14)",
@@ -264,8 +264,8 @@ const MAPAS_CONFIG = {
         headerBg: "linear-gradient(180deg, rgba(254,242,242,0.98) 0%, rgba(255,255,255,0.98) 100%)"
     },
     volcan: {
-        card: "img/maps/cards/torre_batalla.png",
-        escenario: "img/maps/escenarios/torre_batalla_1.png",
+        card: "/img/maps/cards/hoenn/caverna_fuego.png",
+        escenario: "/img/maps/escenarios/hoenn/caverna_fuego.png",
         clase: "zona-volcan",
         accent: "#ea580c",
         accentSoft: "rgba(234, 88, 12, 0.14)",
@@ -276,8 +276,8 @@ const MAPAS_CONFIG = {
         headerBg: "linear-gradient(180deg, rgba(255,247,237,0.98) 0%, rgba(255,255,255,0.98) 100%)"
     },
     nieve: {
-        card: "img/maps/cards/lago_azul.png",
-        escenario: "img/maps/escenarios/lago_azul_1.png",
+        card: "/img/maps/cards/zona_especial/cumbre_nevada.png",
+        escenario: "/img/maps/escenarios/zona_especial/cumbre_nevada.png",
         clase: "zona-nieve",
         accent: "#0891b2",
         accentSoft: "rgba(8, 145, 178, 0.14)",
@@ -288,8 +288,8 @@ const MAPAS_CONFIG = {
         headerBg: "linear-gradient(180deg, rgba(236,254,255,0.98) 0%, rgba(255,255,255,0.98) 100%)"
     },
     pantano: {
-        card: "img/maps/cards/bosque_verde.png",
-        escenario: "img/maps/escenarios/bosque_verde_1.png",
+        card: "/img/maps/cards/zona_especial/pantano_toxico.png",
+        escenario: "/img/maps/escenarios/zona_especial/pantano_toxico.png",
         clase: "zona-pantano",
         accent: "#4d7c0f",
         accentSoft: "rgba(77, 124, 15, 0.14)",
@@ -300,8 +300,8 @@ const MAPAS_CONFIG = {
         headerBg: "linear-gradient(180deg, rgba(247,254,231,0.98) 0%, rgba(255,255,255,0.98) 100%)"
     },
     fantasma: {
-        card: "img/maps/cards/torre_batalla.png",
-        escenario: "img/maps/escenarios/torre_batalla_1.png",
+        card: "/img/maps/cards/zona_especial/torre_fantasma.png",
+        escenario: "/img/maps/escenarios/zona_especial/torre_fantasma.png",
         clase: "zona-fantasma",
         accent: "#6d28d9",
         accentSoft: "rgba(109, 40, 217, 0.14)",
@@ -312,8 +312,8 @@ const MAPAS_CONFIG = {
         headerBg: "linear-gradient(180deg, rgba(250,245,255,0.98) 0%, rgba(255,255,255,0.98) 100%)"
     },
     electrico: {
-        card: "img/maps/cards/lago_azul.png",
-        escenario: "img/maps/escenarios/lago_azul_1.png",
+        card: "/img/maps/cards/zona_especial/pico_trueno.png",
+        escenario: "/img/maps/escenarios/zona_especial/pico_trueno.png",
         clase: "zona-electrico",
         accent: "#ca8a04",
         accentSoft: "rgba(202, 138, 4, 0.16)",
@@ -324,8 +324,8 @@ const MAPAS_CONFIG = {
         headerBg: "linear-gradient(180deg, rgba(254,252,232,0.98) 0%, rgba(255,255,255,0.98) 100%)"
     },
     desierto: {
-        card: "img/maps/cards/cueva_roca.png",
-        escenario: "img/maps/escenarios/caverna_roca_1.png",
+        card: "/img/maps/cards/zona_especial/desierto_dorado.png",
+        escenario: "/img/maps/escenarios/zona_especial/desierto_dorado.png",
         clase: "zona-desierto",
         accent: "#b45309",
         accentSoft: "rgba(180, 83, 9, 0.14)",
@@ -336,8 +336,8 @@ const MAPAS_CONFIG = {
         headerBg: "linear-gradient(180deg, rgba(255,251,235,0.98) 0%, rgba(255,255,255,0.98) 100%)"
     },
     cielo: {
-        card: "img/maps/cards/lago_azul.png",
-        escenario: "img/maps/escenarios/lago_azul_1.png",
+        card: "/img/maps/cards/zona_especial/santuario_dragon.png",
+        escenario: "/img/maps/escenarios/zona_especial/santuario_dragon.png",
         clase: "zona-cielo",
         accent: "#0284c7",
         accentSoft: "rgba(2, 132, 199, 0.14)",
@@ -348,8 +348,8 @@ const MAPAS_CONFIG = {
         headerBg: "linear-gradient(180deg, rgba(240,249,255,0.98) 0%, rgba(255,255,255,0.98) 100%)"
     },
     default: {
-        card: "img/maps/cards/bosque_verde.png",
-        escenario: "img/maps/escenarios/bosque_verde_1.png",
+        card: "/img/maps/cards/kanto/bosque_verde.png",
+        escenario: "/img/maps/escenarios/kanto/bosque_verde.png",
         clase: "zona-default",
         accent: "#475569",
         accentSoft: "rgba(71, 85, 105, 0.14)",
@@ -434,82 +434,82 @@ const MAPS_ZONE_COPY_BY_CODE = {
     },
     johto_whisper_forest: {
         en: {
-            name: "Johto Whisper Forest",
-            desc: "A calm regional forest with nocturnal encounters and smoother mid-game pacing."
+            name: "Johto Ancient Forest",
+            desc: "An ancient forest route with calmer encounters and smoother mid-game pacing."
         },
         es: {
-            name: "Bosque Susurro de Johto",
-            desc: "Un bosque sereno con encuentros nocturnos y un ritmo mid game más suave."
+            name: "Bosque Ancestral de Johto",
+            desc: "Un bosque antiguo y sereno, con encuentros naturales y un ritmo mid game más suave."
         }
     },
     johto_ember_cavern: {
         en: {
-            name: "Johto Ember Cavern",
-            desc: "A warm cavern route using your fire-themed scenario to open volcanic progression."
+            name: "Johto Deep Ruins",
+            desc: "A deeper ruins route with rocky encounters, mystery and stronger progression."
         },
         es: {
-            name: "Caverna Ascua de Johto",
-            desc: "Una caverna cálida que aprovecha tu escenario de fuego para abrir la ruta volcánica."
+            name: "Ruinas Profundas de Johto",
+            desc: "Una zona de ruinas subterráneas con roca, misterio y progresión más exigente."
         }
     },
     johto_silver_lake: {
         en: {
-            name: "Johto Silver Lake",
-            desc: "A reflective lake route with calmer captures, electric fish and steady rewards."
+            name: "Johto Whirlpool Lake",
+            desc: "A whirlpool lake route with calmer captures, aquatic variety and steady rewards."
         },
         es: {
-            name: "Lago Plata de Johto",
-            desc: "Una ruta de lago con capturas más calmadas, peces eléctricos y progreso estable."
+            name: "Lago Remolino de Johto",
+            desc: "Una ruta acuática con corrientes, remolinos y capturas más calmadas."
         }
     },
     johto_guardian_tower: {
         en: {
-            name: "Johto Guardian Tower",
-            desc: "A mystical tower route suited for psychic, ghost and watchful aerial encounters."
+            name: "Johto Bell Tower",
+            desc: "A mystical tower route suited for spiritual, psychic and aerial encounters."
         },
         es: {
-            name: "Torre Guardián de Johto",
-            desc: "Una torre mística ideal para encuentros psíquicos, fantasma y voladores vigilantes."
+            name: "Torre Campana de Johto",
+            desc: "Una torre mística ideal para encuentros espirituales, psíquicos y voladores vigilantes."
         }
     },
     hoenn_rain_forest: {
         en: {
-            name: "Hoenn Rain Forest",
-            desc: "A denser forest route with stronger wild teams and a more adventurous biome mix."
+            name: "Hoenn Tropical Forest",
+            desc: "A denser tropical forest route with stronger wild teams and a more adventurous biome mix."
         },
         es: {
-            name: "Bosque Lluvia de Hoenn",
-            desc: "Un bosque más denso con equipos salvajes más fuertes y un bioma más aventurero."
+            name: "Bosque Tropical de Hoenn",
+            desc: "Un bosque tropical más denso, con encuentros salvajes más fuertes y un bioma más aventurero."
         }
     },
     hoenn_magma_cavern: {
         en: {
-            name: "Hoenn Magma Cavern",
-            desc: "A hotter cavern route designed for your fire map and stronger volcanic pacing."
+            name: "Hoenn Fire Cavern",
+            desc: "A hotter cavern route designed for fire encounters and stronger volcanic pacing."
         },
         es: {
-            name: "Caverna Magma de Hoenn",
-            desc: "Una caverna ardiente diseñada para tu mapa de fuego y un progreso volcánico más fuerte."
+            name: "Caverna Fuego de Hoenn",
+            desc: "Una caverna ardiente diseñada para encuentros de fuego, roca y un progreso volcánico más fuerte."
         }
     },
     hoenn_tide_lake: {
         en: {
-            name: "Hoenn Tide Lake",
-            desc: "A stronger water route with sea-like variety while still fitting your current lake asset."
+            name: "Hoenn Coral Lagoon",
+            desc: "A stronger water route with coral lagoon variety and more adventurous aquatic pacing."
         },
         es: {
-            name: "Lago Marea de Hoenn",
-            desc: "Una ruta de agua más fuerte con variedad marina, pero usando tu asset actual de lago."
+            name: "Laguna Coral de Hoenn",
+            desc: "Una laguna coral con variedad marina y una progresión acuática más fuerte."
         }
     },
     hoenn_sky_tower: {
         en: {
-            name: "Hoenn Sky Tower",
-            desc: "A high-route finale with flying pressure, rarer encounters and a world-map feel."
+            name: "Hoenn Sky Pillar",
+            desc: "A high-route finale with flying pressure, early dragons and a world-map feel."
         },
         es: {
-            name: "Torre Cielo de Hoenn",
-            desc: "Un cierre de ruta más alto, con presión voladora, encuentros raros y sensación de mapa mundial."
+            name: "Pilar del Cielo de Hoenn",
+            desc: "Un cierre de ruta más alto, con presión voladora, dragones tempranos y sensación de mapa mundial."
         }
     }
 };
@@ -1512,6 +1512,33 @@ function normalizarTextoMaps(valor = "") {
         .trim();
 }
 
+function normalizarRutaAssetMaps(ruta = "") {
+    const valor = String(ruta || "").trim();
+    if (!valor) return "";
+
+    if (/^(https?:)?\/\//i.test(valor) || /^data:/i.test(valor) || /^blob:/i.test(valor)) {
+        return valor;
+    }
+
+    const limpio = valor.replace(/^\.\//, "");
+    return limpio.startsWith("/") ? limpio : `/${limpio}`;
+}
+
+function obtenerUrlCssAssetMaps(ruta = "") {
+    const normalizada = normalizarRutaAssetMaps(ruta);
+    if (!normalizada) return "";
+
+    if (/^(https?:)?\/\//i.test(normalizada) || /^data:/i.test(normalizada) || /^blob:/i.test(normalizada)) {
+        return normalizada;
+    }
+
+    try {
+        return new URL(normalizada, window.location.origin).href;
+    } catch (error) {
+        return normalizada;
+    }
+}
+
 function leerStorageJSON(clave, defecto = null) {
     try {
         const raw = localStorage.getItem(clave);
@@ -2487,19 +2514,19 @@ function obtenerTextoEspeciesZonaMaps(zona = null) {
 
 function obtenerImagenCardZonaMaps(zona = null) {
     if (zona?.card_imagen) {
-        return String(zona.card_imagen).trim();
+        return normalizarRutaAssetMaps(zona.card_imagen);
     }
     if (zona?.imagen) {
-        return String(zona.imagen).trim();
+        return normalizarRutaAssetMaps(zona.imagen);
     }
-    return obtenerConfigZona(zona).card;
+    return normalizarRutaAssetMaps(obtenerConfigZona(zona).card);
 }
 
 function obtenerImagenEscenarioZonaMaps(zona = null) {
     if (zona?.escenario_imagen) {
-        return String(zona.escenario_imagen).trim();
+        return normalizarRutaAssetMaps(zona.escenario_imagen);
     }
-    return obtenerConfigZona(zona).escenario;
+    return normalizarRutaAssetMaps(obtenerConfigZona(zona).escenario);
 }
 
 function obtenerNombreZonaTraducido(zona = null) {
@@ -3048,7 +3075,7 @@ function renderEncuentroActual() {
             </div>
         </div>
  
-        <div class="encuentro-pokemon-showcase fondo-zona ${obtenerConfigZona(zonaSeleccionadaActual).clase}" style="--encounter-zone-bg-image:url('${obtenerImagenCardZonaMaps(zonaSeleccionadaActual)}')">
+        <div class="encuentro-pokemon-showcase fondo-zona ${obtenerConfigZona(zonaSeleccionadaActual).clase}" style="--encounter-zone-bg-image:url('${obtenerUrlCssAssetMaps(obtenerImagenCardZonaMaps(zonaSeleccionadaActual))}')">
             <div class="encuentro-pokemon-aura ${encuentroActual.es_shiny ? "aura-shiny" : ""}"></div>
             <div class="encuentro-pokemon-plataforma"></div>
             <img src="${imagen}" alt="${encuentroActual.nombre}" class="encuentro-img" loading="eager" decoding="async">
