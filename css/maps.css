@@ -2398,7 +2398,7 @@
     box-shadow:0 14px 28px rgba(15,23,42,0.10);
 }
 
-.encuentro-pokemon-showcase{
+.encuentro-pokemon-showcase:not(.fondo-zona){
     background:linear-gradient(180deg, color-mix(in srgb, var(--map-surface) 82%, white), #ffffff);
 }
 
