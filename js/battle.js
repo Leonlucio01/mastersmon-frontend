@@ -1224,6 +1224,8 @@ async function iniciarBatallaDemo() {
         sessionStorage.setItem("mastersmon_battle_enemy_level_bonus_v1", String(bonusNivel));
         sessionStorage.setItem("mastersmon_battle_arena_difficulty_v1", obtenerCodigoDificultadBattleDesdeBonus(bonusNivel));
         sessionStorage.setItem(BATTLE_ARENA_MODE_KEY, "arena");
+        sessionStorage.removeItem("mastersmon_battle_arena_session_token_v1");
+        sessionStorage.removeItem("mastersmon_battle_arena_session_expires_v1");
         sessionStorage.removeItem(BATTLE_BOSS_SESSION_TOKEN_KEY);
         sessionStorage.removeItem(BATTLE_BOSS_DATA_KEY);
         sessionStorage.removeItem(BATTLE_BOSS_EVENT_KEY);

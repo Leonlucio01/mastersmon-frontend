@@ -321,6 +321,7 @@ async function inicializarArenaBattle() {
     arenaRecompensaProcesada = false;
     arenaRecompensaEnProceso = false;
     arenaUltimaRecompensaAplicada = null;
+    arenaUltimoResultado = null;
     arenaBattleSessionToken = null;
     arenaBattleSessionExpiraEn = null;
     arenaBattleSessionTtlSegundos = 0;
@@ -335,6 +336,11 @@ async function inicializarArenaBattle() {
     arenaDificultadActual = arenaModoActual === "boss"
         ? "boss"
         : (sessionStorage.getItem(BATTLE_ARENA_DIFFICULTY_KEY) || "normal");
+
+    const modalResultado = document.getElementById("arenaResultModal");
+    if (modalResultado) {
+        modalResultado.classList.add("oculto");
+    }
 
     sincronizarUsuarioArena();
     configurarEventosArena();
@@ -617,6 +623,28 @@ function limpiarSesionBossArena({ limpiarModo = false } = {}) {
     arenaBossEventoActual = null;
 }
 
+function limpiarSesionArenaNormal({ limpiarModo = false } = {}) {
+    sessionStorage.removeItem(BATTLE_ARENA_SESSION_TOKEN_KEY);
+    sessionStorage.removeItem(BATTLE_ARENA_SESSION_EXPIRES_KEY);
+
+    if (limpiarModo) {
+        sessionStorage.removeItem(BATTLE_ARENA_MODE_KEY);
+    }
+
+    arenaBattleSessionToken = null;
+    arenaBattleSessionExpiraEn = null;
+    arenaBattleSessionTtlSegundos = 0;
+    arenaUltimoResultado = null;
+    arenaRecompensaProcesada = false;
+    arenaRecompensaEnProceso = false;
+    arenaUltimaRecompensaAplicada = null;
+
+    const modalResultado = document.getElementById("arenaResultModal");
+    if (modalResultado) {
+        modalResultado.classList.add("oculto");
+    }
+}
+
 async function manejarSalidaArena() {
     detenerAutoTurnoArena();
     detenerHeartbeatActividadArena();
@@ -640,7 +668,7 @@ async function manejarSalidaArena() {
         return;
     }
 
-    sessionStorage.removeItem(BATTLE_ARENA_MODE_KEY);
+    limpiarSesionArenaNormal({ limpiarModo: true });
     window.location.href = "battle.html";
 }
 
@@ -659,6 +687,7 @@ function manejarReintentoArena() {
         return;
     }
 
+    limpiarSesionArenaNormal({ limpiarModo: false });
     window.location.reload();
 }
 
