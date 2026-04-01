@@ -315,10 +315,149 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
+function tFallbackArena(key, fallbackEn, fallbackEs = null, values = {}) {
+    const lang = (typeof getCurrentLang === "function" ? getCurrentLang() : "en") === "es" ? "es" : "en";
+    let text = key ? tSafeArena(key) : "";
+
+    if (!text || text === key) {
+        text = lang === "es" ? (fallbackEs || fallbackEn) : fallbackEn;
+    }
+
+    for (const [field, value] of Object.entries(values || {})) {
+        text = String(text).replaceAll(`{${field}}`, String(value));
+    }
+
+    return String(text || "");
+}
+
+function esperarFrameArena() {
+    return new Promise((resolve) => requestAnimationFrame(() => resolve()));
+}
+
+async function esperarPintadoArena(frames = 2) {
+    const total = Math.max(1, Number(frames || 1));
+    for (let index = 0; index < total; index += 1) {
+        await esperarFrameArena();
+    }
+}
+
+function asegurarOverlayFlujoArena() {
+    let overlay = document.getElementById("arenaFlowOverlay");
+    if (!overlay) {
+        overlay = document.createElement("div");
+        overlay.id = "arenaFlowOverlay";
+        overlay.className = "arena-flow-overlay oculto";
+        overlay.innerHTML = `
+            <div class="arena-flow-card">
+                <div class="arena-flow-badge" id="arenaFlowBadge">Battle Arena</div>
+                <div class="arena-flow-spinner" id="arenaFlowSpinner" aria-hidden="true"></div>
+                <div class="arena-flow-icon oculto" id="arenaFlowIcon" aria-hidden="true">⚔</div>
+                <h3 id="arenaFlowTitle">Preparing battle</h3>
+                <p id="arenaFlowText">Loading your squad and generating the rival team...</p>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+    }
+
+    return {
+        overlay,
+        badge: document.getElementById("arenaFlowBadge"),
+        spinner: document.getElementById("arenaFlowSpinner"),
+        icon: document.getElementById("arenaFlowIcon"),
+        title: document.getElementById("arenaFlowTitle"),
+        text: document.getElementById("arenaFlowText")
+    };
+}
+
+function construirContenidoCargaArena() {
+    if (esModoBossArena()) {
+        return {
+            state: "loading",
+            badge: tFallbackArena(null, "ALPHA BOSS", "ALPHA BOSS"),
+            icon: "👑",
+            title: tFallbackArena(null, "Preparing Alpha Boss battle", "Preparando batalla Alpha Boss"),
+            text: tFallbackArena(null, "Loading your team, syncing the event session, and summoning the boss...", "Cargando tu equipo, sincronizando la sesión del evento y preparando al boss...")
+        };
+    }
+
+    if (esModoGymArena()) {
+        return {
+            state: "loading",
+            badge: tFallbackArena(null, "GYM BATTLE", "GYM BATTLE"),
+            icon: "🏅",
+            title: tFallbackArena(null, "Preparing Gym challenge", "Preparando desafío de Gimnasio"),
+            text: tFallbackArena(null, "Loading your team, syncing the Gym session, and preparing the rival squad...", "Cargando tu equipo, sincronizando la sesión del Gimnasio y preparando el equipo rival...")
+        };
+    }
+
+    return {
+        state: "loading",
+        badge: tFallbackArena(null, "BATTLE ARENA", "BATTLE ARENA"),
+        icon: "⚔",
+        title: tFallbackArena(null, "Preparing battle", "Preparando batalla"),
+        text: tFallbackArena(null, "Loading your squad and generating the rival team...", "Cargando tu equipo y generando el equipo rival...")
+    };
+}
+
+function construirContenidoProcesandoResultadoArena(victoria = true) {
+    if (esModoBossArena()) {
+        return {
+            state: "processing",
+            badge: tFallbackArena(null, "ALPHA BOSS", "ALPHA BOSS"),
+            icon: victoria ? "👑" : "⚠",
+            title: tFallbackArena(null, "Processing boss result", "Procesando resultado del boss"),
+            text: tFallbackArena(null, "Saving your run, validating damage, and preparing the final summary...", "Guardando tu intento, validando el daño y preparando el resumen final...")
+        };
+    }
+
+    if (esModoGymArena()) {
+        return {
+            state: "processing",
+            badge: tFallbackArena(null, "GYM BATTLE", "GYM BATTLE"),
+            icon: victoria ? "🏅" : "⚔",
+            title: tFallbackArena(null, "Processing Gym result", "Procesando resultado del Gimnasio"),
+            text: tFallbackArena(null, "Closing the session and preparing your final Gym summary...", "Cerrando la sesión y preparando tu resumen final del Gimnasio...")
+        };
+    }
+
+    return {
+        state: "processing",
+        badge: tFallbackArena(null, "BATTLE ARENA", "BATTLE ARENA"),
+        icon: victoria ? "🏆" : "⚔",
+        title: tFallbackArena(null, "Processing battle result", "Procesando resultado de batalla"),
+        text: tFallbackArena(null, "Applying rewards and preparing the final combat summary...", "Aplicando recompensas y preparando el resumen final del combate...")
+    };
+}
+
+function mostrarOverlayFlujoArena(config = {}) {
+    const { overlay, badge, spinner, icon, title, text } = asegurarOverlayFlujoArena();
+    const state = String(config.state || "loading").trim().toLowerCase();
+
+    overlay.dataset.state = state;
+    if (badge) badge.textContent = String(config.badge || tFallbackArena(null, "BATTLE ARENA", "BATTLE ARENA"));
+    if (title) title.textContent = String(config.title || tFallbackArena(null, "Preparing battle", "Preparando batalla"));
+    if (text) text.textContent = String(config.text || tFallbackArena(null, "Loading your squad...", "Cargando tu equipo..."));
+    if (icon) icon.textContent = String(config.icon || (state === "processing" ? "⏳" : "⚔"));
+
+    if (spinner) spinner.classList.toggle("oculto", state === "success");
+    if (icon) icon.classList.toggle("oculto", state !== "success");
+
+    overlay.classList.remove("oculto");
+}
+
+function ocultarOverlayFlujoArena() {
+    const overlay = document.getElementById("arenaFlowOverlay");
+    if (overlay) {
+        overlay.classList.add("oculto");
+    }
+}
+
 /* =========================================================
    INIT / CONFIG
 ========================================================= */
 async function inicializarArenaBattle() {
+    mostrarOverlayFlujoArena(construirContenidoCargaArena());
+
     arenaRecompensaProcesada = false;
     arenaRecompensaEnProceso = false;
     arenaUltimaRecompensaAplicada = null;
@@ -386,6 +525,8 @@ async function inicializarArenaBattle() {
         }
 
         renderArenaCompleta();
+        await esperarPintadoArena(2);
+        ocultarOverlayFlujoArena();
         agregarLogArena(tSafeArena("arena_log_start"), tSafeArena("arena_system"));
         ocultarMensajeArena();
         habilitarAccionesArena();
@@ -393,6 +534,7 @@ async function inicializarArenaBattle() {
         iniciarHeartbeatActividadArena();
         registrarActividadArena("view", construirDetalleActividadArena()).catch(() => {});
     } catch (error) {
+        ocultarOverlayFlujoArena();
         console.error("Error iniciando arena:", error);
         mostrarMensajeArena(error?.message || tSafeArena("arena_init_error"), "error");
         deshabilitarAccionesArena();
@@ -632,6 +774,8 @@ function limpiarSesionArenaNormal({ limpiarModo = false } = {}) {
     if (modalResultado) {
         modalResultado.classList.add("oculto");
     }
+
+    ocultarOverlayFlujoArena();
 }
 
 function limpiarSesionBossArena({ limpiarModo = false } = {}) {
@@ -650,6 +794,7 @@ function limpiarSesionBossArena({ limpiarModo = false } = {}) {
     arenaBattleSessionTtlSegundos = 0;
     arenaBossActual = null;
     arenaBossEventoActual = null;
+    ocultarOverlayFlujoArena();
 }
 
 async function manejarSalidaArena() {
@@ -756,6 +901,7 @@ function limpiarSesionGymArena({ limpiarModo = false } = {}) {
     arenaBattleSessionExpiraEn = null;
     arenaBattleSessionTtlSegundos = 0;
     arenaGymActual = null;
+    ocultarOverlayFlujoArena();
 }
 
 function sincronizarSesionGymArena(data = {}) {
@@ -2474,19 +2620,28 @@ async function verificarFinCombateArena() {
         renderArenaCompleta();
         deshabilitarAccionesArena();
 
+        const victoria = vivosPlayer > 0 && vivosEnemy <= 0;
+
         if (esModoBossArena()) {
-            const victoriaBoss = vivosPlayer > 0 && vivosEnemy <= 0;
-            const recompensaBoss = await procesarRecompensaBossArena(victoriaBoss);
+            mostrarOverlayFlujoArena(construirContenidoProcesandoResultadoArena(victoria));
+            const recompensaBoss = await procesarRecompensaBossArena(victoria);
             renderArenaCompleta();
-            mostrarResultadoArena(victoriaBoss, recompensaBoss);
+            await esperarPintadoArena(1);
+            ocultarOverlayFlujoArena();
+            mostrarResultadoArena(victoria, recompensaBoss);
         } else if (esModoGymArena()) {
-            const victoriaGym = vivosPlayer > 0 && vivosEnemy <= 0;
-            const recompensaGym = await procesarRecompensaGymArena(victoriaGym);
+            mostrarOverlayFlujoArena(construirContenidoProcesandoResultadoArena(victoria));
+            const recompensaGym = await procesarRecompensaGymArena(victoria);
             renderArenaCompleta();
-            mostrarResultadoArena(victoriaGym, recompensaGym);
-        } else if (vivosPlayer > 0) {
+            await esperarPintadoArena(1);
+            ocultarOverlayFlujoArena();
+            mostrarResultadoArena(victoria, recompensaGym);
+        } else if (victoria) {
+            mostrarOverlayFlujoArena(construirContenidoProcesandoResultadoArena(true));
             const recompensaResultado = await procesarRecompensasVictoriaArena();
             renderArenaCompleta();
+            await esperarPintadoArena(1);
+            ocultarOverlayFlujoArena();
             mostrarResultadoArena(true, recompensaResultado);
         } else {
             registrarActividadArena("battle_end", "derrota").catch(() => {});
@@ -2805,6 +2960,7 @@ function renderizarResumenPostBattleArena(victoria = true, recompensa = null) {
 }
 
 function mostrarResultadoArena(victoria = true, recompensa = null, soloRefresco = false) {
+    ocultarOverlayFlujoArena();
     cerrarPanelMovimientosArena();
     const modal = document.getElementById("arenaResultModal");
     const icon = document.getElementById("arenaResultIcon");
