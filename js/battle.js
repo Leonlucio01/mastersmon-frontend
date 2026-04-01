@@ -36,6 +36,7 @@ const BATTLE_PREMIUM_PRODUCT_CODES = {
 let battlePremiumProductosCatalogo = [];
 let battlePremiumProductoSeleccionado = null;
 let battlePremiumCheckoutEnProceso = false;
+let battleInicioCombateEnProceso = false;
 
 document.addEventListener("DOMContentLoaded", () => {
     inicializarBattle();
@@ -773,8 +774,8 @@ function renderResumenEquipoBattle() {
     if (tipoDominante) tipoDominante.textContent = stats.tipoDominante === "—" ? "—" : traducirTipoBattle(stats.tipoDominante);
     if (estado) estado.textContent = battleEquipo.length === 6 ? t("battle_team_status_ready") : t("battle_team_status_preparing");
 
-    // Lo dejamos siempre habilitado para que el usuario reciba el modal de advertencia
-    if (btnIniciar) btnIniciar.disabled = false;
+    if (btnIniciar) btnIniciar.disabled = battleInicioCombateEnProceso;
+    actualizarBotonInicioBattleCargando();
 
     actualizarEstadoModoSeleccionadoBattle();
 
@@ -1201,10 +1202,54 @@ function compararPokemonBattle(a, b, orden) {
 /* =========================
    ACCIONES
 ========================= */
+function crearSnapshotEquipoArenaBattle() {
+    return (Array.isArray(battleEquipo) ? battleEquipo : []).map((pokemon) => {
+        const hpMax = Number(pokemon?.hp_max ?? pokemon?.hp_actual ?? pokemon?.hp ?? 1);
+        return {
+            ...pokemon,
+            hp_max: hpMax,
+            hp_actual: hpMax
+        };
+    });
+}
+
+function actualizarBotonInicioBattleCargando() {
+    const btnIniciar = document.getElementById("btnIniciarBatalla");
+    if (!btnIniciar) return;
+
+    if (battleInicioCombateEnProceso) {
+        btnIniciar.disabled = true;
+        btnIniciar.dataset.originalText = btnIniciar.dataset.originalText || btnIniciar.textContent || "";
+        btnIniciar.textContent = tBattleSafe("battle_starting", "Starting...");
+        return;
+    }
+
+    btnIniciar.disabled = false;
+    if (btnIniciar.dataset.originalText) {
+        btnIniciar.textContent = btnIniciar.dataset.originalText;
+        delete btnIniciar.dataset.originalText;
+    }
+}
+
+function establecerInicioCombateEnProcesoBattle(activo = false) {
+    battleInicioCombateEnProceso = Boolean(activo);
+    actualizarBotonInicioBattleCargando();
+}
+
 async function ejecutarModoSeleccionadoBattle() {
-    if (battleModoActual === "boss") return iniciarModoBossBattle();
-    if (battleModoActual === "idle") return iniciarModoIdleBattle();
-    return iniciarBatallaDemo();
+    if (battleInicioCombateEnProceso) {
+        return;
+    }
+
+    establecerInicioCombateEnProcesoBattle(true);
+
+    try {
+        if (battleModoActual === "boss") return await iniciarModoBossBattle();
+        if (battleModoActual === "idle") return await iniciarModoIdleBattle();
+        return await iniciarBatallaDemo();
+    } finally {
+        establecerInicioCombateEnProcesoBattle(false);
+    }
 }
 
 async function iniciarBatallaDemo() {
@@ -1220,12 +1265,15 @@ async function iniciarBatallaDemo() {
         await guardarEquipoServidorBattle({ exigirSeis: true });
         registrarActividadBattle("view", `equipo:${battleEquipo.length}`).catch(() => {});
 
-        sessionStorage.setItem(BATTLE_ARENA_PLAYER_TEAM_KEY_SAFE(), JSON.stringify(battleEquipo));
+        const equipoArena = crearSnapshotEquipoArenaBattle();
+
+        sessionStorage.removeItem("mastersmon_battle_arena_session_token_v1");
+        sessionStorage.removeItem("mastersmon_battle_arena_session_expires_v1");
+        sessionStorage.removeItem("mastersmon_battle_arena_session_meta_v1");
+        sessionStorage.setItem(BATTLE_ARENA_PLAYER_TEAM_KEY_SAFE(), JSON.stringify(equipoArena));
         sessionStorage.setItem("mastersmon_battle_enemy_level_bonus_v1", String(bonusNivel));
         sessionStorage.setItem("mastersmon_battle_arena_difficulty_v1", obtenerCodigoDificultadBattleDesdeBonus(bonusNivel));
         sessionStorage.setItem(BATTLE_ARENA_MODE_KEY, "arena");
-        sessionStorage.removeItem("mastersmon_battle_arena_session_token_v1");
-        sessionStorage.removeItem("mastersmon_battle_arena_session_expires_v1");
         sessionStorage.removeItem(BATTLE_BOSS_SESSION_TOKEN_KEY);
         sessionStorage.removeItem(BATTLE_BOSS_DATA_KEY);
         sessionStorage.removeItem(BATTLE_BOSS_EVENT_KEY);
@@ -1424,8 +1472,15 @@ function actualizarEstadoModoSeleccionadoBattle() {
 
     if (btnIniciar) {
         const key = battleModoActual === "boss" ? "battle_start_boss" : battleModoActual === "idle" ? "battle_start_idle" : "battle_start_arena";
-        btnIniciar.textContent = tBattleSafe(key, battleModoActual === "boss" ? "Enter Boss" : battleModoActual === "idle" ? "Start idle" : "Start battle");
+        const label = tBattleSafe(key, battleModoActual === "boss" ? "Enter Boss" : battleModoActual === "idle" ? "Start idle" : "Start battle");
+        btnIniciar.dataset.originalText = label;
+        if (!battleInicioCombateEnProceso) {
+            btnIniciar.textContent = label;
+        }
+        btnIniciar.disabled = battleInicioCombateEnProceso;
     }
+
+    actualizarBotonInicioBattleCargando();
 }
 
 function renderPanelModoActualBattle() {

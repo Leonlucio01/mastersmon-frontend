@@ -33,6 +33,7 @@ const BATTLE_ARENA_PLAYER_TEAM_KEY = "mastersmon_battle_arena_team_v1";
 const BATTLE_ENEMY_LEVEL_BONUS_KEY = "mastersmon_battle_enemy_level_bonus_v1";
 const BATTLE_ARENA_SESSION_TOKEN_KEY = "mastersmon_battle_arena_session_token_v1";
 const BATTLE_ARENA_SESSION_EXPIRES_KEY = "mastersmon_battle_arena_session_expires_v1";
+const BATTLE_ARENA_SESSION_META_KEY = "mastersmon_battle_arena_session_meta_v1";
 const BATTLE_ARENA_DIFFICULTY_KEY = "mastersmon_battle_arena_difficulty_v1";
 const BATTLE_ARENA_ACTIVITY_SESSION_KEY = "mastersmon_battle_arena_activity_session_v1";
 const BATTLE_ARENA_MODE_KEY = "mastersmon_battle_arena_mode_v1";
@@ -333,14 +334,15 @@ async function inicializarArenaBattle() {
     arenaBossActual = leerJSONArena(BATTLE_BOSS_DATA_KEY, null);
     arenaBossEventoActual = leerJSONArena(BATTLE_BOSS_EVENT_KEY, null);
     arenaGymActual = null;
-    arenaDificultadActual = arenaModoActual === "boss"
-        ? "boss"
-        : (sessionStorage.getItem(BATTLE_ARENA_DIFFICULTY_KEY) || "normal");
 
     const modalResultado = document.getElementById("arenaResultModal");
     if (modalResultado) {
         modalResultado.classList.add("oculto");
     }
+
+    arenaDificultadActual = arenaModoActual === "boss"
+        ? "boss"
+        : (sessionStorage.getItem(BATTLE_ARENA_DIFFICULTY_KEY) || "normal");
 
     sincronizarUsuarioArena();
     configurarEventosArena();
@@ -518,6 +520,10 @@ function leerJSONArena(clave, defecto = null) {
     }
 }
 
+function leerMetaSesionArena() {
+    return leerJSONArena(BATTLE_ARENA_SESSION_META_KEY, null);
+}
+
 function existeSesionBossLocalArena() {
     const token = sessionStorage.getItem(BATTLE_BOSS_SESSION_TOKEN_KEY) || "";
     const boss = leerJSONArena(BATTLE_BOSS_DATA_KEY, null);
@@ -605,27 +611,10 @@ function restaurarEstadoBossArena() {
     return true;
 }
 
-function limpiarSesionBossArena({ limpiarModo = false } = {}) {
-    sessionStorage.removeItem(BATTLE_BOSS_SESSION_TOKEN_KEY);
-    sessionStorage.removeItem(BATTLE_BOSS_SESSION_EXPIRES_KEY);
-    sessionStorage.removeItem(BATTLE_BOSS_DATA_KEY);
-    sessionStorage.removeItem(BATTLE_BOSS_EVENT_KEY);
-    sessionStorage.removeItem(BATTLE_BOSS_COMBAT_STATE_KEY);
-
-    if (limpiarModo) {
-        sessionStorage.removeItem(BATTLE_ARENA_MODE_KEY);
-    }
-
-    arenaBattleSessionToken = null;
-    arenaBattleSessionExpiraEn = null;
-    arenaBattleSessionTtlSegundos = 0;
-    arenaBossActual = null;
-    arenaBossEventoActual = null;
-}
-
 function limpiarSesionArenaNormal({ limpiarModo = false } = {}) {
     sessionStorage.removeItem(BATTLE_ARENA_SESSION_TOKEN_KEY);
     sessionStorage.removeItem(BATTLE_ARENA_SESSION_EXPIRES_KEY);
+    sessionStorage.removeItem(BATTLE_ARENA_SESSION_META_KEY);
 
     if (limpiarModo) {
         sessionStorage.removeItem(BATTLE_ARENA_MODE_KEY);
@@ -643,6 +632,24 @@ function limpiarSesionArenaNormal({ limpiarModo = false } = {}) {
     if (modalResultado) {
         modalResultado.classList.add("oculto");
     }
+}
+
+function limpiarSesionBossArena({ limpiarModo = false } = {}) {
+    sessionStorage.removeItem(BATTLE_BOSS_SESSION_TOKEN_KEY);
+    sessionStorage.removeItem(BATTLE_BOSS_SESSION_EXPIRES_KEY);
+    sessionStorage.removeItem(BATTLE_BOSS_DATA_KEY);
+    sessionStorage.removeItem(BATTLE_BOSS_EVENT_KEY);
+    sessionStorage.removeItem(BATTLE_BOSS_COMBAT_STATE_KEY);
+
+    if (limpiarModo) {
+        sessionStorage.removeItem(BATTLE_ARENA_MODE_KEY);
+    }
+
+    arenaBattleSessionToken = null;
+    arenaBattleSessionExpiraEn = null;
+    arenaBattleSessionTtlSegundos = 0;
+    arenaBossActual = null;
+    arenaBossEventoActual = null;
 }
 
 async function manejarSalidaArena() {
@@ -1309,7 +1316,10 @@ function generarEquipoRivalFase1() {
 
 function normalizarPokemonArena(pokemon, side = "player", slotIndex = 0) {
     const hpMax = Number(pokemon.hp_max ?? pokemon.hp_actual ?? pokemon.hp ?? 1);
-    const hpActual = Number(pokemon.hp_actual ?? hpMax);
+    const reiniciarHpJugadorArena = side === "player" && !esModoBossArena() && !esModoGymArena();
+    const hpActual = reiniciarHpJugadorArena
+        ? hpMax
+        : Number(pokemon.hp_actual ?? hpMax);
 
     return {
         id: pokemon.id ?? `${side}-${slotIndex}-${pokemon.pokemon_id}`,
@@ -1353,13 +1363,29 @@ function obtenerBonusNivelRivalArena() {
 
 function obtenerRecompensasPorDificultadArena() {
     const codigo = obtenerCodigoDificultadArena();
+    const metaSesion = leerMetaSesionArena();
+
+    if (metaSesion && typeof metaSesion === "object") {
+        const metaCodigo = String(metaSesion.codigo || codigo || "normal").trim().toLowerCase();
+        const expMeta = Number(metaSesion.exp ?? 0);
+        const pokedolaresMeta = Number(metaSesion.pokedolares ?? 0);
+
+        if (expMeta > 0 || pokedolaresMeta > 0) {
+            return {
+                codigo: metaCodigo,
+                nombre: obtenerNombreDificultadArena(metaCodigo),
+                exp: expMeta,
+                pokedolares: pokedolaresMeta
+            };
+        }
+    }
 
     if (codigo === "master") {
         return {
             codigo: "master",
             nombre: obtenerNombreDificultadArena("master"),
-            exp: 6000,
-            pokedolares: 15000
+            exp: 3500,
+            pokedolares: 4000
         };
     }
 
@@ -1367,8 +1393,8 @@ function obtenerRecompensasPorDificultadArena() {
         return {
             codigo: "expert",
             nombre: obtenerNombreDificultadArena("expert"),
-            exp: 4500,
-            pokedolares: 10000
+            exp: 3000,
+            pokedolares: 3500
         };
     }
 
@@ -1376,15 +1402,15 @@ function obtenerRecompensasPorDificultadArena() {
         return {
             codigo: "challenge",
             nombre: obtenerNombreDificultadArena("challenge"),
-            exp: 3500,
-            pokedolares: 5000
+            exp: 2500,
+            pokedolares: 3000
         };
     }
 
     return {
         codigo: "normal",
         nombre: obtenerNombreDificultadArena("normal"),
-        exp: 2500,
+        exp: 2000,
         pokedolares: 2500
     };
 }
@@ -3183,6 +3209,13 @@ function sincronizarSesionBackendArena(data = {}) {
     }
 
     sessionStorage.setItem(BATTLE_ARENA_DIFFICULTY_KEY, arenaDificultadActual);
+
+    const metaSesion = {
+        codigo: arenaDificultadActual,
+        exp: Number(data?.exp_ganada ?? 0),
+        pokedolares: Number(data?.pokedolares_ganados ?? 0)
+    };
+    sessionStorage.setItem(BATTLE_ARENA_SESSION_META_KEY, JSON.stringify(metaSesion));
 
     if (arenaBattleSessionToken) {
         sessionStorage.setItem(BATTLE_ARENA_SESSION_TOKEN_KEY, arenaBattleSessionToken);
