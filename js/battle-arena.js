@@ -23,6 +23,7 @@ let arenaModoActual = "arena";
 let arenaBossActual = null;
 let arenaBossEventoActual = null;
 let arenaGymActual = null;
+let arenaPostBattleRefreshPromise = null;
 
 let arenaMovesPanelAbierto = false;
 let arenaMovimientoJugadorPendiente = null;
@@ -452,6 +453,65 @@ function ocultarOverlayFlujoArena() {
     }
 }
 
+function obtenerEquipoLocalInicialArena() {
+    const fuentes = [
+        sessionStorage.getItem(BATTLE_ARENA_PLAYER_TEAM_KEY),
+        localStorage.getItem(BATTLE_TEAM_STORAGE_KEY)
+    ];
+
+    for (const raw of fuentes) {
+        if (!raw) continue;
+
+        try {
+            const equipo = JSON.parse(raw);
+            if (Array.isArray(equipo) && equipo.length === 6) {
+                return equipo;
+            }
+        } catch (error) {
+            console.warn("No se pudo leer un equipo local inicial de Arena:", error);
+        }
+    }
+
+    return [];
+}
+
+function renderPreviewEquipoLocalArena() {
+    if (arenaPlayerTeam.length === 6) return false;
+
+    const equipoLocal = obtenerEquipoLocalInicialArena();
+    if (!Array.isArray(equipoLocal) || equipoLocal.length !== 6) return false;
+
+    arenaPlayerTeam = equipoLocal
+        .slice(0, 6)
+        .map((pokemon, index) => normalizarPokemonArena(pokemon, "player", index));
+
+    arenaPlayerIndex = 0;
+    arenaEnemyTeam = [];
+    arenaEnemyIndex = 0;
+    renderArenaCompleta();
+    return true;
+}
+
+async function refrescarEquipoPostBattleEnSegundoPlanoArena() {
+    if (arenaPostBattleRefreshPromise) {
+        return arenaPostBattleRefreshPromise;
+    }
+
+    arenaPostBattleRefreshPromise = (async () => {
+        try {
+            await cargarMovimientosEquipoJugadorArena();
+            guardarEquipoArenaEnStorages();
+            renderArenaCompleta();
+        } catch (error) {
+            console.warn("No se pudo refrescar el equipo post batalla en segundo plano:", error);
+        } finally {
+            arenaPostBattleRefreshPromise = null;
+        }
+    })();
+
+    return arenaPostBattleRefreshPromise;
+}
+
 /* =========================================================
    INIT / CONFIG
 ========================================================= */
@@ -473,6 +533,7 @@ async function inicializarArenaBattle() {
     arenaBossActual = leerJSONArena(BATTLE_BOSS_DATA_KEY, null);
     arenaBossEventoActual = leerJSONArena(BATTLE_BOSS_EVENT_KEY, null);
     arenaGymActual = null;
+    arenaPostBattleRefreshPromise = null;
 
     const modalResultado = document.getElementById("arenaResultModal");
     if (modalResultado) {
@@ -486,6 +547,7 @@ async function inicializarArenaBattle() {
     sincronizarUsuarioArena();
     configurarEventosArena();
     actualizarHeroModoArena();
+    renderPreviewEquipoLocalArena();
 
     try {
         if (esModoBossArena()) {
@@ -769,6 +831,7 @@ function limpiarSesionArenaNormal({ limpiarModo = false } = {}) {
     arenaRecompensaProcesada = false;
     arenaRecompensaEnProceso = false;
     arenaUltimaRecompensaAplicada = null;
+    arenaPostBattleRefreshPromise = null;
 
     const modalResultado = document.getElementById("arenaResultModal");
     if (modalResultado) {
@@ -793,6 +856,7 @@ function limpiarSesionBossArena({ limpiarModo = false } = {}) {
     arenaBattleSessionExpiraEn = null;
     arenaBattleSessionTtlSegundos = 0;
     arenaBossActual = null;
+    arenaPostBattleRefreshPromise = null;
     arenaBossEventoActual = null;
     ocultarOverlayFlujoArena();
 }
@@ -901,6 +965,7 @@ function limpiarSesionGymArena({ limpiarModo = false } = {}) {
     arenaBattleSessionExpiraEn = null;
     arenaBattleSessionTtlSegundos = 0;
     arenaGymActual = null;
+    arenaPostBattleRefreshPromise = null;
     ocultarOverlayFlujoArena();
 }
 
@@ -1104,7 +1169,6 @@ async function procesarRecompensaGymArena(victoria = false) {
         }
 
         refrescarEquipoArenaDesdeRespuesta(data || {});
-        await cargarMovimientosEquipoJugadorArena();
 
         arenaRecompensaProcesada = true;
         arenaUltimaRecompensaAplicada = recompensa;
@@ -1287,7 +1351,6 @@ async function procesarRecompensaBossArena(victoria = false) {
         }
 
         refrescarEquipoArenaDesdeRespuesta(data || {});
-        await cargarMovimientosEquipoJugadorArena();
         return recompensa;
     } catch (error) {
         console.warn("No se pudo reclamar la recompensa del Boss:", error);
@@ -2625,24 +2688,21 @@ async function verificarFinCombateArena() {
         if (esModoBossArena()) {
             mostrarOverlayFlujoArena(construirContenidoProcesandoResultadoArena(victoria));
             const recompensaBoss = await procesarRecompensaBossArena(victoria);
-            renderArenaCompleta();
-            await esperarPintadoArena(1);
             ocultarOverlayFlujoArena();
             mostrarResultadoArena(victoria, recompensaBoss);
+            void refrescarEquipoPostBattleEnSegundoPlanoArena();
         } else if (esModoGymArena()) {
             mostrarOverlayFlujoArena(construirContenidoProcesandoResultadoArena(victoria));
             const recompensaGym = await procesarRecompensaGymArena(victoria);
-            renderArenaCompleta();
-            await esperarPintadoArena(1);
             ocultarOverlayFlujoArena();
             mostrarResultadoArena(victoria, recompensaGym);
+            void refrescarEquipoPostBattleEnSegundoPlanoArena();
         } else if (victoria) {
             mostrarOverlayFlujoArena(construirContenidoProcesandoResultadoArena(true));
             const recompensaResultado = await procesarRecompensasVictoriaArena();
-            renderArenaCompleta();
-            await esperarPintadoArena(1);
             ocultarOverlayFlujoArena();
             mostrarResultadoArena(true, recompensaResultado);
+            void refrescarEquipoPostBattleEnSegundoPlanoArena();
         } else {
             registrarActividadArena("battle_end", "derrota").catch(() => {});
             mostrarResultadoArena(false);
@@ -3562,8 +3622,6 @@ async function otorgarRecompensasVictoriaArena() {
     }
 
     refrescarEquipoArenaDesdeRespuesta(data);
-    await cargarMovimientosEquipoJugadorArena();
-    renderArenaCompleta();
 
     if (typeof mostrarToastRecompensasOnboarding === "function" && data?.onboarding) {
         mostrarToastRecompensasOnboarding(data.onboarding);
