@@ -1718,28 +1718,35 @@ function renderizarAvatarMapa() {
     actualizarBotonesMovimientoDisponibles(false);
 }
  
+function obtenerSpriteMovimientoMaps(direccion = "", disponible = true) {
+    const sprites = {
+        up: "img/maps/move/north_able.png",
+        down: "img/maps/move/south_able.png",
+        left: "img/maps/move/west_able.png",
+        right: "img/maps/move/east_able.png"
+    };
+
+    return sprites[direccion] || sprites.up;
+}
+
 function actualizarSpritesMovimientoMaps() {
     const botones = document.querySelectorAll("[data-move]");
-    const spritePorDireccion = {
-        up: ["north_able.png", "north_disable.png"],
-        left: ["west_able.png", "west_disable.png"],
-        right: ["east_able.png", "east_disable.png"],
-        down: ["south_able.png", "south_disable.png"]
-    };
 
     botones.forEach(btn => {
         const direccion = String(btn.dataset.move || "").trim().toLowerCase();
         const img = btn.querySelector("img");
-        const sprites = spritePorDireccion[direccion];
-        if (!img || !sprites) return;
+        if (!img) return;
 
-        const [spriteHabilitado, spriteDeshabilitado] = sprites;
-        const destino = btn.disabled ? spriteDeshabilitado : spriteHabilitado;
-        const rutaNueva = `img/maps/move/${destino}`;
-
-        if (!img.getAttribute("src") || !img.getAttribute("src").endsWith(destino)) {
-            img.setAttribute("src", rutaNueva);
+        const spriteSeguro = obtenerSpriteMovimientoMaps(direccion, !btn.disabled);
+        if (img.getAttribute("src") !== spriteSeguro) {
+            img.setAttribute("src", spriteSeguro);
         }
+
+        img.onerror = function () {
+            if (this.dataset.fallbackApplied === "1") return;
+            this.dataset.fallbackApplied = "1";
+            this.src = spriteSeguro;
+        };
     });
 }
 
@@ -3136,6 +3143,7 @@ function renderizarZonaExploracion() {
 
     renderizarAvatarMapa();
     renderizarJugadoresMapa();
+    actualizarSpritesMovimientoMaps();
 }
 
 function renderMiniaturasZona(zona = null) {
@@ -3493,31 +3501,16 @@ async function intentarCapturaDesdeUI() {
  
     const itemId = Number(seleccionada.value);
     itemSeleccionadoMaps = itemId;
-
-    const btnCapturar = document.getElementById("btnCapturarMapa");
-    if (btnCapturar) {
-        btnCapturar.disabled = true;
-    }
-
-    try {
-        await ejecutarAnimacionIntentoCapturaMaps();
-
-        await intentarCaptura(
-            encuentroActual.pokemon_id,
-            encuentroActual.nivel,
-            encuentroActual.es_shiny,
-            encuentroActual.hp,
-            encuentroActual.hp_max || encuentroActual.hp,
-            itemId,
-            encuentroActual.encuentro_token
-        );
-    } catch (error) {
-        console.error("Error reproduciendo la captura V2:", error);
-        if (btnCapturar) {
-            btnCapturar.disabled = false;
-        }
-        throw error;
-    }
+ 
+    await intentarCaptura(
+        encuentroActual.pokemon_id,
+        encuentroActual.nivel,
+        encuentroActual.es_shiny,
+        encuentroActual.hp,
+        encuentroActual.hp_max || encuentroActual.hp,
+        itemId,
+        encuentroActual.encuentro_token
+    );
 }
  
 async function intentarCaptura(pokemonId, nivel, esShiny, hpActual, hpMaximo, itemId, encuentroToken = null) {
