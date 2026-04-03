@@ -213,10 +213,10 @@ const RUTA_GREEN_FOREST = crearRutaDesdeGrid(GRID_GREEN_FOREST, {
 
 const MAPAS_RUTAS = {
     bosque: RUTA_GREEN_FOREST,
-    cueva: RUTA_CONTORNO_BASE,
-    lago: RUTA_CONTORNO_BASE,
-    torre: RUTA_CONTORNO_BASE,
-    default: RUTA_CONTORNO_BASE
+    cueva: RUTA_GREEN_FOREST,
+    lago: RUTA_GREEN_FOREST,
+    torre: RUTA_GREEN_FOREST,
+    default: RUTA_GREEN_FOREST
 };
  
 const MAPAS_CONFIG = {
