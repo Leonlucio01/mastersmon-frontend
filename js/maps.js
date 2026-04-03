@@ -25,8 +25,13 @@ let encuentroRequestId = 0;
 ========================================================= */
 let mapsRealtimeConnection = null;
 let jugadoresZonaMaps = new Map();
+let jugadoresZonaDomCache = new Map();
 let presenciaZonaActivaId = null;
 let ultimoNodoReportadoMaps = null;
+let ultimoEnvioPresenciaMapsAt = 0;
+let nodoPendientePresenciaMaps = null;
+let timerPendientePresenciaMaps = null;
+const MAPS_PRESENCIA_MOVE_THROTTLE_MS = 120;
  
 const MAPS_ZONAS_CACHE_KEY = "mastersmon_maps_zonas_cache_v7";
 let mapsRegionShowcaseStart = 0;
@@ -1787,9 +1792,30 @@ function obtenerLayerJugadoresMaps() {
     return document.getElementById("jugadoresMapaLayer");
 }
  
+function limpiarColaPresenciaMovimientoMaps() {
+    if (timerPendientePresenciaMaps) {
+        clearTimeout(timerPendientePresenciaMaps);
+        timerPendientePresenciaMaps = null;
+    }
+
+    nodoPendientePresenciaMaps = null;
+    ultimoEnvioPresenciaMapsAt = 0;
+}
+
+function limpiarJugadoresDomCacheMaps({ removeNodes = true } = {}) {
+    jugadoresZonaDomCache.forEach((elemento) => {
+        if (removeNodes && elemento?.remove) {
+            elemento.remove();
+        }
+    });
+    jugadoresZonaDomCache.clear();
+}
+
 function limpiarJugadoresZonaMaps() {
     jugadoresZonaMaps.clear();
     presenciaZonaActivaId = null;
+    limpiarColaPresenciaMovimientoMaps();
+    limpiarJugadoresDomCacheMaps();
     renderizarJugadoresMapa();
 }
  
@@ -1821,6 +1847,7 @@ function crearHtmlJugadorMapa(jugador, nodo) {
         <div
             class="jugador-mapa"
             data-usuario-id="${Number(jugador.usuario_id)}"
+            data-avatar-id="${avatarId}"
             style="left:${nodo.x}%; top:${nodo.y}%"
             aria-label="${nombre}"
             title="${nombre}"
@@ -1831,13 +1858,98 @@ function crearHtmlJugadorMapa(jugador, nodo) {
                 src="${rutaAvatar}"
                 alt="${nombre}"
                 class="jugador-mapa-img"
-                loading="eager"
+                loading="lazy"
                 decoding="async"
                 onerror="if(this.dataset.fallbackApplied==='1')return;this.dataset.fallbackApplied='1';this.src='${rutaFallback}';"
             >
             <div class="jugador-mapa-inicial">${inicial}</div>
         </div>
     `;
+}
+
+function crearElementoJugadorMapaMaps(jugador, nodo) {
+    const wrapper = document.createElement("div");
+    wrapper.innerHTML = crearHtmlJugadorMapa(jugador, nodo).trim();
+    return wrapper.firstElementChild;
+}
+
+function actualizarElementoJugadorDomMapa(elemento, jugador, nodo) {
+    if (!elemento || !jugador || !nodo) return;
+
+    const nombre = jugador?.nombre || tMaps("maps_trainer_default", "Trainer");
+    const avatarId = normalizarAvatarIdMaps(jugador?.avatar_id || MAPS_AVATAR_DEFAULT_ID);
+    const rutaAvatar = obtenerRutaAvatarMaps(avatarId);
+    const rutaFallback = obtenerRutaAvatarFallbackMaps();
+    const inicial = obtenerInicialNombreJugador(nombre);
+
+    elemento.dataset.usuarioId = String(Number(jugador.usuario_id));
+    elemento.dataset.avatarId = avatarId;
+    elemento.style.left = `${nodo.x}%`;
+    elemento.style.top = `${nodo.y}%`;
+    elemento.setAttribute("aria-label", nombre);
+    elemento.setAttribute("title", nombre);
+
+    const etiqueta = elemento.querySelector(".jugador-mapa-etiqueta");
+    if (etiqueta && etiqueta.textContent !== nombre) {
+        etiqueta.textContent = nombre;
+    }
+
+    const inicialBox = elemento.querySelector(".jugador-mapa-inicial");
+    if (inicialBox && inicialBox.textContent !== inicial) {
+        inicialBox.textContent = inicial;
+    }
+
+    const img = elemento.querySelector(".jugador-mapa-img");
+    if (img) {
+        if (img.getAttribute("src") !== rutaAvatar) {
+            img.dataset.fallbackApplied = "0";
+            img.setAttribute("src", rutaAvatar);
+        }
+        if (img.getAttribute("alt") !== nombre) {
+            img.setAttribute("alt", nombre);
+        }
+        img.setAttribute(
+            "onerror",
+            `if(this.dataset.fallbackApplied==='1')return;this.dataset.fallbackApplied='1';this.src='${rutaFallback}';`
+        );
+    }
+}
+
+function quitarJugadorDomMapa(usuarioId) {
+    const jugadorId = Number(usuarioId);
+    const elemento = jugadoresZonaDomCache.get(jugadorId);
+    if (elemento?.remove) {
+        elemento.remove();
+    }
+    jugadoresZonaDomCache.delete(jugadorId);
+}
+
+function reemplazarJugadorDomMapa(jugador) {
+    if (!jugador || jugador.usuario_id == null) return null;
+
+    const layer = obtenerLayerJugadoresMaps();
+    if (!layer) return null;
+
+    const jugadorId = Number(jugador.usuario_id);
+    const nodo = obtenerNodoMapaPorId(jugador.nodo_id);
+
+    if (!nodo || esJugadorActualMaps(jugadorId)) {
+        quitarJugadorDomMapa(jugadorId);
+        return null;
+    }
+
+    let elemento = jugadoresZonaDomCache.get(jugadorId);
+
+    if (!elemento || !elemento.isConnected) {
+        elemento = crearElementoJugadorMapaMaps(jugador, nodo);
+        layer.appendChild(elemento);
+        jugadoresZonaDomCache.set(jugadorId, elemento);
+        return elemento;
+    }
+
+    actualizarElementoJugadorDomMapa(elemento, jugador, nodo);
+    jugadoresZonaDomCache.set(jugadorId, elemento);
+    return elemento;
 }
  
 function renderizarJugadoresMapa() {
@@ -1846,6 +1958,7 @@ function renderizarJugadoresMapa() {
  
     if (!zonaSeleccionadaActual || !usuarioAutenticadoMaps()) {
         layer.innerHTML = "";
+        limpiarJugadoresDomCacheMaps({ removeNodes: false });
         return;
     }
  
@@ -1853,31 +1966,51 @@ function renderizarJugadoresMapa() {
         .filter(j => !esJugadorActualMaps(j.usuario_id))
         .filter(j => String(j.nodo_id || "").trim() !== "")
         .sort((a, b) => String(a.nombre || "").localeCompare(String(b.nombre || ""), undefined, { sensitivity: "base" }));
- 
-    const html = jugadores.map((jugador) => {
+
+    layer.innerHTML = "";
+    limpiarJugadoresDomCacheMaps({ removeNodes: false });
+
+    const fragment = document.createDocumentFragment();
+
+    jugadores.forEach((jugador) => {
         const nodo = obtenerNodoMapaPorId(jugador.nodo_id);
-        if (!nodo) return "";
-        return crearHtmlJugadorMapa(jugador, nodo);
-    }).join("");
- 
-    layer.innerHTML = html;
+        if (!nodo) return;
+
+        const elemento = crearElementoJugadorMapaMaps(jugador, nodo);
+        jugadoresZonaDomCache.set(Number(jugador.usuario_id), elemento);
+        fragment.appendChild(elemento);
+    });
+
+    layer.appendChild(fragment);
 }
  
 function upsertJugadorZonaMaps(jugador) {
     if (!jugador || jugador.usuario_id == null) return;
     if (esJugadorActualMaps(jugador.usuario_id)) return;
  
-    jugadoresZonaMaps.set(Number(jugador.usuario_id), {
+    const normalizado = {
         ...jugador,
         usuario_id: Number(jugador.usuario_id)
-    });
- 
-    renderizarJugadoresMapa();
+    };
+
+    const previo = jugadoresZonaMaps.get(normalizado.usuario_id);
+    const sinCambios = previo
+        && String(previo.nodo_id || "") === String(normalizado.nodo_id || "")
+        && String(previo.nombre || "") === String(normalizado.nombre || "")
+        && String(previo.avatar_id || "") === String(normalizado.avatar_id || "");
+
+    if (sinCambios) {
+        return;
+    }
+
+    jugadoresZonaMaps.set(normalizado.usuario_id, normalizado);
+    reemplazarJugadorDomMapa(normalizado);
 }
  
 function quitarJugadorZonaMaps(usuarioId) {
-    jugadoresZonaMaps.delete(Number(usuarioId));
-    renderizarJugadoresMapa();
+    const jugadorId = Number(usuarioId);
+    jugadoresZonaMaps.delete(jugadorId);
+    quitarJugadorDomMapa(jugadorId);
 }
  
 function asegurarConexionTiempoRealMaps() {
@@ -2018,6 +2151,7 @@ async function iniciarPresenciaZonaActual() {
  
     presenciaZonaActivaId = zonaId;
     ultimoNodoReportadoMaps = nodoId;
+    limpiarColaPresenciaMovimientoMaps();
     jugadoresZonaMaps.clear();
     renderizarJugadoresMapa();
  
@@ -2051,13 +2185,13 @@ async function iniciarPresenciaZonaActual() {
     }
 }
  
-function sincronizarPresenciaMovimiento(nodoId) {
+function enviarPresenciaMovimientoMaps(nodoNormalizado) {
     if (!usuarioAutenticadoMaps() || !zonaSeleccionadaActual) return;
-    if (!nodoId) return;
- 
-    const nodoNormalizado = String(nodoId).trim().toLowerCase();
+    if (!nodoNormalizado) return;
+
     ultimoNodoReportadoMaps = nodoNormalizado;
- 
+    ultimoEnvioPresenciaMapsAt = Date.now();
+
     const conexion = asegurarConexionTiempoRealMaps();
  
     if (conexion) {
@@ -2077,6 +2211,48 @@ function sincronizarPresenciaMovimiento(nodoId) {
         .catch((error) => {
             console.warn("No se pudo actualizar presencia por HTTP:", error);
         });
+}
+
+function flushPresenciaMovimientoPendienteMaps() {
+    if (timerPendientePresenciaMaps) {
+        clearTimeout(timerPendientePresenciaMaps);
+        timerPendientePresenciaMaps = null;
+    }
+
+    const nodoPendiente = nodoPendientePresenciaMaps;
+    nodoPendientePresenciaMaps = null;
+
+    if (!nodoPendiente) return;
+    enviarPresenciaMovimientoMaps(nodoPendiente);
+}
+
+function sincronizarPresenciaMovimiento(nodoId) {
+    if (!usuarioAutenticadoMaps() || !zonaSeleccionadaActual) return;
+    if (!nodoId) return;
+ 
+    const nodoNormalizado = String(nodoId).trim().toLowerCase();
+    if (!nodoNormalizado) return;
+
+    const ahora = Date.now();
+    const tiempoDesdeUltimoEnvio = ahora - Number(ultimoEnvioPresenciaMapsAt || 0);
+
+    if (!ultimoEnvioPresenciaMapsAt || tiempoDesdeUltimoEnvio >= MAPS_PRESENCIA_MOVE_THROTTLE_MS) {
+        nodoPendientePresenciaMaps = null;
+        flushPresenciaMovimientoPendienteMaps();
+        enviarPresenciaMovimientoMaps(nodoNormalizado);
+        return;
+    }
+
+    nodoPendientePresenciaMaps = nodoNormalizado;
+
+    if (timerPendientePresenciaMaps) {
+        return;
+    }
+
+    const espera = Math.max(16, MAPS_PRESENCIA_MOVE_THROTTLE_MS - tiempoDesdeUltimoEnvio);
+    timerPendientePresenciaMaps = window.setTimeout(() => {
+        flushPresenciaMovimientoPendienteMaps();
+    }, espera);
 }
  
 function sincronizarPresenciaLocalMaps() {
@@ -2850,6 +3026,8 @@ function renderizarZonaExploracion() {
     }
     encuentro.style.cssText = obtenerVarsCssZonaMaps(zonaSeleccionadaActual);
 
+    limpiarJugadoresDomCacheMaps({ removeNodes: false });
+
     encuentro.innerHTML = `
         <div class="encuentro-layout-mapa">
             <div class="mapa-exploracion-panel">
@@ -3288,8 +3466,6 @@ async function intentarCapturaDesdeUI() {
  
     const itemId = Number(seleccionada.value);
     itemSeleccionadoMaps = itemId;
- 
-    await ejecutarAnimacionIntentoCapturaMaps();
  
     await intentarCaptura(
         encuentroActual.pokemon_id,
