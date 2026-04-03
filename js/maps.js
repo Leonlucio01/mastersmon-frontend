@@ -3312,21 +3312,30 @@ async function intentarCaptura(pokemonId, nivel, esShiny, hpActual, hpMaximo, it
     try {
         limpiarMensajeMaps();
 
-        const data = await fetchAuth(`${API_BASE}/maps/intentar-captura`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                pokemon_id: Number(pokemonId),
-                nivel: Number(nivel),
-                es_shiny: !!esShiny,
-                hp_actual: Number(hpActual),
-                hp_maximo: Number(hpMaximo),
-                item_id: Number(itemId),
-                encuentro_token: encuentroToken || null
-            })
+        const animacionCapturaPromise = ejecutarAnimacionIntentoCapturaMaps().catch((error) => {
+            console.warn("No se pudo completar la animación de captura:", error);
         });
+
+        let data;
+        try {
+            data = await fetchAuth(`${API_BASE}/maps/intentar-captura`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    pokemon_id: Number(pokemonId),
+                    nivel: Number(nivel),
+                    es_shiny: !!esShiny,
+                    hp_actual: Number(hpActual),
+                    hp_maximo: Number(hpMaximo),
+                    item_id: Number(itemId),
+                    encuentro_token: encuentroToken || null
+                })
+            });
+        } finally {
+            await animacionCapturaPromise;
+        }
 
         if (data.capturado === true) {
             mostrarModalResultadoCaptura(
@@ -3410,8 +3419,97 @@ function obtenerImagenBall(nombreItem) {
         "Ultra Ball": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png",
         "Master Ball": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/master-ball.png"
     };
- 
+
     return imagenes[nombreItem] || imagenes["Poke Ball"];
+}
+
+function esperarMaps(ms = 0) {
+    return new Promise(resolve => window.setTimeout(resolve, ms));
+}
+
+function obtenerCentroViewportElementoMaps(elemento) {
+    if (!elemento || typeof elemento.getBoundingClientRect !== "function") return null;
+
+    const rect = elemento.getBoundingClientRect();
+    if (!rect || rect.width <= 0 || rect.height <= 0) return null;
+
+    return {
+        x: rect.left + (rect.width / 2),
+        y: rect.top + (rect.height / 2)
+    };
+}
+
+function limpiarAnimacionCapturaTemporalMaps() {
+    document.querySelectorAll(".capture-flight-layer").forEach(node => node.remove());
+    document.body.classList.remove("maps-capture-animating");
+
+    const showcase = document.querySelector(".encuentro-pokemon-showcase");
+    const pokemonImg = showcase?.querySelector(".encuentro-img");
+
+    showcase?.classList.remove("capture-target-active", "capture-impact-active");
+    pokemonImg?.classList.remove("capture-hit");
+}
+
+async function ejecutarAnimacionIntentoCapturaMaps() {
+    const seleccionada = document.querySelector('input[name="pokeballSeleccionada"]:checked');
+    const ballLabel = seleccionada?.closest(".ball-option");
+    const ballImg = ballLabel?.querySelector(".ball-option-card img");
+    const showcase = document.querySelector(".encuentro-pokemon-showcase");
+    const pokemonImg = showcase?.querySelector(".encuentro-img");
+    const targetElemento = pokemonImg || showcase;
+
+    if (!seleccionada || !ballImg || !showcase || !targetElemento) return;
+
+    const start = obtenerCentroViewportElementoMaps(ballImg);
+    const end = obtenerCentroViewportElementoMaps(targetElemento);
+
+    if (!start || !end) return;
+
+    limpiarAnimacionCapturaTemporalMaps();
+
+    const layer = document.createElement("div");
+    layer.className = "capture-flight-layer";
+    layer.style.setProperty("--capture-start-x", `${start.x}px`);
+    layer.style.setProperty("--capture-start-y", `${start.y}px`);
+    layer.style.setProperty("--capture-end-x", `${end.x}px`);
+    layer.style.setProperty("--capture-end-y", `${end.y}px`);
+    layer.style.setProperty("--capture-dx", `${(end.x - start.x).toFixed(2)}px`);
+    layer.style.setProperty("--capture-dy", `${(end.y - start.y).toFixed(2)}px`);
+
+    const trail = document.createElement("div");
+    trail.className = "capture-flight-trail";
+
+    const impact = document.createElement("div");
+    impact.className = "capture-flight-impact";
+
+    const ball = document.createElement("img");
+    ball.className = "capture-flight-ball";
+    ball.src = ballImg.currentSrc || ballImg.src || obtenerImagenBall(seleccionada.dataset.nombre || "Poke Ball");
+    ball.alt = seleccionada.dataset.nombre || "Poké Ball";
+    ball.decoding = "async";
+
+    layer.appendChild(trail);
+    layer.appendChild(impact);
+    layer.appendChild(ball);
+    document.body.appendChild(layer);
+
+    document.body.classList.add("maps-capture-animating");
+
+    requestAnimationFrame(() => {
+        layer.classList.add("is-animating");
+        showcase.classList.add("capture-target-active");
+    });
+
+    window.setTimeout(() => {
+        showcase.classList.add("capture-impact-active");
+        pokemonImg?.classList.add("capture-hit");
+    }, 360);
+
+    await esperarMaps(760);
+    layer.classList.add("is-leaving");
+    await esperarMaps(180);
+
+    limpiarAnimacionCapturaTemporalMaps();
 }
  
 function mostrarMensajeMaps(mensaje, tipo = "ok") {
@@ -3503,22 +3601,47 @@ function mostrarModalResultadoCaptura(mensaje, tipo = "exito") {
     const deco = document.getElementById("modalResultadoCapturaDeco");
     const titulo = document.getElementById("modalResultadoCapturaTitulo");
     const texto = document.getElementById("modalResultadoCapturaTexto");
- 
-    if (!modal || !box || !deco || !titulo || !texto) return;
- 
-    box.classList.remove("exito", "error");
-    box.classList.add(tipo);
- 
+    const btn = document.getElementById("btnCerrarModalResultadoCaptura");
+
+    if (!modal || !box || !deco || !titulo || !texto || !btn) return;
+
+    modal.classList.remove("oculto");
+
+    box.classList.remove(
+        "exito",
+        "error",
+        "capture-enter",
+        "capture-success-fx",
+        "capture-fail-fx"
+    );
+
     if (tipo === "exito") {
-        deco.textContent = "✨ ✨ ✨";
+        box.classList.add("exito", "capture-enter", "capture-success-fx");
+        deco.innerHTML = `<span>✨</span><span>✨</span><span>✨</span>`;
         titulo.innerHTML = t("maps_capture_success_title");
     } else {
-        deco.textContent = "✦ ✦ ✦";
+        box.classList.add("error", "capture-enter", "capture-fail-fx");
+        deco.innerHTML = `<span>✦</span><span>✦</span><span>✦</span>`;
         titulo.innerHTML = t("maps_capture_fail_title");
     }
- 
+
     texto.innerHTML = mensaje;
-    modal.classList.remove("oculto");
+
+    btn.disabled = true;
+    btn.classList.remove("capture-btn-visible");
+
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            btn.classList.add("capture-btn-visible");
+        });
+    });
+
+    window.setTimeout(() => {
+        btn.disabled = false;
+        if (typeof btn.focus === "function") {
+            btn.focus({ preventScroll: true });
+        }
+    }, 420);
 }
  
 function cerrarModalResultadoCaptura() {

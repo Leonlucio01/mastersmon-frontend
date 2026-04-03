@@ -906,6 +906,18 @@
     border-radius:22px;
     overflow:hidden;
     background:#f8fafc;
+    isolation:isolate;
+}
+
+.encuentro-pokemon-showcase::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:radial-gradient(circle at center, rgba(255,255,255,0.86), rgba(255,255,255,0.24) 36%, transparent 72%);
+    opacity:0;
+    transform:scale(0.72);
+    pointer-events:none;
+    z-index:2;
 }
 
 .encuentro-pokemon-showcase.fondo-zona{
@@ -950,8 +962,78 @@
     object-fit:contain;
     image-rendering:pixelated;
     filter:drop-shadow(0 8px 14px rgba(0,0,0,0.22));
-    z-index:2;
+    z-index:3;
     animation:floatPokemon 2.4s ease-in-out infinite;
+}
+
+.encuentro-pokemon-showcase.capture-target-active::after{
+    animation:captureEncounterFlash .42s ease-out;
+}
+
+.encuentro-pokemon-showcase.capture-impact-active .encuentro-pokemon-aura{
+    animation:captureAuraBurst .46s ease-out forwards;
+}
+
+.encuentro-img.capture-hit{
+    animation:capturePokemonPop .44s cubic-bezier(.22,.78,.24,1) forwards;
+}
+
+.capture-flight-layer{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:2900;
+}
+
+.capture-flight-ball,
+.capture-flight-trail,
+.capture-flight-impact{
+    position:fixed;
+    left:var(--capture-start-x);
+    top:var(--capture-start-y);
+    transform:translate(-50%, -50%);
+    pointer-events:none;
+}
+
+.capture-flight-ball{
+    width:42px;
+    height:42px;
+    object-fit:contain;
+    image-rendering:pixelated;
+    filter:drop-shadow(0 10px 14px rgba(15,23,42,0.22));
+    opacity:0;
+}
+
+.capture-flight-trail{
+    width:26px;
+    height:26px;
+    border-radius:999px;
+    background:radial-gradient(circle, rgba(255,255,255,0.95), rgba(96,165,250,0.45), transparent 72%);
+    opacity:0;
+    filter:blur(1px);
+}
+
+.capture-flight-impact{
+    left:var(--capture-end-x);
+    top:var(--capture-end-y);
+    width:34px;
+    height:34px;
+    border-radius:999px;
+    background:radial-gradient(circle, rgba(255,255,255,0.96), rgba(34,197,94,0.40), transparent 72%);
+    opacity:0;
+}
+
+.capture-flight-layer.is-animating .capture-flight-ball{
+    animation:captureBallFlight .62s cubic-bezier(.18,.84,.24,1) forwards;
+    opacity:1;
+}
+
+.capture-flight-layer.is-animating .capture-flight-trail{
+    animation:captureTrailFlight .62s ease-out forwards;
+}
+
+.capture-flight-layer.is-animating .capture-flight-impact{
+    animation:captureImpactPop .32s ease-out .40s forwards;
 }
 
 .encuentro-nombre-box{
@@ -1204,7 +1286,7 @@
     position:fixed;
     inset:0;
     background:rgba(15, 23, 42, 0.50);
-    backdrop-filter:blur(3px);
+    backdrop-filter:blur(4px);
     display:flex;
     align-items:center;
     justify-content:center;
@@ -1223,7 +1305,48 @@
     text-align:center;
     box-shadow:0 24px 60px rgba(0,0,0,0.22);
     border:2px solid transparent;
-    animation:modalPop .18s ease-out;
+    position:relative;
+    overflow:hidden;
+    isolation:isolate;
+}
+
+.modal-resultado-box::before,
+.modal-resultado-box::after{
+    content:"";
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:180px;
+    height:180px;
+    border-radius:999px;
+    transform:translate(-50%, -50%) scale(0.7);
+    opacity:0;
+    pointer-events:none;
+    z-index:0;
+}
+
+.modal-resultado-box.exito::before{
+    border:2px solid rgba(34, 197, 94, 0.25);
+}
+
+.modal-resultado-box.exito::after{
+    border:2px solid rgba(34, 197, 94, 0.16);
+}
+
+.modal-resultado-box.error::before{
+    border:2px solid rgba(239, 68, 68, 0.22);
+}
+
+.modal-resultado-box.error::after{
+    border:2px solid rgba(239, 68, 68, 0.14);
+}
+
+.modal-resultado-deco,
+.modal-resultado-box h2,
+.modal-resultado-box p,
+.modal-resultado-box button{
+    position:relative;
+    z-index:1;
 }
 
 .modal-resultado-deco{
@@ -1231,6 +1354,13 @@
     font-weight:900;
     letter-spacing:3px;
     margin-bottom:10px;
+    display:flex;
+    justify-content:center;
+    gap:10px;
+}
+
+.modal-resultado-deco span{
+    display:inline-block;
 }
 
 .modal-resultado-box h2{
@@ -1257,6 +1387,12 @@
     cursor:pointer;
     transition:transform .15s ease, opacity .15s ease;
     color:#fff;
+    opacity:0;
+    transform:translateY(10px) scale(.96);
+}
+
+.modal-resultado-box button.capture-btn-visible{
+    animation:captureButtonIn .28s ease-out forwards;
 }
 
 .modal-resultado-box button:hover{
@@ -1312,6 +1448,34 @@
     background:#dc2626;
 }
 
+.modal-resultado-box.capture-enter{
+    animation:captureModalBounce .34s cubic-bezier(.18,.89,.32,1.28);
+}
+
+.modal-resultado-box.capture-success-fx::before{
+    animation:captureRingPulse 0.9s ease-out forwards;
+}
+
+.modal-resultado-box.capture-success-fx::after{
+    animation:captureRingPulse 0.9s ease-out .12s forwards;
+}
+
+.modal-resultado-box.capture-success-fx .modal-resultado-deco span{
+    animation:captureSparkle 0.9s ease-in-out infinite;
+}
+
+.modal-resultado-box.capture-success-fx .modal-resultado-deco span:nth-child(2){
+    animation-delay:.12s;
+}
+
+.modal-resultado-box.capture-success-fx .modal-resultado-deco span:nth-child(3){
+    animation-delay:.24s;
+}
+
+.modal-resultado-box.capture-fail-fx{
+    animation:captureFailShake .28s ease-in-out;
+}
+
 
 /* =========================================================
    15. ANIMACIONES
@@ -1345,6 +1509,153 @@
     to{
         opacity:1;
         transform:translateY(0) scale(1);
+    }
+}
+
+@keyframes captureModalBounce{
+    0%{
+        opacity:0;
+        transform:translateY(18px) scale(.92);
+    }
+    60%{
+        opacity:1;
+        transform:translateY(-4px) scale(1.03);
+    }
+    100%{
+        opacity:1;
+        transform:translateY(0) scale(1);
+    }
+}
+
+@keyframes captureRingPulse{
+    0%{
+        opacity:0;
+        transform:translate(-50%, -50%) scale(.55);
+    }
+    20%{
+        opacity:.55;
+    }
+    100%{
+        opacity:0;
+        transform:translate(-50%, -50%) scale(1.45);
+    }
+}
+
+@keyframes captureSparkle{
+    0%, 100%{
+        transform:translateY(0) scale(1) rotate(0deg);
+        opacity:1;
+    }
+    50%{
+        transform:translateY(-4px) scale(1.18) rotate(8deg);
+        opacity:.82;
+    }
+}
+
+@keyframes captureButtonIn{
+    from{
+        opacity:0;
+        transform:translateY(10px) scale(.96);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0) scale(1);
+    }
+}
+
+@keyframes captureFailShake{
+    0%, 100%{ transform:translateX(0); }
+    20%{ transform:translateX(-8px); }
+    40%{ transform:translateX(8px); }
+    60%{ transform:translateX(-5px); }
+    80%{ transform:translateX(5px); }
+}
+
+@keyframes captureBallFlight{
+    0%{
+        opacity:1;
+        transform:translate(-50%, -50%) translate(0, 0) scale(1) rotate(0deg);
+    }
+    50%{
+        opacity:1;
+        transform:translate(-50%, -50%) translate(calc(var(--capture-dx) * .52), calc(var(--capture-dy) * .52 - 38px)) scale(1.06) rotate(300deg);
+    }
+    100%{
+        opacity:.96;
+        transform:translate(-50%, -50%) translate(var(--capture-dx), var(--capture-dy)) scale(.86) rotate(720deg);
+    }
+}
+
+@keyframes captureTrailFlight{
+    0%{
+        opacity:0;
+        transform:translate(-50%, -50%) scale(.28);
+    }
+    18%{
+        opacity:.55;
+    }
+    100%{
+        opacity:0;
+        transform:translate(-50%, -50%) translate(var(--capture-dx), var(--capture-dy)) scale(1.65);
+    }
+}
+
+@keyframes captureImpactPop{
+    0%{
+        opacity:0;
+        transform:translate(-50%, -50%) scale(.28);
+    }
+    35%{
+        opacity:.82;
+    }
+    100%{
+        opacity:0;
+        transform:translate(-50%, -50%) scale(2.1);
+    }
+}
+
+@keyframes captureEncounterFlash{
+    0%{
+        opacity:0;
+        transform:scale(.72);
+    }
+    35%{
+        opacity:.92;
+    }
+    100%{
+        opacity:0;
+        transform:scale(1.16);
+    }
+}
+
+@keyframes captureAuraBurst{
+    0%{
+        transform:scale(1);
+        opacity:1;
+    }
+    45%{
+        transform:scale(1.24);
+        opacity:.98;
+    }
+    100%{
+        transform:scale(1.08);
+        opacity:0;
+    }
+}
+
+@keyframes capturePokemonPop{
+    0%{
+        transform:scale(1);
+        filter:drop-shadow(0 8px 14px rgba(0,0,0,0.22));
+    }
+    35%{
+        transform:scale(1.16);
+        filter:drop-shadow(0 0 18px rgba(255,255,255,0.95));
+    }
+    100%{
+        transform:scale(.78);
+        opacity:.18;
+        filter:drop-shadow(0 0 0 rgba(255,255,255,0));
     }
 }
 
