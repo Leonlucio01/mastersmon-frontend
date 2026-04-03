@@ -3312,30 +3312,21 @@ async function intentarCaptura(pokemonId, nivel, esShiny, hpActual, hpMaximo, it
     try {
         limpiarMensajeMaps();
 
-        const animacionCapturaPromise = ejecutarAnimacionIntentoCapturaMaps().catch((error) => {
-            console.warn("No se pudo completar la animación de captura:", error);
+        const data = await fetchAuth(`${API_BASE}/maps/intentar-captura`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                pokemon_id: Number(pokemonId),
+                nivel: Number(nivel),
+                es_shiny: !!esShiny,
+                hp_actual: Number(hpActual),
+                hp_maximo: Number(hpMaximo),
+                item_id: Number(itemId),
+                encuentro_token: encuentroToken || null
+            })
         });
-
-        let data;
-        try {
-            data = await fetchAuth(`${API_BASE}/maps/intentar-captura`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    pokemon_id: Number(pokemonId),
-                    nivel: Number(nivel),
-                    es_shiny: !!esShiny,
-                    hp_actual: Number(hpActual),
-                    hp_maximo: Number(hpMaximo),
-                    item_id: Number(itemId),
-                    encuentro_token: encuentroToken || null
-                })
-            });
-        } finally {
-            await animacionCapturaPromise;
-        }
 
         if (data.capturado === true) {
             mostrarModalResultadoCaptura(
@@ -3367,11 +3358,9 @@ async function intentarCaptura(pokemonId, nivel, esShiny, hpActual, hpMaximo, it
         await cargarItemsUsuarioMaps(true);
 
         if (encuentroActual) {
-            const accionPanel = document.getElementById("encuentroAccionPanel");
-            if (accionPanel) {
-                accionPanel.innerHTML = renderPanelAccionEncuentro();
-                actualizarProbabilidadVisual(encuentroActual.es_shiny === true);
-            }
+            renderEncuentroActual();
+        } else {
+            renderPanelDerechoVacio();
         }
     } catch (error) {
         console.error("Error al intentar capturar:", error);
@@ -3385,9 +3374,12 @@ async function intentarCaptura(pokemonId, nivel, esShiny, hpActual, hpMaximo, it
             renderPanelDerechoVacio();
         } else {
             mostrarMensajeMaps(error.message || t("maps_capture_error"), "error");
-        }
+            await cargarItemsUsuarioMaps(true);
 
-        await cargarItemsUsuarioMaps(true);
+            if (encuentroActual) {
+                renderEncuentroActual();
+            }
+        }
     } finally {
         const nuevoBtnCapturar = document.getElementById("btnCapturarMapa");
         if (nuevoBtnCapturar) {
