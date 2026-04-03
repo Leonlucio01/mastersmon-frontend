@@ -3450,6 +3450,66 @@ function limpiarAnimacionCapturaTemporalMaps() {
     pokemonImg?.classList.remove("capture-hit");
 }
 
+function animarSacudidasPokeballCapturaMaps(ball, showcase, pokemonImg) {
+    if (!ball || typeof ball.animate !== "function") {
+        return esperarMaps(760);
+    }
+
+    const secuencia = [
+        { transform: "translate(-50%, -50%) scale(1) rotate(0deg)" },
+        { transform: "translate(-58%, -50%) scale(1) rotate(-16deg)", offset: 0.14 },
+        { transform: "translate(-42%, -50%) scale(1) rotate(16deg)", offset: 0.28 },
+        { transform: "translate(-50%, -50%) scale(1) rotate(0deg)", offset: 0.38 },
+
+        { transform: "translate(-56%, -50%) scale(1) rotate(-13deg)", offset: 0.52 },
+        { transform: "translate(-44%, -50%) scale(1) rotate(13deg)", offset: 0.64 },
+        { transform: "translate(-50%, -50%) scale(1) rotate(0deg)", offset: 0.72 },
+
+        { transform: "translate(-54%, -50%) scale(1) rotate(-9deg)", offset: 0.84 },
+        { transform: "translate(-46%, -50%) scale(1) rotate(9deg)", offset: 0.93 },
+        { transform: "translate(-50%, -50%) scale(1) rotate(0deg)", offset: 1 }
+    ];
+
+    const animacionBall = ball.animate(secuencia, {
+        duration: 980,
+        easing: "ease-in-out",
+        fill: "forwards"
+    });
+
+    showcase?.animate([
+        { transform: "scale(1)", filter: "brightness(1)" },
+        { transform: "scale(1.012)", filter: "brightness(1.04)", offset: 0.22 },
+        { transform: "scale(1)", filter: "brightness(1)", offset: 0.38 },
+        { transform: "scale(1.01)", filter: "brightness(1.03)", offset: 0.62 },
+        { transform: "scale(1)", filter: "brightness(1)", offset: 0.78 },
+        { transform: "scale(1.006)", filter: "brightness(1.02)", offset: 0.92 },
+        { transform: "scale(1)", filter: "brightness(1)" }
+    ], {
+        duration: 980,
+        easing: "ease-in-out"
+    });
+
+    pokemonImg?.animate([
+        { opacity: 0.28, transform: "scale(0.9)" },
+        { opacity: 0.18, transform: "scale(0.86)", offset: 0.16 },
+        { opacity: 0.12, transform: "scale(0.82)", offset: 0.32 },
+        { opacity: 0.08, transform: "scale(0.79)", offset: 0.48 },
+        { opacity: 0.06, transform: "scale(0.77)", offset: 0.68 },
+        { opacity: 0.03, transform: "scale(0.74)", offset: 0.86 },
+        { opacity: 0, transform: "scale(0.72)" }
+    ], {
+        duration: 720,
+        easing: "ease-out",
+        fill: "forwards"
+    });
+
+    return new Promise((resolve) => {
+        animacionBall.onfinish = () => resolve();
+        animacionBall.oncancel = () => resolve();
+        window.setTimeout(resolve, 1100);
+    });
+}
+
 async function ejecutarAnimacionIntentoCapturaMaps() {
     const seleccionada = document.querySelector('input[name="pokeballSeleccionada"]:checked');
     const ballLabel = seleccionada?.closest(".ball-option");
@@ -3505,9 +3565,29 @@ async function ejecutarAnimacionIntentoCapturaMaps() {
         pokemonImg?.classList.add("capture-hit");
     }, 360);
 
-    await esperarMaps(760);
+    await esperarMaps(560);
+
+    trail.style.opacity = "0";
+    impact.style.opacity = "0";
+    ball.style.left = `${end.x}px`;
+    ball.style.top = `${end.y}px`;
+    ball.style.transform = "translate(-50%, -50%) scale(1) rotate(0deg)";
+    ball.style.transition = "none";
+    ball.style.filter = "drop-shadow(0 14px 22px rgba(15,23,42,0.32))";
+    ball.style.zIndex = "4";
+
+    if (showcase) {
+        showcase.style.overflow = "visible";
+    }
+
+    await animarSacudidasPokeballCapturaMaps(ball, showcase, pokemonImg);
+
     layer.classList.add("is-leaving");
     await esperarMaps(180);
+
+    if (showcase) {
+        showcase.style.overflow = "";
+    }
 
     limpiarAnimacionCapturaTemporalMaps();
 }
