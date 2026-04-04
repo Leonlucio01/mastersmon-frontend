@@ -2367,7 +2367,7 @@ async function solicitarEncuentroServidor(requestIdActual, zonaIdActual) {
 
     if (pokemon?.encuentro_generado === false) {
         limpiarEncuentroActual();
-        renderPanelDerechoVacio();
+        renderPanelDerechoVacio("no_encounter");
         return;
     }
 
@@ -3340,7 +3340,7 @@ function renderBloqueoMapsSinSesion() {
     `;
 }
  
-function renderPanelDerechoVacio() {
+function renderPanelDerechoVacio(estado = "default") {
     const infoPanel = document.getElementById("encuentroInfoPanel");
     const accionPanel = document.getElementById("encuentroAccionPanel");
  
@@ -3349,9 +3349,16 @@ function renderPanelDerechoVacio() {
     const nombreZonaUI = zonaSeleccionadaActual
         ? obtenerNombreZonaTraducido(zonaSeleccionadaActual)
         : t("maps_map_fallback");
+
+    const sinEncuentro = estado === "no_encounter";
+    const titulo = sinEncuentro ? t("maps_no_encounter_title") : t("maps_area_ready");
+    const statusTexto = sinEncuentro ? t("maps_no_encounter_status") : t("maps_free");
+    const encounterTexto = sinEncuentro ? t("maps_no_encounter_status") : "—";
+    const accionTitulo = sinEncuentro ? t("maps_no_encounter_title") : t("maps_select_ball");
+    const accionTexto = sinEncuentro ? t("maps_no_encounter_hint") : t("maps_generate_encounter_hint");
  
     infoPanel.innerHTML = `
-        <h2>${t("maps_area_ready")}</h2>
+        <h2>${titulo}</h2>
         <div class="encuentro-nombre-box">
             <h3>${nombreZonaUI}</h3>
         </div>
@@ -3362,19 +3369,19 @@ function renderPanelDerechoVacio() {
             </div>
             <div class="dato-mini">
                 <span>${t("maps_status")}</span>
-                <strong>${t("maps_free")}</strong>
+                <strong>${statusTexto}</strong>
             </div>
             <div class="dato-mini">
                 <span>${t("maps_encounter")}</span>
-                <strong>—</strong>
+                <strong>${encounterTexto}</strong>
             </div>
         </div>
     `;
  
     accionPanel.innerHTML = `
-        <h4>${t("maps_select_ball")}</h4>
+        <h4>${accionTitulo}</h4>
         <div class="probabilidad-captura">
-            ${t("maps_generate_encounter_hint")}
+            ${accionTexto}
         </div>
     `;
 }
