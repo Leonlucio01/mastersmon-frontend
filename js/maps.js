@@ -1270,6 +1270,8 @@ function configurarSelectorIdiomaMaps() {
         } else {
             renderPanelDerechoVacio();
         }
+
+        refrescarUiMusicaMaps();
     });
 }
  
@@ -1755,6 +1757,37 @@ function guardarNodoActualAvatar(nodeId) {
     guardarStorageJSON(MAPS_AVATAR_POSICIONES_KEY, posiciones);
 }
  
+
+function sincronizarMusicaMapaZonaActual() {
+    try {
+        if (window.MapsAudio && typeof window.MapsAudio.handleZoneChange === "function") {
+            window.MapsAudio.handleZoneChange(zonaSeleccionadaActual);
+        }
+    } catch (error) {
+        console.warn("No se pudo sincronizar la música de Maps:", error);
+    }
+}
+
+function refrescarUiMusicaMaps() {
+    try {
+        if (window.MapsAudio && typeof window.MapsAudio.refreshUI === "function") {
+            window.MapsAudio.refreshUI();
+        }
+    } catch (error) {
+        console.warn("No se pudo refrescar la UI de música de Maps:", error);
+    }
+}
+
+async function reproducirShinySfxMaps() {
+    try {
+        if (window.MapsAudio && typeof window.MapsAudio.playShinySfx === "function") {
+            await window.MapsAudio.playShinySfx();
+        }
+    } catch (error) {
+        console.warn("No se pudo reproducir el SFX shiny de Maps:", error);
+    }
+}
+
 function obtenerSiguienteNodoAvatar(direccion) {
     const actual = obtenerNodoActualAvatar();
     return actual?.[direccion] || null;
@@ -2483,6 +2516,7 @@ async function solicitarEncuentroServidor(requestIdActual, zonaIdActual) {
     };
 
     if (encuentroActual.es_shiny) {
+        reproducirShinySfxMaps();
         mostrarModalShiny();
     }
 
@@ -3099,6 +3133,7 @@ async function seleccionarZona(zonaId) {
     }
  
     renderPanelDerechoVacio();
+    sincronizarMusicaMapaZonaActual();
  
     requestAnimationFrame(() => {
         setTimeout(() => {
