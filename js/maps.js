@@ -208,7 +208,7 @@ const GRID_GREEN_FOREST = [
 const RUTA_GREEN_FOREST = crearRutaDesdeGrid(GRID_GREEN_FOREST, {
     prefix: "gf",
     xMin: 4,
-    yMin: 7.5   ,
+    yMin: 7.5,
     cellWidth: 5.3,
     cellHeight: 4.45,
     startRow: 8,
@@ -3344,6 +3344,25 @@ function renderBloqueoMapsSinSesion() {
     `;
 }
  
+function animarSwapSuavePanelMaps(elemento) {
+    if (!elemento || typeof elemento.animate !== "function") return;
+
+    try {
+        elemento.animate(
+            [
+                { opacity: 0, transform: "translateY(10px) scale(0.985)", filter: "blur(2px)" },
+                { opacity: 1, transform: "translateY(0) scale(1)", filter: "blur(0)" }
+            ],
+            {
+                duration: 220,
+                easing: "cubic-bezier(0.22, 1, 0.36, 1)"
+            }
+        );
+    } catch (error) {
+        // Animación opcional; si falla, el panel igual debe renderizarse.
+    }
+}
+
 function renderPanelDerechoVacio(estado = "default") {
     const infoPanel = document.getElementById("encuentroInfoPanel");
     const accionPanel = document.getElementById("encuentroAccionPanel");
@@ -3355,16 +3374,26 @@ function renderPanelDerechoVacio(estado = "default") {
         : t("maps_map_fallback");
 
     const sinEncuentro = estado === "no_encounter";
-    const titulo = sinEncuentro ? t("maps_no_encounter_title") : t("maps_area_ready");
-    const statusTexto = sinEncuentro ? t("maps_no_encounter_status") : t("maps_free");
+    const tituloPanel = sinEncuentro ? t("maps_no_encounter_title") : t("maps_area_ready");
+    const estadoTexto = sinEncuentro ? t("maps_no_encounter_status") : t("maps_free");
     const encounterTexto = sinEncuentro ? t("maps_no_encounter_status") : "—";
     const accionTitulo = sinEncuentro ? t("maps_no_encounter_title") : t("maps_select_ball");
     const accionTexto = sinEncuentro ? t("maps_no_encounter_hint") : t("maps_generate_encounter_hint");
+    const chipHtml = sinEncuentro
+        ? `<span style="display:inline-flex;align-items:center;justify-content:center;padding:7px 12px;border-radius:999px;background:rgba(37,99,235,0.10);color:#2563eb;font-size:12px;font-weight:800;letter-spacing:0.02em;">${t("maps_no_encounter_status")}</span>`
+        : `<span style="display:inline-flex;align-items:center;justify-content:center;padding:7px 12px;border-radius:999px;background:rgba(34,197,94,0.10);color:#15803d;font-size:12px;font-weight:800;letter-spacing:0.02em;">${t("maps_free")}</span>`;
+    const hintHtml = sinEncuentro
+        ? `<div style="margin-top:10px;padding:12px 14px;border-radius:16px;background:linear-gradient(180deg, rgba(239,246,255,0.95) 0%, rgba(255,255,255,0.98) 100%);border:1px solid rgba(59,130,246,0.14);color:#475569;font-size:13px;line-height:1.45;">${accionTexto}</div>`
+        : "";
  
     infoPanel.innerHTML = `
-        <h2>${titulo}</h2>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+            <h2>${tituloPanel}</h2>
+            ${chipHtml}
+        </div>
         <div class="encuentro-nombre-box">
             <h3>${nombreZonaUI}</h3>
+            ${sinEncuentro ? `<p style="margin:10px 0 0;color:#64748b;font-size:13px;line-height:1.45;">${accionTexto}</p>` : ""}
         </div>
         <div class="encuentro-datos-grid">
             <div class="dato-mini">
@@ -3373,7 +3402,7 @@ function renderPanelDerechoVacio(estado = "default") {
             </div>
             <div class="dato-mini">
                 <span>${t("maps_status")}</span>
-                <strong>${statusTexto}</strong>
+                <strong>${estadoTexto}</strong>
             </div>
             <div class="dato-mini">
                 <span>${t("maps_encounter")}</span>
@@ -3384,10 +3413,15 @@ function renderPanelDerechoVacio(estado = "default") {
  
     accionPanel.innerHTML = `
         <h4>${accionTitulo}</h4>
-        <div class="probabilidad-captura">
+        <div class="probabilidad-captura" style="${sinEncuentro ? "background:linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);border-color:rgba(59,130,246,0.20);color:#334155;line-height:1.5;" : ""}">
+            ${sinEncuentro ? `<strong style="display:block;margin-bottom:6px;color:#1d4ed8;">${t("maps_no_encounter_title")}</strong>` : ""}
             ${accionTexto}
         </div>
+        ${hintHtml}
     `;
+
+    animarSwapSuavePanelMaps(infoPanel);
+    animarSwapSuavePanelMaps(accionPanel);
 }
  
 function renderPanelAccionEncuentro() {
