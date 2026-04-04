@@ -2365,6 +2365,12 @@ async function solicitarEncuentroServidor(requestIdActual, zonaIdActual) {
         throw new Error(pokemon?.error || t("maps_encounter_generate_error"));
     }
 
+    if (pokemon?.encuentro_generado === false) {
+        limpiarEncuentroActual();
+        renderPanelDerechoVacio();
+        return;
+    }
+
     if (!pokemon.pokemon_id) {
         throw new Error(t("maps_invalid_pokemon"));
     }
