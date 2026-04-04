@@ -3366,35 +3366,50 @@ function animarSwapSuavePanelMaps(elemento) {
 function renderPanelDerechoVacio(estado = "default") {
     const infoPanel = document.getElementById("encuentroInfoPanel");
     const accionPanel = document.getElementById("encuentroAccionPanel");
- 
+
     if (!infoPanel || !accionPanel) return;
- 
+
     const nombreZonaUI = zonaSeleccionadaActual
         ? obtenerNombreZonaTraducido(zonaSeleccionadaActual)
         : t("maps_map_fallback");
 
     const sinEncuentro = estado === "no_encounter";
-    const tituloPanel = sinEncuentro ? t("maps_no_encounter_title") : t("maps_area_ready");
-    const estadoTexto = sinEncuentro ? t("maps_no_encounter_status") : t("maps_free");
-    const encounterTexto = sinEncuentro ? t("maps_no_encounter_status") : "—";
-    const accionTitulo = sinEncuentro ? t("maps_no_encounter_title") : t("maps_select_ball");
-    const accionTexto = sinEncuentro ? t("maps_no_encounter_hint") : t("maps_generate_encounter_hint");
-    const chipHtml = sinEncuentro
-        ? `<span style="display:inline-flex;align-items:center;justify-content:center;padding:7px 12px;border-radius:999px;background:rgba(37,99,235,0.10);color:#2563eb;font-size:12px;font-weight:800;letter-spacing:0.02em;">${t("maps_no_encounter_status")}</span>`
-        : `<span style="display:inline-flex;align-items:center;justify-content:center;padding:7px 12px;border-radius:999px;background:rgba(34,197,94,0.10);color:#15803d;font-size:12px;font-weight:800;letter-spacing:0.02em;">${t("maps_free")}</span>`;
-    const hintHtml = sinEncuentro
-        ? `<div style="margin-top:10px;padding:12px 14px;border-radius:16px;background:linear-gradient(180deg, rgba(239,246,255,0.95) 0%, rgba(255,255,255,0.98) 100%);border:1px solid rgba(59,130,246,0.14);color:#475569;font-size:13px;line-height:1.45;">${accionTexto}</div>`
-        : "";
- 
+
+    const tituloPanel = sinEncuentro
+        ? t("maps_no_encounter_title")
+        : t("maps_area_ready");
+
+    const subtituloPanel = sinEncuentro
+        ? tMapsLocal(
+            "maps_no_encounter_soft_hint",
+            "This step found nothing. Keep moving to trigger the next wild encounter.",
+            "Este paso no encontró nada. Sigue moviéndote para activar el siguiente encuentro salvaje."
+        )
+        : t("maps_generate_encounter_hint");
+
+    const badgeTexto = sinEncuentro
+        ? tMapsLocal("maps_keep_exploring", "Keep exploring", "Sigue explorando")
+        : t("maps_free");
+
+    const badgeStyle = sinEncuentro
+        ? "background:rgba(59,130,246,0.10);color:#2563eb;"
+        : "background:rgba(34,197,94,0.10);color:#15803d;";
+
     infoPanel.innerHTML = `
         <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
             <h2>${tituloPanel}</h2>
-            ${chipHtml}
+            <span style="display:inline-flex;align-items:center;justify-content:center;padding:7px 12px;border-radius:999px;${badgeStyle}font-size:12px;font-weight:800;letter-spacing:0.02em;">
+                ${badgeTexto}
+            </span>
         </div>
+
         <div class="encuentro-nombre-box">
             <h3>${nombreZonaUI}</h3>
-            ${sinEncuentro ? `<p style="margin:10px 0 0;color:#64748b;font-size:13px;line-height:1.45;">${accionTexto}</p>` : ""}
+            <p style="margin:10px 0 0;color:#64748b;font-size:13px;line-height:1.45;">
+                ${subtituloPanel}
+            </p>
         </div>
+
         <div class="encuentro-datos-grid">
             <div class="dato-mini">
                 <span>${t("maps_area")}</span>
@@ -3402,28 +3417,48 @@ function renderPanelDerechoVacio(estado = "default") {
             </div>
             <div class="dato-mini">
                 <span>${t("maps_status")}</span>
-                <strong>${estadoTexto}</strong>
+                <strong>${sinEncuentro ? badgeTexto : t("maps_free")}</strong>
             </div>
             <div class="dato-mini">
                 <span>${t("maps_encounter")}</span>
-                <strong>${encounterTexto}</strong>
+                <strong>—</strong>
             </div>
         </div>
     `;
- 
-    accionPanel.innerHTML = `
-        <h4>${accionTitulo}</h4>
-        <div class="probabilidad-captura" style="${sinEncuentro ? "background:linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);border-color:rgba(59,130,246,0.20);color:#334155;line-height:1.5;" : ""}">
-            ${sinEncuentro ? `<strong style="display:block;margin-bottom:6px;color:#1d4ed8;">${t("maps_no_encounter_title")}</strong>` : ""}
-            ${accionTexto}
-        </div>
-        ${hintHtml}
-    `;
+
+    accionPanel.innerHTML = sinEncuentro
+        ? `
+            <div style="
+                padding:18px 16px;
+                border-radius:18px;
+                background:linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
+                border:1px solid rgba(59,130,246,0.16);
+                text-align:center;
+            ">
+                <div style="font-size:28px; line-height:1; margin-bottom:10px;">🧭</div>
+                <h4 style="margin:0 0 8px; color:#1d4ed8;">
+                    ${tMapsLocal("maps_keep_moving", "Keep moving", "Sigue avanzando")}
+                </h4>
+                <p style="margin:0; color:#475569; font-size:13px; line-height:1.5;">
+                    ${tMapsLocal(
+                        "maps_no_encounter_panel_hint",
+                        "Use the arrows to try the next step.",
+                        "Usa las flechas para intentar el siguiente paso."
+                    )}
+                </p>
+            </div>
+        `
+        : `
+            <h4>${t("maps_select_ball")}</h4>
+            <div class="probabilidad-captura">
+                ${t("maps_generate_encounter_hint")}
+            </div>
+        `;
 
     animarSwapSuavePanelMaps(infoPanel);
     animarSwapSuavePanelMaps(accionPanel);
 }
- 
+
 function renderPanelAccionEncuentro() {
     const pokeballs = obtenerPokeballsDisponibles(itemsUsuarioMaps);
     const primeraDisponible = obtenerIndicePrimeraDisponible(pokeballs);
