@@ -147,6 +147,12 @@ async function fetchAuth(url, options = {}) {
             headers
         });
     } catch (error) {
+        if (error?.name === "AbortError") {
+            const abortError = new Error(`ABORTED - ${url}`);
+            abortError.code = "ABORTED";
+            throw abortError;
+        }
+
         const networkError = new Error(`NETWORK_ERROR - ${url}`);
         networkError.code = "NETWORK_ERROR";
         throw networkError;
@@ -918,9 +924,64 @@ function crearConexionTiempoRealMaps(opciones = {}) {
    Agrega estas funciones al final del archivo
 ========================================================= */
 
+const GLOBAL_STATE_CACHE_TTL_MS = 15000;
+const globalStateCache = {
+    boss: { data: null, expiresAt: 0, promise: null, sessionKey: "" },
+    idle: { data: null, expiresAt: 0, promise: null, sessionKey: "" }
+};
+
+function obtenerSesionCacheGlobalKey() {
+    const usuarioId = typeof getUsuarioIdLocal === "function" ? getUsuarioIdLocal() : null;
+    const token = typeof getAccessToken === "function" ? getAccessToken() : "";
+    return `${usuarioId || 0}|${String(token || "").slice(0, 24)}`;
+}
+
+async function obtenerEstadoGlobalCacheado(cacheKey, url) {
+    const cache = globalStateCache[cacheKey];
+    const sessionKey = obtenerSesionCacheGlobalKey();
+    const now = Date.now();
+
+    if (!cache) {
+        return await fetchAuth(url);
+    }
+
+    if (cache.sessionKey !== sessionKey) {
+        cache.data = null;
+        cache.expiresAt = 0;
+        cache.promise = null;
+        cache.sessionKey = sessionKey;
+    }
+
+    if (cache.data && cache.expiresAt > now) {
+        return cache.data;
+    }
+
+    if (cache.promise) {
+        return await cache.promise;
+    }
+
+    cache.promise = fetchAuth(url)
+        .then((data) => {
+            cache.data = data;
+            cache.expiresAt = Date.now() + GLOBAL_STATE_CACHE_TTL_MS;
+            cache.sessionKey = sessionKey;
+            return data;
+        })
+        .catch((error) => {
+            cache.data = null;
+            cache.expiresAt = 0;
+            throw error;
+        })
+        .finally(() => {
+            cache.promise = null;
+        });
+
+    return await cache.promise;
+}
+
 async function obtenerEstadoBossMundo() {
     try {
-        return await fetchAuth(`${API_BASE}/battle/boss/estado`);
+        return await obtenerEstadoGlobalCacheado("boss", `${API_BASE}/battle/boss/estado`);
     } catch (error) {
         console.error("Error en obtenerEstadoBossMundo:", error);
         throw error;
@@ -976,7 +1037,7 @@ async function obtenerRankingBossMundo(limit = 20) {
 
 async function obtenerEstadoIdle() {
     try {
-        return await fetchAuth(`${API_BASE}/battle/idle/estado`);
+        return await obtenerEstadoGlobalCacheado("idle", `${API_BASE}/battle/idle/estado`);
     } catch (error) {
         console.error("Error en obtenerEstadoIdle:", error);
         throw error;

@@ -126,10 +126,17 @@ document.addEventListener("DOMContentLoaded", () => {
 let bossAlertPollTimer = null;
 let bossAlertToastElement = null;
 let bossAlertLiveState = false;
+let bossAlertRequestInFlight = false;
+let bossAlertLastCheckAt = 0;
 
 let idleAlertPollTimer = null;
 let idleAlertToastElement = null;
 let idleAlertReadyState = false;
+let idleAlertRequestInFlight = false;
+let idleAlertLastCheckAt = 0;
+
+const MENU_ALERT_POLL_INTERVAL_MS = 60000;
+const MENU_ALERT_VISIBILITY_COOLDOWN_MS = 15000;
 
 
 function getBossAlertTexts() {
@@ -258,10 +265,14 @@ function getBossAlertShownKey(fechaEvento) {
 
 async function verificarBossGlobal(forceToast = false) {
     if (typeof obtenerEstadoBossMundo !== "function") return;
+    if (bossAlertRequestInFlight) return;
     if (typeof getAccessToken === "function" && !getAccessToken()) {
         aplicarEstadoVisualBossMenu(false);
         return;
     }
+
+    bossAlertRequestInFlight = true;
+    bossAlertLastCheckAt = Date.now();
 
     try {
         const estado = await obtenerEstadoBossMundo();
@@ -284,6 +295,8 @@ async function verificarBossGlobal(forceToast = false) {
             return;
         }
         console.warn("No se pudo consultar el estado del Alpha Boss:", error);
+    } finally {
+        bossAlertRequestInFlight = false;
     }
 }
 
@@ -295,10 +308,10 @@ function iniciarAlertaBossGlobal() {
 
     bossAlertPollTimer = window.setInterval(() => {
         verificarBossGlobal(false);
-    }, 30000);
+    }, MENU_ALERT_POLL_INTERVAL_MS);
 
     document.addEventListener("visibilitychange", () => {
-        if (!document.hidden) {
+        if (!document.hidden && (Date.now() - bossAlertLastCheckAt) >= MENU_ALERT_VISIBILITY_COOLDOWN_MS) {
             verificarBossGlobal(false);
         }
     });
@@ -564,11 +577,15 @@ function procesarEstadoIdleGlobal(data = null, forceToast = false) {
 
 async function verificarIdleGlobal(forceToast = false) {
     if (typeof obtenerEstadoIdle !== "function") return;
+    if (idleAlertRequestInFlight) return;
     if (typeof getAccessToken === "function" && !getAccessToken()) {
         aplicarEstadoVisualIdleMenu(false);
         cerrarIdleToastGlobal();
         return;
     }
+
+    idleAlertRequestInFlight = true;
+    idleAlertLastCheckAt = Date.now();
 
     try {
         const estado = await obtenerEstadoIdle();
@@ -580,6 +597,8 @@ async function verificarIdleGlobal(forceToast = false) {
             return;
         }
         console.warn("No se pudo consultar el estado de Idle:", error);
+    } finally {
+        idleAlertRequestInFlight = false;
     }
 }
 
@@ -592,10 +611,10 @@ function iniciarAlertaIdleGlobal() {
 
     idleAlertPollTimer = window.setInterval(() => {
         verificarIdleGlobal(false);
-    }, 30000);
+    }, MENU_ALERT_POLL_INTERVAL_MS);
 
     document.addEventListener("visibilitychange", () => {
-        if (!document.hidden) {
+        if (!document.hidden && (Date.now() - idleAlertLastCheckAt) >= MENU_ALERT_VISIBILITY_COOLDOWN_MS) {
             verificarIdleGlobal(false);
         }
     });

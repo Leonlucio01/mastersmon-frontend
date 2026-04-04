@@ -19,6 +19,8 @@ let movimientoEnCurso = false;
 let resizeTimer = null;
 let itemSeleccionadoMaps = null;
 let encuentroRequestId = 0;
+let encuentroSolicitudEnCursoMaps = false;
+let movimientoPendienteMaps = null;
  
 /* =========================================================
    TIEMPO REAL / PRESENCIA
@@ -1290,7 +1292,7 @@ function configurarEventosSesionMaps() {
  
         if (!usuarioAutenticadoMaps()) {
             encuentroRequestId++;
-            movimientoEnCurso = false;
+            reiniciarEstadoMovimientoMaps();
             cerrarModalesSecundarios();
             limpiarMensajeMaps();
             limpiarEncuentroActual();
@@ -1335,7 +1337,7 @@ function configurarEventosSesionMaps() {
         ) {
             if (!usuarioAutenticadoMaps()) {
                 encuentroRequestId++;
-                movimientoEnCurso = false;
+                reiniciarEstadoMovimientoMaps();
                 cerrarModalesSecundarios();
                 limpiarMensajeMaps();
                 limpiarEncuentroActual();
@@ -2921,8 +2923,6 @@ async function cargarZonas() {
         mapaInicio = Math.min(mapaInicio, Math.max(0, zonasCache.length - 1));
         renderizarOpcionesFiltrosMaps();
         renderizarResumenFiltrosMaps();
-        renderizarShowcaseRegionesMaps();
-        renderizarZonas();
     }
 
     const zonas = await fetchJson(`${API_BASE}/zonas`);
@@ -3058,7 +3058,7 @@ async function seleccionarZona(zonaId) {
  
     if (!usuarioAutenticadoMaps()) {
         encuentroRequestId++;
-        movimientoEnCurso = false;
+        reiniciarEstadoMovimientoMaps();
  
         renderizarZonas();
         limpiarMensajeMaps();
@@ -3085,7 +3085,7 @@ async function seleccionarZona(zonaId) {
     const esPrimeraCargaVisual = !encuentroActual;
  
     encuentroRequestId++;
-    movimientoEnCurso = false;
+    reiniciarEstadoMovimientoMaps();
     cerrarModalesSecundarios();
     limpiarMensajeMaps();
  
@@ -3272,8 +3272,56 @@ function renderMiniaturasZona(zona = null) {
 /* =========================
    ENCUENTROS
 ========================= */
+function reiniciarEstadoMovimientoMaps({ limpiarCola = true } = {}) {
+    movimientoEnCurso = false;
+    encuentroSolicitudEnCursoMaps = false;
+
+    if (limpiarCola) {
+        movimientoPendienteMaps = null;
+    }
+
+    actualizarBotonesMovimientoDisponibles(false);
+    setEstadoMovimiento(false, "", false);
+}
+
+function guardarMovimientoPendienteMaps(direccion, opciones = {}) {
+    if (!direccion || opciones?.soloEncuentro) return;
+
+    movimientoPendienteMaps = {
+        direccion,
+        opciones: {
+            silencioso: Boolean(opciones?.silencioso),
+            soloEncuentro: false
+        }
+    };
+}
+
+function consumirMovimientoPendienteMaps() {
+    if (!movimientoPendienteMaps) return null;
+
+    const pendiente = movimientoPendienteMaps;
+    movimientoPendienteMaps = null;
+    return pendiente;
+}
+
+function ejecutarMovimientoPendienteMaps() {
+    const pendiente = consumirMovimientoPendienteMaps();
+    if (!pendiente || !zonaSeleccionadaActual) return;
+
+    const shinyAbierto = document.getElementById("modalShiny") && !document.getElementById("modalShiny").classList.contains("oculto");
+    const capturaAbierta = document.getElementById("modalResultadoCaptura") && !document.getElementById("modalResultadoCaptura").classList.contains("oculto");
+
+    if (encuentroActual || shinyAbierto || capturaAbierta) {
+        return;
+    }
+
+    window.setTimeout(() => {
+        moverEnMapa(pendiente.direccion, pendiente.opciones);
+    }, 0);
+}
+
 async function moverEnMapa(direccion, opciones = {}) {
-    if (!zonaSeleccionadaActual || movimientoEnCurso) return;
+    if (!zonaSeleccionadaActual) return;
 
     const { silencioso = false, soloEncuentro = false } = opciones;
 
@@ -3281,6 +3329,15 @@ async function moverEnMapa(direccion, opciones = {}) {
         mostrarMensajeMaps(t("maps_login_required"), "error");
         return;
     }
+    if (movimientoEnCurso || encuentroSolicitudEnCursoMaps) {
+        guardarMovimientoPendienteMaps(direccion, opciones);
+
+        if (encuentroSolicitudEnCursoMaps) {
+            setEstadoMovimiento(true, "", false);
+        }
+        return;
+    }
+
 
     const requestIdActual = ++encuentroRequestId;
     const zonaIdActual = Number(zonaSeleccionadaActual.id);
@@ -3298,7 +3355,7 @@ async function moverEnMapa(direccion, opciones = {}) {
 
     movimientoEnCurso = true;
     cerrarModalesSecundarios();
-    setEstadoMovimiento(true, direccion);
+    setEstadoMovimiento(true, direccion, true);
     limpiarMensajeMaps();
 
     if (!encuentroActual && !silencioso) {
@@ -3312,14 +3369,21 @@ async function moverEnMapa(direccion, opciones = {}) {
             sincronizarPresenciaMovimiento(siguienteNodoId);
         }
 
+        if (requestIdActual !== encuentroRequestId) return;
+
         if (encuentroActualExpiradoMaps()) {
             limpiarEncuentroActual();
             renderPanelDerechoVacio();
         }
 
+        movimientoEnCurso = false;
+        encuentroSolicitudEnCursoMaps = true;
+        setEstadoMovimiento(true, "", false);
+
         await solicitarEncuentroServidor(requestIdActual, zonaIdActual);
     } catch (error) {
         if (requestIdActual !== encuentroRequestId) return;
+        if (error?.code === "ABORTED") return;
 
         console.error("Error explorando zona:", error);
         mostrarMensajeMaps(error.message || t("maps_encounter_generate_error"), "error");
@@ -3329,8 +3393,11 @@ async function moverEnMapa(direccion, opciones = {}) {
         }
     } finally {
         if (requestIdActual === encuentroRequestId) {
-            setEstadoMovimiento(false);
+            reiniciarEstadoMovimientoMaps({ limpiarCola: false });
+            ejecutarMovimientoPendienteMaps();
+        } else {
             movimientoEnCurso = false;
+            encuentroSolicitudEnCursoMaps = false;
         }
     }
 }
@@ -4013,10 +4080,14 @@ function actualizarProbabilidadVisual(esShiny = false) {
     box.textContent = `${t("maps_capture_rate")}: ${prob}%`;
 }
  
-function setEstadoMovimiento(cargando, direccion = "") {
+function setEstadoMovimiento(cargando, direccion = "", bloquearBotones = true) {
     const titulo = document.querySelector(".mapa-exploracion-header p");
  
-    actualizarBotonesMovimientoDisponibles(cargando);
+    if (bloquearBotones) {
+        actualizarBotonesMovimientoDisponibles(cargando);
+    } else if (!cargando) {
+        actualizarBotonesMovimientoDisponibles(false);
+    }
  
     if (!titulo) return;
  
