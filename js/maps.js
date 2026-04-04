@@ -520,6 +520,76 @@ const MAPS_ZONE_COPY_BY_CODE = {
             name: "Pilar del Cielo de Hoenn",
             desc: "Un cierre de ruta más alto, con presión voladora, dragones tempranos y sensación de mapa mundial."
         }
+    },
+    frontier_snow_summit: {
+        en: {
+            name: "Frontier Snow Summit",
+            desc: "A frozen summit route with icy encounters, thinner air and rare high-altitude threats."
+        },
+        es: {
+            name: "Cumbre Nevada de la Frontera",
+            desc: "Una ruta helada de alta montaña, con encuentros de hielo, aire más duro y amenazas raras de gran altitud."
+        }
+    },
+    frontier_golden_desert: {
+        en: {
+            name: "Frontier Golden Desert",
+            desc: "A scorching desert route with dunes, ground pressure and relic-themed rare encounters."
+        },
+        es: {
+            name: "Desierto Dorado de la Frontera",
+            desc: "Una ruta abrasadora de desierto, con dunas, presión de tipo tierra y encuentros raros con aire de reliquia."
+        }
+    },
+    frontier_moon_garden: {
+        en: {
+            name: "Frontier Moon Garden",
+            desc: "A moonlit garden route with fairy, psychic and mystery-focused encounters."
+        },
+        es: {
+            name: "Jardín Lunar de la Frontera",
+            desc: "Una ruta iluminada por la luna, con encuentros de hada, psíquico y un tono mucho más misterioso."
+        }
+    },
+    frontier_toxic_swamp: {
+        en: {
+            name: "Frontier Toxic Swamp",
+            desc: "A toxic swamp route with poison-heavy encounters and a harsher survival feel."
+        },
+        es: {
+            name: "Pantano Tóxico de la Frontera",
+            desc: "Una ruta de pantano venenoso, con encuentros cargados de veneno y una sensación de supervivencia más dura."
+        }
+    },
+    frontier_thunder_peak: {
+        en: {
+            name: "Frontier Thunder Peak",
+            desc: "An electric mountain route with storm pressure, metallic wildlife and fast battles."
+        },
+        es: {
+            name: "Pico Trueno de la Frontera",
+            desc: "Una ruta eléctrica de montaña, con presión de tormenta, fauna metálica y combates más rápidos."
+        }
+    },
+    frontier_dragon_sanctuary: {
+        en: {
+            name: "Frontier Dragon Sanctuary",
+            desc: "A sacred highland route where dragon-themed encounters and rare starters feel at home."
+        },
+        es: {
+            name: "Santuario Dragón de la Frontera",
+            desc: "Una ruta sagrada de altura, donde encajan encuentros de dragón y starters raros con un tono especial."
+        }
+    },
+    frontier_ghost_tower: {
+        en: {
+            name: "Frontier Ghost Tower",
+            desc: "A haunted tower route packed with ghost, psychic and ominous late-route pressure."
+        },
+        es: {
+            name: "Torre Fantasma de la Frontera",
+            desc: "Una ruta de torre embrujada, cargada de encuentros fantasma, psíquicos y presión inquietante de tramo final."
+        }
     }
 };
 
@@ -2863,6 +2933,8 @@ async function cargarZonas() {
     mapaInicio = 0;
     renderizarOpcionesFiltrosMaps();
     renderizarResumenFiltrosMaps();
+    renderizarShowcaseRegionesMaps();
+    renderizarZonas();
 }
 
 function mostrarCargaZonas() {
