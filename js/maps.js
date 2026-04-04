@@ -3502,6 +3502,8 @@ async function intentarCapturaDesdeUI() {
     const itemId = Number(seleccionada.value);
     itemSeleccionadoMaps = itemId;
  
+    await ejecutarAnimacionIntentoCapturaMaps();
+ 
     await intentarCaptura(
         encuentroActual.pokemon_id,
         encuentroActual.nivel,
