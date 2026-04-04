@@ -2413,14 +2413,16 @@ async function salirPresenciaMaps(cerrarConexion = false) {
 ========================= */
 function obtenerImagenPokemonEncuentro(pokemon) {
     if (!pokemon) return "";
- 
+
+    if (pokemon.es_shiny) {
+        return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${pokemon.pokemon_id}.png`;
+    }
+
     if (pokemon.imagen) {
         return pokemon.imagen;
     }
- 
-    return pokemon.es_shiny
-        ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${pokemon.pokemon_id}.png`
-        : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.pokemon_id}.png`;
+
+    return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.pokemon_id}.png`;
 }
  
 async function solicitarEncuentroServidor(requestIdActual, zonaIdActual) {
