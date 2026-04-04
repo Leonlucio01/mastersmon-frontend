@@ -3084,12 +3084,11 @@ async function seleccionarZona(zonaId) {
         return;
     }
  
-    const esPrimeraCargaVisual = !encuentroActual;
- 
     encuentroRequestId++;
     reiniciarEstadoMovimientoMaps();
     cerrarModalesSecundarios();
     limpiarMensajeMaps();
+    limpiarEncuentroActual();
  
     renderizarZonas();
     renderizarZonaExploracion();
@@ -3099,9 +3098,7 @@ async function seleccionarZona(zonaId) {
         encuentro.classList.remove("oculto");
     }
  
-    if (esPrimeraCargaVisual) {
-        renderPanelDerechoVacio();
-    }
+    renderPanelDerechoVacio();
  
     requestAnimationFrame(() => {
         setTimeout(() => {
