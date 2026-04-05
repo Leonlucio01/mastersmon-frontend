@@ -491,19 +491,23 @@ function actualizarTextoBotonShiny() {
 function aplicarFiltrosVisuales() {
     const buscador = document.getElementById("buscarPokemon");
     const filtroTipo = document.getElementById("filtroTipo");
+    const filtroGeneracion = document.getElementById("filtroGeneracion");
     const cards = document.querySelectorAll(".card");
 
     const texto = buscador ? buscador.value.toLowerCase().trim() : "";
     const tipo = filtroTipo ? filtroTipo.value.toLowerCase().trim() : "";
+    const generacion = filtroGeneracion ? filtroGeneracion.value.trim() : "";
 
     cards.forEach(card => {
         const nombre = (card.dataset.nombre || "").toLowerCase();
         const tipoPokemon = (card.dataset.tipo || "").toLowerCase();
+        const generacionPokemon = String(card.dataset.generacion || "").trim();
 
         const coincideNombre = nombre.includes(texto);
         const coincideTipo = tipo === "" || tipoPokemon.includes(tipo);
+        const coincideGeneracion = generacion === "" || generacionPokemon === generacion;
 
-        card.style.display = (coincideNombre && coincideTipo) ? "block" : "none";
+        card.style.display = (coincideNombre && coincideTipo && coincideGeneracion) ? "flex" : "none";
     });
 }
 
@@ -811,6 +815,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const buscador = document.getElementById("buscarPokemon");
     const filtroTipo = document.getElementById("filtroTipo");
+    const filtroGeneracion = document.getElementById("filtroGeneracion");
     const btnShiny = document.getElementById("modoShiny");
     const pokedex = document.getElementById("pokedex");
 
@@ -822,6 +827,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (filtroTipo) {
         filtroTipo.addEventListener("change", aplicarFiltrosVisuales);
+    }
+
+    if (filtroGeneracion) {
+        filtroGeneracion.addEventListener("change", aplicarFiltrosVisuales);
     }
 
     if (btnShiny) {

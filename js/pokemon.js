@@ -1,5 +1,11 @@
 function obtenerImagenPokemon(id, shiny = false) {
-    return obtenerRutaSpriteLocal(id, shiny);
+    if (typeof obtenerRutaSpriteLocal === "function") {
+        return obtenerRutaSpriteLocal(id, shiny);
+    }
+
+    return shiny
+        ? `img/pokemon-png/sprites_shiny/${String(Number(id)).padStart(4, "0")}_s.png`
+        : `img/pokemon-png/sprites_normal/${String(Number(id)).padStart(4, "0")}.png`;
 }
 
 function obtenerImagenPokeball() {
@@ -20,6 +26,7 @@ function crearCardPokemon(pokemon) {
         data-id="${pokemonId}"
         data-nombre="${pokemon.nombre}"
         data-tipo="${pokemon.tipo}"
+        data-generacion="${pokemon.generacion || ""}"
     >
         <img
             class="pokeball-captura ${mostrarCaptura ? "capturado" : "no-capturado"}"
