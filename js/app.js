@@ -488,6 +488,54 @@ function actualizarTextoBotonShiny() {
         : t("pokedex_shiny_off");
 }
 
+function normalizarTipoFiltroPokedex(valor = "") {
+    const limpio = String(valor || "")
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[̀-ͯ]/g, "");
+
+    const mapa = {
+        normal: "normal",
+        fuego: "fire",
+        fire: "fire",
+        agua: "water",
+        water: "water",
+        planta: "grass",
+        grass: "grass",
+        electrico: "electric",
+        electric: "electric",
+        hielo: "ice",
+        ice: "ice",
+        lucha: "fighting",
+        fighting: "fighting",
+        veneno: "poison",
+        poison: "poison",
+        tierra: "ground",
+        ground: "ground",
+        volador: "flying",
+        flying: "flying",
+        psiquico: "psychic",
+        psychic: "psychic",
+        bicho: "bug",
+        bug: "bug",
+        roca: "rock",
+        rock: "rock",
+        fantasma: "ghost",
+        ghost: "ghost",
+        dragon: "dragon",
+        acero: "steel",
+        steel: "steel",
+        hada: "fairy",
+        fairy: "fairy",
+        siniestro: "dark",
+        oscuro: "dark",
+        dark: "dark"
+    };
+
+    return mapa[limpio] || limpio;
+}
+
 function aplicarFiltrosVisuales() {
     const buscador = document.getElementById("buscarPokemon");
     const filtroTipo = document.getElementById("filtroTipo");
@@ -500,11 +548,18 @@ function aplicarFiltrosVisuales() {
 
     cards.forEach(card => {
         const nombre = (card.dataset.nombre || "").toLowerCase();
-        const tipoPokemon = (card.dataset.tipo || "").toLowerCase();
+        const tipoPokemonRaw = String(card.dataset.tipo || "");
         const generacionPokemon = String(card.dataset.generacion || "").trim();
 
+        const tiposNormalizados = tipoPokemonRaw
+            .split("/")
+            .map(parte => normalizarTipoFiltroPokedex(parte))
+            .filter(Boolean);
+
+        const tipoFiltroNormalizado = normalizarTipoFiltroPokedex(tipo);
+
         const coincideNombre = nombre.includes(texto);
-        const coincideTipo = tipo === "" || tipoPokemon.includes(tipo);
+        const coincideTipo = tipo === "" || tiposNormalizados.includes(tipoFiltroNormalizado);
         const coincideGeneracion = generacion === "" || generacionPokemon === generacion;
 
         card.style.display = (coincideNombre && coincideTipo && coincideGeneracion) ? "flex" : "none";
@@ -730,7 +785,7 @@ window.mostrarDetalle = async function(id, nombre, tipo, ataque, defensa, hp) {
                 </div>
 
                 <div class="detalle-info-box">
-                    <div class="tipo tipo-detalle" data-tipo="${tipo}">${tipo}</div>
+                    <div class="tipo tipo-detalle" data-tipo="${tipo}">${typeof traducirTipoPokemon === "function" ? traducirTipoPokemon(tipo) : tipo}</div>
 
                     <div class="stats-detalle-grid">
                         <div class="stat-detalle-card">

@@ -366,6 +366,9 @@
 .card[data-tipo^="Bicho"] .tipo{ background:#65a30d; }
 .card[data-tipo^="Roca"] .tipo{ background:#78716c; }
 .card[data-tipo^="Fantasma"] .tipo{ background:#7c3aed; }
+.card[data-tipo^="Siniestro"] .tipo,
+.card[data-tipo^="Oscuro"] .tipo,
+.card[data-tipo^="Dark"] .tipo{ background:#6d28d9; }
 .card[data-tipo^="Dragon"] .tipo,
 .card[data-tipo^="Dragón"] .tipo{ background:#4f46e5; }
 .card[data-tipo^="Acero"] .tipo{ background:#64748b; }
