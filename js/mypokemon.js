@@ -192,9 +192,7 @@ function moverCarruselAvatar(direccion = 1) {
 }
 
 function obtenerImagenPokemonColeccion(pokemonId, esShiny = false) {
-    return esShiny
-        ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${pokemonId}.png`
-        : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonId}.png`;
+    return obtenerRutaSpriteLocal(pokemonId, esShiny);
 }
 
 function obtenerImagenItemInventario(nombreItem, itemCode = "") {

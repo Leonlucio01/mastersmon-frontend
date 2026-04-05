@@ -1,7 +1,5 @@
 function obtenerImagenPokemon(id, shiny = false) {
-    return shiny
-        ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${id}.png`
-        : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
+    return obtenerRutaSpriteLocal(id, shiny);
 }
 
 function obtenerImagenPokeball() {

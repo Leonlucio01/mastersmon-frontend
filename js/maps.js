@@ -2444,18 +2444,12 @@ async function salirPresenciaMaps(cerrarConexion = false) {
 /* =========================
    ENCUENTRO / SERVIDOR
 ========================= */
-function obtenerImagenPokemonEncuentro(pokemon) {
-    if (!pokemon) return "";
 
-    if (pokemon.es_shiny) {
-        return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${pokemon.pokemon_id}.png`;
-    }
-
-    if (pokemon.imagen) {
-        return pokemon.imagen;
-    }
-
-    return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.pokemon_id}.png`;
+function obtenerRutaSpriteLocal(id, shiny = false) {
+    const spriteId = normalizarSpriteId(id);
+    return shiny
+        ? `img/pokemon-png/sprites_shiny/${spriteId}_s.png`
+        : `img/pokemon-png/sprites_normal/${spriteId}.png`;
 }
  
 async function solicitarEncuentroServidor(requestIdActual, zonaIdActual) {
