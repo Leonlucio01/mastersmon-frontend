@@ -1,11 +1,29 @@
-function obtenerImagenPokemon(id, shiny = false) {
-    if (typeof obtenerRutaSpriteLocal === "function") {
-        return obtenerRutaSpriteLocal(id, shiny);
+function obtenerImagenPokemon(pokemonOrId, shiny = false) {
+    if (pokemonOrId && typeof pokemonOrId === "object") {
+        if (typeof obtenerRutaSpriteDesdePokemon === "function") {
+            return obtenerRutaSpriteDesdePokemon({
+                ...pokemonOrId,
+                es_shiny: shiny
+            });
+        }
+
+        const fallbackId = pokemonOrId.species_id || pokemonOrId.id || pokemonOrId.pokemon_id;
+        return shiny
+            ? `img/pokemon-png/sprites_shiny/${String(Number(fallbackId || 0)).padStart(4, "0")}_s.png`
+            : `img/pokemon-png/sprites_normal/${String(Number(fallbackId || 0)).padStart(4, "0")}.png`;
+    }
+
+    if (typeof obtenerRutaSpriteDesdeManifest === "function") {
+        return obtenerRutaSpriteDesdeManifest({
+            speciesId: pokemonOrId,
+            pokemonId: pokemonOrId,
+            shiny
+        });
     }
 
     return shiny
-        ? `img/pokemon-png/sprites_shiny/${String(Number(id)).padStart(4, "0")}_s.png`
-        : `img/pokemon-png/sprites_normal/${String(Number(id)).padStart(4, "0")}.png`;
+        ? `img/pokemon-png/sprites_shiny/${String(Number(pokemonOrId || 0)).padStart(4, "0")}_s.png`
+        : `img/pokemon-png/sprites_normal/${String(Number(pokemonOrId || 0)).padStart(4, "0")}.png`;
 }
 
 function obtenerImagenPokeball() {
@@ -14,19 +32,21 @@ function obtenerImagenPokeball() {
 
 function crearCardPokemon(pokemon) {
     const pokemonId = Number(pokemon.id);
-    const imagen = obtenerImagenPokemon(pokemonId, modoShiny);
+    const imagen = obtenerImagenPokemon(pokemon, modoShiny);
 
     const capturadoNormal = pokemonsCapturados.includes(pokemonId);
     const capturadoShiny = pokemonsShinyCapturados.includes(pokemonId);
     const mostrarCaptura = modoShiny ? capturadoShiny : capturadoNormal;
 
     return `
-    <div 
+    <div
         class="card"
         data-id="${pokemonId}"
         data-nombre="${pokemon.nombre}"
         data-tipo="${pokemon.tipo}"
         data-generacion="${pokemon.generacion || ""}"
+        data-species-id="${pokemon.species_id || pokemon.id || ""}"
+        data-variant-suffix="${pokemon.variant_suffix || ""}"
     >
         <img
             class="pokeball-captura ${mostrarCaptura ? "capturado" : "no-capturado"}"
@@ -84,7 +104,7 @@ function traducirTipoPokemon(tipo = "") {
         "Dark": "type_dark"
     };
 
-    return String(tipo)
+    return String(tipo || "")
         .split("/")
         .map(ti => {
             const limpio = ti.trim();

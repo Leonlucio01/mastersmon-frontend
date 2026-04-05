@@ -4240,9 +4240,9 @@
     "species_name": "deoxys",
     "pokemon_name": "deoxys-normal",
     "generation": "generation-iii",
-    "variant_suffix": "nor",
-    "normal_file": "0386_nor.png",
-    "shiny_file": "0386_nor_s.png",
+    "variant_suffix": "",
+    "normal_file": "0386.png",
+    "shiny_file": "0386_s.png",
     "is_default": true
   },
   {
@@ -4537,9 +4537,9 @@
     "species_name": "wormadam",
     "pokemon_name": "wormadam-plant",
     "generation": "generation-iv",
-    "variant_suffix": "pla",
-    "normal_file": "0413_pla.png",
-    "shiny_file": "0413_pla_s.png",
+    "variant_suffix": "",
+    "normal_file": "0413.png",
+    "shiny_file": "0413_s.png",
     "is_default": true
   },
   {
@@ -5351,9 +5351,9 @@
     "species_name": "giratina",
     "pokemon_name": "giratina-altered",
     "generation": "generation-iv",
-    "variant_suffix": "alt",
-    "normal_file": "0487_alt.png",
-    "shiny_file": "0487_alt_s.png",
+    "variant_suffix": "",
+    "normal_file": "0487.png",
+    "shiny_file": "0487_s.png",
     "is_default": true
   },
   {
@@ -5406,9 +5406,9 @@
     "species_name": "shaymin",
     "pokemon_name": "shaymin-land",
     "generation": "generation-iv",
-    "variant_suffix": "lan",
-    "normal_file": "0492_lan.png",
-    "shiny_file": "0492_lan_s.png",
+    "variant_suffix": "",
+    "normal_file": "0492.png",
+    "shiny_file": "0492_s.png",
     "is_default": true
   },
   {
@@ -6044,9 +6044,9 @@
     "species_name": "basculin",
     "pokemon_name": "basculin-red-striped",
     "generation": "generation-v",
-    "variant_suffix": "redstr",
-    "normal_file": "0550_redstr.png",
-    "shiny_file": "0550_redstr_s.png",
+    "variant_suffix": "",
+    "normal_file": "0550.png",
+    "shiny_file": "0550_s.png",
     "is_default": true
   },
   {
@@ -6099,9 +6099,9 @@
     "species_name": "darmanitan",
     "pokemon_name": "darmanitan-standard",
     "generation": "generation-v",
-    "variant_suffix": "std",
-    "normal_file": "0555_std.png",
-    "shiny_file": "0555_std_s.png",
+    "variant_suffix": "",
+    "normal_file": "0555.png",
+    "shiny_file": "0555_s.png",
     "is_default": true
   },
   {
@@ -6506,9 +6506,9 @@
     "species_name": "frillish",
     "pokemon_name": "frillish-male",
     "generation": "generation-v",
-    "variant_suffix": "mal",
-    "normal_file": "0592_mal.png",
-    "shiny_file": "0592_mal_s.png",
+    "variant_suffix": "",
+    "normal_file": "0592.png",
+    "shiny_file": "0592_s.png",
     "is_default": true
   },
   {
@@ -6517,9 +6517,9 @@
     "species_name": "jellicent",
     "pokemon_name": "jellicent-male",
     "generation": "generation-v",
-    "variant_suffix": "mal",
-    "normal_file": "0593_mal.png",
-    "shiny_file": "0593_mal_s.png",
+    "variant_suffix": "",
+    "normal_file": "0593.png",
+    "shiny_file": "0593_s.png",
     "is_default": true
   },
   {
@@ -7045,9 +7045,9 @@
     "species_name": "tornadus",
     "pokemon_name": "tornadus-incarnate",
     "generation": "generation-v",
-    "variant_suffix": "inc",
-    "normal_file": "0641_inc.png",
-    "shiny_file": "0641_inc_s.png",
+    "variant_suffix": "",
+    "normal_file": "0641.png",
+    "shiny_file": "0641_s.png",
     "is_default": true
   },
   {
@@ -7056,9 +7056,9 @@
     "species_name": "thundurus",
     "pokemon_name": "thundurus-incarnate",
     "generation": "generation-v",
-    "variant_suffix": "inc",
-    "normal_file": "0642_inc.png",
-    "shiny_file": "0642_inc_s.png",
+    "variant_suffix": "",
+    "normal_file": "0642.png",
+    "shiny_file": "0642_s.png",
     "is_default": true
   },
   {
@@ -7089,9 +7089,9 @@
     "species_name": "landorus",
     "pokemon_name": "landorus-incarnate",
     "generation": "generation-v",
-    "variant_suffix": "inc",
-    "normal_file": "0645_inc.png",
-    "shiny_file": "0645_inc_s.png",
+    "variant_suffix": "",
+    "normal_file": "0645.png",
+    "shiny_file": "0645_s.png",
     "is_default": true
   },
   {
@@ -7111,9 +7111,9 @@
     "species_name": "keldeo",
     "pokemon_name": "keldeo-ordinary",
     "generation": "generation-v",
-    "variant_suffix": "ord",
-    "normal_file": "0647_ord.png",
-    "shiny_file": "0647_ord_s.png",
+    "variant_suffix": "",
+    "normal_file": "0647.png",
+    "shiny_file": "0647_s.png",
     "is_default": true
   },
   {
@@ -7122,9 +7122,9 @@
     "species_name": "meloetta",
     "pokemon_name": "meloetta-aria",
     "generation": "generation-v",
-    "variant_suffix": "ar",
-    "normal_file": "0648_ar.png",
-    "shiny_file": "0648_ar_s.png",
+    "variant_suffix": "",
+    "normal_file": "0648.png",
+    "shiny_file": "0648_s.png",
     "is_default": true
   },
   {
@@ -7342,9 +7342,9 @@
     "species_name": "pyroar",
     "pokemon_name": "pyroar-male",
     "generation": "generation-vi",
-    "variant_suffix": "mal",
-    "normal_file": "0668_mal.png",
-    "shiny_file": "0668_mal_s.png",
+    "variant_suffix": "",
+    "normal_file": "0668.png",
+    "shiny_file": "0668_s.png",
     "is_default": true
   },
   {
@@ -7452,9 +7452,9 @@
     "species_name": "meowstic",
     "pokemon_name": "meowstic-male",
     "generation": "generation-vi",
-    "variant_suffix": "mal",
-    "normal_file": "0678_mal.png",
-    "shiny_file": "0678_mal_s.png",
+    "variant_suffix": "",
+    "normal_file": "0678.png",
+    "shiny_file": "0678_s.png",
     "is_default": true
   },
   {
@@ -7485,9 +7485,9 @@
     "species_name": "aegislash",
     "pokemon_name": "aegislash-shield",
     "generation": "generation-vi",
-    "variant_suffix": "shi",
-    "normal_file": "0681_shi.png",
-    "shiny_file": "0681_shi_s.png",
+    "variant_suffix": "",
+    "normal_file": "0681.png",
+    "shiny_file": "0681_s.png",
     "is_default": true
   },
   {
@@ -7804,9 +7804,9 @@
     "species_name": "pumpkaboo",
     "pokemon_name": "pumpkaboo-average",
     "generation": "generation-vi",
-    "variant_suffix": "ave",
-    "normal_file": "0710_ave.png",
-    "shiny_file": "0710_ave_s.png",
+    "variant_suffix": "",
+    "normal_file": "0710.png",
+    "shiny_file": "0710_s.png",
     "is_default": true
   },
   {
@@ -7815,9 +7815,9 @@
     "species_name": "gourgeist",
     "pokemon_name": "gourgeist-average",
     "generation": "generation-vi",
-    "variant_suffix": "ave",
-    "normal_file": "0711_ave.png",
-    "shiny_file": "0711_ave_s.png",
+    "variant_suffix": "",
+    "normal_file": "0711.png",
+    "shiny_file": "0711_s.png",
     "is_default": true
   },
   {
@@ -7892,9 +7892,9 @@
     "species_name": "zygarde",
     "pokemon_name": "zygarde-50",
     "generation": "generation-vi",
-    "variant_suffix": "50",
-    "normal_file": "0718_50.png",
-    "shiny_file": "0718_50_s.png",
+    "variant_suffix": "",
+    "normal_file": "0718.png",
+    "shiny_file": "0718_s.png",
     "is_default": true
   },
   {
@@ -8145,9 +8145,9 @@
     "species_name": "oricorio",
     "pokemon_name": "oricorio-baile",
     "generation": "generation-vii",
-    "variant_suffix": "bai",
-    "normal_file": "0741_bai.png",
-    "shiny_file": "0741_bai_s.png",
+    "variant_suffix": "",
+    "normal_file": "0741.png",
+    "shiny_file": "0741_s.png",
     "is_default": true
   },
   {
@@ -8189,9 +8189,9 @@
     "species_name": "lycanroc",
     "pokemon_name": "lycanroc-midday",
     "generation": "generation-vii",
-    "variant_suffix": "day",
-    "normal_file": "0745_day.png",
-    "shiny_file": "0745_day_s.png",
+    "variant_suffix": "",
+    "normal_file": "0745.png",
+    "shiny_file": "0745_s.png",
     "is_default": true
   },
   {
@@ -8200,9 +8200,9 @@
     "species_name": "wishiwashi",
     "pokemon_name": "wishiwashi-solo",
     "generation": "generation-vii",
-    "variant_suffix": "solo",
-    "normal_file": "0746_solo.png",
-    "shiny_file": "0746_solo_s.png",
+    "variant_suffix": "",
+    "normal_file": "0746.png",
+    "shiny_file": "0746_s.png",
     "is_default": true
   },
   {
@@ -8508,9 +8508,9 @@
     "species_name": "minior",
     "pokemon_name": "minior-red-meteor",
     "generation": "generation-vii",
-    "variant_suffix": "redmet",
-    "normal_file": "0774_redmet.png",
-    "shiny_file": "0774_redmet_s.png",
+    "variant_suffix": "",
+    "normal_file": "0774.png",
+    "shiny_file": "0774_s.png",
     "is_default": true
   },
   {
@@ -8552,9 +8552,9 @@
     "species_name": "mimikyu",
     "pokemon_name": "mimikyu-disguised",
     "generation": "generation-vii",
-    "variant_suffix": "dis",
-    "normal_file": "0778_dis.png",
-    "shiny_file": "0778_dis_s.png",
+    "variant_suffix": "",
+    "normal_file": "0778.png",
+    "shiny_file": "0778_s.png",
     "is_default": true
   },
   {
@@ -9333,9 +9333,9 @@
     "species_name": "toxtricity",
     "pokemon_name": "toxtricity-amped",
     "generation": "generation-viii",
-    "variant_suffix": "amp",
-    "normal_file": "0849_amp.png",
-    "shiny_file": "0849_amp_s.png",
+    "variant_suffix": "",
+    "normal_file": "0849.png",
+    "shiny_file": "0849_s.png",
     "is_default": true
   },
   {
@@ -9619,9 +9619,9 @@
     "species_name": "eiscue",
     "pokemon_name": "eiscue-ice",
     "generation": "generation-viii",
-    "variant_suffix": "ice",
-    "normal_file": "0875_ice.png",
-    "shiny_file": "0875_ice_s.png",
+    "variant_suffix": "",
+    "normal_file": "0875.png",
+    "shiny_file": "0875_s.png",
     "is_default": true
   },
   {
@@ -9630,9 +9630,9 @@
     "species_name": "indeedee",
     "pokemon_name": "indeedee-male",
     "generation": "generation-viii",
-    "variant_suffix": "mal",
-    "normal_file": "0876_mal.png",
-    "shiny_file": "0876_mal_s.png",
+    "variant_suffix": "",
+    "normal_file": "0876.png",
+    "shiny_file": "0876_s.png",
     "is_default": true
   },
   {
@@ -9641,9 +9641,9 @@
     "species_name": "morpeko",
     "pokemon_name": "morpeko-full-belly",
     "generation": "generation-viii",
-    "variant_suffix": "fulbel",
-    "normal_file": "0877_fulbel.png",
-    "shiny_file": "0877_fulbel_s.png",
+    "variant_suffix": "",
+    "normal_file": "0877.png",
+    "shiny_file": "0877_s.png",
     "is_default": true
   },
   {
@@ -9806,9 +9806,9 @@
     "species_name": "urshifu",
     "pokemon_name": "urshifu-single-strike",
     "generation": "generation-viii",
-    "variant_suffix": "sinstr",
-    "normal_file": "0892_sinstr.png",
-    "shiny_file": "0892_sinstr_s.png",
+    "variant_suffix": "",
+    "normal_file": "0892.png",
+    "shiny_file": "0892_s.png",
     "is_default": true
   },
   {
@@ -9916,9 +9916,9 @@
     "species_name": "basculegion",
     "pokemon_name": "basculegion-male",
     "generation": "generation-viii",
-    "variant_suffix": "mal",
-    "normal_file": "0902_mal.png",
-    "shiny_file": "0902_mal_s.png",
+    "variant_suffix": "",
+    "normal_file": "0902.png",
+    "shiny_file": "0902_s.png",
     "is_default": true
   },
   {
@@ -9949,9 +9949,9 @@
     "species_name": "enamorus",
     "pokemon_name": "enamorus-incarnate",
     "generation": "generation-viii",
-    "variant_suffix": "inc",
-    "normal_file": "0905_inc.png",
-    "shiny_file": "0905_inc_s.png",
+    "variant_suffix": "",
+    "normal_file": "0905.png",
+    "shiny_file": "0905_s.png",
     "is_default": true
   },
   {
@@ -10070,9 +10070,9 @@
     "species_name": "oinkologne",
     "pokemon_name": "oinkologne-male",
     "generation": "generation-ix",
-    "variant_suffix": "mal",
-    "normal_file": "0916_mal.png",
-    "shiny_file": "0916_mal_s.png",
+    "variant_suffix": "",
+    "normal_file": "0916.png",
+    "shiny_file": "0916_s.png",
     "is_default": true
   },
   {
@@ -10169,9 +10169,9 @@
     "species_name": "maushold",
     "pokemon_name": "maushold-family-of-four",
     "generation": "generation-ix",
-    "variant_suffix": "famoffou",
-    "normal_file": "0925_famoffou.png",
-    "shiny_file": "0925_famoffou_s.png",
+    "variant_suffix": "",
+    "normal_file": "0925.png",
+    "shiny_file": "0925_s.png",
     "is_default": true
   },
   {
@@ -10235,9 +10235,9 @@
     "species_name": "squawkabilly",
     "pokemon_name": "squawkabilly-green-plumage",
     "generation": "generation-ix",
-    "variant_suffix": "greplu",
-    "normal_file": "0931_greplu.png",
-    "shiny_file": "0931_greplu_s.png",
+    "variant_suffix": "",
+    "normal_file": "0931.png",
+    "shiny_file": "0931_s.png",
     "is_default": true
   },
   {
@@ -10598,9 +10598,9 @@
     "species_name": "palafin",
     "pokemon_name": "palafin-zero",
     "generation": "generation-ix",
-    "variant_suffix": "zer",
-    "normal_file": "0964_zer.png",
-    "shiny_file": "0964_zer_s.png",
+    "variant_suffix": "",
+    "normal_file": "0964.png",
+    "shiny_file": "0964_s.png",
     "is_default": true
   },
   {
@@ -10752,9 +10752,9 @@
     "species_name": "tatsugiri",
     "pokemon_name": "tatsugiri-curly",
     "generation": "generation-ix",
-    "variant_suffix": "cur",
-    "normal_file": "0978_cur.png",
-    "shiny_file": "0978_cur_s.png",
+    "variant_suffix": "",
+    "normal_file": "0978.png",
+    "shiny_file": "0978_s.png",
     "is_default": true
   },
   {
@@ -10796,9 +10796,9 @@
     "species_name": "dudunsparce",
     "pokemon_name": "dudunsparce-two-segment",
     "generation": "generation-ix",
-    "variant_suffix": "twoseg",
-    "normal_file": "0982_twoseg.png",
-    "shiny_file": "0982_twoseg_s.png",
+    "variant_suffix": "",
+    "normal_file": "0982.png",
+    "shiny_file": "0982_s.png",
     "is_default": true
   },
   {
