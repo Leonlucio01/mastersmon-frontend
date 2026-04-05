@@ -260,6 +260,13 @@
     border-top:5px solid #7c3aed;
 }
 
+.card[data-tipo^="Siniestro"],
+.card[data-tipo^="Oscuro"],
+.card[data-tipo^="Dark"]{
+    background:linear-gradient(180deg,#f5f3ff 0%, #ede9fe 45%, #ffffff 100%);
+    border-top:5px solid #6d28d9;
+}
+
 .card[data-tipo^="Dragon"],
 .card[data-tipo^="Dragón"]{
     background:linear-gradient(180deg,#f1f3ff 0%, #dfe5ff 45%, #ffffff 100%);
@@ -469,6 +476,9 @@
 .tipo.tipo-detalle[data-tipo^="Bicho"]{ background:#65a30d; }
 .tipo.tipo-detalle[data-tipo^="Roca"]{ background:#78716c; }
 .tipo.tipo-detalle[data-tipo^="Fantasma"]{ background:#7c3aed; }
+.tipo.tipo-detalle[data-tipo^="Siniestro"],
+.tipo.tipo-detalle[data-tipo^="Oscuro"],
+.tipo.tipo-detalle[data-tipo^="Dark"]{ background:#6d28d9; }
 .tipo.tipo-detalle[data-tipo^="Dragon"],
 .tipo.tipo-detalle[data-tipo^="Dragón"]{ background:#4f46e5; }
 .tipo.tipo-detalle[data-tipo^="Acero"]{ background:#64748b; }

@@ -78,7 +78,10 @@ function traducirTipoPokemon(tipo = "") {
         "Dragon": "type_dragon",
         "Dragón": "type_dragon",
         "Acero": "type_steel",
-        "Hada": "type_fairy"
+        "Hada": "type_fairy",
+        "Siniestro": "type_dark",
+        "Oscuro": "type_dark",
+        "Dark": "type_dark"
     };
 
     return String(tipo)
