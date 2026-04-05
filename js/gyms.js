@@ -853,13 +853,28 @@ function mapBackendGymItem(item) {
 
 function getSpriteFromPokemon(pokemon) {
     const pokemonId = Number(pokemon?.pokemon_id || pokemon?.id || 0);
-    if (pokemon?.es_shiny && pokemonId > 0) {
-        return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${pokemonId}.png`;
+    const shiny = Boolean(pokemon?.es_shiny);
+
+    if (typeof obtenerRutaSpriteDesdePokemon === "function") {
+        return obtenerRutaSpriteDesdePokemon({
+            ...pokemon,
+            es_shiny: shiny,
+            pokemon_id: pokemon?.pokemon_id || pokemon?.id || null,
+            species_id: pokemon?.species_id || pokemon?.pokemon_species_id || pokemon?.id_base || pokemon?.pokemon_id || pokemon?.id || null,
+            variant_suffix: pokemon?.variant_suffix || pokemon?.forma_suffix || "",
+            pokemon_name_api: pokemon?.pokemon_name_api || pokemon?.api_name || pokemon?.pokeapi_name || pokemon?.nombre_api || ""
+        });
     }
+
+    if (typeof obtenerRutaSpriteLocal === "function" && pokemonId > 0) {
+        return obtenerRutaSpriteLocal(
+            pokemonId,
+            shiny,
+            pokemon?.variant_suffix || pokemon?.forma_suffix || ""
+        );
+    }
+
     if (pokemon?.imagen) return pokemon.imagen;
-    if (pokemonId > 0) {
-        return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonId}.png`;
-    }
     return "img/pokeball.png";
 }
 

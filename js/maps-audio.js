@@ -3,7 +3,7 @@
     const MAPS_AUDIO_DEFAULTS = {
         enabled: true,
         muted: false,
-        volume: 0.24,
+        volume: 0.14,
         sfxVolume: 0.65
     };
 
