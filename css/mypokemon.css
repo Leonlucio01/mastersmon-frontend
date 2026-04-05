@@ -461,6 +461,7 @@
 
 #buscarMiPokemon,
 #filtroMiTipo,
+#filtroMiGeneracion,
 #filtroMiRareza,
 #ordenMisPokemon{
     padding: 12px 14px;
@@ -477,9 +478,19 @@
 }
 
 #filtroMiTipo,
+#filtroMiGeneracion,
 #filtroMiRareza,
 #ordenMisPokemon{
     min-width: 170px;
+}
+
+#buscarMiPokemon:focus,
+#filtroMiTipo:focus,
+#filtroMiGeneracion:focus,
+#filtroMiRareza:focus,
+#ordenMisPokemon:focus{
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
 }
 
 
@@ -815,6 +826,13 @@
     border-top: 5px solid #7c3aed;
 }
 
+.pokemon-card[data-tipo^="Siniestro"],
+.pokemon-card[data-tipo^="Oscuro"],
+.pokemon-card[data-tipo^="Dark"]{
+    background: linear-gradient(180deg, #f5f3ff 0%, #ede9fe 45%, #ffffff 100%);
+    border-top: 5px solid #6d28d9;
+}
+
 .pokemon-card[data-tipo^="Dragon"],
 .pokemon-card[data-tipo^="Dragón"]{
     background: linear-gradient(180deg, #f1f3ff 0%, #dfe5ff 45%, #ffffff 100%);
@@ -866,6 +884,9 @@
 .pokemon-card[data-tipo^="Bicho"] .tipo{ background: #65a30d; }
 .pokemon-card[data-tipo^="Roca"] .tipo{ background: #78716c; }
 .pokemon-card[data-tipo^="Fantasma"] .tipo{ background: #7c3aed; }
+.pokemon-card[data-tipo^="Siniestro"] .tipo,
+.pokemon-card[data-tipo^="Oscuro"] .tipo,
+.pokemon-card[data-tipo^="Dark"] .tipo{ background: #6d28d9; }
 .pokemon-card[data-tipo^="Dragon"] .tipo,
 .pokemon-card[data-tipo^="Dragón"] .tipo{ background: #4f46e5; }
 .pokemon-card[data-tipo^="Acero"] .tipo{ background: #64748b; }

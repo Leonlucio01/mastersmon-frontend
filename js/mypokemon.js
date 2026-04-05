@@ -311,6 +311,93 @@ function traducirTipoPokemonMyPokemon(tipo = "") {
         .join("/");
 }
 
+
+function obtenerDexBaseMyPokemon(pokemon = {}) {
+    const candidatos = [
+        pokemon?.species_id,
+        pokemon?.pokemon_species_id,
+        pokemon?.id_base,
+        pokemon?.pokemon_id,
+        pokemon?.id
+    ];
+
+    for (const candidato of candidatos) {
+        const numero = Number(candidato || 0);
+        if (Number.isFinite(numero) && numero > 0) {
+            return numero;
+        }
+    }
+
+    return 0;
+}
+
+function obtenerGeneracionPokemonMyPokemon(pokemon = {}) {
+    const dexId = obtenerDexBaseMyPokemon(pokemon);
+
+    if (dexId >= 1 && dexId <= 151) return 1;
+    if (dexId >= 152 && dexId <= 251) return 2;
+    if (dexId >= 252 && dexId <= 386) return 3;
+    if (dexId >= 387 && dexId <= 493) return 4;
+    if (dexId >= 494 && dexId <= 649) return 5;
+    if (dexId >= 650 && dexId <= 721) return 6;
+    if (dexId >= 722 && dexId <= 809) return 7;
+    if (dexId >= 810 && dexId <= 905) return 8;
+    if (dexId >= 906 && dexId <= 1025) return 9;
+
+    return "";
+}
+
+function mapearTipoCanonicoMyPokemon(tipo = "") {
+    const limpio = normalizarTextoMyPokemon(tipo).replace(/\s+/g, "");
+
+    const mapa = {
+        normal: "normal",
+        fuego: "fire",
+        fire: "fire",
+        agua: "water",
+        water: "water",
+        planta: "grass",
+        grass: "grass",
+        electrico: "electric",
+        electric: "electric",
+        hielo: "ice",
+        ice: "ice",
+        lucha: "fighting",
+        fighting: "fighting",
+        veneno: "poison",
+        poison: "poison",
+        tierra: "ground",
+        ground: "ground",
+        volador: "flying",
+        flying: "flying",
+        psiquico: "psychic",
+        psychic: "psychic",
+        bicho: "bug",
+        bug: "bug",
+        roca: "rock",
+        rock: "rock",
+        fantasma: "ghost",
+        ghost: "ghost",
+        dragon: "dragon",
+        acero: "steel",
+        steel: "steel",
+        hada: "fairy",
+        fairy: "fairy",
+        siniestro: "dark",
+        oscuro: "dark",
+        dark: "dark"
+    };
+
+    return mapa[limpio] || limpio;
+}
+
+function obtenerTiposCanonicosMyPokemon(tipo = "") {
+    return String(tipo || "")
+        .split("/")
+        .map(parte => mapearTipoCanonicoMyPokemon(parte))
+        .filter(Boolean);
+}
+
 function traducirNombreItemMyPokemon(nombreItem = "", itemCode = "") {
     const mapaPorNombre = {
         "Poke Ball": "item_poke_ball",
@@ -1341,11 +1428,13 @@ async function cargarDatosBaseMyPokemon({ forzar = false } = {}) {
 function aplicarFiltrosMisPokemon() {
     const buscar = document.getElementById("buscarMiPokemon");
     const filtroTipo = document.getElementById("filtroMiTipo");
+    const filtroGeneracion = document.getElementById("filtroMiGeneracion");
     const filtroRareza = document.getElementById("filtroMiRareza");
     const orden = document.getElementById("ordenMisPokemon");
 
     const texto = buscar ? normalizarTextoMyPokemon(buscar.value) : "";
-    const tipo = filtroTipo ? normalizarTextoMyPokemon(filtroTipo.value) : "";
+    const tipoCanonico = filtroTipo ? mapearTipoCanonicoMyPokemon(filtroTipo.value) : "";
+    const generacion = filtroGeneracion ? String(filtroGeneracion.value || "").trim() : "";
     const rareza = filtroRareza ? filtroRareza.value.toLowerCase().trim() : "";
     const ordenValor = orden ? orden.value : "pokemon_id_asc";
 
@@ -1353,17 +1442,19 @@ function aplicarFiltrosMisPokemon() {
 
     filtrados = filtrados.filter(p => {
         const nombre = normalizarTextoMyPokemon(p.nombre || "");
-        const tipoPokemon = normalizarTextoMyPokemon(p.tipo || "");
-        const esShiny = p.es_shiny === true;
+        const tiposPokemon = obtenerTiposCanonicosMyPokemon(p.tipo || "");
+        const generacionPokemon = String(obtenerGeneracionPokemonMyPokemon(p) || "");
+        const esShiny = p.es_shiny === true || p.es_shiny === 1;
 
         const coincideNombre = nombre.includes(texto);
-        const coincideTipo = tipo === "" || tipoPokemon.includes(tipo);
+        const coincideTipo = tipoCanonico === "" || tiposPokemon.includes(tipoCanonico);
+        const coincideGeneracion = generacion === "" || generacionPokemon === generacion;
 
         let coincideRareza = true;
         if (rareza === "normal") coincideRareza = !esShiny;
         if (rareza === "shiny") coincideRareza = esShiny;
 
-        return coincideNombre && coincideTipo && coincideRareza;
+        return coincideNombre && coincideTipo && coincideGeneracion && coincideRareza;
     });
 
     switch (ordenValor) {
@@ -1460,6 +1551,7 @@ function construirCardPokemon(p, evoData = null) {
             data-tipo="${escapeHtmlMyPokemon(p.tipo)}"
             data-nombre="${escapeHtmlMyPokemon(p.nombre)}"
             data-shiny="${p.es_shiny ? "true" : "false"}"
+            data-generacion="${obtenerGeneracionPokemonMyPokemon(p)}"
             data-usuario-pokemon-id="${p.id}"
         >
             <div class="pokemon-card-header">
@@ -2190,11 +2282,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const buscar = document.getElementById("buscarMiPokemon");
     const filtroTipo = document.getElementById("filtroMiTipo");
+    const filtroGeneracion = document.getElementById("filtroMiGeneracion");
     const filtroRareza = document.getElementById("filtroMiRareza");
     const orden = document.getElementById("ordenMisPokemon");
 
     if (buscar) buscar.addEventListener("input", aplicarFiltrosMisPokemon);
     if (filtroTipo) filtroTipo.addEventListener("change", aplicarFiltrosMisPokemon);
+    if (filtroGeneracion) filtroGeneracion.addEventListener("change", aplicarFiltrosMisPokemon);
     if (filtroRareza) filtroRareza.addEventListener("change", aplicarFiltrosMisPokemon);
     if (orden) orden.addEventListener("change", aplicarFiltrosMisPokemon);
 
