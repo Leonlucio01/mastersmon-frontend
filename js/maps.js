@@ -2445,11 +2445,42 @@ async function salirPresenciaMaps(cerrarConexion = false) {
    ENCUENTRO / SERVIDOR
 ========================= */
 
-function obtenerRutaSpriteLocal(id, shiny = false) {
-    const spriteId = normalizarSpriteId(id);
+function obtenerImagenPokemonMaps(pokemon = {}, shinyOverride = null) {
+    const shiny = shinyOverride !== null
+        ? Boolean(shinyOverride)
+        : (
+            pokemon?.es_shiny === true ||
+            pokemon?.es_shiny === 1 ||
+            String(pokemon?.es_shiny || "").trim().toLowerCase() === "true"
+        );
+
+    if (typeof obtenerRutaSpriteDesdePokemon === "function") {
+        return obtenerRutaSpriteDesdePokemon({
+            ...pokemon,
+            es_shiny: shiny,
+            pokemon_id: pokemon?.pokemon_id || pokemon?.id || null,
+            species_id: pokemon?.species_id || pokemon?.pokemon_species_id || pokemon?.id_base || pokemon?.pokemon_id || pokemon?.id || null,
+            variant_suffix: pokemon?.variant_suffix || pokemon?.forma_suffix || "",
+            pokemon_name_api: pokemon?.pokemon_name_api || pokemon?.api_name || pokemon?.pokeapi_name || pokemon?.nombre_api || ""
+        });
+    }
+
+    const pokemonId = Number(pokemon?.pokemon_id || pokemon?.id || 0);
+    const variantSuffix = pokemon?.variant_suffix || pokemon?.forma_suffix || "";
+
+    if (typeof obtenerRutaSpriteLocal === "function") {
+        return obtenerRutaSpriteLocal(pokemonId, shiny, variantSuffix);
+    }
+
+    const spriteId = String(Number(pokemonId || 0)).padStart(4, "0");
     return shiny
         ? `img/pokemon-png/sprites_shiny/${spriteId}_s.png`
         : `img/pokemon-png/sprites_normal/${spriteId}.png`;
+}
+
+function obtenerImagenPokemonEncuentro(pokemon) {
+    if (!pokemon) return "";
+    return obtenerImagenPokemonMaps(pokemon);
 }
  
 async function solicitarEncuentroServidor(requestIdActual, zonaIdActual) {
@@ -2489,6 +2520,9 @@ async function solicitarEncuentroServidor(requestIdActual, zonaIdActual) {
 
     encuentroActual = {
         pokemon_id: Number(pokemon.pokemon_id),
+        species_id: Number(pokemon.species_id || pokemon.pokemon_species_id || pokemon.id_base || pokemon.pokemon_id || 0) || null,
+        pokemon_name_api: pokemon.pokemon_name_api || pokemon.api_name || pokemon.pokeapi_name || pokemon.nombre_api || "",
+        variant_suffix: pokemon.variant_suffix || pokemon.forma_suffix || "",
         nombre: pokemon.nombre || t("maps_wild_pokemon_default"),
         tipo: pokemon.tipo || "—",
         imagen: pokemon.imagen || null,
@@ -2932,7 +2966,10 @@ function traducirTipoPokemonMaps(tipo = "") {
         "Dragon": "type_dragon",
         "Dragón": "type_dragon",
         "Acero": "type_steel",
-        "Hada": "type_fairy"
+        "Hada": "type_fairy",
+        "Siniestro": "type_dark",
+        "Oscuro": "type_dark",
+        "Dark": "type_dark"
     };
  
     return String(tipo || "")
@@ -3270,7 +3307,7 @@ function renderMiniaturasZona(zona = null) {
     const htmlCards = pokemonesZona.map((p, index) => `
         <div class="mini-zona-card" title="${p.nombre}" style="--delay:${index * 0.08}s;">
             <img
-                src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.pokemon_id}.png"
+                src="${obtenerImagenPokemonMaps(p, false)}"
                 alt="${p.nombre}"
                 loading="lazy"
                 decoding="async"

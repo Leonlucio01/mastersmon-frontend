@@ -191,8 +191,48 @@ function moverCarruselAvatar(direccion = 1) {
     renderAvatarSelector();
 }
 
-function obtenerImagenPokemonColeccion(pokemonId, esShiny = false) {
-    return obtenerRutaSpriteLocal(pokemonId, esShiny);
+function obtenerImagenPokemonColeccion(pokemonOrId, esShiny = false) {
+    const esObjetoPokemon = pokemonOrId && typeof pokemonOrId === "object";
+    const pokemonData = esObjetoPokemon
+        ? pokemonOrId
+        : {
+            pokemon_id: pokemonOrId,
+            id: pokemonOrId,
+            es_shiny: esShiny
+        };
+
+    const shiny = (
+        esShiny === true ||
+        esShiny === 1 ||
+        pokemonData?.es_shiny === true ||
+        pokemonData?.es_shiny === 1
+    );
+
+    if (typeof obtenerRutaSpriteDesdePokemon === "function") {
+        return obtenerRutaSpriteDesdePokemon({
+            ...pokemonData,
+            es_shiny: shiny,
+            pokemon_id: pokemonData?.pokemon_id || pokemonData?.id || null,
+            species_id: pokemonData?.species_id || pokemonData?.pokemon_species_id || pokemonData?.id_base || pokemonData?.pokemon_id || pokemonData?.id || null,
+            variant_suffix: pokemonData?.variant_suffix || pokemonData?.forma_suffix || "",
+            pokemon_name_api: pokemonData?.pokemon_name_api || pokemonData?.api_name || pokemonData?.pokeapi_name || pokemonData?.nombre_api || ""
+        });
+    }
+
+    const pokemonId = Number(pokemonData?.pokemon_id || pokemonData?.id || 0);
+
+    if (typeof obtenerRutaSpriteLocal === "function") {
+        return obtenerRutaSpriteLocal(
+            pokemonId,
+            shiny,
+            pokemonData?.variant_suffix || pokemonData?.forma_suffix || ""
+        );
+    }
+
+    const spriteId = String(Number(pokemonId || 0)).padStart(4, "0");
+    return shiny
+        ? `img/pokemon-png/sprites_shiny/${spriteId}_s.png`
+        : `img/pokemon-png/sprites_normal/${spriteId}.png`;
 }
 
 function obtenerImagenItemInventario(nombreItem, itemCode = "") {
@@ -226,8 +266,8 @@ function obtenerImagenItemInventario(nombreItem, itemCode = "") {
     return imagenesPorCodigo[itemCode] || imagenesPorNombre[nombreItem] || imagenesPorCodigo.poke_ball;
 }
 
-function obtenerImagenPokemonModal(pokemonId, esShiny = false) {
-    return obtenerImagenPokemonColeccion(pokemonId, esShiny);
+function obtenerImagenPokemonModal(pokemonOrId, esShiny = false) {
+    return obtenerImagenPokemonColeccion(pokemonOrId, esShiny);
 }
 
 function obtenerImagenItemModal(nombreItem) {
@@ -255,7 +295,10 @@ function traducirTipoPokemonMyPokemon(tipo = "") {
         "Dragon": "type_dragon",
         "Dragón": "type_dragon",
         "Acero": "type_steel",
-        "Hada": "type_fairy"
+        "Hada": "type_fairy",
+        "Siniestro": "type_dark",
+        "Oscuro": "type_dark",
+        "Dark": "type_dark"
     };
 
     return String(tipo || "")
@@ -507,7 +550,10 @@ function normalizarTipoCssMyPokemon(tipo = "") {
         steel: "steel",
         acero: "steel",
         fairy: "fairy",
-        hada: "fairy"
+        hada: "fairy",
+        dark: "dark",
+        siniestro: "dark",
+        oscuro: "dark"
     };
     return mapa[valor] || "neutral";
 }
@@ -1402,7 +1448,7 @@ function estadoEvolucionVisual(evoData) {
 }
 
 function construirCardPokemon(p, evoData = null) {
-    const imagen = obtenerImagenPokemonColeccion(p.pokemon_id, p.es_shiny === true);
+    const imagen = obtenerImagenPokemonColeccion(p, p.es_shiny === true);
     const porcentajeExp = Math.min(100, Math.floor((p.experiencia / Math.max(1, (p.nivel * 50))) * 100));
     const estado = estadoEvolucionVisual(evoData);
     const nombreSeguro = String(p.nombre).replace(/'/g, "\\'");
