@@ -3709,7 +3709,7 @@ function renderPanelAccionEncuentro() {
                         ${item.cantidad <= 0 ? "disabled" : ""}
                     >
                     <div class="ball-option-card">
-                        <img src="${obtenerImagenBall(item.nombre, item.item_codigo || item.codigo || "", item.item_id || null)}" alt="${item.nombre}" loading="lazy" decoding="async">
+                        <img src="${obtenerImagenBall(item.nombre, item.item_codigo || item.codigo || "", item.item_id || null)}" alt="${item.nombre}" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='img/items/official/0004_poke-ball.png';">
                         <span class="ball-nombre">${item.nombre}</span>
                         <span class="ball-cantidad">x${item.cantidad}</span>
                     </div>
@@ -3920,7 +3920,52 @@ function obtenerIndicePrimeraDisponible(items = []) {
     return idx >= 0 ? idx : -1;
 }
  
+function normalizarClaveBallMaps(valor = "") {
+    return String(valor || "")
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[̀-ͯ]/g, "")
+        .replace(/[’']/g, "")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "");
+}
+
+const MAPS_BALL_LOCAL_PATHS = {
+    "poke-ball": "img/items/official/0004_poke-ball.png",
+    "poke_ball": "img/items/official/0004_poke-ball.png",
+    "poke-ball.png": "img/items/official/0004_poke-ball.png",
+    "poke-ball-item": "img/items/official/0004_poke-ball.png",
+    "pokeball": "img/items/official/0004_poke-ball.png",
+    "poke-ball-default": "img/items/official/0004_poke-ball.png",
+    "poke ball": "img/items/official/0004_poke-ball.png",
+    "great-ball": "img/items/official/0003_great-ball.png",
+    "great_ball": "img/items/official/0003_great-ball.png",
+    "great ball": "img/items/official/0003_great-ball.png",
+    "super-ball": "img/items/official/0003_great-ball.png",
+    "super_ball": "img/items/official/0003_great-ball.png",
+    "super ball": "img/items/official/0003_great-ball.png",
+    "ultra-ball": "img/items/official/0002_ultra-ball.png",
+    "ultra_ball": "img/items/official/0002_ultra-ball.png",
+    "ultra ball": "img/items/official/0002_ultra-ball.png",
+    "master-ball": "img/items/official/0001_master-ball.png",
+    "master_ball": "img/items/official/0001_master-ball.png",
+    "master ball": "img/items/official/0001_master-ball.png"
+};
+
 function obtenerImagenBall(nombreItem, itemCode = "", itemId = null) {
+    const codeKey = normalizarClaveBallMaps(itemCode);
+    const nameKey = normalizarClaveBallMaps(nombreItem);
+
+    if (codeKey && MAPS_BALL_LOCAL_PATHS[codeKey]) {
+        return MAPS_BALL_LOCAL_PATHS[codeKey];
+    }
+
+    if (nameKey && MAPS_BALL_LOCAL_PATHS[nameKey]) {
+        return MAPS_BALL_LOCAL_PATHS[nameKey];
+    }
+
     if (typeof obtenerRutaItemLocalSeguro === "function") {
         return obtenerRutaItemLocalSeguro({
             itemName: nombreItem,
@@ -4055,6 +4100,10 @@ async function ejecutarAnimacionIntentoCapturaMaps() {
     const ball = document.createElement("img");
     ball.className = "capture-flight-ball";
     ball.src = ballImg.currentSrc || ballImg.src || obtenerImagenBall(seleccionada.dataset.nombre || "Poke Ball");
+    ball.onerror = function () {
+        this.onerror = null;
+        this.src = "img/items/official/0004_poke-ball.png";
+    };
     ball.alt = seleccionada.dataset.nombre || "Poké Ball";
     ball.decoding = "async";
 
