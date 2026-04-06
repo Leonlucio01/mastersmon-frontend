@@ -235,43 +235,25 @@ function obtenerImagenPokemonColeccion(pokemonOrId, esShiny = false) {
         : `img/pokemon-png/sprites_normal/${spriteId}.png`;
 }
 
-function obtenerImagenItemInventario(nombreItem, itemCode = "") {
-    const imagenesPorCodigo = {
-        "poke_ball": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png",
-        "super_ball": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png",
-        "ultra_ball": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png",
-        "master_ball": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/master-ball.png",
-        "potion": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/potion.png",
-        "super_potion": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/super-potion.png",
-        "booster_battle_exp_x2_24h": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-share.png",
-        "booster_battle_gold_x2_24h": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/nugget.png"
-    };
+function obtenerImagenItemInventario(nombreItem, itemCode = "", itemId = null) {
+    if (typeof obtenerRutaItemLocalSeguro === "function") {
+        return obtenerRutaItemLocalSeguro({
+            itemName: nombreItem,
+            itemCode,
+            itemId,
+            fallback: "img/items/official/0004_poke-ball.png"
+        });
+    }
 
-    const imagenesPorNombre = {
-        "Poke Ball": imagenesPorCodigo.poke_ball,
-        "Super Ball": imagenesPorCodigo.super_ball,
-        "Ultra Ball": imagenesPorCodigo.ultra_ball,
-        "Master Ball": imagenesPorCodigo.master_ball,
-        "Pocion": imagenesPorCodigo.potion,
-        "Super Pocion": imagenesPorCodigo.super_potion,
-        "Piedra Fuego": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fire-stone.png",
-        "Piedra Agua": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/water-stone.png",
-        "Piedra Trueno": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/thunder-stone.png",
-        "Piedra Hoja": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/leaf-stone.png",
-        "Piedra Lunar": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/moon-stone.png",
-        "Booster Battle EXP x2 24h": imagenesPorCodigo.booster_battle_exp_x2_24h,
-        "Booster Battle GOLD x2 24h": imagenesPorCodigo.booster_battle_gold_x2_24h
-    };
-
-    return imagenesPorCodigo[itemCode] || imagenesPorNombre[nombreItem] || imagenesPorCodigo.poke_ball;
+    return "img/items/official/0004_poke-ball.png";
 }
 
 function obtenerImagenPokemonModal(pokemonOrId, esShiny = false) {
     return obtenerImagenPokemonColeccion(pokemonOrId, esShiny);
 }
 
-function obtenerImagenItemModal(nombreItem) {
-    return obtenerImagenItemInventario(nombreItem);
+function obtenerImagenItemModal(nombreItem, itemCode = "", itemId = null) {
+    return obtenerImagenItemInventario(nombreItem, itemCode, itemId);
 }
 
 function traducirTipoPokemonMyPokemon(tipo = "") {
@@ -1845,7 +1827,11 @@ function mostrarModalEvolucionItem(usuarioPokemonId, nombrePokemon, data) {
 
     const imagenActual = obtenerImagenPokemonModal(data.pokemon_id);
     const imagenEvolucion = obtenerImagenPokemonModal(opcionMostrar.evoluciona_a);
-    const imagenItem = obtenerImagenItemModal(opcionMostrar.item_nombre);
+    const imagenItem = obtenerImagenItemModal(
+        opcionMostrar.item_nombre,
+        opcionMostrar.item_codigo || opcionMostrar.item_code || "",
+        opcionMostrar.item_id || null
+    );
     const tieneItem = opcionMostrar.tiene_item;
     const itemTraducido = traducirNombreItemMyPokemon(opcionMostrar.item_nombre);
 
@@ -2271,14 +2257,23 @@ function configurarEventosSesionMyPokemon() {
     });
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
     configurarSelectorIdiomaMyPokemon();
     configurarEventosAvatarSelector();
     configurarEventosInventarioMyPokemon();
     configurarEventosMovimientosPokemon();
     configurarEventosSesionMyPokemon();
     renderAvatarSelector();
-    cargarMisPokemon();
+
+    if (typeof cargarItemsManifest === "function") {
+        try {
+            await cargarItemsManifest();
+        } catch (error) {
+            console.warn("No se pudo cargar el catálogo local de items en My Pokemon:", error);
+        }
+    }
+
+    await cargarMisPokemon();
 
     const buscar = document.getElementById("buscarMiPokemon");
     const filtroTipo = document.getElementById("filtroMiTipo");

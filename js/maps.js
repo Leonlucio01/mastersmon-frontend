@@ -1126,7 +1126,7 @@ function configurarFiltrosMaps() {
     renderizarShowcaseRegionesMaps();
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
     configurarCarruselMaps();
     configurarFiltrosMaps();
     configurarEventosDelegados();
@@ -1134,6 +1134,15 @@ document.addEventListener("DOMContentLoaded", () => {
     configurarSelectorIdiomaMaps();
     configurarEventosSesionMaps();
     configurarEventosLifecycleMaps();
+
+    if (typeof cargarItemsManifest === "function") {
+        try {
+            await cargarItemsManifest();
+        } catch (error) {
+            console.warn("No se pudo cargar el catálogo local de items en Maps:", error);
+        }
+    }
+
     inicializarMaps();
  
     const btnCerrarModalResultado = document.getElementById("btnCerrarModalResultadoCaptura");
@@ -2646,7 +2655,9 @@ function obtenerEstadoCapturaMapa(pokemonId, esShiny, listaPokemonUsuario = []) 
         cantidad_normal: cantidadNormal,
         cantidad_shiny: cantidadShiny,
         cantidad_mostrada: cantidadMostrada,
-        imagen: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png"
+        imagen: typeof obtenerRutaItemLocalSeguro === "function"
+            ? obtenerRutaItemLocalSeguro({ itemName: "Poke Ball", itemCode: "poke_ball", fallback: "img/items/official/0004_poke-ball.png" })
+            : "img/items/official/0004_poke-ball.png"
     };
 }
 
@@ -3698,7 +3709,7 @@ function renderPanelAccionEncuentro() {
                         ${item.cantidad <= 0 ? "disabled" : ""}
                     >
                     <div class="ball-option-card">
-                        <img src="${obtenerImagenBall(item.nombre)}" alt="${item.nombre}" loading="lazy" decoding="async">
+                        <img src="${obtenerImagenBall(item.nombre, item.item_codigo || item.codigo || "", item.item_id || null)}" alt="${item.nombre}" loading="lazy" decoding="async">
                         <span class="ball-nombre">${item.nombre}</span>
                         <span class="ball-cantidad">x${item.cantidad}</span>
                     </div>
@@ -3909,15 +3920,17 @@ function obtenerIndicePrimeraDisponible(items = []) {
     return idx >= 0 ? idx : -1;
 }
  
-function obtenerImagenBall(nombreItem) {
-    const imagenes = {
-        "Poke Ball": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png",
-        "Super Ball": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png",
-        "Ultra Ball": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png",
-        "Master Ball": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/master-ball.png"
-    };
+function obtenerImagenBall(nombreItem, itemCode = "", itemId = null) {
+    if (typeof obtenerRutaItemLocalSeguro === "function") {
+        return obtenerRutaItemLocalSeguro({
+            itemName: nombreItem,
+            itemCode,
+            itemId,
+            fallback: "img/items/official/0004_poke-ball.png"
+        });
+    }
 
-    return imagenes[nombreItem] || imagenes["Poke Ball"];
+    return "img/items/official/0004_poke-ball.png";
 }
 
 function esperarMaps(ms = 0) {

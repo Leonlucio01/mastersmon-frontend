@@ -148,6 +148,14 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function inicializarIdlePage() {
+    if (typeof cargarItemsManifest === "function") {
+        try {
+            await cargarItemsManifest();
+        } catch (error) {
+            console.warn("No se pudo cargar el catálogo local de items en Idle:", error);
+        }
+    }
+
     configurarMenuIdle();
     configurarIdiomaIdle();
     configurarModalIdle();
@@ -922,7 +930,17 @@ function getPokemonSpriteIdle(pokemon = {}) {
         return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonId}.png`;
     }
 
-    return direct || "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png";
+    if (direct) return direct;
+
+    if (typeof obtenerRutaItemLocalSeguro === "function") {
+        return obtenerRutaItemLocalSeguro({
+            itemName: "Poke Ball",
+            itemCode: "poke_ball",
+            fallback: "img/items/official/0004_poke-ball.png"
+        });
+    }
+
+    return "img/items/official/0004_poke-ball.png";
 }
 
 function formatIdleType(rawType) {

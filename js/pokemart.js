@@ -483,21 +483,16 @@ function traducirTipoItemTienda(tipo = "") {
     return key && typeof t === "function" ? t(key) : tipo;
 }
 
-function obtenerImagenItem(nombre) {
-    const imagenes = {
-        "Poke Ball": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png",
-        "Super Ball": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png",
-        "Ultra Ball": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png",
-        "Master Ball": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/master-ball.png",
-        "Pocion": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/potion.png",
-        "Super Pocion": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/super-potion.png",
-        "Piedra Fuego": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fire-stone.png",
-        "Piedra Agua": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/water-stone.png",
-        "Piedra Trueno": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/thunder-stone.png",
-        "Piedra Hoja": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/leaf-stone.png",
-        "Piedra Lunar": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/moon-stone.png"
-    };
-    return imagenes[nombre] || imagenes["Poke Ball"];
+function obtenerImagenItem(nombre, itemCode = "", itemId = null) {
+    if (typeof obtenerRutaItemLocalSeguro === "function") {
+        return obtenerRutaItemLocalSeguro({
+            itemName: nombre,
+            itemCode,
+            itemId,
+            fallback: "img/items/official/0004_poke-ball.png"
+        });
+    }
+    return "img/items/official/0004_poke-ball.png";
 }
 
 function obtenerClaseTipo(tipo = "") {
@@ -561,7 +556,7 @@ function renderizarCardItemHTML(item, estaLogueado) {
     return `
         <article class="item-card item-card-${categoria}" data-item-id="${item.id}">
             <div class="item-card-top">
-                <img class="item-imagen" src="${obtenerImagenItem(item.nombre)}" alt="${traducirNombreItemTienda(item.nombre)}" loading="lazy" decoding="async">
+                <img class="item-imagen" src="${obtenerImagenItem(item.nombre, item.codigo || item.item_codigo || "", item.id || null)}" alt="${traducirNombreItemTienda(item.nombre)}" loading="lazy" decoding="async">
                 <div class="item-card-top-right"><span class="${obtenerClaseTipo(item.tipo)}">${traducirTipoItemTienda(item.tipo)}</span></div>
             </div>
             <h3>${traducirNombreItemTienda(item.nombre)}</h3>
@@ -1372,6 +1367,14 @@ document.addEventListener("keydown", event => {
 });
 
 document.addEventListener("DOMContentLoaded", async () => {
+    if (typeof cargarItemsManifest === "function") {
+        try {
+            await cargarItemsManifest();
+        } catch (error) {
+            console.warn("No se pudo cargar el catálogo local de items en PokeMart:", error);
+        }
+    }
+
     configurarIdiomaPokeMart();
     registrarEventosPokeMart();
     const gateBtn = document.getElementById("pokemartGoToLoginBtn");
