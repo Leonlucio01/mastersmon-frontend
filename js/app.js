@@ -278,15 +278,46 @@ function usuarioAutenticado() {
 }
 
 function obtenerImagenItemEvolucion(nombreItem) {
-    const imagenes = {
-        "Piedra Fuego": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fire-stone.png",
-        "Piedra Agua": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/water-stone.png",
-        "Piedra Trueno": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/thunder-stone.png",
-        "Piedra Hoja": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/leaf-stone.png",
-        "Piedra Lunar": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/moon-stone.png"
+    const alias = {
+        "Piedra Fuego": { itemCode: "fire-stone", itemName: "Fire Stone" },
+        "Piedra Agua": { itemCode: "water-stone", itemName: "Water Stone" },
+        "Piedra Trueno": { itemCode: "thunder-stone", itemName: "Thunder Stone" },
+        "Piedra Hoja": { itemCode: "leaf-stone", itemName: "Leaf Stone" },
+        "Piedra Lunar": { itemCode: "moon-stone", itemName: "Moon Stone" },
+        "Piedra Sol": { itemCode: "sun-stone", itemName: "Sun Stone" },
+        "Piedra Día": { itemCode: "dawn-stone", itemName: "Dawn Stone" },
+        "Piedra Noche": { itemCode: "dusk-stone", itemName: "Dusk Stone" },
+        "Piedra Brillo": { itemCode: "shiny-stone", itemName: "Shiny Stone" },
+        "Piedra Hielo": { itemCode: "ice-stone", itemName: "Ice Stone" }
     };
 
-    return imagenes[nombreItem] || "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png";
+    const data = alias[String(nombreItem || "").trim()] || {
+        itemName: nombreItem,
+        itemCode: nombreItem
+    };
+
+    if (typeof obtenerRutaItemLocalSeguro === "function") {
+        return obtenerRutaItemLocalSeguro({
+            itemCode: data.itemCode,
+            itemName: data.itemName,
+            fallback: "img/items/official/0004_poke-ball.png"
+        });
+    }
+
+    const fallbackMap = {
+        "fire-stone": "img/items/official/0082_fire-stone.png",
+        "water-stone": "img/items/official/0084_water-stone.png",
+        "thunder-stone": "img/items/official/0083_thunder-stone.png",
+        "leaf-stone": "img/items/official/0085_leaf-stone.png",
+        "moon-stone": "img/items/official/0081_moon-stone.png",
+        "sun-stone": "img/items/official/0080_sun-stone.png",
+        "dawn-stone": "img/items/official/0109_dawn-stone.png",
+        "dusk-stone": "img/items/official/0108_dusk-stone.png",
+        "shiny-stone": "img/items/official/0107_shiny-stone.png",
+        "ice-stone": "img/items/official/0004_poke-ball.png"
+    };
+
+    return fallbackMap[data.itemCode] || "img/items/official/0004_poke-ball.png";
 }
 
 function mostrarCargaPokedex() {

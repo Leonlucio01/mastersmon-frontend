@@ -392,6 +392,43 @@ function configurarResumenUsuarioBattle() {
     if (nombreMobile) nombreMobile.textContent = nombre;
 }
 
+function obtenerImagenPokemonBattle(pokemon = {}) {
+    const direct = pokemon?.imagen || pokemon?.imagen_url || pokemon?.image || pokemon?.sprite || "";
+    const lowered = String(direct || "").toLowerCase();
+    const looksLikeRemotePokeApiSprite =
+        lowered.includes("raw.githubusercontent.com/pokeapi/sprites") ||
+        lowered.includes("/sprites/pokemon/");
+
+    if (typeof obtenerRutaSpriteDesdePokemon === "function") {
+        const localSprite = obtenerRutaSpriteDesdePokemon(pokemon);
+        if (localSprite) return localSprite;
+    }
+
+    if (typeof obtenerRutaSpriteDesdeManifest === "function") {
+        const localSprite = obtenerRutaSpriteDesdeManifest({
+            speciesId: pokemon?.species_id || pokemon?.pokemon_species_id || pokemon?.pokemon_id || pokemon?.id || null,
+            pokemonId: pokemon?.pokemon_id || pokemon?.id || null,
+            pokemonName: pokemon?.pokemon_name_api || pokemon?.api_name || pokemon?.pokeapi_name || "",
+            shiny: Boolean(pokemon?.es_shiny),
+            variantSuffix: pokemon?.variant_suffix || pokemon?.forma_suffix || ""
+        });
+        if (localSprite) return localSprite;
+    }
+
+    if (direct && !looksLikeRemotePokeApiSprite) {
+        return String(direct);
+    }
+
+    const fallbackId = pokemon?.species_id || pokemon?.pokemon_species_id || pokemon?.pokemon_id || pokemon?.id || 0;
+    if (typeof obtenerRutaSpriteLocal === "function" && Number(fallbackId) > 0) {
+        return obtenerRutaSpriteLocal(fallbackId, Boolean(pokemon?.es_shiny), pokemon?.variant_suffix || pokemon?.forma_suffix || "");
+    }
+
+    return Boolean(pokemon?.es_shiny)
+        ? `img/pokemon-png/sprites_shiny/${String(Number(fallbackId || 0)).padStart(4, "0")}_s.png`
+        : `img/pokemon-png/sprites_normal/${String(Number(fallbackId || 0)).padStart(4, "0")}.png`;
+}
+
 /* =========================
    DATA
 ========================= */
@@ -706,9 +743,7 @@ function renderSlotsEquipoBattle() {
             continue;
         }
 
-        const imagen = pokemon.es_shiny
-            ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${pokemon.pokemon_id}.png`
-            : (pokemon.imagen || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.pokemon_id}.png`);
+        const imagen = obtenerImagenPokemonBattle(pokemon);
 
         const leadBadge = i === 0 ? `<span class="team-lead-badge">${t("battle_leader")}</span>` : "";
         const tipoClase = obtenerClaseTipoBattle(pokemon.tipo);
@@ -1138,9 +1173,7 @@ function renderColeccionBattle() {
         const equipoLleno = battleEquipo.length >= 6;
         const deshabilitado = yaEnEquipo || equipoLleno;
 
-        const imagen = pokemon.es_shiny
-            ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${pokemon.pokemon_id}.png`
-            : (pokemon.imagen || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.pokemon_id}.png`);
+        const imagen = obtenerImagenPokemonBattle(pokemon);
 
         const claseTipo = obtenerClaseTipoBattle(pokemon.tipo);
         const expActual = calcularExpActualBattle(pokemon);

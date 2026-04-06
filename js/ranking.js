@@ -489,16 +489,39 @@ function obtenerImagenAvatarRanking(item) {
     return `img/avatars/${RANKING_DEFAULT_AVATAR}.png`;
 }
 
-function obtenerImagenPokemonRanking(item) {
-    if (item?.imagen) return item.imagen;
+function obtenerImagenPokemonRanking(item = {}) {
+    const direct = item?.imagen || item?.imagen_url || item?.image || item?.sprite || "";
+    const lowered = String(direct || "").toLowerCase();
+    const looksLikeRemotePokeApiSprite =
+        lowered.includes("raw.githubusercontent.com/pokeapi/sprites") ||
+        lowered.includes("/sprites/pokemon/");
 
-    if (!item?.pokemon_id) {
-        return "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png";
+    if (typeof obtenerRutaSpriteDesdePokemon === "function") {
+        const localSprite = obtenerRutaSpriteDesdePokemon(item);
+        if (localSprite) return localSprite;
     }
 
-    return item.es_shiny
-        ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${item.pokemon_id}.png`
-        : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${item.pokemon_id}.png`;
+    if (typeof obtenerRutaSpriteDesdeManifest === "function") {
+        const localSprite = obtenerRutaSpriteDesdeManifest({
+            speciesId: item?.species_id || item?.pokemon_species_id || item?.pokemon_id || item?.id || null,
+            pokemonId: item?.pokemon_id || item?.id || null,
+            pokemonName: item?.pokemon_name_api || item?.api_name || item?.pokeapi_name || "",
+            shiny: Boolean(item?.es_shiny),
+            variantSuffix: item?.variant_suffix || item?.forma_suffix || ""
+        });
+        if (localSprite) return localSprite;
+    }
+
+    if (direct && !looksLikeRemotePokeApiSprite) return String(direct);
+
+    const fallbackId = item?.species_id || item?.pokemon_species_id || item?.pokemon_id || item?.id || 25;
+    if (typeof obtenerRutaSpriteLocal === "function" && Number(fallbackId) > 0) {
+        return obtenerRutaSpriteLocal(fallbackId, Boolean(item?.es_shiny), item?.variant_suffix || item?.forma_suffix || "");
+    }
+
+    return Boolean(item?.es_shiny)
+        ? `img/pokemon-png/sprites_shiny/${String(Number(fallbackId || 25)).padStart(4, "0")}_s.png`
+        : `img/pokemon-png/sprites_normal/${String(Number(fallbackId || 25)).padStart(4, "0")}.png`;
 }
 
 function traducirTipoPokemonRankingSeguro(tipo = "") {

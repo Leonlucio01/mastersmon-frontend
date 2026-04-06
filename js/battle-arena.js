@@ -2981,11 +2981,7 @@ function renderizarResumenPostBattleArena(victoria = true, recompensa = null) {
     if (levelUps.length) {
         levelUpsWrap.classList.remove("oculto");
         levelUpsList.innerHTML = levelUps.map((pokemon) => {
-            const imagen = pokemon?.pokemon_id
-                ? (pokemon?.es_shiny
-                    ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${pokemon.pokemon_id}.png`
-                    : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.pokemon_id}.png`)
-                : "";
+            const imagen = pokemon?.pokemon_id ? obtenerImagenPokemonArena(pokemon) : "";
             const levelText = tfArena("arena_postbattle_level_from_to", {
                 from: pokemon.nivelAntes,
                 to: pokemon.nivelDespues
@@ -3173,12 +3169,41 @@ function ocultarMensajeArena() {
 /* =========================================================
    HELPERS
 ========================================================= */
-function obtenerImagenPokemonArena(pokemon) {
-    if (pokemon.es_shiny) {
-        return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${pokemon.pokemon_id}.png`;
+function obtenerImagenPokemonArena(pokemon = {}) {
+    const direct = pokemon?.imagen || pokemon?.imagen_url || pokemon?.image || pokemon?.sprite || "";
+    const lowered = String(direct || "").toLowerCase();
+    const looksLikeRemotePokeApiSprite =
+        lowered.includes("raw.githubusercontent.com/pokeapi/sprites") ||
+        lowered.includes("/sprites/pokemon/");
+
+    if (typeof obtenerRutaSpriteDesdePokemon === "function") {
+        const localSprite = obtenerRutaSpriteDesdePokemon(pokemon);
+        if (localSprite) return localSprite;
     }
 
-    return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.pokemon_id}.png`;
+    if (typeof obtenerRutaSpriteDesdeManifest === "function") {
+        const localSprite = obtenerRutaSpriteDesdeManifest({
+            speciesId: pokemon?.species_id || pokemon?.pokemon_species_id || pokemon?.pokemon_id || pokemon?.id || null,
+            pokemonId: pokemon?.pokemon_id || pokemon?.id || null,
+            pokemonName: pokemon?.pokemon_name_api || pokemon?.api_name || pokemon?.pokeapi_name || "",
+            shiny: Boolean(pokemon?.es_shiny),
+            variantSuffix: pokemon?.variant_suffix || pokemon?.forma_suffix || ""
+        });
+        if (localSprite) return localSprite;
+    }
+
+    if (direct && !looksLikeRemotePokeApiSprite) {
+        return String(direct);
+    }
+
+    const fallbackId = pokemon?.species_id || pokemon?.pokemon_species_id || pokemon?.pokemon_id || pokemon?.id || 0;
+    if (typeof obtenerRutaSpriteLocal === "function" && Number(fallbackId) > 0) {
+        return obtenerRutaSpriteLocal(fallbackId, Boolean(pokemon?.es_shiny), pokemon?.variant_suffix || pokemon?.forma_suffix || "");
+    }
+
+    return Boolean(pokemon?.es_shiny)
+        ? `img/pokemon-png/sprites_shiny/${String(Number(fallbackId || 0)).padStart(4, "0")}_s.png`
+        : `img/pokemon-png/sprites_normal/${String(Number(fallbackId || 0)).padStart(4, "0")}.png`;
 }
 
 function calcularHpPercentArena(pokemon) {

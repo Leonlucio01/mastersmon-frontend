@@ -27,7 +27,15 @@ function obtenerImagenPokemon(pokemonOrId, shiny = false) {
 }
 
 function obtenerImagenPokeball() {
-    return "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png";
+    if (typeof obtenerRutaItemLocalSeguro === "function") {
+        return obtenerRutaItemLocalSeguro({
+            itemCode: "poke_ball",
+            itemName: "Poke Ball",
+            fallback: "img/items/official/0004_poke-ball.png"
+        });
+    }
+
+    return "img/items/official/0004_poke-ball.png";
 }
 
 function crearCardPokemon(pokemon) {
