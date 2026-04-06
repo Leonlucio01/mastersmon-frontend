@@ -14,6 +14,8 @@ let battleIdleSyncEnProceso = false;
 let battleIdleCountdownFinalizado = false;
 let battleBeneficiosActivos = [];
 let battleBeneficiosSyncEnProceso = false;
+let battleBossMenuBroadcastSignature = "";
+let battleIdleMenuBroadcastSignature = "";
 
 const BATTLE_TEAM_STORAGE_KEY = "mastersmon_battle_team_v1";
 const BATTLE_ENEMY_LEVEL_BONUS_KEY = "mastersmon_battle_enemy_level_bonus_v1";
@@ -37,6 +39,56 @@ let battlePremiumProductosCatalogo = [];
 let battlePremiumProductoSeleccionado = null;
 let battlePremiumCheckoutEnProceso = false;
 let battleInicioCombateEnProceso = false;
+
+function emitirEventoBossEstadoGlobalBattle(estado = null) {
+    try {
+        document.dispatchEvent(new CustomEvent("mastersmonBossStateChanged", {
+            detail: { estado: estado || null }
+        }));
+    } catch (error) {
+        // no-op
+    }
+}
+
+function emitirEventoIdleEstadoGlobalBattle(session = null) {
+    try {
+        document.dispatchEvent(new CustomEvent("mastersmonIdleStateChanged", {
+            detail: { session: session || null }
+        }));
+    } catch (error) {
+        // no-op
+    }
+}
+
+function sincronizarMenuGlobalBossBattle() {
+    const estado = battleBossEstadoActual || null;
+    const signature = JSON.stringify({
+        activo: Boolean(estado?.activo),
+        fecha_evento: String(estado?.fecha_evento || ""),
+        hora_inicio: String(estado?.hora_inicio || ""),
+        hora_fin: String(estado?.hora_fin || ""),
+        boss_nombre: String(estado?.boss?.nombre || "")
+    });
+
+    if (signature === battleBossMenuBroadcastSignature) return;
+    battleBossMenuBroadcastSignature = signature;
+    emitirEventoBossEstadoGlobalBattle(estado);
+}
+
+function sincronizarMenuGlobalIdleBattle() {
+    const sesion = battleIdleEstadoActual?.sesion || null;
+    const signature = JSON.stringify({
+        token: String(sesion?.token || sesion?.id || ""),
+        estado: String(sesion?.estado || ""),
+        tier_codigo: String(sesion?.tier_codigo || ""),
+        reclamado_en: String(sesion?.reclamado_en || ""),
+        tiene_sesion: Boolean(sesion)
+    });
+
+    if (signature === battleIdleMenuBroadcastSignature) return;
+    battleIdleMenuBroadcastSignature = signature;
+    emitirEventoIdleEstadoGlobalBattle(sesion);
+}
 
 document.addEventListener("DOMContentLoaded", () => {
     inicializarBattle();
@@ -1609,6 +1661,8 @@ function actualizarTemporizadoresLocalesBattle() {
         cargarBeneficiosActivosBattle(true);
     }
 
+    sincronizarMenuGlobalBossBattle();
+    sincronizarMenuGlobalIdleBattle();
     renderBossBattle();
     renderIdleBattle();
     renderBattleBoostersBanner();
@@ -1618,6 +1672,7 @@ async function cargarEstadoBossBattle(silencioso = true) {
     if (!getAccessToken()) {
         battleBossEstadoActual = null;
         battleBossRankingActual = [];
+        sincronizarMenuGlobalBossBattle();
         renderBossBattle();
         return null;
     }
@@ -1629,6 +1684,7 @@ async function cargarEstadoBossBattle(silencioso = true) {
         ]);
         battleBossEstadoActual = estado || null;
         battleBossRankingActual = Array.isArray(ranking?.ranking) ? ranking.ranking : [];
+        sincronizarMenuGlobalBossBattle();
         renderBossBattle();
         return estado;
     } catch (error) {
@@ -1637,6 +1693,7 @@ async function cargarEstadoBossBattle(silencioso = true) {
         }
         battleBossEstadoActual = { ok: false, activo: false, error: error?.message || "error" };
         battleBossRankingActual = [];
+        sincronizarMenuGlobalBossBattle();
         renderBossBattle();
         return null;
     }
@@ -1825,6 +1882,7 @@ function registrarEstadoIdleBattle(data = null) {
         battleIdleServerOffsetMs = 0;
         battleIdleStartsAtMs = 0;
         battleIdleEndsAtMs = 0;
+        sincronizarMenuGlobalIdleBattle();
         return;
     }
 
@@ -1835,6 +1893,7 @@ function registrarEstadoIdleBattle(data = null) {
 
     battleIdleStartsAtMs = Date.parse(data?.sesion?.iniciado_en || "") || 0;
     battleIdleEndsAtMs = Date.parse(data?.sesion?.termina_en || "") || 0;
+    sincronizarMenuGlobalIdleBattle();
 }
 
 function obtenerAhoraServidorIdleBattleMs() {

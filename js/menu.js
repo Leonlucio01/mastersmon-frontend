@@ -135,8 +135,73 @@ let idleAlertReadyState = false;
 let idleAlertRequestInFlight = false;
 let idleAlertLastCheckAt = 0;
 
-const MENU_ALERT_POLL_INTERVAL_MS = 60000;
-const MENU_ALERT_VISIBILITY_COOLDOWN_MS = 15000;
+const MENU_ALERT_POLL_INTERVAL_MS = 120000;
+const MENU_ALERT_VISIBILITY_COOLDOWN_MS = 30000;
+const MENU_ALERT_SHARED_CACHE_MAX_AGE_MS = 45000;
+const MENU_ALERT_CACHE_PREFIX = "mastersmon_menu_alert_cache_";
+
+function obtenerMenuPageName() {
+    try {
+        const path = String(window.location.pathname || "").toLowerCase();
+        const file = path.split("/").pop() || "index.html";
+        return file || "index.html";
+    } catch (error) {
+        return "index.html";
+    }
+}
+
+function paginaGestionaBossMenu() {
+    const page = obtenerMenuPageName();
+    return page === "battle.html" || page === "battle-arena.html";
+}
+
+function paginaGestionaIdleMenu() {
+    const page = obtenerMenuPageName();
+    return page === "battle.html" || page === "battle-arena.html" || page === "idle.html";
+}
+
+function obtenerMenuAlertCacheKey(tipo = "") {
+    return `${MENU_ALERT_CACHE_PREFIX}${String(tipo || "").trim().toLowerCase()}`;
+}
+
+function leerCacheMenuAlert(tipo = "", maxAgeMs = MENU_ALERT_SHARED_CACHE_MAX_AGE_MS) {
+    try {
+        const raw = localStorage.getItem(obtenerMenuAlertCacheKey(tipo));
+        if (!raw) return null;
+
+        const parsed = JSON.parse(raw);
+        const savedAt = Number(parsed?.savedAt || 0);
+        if (!savedAt || (Date.now() - savedAt) > Number(maxAgeMs || 0)) {
+            return null;
+        }
+
+        return parsed.data ?? null;
+    } catch (error) {
+        return null;
+    }
+}
+
+function guardarCacheMenuAlert(tipo = "", data = null) {
+    try {
+        localStorage.setItem(
+            obtenerMenuAlertCacheKey(tipo),
+            JSON.stringify({
+                savedAt: Date.now(),
+                data: data ?? null
+            })
+        );
+    } catch (error) {
+        // no-op
+    }
+}
+
+function limpiarCacheMenuAlert(tipo = "") {
+    try {
+        localStorage.removeItem(obtenerMenuAlertCacheKey(tipo));
+    } catch (error) {
+        // no-op
+    }
+}
 
 
 function getBossAlertTexts() {
@@ -258,6 +323,26 @@ function mostrarBossToastGlobal(payload = {}) {
     });
 }
 
+function procesarEstadoBossGlobal(estado = null, forceToast = false) {
+    const activo = Boolean(estado && estado.activo);
+    const bossName = String(estado?.boss?.nombre || "").trim();
+
+    aplicarEstadoVisualBossMenu(activo, bossName);
+
+    if (!activo) {
+        cerrarBossToastGlobal();
+        return;
+    }
+
+    const shownKey = getBossAlertShownKey(estado?.fecha_evento);
+    const alreadyShown = localStorage.getItem(shownKey) === "1";
+
+    if (forceToast || !alreadyShown) {
+        localStorage.setItem(shownKey, "1");
+        mostrarBossToastGlobal(estado);
+    }
+}
+
 function getBossAlertShownKey(fechaEvento) {
     const safeDate = String(fechaEvento || "today").trim() || "today";
     return `mastersmon_alpha_boss_alert_shown_${safeDate}`;
@@ -267,8 +352,19 @@ async function verificarBossGlobal(forceToast = false) {
     if (typeof obtenerEstadoBossMundo !== "function") return;
     if (bossAlertRequestInFlight) return;
     if (typeof getAccessToken === "function" && !getAccessToken()) {
+        limpiarCacheMenuAlert("boss");
         aplicarEstadoVisualBossMenu(false);
+        cerrarBossToastGlobal();
         return;
+    }
+
+    if (!forceToast) {
+        const cache = leerCacheMenuAlert("boss");
+        if (cache) {
+            bossAlertLastCheckAt = Date.now();
+            procesarEstadoBossGlobal(cache, false);
+            return;
+        }
     }
 
     bossAlertRequestInFlight = true;
@@ -276,22 +372,13 @@ async function verificarBossGlobal(forceToast = false) {
 
     try {
         const estado = await obtenerEstadoBossMundo();
-        const activo = Boolean(estado && estado.activo);
-        const bossName = String(estado?.boss?.nombre || "").trim();
-        aplicarEstadoVisualBossMenu(activo, bossName);
-
-        if (!activo) return;
-
-        const shownKey = getBossAlertShownKey(estado?.fecha_evento);
-        const alreadyShown = localStorage.getItem(shownKey) === "1";
-
-        if (forceToast || !alreadyShown) {
-            localStorage.setItem(shownKey, "1");
-            mostrarBossToastGlobal(estado);
-        }
+        guardarCacheMenuAlert("boss", estado || null);
+        procesarEstadoBossGlobal(estado || null, forceToast);
     } catch (error) {
         if (error && (error.code === "NO_TOKEN" || error.code === "UNAUTHORIZED")) {
+            limpiarCacheMenuAlert("boss");
             aplicarEstadoVisualBossMenu(false);
+            cerrarBossToastGlobal();
             return;
         }
         console.warn("No se pudo consultar el estado del Alpha Boss:", error);
@@ -304,6 +391,39 @@ function iniciarAlertaBossGlobal() {
     if (window.__mastersmonBossAlertInitialized) return;
     window.__mastersmonBossAlertInitialized = true;
 
+    document.addEventListener("mastersmonBossStateChanged", (event) => {
+        const estado = event?.detail?.estado || null;
+        guardarCacheMenuAlert("boss", estado);
+        procesarEstadoBossGlobal(estado, false);
+    });
+
+    window.addEventListener("storage", (event) => {
+        if (!event || !event.key) return;
+
+        if (event.key === "access_token" && !event.newValue) {
+            limpiarCacheMenuAlert("boss");
+            aplicarEstadoVisualBossMenu(false);
+            cerrarBossToastGlobal();
+            return;
+        }
+
+        if (event.key === obtenerMenuAlertCacheKey("boss")) {
+            const cache = leerCacheMenuAlert("boss", MENU_ALERT_POLL_INTERVAL_MS * 2);
+            if (cache) {
+                procesarEstadoBossGlobal(cache, false);
+            }
+        }
+    });
+
+    const cacheInicial = leerCacheMenuAlert("boss");
+    if (cacheInicial) {
+        procesarEstadoBossGlobal(cacheInicial, false);
+    }
+
+    if (paginaGestionaBossMenu()) {
+        return;
+    }
+
     verificarBossGlobal(false);
 
     bossAlertPollTimer = window.setInterval(() => {
@@ -313,14 +433,6 @@ function iniciarAlertaBossGlobal() {
     document.addEventListener("visibilitychange", () => {
         if (!document.hidden && (Date.now() - bossAlertLastCheckAt) >= MENU_ALERT_VISIBILITY_COOLDOWN_MS) {
             verificarBossGlobal(false);
-        }
-    });
-
-    window.addEventListener("storage", (event) => {
-        if (!event || !event.key) return;
-        if (event.key === "access_token" && !event.newValue) {
-            aplicarEstadoVisualBossMenu(false);
-            cerrarBossToastGlobal();
         }
     });
 }
@@ -579,9 +691,19 @@ async function verificarIdleGlobal(forceToast = false) {
     if (typeof obtenerEstadoIdle !== "function") return;
     if (idleAlertRequestInFlight) return;
     if (typeof getAccessToken === "function" && !getAccessToken()) {
+        limpiarCacheMenuAlert("idle");
         aplicarEstadoVisualIdleMenu(false);
         cerrarIdleToastGlobal();
         return;
+    }
+
+    if (!forceToast) {
+        const cache = leerCacheMenuAlert("idle");
+        if (cache) {
+            idleAlertLastCheckAt = Date.now();
+            procesarEstadoIdleGlobal(cache, false);
+            return;
+        }
     }
 
     idleAlertRequestInFlight = true;
@@ -589,9 +711,11 @@ async function verificarIdleGlobal(forceToast = false) {
 
     try {
         const estado = await obtenerEstadoIdle();
-        procesarEstadoIdleGlobal(estado, forceToast);
+        guardarCacheMenuAlert("idle", estado || null);
+        procesarEstadoIdleGlobal(estado || null, forceToast);
     } catch (error) {
         if (error && (error.code === "NO_TOKEN" || error.code === "UNAUTHORIZED")) {
+            limpiarCacheMenuAlert("idle");
             aplicarEstadoVisualIdleMenu(false);
             cerrarIdleToastGlobal();
             return;
@@ -607,6 +731,41 @@ function iniciarAlertaIdleGlobal() {
     window.__mastersmonIdleAlertInitialized = true;
 
     ensureIdleAlertStyles();
+
+    document.addEventListener("mastersmonIdleStateChanged", (event) => {
+        const session = event?.detail?.session || null;
+        const payload = { sesion: session };
+        guardarCacheMenuAlert("idle", payload);
+        procesarEstadoIdleGlobal(payload, false);
+    });
+
+    window.addEventListener("storage", (event) => {
+        if (!event || !event.key) return;
+
+        if (event.key === "access_token" && !event.newValue) {
+            limpiarCacheMenuAlert("idle");
+            aplicarEstadoVisualIdleMenu(false);
+            cerrarIdleToastGlobal();
+            return;
+        }
+
+        if (event.key === obtenerMenuAlertCacheKey("idle")) {
+            const cache = leerCacheMenuAlert("idle", MENU_ALERT_POLL_INTERVAL_MS * 2);
+            if (cache) {
+                procesarEstadoIdleGlobal(cache, false);
+            }
+        }
+    });
+
+    const cacheInicial = leerCacheMenuAlert("idle");
+    if (cacheInicial) {
+        procesarEstadoIdleGlobal(cacheInicial, false);
+    }
+
+    if (paginaGestionaIdleMenu()) {
+        return;
+    }
+
     verificarIdleGlobal(false);
 
     idleAlertPollTimer = window.setInterval(() => {
@@ -616,19 +775,6 @@ function iniciarAlertaIdleGlobal() {
     document.addEventListener("visibilitychange", () => {
         if (!document.hidden && (Date.now() - idleAlertLastCheckAt) >= MENU_ALERT_VISIBILITY_COOLDOWN_MS) {
             verificarIdleGlobal(false);
-        }
-    });
-
-    document.addEventListener("mastersmonIdleStateChanged", (event) => {
-        const session = event?.detail?.session || null;
-        procesarEstadoIdleGlobal({ sesion: session }, false);
-    });
-
-    window.addEventListener("storage", (event) => {
-        if (!event || !event.key) return;
-        if (event.key === "access_token" && !event.newValue) {
-            aplicarEstadoVisualIdleMenu(false);
-            cerrarIdleToastGlobal();
         }
     });
 }

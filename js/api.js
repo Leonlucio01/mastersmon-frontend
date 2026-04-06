@@ -924,7 +924,7 @@ function crearConexionTiempoRealMaps(opciones = {}) {
    Agrega estas funciones al final del archivo
 ========================================================= */
 
-const GLOBAL_STATE_CACHE_TTL_MS = 15000;
+const GLOBAL_STATE_CACHE_TTL_MS = 45000;
 const globalStateCache = {
     boss: { data: null, expiresAt: 0, promise: null, sessionKey: "" },
     idle: { data: null, expiresAt: 0, promise: null, sessionKey: "" }
