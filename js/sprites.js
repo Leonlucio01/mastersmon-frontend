@@ -187,8 +187,8 @@ function obtenerRutaSpriteDesdePokemon(pokemon = {}, shinyOverride = null) {
         pokemon?.species_id ||
         pokemon?.pokemon_species_id ||
         pokemon?.id_base ||
-        pokemon?.id ||
         pokemon?.pokemon_id ||
+        pokemon?.id ||
         null;
 
     const pokemonId = pokemon?.pokemon_id || pokemon?.id || null;

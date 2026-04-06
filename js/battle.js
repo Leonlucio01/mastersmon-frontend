@@ -450,18 +450,26 @@ function obtenerImagenPokemonBattle(pokemon = {}) {
     const looksLikeRemotePokeApiSprite =
         lowered.includes("/sprites/pokemon/");
 
+    const pokemonNormalizadoSprite = {
+        ...pokemon,
+        species_id: pokemon?.species_id || pokemon?.pokemon_species_id || pokemon?.id_base || pokemon?.pokemon_id || pokemon?.id || null,
+        pokemon_id: pokemon?.pokemon_id || pokemon?.id || null,
+        variant_suffix: pokemon?.variant_suffix || pokemon?.forma_suffix || "",
+        pokemon_name_api: pokemon?.pokemon_name_api || pokemon?.api_name || pokemon?.pokeapi_name || pokemon?.nombre_api || ""
+    };
+
     if (typeof obtenerRutaSpriteDesdePokemon === "function") {
-        const localSprite = obtenerRutaSpriteDesdePokemon(pokemon);
+        const localSprite = obtenerRutaSpriteDesdePokemon(pokemonNormalizadoSprite);
         if (localSprite) return localSprite;
     }
 
     if (typeof obtenerRutaSpriteDesdeManifest === "function") {
         const localSprite = obtenerRutaSpriteDesdeManifest({
-            speciesId: pokemon?.species_id || pokemon?.pokemon_species_id || pokemon?.pokemon_id || pokemon?.id || null,
-            pokemonId: pokemon?.pokemon_id || pokemon?.id || null,
-            pokemonName: pokemon?.pokemon_name_api || pokemon?.api_name || pokemon?.pokeapi_name || "",
+            speciesId: pokemonNormalizadoSprite.species_id,
+            pokemonId: pokemonNormalizadoSprite.pokemon_id,
+            pokemonName: pokemonNormalizadoSprite.pokemon_name_api,
             shiny: Boolean(pokemon?.es_shiny),
-            variantSuffix: pokemon?.variant_suffix || pokemon?.forma_suffix || ""
+            variantSuffix: pokemonNormalizadoSprite.variant_suffix
         });
         if (localSprite) return localSprite;
     }
@@ -470,9 +478,9 @@ function obtenerImagenPokemonBattle(pokemon = {}) {
         return String(direct);
     }
 
-    const fallbackId = pokemon?.species_id || pokemon?.pokemon_species_id || pokemon?.pokemon_id || pokemon?.id || 0;
+    const fallbackId = pokemonNormalizadoSprite.species_id || pokemonNormalizadoSprite.pokemon_id || 0;
     if (typeof obtenerRutaSpriteLocal === "function" && Number(fallbackId) > 0) {
-        return obtenerRutaSpriteLocal(fallbackId, Boolean(pokemon?.es_shiny), pokemon?.variant_suffix || pokemon?.forma_suffix || "");
+        return obtenerRutaSpriteLocal(fallbackId, Boolean(pokemon?.es_shiny), pokemonNormalizadoSprite.variant_suffix);
     }
 
     return Boolean(pokemon?.es_shiny)
