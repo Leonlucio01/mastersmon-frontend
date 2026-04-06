@@ -148,6 +148,14 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function inicializarIdlePage() {
+    if (typeof cargarSpritesManifest === "function") {
+        try {
+            await cargarSpritesManifest();
+        } catch (error) {
+            console.warn("No se pudo cargar el catálogo local de sprites en Idle:", error);
+        }
+    }
+
     if (typeof cargarItemsManifest === "function") {
         try {
             await cargarItemsManifest();
@@ -905,33 +913,7 @@ function getPrimaryTypeKeyIdle(rawType = "") {
     return map[first] || "default";
 }
 
-function getPokemonSpriteIdle(pokemon = {}) {
-    const direct = pokemon?.imagen || pokemon?.imagen_url || pokemon?.image || pokemon?.sprite || pokemon?.official_artwork || "";
-    const lowered = String(direct || "").toLowerCase();
-    const looksLikeItemBall = lowered.includes("/items/poke-ball") || lowered.endsWith("poke-ball.png");
-
-    if (direct && !looksLikeItemBall) {
-        return String(direct);
-    }
-
-    const pokemonId = Number(
-        pokemon?.pokemon_id ||
-        pokemon?.id_pokemon ||
-        pokemon?.pokedex_id ||
-        pokemon?.species_id ||
-        0
-    );
-
-    if (pokemonId > 0) {
-        const shiny = Boolean(pokemon?.es_shiny);
-        if (shiny) {
-            return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${pokemonId}.png`;
-        }
-        return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonId}.png`;
-    }
-
-    if (direct) return direct;
-
+function getPokemonSpriteFallbackIdle() {
     if (typeof obtenerRutaItemLocalSeguro === "function") {
         return obtenerRutaItemLocalSeguro({
             itemName: "Poke Ball",
@@ -941,6 +923,61 @@ function getPokemonSpriteIdle(pokemon = {}) {
     }
 
     return "img/items/official/0004_poke-ball.png";
+}
+
+function getPokemonSpriteIdle(pokemon = {}) {
+    const direct = pokemon?.imagen || pokemon?.imagen_url || pokemon?.image || pokemon?.sprite || pokemon?.official_artwork || "";
+    const lowered = String(direct || "").toLowerCase();
+    const looksLikeItemBall = lowered.includes("/items/poke-ball") || lowered.endsWith("poke-ball.png");
+    const looksLikeRemotePokeApiSprite =
+        lowered.includes("raw.githubusercontent.com/pokeapi/sprites") ||
+        lowered.includes("/sprites/pokemon/");
+
+    const pokemonId = Number(
+        pokemon?.pokemon_id ||
+        pokemon?.id_pokemon ||
+        pokemon?.pokedex_id ||
+        pokemon?.species_id ||
+        pokemon?.pokemon_species_id ||
+        pokemon?.id ||
+        0
+    );
+
+    const shiny = Boolean(pokemon?.es_shiny);
+    const variantSuffix = pokemon?.variant_suffix || pokemon?.forma_suffix || "";
+    const pokemonNameApi =
+        pokemon?.pokemon_name_api ||
+        pokemon?.api_name ||
+        pokemon?.pokeapi_name ||
+        pokemon?.nombre_api ||
+        "";
+
+    if (typeof obtenerRutaSpriteDesdePokemon === "function") {
+        const localSprite = obtenerRutaSpriteDesdePokemon({
+            ...pokemon,
+            es_shiny: shiny,
+            pokemon_id: pokemon?.pokemon_id || pokemon?.id_pokemon || pokemonId || null,
+            species_id: pokemon?.species_id || pokemon?.pokemon_species_id || pokemon?.id_base || pokemonId || null,
+            variant_suffix: variantSuffix,
+            pokemon_name_api: pokemonNameApi
+        });
+
+        if (localSprite) {
+            return localSprite;
+        }
+    }
+
+    if (pokemonId > 0 && typeof obtenerRutaSpriteLocal === "function") {
+        return obtenerRutaSpriteLocal(pokemonId, shiny, variantSuffix);
+    }
+
+    if (direct && !looksLikeItemBall && !looksLikeRemotePokeApiSprite) {
+        return String(direct);
+    }
+
+    if (direct && !looksLikeItemBall) return String(direct);
+
+    return getPokemonSpriteFallbackIdle();
 }
 
 function formatIdleType(rawType) {
@@ -1554,7 +1591,7 @@ function renderTeamIdle() {
         return `
             <article class="idle-team-card idle-team-type-${escapeHtmlIdle(primaryType)}">
                 <div class="idle-team-avatar idle-team-avatar-${escapeHtmlIdle(primaryType)}">
-                    <img src="${escapeHtmlIdle(sprite)}" alt="${escapeHtmlIdle(pokemon?.nombre || tIdle("idle_pokemon_fallback", "Pokemon"))}" loading="lazy" decoding="async">
+                    <img src="${escapeHtmlIdle(sprite)}" alt="${escapeHtmlIdle(pokemon?.nombre || tIdle("idle_pokemon_fallback", "Pokemon"))}" loading="lazy" decoding="async" onerror="if(this.dataset.fallbackApplied==='1')return;this.dataset.fallbackApplied='1';this.src='${escapeHtmlIdle(getPokemonSpriteFallbackIdle())}';">
                 </div>
                 <div class="idle-team-meta">
                     <h4>${escapeHtmlIdle(pokemon?.nombre || tIdle("idle_unknown_name", "Unknown"))}</h4>
