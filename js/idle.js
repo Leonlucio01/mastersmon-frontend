@@ -930,7 +930,6 @@ function getPokemonSpriteIdle(pokemon = {}) {
     const lowered = String(direct || "").toLowerCase();
     const looksLikeItemBall = lowered.includes("/items/poke-ball") || lowered.endsWith("poke-ball.png");
     const looksLikeRemotePokeApiSprite =
-        lowered.includes("raw.githubusercontent.com/pokeapi/sprites") ||
         lowered.includes("/sprites/pokemon/");
 
     const pokemonId = Number(

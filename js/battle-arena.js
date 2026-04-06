@@ -3173,7 +3173,6 @@ function obtenerImagenPokemonArena(pokemon = {}) {
     const direct = pokemon?.imagen || pokemon?.imagen_url || pokemon?.image || pokemon?.sprite || "";
     const lowered = String(direct || "").toLowerCase();
     const looksLikeRemotePokeApiSprite =
-        lowered.includes("raw.githubusercontent.com/pokeapi/sprites") ||
         lowered.includes("/sprites/pokemon/");
 
     if (typeof obtenerRutaSpriteDesdePokemon === "function") {

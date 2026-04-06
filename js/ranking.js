@@ -493,7 +493,6 @@ function obtenerImagenPokemonRanking(item = {}) {
     const direct = item?.imagen || item?.imagen_url || item?.image || item?.sprite || "";
     const lowered = String(direct || "").toLowerCase();
     const looksLikeRemotePokeApiSprite =
-        lowered.includes("raw.githubusercontent.com/pokeapi/sprites") ||
         lowered.includes("/sprites/pokemon/");
 
     if (typeof obtenerRutaSpriteDesdePokemon === "function") {
