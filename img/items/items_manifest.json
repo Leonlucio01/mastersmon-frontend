@@ -275,6 +275,17 @@
     "file": "official/0229_up-grade.png"
   },
   {
+    "item_id": 2160,
+    "item_code": "linking-cord",
+    "item_name": "linking-cord",
+    "display_name": "Linking Cord",
+    "category": "evolution",
+    "pocket": "",
+    "cost": 8000,
+    "source": "official",
+    "file": null
+  },
+  {
     "item_id": 298,
     "item_code": "protector",
     "item_name": "protector",
