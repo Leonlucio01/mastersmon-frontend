@@ -11,6 +11,8 @@ let movimientosPokemonCache = new Map();
 let avatarCarruselInicio = 0;
 let beneficiosActivosMyPokemon = [];
 let boosterActivandoCodigo = "";
+let cargaMyPokemonPromise = null;
+let ultimaSesionProcesadaMyPokemon = "";
 
 const MY_POKEMON_CACHE_KEY = "mastersmon_mypokemon_cache";
 const MY_POKEMON_ITEMS_CACHE_KEY = "mastersmon_mypokemon_items_cache";
@@ -34,6 +36,18 @@ const AVATARES_DISPONIBLES = [
 
 function usuarioAutenticadoMyPokemon() {
     return !!getAccessToken();
+}
+
+function obtenerFingerprintSesionMyPokemon(usuario) {
+    const normalizado = normalizarUsuarioMyPokemon(usuario);
+    if (!normalizado) return "";
+
+    return [
+        Number(normalizado.id || 0),
+        String(normalizado.nombre || "").trim(),
+        String(normalizado.correo || "").trim().toLowerCase(),
+        String(normalizado.avatar_id || MY_POKEMON_AVATAR_DEFAULT).trim().toLowerCase()
+    ].join("|");
 }
 
 function leerCacheJSON(clave, defecto = null) {
@@ -1036,6 +1050,7 @@ function esErrorAuthMyPokemon(error) {
 
 function manejarErrorAuthMyPokemon() {
     usuarioActualMyPokemon = null;
+    ultimaSesionProcesadaMyPokemon = "";
     misPokemonData = [];
     estadosEvolucionCache.clear();
     limpiarCacheMyPokemon();
@@ -1335,6 +1350,7 @@ async function cargarDatosBaseMyPokemon({ forzar = false } = {}) {
     try {
         if (!usuarioAutenticadoMyPokemon()) {
             usuarioActualMyPokemon = null;
+            ultimaSesionProcesadaMyPokemon = "";
             misPokemonData = [];
             estadosEvolucionCache.clear();
             limpiarCacheMyPokemon();
@@ -1363,6 +1379,7 @@ async function cargarDatosBaseMyPokemon({ forzar = false } = {}) {
 
         if (!usuario || !usuario.id) {
             usuarioActualMyPokemon = null;
+            ultimaSesionProcesadaMyPokemon = "";
             misPokemonData = [];
             estadosEvolucionCache.clear();
             limpiarCacheMyPokemon();
@@ -1372,6 +1389,7 @@ async function cargarDatosBaseMyPokemon({ forzar = false } = {}) {
         }
 
         usuarioActualMyPokemon = normalizarUsuarioMyPokemon(usuario);
+        ultimaSesionProcesadaMyPokemon = obtenerFingerprintSesionMyPokemon(usuarioActualMyPokemon);
         renderAvatarSelector();
 
         if (forzar) {
@@ -2103,7 +2121,17 @@ function cerrarModalEvolucion() {
 }
 
 async function cargarMisPokemon({ forzar = false } = {}) {
-    await cargarDatosBaseMyPokemon({ forzar });
+    if (cargaMyPokemonPromise) {
+        return await cargaMyPokemonPromise;
+    }
+
+    cargaMyPokemonPromise = cargarDatosBaseMyPokemon({ forzar });
+
+    try {
+        return await cargaMyPokemonPromise;
+    } finally {
+        cargaMyPokemonPromise = null;
+    }
 }
 
 async function cargarItemsUsuario({ forzar = false } = {}) {
@@ -2236,14 +2264,19 @@ function configurarEventosAvatarSelector() {
 function configurarEventosSesionMyPokemon() {
     document.addEventListener("usuarioSesionActualizada", async (event) => {
         const usuario = event.detail?.usuario || null;
-        usuarioActualMyPokemon = normalizarUsuarioMyPokemon(usuario);
+        const usuarioNormalizado = normalizarUsuarioMyPokemon(usuario);
+        const fingerprintAnterior = ultimaSesionProcesadaMyPokemon;
+        const fingerprintNuevo = obtenerFingerprintSesionMyPokemon(usuarioNormalizado);
+
+        usuarioActualMyPokemon = usuarioNormalizado;
+        ultimaSesionProcesadaMyPokemon = fingerprintNuevo;
 
         if (cargandoMyPokemonEnCurso) {
             renderAvatarSelector();
             return;
         }
 
-        if (!usuario) {
+        if (!usuarioNormalizado) {
             misPokemonData = [];
             estadosEvolucionCache.clear();
             limpiarCacheMyPokemon();
@@ -2253,6 +2286,11 @@ function configurarEventosSesionMyPokemon() {
         }
 
         renderAvatarSelector();
+
+        if (fingerprintNuevo && fingerprintNuevo === fingerprintAnterior) {
+            return;
+        }
+
         await cargarMisPokemon({ forzar: true });
     });
 }
@@ -2263,6 +2301,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     configurarEventosInventarioMyPokemon();
     configurarEventosMovimientosPokemon();
     configurarEventosSesionMyPokemon();
+    usuarioActualMyPokemon = normalizarUsuarioMyPokemon(getUsuarioLocal());
+    ultimaSesionProcesadaMyPokemon = obtenerFingerprintSesionMyPokemon(usuarioActualMyPokemon);
     renderAvatarSelector();
 
     if (typeof cargarItemsManifest === "function") {

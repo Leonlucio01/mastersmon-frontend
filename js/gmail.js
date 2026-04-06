@@ -162,7 +162,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const data = await obtenerAuthMe();
 
         if (data && data.usuario) {
-            guardarSesion({ usuario: data.usuario });
+            guardarSesion({ usuario: data.usuario }, { emitirEvento: false });
             actualizarUIUsuarioGlobal(data.usuario);
             return;
         }

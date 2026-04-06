@@ -23,21 +23,44 @@ function normalizarUsuarioSesion(usuario) {
     };
 }
 
+function obtenerFirmaUsuarioSesion(usuario) {
+    const normalizado = normalizarUsuarioSesion(usuario);
+    if (!normalizado) return "";
+
+    return [
+        Number(normalizado.id || 0),
+        String(normalizado.nombre || "").trim(),
+        String(normalizado.correo || "").trim().toLowerCase(),
+        String(normalizado.foto || "").trim(),
+        String(normalizado.avatar_id || AVATAR_DEFAULT_ID).trim().toLowerCase()
+    ].join("|");
+}
+
 function emitirEventoSesion(usuario = null) {
     document.dispatchEvent(new CustomEvent("usuarioSesionActualizada", {
         detail: { usuario }
     }));
 }
 
-function guardarSesion(data) {
+function guardarSesion(data, options = {}) {
     if (!data) return;
+
+    const {
+        emitirEvento = true,
+        forceEmit = false
+    } = options || {};
+
+    const tokenAnterior = localStorage.getItem("access_token") || "";
+    const usuarioAnterior = getUsuarioLocal();
+    const firmaAnterior = obtenerFirmaUsuarioSesion(usuarioAnterior);
 
     if (data.access_token) {
         localStorage.setItem("access_token", data.access_token);
     }
 
+    let usuarioNormalizado = null;
     if (data.usuario) {
-        const usuarioNormalizado = normalizarUsuarioSesion(data.usuario);
+        usuarioNormalizado = normalizarUsuarioSesion(data.usuario);
 
         localStorage.setItem("usuario", JSON.stringify(usuarioNormalizado));
         localStorage.setItem("google_logged_in", "true");
@@ -49,12 +72,27 @@ function guardarSesion(data) {
         if (usuarioNormalizado.id != null) {
             localStorage.setItem("usuario_id", String(usuarioNormalizado.id));
         }
+    }
 
-        emitirEventoSesion(usuarioNormalizado);
+    if (!emitirEvento) return;
+
+    const tokenActual = localStorage.getItem("access_token") || "";
+    const firmaActual = obtenerFirmaUsuarioSesion(usuarioNormalizado || getUsuarioLocal());
+    const huboCambioReal = forceEmit || tokenAnterior !== tokenActual || firmaAnterior !== firmaActual;
+
+    if (huboCambioReal) {
+        emitirEventoSesion(usuarioNormalizado || getUsuarioLocal());
     }
 }
 
 function limpiarSesion() {
+    const habiaSesion = Boolean(
+        localStorage.getItem("access_token") ||
+        localStorage.getItem("usuario") ||
+        localStorage.getItem("usuario_id") ||
+        localStorage.getItem("google_logged_in")
+    );
+
     localStorage.removeItem("access_token");
     localStorage.removeItem("usuario");
     localStorage.removeItem("google_logged_in");
@@ -64,7 +102,9 @@ function limpiarSesion() {
     localStorage.removeItem("usuario_id");
     localStorage.removeItem("usuario_avatar_id");
 
-    emitirEventoSesion(null);
+    if (habiaSesion) {
+        emitirEventoSesion(null);
+    }
 }
 
 function getUsuarioLocal() {
@@ -291,7 +331,7 @@ async function obtenerUsuarioActual() {
     try {
         const usuario = await fetchAuth(`${API_BASE}/usuario/me`);
         if (usuario) {
-            guardarSesion({ usuario });
+            guardarSesion({ usuario }, { emitirEvento: false });
         }
         return normalizarUsuarioSesion(usuario);
     } catch (error) {
