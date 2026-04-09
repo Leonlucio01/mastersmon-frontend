@@ -89,19 +89,6 @@ window.handleCredentialResponse = async function(response) {
 
         googleUserToken = response.credential;
 
-        const googlePayload = parseJwt(response.credential);
-        if (googlePayload) {
-            const usuarioTemporal = {
-                nombre: googlePayload.name || "Entrenador",
-                correo: googlePayload.email || "",
-                foto: googlePayload.picture || "",
-                avatar_id: getAvatarIdLocal ? getAvatarIdLocal() : "steven"
-            };
-
-            localStorage.setItem("usuario", JSON.stringify(usuarioTemporal));
-            actualizarUIUsuarioGlobal(usuarioTemporal);
-        }
-
         const data = await loginConGoogleCredential(response.credential);
 
         if (!data || !data.usuario || !data.access_token) {
@@ -148,7 +135,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     const usuarioLocal = getUsuarioLocal();
-    if (usuarioLocal) {
+    if (token && usuarioLocal) {
         actualizarUIUsuarioGlobal(usuarioLocal);
     } else {
         actualizarUIUsuarioGlobal(null);
