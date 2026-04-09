@@ -291,9 +291,9 @@ const TRAINER_LAUNCH_AVATARS_BASE = [
     { id: "rafael", nombre: "Rafael" }
 ];
 const TRAINER_LAUNCH_STARTERS = [
-    { id: 1, nombre: "Bulbasaur", tipoKey: "type_grass", accent: "grass", descKey: "trainer_hub_starter_grass_desc" },
-    { id: 4, nombre: "Charmander", tipoKey: "type_fire", accent: "fire", descKey: "trainer_hub_starter_fire_desc" },
-    { id: 7, nombre: "Squirtle", tipoKey: "type_water", accent: "water", descKey: "trainer_hub_starter_water_desc" }
+    { id: 1, nombre: "Bulbasaur", teamKey: "trainer_hub_team_green_name", tipoKey: "type_grass", accent: "grass", descKey: "trainer_hub_team_green_desc" },
+    { id: 4, nombre: "Charmander", teamKey: "trainer_hub_team_red_name", tipoKey: "type_fire", accent: "fire", descKey: "trainer_hub_team_red_desc" },
+    { id: 7, nombre: "Squirtle", teamKey: "trainer_hub_team_blue_name", tipoKey: "type_water", accent: "water", descKey: "trainer_hub_team_blue_desc" }
 ];
 
 const trainerLaunchState = {
@@ -458,8 +458,8 @@ function renderTrainerLaunchGuest() {
                     <p>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_guest_card_1_text", "Set the avatar that will represent you across maps, rankings, and future world features."))}</p>
                 </article>
                 <article class="trainer-launch-guest-card">
-                    <strong>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_guest_card_2_title", "Pick your starter path"))}</strong>
-                    <p>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_guest_card_2_text", "Start with a clear Pokémon choice so your first minutes feel more like an actual RPG."))}</p>
+                    <strong>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_guest_card_2_title", "Choose your team color"))}</strong>
+                    <p>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_guest_card_2_text", "Choose Green, Red, or Blue so your entry into Mastersmon already feels like part of a team."))}</p>
                 </article>
                 <article class="trainer-launch-guest-card">
                     <strong>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_guest_card_3_title", "Jump into your first route"))}</strong>
@@ -584,23 +584,25 @@ function renderTrainerLaunchSetup(usuario, setup, avatarActual, starterActual) {
                 <div class="trainer-launch-config-card">
                     <div class="trainer-launch-section-head">
                         <div>
-                            <small>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_step_starter", "Step 2 · Starter"))}</small>
-                            <h3>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_starter_title", "Choose your starter"))}</h3>
+                            <small>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_step_starter", "Step 2 · Team"))}</small>
+                            <h3>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_starter_title", "Select your team"))}</h3>
                         </div>
-                        <span class="trainer-launch-inline-note">${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_starter_text", "Pick the partner that defines the start of your Mastersmon journey."))}</span>
+                        <span class="trainer-launch-inline-note">${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_starter_text", "Choose Green, Red, or Blue as your first team identity inside Mastersmon."))}</span>
                     </div>
 
                     <div class="trainer-launch-starter-grid">
                         ${TRAINER_LAUNCH_STARTERS.map(starter => {
                             const activa = starterActual && starterActual.id === starter.id;
+                            const teamNombre = tTrainerLaunch(starter.teamKey, starter.nombre);
+                            const teamTipo = obtenerTextoTipoStarterTrainerLaunch(starter.tipoKey);
                             return `
                                 <button type="button" class="trainer-launch-starter-card trainer-launch-accent-${starter.accent} ${activa ? "is-active" : ""}" data-trainer-starter="${starter.id}">
-                                    <span class="trainer-launch-chip">${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_starter_chip", "Starter path"))}</span>
-                                    <img src="${obtenerSpriteStarterTrainerLaunch(starter.id)}" alt="${escapeHtmlOnboarding(starter.nombre)}">
-                                    <strong>${escapeHtmlOnboarding(starter.nombre)}</strong>
-                                    <small>${escapeHtmlOnboarding(obtenerTextoTipoStarterTrainerLaunch(starter.tipoKey))}</small>
+                                    <span class="trainer-launch-chip">${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_starter_chip", "Team color"))}</span>
+                                    <img src="${obtenerSpriteStarterTrainerLaunch(starter.id)}" alt="${escapeHtmlOnboarding(teamNombre)}">
+                                    <strong>${escapeHtmlOnboarding(teamNombre)}</strong>
+                                    <small>${escapeHtmlOnboarding(starter.nombre)} · ${escapeHtmlOnboarding(teamTipo)}</small>
                                     <p>${escapeHtmlOnboarding(tTrainerLaunch(starter.descKey, ""))}</p>
-                                    ${activa ? `<em>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_starter_selected", "Starter selected"))}</em>` : ""}
+                                    ${activa ? `<em>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_starter_selected", "Team selected"))}</em>` : ""}
                                 </button>
                             `;
                         }).join("")}
@@ -610,12 +612,12 @@ function renderTrainerLaunchSetup(usuario, setup, avatarActual, starterActual) {
 
             <div class="trainer-launch-bottom-card">
                 <div class="trainer-launch-bottom-copy">
-                    <small>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_step_world", "Step 3 · Enter the world"))}</small>
+                    <small>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_step_world", "Step 3 · Go to Maps"))}</small>
                     <h3>${escapeHtmlOnboarding(nombre)}</h3>
-                    <p>${starterActual ? escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_finish_ready_text", "Your setup is ready. Start with Maps, then complete Starter Journey rewards.")) : escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_finish_pending_text", "Choose a starter to unlock your trainer setup and continue into the world."))}</p>
+                    <p>${starterActual ? escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_finish_ready_text", "Your setup is ready. Go straight to Maps and begin your first route.")) : escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_finish_pending_text", "Choose a team color to unlock Maps and continue into the world."))}</p>
                 </div>
                 <div class="trainer-launch-bottom-actions">
-                    <a href="maps.html" class="trainer-launch-primary-btn ${starterActual ? "" : "is-disabled"}" ${starterActual ? "" : 'aria-disabled="true" tabindex="-1"'}>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_finish_cta", "Enter Mastersmon World"))}</a>
+                    <a href="maps.html" class="trainer-launch-primary-btn ${starterActual ? "" : "is-disabled"}" ${starterActual ? "" : 'aria-disabled="true" tabindex="-1"'}>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_finish_cta", "Go to Maps"))}</a>
                     <a href="mypokemon.html" class="trainer-launch-secondary-btn">${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_change_avatar_cta", "Change avatar in Collection"))}</a>
                 </div>
             </div>
@@ -637,11 +639,6 @@ function renderTrainerLaunchIndex() {
 
     if (!usuarioAutenticado()) {
         shell.innerHTML = renderTrainerLaunchGuest();
-        return;
-    }
-
-    if (starterActual) {
-        shell.innerHTML = renderTrainerLaunchReady(usuario, setup, avatarActual, starterActual);
         return;
     }
 
@@ -675,7 +672,8 @@ function seleccionarStarterTrainerLaunch(starterId) {
     const starter = obtenerStarterTrainerLaunch(starterId);
     if (!starter) return;
     guardarTrainerLaunchLocal({ starter_id: starter.id, completed_at: new Date().toISOString() });
-    setFlashTrainerLaunch("success", `${starter.nombre} · ${tTrainerLaunch("trainer_hub_starter_selected", "Starter selected")}`);
+    const nombreEquipo = tTrainerLaunch(starter.teamKey, starter.nombre);
+    setFlashTrainerLaunch("success", `${nombreEquipo} · ${tTrainerLaunch("trainer_hub_starter_selected", "Team selected")}`);
     renderTrainerLaunchIndex();
 }
 
