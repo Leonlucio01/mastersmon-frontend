@@ -543,6 +543,90 @@ async function actualizarAvatarUsuarioActual(avatarId) {
     }
 }
 
+
+function normalizarTrainerSetupColor(color) {
+    const valor = String(color || "").trim().toLowerCase();
+    return ["green", "red", "blue"].includes(valor) ? valor : null;
+}
+
+function obtenerStarterCodeDesdeColorTrainerSetup(color) {
+    const valor = normalizarTrainerSetupColor(color);
+    if (valor === "green") return "bulbasaur";
+    if (valor === "red") return "charmander";
+    if (valor === "blue") return "squirtle";
+    return null;
+}
+
+function normalizarRespuestaTrainerSetup(data = {}) {
+    const usuario = normalizarUsuarioSesion(data?.usuario || getUsuarioLocal() || null);
+    const teamColor = normalizarTrainerSetupColor(
+        data?.team_color || usuario?.trainer_team_color || null
+    );
+    const starterCode = String(
+        data?.starter_code ||
+        usuario?.trainer_starter_code ||
+        obtenerStarterCodeDesdeColorTrainerSetup(teamColor) ||
+        ""
+    ).trim().toLowerCase() || null;
+
+    return {
+        ok: data?.ok !== false,
+        supported: data?.supported !== false,
+        avatar_id: normalizarAvatarIdLocal(data?.avatar_id || usuario?.avatar_id || AVATAR_DEFAULT_ID),
+        team_color: teamColor,
+        starter_code: starterCode,
+        setup_completed: Boolean(data?.setup_completed || usuario?.trainer_setup_completed),
+        setup_completed_at: data?.setup_completed_at || usuario?.trainer_setup_completed_at || null,
+        usuario: usuario || null
+    };
+}
+
+async function obtenerTrainerSetupUsuarioActual() {
+    try {
+        const data = await fetchAuth(`${API_BASE}/usuario/me/trainer-setup`);
+        if (data?.usuario) {
+            guardarSesion({ usuario: data.usuario }, { emitirEvento: false });
+        }
+        return normalizarRespuestaTrainerSetup(data || {});
+    } catch (error) {
+        if (error.code === "NO_TOKEN" || error.code === "UNAUTHORIZED") {
+            return normalizarRespuestaTrainerSetup({
+                ok: false,
+                supported: false,
+                avatar_id: getAvatarIdLocal(),
+                team_color: null,
+                starter_code: null,
+                setup_completed: false,
+                setup_completed_at: null,
+                usuario: getUsuarioLocal()
+            });
+        }
+        console.error("Error en obtenerTrainerSetupUsuarioActual:", error);
+        throw error;
+    }
+}
+
+async function actualizarTrainerSetupUsuarioActual(payload = {}) {
+    try {
+        const data = await fetchAuth(`${API_BASE}/usuario/me/trainer-setup`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload || {})
+        });
+
+        if (data?.usuario) {
+            guardarSesion({ usuario: data.usuario });
+        }
+
+        return normalizarRespuestaTrainerSetup(data || {});
+    } catch (error) {
+        console.error("Error en actualizarTrainerSetupUsuarioActual:", error);
+        throw error;
+    }
+}
+
 async function obtenerRankingEntrenadores(limit = 10) {
     try {
         return await fetchJson(`${API_BASE}/ranking/entrenadores?limit=${encodeURIComponent(limit)}`);

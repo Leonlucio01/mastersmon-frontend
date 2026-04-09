@@ -195,7 +195,7 @@ function cerrarModalOnboardingIndex() {
 }
 
 async function cargarOnboardingIndex({ forzar = false } = {}) {
-    if (!usuarioAutenticado()) {
+    if (!usuarioAutenticado() || !trainerSetupListoParaOnboarding()) {
         onboardingIndexState.data = null;
         onboardingIndexState.cargando = false;
         renderizarOnboardingIndex();
@@ -275,7 +275,8 @@ function configurarEventosOnboardingIndex() {
 
 
 
-const TRAINER_LAUNCH_STORAGE_KEY = "mastersmon_trainer_launch_v1";
+
+const TRAINER_LAUNCH_STORAGE_KEY = "mastersmon_trainer_launch_v3";
 const TRAINER_LAUNCH_AVATAR_FALLBACK = "steven";
 const TRAINER_LAUNCH_AVATAR_REGEX = /^[a-z0-9_-]{1,60}$/;
 const TRAINER_LAUNCH_AVATARS_BASE = [
@@ -290,14 +291,19 @@ const TRAINER_LAUNCH_AVATARS_BASE = [
     { id: "nathaly", nombre: "Nathaly" },
     { id: "rafael", nombre: "Rafael" }
 ];
-const TRAINER_LAUNCH_STARTERS = [
-    { id: 1, nombre: "Bulbasaur", teamKey: "trainer_hub_team_green_name", tipoKey: "type_grass", accent: "grass", descKey: "trainer_hub_team_green_desc" },
-    { id: 4, nombre: "Charmander", teamKey: "trainer_hub_team_red_name", tipoKey: "type_fire", accent: "fire", descKey: "trainer_hub_team_red_desc" },
-    { id: 7, nombre: "Squirtle", teamKey: "trainer_hub_team_blue_name", tipoKey: "type_water", accent: "water", descKey: "trainer_hub_team_blue_desc" }
+const TRAINER_LAUNCH_TEAMS = [
+    { color: "green", nombre: "Bulbasaur", colorKey: "trainer_hub_team_green_name", tipoKey: "type_grass", accent: "green", descKey: "trainer_hub_team_green_desc", pokemonId: 1 },
+    { color: "red", nombre: "Charmander", colorKey: "trainer_hub_team_red_name", tipoKey: "type_fire", accent: "red", descKey: "trainer_hub_team_red_desc", pokemonId: 4 },
+    { color: "blue", nombre: "Squirtle", colorKey: "trainer_hub_team_blue_name", tipoKey: "type_water", accent: "blue", descKey: "trainer_hub_team_blue_desc", pokemonId: 7 }
 ];
 
 const trainerLaunchState = {
+    loading: false,
+    loadingPromise: null,
     savingAvatar: false,
+    savingTeam: false,
+    savingFinish: false,
+    data: null,
     flashType: "",
     flashText: ""
 };
@@ -322,6 +328,16 @@ function normalizarAvatarTrainerLaunch(avatarId) {
     return valor;
 }
 
+function normalizarTeamColorTrainerLaunch(color) {
+    const valor = String(color || "").trim().toLowerCase();
+    return TRAINER_LAUNCH_TEAMS.some(item => item.color === valor) ? valor : null;
+}
+
+function obtenerTeamTrainerLaunch(color) {
+    const normalizado = normalizarTeamColorTrainerLaunch(color);
+    return TRAINER_LAUNCH_TEAMS.find(item => item.color === normalizado) || null;
+}
+
 function obtenerNombreAvatarTrainerLaunch(avatarId) {
     const normalizado = normalizarAvatarTrainerLaunch(avatarId);
     const opciones = obtenerAvataresTrainerLaunch();
@@ -329,21 +345,25 @@ function obtenerNombreAvatarTrainerLaunch(avatarId) {
     if (encontrado) return encontrado.nombre;
     return normalizado
         .replaceAll("_", " ")
-        .replace(/\b\w/g, letra => letra.toUpperCase());
+        .replace(/\w/g, letra => letra.toUpperCase());
 }
 
 function obtenerRutaAvatarTrainerLaunch(avatarId) {
     return `img/avatars/${normalizarAvatarTrainerLaunch(avatarId)}.png`;
 }
 
+function obtenerSpriteStarterTrainerLaunch(pokemonId) {
+    if (typeof obtenerImagenPokemon === "function") {
+        return obtenerImagenPokemon({ id: pokemonId, species_id: pokemonId }, false);
+    }
+    return `img/pokemon-png/sprites_normal/${String(Number(pokemonId || 0)).padStart(4, "0")}.png`;
+}
+
 function obtenerAvataresTrainerLaunch() {
     const base = [...TRAINER_LAUNCH_AVATARS_BASE];
     const actual = normalizarAvatarTrainerLaunch(getUsuarioLocal()?.avatar_id || getAvatarIdLocal?.() || TRAINER_LAUNCH_AVATAR_FALLBACK);
     if (!base.some(item => item.id === actual)) {
-        base.unshift({
-            id: actual,
-            nombre: obtenerNombreAvatarTrainerLaunch(actual)
-        });
+        base.unshift({ id: actual, nombre: obtenerNombreAvatarTrainerLaunch(actual) });
     }
     return base;
 }
@@ -351,37 +371,54 @@ function obtenerAvataresTrainerLaunch() {
 function leerTrainerLaunchLocal() {
     try {
         const raw = localStorage.getItem(TRAINER_LAUNCH_STORAGE_KEY);
-        if (!raw) return { avatar_id: "", starter_id: null, completed_at: null };
+        if (!raw) {
+            return {
+                avatar_id: normalizarAvatarTrainerLaunch(getUsuarioLocal()?.avatar_id || getAvatarIdLocal?.() || TRAINER_LAUNCH_AVATAR_FALLBACK),
+                team_color: null,
+                starter_code: null,
+                setup_completed: false,
+                setup_completed_at: null
+            };
+        }
         const parsed = JSON.parse(raw);
-        const starterId = Number(parsed?.starter_id || 0);
+        const teamColor = normalizarTeamColorTrainerLaunch(parsed?.team_color);
         return {
-            avatar_id: normalizarAvatarTrainerLaunch(parsed?.avatar_id || ""),
-            starter_id: TRAINER_LAUNCH_STARTERS.some(item => item.id === starterId) ? starterId : null,
-            completed_at: parsed?.completed_at || null
+            avatar_id: normalizarAvatarTrainerLaunch(parsed?.avatar_id || getUsuarioLocal()?.avatar_id || getAvatarIdLocal?.() || TRAINER_LAUNCH_AVATAR_FALLBACK),
+            team_color: teamColor,
+            starter_code: teamColor ? (obtenerStarterCodeDesdeColorTrainerSetup?.(teamColor) || null) : null,
+            setup_completed: Boolean(parsed?.setup_completed),
+            setup_completed_at: parsed?.setup_completed_at || null
         };
     } catch (error) {
-        return { avatar_id: "", starter_id: null, completed_at: null };
+        return {
+            avatar_id: normalizarAvatarTrainerLaunch(getUsuarioLocal()?.avatar_id || getAvatarIdLocal?.() || TRAINER_LAUNCH_AVATAR_FALLBACK),
+            team_color: null,
+            starter_code: null,
+            setup_completed: false,
+            setup_completed_at: null
+        };
     }
 }
 
 function guardarTrainerLaunchLocal(parcial = {}) {
     const actual = leerTrainerLaunchLocal();
-    const starterId = parcial.starter_id === null
-        ? null
-        : Number((parcial.starter_id ?? actual.starter_id) || 0);
-
+    const teamColor = parcial.team_color !== undefined
+        ? normalizarTeamColorTrainerLaunch(parcial.team_color)
+        : actual.team_color;
     const siguiente = {
         avatar_id: normalizarAvatarTrainerLaunch(parcial.avatar_id || actual.avatar_id || getUsuarioLocal()?.avatar_id || getAvatarIdLocal?.() || TRAINER_LAUNCH_AVATAR_FALLBACK),
-        starter_id: TRAINER_LAUNCH_STARTERS.some(item => item.id === starterId) ? starterId : null,
-        completed_at: parcial.completed_at !== undefined ? parcial.completed_at : actual.completed_at
+        team_color: teamColor,
+        starter_code: teamColor ? (obtenerStarterCodeDesdeColorTrainerSetup?.(teamColor) || null) : null,
+        setup_completed: parcial.setup_completed !== undefined ? Boolean(parcial.setup_completed) : Boolean(actual.setup_completed),
+        setup_completed_at: parcial.setup_completed_at !== undefined ? parcial.setup_completed_at : actual.setup_completed_at
     };
 
-    if (siguiente.starter_id && !siguiente.completed_at) {
-        siguiente.completed_at = new Date().toISOString();
+    if (siguiente.setup_completed && !siguiente.setup_completed_at) {
+        siguiente.setup_completed_at = new Date().toISOString();
     }
 
-    if (!siguiente.starter_id) {
-        siguiente.completed_at = null;
+    if (!siguiente.setup_completed) {
+        siguiente.setup_completed_at = null;
     }
 
     try {
@@ -393,34 +430,11 @@ function guardarTrainerLaunchLocal(parcial = {}) {
     return siguiente;
 }
 
-function obtenerStarterTrainerLaunch(starterId) {
-    const id = Number(starterId || 0);
-    return TRAINER_LAUNCH_STARTERS.find(item => item.id === id) || null;
-}
-
-function obtenerSpriteStarterTrainerLaunch(pokemonId) {
-    if (typeof obtenerImagenPokemon === "function") {
-        return obtenerImagenPokemon({ id: pokemonId, species_id: pokemonId }, false);
-    }
-    return `img/pokemon-png/sprites_normal/${String(Number(pokemonId || 0)).padStart(4, "0")}.png`;
-}
-
 function obtenerNombreJugadorTrainerLaunch() {
     const usuario = getUsuarioLocal();
     const nombre = String(usuario?.nombre || "").trim();
     if (!nombre) return tTrainerLaunch("trainer_hub_default_name", "Trainer");
     return nombre.split(" ")[0];
-}
-
-function obtenerAvatarActualTrainerLaunch() {
-    const setup = leerTrainerLaunchLocal();
-    return normalizarAvatarTrainerLaunch(
-        getUsuarioLocal()?.avatar_id || setup.avatar_id || getAvatarIdLocal?.() || TRAINER_LAUNCH_AVATAR_FALLBACK
-    );
-}
-
-function obtenerTextoTipoStarterTrainerLaunch(tipoKey) {
-    return tTrainerLaunch(tipoKey, tipoKey);
 }
 
 function limpiarFlashTrainerLaunch() {
@@ -440,13 +454,77 @@ function setFlashTrainerLaunch(tipo, texto) {
     }, 2600);
 }
 
+function getTrainerLaunchData() {
+    const fallback = leerTrainerLaunchLocal();
+    const data = trainerLaunchState.data && typeof trainerLaunchState.data === "object"
+        ? trainerLaunchState.data
+        : {};
+    const usuario = getUsuarioLocal();
+    const teamColor = normalizarTeamColorTrainerLaunch(data.team_color || usuario?.trainer_team_color || fallback.team_color);
+    return {
+        avatar_id: normalizarAvatarTrainerLaunch(data.avatar_id || usuario?.avatar_id || fallback.avatar_id || TRAINER_LAUNCH_AVATAR_FALLBACK),
+        team_color: teamColor,
+        starter_code: String(data.starter_code || usuario?.trainer_starter_code || fallback.starter_code || (teamColor ? (obtenerStarterCodeDesdeColorTrainerSetup?.(teamColor) || "") : "")).trim().toLowerCase() || null,
+        setup_completed: Boolean(data.setup_completed || usuario?.trainer_setup_completed || fallback.setup_completed),
+        setup_completed_at: data.setup_completed_at || usuario?.trainer_setup_completed_at || fallback.setup_completed_at || null,
+        supported: data.supported !== false,
+        ok: data.ok !== false
+    };
+}
+
+function trainerSetupListoParaOnboarding() {
+    return usuarioAutenticado() && Boolean(getTrainerLaunchData().setup_completed);
+}
+
+async function cargarTrainerLaunchIndex({ forzar = false } = {}) {
+    if (!usuarioAutenticado()) {
+        trainerLaunchState.data = null;
+        trainerLaunchState.loading = false;
+        trainerLaunchState.loadingPromise = null;
+        renderTrainerLaunchIndex();
+        return null;
+    }
+
+    if (trainerLaunchState.loading && trainerLaunchState.loadingPromise && !forzar) {
+        return trainerLaunchState.loadingPromise;
+    }
+
+    trainerLaunchState.loading = true;
+    trainerLaunchState.loadingPromise = (async () => {
+        try {
+            const data = await obtenerTrainerSetupUsuarioActual();
+            trainerLaunchState.data = data || null;
+            if (trainerLaunchState.data) {
+                guardarTrainerLaunchLocal(trainerLaunchState.data);
+            }
+            renderTrainerLaunchIndex();
+            return trainerLaunchState.data;
+        } catch (error) {
+            console.error("No se pudo cargar trainer setup:", error);
+            trainerLaunchState.data = guardarTrainerLaunchLocal({
+                avatar_id: getUsuarioLocal()?.avatar_id || getAvatarIdLocal?.() || TRAINER_LAUNCH_AVATAR_FALLBACK,
+                team_color: null,
+                setup_completed: false,
+                setup_completed_at: null
+            });
+            renderTrainerLaunchIndex();
+            return trainerLaunchState.data;
+        } finally {
+            trainerLaunchState.loading = false;
+            trainerLaunchState.loadingPromise = null;
+        }
+    })();
+
+    return trainerLaunchState.loadingPromise;
+}
+
 function renderTrainerLaunchGuest() {
     return `
         <article class="trainer-launch-hero trainer-launch-guest">
             <div class="trainer-launch-copy">
                 <span class="trainer-launch-badge">${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_badge", "Welcome to Mastersmon"))}</span>
                 <h2>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_title_logged_out", "Start your trainer journey"))}</h2>
-                <p>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_text_logged_out", "Sign in, choose your avatar, set your starter, and jump straight into the world."))}</p>
+                <p>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_text_logged_out", "Sign in, choose your avatar, select your team color, and jump straight into Maps."))}</p>
                 <div class="trainer-launch-note">
                     ${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_primary_hint", "Your first setup takes less than a minute and makes the game feel like your own adventure."))}
                 </div>
@@ -459,91 +537,36 @@ function renderTrainerLaunchGuest() {
                 </article>
                 <article class="trainer-launch-guest-card">
                     <strong>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_guest_card_2_title", "Choose your team color"))}</strong>
-                    <p>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_guest_card_2_text", "Choose Green, Red, or Blue so your entry into Mastersmon already feels like part of a team."))}</p>
+                    <p>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_guest_card_2_text", "Pick Verde, Rojo or Azul so your first route feels like a faction choice from the start."))}</p>
                 </article>
                 <article class="trainer-launch-guest-card">
                     <strong>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_guest_card_3_title", "Jump into your first route"))}</strong>
-                    <p>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_guest_card_3_text", "Go straight from setup into Maps, Battle IA, and Collection with a cleaner first-time flow."))}</p>
+                    <p>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_guest_card_3_text", "Go straight from setup into Maps with a cleaner first-time flow."))}</p>
                 </article>
             </div>
         </article>
     `;
 }
 
-function renderTrainerLaunchReady(usuario, setup, avatarActual, starterActual) {
-    const nombre = obtenerNombreJugadorTrainerLaunch();
-    return `
-        <article class="trainer-launch-hub-card">
-            <div class="trainer-launch-hub-top">
-                <div>
-                    <span class="trainer-launch-badge">${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_complete_badge", "Trainer ready"))}</span>
-                    <h2>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_complete_title", "Your trainer is ready"))}</h2>
-                    <p>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_complete_text", "You already have an avatar and starter. Jump back into the world and keep progressing."))}</p>
-                </div>
-                <div class="trainer-launch-profile-card">
-                    <div class="trainer-launch-profile-avatar">
-                        <img src="${obtenerRutaAvatarTrainerLaunch(avatarActual)}" alt="${escapeHtmlOnboarding(obtenerNombreAvatarTrainerLaunch(avatarActual))}" onerror="this.onerror=null;this.src='img/avatars/${TRAINER_LAUNCH_AVATAR_FALLBACK}.png';">
-                    </div>
-                    <div>
-                        <small>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_avatar_current", "Current avatar"))}</small>
-                        <strong>${escapeHtmlOnboarding(nombre)}</strong>
-                        <span>${escapeHtmlOnboarding(obtenerNombreAvatarTrainerLaunch(avatarActual))}</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="trainer-launch-ready-grid">
-                <article class="trainer-launch-starter-focus trainer-launch-accent-${starterActual.accent}">
-                    <div class="trainer-launch-starter-copy">
-                        <span class="trainer-launch-chip">${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_starter_chip", "Starter path"))}</span>
-                        <h3>${escapeHtmlOnboarding(starterActual.nombre)}</h3>
-                        <p>${escapeHtmlOnboarding(tTrainerLaunch(starterActual.descKey, ""))}</p>
-                        <div class="trainer-launch-starter-meta">${escapeHtmlOnboarding(obtenerTextoTipoStarterTrainerLaunch(starterActual.tipoKey))}</div>
-                    </div>
-                    <div class="trainer-launch-starter-preview">
-                        <img src="${obtenerSpriteStarterTrainerLaunch(starterActual.id)}" alt="${escapeHtmlOnboarding(starterActual.nombre)}">
-                    </div>
-                </article>
-
-                <article class="trainer-launch-route-card">
-                    <span class="trainer-launch-route-kicker">${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_next_route_title", "Recommended next route"))}</span>
-                    <p>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_next_route_text", "Use this setup as your entry point, then complete Starter Journey rewards."))}</p>
-                    <div class="trainer-launch-route-list">
-                        <a href="maps.html" class="trainer-launch-link-card">
-                            <strong>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_maps_cta", "Open Maps"))}</strong>
-                            <span>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_route_maps", "Capture your first Pokémon"))}</span>
-                        </a>
-                        <a href="battle.html" class="trainer-launch-link-card">
-                            <strong>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_battle_cta", "Open Battle"))}</strong>
-                            <span>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_route_battle", "Build your first squad"))}</span>
-                        </a>
-                        <a href="mypokemon.html" class="trainer-launch-link-card">
-                            <strong>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_collection_cta", "Open Collection"))}</strong>
-                            <span>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_route_collection", "Review your collection"))}</span>
-                        </a>
-                    </div>
-                    <button type="button" class="trainer-launch-text-btn" data-trainer-reset-starter="1">${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_change_starter_cta", "Choose another starter"))}</button>
-                </article>
-            </div>
-        </article>
-    `;
-}
-
-function renderTrainerLaunchSetup(usuario, setup, avatarActual, starterActual) {
+function renderTrainerLaunchSetup() {
     const nombre = obtenerNombreJugadorTrainerLaunch();
     const avatares = obtenerAvataresTrainerLaunch();
+    const actual = getTrainerLaunchData();
+    const avatarActual = actual.avatar_id;
+    const teamActual = obtenerTeamTrainerLaunch(actual.team_color);
+
     return `
         <article class="trainer-launch-hub-card trainer-launch-setup-card">
             <div class="trainer-launch-hub-top">
                 <div>
                     <span class="trainer-launch-badge">${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_panel_badge", "Trainer Setup"))}</span>
                     <h2>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_panel_title", "Create your trainer"))}</h2>
-                    <p>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_panel_text", "Choose your avatar and starter before diving into Maps, Battle, and Collection."))}</p>
+                    <p>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_panel_text", "Choose your avatar and select your team before starting your first route."))}</p>
                 </div>
                 <div class="trainer-launch-steps">
                     <span>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_step_avatar", "Step 1 · Avatar"))}</span>
-                    <span>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_step_starter", "Step 2 · Starter"))}</span>
-                    <span>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_step_world", "Step 3 · Enter the world"))}</span>
+                    <span>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_step_starter", "Step 2 · Team"))}</span>
+                    <span>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_step_world", "Step 3 · Go to Maps"))}</span>
                 </div>
             </div>
 
@@ -563,13 +586,9 @@ function renderTrainerLaunchSetup(usuario, setup, avatarActual, starterActual) {
                     <div class="trainer-launch-avatar-grid">
                         ${avatares.map(avatar => {
                             const activa = avatar.id === avatarActual;
+                            const bloqueado = trainerLaunchState.savingAvatar || trainerLaunchState.savingFinish;
                             return `
-                                <button
-                                    type="button"
-                                    class="trainer-launch-avatar-btn ${activa ? "is-active" : ""} ${trainerLaunchState.savingAvatar ? "is-saving" : ""}"
-                                    data-trainer-avatar="${avatar.id}"
-                                    ${trainerLaunchState.savingAvatar ? "disabled" : ""}
-                                >
+                                <button type="button" class="trainer-launch-avatar-btn ${activa ? "is-active" : ""} ${bloqueado ? "is-saving" : ""}" data-trainer-avatar="${avatar.id}" ${bloqueado ? "disabled" : ""}>
                                     <div class="trainer-launch-avatar-preview">
                                         <img src="${obtenerRutaAvatarTrainerLaunch(avatar.id)}" alt="${escapeHtmlOnboarding(avatar.nombre)}" onerror="this.onerror=null;this.src='img/avatars/${TRAINER_LAUNCH_AVATAR_FALLBACK}.png';">
                                     </div>
@@ -587,21 +606,20 @@ function renderTrainerLaunchSetup(usuario, setup, avatarActual, starterActual) {
                             <small>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_step_starter", "Step 2 · Team"))}</small>
                             <h3>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_starter_title", "Select your team"))}</h3>
                         </div>
-                        <span class="trainer-launch-inline-note">${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_starter_text", "Choose Green, Red, or Blue as your first team identity inside Mastersmon."))}</span>
+                        <span class="trainer-launch-inline-note">${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_starter_text", "Choose Verde, Rojo or Azul to define the identity of your trainer route."))}</span>
                     </div>
 
                     <div class="trainer-launch-starter-grid">
-                        ${TRAINER_LAUNCH_STARTERS.map(starter => {
-                            const activa = starterActual && starterActual.id === starter.id;
-                            const teamNombre = tTrainerLaunch(starter.teamKey, starter.nombre);
-                            const teamTipo = obtenerTextoTipoStarterTrainerLaunch(starter.tipoKey);
+                        ${TRAINER_LAUNCH_TEAMS.map(team => {
+                            const activa = teamActual && teamActual.color === team.color;
+                            const label = tTrainerLaunch(team.colorKey, team.color);
                             return `
-                                <button type="button" class="trainer-launch-starter-card trainer-launch-accent-${starter.accent} ${activa ? "is-active" : ""}" data-trainer-starter="${starter.id}">
-                                    <span class="trainer-launch-chip">${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_starter_chip", "Team color"))}</span>
-                                    <img src="${obtenerSpriteStarterTrainerLaunch(starter.id)}" alt="${escapeHtmlOnboarding(teamNombre)}">
-                                    <strong>${escapeHtmlOnboarding(teamNombre)}</strong>
-                                    <small>${escapeHtmlOnboarding(starter.nombre)} · ${escapeHtmlOnboarding(teamTipo)}</small>
-                                    <p>${escapeHtmlOnboarding(tTrainerLaunch(starter.descKey, ""))}</p>
+                                <button type="button" class="trainer-launch-starter-card trainer-launch-accent-${team.accent} ${activa ? "is-active" : ""}" data-trainer-team-color="${team.color}" ${trainerLaunchState.savingTeam || trainerLaunchState.savingFinish ? "disabled" : ""}>
+                                    <span class="trainer-launch-chip">${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_starter_chip", "Team route"))}</span>
+                                    <img src="${obtenerSpriteStarterTrainerLaunch(team.pokemonId)}" alt="${escapeHtmlOnboarding(team.nombre)}">
+                                    <strong>${escapeHtmlOnboarding(label)}</strong>
+                                    <small>${escapeHtmlOnboarding(obtenerTextoTipoStarterTrainerLaunch(team.tipoKey))}</small>
+                                    <p>${escapeHtmlOnboarding(tTrainerLaunch(team.descKey, ""))}</p>
                                     ${activa ? `<em>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_starter_selected", "Team selected"))}</em>` : ""}
                                 </button>
                             `;
@@ -614,10 +632,10 @@ function renderTrainerLaunchSetup(usuario, setup, avatarActual, starterActual) {
                 <div class="trainer-launch-bottom-copy">
                     <small>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_step_world", "Step 3 · Go to Maps"))}</small>
                     <h3>${escapeHtmlOnboarding(nombre)}</h3>
-                    <p>${starterActual ? escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_finish_ready_text", "Your setup is ready. Go straight to Maps and begin your first route.")) : escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_finish_pending_text", "Choose a team color to unlock Maps and continue into the world."))}</p>
+                    <p>${teamActual ? escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_finish_ready_text", "Your trainer setup is ready. Go to Maps and start your first route.")) : escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_finish_pending_text", "Choose a team color to unlock your trainer setup and continue to Maps."))}</p>
                 </div>
                 <div class="trainer-launch-bottom-actions">
-                    <a href="maps.html" class="trainer-launch-primary-btn ${starterActual ? "" : "is-disabled"}" ${starterActual ? "" : 'aria-disabled="true" tabindex="-1"'}>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_finish_cta", "Go to Maps"))}</a>
+                    <button type="button" class="trainer-launch-primary-btn ${teamActual ? "" : "is-disabled"}" data-trainer-enter-world="1" ${teamActual ? "" : "disabled"}>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_finish_cta", "Go to Maps"))}</button>
                     <a href="mypokemon.html" class="trainer-launch-secondary-btn">${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_change_avatar_cta", "Change avatar in Collection"))}</a>
                 </div>
             </div>
@@ -630,34 +648,38 @@ function renderTrainerLaunchIndex() {
     const shell = document.getElementById("trainerLaunchShell");
     if (!section || !shell) return;
 
-    const usuario = getUsuarioLocal();
-    const setup = leerTrainerLaunchLocal();
-    const avatarActual = obtenerAvatarActualTrainerLaunch();
-    const starterActual = obtenerStarterTrainerLaunch(setup.starter_id);
-
-    section.classList.remove("oculto");
-
     if (!usuarioAutenticado()) {
+        section.classList.remove("oculto");
         shell.innerHTML = renderTrainerLaunchGuest();
         return;
     }
 
-    shell.innerHTML = renderTrainerLaunchSetup(usuario, setup, avatarActual, starterActual);
+    const data = getTrainerLaunchData();
+    if (data.setup_completed) {
+        section.classList.add("oculto");
+        shell.innerHTML = "";
+        return;
+    }
+
+    section.classList.remove("oculto");
+    shell.innerHTML = renderTrainerLaunchSetup();
 }
 
 async function seleccionarAvatarTrainerLaunch(avatarId) {
     const normalizado = normalizarAvatarTrainerLaunch(avatarId);
-    const actual = obtenerAvatarActualTrainerLaunch();
-    if (!normalizado || normalizado === actual || trainerLaunchState.savingAvatar) {
+    const actual = getTrainerLaunchData().avatar_id;
+    if (!normalizado || normalizado === actual || trainerLaunchState.savingAvatar || trainerLaunchState.savingFinish) {
         return;
     }
 
     trainerLaunchState.savingAvatar = true;
+    guardarTrainerLaunchLocal({ avatar_id: normalizado });
     renderTrainerLaunchIndex();
 
     try {
-        guardarTrainerLaunchLocal({ avatar_id: normalizado });
-        await actualizarAvatarUsuarioActual(normalizado);
+        const data = await actualizarTrainerSetupUsuarioActual({ avatar_id: normalizado });
+        trainerLaunchState.data = { ...(trainerLaunchState.data || {}), ...(data || {}), avatar_id: normalizado };
+        guardarTrainerLaunchLocal(trainerLaunchState.data || {});
         setFlashTrainerLaunch("success", tTrainerLaunch("trainer_hub_save_success", "Trainer setup updated"));
     } catch (error) {
         console.error("No se pudo actualizar avatar en trainer setup:", error);
@@ -668,19 +690,53 @@ async function seleccionarAvatarTrainerLaunch(avatarId) {
     }
 }
 
-function seleccionarStarterTrainerLaunch(starterId) {
-    const starter = obtenerStarterTrainerLaunch(starterId);
-    if (!starter) return;
-    guardarTrainerLaunchLocal({ starter_id: starter.id, completed_at: new Date().toISOString() });
-    const nombreEquipo = tTrainerLaunch(starter.teamKey, starter.nombre);
-    setFlashTrainerLaunch("success", `${nombreEquipo} · ${tTrainerLaunch("trainer_hub_starter_selected", "Team selected")}`);
+async function seleccionarTeamTrainerLaunch(color) {
+    const team = obtenerTeamTrainerLaunch(color);
+    if (!team || trainerLaunchState.savingTeam || trainerLaunchState.savingFinish) return;
+
+    trainerLaunchState.savingTeam = true;
+    guardarTrainerLaunchLocal({ team_color: team.color, setup_completed: false, setup_completed_at: null });
     renderTrainerLaunchIndex();
+
+    try {
+        const data = await actualizarTrainerSetupUsuarioActual({ team_color: team.color, setup_completed: false });
+        trainerLaunchState.data = { ...(trainerLaunchState.data || {}), ...(data || {}), team_color: team.color, starter_code: obtenerStarterCodeDesdeColorTrainerSetup?.(team.color) || null, setup_completed: false };
+        guardarTrainerLaunchLocal(trainerLaunchState.data || {});
+        setFlashTrainerLaunch("success", `${tTrainerLaunch(team.colorKey, team.color)} · ${tTrainerLaunch("trainer_hub_starter_selected", "Team selected")}`);
+    } catch (error) {
+        console.error("No se pudo actualizar team color en trainer setup:", error);
+        setFlashTrainerLaunch("error", error?.message || tTrainerLaunch("trainer_hub_avatar_sync_error", "Could not update avatar right now."));
+    } finally {
+        trainerLaunchState.savingTeam = false;
+        renderTrainerLaunchIndex();
+    }
 }
 
-function reiniciarStarterTrainerLaunch() {
-    guardarTrainerLaunchLocal({ starter_id: null, completed_at: null });
-    limpiarFlashTrainerLaunch();
+async function completarTrainerLaunchYEntrarMaps() {
+    const actual = getTrainerLaunchData();
+    if (!actual.team_color || trainerLaunchState.savingFinish) {
+        setFlashTrainerLaunch("error", tTrainerLaunch("trainer_hub_finish_pending_text", "Choose a team color to unlock your trainer setup and continue to Maps."));
+        return;
+    }
+
+    trainerLaunchState.savingFinish = true;
     renderTrainerLaunchIndex();
+
+    try {
+        const data = await actualizarTrainerSetupUsuarioActual({
+            avatar_id: actual.avatar_id,
+            team_color: actual.team_color,
+            setup_completed: true
+        });
+        trainerLaunchState.data = { ...(trainerLaunchState.data || {}), ...(data || {}), setup_completed: true, setup_completed_at: (data?.setup_completed_at || new Date().toISOString()) };
+        guardarTrainerLaunchLocal(trainerLaunchState.data || {});
+        window.location.href = "maps.html";
+    } catch (error) {
+        console.error("No se pudo completar trainer setup:", error);
+        setFlashTrainerLaunch("error", error?.message || tTrainerLaunch("trainer_hub_avatar_sync_error", "Could not update avatar right now."));
+        trainerLaunchState.savingFinish = false;
+        renderTrainerLaunchIndex();
+    }
 }
 
 function configurarEventosTrainerLaunchIndex() {
@@ -695,17 +751,17 @@ function configurarEventosTrainerLaunchIndex() {
             return;
         }
 
-        const starterBtn = event.target.closest("[data-trainer-starter]");
-        if (starterBtn) {
+        const teamBtn = event.target.closest("[data-trainer-team-color]");
+        if (teamBtn) {
             event.preventDefault();
-            seleccionarStarterTrainerLaunch(Number(starterBtn.dataset.trainerStarter || 0));
+            await seleccionarTeamTrainerLaunch(String(teamBtn.dataset.trainerTeamColor || ""));
             return;
         }
 
-        const resetBtn = event.target.closest("[data-trainer-reset-starter]");
-        if (resetBtn) {
+        const enterBtn = event.target.closest("[data-trainer-enter-world]");
+        if (enterBtn) {
             event.preventDefault();
-            reiniciarStarterTrainerLaunch();
+            await completarTrainerLaunchYEntrarMaps();
         }
     });
 }
@@ -1328,6 +1384,7 @@ document.addEventListener("keydown", function(event) {
 });
 
 document.addEventListener("usuarioSesionActualizada", async () => {
+    await cargarTrainerLaunchIndex({ forzar: true });
     renderTrainerLaunchIndex();
     await cargarEstadoCapturas();
     await cargarOnboardingIndex({ forzar: true });
@@ -1345,6 +1402,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     configurarEventosOnboardingIndex();
     configurarEventosTrainerLaunchIndex();
+    await cargarTrainerLaunchIndex({ forzar: true });
     renderTrainerLaunchIndex();
 
     if (buscador) {
@@ -1422,6 +1480,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderTrainerLaunchIndex();
 
     await cargarPokedex();
+    await cargarTrainerLaunchIndex({ forzar: true });
     await cargarOnboardingIndex({ forzar: true });
     await precargarEvolucionesGlobal();
 });
