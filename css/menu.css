@@ -343,8 +343,13 @@
     }
 
     .menu-nav-desktop,
+    .menu-auth-area,
     .menu-pro #usuarioMenu{
         display:none !important;
+    }
+
+    .menu-pro .logo{
+        min-width:0;
     }
 
     .menu-links-mobile{
