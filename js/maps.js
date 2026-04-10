@@ -2122,13 +2122,23 @@ function esJugadorActualMaps(usuarioId) {
 }
 
  
+function escapeHtmlMaps(value) {
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
 function crearHtmlJugadorMapa(jugador, nodo) {
     const nombre = jugador?.nombre || tMaps("maps_trainer_default", "Trainer");
+    const nombreSeguro = escapeHtmlMaps(nombre);
     const avatarId = normalizarAvatarIdMaps(jugador?.avatar_id || MAPS_AVATAR_DEFAULT_ID);
     const rutaAvatar = obtenerRutaAvatarMaps(avatarId);
     const rutaFallback = obtenerRutaAvatarFallbackMaps();
     const teamColor = obtenerTeamColorUsuarioMaps();
-    const inicial = obtenerInicialNombreJugador(nombre);
+    const inicial = escapeHtmlMaps(obtenerInicialNombreJugador(nombre));
  
     return `
         <div
@@ -2136,14 +2146,14 @@ function crearHtmlJugadorMapa(jugador, nodo) {
             data-usuario-id="${Number(jugador.usuario_id)}"
             data-avatar-id="${avatarId}"
             style="left:${nodo.x}%; top:${nodo.y}%"
-            aria-label="${nombre}"
-            title="${nombre}"
+            aria-label="${nombreSeguro}"
+            title="${nombreSeguro}"
         >
-            <div class="jugador-mapa-etiqueta">${nombre}</div>
+            <div class="jugador-mapa-etiqueta">${nombreSeguro}</div>
             <div class="jugador-mapa-sombra"></div>
             <img
                 src="${rutaAvatar}"
-                alt="${nombre}"
+                alt="${nombreSeguro}"
                 class="jugador-mapa-img"
                 loading="lazy"
                 decoding="async"
