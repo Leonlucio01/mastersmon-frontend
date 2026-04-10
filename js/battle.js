@@ -2128,9 +2128,12 @@ function popularModalCompraPremiumBattle(producto) {
     if (delivery) delivery.textContent = obtenerDeliveryPremiumBattle(producto);
     if (description) description.textContent = obtenerDescripcionPremiumBattle(producto);
     if (highlights) {
-        highlights.innerHTML = obtenerHighlightsPremiumBattle(producto)
-            .map((item) => `<li>${escapeHtmlBattle(item)}</li>`)
-            .join("");
+        highlights.replaceChildren();
+        obtenerHighlightsPremiumBattle(producto).forEach((item) => {
+            const li = document.createElement("li");
+            li.textContent = String(item || "");
+            highlights.appendChild(li);
+        });
     }
     if (confirmText) confirmText.textContent = tBattleSafe("pokemart_premium_modal_check_authorize", "I authorize this payment and understand that the charge will be processed by PayPal.");
     if (termsText) termsText.textContent = tBattleSafe("pokemart_premium_modal_check_terms", "I reviewed the product scope, duration, and delivery details before continuing.");
