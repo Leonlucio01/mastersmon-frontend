@@ -130,6 +130,7 @@
         currentTrackUrl: "",
         currentZoneName: "",
         unlocked: false,
+        unlockListenersAttached: false,
         switching: false,
         lastError: "",
         ducking: false
@@ -433,16 +434,11 @@
     }
 
     function attachUnlockListeners() {
-        const unlock = () => {
-            state.unlocked = true;
-            if (state.prefs.enabled && state.currentTrackMeta) {
-                unlockAndMaybePlay();
-            }
-        };
-
-        ["pointerdown", "touchstart", "keydown"].forEach((eventName) => {
-            window.addEventListener(eventName, unlock, { passive: true, once: true });
+        if (state.unlockListenersAttached) return;
+        ["pointerdown", "touchstart", "keydown", "click"].forEach((eventName) => {
+            window.addEventListener(eventName, handleUnlockGesture, { passive: true, capture: true });
         });
+        state.unlockListenersAttached = true;
     }
 
     function getZoneName(zona = null) {
@@ -643,6 +639,34 @@
         }
 
         await switchTrack(state.currentTrackMeta);
+    }
+
+    function removeUnlockListeners() {
+        if (!state.unlockListenersAttached) return;
+        ["pointerdown", "touchstart", "keydown", "click"].forEach((eventName) => {
+            window.removeEventListener(eventName, handleUnlockGesture, true);
+        });
+        state.unlockListenersAttached = false;
+    }
+
+    async function handleUnlockGesture() {
+        if (!state.prefs.enabled) {
+            state.unlocked = true;
+            refreshUI();
+            return;
+        }
+
+        if (!state.currentTrackMeta) {
+            return;
+        }
+
+        try {
+            await unlockAndMaybePlay();
+            removeUnlockListeners();
+        } catch (error) {
+            state.lastError = String(error?.message || error || "AUDIO_UNLOCK_ERROR");
+            refreshUI();
+        }
     }
 
     async function duckMusicForSfx() {
