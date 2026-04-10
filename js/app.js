@@ -536,9 +536,14 @@ function renderTrainerLaunchSetup() {
                     <h3>${escapeHtmlOnboarding(nombre)}</h3>
                     <p>${escapeHtmlOnboarding(teamActual ? tTrainerLaunch("trainer_hub_finish_ready_text", "Your trainer setup is ready. Go to Maps and start your first route.") : tTrainerLaunch("trainer_hub_finish_pending_text", "Choose a team color to unlock your trainer setup and continue to Maps."))}</p>
                 </div>
-                <div class="trainer-launch-bottom-actions">
-                    <button type="button" class="trainer-launch-primary-btn ${teamActual ? "" : "is-disabled"}" data-trainer-enter-world="1" ${teamActual && !trainerLaunchState.saving ? "" : "disabled"}>${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_finish_cta", "Go to Maps"))}</button>
-                    <a href="mypokemon.html" class="trainer-launch-secondary-btn">${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_change_avatar_cta", "Change avatar in Collection"))}</a>
+                <div class="trainer-launch-bottom-actions is-single">
+                    <button
+                        type="button"
+                        class="trainer-launch-primary-btn ${teamActual && !trainerLaunchState.saving ? "is-ready" : "is-disabled"}"
+                        data-trainer-enter-world="1"
+                        aria-disabled="${teamActual && !trainerLaunchState.saving ? "false" : "true"}"
+                        ${teamActual && !trainerLaunchState.saving ? "" : "disabled"}
+                    >${escapeHtmlOnboarding(tTrainerLaunch("trainer_hub_finish_cta", "Go to Maps"))}</button>
                 </div>
             </div>
         </article>
@@ -592,7 +597,19 @@ async function seleccionarTeamTrainerLaunch(color) {
     if (!team || trainerLaunchState.saving) return;
     trainerLaunchState.saving = true;
     try {
-        trainerLaunchState.data = await actualizarTrainerSetupUsuarioActual({ team_color: team.color, setup_completed: false });
+        const respuesta = await actualizarTrainerSetupUsuarioActual({ team_color: team.color, setup_completed: false });
+        const starterCode = typeof obtenerStarterCodeDesdeColorTrainerSetup === "function"
+            ? (obtenerStarterCodeDesdeColorTrainerSetup(team.color) || "").trim().toLowerCase()
+            : (team.mascotName || "").trim().toLowerCase();
+
+        trainerLaunchState.data = {
+            ...(trainerLaunchState.data || {}),
+            ...(respuesta && typeof respuesta === "object" ? respuesta : {}),
+            team_color: team.color,
+            starter_code: starterCode || null,
+            setup_completed: false
+        };
+
         setFlashTrainerLaunch(`${tTrainerLaunch(team.labelKey, team.color)} · ${tTrainerLaunch("trainer_hub_starter_selected", "Team selected")}`);
     } catch (error) {
         console.error("No se pudo actualizar team color trainer setup:", error);
