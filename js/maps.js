@@ -1134,6 +1134,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     configurarSelectorIdiomaMaps();
     configurarEventosSesionMaps();
     configurarEventosLifecycleMaps();
+    await sincronizarTrainerSetupMaps(false);
+    renderizarResumenTrainerMaps();
 
     if (typeof cargarItemsManifest === "function") {
         try {
@@ -1691,6 +1693,132 @@ function obtenerNombreEntrenadorMaps() {
     return usuario?.nombre || tMaps("maps_trainer_default", "Trainer");
 }
  
+
+function normalizarTeamColorMaps(color) {
+    const valor = String(color || "").trim().toLowerCase();
+    return ["green", "red", "blue"].includes(valor) ? valor : null;
+}
+
+function obtenerTeamColorUsuarioMaps() {
+    const usuario = obtenerUsuarioMapsActual();
+    return normalizarTeamColorMaps(usuario?.trainer_team_color);
+}
+
+function obtenerTextoEquipoMaps(color = "") {
+    const teamColor = normalizarTeamColorMaps(color);
+    if (!teamColor) return "";
+
+    const lang = typeof getCurrentLang === "function" ? getCurrentLang() : "en";
+    if (lang === "es") {
+        if (teamColor === "green") return "Equipo Verde";
+        if (teamColor === "red") return "Equipo Rojo";
+        if (teamColor === "blue") return "Equipo Azul";
+    }
+
+    if (teamColor === "green") return "Team Green";
+    if (teamColor === "red") return "Team Red";
+    if (teamColor === "blue") return "Team Blue";
+    return "";
+}
+
+function obtenerResumenEquipoMaps(color = "") {
+    const teamColor = normalizarTeamColorMaps(color);
+    if (!teamColor) {
+        return tMapsLocal(
+            "maps_team_missing_text",
+            "Select your team in Pokedex to unlock the full trainer identity across Maps.",
+            "Selecciona tu equipo en Pokedex para desbloquear tu identidad completa dentro de Maps."
+        );
+    }
+
+    if (teamColor === "green") {
+        return tMapsLocal(
+            "maps_team_green_text",
+            "Exploration-focused route with a calmer capture rhythm and a natural world vibe.",
+            "Ruta enfocada en exploración, con un ritmo de capturas más sereno y una vibra natural."
+        );
+    }
+    if (teamColor === "red") {
+        return tMapsLocal(
+            "maps_team_red_text",
+            "Aggressive route energy built for faster pressure, stronger momentum and a bolder presence.",
+            "Ruta agresiva, pensada para más presión, mejor impulso y una presencia más intensa."
+        );
+    }
+    return tMapsLocal(
+        "maps_team_blue_text",
+        "Balanced route identity with control, clarity and a steady progression feel.",
+        "Identidad equilibrada, con control, claridad y una sensación de progreso constante."
+    );
+}
+
+async function sincronizarTrainerSetupMaps(force = false) {
+    if (!usuarioAutenticadoMaps()) return null;
+
+    const colorLocal = obtenerTeamColorUsuarioMaps();
+    if (colorLocal && !force) {
+        return colorLocal;
+    }
+
+    if (typeof obtenerTrainerSetupUsuarioActual !== "function") {
+        return colorLocal;
+    }
+
+    try {
+        const data = await obtenerTrainerSetupUsuarioActual();
+        return normalizarTeamColorMaps(data?.team_color || data?.usuario?.trainer_team_color || colorLocal);
+    } catch (error) {
+        console.warn("No se pudo sincronizar el equipo del trainer en Maps:", error);
+        return colorLocal;
+    }
+}
+
+function renderizarResumenTrainerMaps() {
+    const shell = document.getElementById("mapsTrainerRouteSummary");
+    if (!shell) return;
+
+    if (!usuarioAutenticadoMaps()) {
+        shell.innerHTML = "";
+        shell.classList.add("oculto");
+        return;
+    }
+
+    const usuario = obtenerUsuarioMapsActual() || {};
+    const teamColor = obtenerTeamColorUsuarioMaps();
+    const teamLabel = obtenerTextoEquipoMaps(teamColor);
+    const nombre = String(usuario?.nombre || tMaps("maps_trainer_default", "Trainer")).trim();
+    const avatarId = obtenerAvatarIdUsuarioMaps();
+    const avatarSrc = obtenerRutaAvatarMaps(avatarId);
+    const fallbackSrc = obtenerRutaAvatarFallbackMaps();
+    const helperText = obtenerResumenEquipoMaps(teamColor);
+    const kicker = tMapsLocal("maps_team_kicker", "Trainer route", "Ruta del entrenador");
+    const title = teamLabel || tMapsLocal("maps_team_pending_title", "Choose your team in Pokedex", "Elige tu equipo en Pokedex");
+    const meta = teamColor
+        ? tMapsLocal("maps_team_meta_ready", "Active across menu and map presence", "Activo en menú y presencia del mapa")
+        : tMapsLocal("maps_team_meta_pending", "Pending team selection", "Equipo pendiente de selección");
+
+    shell.classList.remove("oculto");
+    shell.innerHTML = `
+        <article class="maps-trainer-route-card ${teamColor ? `is-${teamColor}` : "is-neutral"}">
+            <div class="maps-trainer-route-avatar">
+                <img src="${avatarSrc}" alt="${nombre}" loading="lazy" decoding="async" onerror="if(this.dataset.fallbackApplied==='1')return;this.dataset.fallbackApplied='1';this.src='${fallbackSrc}';">
+            </div>
+            <div class="maps-trainer-route-copy">
+                <span class="maps-trainer-route-kicker">${kicker}</span>
+                <div class="maps-trainer-route-title-row">
+                    <strong>${title}</strong>
+                    ${teamColor ? `<span class="maps-team-chip maps-team-chip-${teamColor}">${teamLabel}</span>` : ""}
+                </div>
+                <p>${helperText}</p>
+            </div>
+            <div class="maps-trainer-route-meta">
+                <strong>${nombre}</strong>
+                <span>${meta}</span>
+            </div>
+        </article>
+    `;
+}
+
 function normalizarAvatarIdMaps(avatarId) {
     const valor = String(avatarId || "").trim().toLowerCase();
     if (!valor || !MAPS_AVATAR_ID_REGEX.test(valor)) {
@@ -1815,11 +1943,17 @@ function renderizarAvatarMapa() {
     const avatarId = obtenerAvatarIdUsuarioMaps();
     const rutaAvatar = obtenerRutaAvatarMaps(avatarId);
     const rutaFallback = obtenerRutaAvatarFallbackMaps();
+    const teamColor = obtenerTeamColorUsuarioMaps();
  
     avatarWrap.style.left = `${nodo.x}%`;
     avatarWrap.style.top = `${nodo.y}%`;
     avatarWrap.setAttribute("aria-label", nombreEntrenador);
     avatarWrap.dataset.avatarId = avatarId;
+    avatarWrap.dataset.teamColor = teamColor || "";
+    avatarWrap.classList.remove("team-green", "team-red", "team-blue");
+    if (teamColor) {
+        avatarWrap.classList.add(`team-${teamColor}`);
+    }
  
     avatarWrap.innerHTML = `
         <div class="avatar-mapa-sombra"></div>
@@ -1993,6 +2127,7 @@ function crearHtmlJugadorMapa(jugador, nodo) {
     const avatarId = normalizarAvatarIdMaps(jugador?.avatar_id || MAPS_AVATAR_DEFAULT_ID);
     const rutaAvatar = obtenerRutaAvatarMaps(avatarId);
     const rutaFallback = obtenerRutaAvatarFallbackMaps();
+    const teamColor = obtenerTeamColorUsuarioMaps();
     const inicial = obtenerInicialNombreJugador(nombre);
  
     return `
@@ -2032,6 +2167,7 @@ function actualizarElementoJugadorDomMapa(elemento, jugador, nodo) {
     const avatarId = normalizarAvatarIdMaps(jugador?.avatar_id || MAPS_AVATAR_DEFAULT_ID);
     const rutaAvatar = obtenerRutaAvatarMaps(avatarId);
     const rutaFallback = obtenerRutaAvatarFallbackMaps();
+    const teamColor = obtenerTeamColorUsuarioMaps();
     const inicial = obtenerInicialNombreJugador(nombre);
 
     elemento.dataset.usuarioId = String(Number(jugador.usuario_id));
@@ -3211,6 +3347,8 @@ function renderizarZonaExploracion() {
     const biomeLabel = obtenerTextoBiomaMaps(visual.clave);
     const speciesLabel = obtenerTextoEspeciesZonaMaps(zonaSeleccionadaActual);
     const difficultyLabel = obtenerTextoDificultadZonaMaps(zonaSeleccionadaActual);
+    const teamColor = obtenerTeamColorUsuarioMaps();
+    const teamLabel = obtenerTextoEquipoMaps(teamColor);
 
     encuentro.className = "encuentro-box";
     if (claseZona) {
@@ -3230,6 +3368,7 @@ function renderizarZonaExploracion() {
                             <span class="mapa-meta-chip">${regionLabel}</span>
                             <span class="mapa-meta-chip">${generationLabel}</span>
                             <span class="mapa-meta-chip">${biomeLabel}</span>
+                            ${teamLabel ? `<span class="mapa-meta-chip maps-team-chip maps-team-chip-${teamColor}">${teamLabel}</span>` : ""}
                         </div>
                     </div>
                     <h3>${nombreZonaUI}</h3>
@@ -3237,7 +3376,7 @@ function renderizarZonaExploracion() {
                     <div class="mapa-exploracion-stats">
                         <span>${t("maps_level")} ${zonaSeleccionadaActual.nivel_min} - ${zonaSeleccionadaActual.nivel_max}</span>
                         <span>${speciesLabel}</span>
-                        <span>${t("maps_explore_hint")}</span>
+                        ${teamLabel ? `<span class="mapa-stats-team maps-team-chip maps-team-chip-${teamColor}">${teamLabel}</span>` : `<span>${t("maps_explore_hint")}</span>`}
                     </div>
                 </div>
 
@@ -4335,3 +4474,20 @@ function scrollAlMapa() {
    EXPOSE GLOBAL
 ========================= */
 window.cerrarModalShiny = cerrarModalShiny;
+
+
+document.addEventListener("usuarioSesionActualizada", async () => {
+    await sincronizarTrainerSetupMaps(true);
+    renderizarResumenTrainerMaps();
+    renderizarAvatarMapa();
+    if (zonaSeleccionadaActual) {
+        renderizarZonaExploracion();
+    }
+});
+
+document.addEventListener("languageChanged", () => {
+    renderizarResumenTrainerMaps();
+    if (zonaSeleccionadaActual) {
+        renderizarZonaExploracion();
+    }
+});

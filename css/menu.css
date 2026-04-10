@@ -300,6 +300,50 @@
     margin-bottom:0;
 }
 
+
+
+.menu-team-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 12px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:900;
+    letter-spacing:0.02em;
+    text-transform:none;
+    border:1px solid transparent;
+    box-shadow:0 8px 18px rgba(15,23,42,0.14);
+    white-space:nowrap;
+}
+
+.menu-team-badge::before{
+    content:"";
+    width:8px;
+    height:8px;
+    border-radius:999px;
+    background:currentColor;
+    box-shadow:0 0 0 4px rgba(255,255,255,0.16);
+}
+
+.menu-team-badge.is-green{
+    color:#166534;
+    background:linear-gradient(180deg,#ecfdf5 0%, #dcfce7 100%);
+    border-color:#86efac;
+}
+
+.menu-team-badge.is-red{
+    color:#b91c1c;
+    background:linear-gradient(180deg,#fef2f2 0%, #fee2e2 100%);
+    border-color:#fca5a5;
+}
+
+.menu-team-badge.is-blue{
+    color:#1d4ed8;
+    background:linear-gradient(180deg,#eff6ff 0%, #dbeafe 100%);
+    border-color:#93c5fd;
+}
+
 /* =========================
    MOBILE MENU PANEL
 ========================= */

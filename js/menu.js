@@ -119,6 +119,17 @@ document.addEventListener("DOMContentLoaded", () => {
         applyTranslations();
     }
 
+    document.addEventListener("usuarioSesionActualizada", () => {
+        window.setTimeout(() => {
+            refrescarBadgeEquipoMenu({ force: true });
+        }, 0);
+    });
+
+    document.addEventListener("languageChanged", () => {
+        renderizarBadgeEquipoMenu();
+    });
+
+    refrescarBadgeEquipoMenu({ force: true });
     iniciarAlertaBossGlobal();
     iniciarAlertaIdleGlobal();
 });
@@ -203,6 +214,139 @@ function limpiarCacheMenuAlert(tipo = "") {
     }
 }
 
+
+
+
+const MENU_TRAINER_TEAM_COLORS = ["green", "red", "blue"];
+let menuTrainerTeamState = {
+    color: null,
+    setupCompleted: false,
+    loading: false
+};
+
+function normalizarMenuTrainerTeamColor(color) {
+    const valor = String(color || "").trim().toLowerCase();
+    return MENU_TRAINER_TEAM_COLORS.includes(valor) ? valor : null;
+}
+
+function obtenerTextoEquipoMenu(color = "") {
+    const teamColor = normalizarMenuTrainerTeamColor(color);
+    if (!teamColor) return "";
+
+    const lang = typeof getCurrentLang === "function" ? getCurrentLang() : "en";
+    if (lang === "es") {
+        if (teamColor === "green") return "Equipo Verde";
+        if (teamColor === "red") return "Equipo Rojo";
+        if (teamColor === "blue") return "Equipo Azul";
+    }
+
+    if (teamColor === "green") return "Team Green";
+    if (teamColor === "red") return "Team Red";
+    if (teamColor === "blue") return "Team Blue";
+    return "";
+}
+
+function asegurarBadgeEquipoMenu(menuSelector, nameSelector, beforeSelector) {
+    const menu = document.querySelector(menuSelector);
+    if (!menu) return null;
+
+    let badge = menu.querySelector('.menu-team-badge');
+    if (badge) return badge;
+
+    badge = document.createElement('span');
+    badge.className = 'menu-team-badge oculto';
+
+    const beforeNode = menu.querySelector(beforeSelector);
+    const nameNode = menu.querySelector(nameSelector);
+    if (beforeNode) {
+        menu.insertBefore(badge, beforeNode);
+    } else if (nameNode && nameNode.nextSibling) {
+        menu.insertBefore(badge, nameNode.nextSibling);
+    } else {
+        menu.appendChild(badge);
+    }
+
+    return badge;
+}
+
+function renderizarBadgeEquipoMenu() {
+    const color = normalizarMenuTrainerTeamColor(menuTrainerTeamState.color);
+    const label = obtenerTextoEquipoMenu(color);
+
+    const targets = [
+        asegurarBadgeEquipoMenu('#usuarioMenu', '#nombreUsuario', '#cerrarSesionMenu'),
+        asegurarBadgeEquipoMenu('#usuarioMenuMobile', '#nombreUsuarioMobile', '#cerrarSesionMenuMobile')
+    ];
+
+    targets.forEach((badge) => {
+        if (!badge) return;
+
+        badge.classList.remove('oculto', 'is-green', 'is-red', 'is-blue');
+
+        if (!color || !label) {
+            badge.textContent = '';
+            badge.classList.add('oculto');
+            return;
+        }
+
+        badge.textContent = label;
+        badge.classList.add(`is-${color}`);
+    });
+}
+
+async function refrescarBadgeEquipoMenu({ force = false } = {}) {
+    const token = typeof getAccessToken === 'function' ? getAccessToken() : '';
+    if (!token) {
+        menuTrainerTeamState.color = null;
+        menuTrainerTeamState.setupCompleted = false;
+        renderizarBadgeEquipoMenu();
+        return null;
+    }
+
+    const usuario = typeof getUsuarioLocal === 'function' ? (getUsuarioLocal() || {}) : {};
+    const colorSesion = normalizarMenuTrainerTeamColor(usuario?.trainer_team_color);
+    const setupSesion = Boolean(usuario?.trainer_setup_completed);
+
+    if (!force && colorSesion) {
+        menuTrainerTeamState.color = colorSesion;
+        menuTrainerTeamState.setupCompleted = setupSesion;
+        renderizarBadgeEquipoMenu();
+        return colorSesion;
+    }
+
+    if (menuTrainerTeamState.loading) {
+        renderizarBadgeEquipoMenu();
+        return menuTrainerTeamState.color;
+    }
+
+    if (typeof obtenerTrainerSetupUsuarioActual !== 'function') {
+        menuTrainerTeamState.color = colorSesion;
+        menuTrainerTeamState.setupCompleted = setupSesion;
+        renderizarBadgeEquipoMenu();
+        return colorSesion;
+    }
+
+    menuTrainerTeamState.loading = true;
+    try {
+        const data = await obtenerTrainerSetupUsuarioActual();
+        const color = normalizarMenuTrainerTeamColor(
+            data?.team_color || data?.usuario?.trainer_team_color || colorSesion
+        );
+        menuTrainerTeamState.color = color;
+        menuTrainerTeamState.setupCompleted = Boolean(
+            data?.setup_completed || data?.usuario?.trainer_setup_completed || setupSesion
+        );
+    } catch (error) {
+        console.warn('No se pudo refrescar el badge de equipo del menú:', error);
+        menuTrainerTeamState.color = colorSesion;
+        menuTrainerTeamState.setupCompleted = setupSesion;
+    } finally {
+        menuTrainerTeamState.loading = false;
+        renderizarBadgeEquipoMenu();
+    }
+
+    return menuTrainerTeamState.color;
+}
 
 function getBossAlertTexts() {
     const lang = typeof getCurrentLang === "function" ? getCurrentLang() : "en";
