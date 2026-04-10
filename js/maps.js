@@ -3995,8 +3995,9 @@ async function intentarCaptura(pokemonId, nivel, esShiny, hpActual, hpMaximo, it
 
         if (data.capturado === true) {
             mostrarModalResultadoCaptura(
-                `${data.mensaje || t("maps_capture_success_default")}<br>${t("maps_capture_probability")}: ${data.probabilidad ?? 0}%`,
-                "exito"
+                data.mensaje || t("maps_capture_success_default"),
+                "exito",
+                `${t("maps_capture_probability")}: ${data.probabilidad ?? 0}%`
             );
 
             await sincronizarSesionMapsConBackend(false);
@@ -4016,8 +4017,9 @@ async function intentarCaptura(pokemonId, nivel, esShiny, hpActual, hpMaximo, it
         }
 
         mostrarModalResultadoCaptura(
-            `${data.mensaje || t("maps_capture_escape_default")}<br>${t("maps_capture_used_probability")}: ${data.probabilidad ?? 0}%`,
-            "error"
+            data.mensaje || t("maps_capture_escape_default"),
+            "error",
+            `${t("maps_capture_used_probability")}: ${data.probabilidad ?? 0}%`
         );
 
         await cargarItemsUsuarioMaps(true);
@@ -4387,7 +4389,7 @@ function traducirDireccion(direccion = "") {
     return mapa[direccion] || t("maps_dir_zone");
 }
  
-function mostrarModalResultadoCaptura(mensaje, tipo = "exito") {
+function mostrarModalResultadoCaptura(mensaje, tipo = "exito", detalle = "") {
     const modal = document.getElementById("modalResultadoCaptura");
     const box = document.getElementById("modalResultadoCapturaBox");
     const deco = document.getElementById("modalResultadoCapturaDeco");
@@ -4410,14 +4412,19 @@ function mostrarModalResultadoCaptura(mensaje, tipo = "exito") {
     if (tipo === "exito") {
         box.classList.add("exito", "capture-enter", "capture-success-fx");
         deco.innerHTML = `<span>✨</span><span>✨</span><span>✨</span>`;
-        titulo.innerHTML = t("maps_capture_success_title");
+        titulo.textContent = t("maps_capture_success_title");
     } else {
         box.classList.add("error", "capture-enter", "capture-fail-fx");
         deco.innerHTML = `<span>✦</span><span>✦</span><span>✦</span>`;
-        titulo.innerHTML = t("maps_capture_fail_title");
+        titulo.textContent = t("maps_capture_fail_title");
     }
 
-    texto.innerHTML = mensaje;
+    texto.textContent = String(mensaje || "");
+
+    if (detalle) {
+        texto.appendChild(document.createElement("br"));
+        texto.appendChild(document.createTextNode(String(detalle)));
+    }
 
     btn.disabled = true;
     btn.classList.remove("capture-btn-visible");

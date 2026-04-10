@@ -1,8 +1,34 @@
 const API_BASE = "https://mastersmon-api.onrender.com";
 const AVATAR_DEFAULT_ID = "steven";
+const ACCESS_TOKEN_STORAGE_KEY = "access_token";
+
+function getSessionStorageSafe() {
+    try {
+        return window.sessionStorage;
+    } catch (error) {
+        return null;
+    }
+}
+
+function getAccessTokenStorage() {
+    const storage = getSessionStorageSafe();
+    return storage || localStorage;
+}
+
+function migrateLegacyAccessToken() {
+    const storage = getSessionStorageSafe();
+    if (!storage || storage.getItem(ACCESS_TOKEN_STORAGE_KEY)) return;
+
+    const legacyToken = localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
+    if (!legacyToken) return;
+
+    storage.setItem(ACCESS_TOKEN_STORAGE_KEY, legacyToken);
+    localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
+}
 
 function getAccessToken() {
-    return localStorage.getItem("access_token") || "";
+    migrateLegacyAccessToken();
+    return getAccessTokenStorage().getItem(ACCESS_TOKEN_STORAGE_KEY) || "";
 }
 
 function getAvatarIdLocal() {
@@ -50,12 +76,14 @@ function guardarSesion(data, options = {}) {
         forceEmit = false
     } = options || {};
 
-    const tokenAnterior = localStorage.getItem("access_token") || "";
+    const tokenStorage = getAccessTokenStorage();
+    const tokenAnterior = tokenStorage.getItem(ACCESS_TOKEN_STORAGE_KEY) || "";
     const usuarioAnterior = getUsuarioLocal();
     const firmaAnterior = obtenerFirmaUsuarioSesion(usuarioAnterior);
 
     if (data.access_token) {
-        localStorage.setItem("access_token", data.access_token);
+        tokenStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, data.access_token);
+        localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
     }
 
     let usuarioNormalizado = null;
@@ -76,7 +104,7 @@ function guardarSesion(data, options = {}) {
 
     if (!emitirEvento) return;
 
-    const tokenActual = localStorage.getItem("access_token") || "";
+    const tokenActual = tokenStorage.getItem(ACCESS_TOKEN_STORAGE_KEY) || "";
     const firmaActual = obtenerFirmaUsuarioSesion(usuarioNormalizado || getUsuarioLocal());
     const huboCambioReal = forceEmit || tokenAnterior !== tokenActual || firmaAnterior !== firmaActual;
 
@@ -87,13 +115,14 @@ function guardarSesion(data, options = {}) {
 
 function limpiarSesion() {
     const habiaSesion = Boolean(
-        localStorage.getItem("access_token") ||
+        getAccessToken() ||
         localStorage.getItem("usuario") ||
         localStorage.getItem("usuario_id") ||
         localStorage.getItem("google_logged_in")
     );
 
-    localStorage.removeItem("access_token");
+    getAccessTokenStorage().removeItem(ACCESS_TOKEN_STORAGE_KEY);
+    localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
     localStorage.removeItem("usuario");
     localStorage.removeItem("google_logged_in");
     localStorage.removeItem("google_user_name");
