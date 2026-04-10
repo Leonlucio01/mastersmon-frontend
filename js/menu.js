@@ -425,9 +425,24 @@ function abrirBossBattlePage() {
     window.location.href = "battle.html";
 }
 
+function escapeHtmlMenu(value) {
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
 function mostrarBossToastGlobal(payload = {}) {
     const texts = getBossAlertTexts();
     const bossName = String(payload?.boss?.nombre || texts.bossFallback || "Alpha Boss").trim();
+    const dismissSafe = escapeHtmlMenu(texts.dismiss);
+    const badgeSafe = escapeHtmlMenu(texts.badge);
+    const titleSafe = escapeHtmlMenu(texts.title);
+    const bossNameSafe = escapeHtmlMenu(bossName);
+    const descriptionSafe = escapeHtmlMenu(texts.description);
+    const actionSafe = escapeHtmlMenu(texts.action);
 
     cerrarBossToastGlobal();
 
@@ -438,13 +453,13 @@ function mostrarBossToastGlobal(payload = {}) {
 
     toast.innerHTML = `
         <div class="menu-boss-toast-glow" aria-hidden="true"></div>
-        <button type="button" class="menu-boss-toast-close" aria-label="${texts.dismiss}">×</button>
-        <div class="menu-boss-toast-badge">${texts.badge}</div>
-        <div class="menu-boss-toast-title">${texts.title}</div>
-        <div class="menu-boss-toast-name">${bossName}</div>
-        <div class="menu-boss-toast-text">${texts.description}</div>
+        <button type="button" class="menu-boss-toast-close" aria-label="${dismissSafe}">×</button>
+        <div class="menu-boss-toast-badge">${badgeSafe}</div>
+        <div class="menu-boss-toast-title">${titleSafe}</div>
+        <div class="menu-boss-toast-name">${bossNameSafe}</div>
+        <div class="menu-boss-toast-text">${descriptionSafe}</div>
         <div class="menu-boss-toast-actions">
-            <button type="button" class="menu-boss-toast-action">${texts.action}</button>
+            <button type="button" class="menu-boss-toast-action">${actionSafe}</button>
         </div>
     `;
 
@@ -764,6 +779,12 @@ function mostrarIdleToastGlobal(payload = {}) {
     const texts = getIdleAlertTexts();
     const tierLabel = traducirTierIdleGlobal(payload?.sesion?.tier_codigo || "ruta");
     const expeditionName = `${tierLabel} ${texts.expeditionSuffix}`.trim();
+    const dismissSafe = escapeHtmlMenu(texts.dismiss);
+    const badgeSafe = escapeHtmlMenu(texts.badge);
+    const titleSafe = escapeHtmlMenu(texts.title);
+    const expeditionNameSafe = escapeHtmlMenu(expeditionName);
+    const descriptionSafe = escapeHtmlMenu(texts.description);
+    const actionSafe = escapeHtmlMenu(texts.action);
 
     cerrarIdleToastGlobal();
 
@@ -774,13 +795,13 @@ function mostrarIdleToastGlobal(payload = {}) {
 
     toast.innerHTML = `
         <div class="menu-boss-toast-glow" aria-hidden="true"></div>
-        <button type="button" class="menu-boss-toast-close" aria-label="${texts.dismiss}">×</button>
-        <div class="menu-boss-toast-badge">${texts.badge}</div>
-        <div class="menu-boss-toast-title">${texts.title}</div>
-        <div class="menu-boss-toast-name">${expeditionName}</div>
-        <div class="menu-boss-toast-text">${texts.description}</div>
+        <button type="button" class="menu-boss-toast-close" aria-label="${dismissSafe}">×</button>
+        <div class="menu-boss-toast-badge">${badgeSafe}</div>
+        <div class="menu-boss-toast-title">${titleSafe}</div>
+        <div class="menu-boss-toast-name">${expeditionNameSafe}</div>
+        <div class="menu-boss-toast-text">${descriptionSafe}</div>
         <div class="menu-boss-toast-actions">
-            <button type="button" class="menu-boss-toast-action">${texts.action}</button>
+            <button type="button" class="menu-boss-toast-action">${actionSafe}</button>
         </div>
     `;
 

@@ -188,6 +188,15 @@ const PREMIUM_PRODUCT_META = {
     battle_pass_s1: { icon: "🎟️", titleKey: "pokemart_premium_pass_title", descKey: "pokemart_premium_pass_desc", tagKey: "pokemart_premium_tag_coming_soon" }
 };
 
+function escapeHtmlPokeMart(value) {
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
 function getPokeMartLang() {
     try {
         return typeof getCurrentLang === "function" && getCurrentLang() === "es" ? "es" : "en";
@@ -1112,14 +1121,20 @@ function renderHistoryBadges() {
 function renderPurchaseCard(compra = {}) {
     const status = mapStatusLabel(compra?.estado || compra?.grant_status || "");
     const grant = compra?.grant_status ? mapStatusLabel(compra.grant_status) : null;
+    const productoNombre = escapeHtmlPokeMart(compra?.producto_nombre || compra?.producto_codigo || pmUi("product"));
+    const productoCodigo = escapeHtmlPokeMart(compra?.producto_codigo || "");
+    const statusClass = escapeHtmlPokeMart(status.cls);
+    const statusText = escapeHtmlPokeMart(status.text);
+    const grantText = escapeHtmlPokeMart(grant ? grant.text : (compra?.grant_status || "â€”"));
+    const paypalOrderId = escapeHtmlPokeMart(compra?.paypal_order_id || "â€”");
     return `
         <article class="premium-history-card">
             <div class="premium-history-card-top">
                 <div>
-                    <h5>${compra?.producto_nombre || compra?.producto_codigo || pmUi("product")}</h5>
-                    <p class="premium-history-card-sub">${compra?.producto_codigo || ""}</p>
+                    <h5>${productoNombre}</h5>
+                    <p class="premium-history-card-sub">${productoCodigo}</p>
                 </div>
-                <span class="premium-status ${status.cls}">${status.text}</span>
+                <span class="premium-status ${statusClass}">${statusText}</span>
             </div>
             <div class="premium-history-meta">
                 <div class="premium-history-meta-box"><span>${pmUi("amount")}</span><strong>${Number(compra?.monto || 0).toFixed(2)} ${compra?.moneda || "USD"}</strong></div>
@@ -1133,14 +1148,18 @@ function renderPurchaseCard(compra = {}) {
 function renderBenefitCard(beneficio = {}) {
     const status = mapStatusLabel(beneficio?.estado || "activo");
     const usesLeft = beneficio?.usos_totales != null ? Math.max(0, Number(beneficio.usos_totales || 0) - Number(beneficio.usos_consumidos || 0)) : null;
+    const beneficioCodigo = escapeHtmlPokeMart(beneficio?.beneficio_codigo || pmUi("benefit"));
+    const productoCodigo = escapeHtmlPokeMart(beneficio?.metadata?.producto_codigo || "");
+    const statusClass = escapeHtmlPokeMart(status.cls);
+    const statusText = escapeHtmlPokeMart(status.text);
     return `
         <article class="premium-history-card">
             <div class="premium-history-card-top">
                 <div>
-                    <h5>${beneficio?.beneficio_codigo || pmUi("benefit")}</h5>
-                    <p class="premium-history-card-sub">${beneficio?.metadata?.producto_codigo || ""}</p>
+                    <h5>${beneficioCodigo}</h5>
+                    <p class="premium-history-card-sub">${productoCodigo}</p>
                 </div>
-                <span class="premium-status ${status.cls}">${status.text}</span>
+                <span class="premium-status ${statusClass}">${statusText}</span>
             </div>
             <div class="premium-history-meta">
                 <div class="premium-history-meta-box"><span>${pmUi("expires")}</span><strong>${formatearFechaPremium(beneficio?.expira_en)}</strong></div>
@@ -1212,7 +1231,16 @@ function abrirModalPremium(productCode) {
     document.getElementById("premiumModalPrice").textContent = `$${Number(producto.precio_usd || 0).toFixed(2)} USD`;
     document.getElementById("premiumModalType").textContent = obtenerTipoPremiumProducto(producto);
     document.getElementById("premiumModalDelivery").textContent = obtenerDeliveryPremiumProducto(producto);
-    document.getElementById("premiumModalDescription").innerHTML = `<small>${typeof t === "function" ? t("pokemart_premium_modal_details") : "Details"}</small><strong>${obtenerDescripcionPremiumProducto(producto)}</strong>`;
+    const premiumModalDescription = document.getElementById("premiumModalDescription");
+    if (premiumModalDescription) {
+        premiumModalDescription.replaceChildren();
+        const small = document.createElement("small");
+        small.textContent = typeof t === "function" ? t("pokemart_premium_modal_details") : "Details";
+        const strong = document.createElement("strong");
+        strong.textContent = obtenerDescripcionPremiumProducto(producto);
+        premiumModalDescription.appendChild(small);
+        premiumModalDescription.appendChild(strong);
+    }
     if (errorBox) { errorBox.classList.remove("show"); errorBox.textContent = ""; }
     if (checkConfirm) checkConfirm.checked = false;
     if (checkTerms) checkTerms.checked = false;

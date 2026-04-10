@@ -128,19 +128,30 @@ function mostrarEstadoRanking(tipo = "loading", detalle = "") {
     estado.classList.remove("oculto", "error");
 
     if (tipo === "loading") {
-        estado.innerHTML = `
-            <h3>${t("ranking_loading_title")}</h3>
-            <p>${t("ranking_loading_text")}</p>
-        `;
+        estado.replaceChildren();
+        const title = document.createElement("h3");
+        title.textContent = t("ranking_loading_title");
+        const text = document.createElement("p");
+        text.textContent = t("ranking_loading_text");
+        estado.appendChild(title);
+        estado.appendChild(text);
         return;
     }
 
     estado.classList.add("error");
-    estado.innerHTML = `
-        <h3>${t("ranking_error_title")}</h3>
-        <p>${detalle || t("ranking_error_text")}</p>
-        <button type="button" class="ranking-retry-btn" onclick="window.location.reload()">${t("ranking_retry")}</button>
-    `;
+    estado.replaceChildren();
+    const title = document.createElement("h3");
+    title.textContent = t("ranking_error_title");
+    const text = document.createElement("p");
+    text.textContent = detalle || t("ranking_error_text");
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "ranking-retry-btn";
+    button.textContent = t("ranking_retry");
+    button.addEventListener("click", () => window.location.reload());
+    estado.appendChild(title);
+    estado.appendChild(text);
+    estado.appendChild(button);
 }
 
 /* =========================================================
