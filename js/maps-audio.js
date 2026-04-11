@@ -4,7 +4,8 @@
         enabled: true,
         muted: false,
         volume: 0.14,
-        sfxVolume: 0.65
+        sfxVolume: 0.65,
+        minimized: false
     };
 
     const MAPS_AUDIO_TRACKS = {
@@ -120,6 +121,7 @@
         audio: null,
         shinyAudio: null,
         shell: null,
+        minimizeBtn: null,
         playBtn: null,
         muteBtn: null,
         volumeInput: null,
@@ -173,7 +175,8 @@
                 enabled: parsed?.enabled !== false,
                 muted: Boolean(parsed?.muted),
                 volume: normalizarVolumen(parsed?.volume, MAPS_AUDIO_DEFAULTS.volume),
-                sfxVolume: normalizarVolumen(parsed?.sfxVolume, MAPS_AUDIO_DEFAULTS.sfxVolume)
+                sfxVolume: normalizarVolumen(parsed?.sfxVolume, MAPS_AUDIO_DEFAULTS.sfxVolume),
+                minimized: Boolean(parsed?.minimized)
             };
         } catch (error) {
             return { ...MAPS_AUDIO_DEFAULTS };
@@ -292,6 +295,20 @@
                 gap: 8px;
                 flex-shrink: 0;
             }
+            .maps-audio-shell.is-minimized {
+                width: min(268px, calc(100vw - 24px));
+                gap: 0;
+            }
+            .maps-audio-shell.is-minimized .maps-audio-top {
+                align-items: center;
+            }
+            .maps-audio-shell.is-minimized .maps-audio-kicker {
+                margin-bottom: 6px;
+            }
+            .maps-audio-shell.is-minimized .maps-audio-subtitle,
+            .maps-audio-shell.is-minimized .maps-audio-bottom {
+                display: none;
+            }
             .maps-audio-btn {
                 border: none;
                 cursor: pointer;
@@ -340,10 +357,21 @@
                     bottom: 12px;
                     width: auto;
                 }
+                .maps-audio-shell.is-minimized {
+                    left: auto;
+                    width: min(220px, calc(100vw - 24px));
+                }
                 .maps-audio-top { flex-direction: column; }
+                .maps-audio-shell.is-minimized .maps-audio-top {
+                    flex-direction: row;
+                    align-items: center;
+                }
                 .maps-audio-actions {
                     width: 100%;
                     justify-content: flex-end;
+                }
+                .maps-audio-shell.is-minimized .maps-audio-actions {
+                    width: auto;
                 }
             }
         `;
@@ -366,6 +394,7 @@
                     <p class="maps-audio-subtitle"></p>
                 </div>
                 <div class="maps-audio-actions">
+                    <button type="button" class="maps-audio-btn maps-audio-btn-alt" id="mapsAudioMinimize" aria-label="Minimize maps audio"></button>
                     <button type="button" class="maps-audio-btn maps-audio-btn-main" id="mapsAudioToggle" aria-label="Toggle maps music"></button>
                     <button type="button" class="maps-audio-btn maps-audio-btn-alt" id="mapsAudioMute" aria-label="Mute maps music"></button>
                 </div>
@@ -379,11 +408,18 @@
 
         document.body.appendChild(shell);
         state.shell = shell;
+        state.minimizeBtn = shell.querySelector("#mapsAudioMinimize");
         state.playBtn = shell.querySelector("#mapsAudioToggle");
         state.muteBtn = shell.querySelector("#mapsAudioMute");
         state.volumeInput = shell.querySelector("#mapsAudioVolume");
         state.title = shell.querySelector(".maps-audio-title");
         state.subtitle = shell.querySelector(".maps-audio-subtitle");
+
+        state.minimizeBtn?.addEventListener("click", () => {
+            state.prefs.minimized = !state.prefs.minimized;
+            guardarPreferencias();
+            refreshUI();
+        });
 
         state.playBtn?.addEventListener("click", async () => {
             state.prefs.enabled = !state.prefs.enabled;
