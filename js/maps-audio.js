@@ -758,6 +758,9 @@
 
     function refreshUI() {
         buildUI();
+        if (state.shell) {
+            state.shell.classList.toggle("is-minimized", Boolean(state.prefs.minimized));
+        }
 
         const currentMeta = state.currentTrackMeta || MAPS_AUDIO_TRACKS.base;
         const currentTrackLabel = getLang() === "es" ? currentMeta.labelEs : currentMeta.labelEn;
@@ -783,6 +786,13 @@
 
         if (state.title) state.title.textContent = currentTrackLabel;
         if (state.subtitle) state.subtitle.textContent = statusText;
+        if (state.minimizeBtn) {
+            state.minimizeBtn.textContent = state.prefs.minimized ? "▢" : "—";
+            state.minimizeBtn.title = state.prefs.minimized
+                ? text("Expand audio panel", "Expandir panel de audio")
+                : text("Minimize audio panel", "Minimizar panel de audio");
+            state.minimizeBtn.setAttribute("aria-label", state.minimizeBtn.title);
+        }
 
         if (state.playBtn) {
             state.playBtn.textContent = state.prefs.enabled ? "❚❚" : "▶";
