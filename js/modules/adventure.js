@@ -29,7 +29,7 @@ export function renderAdventure() {
       <section class="section-card">
         <div class="section-head"><div><h2>Regions</h2><p>${escapeHtml(tr("adventure.loaded"))}</p></div></div>
         <div class="regions-grid">
-          ${regions.map(region => `
+          ${regions.map((region) => `
             <article class="region-card">
               <img class="region-banner" src="${escapeHtml(getMapImage(region.card_asset_path))}" alt="${escapeHtml(region.name)}" onerror="onPokemonImageError(this)">
               <div>
@@ -39,7 +39,7 @@ export function renderAdventure() {
                   <span class="pill ${region.is_active_region ? "tag-accent" : ""}">${escapeHtml(region.is_active_region ? tr("adventure.active") : tr("adventure.available"))}</span>
                 </div>
               </div>
-              <p>${escapeHtml(region.zone_count || 0)} zones · ${escapeHtml(region.completed_gyms || 0)}/${escapeHtml(region.total_gyms || 0)} gyms</p>
+              <p>${escapeHtml(region.zone_count || 0)} zones - ${escapeHtml(region.completed_gyms || 0)}/${escapeHtml(region.total_gyms || 0)} gyms</p>
               <div class="stack-actions"><button class="soft-btn" type="button" data-region-code="${escapeHtml(region.code)}">${escapeHtml(tr("adventure.detail"))}</button></div>
             </article>`).join("")}
         </div>
@@ -65,33 +65,72 @@ async function loadRegionDetail(regionCode) {
   const mount = document.getElementById("regionDetailMount");
   if (!mount) return;
   mount.innerHTML = `<section class="section-card skeleton" style="height: 260px"></section>`;
+
   try {
     const response = await fetchAuth(`/v2/adventure/regions/${regionCode}`);
     const data = response.data || {};
     const region = data.region || {};
-    const zones = data.zones || [];
+    const zones = Array.isArray(data.zones) ? data.zones : [];
+    const highlightedZone = zones[0] || null;
+
     mount.innerHTML = `
-      <section class="section-card">
-        <div class="section-head"><div><h2>${escapeHtml(region.name || regionCode)}</h2><p>${escapeHtml(region.description || "Detalle regional cargado desde la API V2.")}</p></div></div>
-        <div class="adventure-layout">
-          <div class="zone-list">
-            ${zones.map(zone => `
-              <article class="zone-card">
-                <strong>${escapeHtml(zone.name)}</strong>
-                <div class="pill-row"><span class="pill">${escapeHtml(zone.biome || zone.tipo_ambiente || "-")}</span><span class="pill">Lv ${escapeHtml(zone.level_min || 1)}-${escapeHtml(zone.level_max || 1)}</span></div>
-                <p>${escapeHtml(zone.description || "Zona lista para exploración modular.")}</p>
-                <div class="featured-species">${(zone.featured_species || []).map(p => `<span class="pill tag-accent featured-species-pill"><img src="${escapeHtml(getPokemonSprite(p))}" alt="${escapeHtml(p.name || 'Pokemon')}" onerror="onPokemonImageError(this)"><span>${escapeHtml(p.name)}</span></span>`).join("") || `<span class="pill">Sin destacadas</span>`}</div>
-              </article>`).join("")}
+      <section class="section-card adventure-region-shell">
+        <div class="adventure-region-head">
+          <div>
+            <span class="eyebrow">Region selected</span>
+            <h2>${escapeHtml(region.name || regionCode)}</h2>
+            <p>${escapeHtml(region.description || "Detalle regional cargado desde la API V2.")}</p>
           </div>
-          <div class="region-overview-grid">
-            <article class="region-overview-card"><strong>${escapeHtml(region.name || "-")}</strong><p class="body-copy">Región activa modular.</p></article>
-            <article class="region-overview-card"><strong>${escapeHtml(zones.length)}</strong><p class="body-copy">Zonas cargadas</p></article>
-            <article class="region-overview-card"><strong>${escapeHtml(region.generation_id || "-")}</strong><p class="body-copy">Generación</p></article>
-            <article class="region-overview-card"><strong>${escapeHtml(region.code || "-")}</strong><p class="body-copy">Código interno</p></article>
+          <div class="adventure-region-pills">
+            <span class="pill tag-accent">${escapeHtml(region.code || "-")}</span>
+            <span class="pill">Gen ${escapeHtml(region.generation_id || "-")}</span>
           </div>
+        </div>
+
+        <div class="region-overview-grid region-overview-grid-featured">
+          <article class="region-overview-card region-overview-card-featured">
+            <span>Siguiente paso</span>
+            <strong>${escapeHtml(highlightedZone?.name || "Sin zona inicial")}</strong>
+            <p class="body-copy">${escapeHtml(highlightedZone?.description || "Selecciona una region para comenzar su ruta modular.")}</p>
+          </article>
+          <article class="region-overview-card"><span>Zona activas</span><strong>${escapeHtml(zones.length)}</strong><p class="body-copy">Tramos disponibles en esta region.</p></article>
+          <article class="region-overview-card"><span>Generation</span><strong>${escapeHtml(region.generation_id || "-")}</strong><p class="body-copy">Arco base del contenido.</p></article>
+          <article class="region-overview-card"><span>Region code</span><strong>${escapeHtml(region.code || "-")}</strong><p class="body-copy">Identificador interno del modulo.</p></article>
+        </div>
+
+        <div class="section-head adventure-zones-head">
+          <div>
+            <h2>Zone route</h2>
+            <p class="body-copy">Cada zona deberia convertirse despues en exploracion, encuentros, drops y progreso hacia gyms.</p>
+          </div>
+        </div>
+
+        <div class="zone-list zone-list-adventure">
+          ${zones.map((zone) => `
+            <article class="zone-card zone-card-adventure">
+              <div class="zone-card-head">
+                <div>
+                  <strong>${escapeHtml(zone.name)}</strong>
+                  <div class="pill-row">
+                    <span class="pill">${escapeHtml(zone.biome || zone.tipo_ambiente || "-")}</span>
+                    <span class="pill">Lv ${escapeHtml(zone.level_min || 1)}-${escapeHtml(zone.level_max || 1)}</span>
+                  </div>
+                </div>
+                <button class="soft-btn" type="button">Explore</button>
+              </div>
+              <p>${escapeHtml(zone.description || "Zona lista para exploracion modular.")}</p>
+              <div class="featured-species">
+                ${(zone.featured_species || []).map((pokemon) => `
+                  <span class="pill tag-accent featured-species-pill">
+                    <img src="${escapeHtml(getPokemonSprite(pokemon))}" alt="${escapeHtml(pokemon.name || "Pokemon")}" onerror="onPokemonImageError(this)">
+                    <span>${escapeHtml(pokemon.name)}</span>
+                  </span>
+                `).join("") || `<span class="pill">Sin destacadas</span>`}
+              </div>
+            </article>`).join("")}
         </div>
       </section>`;
   } catch (error) {
-    mount.innerHTML = statusCard(error.message || "No se pudo cargar la región.", "error");
+    mount.innerHTML = statusCard(error.message || "No se pudo cargar la region.", "error");
   }
 }

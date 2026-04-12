@@ -9,11 +9,72 @@
 .adventure-shell { display:grid; gap:20px; }
 .adventure-layout { display:grid; grid-template-columns: 1fr .9fr; gap: 20px; }
 .region-overview-grid { display:grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap:12px; }
+.adventure-region-shell { display:grid; gap:20px; }
+.adventure-region-head {
+  display:flex;
+  justify-content:space-between;
+  gap:16px;
+  align-items:flex-start;
+}
+.adventure-region-head h2 {
+  margin:10px 0 10px;
+  font-size: clamp(2rem, 3vw, 2.8rem);
+}
+.adventure-region-head p {
+  margin:0;
+  max-width: 760px;
+  color: var(--text-soft);
+  line-height: 1.65;
+}
+.adventure-region-pills {
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+}
+.region-overview-grid-featured {
+  grid-template-columns: minmax(0, 1.6fr) repeat(3, minmax(0, 1fr));
+}
+.region-overview-card {
+  display:grid;
+  gap:8px;
+  min-height: 130px;
+}
+.region-overview-card span {
+  color: var(--text-dim);
+  font-size:12px;
+  text-transform: uppercase;
+}
+.region-overview-card strong {
+  font-size: 1.8rem;
+  line-height: 1;
+}
+.region-overview-card-featured {
+  background:
+    radial-gradient(circle at 0% 0%, rgba(122,227,255,.12), transparent 35%),
+    rgba(255,255,255,.05);
+}
+.adventure-zones-head {
+  margin-bottom: 0;
+}
 .zone-card p, .region-card p, .region-overview-card p { margin:0; color: var(--text-soft); line-height:1.55; }
 .zone-list { display:grid; gap: 14px; }
+.zone-list-adventure {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.zone-card-adventure {
+  display:grid;
+  gap:14px;
+}
+.zone-card-head {
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:flex-start;
+}
 .featured-species { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
 @media (max-width: 960px) {
-  .regions-grid, .zones-grid, .adventure-layout, .region-overview-grid { grid-template-columns: 1fr; }
+  .regions-grid, .zones-grid, .adventure-layout, .region-overview-grid, .zone-list-adventure { grid-template-columns: 1fr; }
+  .adventure-region-head, .zone-card-head { flex-direction:column; align-items:flex-start; }
 }
 
 .featured-species-pill{display:inline-flex;align-items:center;gap:8px;}
