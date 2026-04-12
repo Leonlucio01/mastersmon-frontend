@@ -68,3 +68,82 @@ export function onAvatarImageError(img) {
   img.src = getAvatarImage("steven");
 }
 window.onAvatarImageError = onAvatarImageError;
+
+function ensureModalMount() {
+  let mount = document.getElementById("appModal");
+  if (mount) return mount;
+  mount = document.createElement("div");
+  mount.id = "appModal";
+  mount.className = "app-modal hidden";
+  mount.innerHTML = `
+    <div class="app-modal-backdrop" data-modal-close="true"></div>
+    <div class="app-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="appModalTitle">
+      <button class="app-modal-close" type="button" aria-label="Cerrar" data-modal-close="true">&times;</button>
+      <div class="app-modal-head">
+        <span class="eyebrow" id="appModalEyebrow">Info</span>
+        <h3 id="appModalTitle"></h3>
+      </div>
+      <div class="app-modal-body" id="appModalBody"></div>
+      <div class="app-modal-actions" id="appModalActions"></div>
+    </div>`;
+  document.body.appendChild(mount);
+  mount.addEventListener("click", (event) => {
+    if (event.target instanceof HTMLElement && event.target.dataset.modalClose === "true") {
+      closeAppModal();
+    }
+  });
+  return mount;
+}
+
+export function closeAppModal() {
+  const mount = document.getElementById("appModal");
+  if (!mount) return;
+  mount.classList.add("hidden");
+  document.body.classList.remove("modal-open");
+  const title = document.getElementById("appModalTitle");
+  const body = document.getElementById("appModalBody");
+  const actions = document.getElementById("appModalActions");
+  if (title) title.textContent = "";
+  if (body) body.innerHTML = "";
+  if (actions) actions.innerHTML = "";
+}
+
+export function openAppModal({
+  eyebrow = "Info",
+  title = "",
+  body = "",
+  actions = [],
+} = {}) {
+  const mount = ensureModalMount();
+  const eyebrowNode = document.getElementById("appModalEyebrow");
+  const titleNode = document.getElementById("appModalTitle");
+  const bodyNode = document.getElementById("appModalBody");
+  const actionsNode = document.getElementById("appModalActions");
+  if (!eyebrowNode || !titleNode || !bodyNode || !actionsNode) return;
+
+  eyebrowNode.textContent = eyebrow;
+  titleNode.textContent = title;
+  bodyNode.innerHTML = body;
+  actionsNode.innerHTML = actions.map((action, index) => `
+    <button
+      type="button"
+      class="${action.kind === "primary" ? "primary-btn" : "soft-btn"}"
+      data-modal-action-index="${index}">
+      ${escapeHtml(action.label || "Cerrar")}
+    </button>`).join("");
+
+  actionsNode.querySelectorAll("[data-modal-action-index]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const action = actions[Number(button.getAttribute("data-modal-action-index"))];
+      if (action?.closeOnClick !== false) closeAppModal();
+      if (typeof action?.onClick === "function") action.onClick();
+    });
+  });
+
+  mount.classList.remove("hidden");
+  document.body.classList.add("modal-open");
+}
+
+window.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") closeAppModal();
+});
