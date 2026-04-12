@@ -255,6 +255,24 @@
   padding: 0 14px;
 }
 
+.field select {
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, #dff8ff 50%),
+    linear-gradient(135deg, #dff8ff 50%, transparent 50%);
+  background-position:
+    calc(100% - 20px) calc(50% - 3px),
+    calc(100% - 14px) calc(50% - 3px);
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+  padding-right: 38px;
+}
+
+.field select option {
+  color: #0c1728;
+  background: #edf4ff;
+}
+
 .avatar-picker {
   display: grid;
   gap: 14px;
@@ -298,6 +316,37 @@
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 12px;
+}
+
+.onboarding-actions {
+  margin-top: 16px;
+}
+
+.generation-switcher {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 12px 0 14px;
+}
+
+.generation-pill {
+  appearance: none;
+  cursor: pointer;
+  border-radius: 999px;
+  border: 1px solid var(--line-soft);
+  background: rgba(255,255,255,.04);
+  color: var(--text-soft);
+  padding: 10px 14px;
+  font-weight: 700;
+  transition: transform .18s ease, border-color .18s ease, background .18s ease, color .18s ease;
+}
+
+.generation-pill:hover,
+.generation-pill.is-selected {
+  transform: translateY(-1px);
+  border-color: rgba(122,227,255,.45);
+  background: rgba(91,184,255,.12);
+  color: var(--text-main);
 }
 
 .avatar-card {
@@ -357,11 +406,11 @@
 
 .starter-feature {
   display: grid;
-  grid-template-columns: 120px minmax(0, 1fr);
-  gap: 16px;
+  grid-template-columns: 168px minmax(0, 1fr);
+  gap: 18px;
   align-items: center;
   margin-bottom: 14px;
-  padding: 16px;
+  padding: 18px;
   border-radius: 20px;
   border: 1px solid rgba(122,227,255,.18);
   background:
@@ -370,8 +419,8 @@
 }
 
 .starter-feature__art {
-  min-height: 120px;
-  border-radius: 18px;
+  min-height: 168px;
+  border-radius: 22px;
   display: grid;
   place-items: center;
   background: rgba(5, 14, 28, .7);
@@ -379,8 +428,8 @@
 }
 
 .starter-feature__art img {
-  width: 96px;
-  height: 96px;
+  width: 140px;
+  height: 140px;
   object-fit: contain;
   image-rendering: pixelated;
 }
@@ -408,6 +457,7 @@
   padding: 14px;
   border:1px solid var(--line-soft);
   background: rgba(255,255,255,.04);
+  min-height: 138px;
   transition: transform .18s ease, border-color .18s ease;
 }
 
@@ -420,8 +470,8 @@
 }
 
 .starter-card img {
-  width:72px;
-  height:72px;
+  width:88px;
+  height:88px;
   object-fit:contain;
   image-rendering: pixelated;
   display:block;

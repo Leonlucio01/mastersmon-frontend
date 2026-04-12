@@ -12,6 +12,12 @@ function startersByGeneration() {
   return all.filter((item) => String(item.generation_id || "") === String(state.selectedStarterGeneration));
 }
 
+function availableGenerations() {
+  const starters = Array.isArray(state.onboardingOptions?.starters) ? state.onboardingOptions.starters : [];
+  const unique = [...new Set(starters.map((item) => String(item.generation_id || "")).filter(Boolean))];
+  return unique.length ? unique : ["1"];
+}
+
 function getAvatarOptions() {
   const fromBackend = Array.isArray(state.onboardingOptions?.avatars) ? state.onboardingOptions.avatars : [];
   if (fromBackend.length) return fromBackend;
@@ -28,6 +34,11 @@ function getSelectedStarter(starters) {
 }
 
 export function renderOnboarding(errorMessage = "") {
+  const generations = availableGenerations();
+  if (!generations.includes(String(state.selectedStarterGeneration))) {
+    state.selectedStarterGeneration = generations[0];
+  }
+
   const starters = startersByGeneration();
   const avatars = getAvatarOptions();
   if (!avatars.some((avatar) => avatar.code === state.selectedAvatarCode)) {
@@ -101,7 +112,7 @@ export function renderOnboarding(errorMessage = "") {
               </div>
             </div>
           </div>
-          <div style="margin-top:16px" class="hero-actions">
+          <div class="hero-actions onboarding-actions">
             <button class="primary-btn" type="submit">${escapeHtml(tr("onboarding.complete"))}</button>
             <button class="soft-btn" type="button" id="reloadOnboarding">${escapeHtml(tr("onboarding.reload"))}</button>
           </div>
@@ -109,10 +120,22 @@ export function renderOnboarding(errorMessage = "") {
         </form>
         <aside class="starter-panel">
           <div class="starter-toolbar">
-            <strong>${escapeHtml(tr("onboarding.starter"))}</strong>
-            <select id="starterGenerationFilter">
-              ${[1, 2, 3, 4, 5, 6, 7, 8, 9].map((value) => `<option value="${value}" ${String(value) === String(state.selectedStarterGeneration) ? "selected" : ""}>Gen ${value}</option>`).join("")}
-            </select>
+            <div>
+              <strong>${escapeHtml(tr("onboarding.starter"))}</strong>
+              <p class="body-copy">Explora los iniciales disponibles por generacion y destaca tu eleccion.</p>
+            </div>
+          </div>
+          <div class="generation-switcher" role="tablist" aria-label="Generaciones">
+            ${generations.map((generation) => `
+              <button
+                class="generation-pill ${String(generation) === String(state.selectedStarterGeneration) ? "is-selected" : ""}"
+                type="button"
+                data-generation-pill="${escapeHtml(generation)}"
+                aria-pressed="${String(generation) === String(state.selectedStarterGeneration) ? "true" : "false"}"
+              >
+                Gen ${escapeHtml(generation)}
+              </button>
+            `).join("")}
           </div>
           <p class="body-copy">${escapeHtml(tr("onboarding.count", { visible: starters.length, total }))}</p>
           ${selectedStarter ? `
@@ -140,9 +163,11 @@ export function renderOnboarding(errorMessage = "") {
       </div>
     </section>`;
 
-  document.getElementById("starterGenerationFilter")?.addEventListener("change", (event) => {
-    state.selectedStarterGeneration = event.target.value;
-    renderOnboarding(errorMessage);
+  document.querySelectorAll("[data-generation-pill]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.selectedStarterGeneration = button.getAttribute("data-generation-pill") || generations[0];
+      renderOnboarding(errorMessage);
+    });
   });
 
   document.querySelectorAll("[data-avatar-code]").forEach((card) => {

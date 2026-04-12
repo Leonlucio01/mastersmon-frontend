@@ -18,20 +18,30 @@ async function ensureCollectionLoaded(force = false) {
   if (filters.variant) params.set("variant", filters.variant);
   if (filters.favorites_only) params.set("favorites_only", "true");
   params.set("limit", String(filters.limit || 60));
+
   const [summaryResponse, itemsResponse] = await Promise.all([
     fetchAuth("/v2/collection/summary"),
     fetchAuth(`/v2/collection/pokemon?${params.toString()}`),
   ]);
+
   state.collectionSummary = summaryResponse.data || null;
   state.collectionItems = itemsResponse.data?.items || [];
-  if (!state.selectedCollectionId && state.collectionItems.length) state.selectedCollectionId = state.collectionItems[0].user_pokemon_id;
+  if (!state.selectedCollectionId && state.collectionItems.length) {
+    state.selectedCollectionId = state.collectionItems[0].user_pokemon_id;
+  }
 }
 
 async function ensureCollectionDetail(id) {
   if (!id) return null;
   if (state.collectionDetail?.user_pokemon_id === id) return state.collectionDetail;
-  const response = await fetchAuth(`/v2/collection/pokemon/${id}`);
-  state.collectionDetail = response.data || null;
+
+  try {
+    const response = await fetchAuth(`/v2/collection/pokemon/${id}`);
+    state.collectionDetail = response.data || null;
+  } catch (error) {
+    state.collectionDetail = null;
+  }
+
   return state.collectionDetail;
 }
 
@@ -47,7 +57,7 @@ function renderSummaryCards(summary) {
 
 function renderVariantCards(summary) {
   const variants = Array.isArray(summary?.variants) ? summary.variants : [];
-  return `<div class="collection-variant-grid">${variants.length ? variants.map(v => `<article class="collection-variant-card"><span>${escapeHtml(v.variant_code)}</span><strong>${escapeHtml(v.qty)}</strong></article>`).join("") : `<div class="empty-panel">No variants yet.</div>`}</div>`;
+  return `<div class="collection-variant-grid">${variants.length ? variants.map((variant) => `<article class="collection-variant-card"><span>${escapeHtml(variant.variant_code)}</span><strong>${escapeHtml(variant.qty)}</strong></article>`).join("") : `<div class="empty-panel">No variants yet.</div>`}</div>`;
 }
 
 function renderPokemonCard(item) {
@@ -60,7 +70,7 @@ function renderPokemonCard(item) {
         </div>
         <div class="pokemon-card-copy">
           <strong>${escapeHtml(item.display_name)}</strong>
-          <p>Lv ${escapeHtml(item.level)} · ${escapeHtml(item.variant_name || item.variant || "Normal")}</p>
+          <p>Lv ${escapeHtml(item.level)} - ${escapeHtml(item.variant_name || item.variant || "Normal")}</p>
         </div>
       </div>
       <div class="pokemon-meta-row">
@@ -73,7 +83,10 @@ function renderPokemonCard(item) {
 }
 
 function renderDetail(detail) {
-  if (!detail) return `<div class="empty-panel">Select a Pokémon to view detail.</div>`;
+  if (!detail) {
+    return `<div class="empty-panel">La lista ya cargo. El detalle no estuvo disponible en este intento, pero puedes seguir navegando tu coleccion.</div>`;
+  }
+
   const types = Array.isArray(detail.types) ? detail.types : [];
   return `
     <article class="pokemon-detail-card">
@@ -81,8 +94,8 @@ function renderDetail(detail) {
         <div class="pokemon-detail-art"><img src="${escapeHtml(getPokemonSprite(detail))}" alt="${escapeHtml(detail.display_name || detail.species_name)}" onerror="onPokemonImageError(this)"></div>
         <div class="pokemon-detail-copy">
           <strong>${escapeHtml(detail.display_name || detail.species_name)}</strong>
-          <p>${escapeHtml(detail.species_description || "Sin descripción todavía.")}</p>
-          <div class="pokemon-meta-row" style="margin-top:10px">${types.map(t => `<span class="pokemon-pill">${escapeHtml(t.name || t.code)}</span>`).join("")}</div>
+          <p>${escapeHtml(detail.species_description || "Sin descripcion todavia.")}</p>
+          <div class="pokemon-meta-row" style="margin-top:10px">${types.map((type) => `<span class="pokemon-pill">${escapeHtml(type.name || type.code)}</span>`).join("")}</div>
         </div>
       </div>
       <div class="pokemon-detail-stats">
@@ -108,41 +121,45 @@ function bindCollectionEvents() {
     state.collectionItems = [];
     await renderCollection(true);
   });
+
   document.getElementById("collectionResetFilters")?.addEventListener("click", async () => {
     state.collectionFilters = { search: "", variant: "", favorites_only: false, limit: 60 };
     state.collectionItems = [];
     await renderCollection(true);
   });
-  document.querySelectorAll("[data-pokemon-card]").forEach(card => {
+
+  document.querySelectorAll("[data-pokemon-card]").forEach((card) => {
     card.addEventListener("click", async () => {
       state.selectedCollectionId = Number(card.getAttribute("data-pokemon-card"));
       await renderCollection(false);
     });
   });
-  document.querySelectorAll("[data-add-team]").forEach(btn => {
-    btn.addEventListener("click", async () => {
-      const id = Number(btn.getAttribute("data-add-team"));
+
+  document.querySelectorAll("[data-add-team]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const id = Number(button.getAttribute("data-add-team"));
       if (!state.teamSelection.includes(id) && state.teamSelection.length < 6) state.teamSelection.push(id);
       renderCollection(false);
     });
   });
-  document.querySelectorAll("[data-remove-team]").forEach(btn => {
-    btn.addEventListener("click", async () => {
-      const id = Number(btn.getAttribute("data-remove-team"));
-      state.teamSelection = state.teamSelection.filter(value => Number(value) !== id);
+
+  document.querySelectorAll("[data-remove-team]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const id = Number(button.getAttribute("data-remove-team"));
+      state.teamSelection = state.teamSelection.filter((value) => Number(value) !== id);
       renderCollection(false);
     });
   });
 }
 
 function teamSelectionCards() {
-  const selectedItems = state.collectionItems.filter(item => state.teamSelection.includes(item.user_pokemon_id));
+  const selectedItems = state.collectionItems.filter((item) => state.teamSelection.includes(item.user_pokemon_id));
   const slots = Array.from({ length: 6 }, (_, index) => selectedItems[index] || null);
   return slots.map((item, index) => item ? `
     <article class="team-slot-card is-filled">
       <div>
         <strong>Slot ${index + 1}</strong>
-        <p>${escapeHtml(item.display_name)} · Lv ${escapeHtml(item.level)}</p>
+        <p>${escapeHtml(item.display_name)} - Lv ${escapeHtml(item.level)}</p>
         <button type="button" class="ghost-btn" data-remove-team="${item.user_pokemon_id}">Remove</button>
       </div>
     </article>` : `
@@ -150,28 +167,43 @@ function teamSelectionCards() {
 }
 
 function availableRoster() {
-  return state.collectionItems.map(item => `
+  return state.collectionItems.map((item) => `
     <article class="roster-card">
       <div class="roster-card-art"><img src="${escapeHtml(getPokemonSprite(item))}" alt="${escapeHtml(item.display_name)}" onerror="onPokemonImageError(this)"></div>
-      <div class="roster-card-copy"><strong>${escapeHtml(item.display_name)}</strong><p>Lv ${escapeHtml(item.level)} · ${escapeHtml(item.variant_name || item.variant || "Normal")}</p><div class="roster-card-meta">${item.is_shiny ? `<span class="pokemon-pill is-shiny">Shiny</span>` : ""}${item.is_favorite ? `<span class="pokemon-pill is-favorite">Favorite</span>` : ""}</div></div>
+      <div class="roster-card-copy">
+        <strong>${escapeHtml(item.display_name)}</strong>
+        <p>Lv ${escapeHtml(item.level)} - ${escapeHtml(item.variant_name || item.variant || "Normal")}</p>
+        <div class="roster-card-meta">${item.is_shiny ? `<span class="pokemon-pill is-shiny">Shiny</span>` : ""}${item.is_favorite ? `<span class="pokemon-pill is-favorite">Favorite</span>` : ""}</div>
+      </div>
       <div class="roster-card-actions">${state.teamSelection.includes(item.user_pokemon_id) ? `<button type="button" class="soft-btn" data-remove-team="${item.user_pokemon_id}">In team</button>` : `<button type="button" class="primary-btn" data-add-team="${item.user_pokemon_id}">Add</button>`}</div>
     </article>`).join("");
 }
 
 export async function renderCollection(force = false) {
   refs.appContent.innerHTML = statusCard(tr("common.loading"));
+
   try {
     await ensureCollectionLoaded(force);
     await ensureCollectionDetail(state.selectedCollectionId);
-    if (!state.teamSelection.length) state.teamSelection = (state.teamActive?.members || []).map(m => m.user_pokemon_id);
+
+    if (!state.teamSelection.length) {
+      state.teamSelection = (state.teamActive?.members || []).map((member) => member.user_pokemon_id);
+    }
+
     const filters = state.collectionFilters || { search: "", variant: "", favorites_only: false };
     refs.appContent.innerHTML = `
       <section class="hero-panel collection-shell">
-        <div class="section-head"><div><span class="eyebrow">Collection</span><h2>${escapeHtml(tr("collection.title"))}</h2><p class="body-copy">${escapeHtml(tr("collection.body"))}</p></div></div>
+        <div class="section-head collection-shell-head">
+          <div>
+            <span class="eyebrow">Collection</span>
+            <h2>${escapeHtml(tr("collection.title"))}</h2>
+            <p class="body-copy">${escapeHtml(tr("collection.body"))}</p>
+          </div>
+          <span class="pill">${escapeHtml(state.collectionItems.length)} en vista</span>
+        </div>
         <div class="collection-layout">
           <div class="collection-stack">
             <div class="section-card">${renderSummaryCards(state.collectionSummary)}</div>
-            <div class="section-card"><div class="section-head"><div><h2>Variants</h2></div></div>${renderVariantCards(state.collectionSummary)}</div>
             <div class="section-card collection-filter-card">
               <form id="collectionFilterForm" class="collection-filter-form">
                 <input name="search" placeholder="Search by name or nickname" value="${escapeHtml(filters.search || "")}">
@@ -180,7 +212,17 @@ export async function renderCollection(force = false) {
                 <div class="stack-actions"><button class="primary-btn" type="submit">Apply</button><button class="soft-btn" id="collectionResetFilters" type="button">Reset</button></div>
               </form>
             </div>
-            <div class="section-card"><div class="section-head"><div><h2>My Pokémon</h2></div><span class="pill">${escapeHtml(state.collectionItems.length)}</span></div><div class="pokemon-grid">${state.collectionItems.length ? state.collectionItems.map(renderPokemonCard).join("") : `<div class="empty-panel">No Pokémon match these filters.</div>`}</div></div>
+            <div class="section-card">
+              <div class="section-head"><div><h2>Variantes</h2><p class="body-copy">Resumen rapido por forma capturada.</p></div></div>
+              ${renderVariantCards(state.collectionSummary)}
+            </div>
+            <div class="section-card collection-library-card">
+              <div class="section-head">
+                <div><h2>My Pokemon</h2><p class="body-copy">Selecciona un Pokemon para ver su ficha y sumarlo al equipo.</p></div>
+                <span class="pill">${escapeHtml(state.collectionItems.length)}</span>
+              </div>
+              <div class="pokemon-grid">${state.collectionItems.length ? state.collectionItems.map(renderPokemonCard).join("") : `<div class="empty-panel">No Pokemon match these filters.</div>`}</div>
+            </div>
           </div>
           <div class="collection-stack">
             <div class="section-card"><div class="section-head"><div><h2>Detail</h2></div></div>${renderDetail(state.collectionDetail)}</div>
@@ -193,7 +235,8 @@ export async function renderCollection(force = false) {
           </div>
         </div>
       </section>`;
-    document.querySelector('[data-nav-jump="team"]')?.addEventListener('click', () => document.querySelector('[data-nav="team"]')?.click());
+
+    document.querySelector('[data-nav-jump="team"]')?.addEventListener("click", () => document.querySelector('[data-nav="team"]')?.click());
     bindCollectionEvents();
   } catch (error) {
     refs.appContent.innerHTML = statusCard(error.message || "No se pudo cargar Collection.", "error");

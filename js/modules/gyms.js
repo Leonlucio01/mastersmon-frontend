@@ -1,11 +1,12 @@
 import { fetchAuth } from "../core/api.js";
 import { refs, escapeHtml, renderTopbarProfile, statusCard } from "../core/ui.js";
 import { state } from "../core/state.js";
+import { getPokemonSprite } from "../core/assets.js";
 
 function typeLabel(code = "") {
   const value = String(code || "").trim();
   if (!value) return "Unknown";
-  return value.replace(/_/g, " ").replace(/\b\w/g, (m) => m.toUpperCase());
+  return value.replace(/_/g, " ").replace(/\b\w/g, (match) => match.toUpperCase());
 }
 
 async function ensureGymsLoaded(force = false) {
@@ -102,12 +103,12 @@ function renderDetailPanel() {
 
       <div class="section-head" style="margin-top:18px"><div><h2>Enemy roster</h2><p class="body-copy">Current lineup registered for this gym.</p></div></div>
       <div class="gym-roster-grid">
-        ${roster.length ? roster.map(member => `
+        ${roster.length ? roster.map((member) => `
           <article class="gym-roster-card">
-            <div class="gym-roster-art"><img src="${escapeHtml(member.asset_url || "https://placehold.co/96x96/png")}" alt="${escapeHtml(member.species_name)}" onerror="onPokemonImageError(this)"></div>
+            <div class="gym-roster-art"><img src="${escapeHtml(getPokemonSprite(member))}" alt="${escapeHtml(member.species_name)}" onerror="onPokemonImageError(this)"></div>
             <div class="gym-roster-copy">
               <strong>${escapeHtml(member.species_name)}</strong>
-              <p>Slot ${escapeHtml(member.slot_order || 1)} · Lv ${escapeHtml(member.level || 1)}</p>
+              <p>Slot ${escapeHtml(member.slot_order || 1)} - Lv ${escapeHtml(member.level || 1)}</p>
               <div class="pill-row">
                 <span class="pill">${member.is_signature ? "Signature" : "Standard"}</span>
                 ${member.is_shiny ? `<span class="pill tag-accent">Shiny</span>` : ""}
@@ -160,7 +161,7 @@ export async function renderGyms(force = false) {
             ${summaryCard("Completion", `${escapeHtml(summary.completion_pct || 0)}%`, "Global badge progress")}
             ${summaryCard("Completed", escapeHtml(summary.completed_gyms || 0), "Gyms cleared")}
             ${summaryCard("Unlocked", escapeHtml(summary.unlocked_gyms || 0), "Gyms available now")}
-            ${summaryCard("Next gym", escapeHtml(nextGym?.name || "-"), nextGym ? `${nextGym.region_name || "Region"} · Lv ${nextGym.recommended_level || 1}` : "No next gym returned")}
+            ${summaryCard("Next gym", escapeHtml(nextGym?.name || "-"), nextGym ? `${nextGym.region_name || "Region"} - Lv ${nextGym.recommended_level || 1}` : "No next gym returned")}
           </div>
         </div>
       </section>
@@ -172,7 +173,7 @@ export async function renderGyms(force = false) {
         </section>
         ${renderDetailPanel()}
       </section>`;
-    document.querySelector('[data-nav-jump="team"]')?.addEventListener('click', () => document.querySelector('[data-nav="team"]')?.click());
+    document.querySelector('[data-nav-jump="team"]')?.addEventListener("click", () => document.querySelector('[data-nav="team"]')?.click());
     bindGymsEvents();
   } catch (error) {
     refs.appContent.innerHTML = statusCard(error.message || "No se pudo cargar Gyms.", "error");
