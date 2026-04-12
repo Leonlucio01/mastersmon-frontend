@@ -1,55 +1,50 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mastersmon V2</title>
-    <meta name="description" content="Mastersmon V2 - Trainer Hub, onboarding y aventura mobile-first.">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/v2-shell.css?v=v2-shell-2">
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mastersmon</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
-    <div class="shell-bg shell-bg-top"></div>
-    <div class="shell-bg shell-bg-bottom"></div>
+  <div id="app">
+    <header class="topbar">
+      <div class="brand">
+        <img src="img/Logo MastersMon.png" class="logo" alt="Mastersmon" />
+        <strong>Mastersmon</strong>
+      </div>
 
-    <div id="app" class="app-shell">
-        <header class="topbar">
-            <a class="brand" href="index.html" aria-label="Mastersmon V2">
-                <span class="brand-mark">M</span>
-                <span class="brand-copy">
-                    <strong>Mastersmon</strong>
-                    <small>V2 Trainer Hub</small>
-                </span>
-            </a>
+      <nav>
+        <button data-nav="home" class="active" type="button">Home</button>
+        <button data-nav="adventure" type="button">Adventure</button>
+      </nav>
 
-            <nav class="topnav" aria-label="Principal">
-                <button class="topnav-link is-active" type="button" data-nav="home">Home</button>
-                <button class="topnav-link" type="button" data-nav="adventure">Adventure</button>
-                <button class="topnav-link" type="button" data-nav="collection">Collection</button>
-                <button class="topnav-link" type="button" data-nav="team">Team</button>
-                <button class="topnav-link" type="button" data-nav="more">More</button>
-            </nav>
+      <div class="auth-box">
+        <div id="g_id_onload"
+             data-client_id="REEMPLAZA_CON_TU_GOOGLE_CLIENT_ID"
+             data-callback="handleCredentialResponse">
+        </div>
 
-            <div class="topbar-actions">
-                <label class="language-switch" for="languageSwitch">
-                    <span>Lang</span>
-                    <select id="languageSwitch" aria-label="Language">
-                        <option value="en">EN</option>
-                        <option value="es">ES</option>
-                    </select>
-                </label>
-                <div id="topbarProfile" class="topbar-profile hidden" aria-live="polite"></div>
-                <button id="refreshButton" class="ghost-btn" type="button">Refresh</button>
-                <button id="logoutButton" class="ghost-btn hidden" type="button">Salir</button>
-            </div>
-        </header>
+        <div class="g_id_signin"
+             data-type="standard"
+             data-size="medium"
+             data-theme="outline"
+             data-text="signin_with"
+             data-shape="pill"
+             data-logo_alignment="left">
+        </div>
 
-        <main id="appContent" class="app-content" aria-live="polite"></main>
-    </div>
+        <div id="userBox" class="hidden">
+          <span id="userName"></span>
+          <button id="logoutBtn" type="button">Logout</button>
+        </div>
+      </div>
+    </header>
 
-    <script src="js/v2-shell.js?v=v2-shell-2" defer></script>
+    <main id="content"></main>
+  </div>
+
+  <script src="app.js"></script>
 </body>
 </html>
