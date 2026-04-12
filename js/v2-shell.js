@@ -1,6 +1,191 @@
 const API_BASE = "https://mastersmon-api.onrender.com";
 const ACCESS_TOKEN_STORAGE_KEY = "access_token";
+const LOCALE_STORAGE_KEY = "mastersmon_locale";
 const GOOGLE_CLIENT_ID = "535230935122-vqqd262fjhetd408li95420bb8cas5vb.apps.googleusercontent.com";
+const TRANSLATIONS = {
+    en: {
+        topbar: { home: "Home", adventure: "Adventure", collection: "Collection", team: "Team", more: "More", refresh: "Refresh", logout: "Logout", lang: "Lang" },
+        common: { active: "Active", next: "Next", all: "All", loadingGoogle: "Loading Google sign-in...", googleFailed: "We could not load Google automatically. Try one refresh.", trainer: "Trainer" },
+        login: {
+            eyebrow: "Mastersmon V2",
+            title: "Your trainer journey starts in a real game hub.",
+            body: "We are leaving behind the split web of isolated pages. This new entry is already built as the game shell: login, onboarding, home and adventure on the V2 API.",
+            loginCta: "Continue with Google",
+            previewCta: "See the game vision",
+            baseTitle: "Ready",
+            baseBody: "Catalog, zones, gyms, house and trade already live on game.",
+            flowTitle: "Login → Onboarding → Home",
+            flowBody: "Mobile-first and ready to grow later into an installable app.",
+            quickTitle: "Quick access",
+            quickBody: "We sign in with Google and on the first visit we complete your name, team, starter and starting region.",
+            authEyebrow: "Authentication",
+            authTitle: "One access, no friction.",
+            authBody: "The backend creates user, profile, wallet and house on first login. Then we send you to onboarding or straight into the game.",
+            comingTitle: "What is already coming in V2",
+            comingBody: "The shell already shows the direction of the game before we rebuild every visual module.",
+        },
+        modules: {
+            home: "Trainer hub with progress, team and alerts.",
+            adventure: "Maps, regions and zones as the center of the game.",
+            collection: "Collection lookup and variants.",
+            team: "Active team and presets.",
+            gyms: "Regional progression route.",
+            house: "Storage, featured and upgrades.",
+            trade: "Offers, acceptance and history are already available.",
+            shop: "What comes after the core shell.",
+        },
+        onboarding: {
+            eyebrow: "First login",
+            title: "Let's prepare your trainer.",
+            body: "This onboarding is no longer a loose modal. It is the real gateway to Mastersmon V2. Here we define your identity, your starter and the region where your adventure begins.",
+            trainerLabel: "Trainer",
+            trainerBody: "We are going to leave your profile ready with identity, starter and starting region.",
+            configTitle: "Set your start",
+            configBody: "We choose identity, starter and starting region. Then we send you to Home with your first team ready.",
+            displayName: "Trainer name",
+            displayPlaceholder: "Jhonatan Leon",
+            avatar: "Avatar",
+            team: "Team",
+            region: "Starting region",
+            complete: "Complete onboarding",
+            reload: "Reload options",
+            starterTitle: "Choose your starter",
+            starterBody: "Now we do not show an endless list. You can filter by generation and compare each option better.",
+            starterVisible: "Showing {visible} of {total} active starters.",
+            starterCardBody: "Core starter to begin this region with a more focused and visual selection.",
+        },
+        home: {
+            eyebrow: "Trainer Hub",
+            continueAdventure: "Continue adventure",
+            refreshHub: "Refresh hub",
+            profileActive: "Active profile",
+            regionalProgress: "Regional progress",
+            collection: "Collection",
+            quickViewTitle: "Trainer quick view",
+            quickViewBody: "This home already consumes the V2 API and is designed as a decision panel, not as a landing page.",
+            activeRegion: "Active region",
+            unlockedZones: "Unlocked zones",
+            nextHouseUpgrade: "Next house upgrade",
+            adventureTeamTitle: "Adventure and Team",
+            adventureTeamBody: "The V2 shell joins what the player needs to keep playing without jumping through broken pages.",
+            continueTitle: "Continue Adventure",
+            noZone: "There is no current zone loaded yet.",
+            noGym: "No pending gym",
+            recommendedLevel: "{level} recommended level",
+            viewRegions: "View regions",
+            teamSnapshot: "Team Snapshot",
+            noTeam: "There are no members in the active team yet.",
+            backendModulesTitle: "Modules already living in the backend",
+            backendModulesBody: "We keep them visible from home to mark the direction of the game while we complete the full UI.",
+        },
+        adventure: {
+            eyebrow: "Adventure",
+            title: "Explore the world as the real core of the game.",
+            body: "This screen already uses the V2 regions and marks the direction of the new loop: explore, capture, strengthen your team and advance through gyms.",
+            backHome: "Back to hub",
+            refreshRegions: "Refresh regions",
+            activeRegions: "Active regions",
+            availableTitle: "Available regions",
+            availableBody: "These cards can already feed the future main selector of Adventure.",
+            active: "Active",
+            available: "Available",
+            detail: "View detail",
+            featuredSpecies: "{count} featured species.",
+            detailFallback: "Regional detail loaded from the V2 API.",
+        },
+    },
+    es: {
+        topbar: { home: "Home", adventure: "Adventure", collection: "Collection", team: "Team", more: "More", refresh: "Refresh", logout: "Salir", lang: "Idioma" },
+        common: { active: "Activo", next: "Siguiente", all: "Todas", loadingGoogle: "Cargando acceso con Google...", googleFailed: "No pudimos cargar Google automáticamente. Prueba recargando una vez.", trainer: "Trainer" },
+        login: {
+            eyebrow: "Mastersmon V2",
+            title: "Tu viaje de entrenador empieza en un hub real de juego.",
+            body: "Dejamos atrás la web partida en páginas sueltas. Esta nueva entrada ya está pensada como shell del juego: login, onboarding, home y adventure sobre la API V2.",
+            loginCta: "Continuar con Google",
+            previewCta: "Ver visión del juego",
+            baseTitle: "Lista",
+            baseBody: "Catálogo, zonas, gyms, house y trade ya viven sobre game.",
+            flowTitle: "Login → Onboarding → Home",
+            flowBody: "Mobile-first y listo para crecer luego hacia app instalable.",
+            quickTitle: "Acceso rápido",
+            quickBody: "Entramos con Google y en el primer ingreso completamos nombre, team, starter y región inicial.",
+            authEyebrow: "Autenticación",
+            authTitle: "Un solo acceso, sin fricción.",
+            authBody: "El backend crea usuario, perfil, wallet y house al primer login. Después te mandamos a onboarding o directo al juego.",
+            comingTitle: "Lo que viene en esta V2",
+            comingBody: "El shell ya te deja ver la dirección del juego antes de reconstruir cada módulo visual.",
+        },
+        modules: {
+            home: "Hub del entrenador con progreso, equipo y alertas.",
+            adventure: "Maps, regiones y zonas como centro del juego.",
+            collection: "Consulta de colección y variantes.",
+            team: "Equipo activo y presets.",
+            gyms: "Ruta de progreso regional.",
+            house: "Storage, featured y upgrades.",
+            trade: "Ofertas, aceptación e historial ya disponibles.",
+            shop: "Lo siguiente después del shell principal.",
+        },
+        onboarding: {
+            eyebrow: "Primer ingreso",
+            title: "Vamos a preparar a tu entrenador.",
+            body: "Este onboarding ya no es un modal suelto: es la puerta real a Mastersmon V2. Aquí definimos tu identidad, tu starter y la región donde empieza tu aventura.",
+            trainerLabel: "Entrenador",
+            trainerBody: "Vamos a dejar tu perfil listo con identidad, starter y región inicial.",
+            configTitle: "Configura tu comienzo",
+            configBody: "Elegimos identidad, starter y región inicial. Luego te mandamos al Home ya con el primer equipo listo.",
+            displayName: "Nombre del entrenador",
+            displayPlaceholder: "Jhonatan León",
+            avatar: "Avatar",
+            team: "Team",
+            region: "Región inicial",
+            complete: "Completar onboarding",
+            reload: "Recargar opciones",
+            starterTitle: "Elige tu starter",
+            starterBody: "Ahora ya no mostramos una lista eterna. Puedes filtrar por generación y comparar mejor cada opción.",
+            starterVisible: "Mostrando {visible} de {total} starters activos.",
+            starterCardBody: "Starter base para comenzar esta región con una elección más ordenada y visual.",
+        },
+        home: {
+            eyebrow: "Trainer Hub",
+            continueAdventure: "Continuar aventura",
+            refreshHub: "Actualizar hub",
+            profileActive: "Perfil activo",
+            regionalProgress: "Progreso regional",
+            collection: "Colección",
+            quickViewTitle: "Vista rápida del entrenador",
+            quickViewBody: "Este home ya consume la API V2 y está pensado como panel de decisión, no como landing page.",
+            activeRegion: "Región activa",
+            unlockedZones: "Zonas desbloqueadas",
+            nextHouseUpgrade: "Próximo upgrade house",
+            adventureTeamTitle: "Adventure y Team",
+            adventureTeamBody: "El shell V2 junta lo que el jugador necesita para seguir jugando sin saltar entre páginas rotas.",
+            continueTitle: "Continue Adventure",
+            noZone: "Todavía no hay zona actual cargada.",
+            noGym: "Sin gym pendiente",
+            recommendedLevel: "{level} nivel recomendado",
+            viewRegions: "Ver regiones",
+            teamSnapshot: "Team Snapshot",
+            noTeam: "Todavía no hay miembros en el equipo activo.",
+            backendModulesTitle: "Módulos que ya viven en el backend",
+            backendModulesBody: "Los dejamos visibles desde el home para marcar la dirección del juego mientras completamos la UI completa.",
+        },
+        adventure: {
+            eyebrow: "Adventure",
+            title: "Explora el mundo como eje real del juego.",
+            body: "Esta pantalla ya usa las regiones V2 y marca la dirección del nuevo loop: explorar, capturar, fortalecer equipo y avanzar en gyms.",
+            backHome: "Volver al hub",
+            refreshRegions: "Actualizar regiones",
+            activeRegions: "Regiones activas",
+            availableTitle: "Regiones disponibles",
+            availableBody: "Estas tarjetas ya pueden alimentar el futuro selector principal de Adventure.",
+            active: "Activa",
+            available: "Disponible",
+            detail: "Ver detalle",
+            featuredSpecies: "{count} especies destacadas.",
+            detailFallback: "Detalle regional cargado desde la API V2.",
+        },
+    },
+};
 
 const state = {
     token: "",
@@ -13,15 +198,43 @@ const state = {
     error: "",
     selectedStarterId: null,
     selectedRegionCode: "",
-    selectedStarterGeneration: "all",
+    selectedStarterGeneration: "1",
     selectedAvatarCode: "steven",
+    locale: getSavedLocale(),
 };
 
 const appContent = document.getElementById("appContent");
 const logoutButton = document.getElementById("logoutButton");
 const refreshButton = document.getElementById("refreshButton");
 const topbarProfile = document.getElementById("topbarProfile");
+const languageSwitch = document.getElementById("languageSwitch");
 let googleRenderAttempts = 0;
+
+function getSavedLocale() {
+    try {
+        const saved = window.localStorage.getItem(LOCALE_STORAGE_KEY) || "en";
+        return saved === "es" ? "es" : "en";
+    } catch (_) {
+        return "en";
+    }
+}
+
+function saveLocale(locale) {
+    state.locale = locale === "es" ? "es" : "en";
+    try {
+        window.localStorage.setItem(LOCALE_STORAGE_KEY, state.locale);
+    } catch (_) {}
+}
+
+function tr(path, vars = {}) {
+    const localeTable = TRANSLATIONS[state.locale] || TRANSLATIONS.en;
+    const fallbackTable = TRANSLATIONS.en;
+    const read = (table) => path.split(".").reduce((acc, key) => acc?.[key], table);
+    let value = read(localeTable);
+    if (value == null) value = read(fallbackTable);
+    if (typeof value !== "string") return path;
+    return value.replace(/\{(\w+)\}/g, (_, key) => String(vars[key] ?? ""));
+}
 
 function getTokenStorage() {
     try {
@@ -108,6 +321,19 @@ function teamLabel(teamCode) {
     return labels[teamCode] || teamCode || "Neutral";
 }
 
+function renderStaticChromeLabels() {
+    document.querySelector('[data-nav="home"]')?.replaceChildren(document.createTextNode(tr("topbar.home")));
+    document.querySelector('[data-nav="adventure"]')?.replaceChildren(document.createTextNode(tr("topbar.adventure")));
+    document.querySelector('[data-nav="collection"]')?.replaceChildren(document.createTextNode(tr("topbar.collection")));
+    document.querySelector('[data-nav="team"]')?.replaceChildren(document.createTextNode(tr("topbar.team")));
+    document.querySelector('[data-nav="more"]')?.replaceChildren(document.createTextNode(tr("topbar.more")));
+    if (refreshButton) refreshButton.textContent = tr("topbar.refresh");
+    if (logoutButton) logoutButton.textContent = tr("topbar.logout");
+    const languageLabel = document.querySelector(".language-switch span");
+    if (languageLabel) languageLabel.textContent = tr("topbar.lang");
+    if (languageSwitch) languageSwitch.value = state.locale;
+}
+
 function getTrainerInitials(name) {
     const words = String(name || "Trainer")
         .trim()
@@ -185,7 +411,7 @@ function renderStatus(message, type = "status") {
 function renderModuleCard(title, description, disabled) {
     return `
         <article class="module-card ${disabled ? "is-disabled" : ""}">
-            <span class="eyebrow">${disabled ? "Siguiente" : "Activo"}</span>
+            <span class="eyebrow">${disabled ? escapeHtml(tr("common.next")) : escapeHtml(tr("common.active"))}</span>
             <h3>${escapeHtml(title)}</h3>
             <p class="body-copy">${escapeHtml(description)}</p>
         </article>
@@ -207,10 +433,10 @@ function renderGoogleButton() {
     if (!window.google?.accounts?.id) {
         googleRenderAttempts += 1;
         if (googleRenderAttempts <= 20) {
-            mount.innerHTML = `<div class="status-banner">Cargando acceso con Google...</div>`;
+            mount.innerHTML = `<div class="status-banner">${escapeHtml(tr("common.loadingGoogle"))}</div>`;
             window.setTimeout(renderGoogleButton, 350);
         } else {
-            mount.innerHTML = `<div class="error-banner">No pudimos cargar Google automáticamente. Prueba recargando una vez.</div>`;
+            mount.innerHTML = `<div class="error-banner">${escapeHtml(tr("common.googleFailed"))}</div>`;
         }
         return;
     }
@@ -242,27 +468,30 @@ function renderHeroLogin() {
         <section class="hero-panel">
             <div class="hero-grid">
                 <div class="hero-copy">
-                    <span class="eyebrow">Mastersmon V2</span>
-                    <h1>Tu viaje de entrenador empieza en un hub real de juego.</h1>
+                    <span class="eyebrow">${escapeHtml(tr("login.eyebrow"))}</span>
+                    <h1>${escapeHtml(tr("login.title"))}</h1>
                     <p>
                         Dejamos atrás la web partida en páginas sueltas. Esta nueva entrada ya está pensada como shell del juego:
                         login, onboarding, home y adventure sobre la API V2.
                     </p>
                     <div class="hero-actions">
-                        <button class="primary-btn" type="button" id="heroLoginBtn">Continuar con Google</button>
-                        <button class="soft-btn" type="button" id="heroPreviewBtn">Ver visión del juego</button>
+                        <button class="primary-btn" type="button" id="heroLoginBtn">${escapeHtml(tr("login.loginCta"))}</button>
+                        <button class="soft-btn" type="button" id="heroPreviewBtn">${escapeHtml(tr("login.previewCta"))}</button>
                     </div>
                 </div>
 
                 <div class="hero-aside">
+                    <article class="hero-banner-card">
+                        <img class="hero-banner-image" src="/img/Banner.png" alt="Mastersmon banner">
+                    </article>
                     <article class="metric-card">
                         <span>Base V2</span>
-                        <strong>Lista</strong>
+                        <strong>${escapeHtml(tr("login.baseTitle"))}</strong>
                         <p class="body-copy">Catálogo, zonas, gyms, house y trade ya viven sobre <code>game</code>.</p>
                     </article>
                     <article class="metric-card">
-                        <span>Flujo nuevo</span>
-                        <strong>Login → Onboarding → Home</strong>
+                        <span>Flow</span>
+                        <strong>${escapeHtml(tr("login.flowTitle"))}</strong>
                         <p class="body-copy">Mobile-first y listo para crecer luego hacia app instalable.</p>
                     </article>
                 </div>
@@ -272,15 +501,15 @@ function renderHeroLogin() {
         <section class="section-card">
             <div class="section-head">
                 <div>
-                    <h2>Acceso rápido</h2>
-                    <p>Entramos con Google y en el primer ingreso completamos nombre, team, starter y región inicial.</p>
+                    <h2>${escapeHtml(tr("login.quickTitle"))}</h2>
+                    <p>${escapeHtml(tr("login.quickBody"))}</p>
                 </div>
             </div>
             <div class="login-grid">
                 <article class="auth-card">
-                    <span class="eyebrow">Autenticación</span>
-                    <h2>Un solo acceso, sin fricción.</h2>
-                    <p class="body-copy">El backend crea usuario, perfil, wallet y house al primer login. Después te mandamos a onboarding o directo al juego.</p>
+                    <span class="eyebrow">${escapeHtml(tr("login.authEyebrow"))}</span>
+                    <h2>${escapeHtml(tr("login.authTitle"))}</h2>
+                    <p class="body-copy">${escapeHtml(tr("login.authBody"))}</p>
                     <div id="googleLoginMount"></div>
                     <div id="loginStatusArea"></div>
                 </article>
@@ -288,8 +517,8 @@ function renderHeroLogin() {
                 <article class="section-card">
                     <div class="section-head">
                         <div>
-                            <h2>Lo que viene en esta V2</h2>
-                            <p>El shell ya te deja ver la dirección del juego antes de reconstruir cada módulo visual.</p>
+                            <h2>${escapeHtml(tr("login.comingTitle"))}</h2>
+                            <p>${escapeHtml(tr("login.comingBody"))}</p>
                         </div>
                     </div>
                     <div class="module-grid">
@@ -319,7 +548,7 @@ function renderOnboarding(optionsData) {
     const regions = optionsData.regions || [];
     const starterGenerations = Array.from(new Set(starters.map((starter) => starter.generation_id))).sort((a, b) => a - b);
     if (state.selectedStarterGeneration !== "all" && !starterGenerations.includes(Number(state.selectedStarterGeneration))) {
-        state.selectedStarterGeneration = "all";
+        state.selectedStarterGeneration = String(starterGenerations[0] || 1);
     }
 
     const visibleStarters = state.selectedStarterGeneration === "all"
@@ -345,12 +574,9 @@ function renderOnboarding(optionsData) {
         <section class="hero-panel">
             <div class="hero-grid">
                 <div class="hero-copy">
-                    <span class="eyebrow">Primer ingreso</span>
-                    <h1>Vamos a preparar a tu entrenador.</h1>
-                    <p>
-                        Este onboarding ya no es un modal suelto: es la puerta real a Mastersmon V2.
-                        Aquí definimos tu identidad, tu starter y la región donde empieza tu aventura.
-                    </p>
+                    <span class="eyebrow">${escapeHtml(tr("onboarding.eyebrow"))}</span>
+                    <h1>${escapeHtml(tr("onboarding.title"))}</h1>
+                    <p>${escapeHtml(tr("onboarding.body"))}</p>
                 </div>
                 <div class="hero-aside">
                     <article class="trainer-spotlight">
@@ -361,9 +587,9 @@ function renderOnboarding(optionsData) {
                                 <span class="trainer-spotlight-fallback">${escapeHtml(getTrainerInitials(profile.display_name || state.user?.display_name || "Trainer"))}</span>
                             `}
                             <div>
-                                <span>Entrenador</span>
+                                <span>${escapeHtml(tr("onboarding.trainerLabel"))}</span>
                                 <strong>${escapeHtml(profile.display_name || state.user?.display_name || "Trainer")}</strong>
-                                <p class="body-copy">Vamos a dejar tu perfil listo con identidad, starter y región inicial.</p>
+                                <p class="body-copy">${escapeHtml(tr("onboarding.trainerBody"))}</p>
                             </div>
                         </div>
                         <div class="pill-row">
@@ -378,8 +604,8 @@ function renderOnboarding(optionsData) {
         <section class="section-card">
             <div class="section-head">
                 <div>
-                    <h2>Configura tu comienzo</h2>
-                    <p>Elegimos identidad, starter y región inicial. Luego te mandamos al Home ya con el primer equipo listo.</p>
+                    <h2>${escapeHtml(tr("onboarding.configTitle"))}</h2>
+                    <p>${escapeHtml(tr("onboarding.configBody"))}</p>
                 </div>
             </div>
 
@@ -389,12 +615,12 @@ function renderOnboarding(optionsData) {
                 <form id="onboardingForm" class="onboarding-card">
                     <div class="field-grid">
                         <div class="field">
-                            <label for="displayNameInput">Nombre del entrenador</label>
-                            <input id="displayNameInput" name="displayName" type="text" value="${escapeHtml(profile.display_name || state.user?.display_name || "")}" placeholder="Jhonatan León">
+                            <label for="displayNameInput">${escapeHtml(tr("onboarding.displayName"))}</label>
+                            <input id="displayNameInput" name="displayName" type="text" value="${escapeHtml(profile.display_name || state.user?.display_name || "")}" placeholder="${escapeHtml(tr("onboarding.displayPlaceholder"))}">
                         </div>
 
                         <div class="field">
-                            <label>Avatar</label>
+                            <label>${escapeHtml(tr("onboarding.avatar"))}</label>
                             <div class="avatar-grid">
                                 ${avatars.map((avatar) => `
                                     <button class="avatar-card ${state.selectedAvatarCode === avatar.code ? "is-selected" : ""}" type="button" data-avatar-code="${escapeHtml(avatar.code)}">
@@ -406,7 +632,7 @@ function renderOnboarding(optionsData) {
                         </div>
 
                         <div class="field">
-                            <label for="trainerTeamSelect">Team</label>
+                            <label for="trainerTeamSelect">${escapeHtml(tr("onboarding.team"))}</label>
                             <select id="trainerTeamSelect" name="trainerTeam">
                                 ${["red", "blue", "green", "neutral"].map((code) => `
                                     <option value="${code}" ${profile.trainer_team === code ? "selected" : ""}>${teamLabel(code)}</option>
@@ -415,7 +641,7 @@ function renderOnboarding(optionsData) {
                         </div>
 
                         <div class="field">
-                            <label for="regionSelect">Región inicial</label>
+                            <label for="regionSelect">${escapeHtml(tr("onboarding.region"))}</label>
                             <select id="regionSelect" name="regionCode">
                                 ${regions.map((region) => `
                                     <option value="${escapeHtml(region.code)}" ${state.selectedRegionCode === region.code ? "selected" : ""}>
@@ -427,26 +653,26 @@ function renderOnboarding(optionsData) {
                     </div>
 
                     <div class="stack-actions">
-                        <button class="primary-btn" type="submit">Completar onboarding</button>
-                        <button class="ghost-btn" type="button" id="reloadOptionsBtn">Recargar opciones</button>
+                        <button class="primary-btn" type="submit">${escapeHtml(tr("onboarding.complete"))}</button>
+                        <button class="ghost-btn" type="button" id="reloadOptionsBtn">${escapeHtml(tr("onboarding.reload"))}</button>
                     </div>
                 </form>
 
                 <article class="onboarding-card">
                     <div class="section-head">
                         <div>
-                            <h2>Elige tu starter</h2>
-                            <p>Ahora ya no mostramos una lista eterna. Puedes filtrar por generación y comparar mejor cada opción.</p>
+                            <h2>${escapeHtml(tr("onboarding.starterTitle"))}</h2>
+                            <p>${escapeHtml(tr("onboarding.starterBody"))}</p>
                         </div>
                     </div>
                     <div class="starter-toolbar">
                         <div class="generation-filter" role="tablist" aria-label="Filtrar starters por generación">
-                            <button class="filter-chip ${state.selectedStarterGeneration === "all" ? "is-active" : ""}" type="button" data-starter-generation="all">Todas</button>
+                            <button class="filter-chip ${state.selectedStarterGeneration === "all" ? "is-active" : ""}" type="button" data-starter-generation="all">${escapeHtml(tr("common.all"))}</button>
                             ${starterGenerations.map((generationId) => `
                                 <button class="filter-chip ${String(state.selectedStarterGeneration) === String(generationId) ? "is-active" : ""}" type="button" data-starter-generation="${generationId}">Gen ${generationId}</button>
                             `).join("")}
                         </div>
-                        <p class="body-copy">Mostrando ${visibleStarters.length} de ${starters.length} starters activos.</p>
+                        <p class="body-copy">${escapeHtml(tr("onboarding.starterVisible", { visible: visibleStarters.length, total: starters.length }))}</p>
                     </div>
                     <div class="starter-grid">
                         ${visibleStarters.map((starter) => `
@@ -460,7 +686,7 @@ function renderOnboarding(optionsData) {
                                         <span class="pill">Gen ${starter.generation_id}</span>
                                         <span class="pill tag-accent">${escapeHtml(starter.primary_type_name || "Starter")}</span>
                                     </div>
-                                    <p class="body-copy">Starter base para comenzar esta región con una elección más ordenada y visual.</p>
+                                    <p class="body-copy">${escapeHtml(tr("onboarding.starterCardBody"))}</p>
                                 </div>
                             </button>
                         `).join("")}
@@ -514,15 +740,15 @@ function renderHome() {
         <section class="hero-panel">
             <div class="hero-grid">
                 <div class="hero-copy">
-                    <span class="eyebrow">Trainer Hub</span>
+                    <span class="eyebrow">${escapeHtml(tr("home.eyebrow"))}</span>
                     <h1>${escapeHtml(trainer.display_name || "Trainer")}</h1>
                     <p>
                         ${escapeHtml(teamLabel(trainer.team))} · Región activa: ${escapeHtml(trainer.active_region?.name || "Sin región")}
                         · Nivel ${escapeHtml(trainer.trainer_level || 1)}
                     </p>
                     <div class="hero-actions">
-                        <button class="primary-btn" type="button" id="goAdventureBtn">Continuar aventura</button>
-                        <button class="soft-btn" type="button" id="refreshHomeBtn">Actualizar hub</button>
+                        <button class="primary-btn" type="button" id="goAdventureBtn">${escapeHtml(tr("home.continueAdventure"))}</button>
+                        <button class="soft-btn" type="button" id="refreshHomeBtn">${escapeHtml(tr("home.refreshHub"))}</button>
                     </div>
                 </div>
 
@@ -535,19 +761,19 @@ function renderHome() {
                                 <span class="trainer-spotlight-fallback">${escapeHtml(getTrainerInitials(trainer.display_name || "Trainer"))}</span>
                             `}
                             <div>
-                                <span>Perfil activo</span>
+                                <span>${escapeHtml(tr("home.profileActive"))}</span>
                                 <strong>${escapeHtml(trainer.display_name || "Trainer")}</strong>
                                 <p class="body-copy">${escapeHtml(teamLabel(trainer.team))} · avatar ${escapeHtml(trainer.avatar_code || "base")}</p>
                             </div>
                         </div>
                     </article>
                     <article class="metric-card">
-                        <span>Progreso regional</span>
+                        <span>${escapeHtml(tr("home.regionalProgress"))}</span>
                         <strong>${escapeHtml(progress.current_region_completion_pct || 0)}%</strong>
                         <p class="body-copy">${escapeHtml(progress.completed_gyms || 0)} gyms completados de la región actual.</p>
                     </article>
                     <article class="metric-card">
-                        <span>Colección</span>
+                        <span>${escapeHtml(tr("home.collection"))}</span>
                         <strong>${escapeHtml(milestones.collection_owned || 0)}</strong>
                         <p class="body-copy">Especies únicas ya registradas en tu colección.</p>
                     </article>
@@ -558,23 +784,23 @@ function renderHome() {
         <section class="section-card">
             <div class="section-head">
                 <div>
-                    <h2>Vista rápida del entrenador</h2>
-                    <p>Este home ya consume la API V2 y está pensado como panel de decisión, no como landing page.</p>
+                    <h2>${escapeHtml(tr("home.quickViewTitle"))}</h2>
+                    <p>${escapeHtml(tr("home.quickViewBody"))}</p>
                 </div>
             </div>
             <div class="metrics-grid">
                 <article class="metric-card">
-                    <span>Región activa</span>
+                    <span>${escapeHtml(tr("home.activeRegion"))}</span>
                     <strong>${escapeHtml(trainer.active_region?.name || "—")}</strong>
                     <p class="body-copy">Código: ${escapeHtml(trainer.active_region?.code || "—")}</p>
                 </article>
                 <article class="metric-card">
-                    <span>Zonas desbloqueadas</span>
+                    <span>${escapeHtml(tr("home.unlockedZones"))}</span>
                     <strong>${escapeHtml(progress.unlocked_zones || 0)}</strong>
                     <p class="body-copy">Lista base ya conectada a Adventure.</p>
                 </article>
                 <article class="metric-card">
-                    <span>Próximo upgrade house</span>
+                    <span>${escapeHtml(tr("home.nextHouseUpgrade"))}</span>
                     <strong>${escapeHtml(milestones.next_house_upgrade?.storage_capacity || "—")}</strong>
                     <p class="body-copy">${escapeHtml(milestones.next_house_upgrade?.code || "Sin upgrade pendiente")}</p>
                 </article>
@@ -584,27 +810,27 @@ function renderHome() {
         <section class="section-card">
             <div class="section-head">
                 <div>
-                    <h2>Adventure y Team</h2>
-                    <p>El shell V2 junta lo que el jugador necesita para seguir jugando sin saltar entre páginas rotas.</p>
+                    <h2>${escapeHtml(tr("home.adventureTeamTitle"))}</h2>
+                    <p>${escapeHtml(tr("home.adventureTeamBody"))}</p>
                 </div>
             </div>
             <div class="home-grid">
                 <article class="section-card">
-                    <h2>Continue Adventure</h2>
+                    <h2>${escapeHtml(tr("home.continueTitle"))}</h2>
                     <p class="section-subtitle">
-                        ${currentZone ? `${escapeHtml(currentZone.name)} · niveles ${escapeHtml(currentZone.level_min)}-${escapeHtml(currentZone.level_max)}` : "Todavía no hay zona actual cargada."}
+                        ${currentZone ? `${escapeHtml(currentZone.name)} · Lv ${escapeHtml(currentZone.level_min)}-${escapeHtml(currentZone.level_max)}` : escapeHtml(tr("home.noZone"))}
                     </p>
                     <div class="pill-row" style="margin-top: 14px;">
-                        <span class="pill tag-accent">${escapeHtml(progress.next_gym?.name || "Sin gym pendiente")}</span>
-                        <span class="pill">${escapeHtml(progress.next_gym?.recommended_level || "—")} nivel recomendado</span>
+                        <span class="pill tag-accent">${escapeHtml(progress.next_gym?.name || tr("home.noGym"))}</span>
+                        <span class="pill">${escapeHtml(tr("home.recommendedLevel", { level: progress.next_gym?.recommended_level || "—" }))}</span>
                     </div>
                     <div class="stack-actions">
-                        <button class="primary-btn" type="button" id="openAdventureRegionsBtn">Ver regiones</button>
+                        <button class="primary-btn" type="button" id="openAdventureRegionsBtn">${escapeHtml(tr("home.viewRegions"))}</button>
                     </div>
                 </article>
 
                 <article class="section-card">
-                    <h2>Team Snapshot</h2>
+                    <h2>${escapeHtml(tr("home.teamSnapshot"))}</h2>
                     <p class="section-subtitle">Poder estimado: ${escapeHtml(teamSummary.power_score || 0)}</p>
                     <div class="team-grid">
                         ${(teamSummary.members || []).map((member) => `
@@ -620,7 +846,7 @@ function renderHome() {
                                     </div>
                                 </div>
                             </article>
-                        `).join("") || `<div class="panel-note">Todavía no hay miembros en el equipo activo.</div>`}
+                        `).join("") || `<div class="panel-note">${escapeHtml(tr("home.noTeam"))}</div>`}
                     </div>
                 </article>
             </div>
@@ -629,8 +855,8 @@ function renderHome() {
         <section class="section-card">
             <div class="section-head">
                 <div>
-                    <h2>Módulos que ya viven en el backend</h2>
-                    <p>Los dejamos visibles desde el home para marcar la dirección del juego mientras completamos la UI completa.</p>
+                    <h2>${escapeHtml(tr("home.backendModulesTitle"))}</h2>
+                    <p>${escapeHtml(tr("home.backendModulesBody"))}</p>
                 </div>
             </div>
             <div class="module-grid">
@@ -656,20 +882,17 @@ function renderAdventure() {
         <section class="hero-panel">
             <div class="hero-grid">
                 <div class="hero-copy">
-                    <span class="eyebrow">Adventure</span>
-                    <h1>Explora el mundo como eje real del juego.</h1>
-                    <p>
-                        Esta pantalla ya usa las regiones V2 y marca la dirección del nuevo loop:
-                        explorar, capturar, fortalecer equipo y avanzar en gyms.
-                    </p>
+                    <span class="eyebrow">${escapeHtml(tr("adventure.eyebrow"))}</span>
+                    <h1>${escapeHtml(tr("adventure.title"))}</h1>
+                    <p>${escapeHtml(tr("adventure.body"))}</p>
                     <div class="hero-actions">
-                        <button class="primary-btn" type="button" id="backHomeBtn">Volver al hub</button>
-                        <button class="soft-btn" type="button" id="refreshAdventureBtn">Actualizar regiones</button>
+                        <button class="primary-btn" type="button" id="backHomeBtn">${escapeHtml(tr("adventure.backHome"))}</button>
+                        <button class="soft-btn" type="button" id="refreshAdventureBtn">${escapeHtml(tr("adventure.refreshRegions"))}</button>
                     </div>
                 </div>
                 <div class="hero-aside">
                     <article class="metric-card">
-                        <span>Regiones activas</span>
+                        <span>${escapeHtml(tr("adventure.activeRegions"))}</span>
                         <strong>${escapeHtml(regions.length)}</strong>
                         <p class="body-copy">Disponibles en la estructura V2.</p>
                     </article>
@@ -680,8 +903,8 @@ function renderAdventure() {
         <section class="section-card">
             <div class="section-head">
                 <div>
-                    <h2>Regiones disponibles</h2>
-                    <p>Estas tarjetas ya pueden alimentar el futuro selector principal de Adventure.</p>
+                    <h2>${escapeHtml(tr("adventure.availableTitle"))}</h2>
+                    <p>${escapeHtml(tr("adventure.availableBody"))}</p>
                 </div>
             </div>
             <div class="regions-grid">
@@ -692,12 +915,12 @@ function renderAdventure() {
                             <strong>${escapeHtml(region.name)}</strong>
                             <div class="pill-row">
                                 <span class="pill">Gen ${escapeHtml(region.generation_id)}</span>
-                                <span class="pill ${region.is_active_region ? "tag-accent" : ""}">${region.is_active_region ? "Activa" : "Disponible"}</span>
+                                <span class="pill ${region.is_active_region ? "tag-accent" : ""}">${region.is_active_region ? escapeHtml(tr("adventure.active")) : escapeHtml(tr("adventure.available"))}</span>
                             </div>
                         </div>
-                        <p class="body-copy">${escapeHtml(region.zone_count || 0)} zonas · ${escapeHtml(region.completed_gyms || 0)}/${escapeHtml(region.total_gyms || 0)} gyms</p>
+                        <p class="body-copy">${escapeHtml(region.zone_count || 0)} zones · ${escapeHtml(region.completed_gyms || 0)}/${escapeHtml(region.total_gyms || 0)} gyms</p>
                         <div class="stack-actions">
-                            <button class="soft-btn" type="button" data-region-code="${escapeHtml(region.code)}">Ver detalle</button>
+                            <button class="soft-btn" type="button" data-region-code="${escapeHtml(region.code)}">${escapeHtml(tr("adventure.detail"))}</button>
                         </div>
                     </article>
                 `).join("")}
@@ -789,7 +1012,7 @@ async function submitOnboarding(event) {
                 starter_species_id: state.selectedStarterId,
                 region_code: regionCode,
                 avatar_code: state.selectedAvatarCode,
-                language_code: "es",
+                language_code: state.locale,
                 timezone_code: "America/Lima",
             }),
         });
@@ -906,6 +1129,23 @@ function setActiveNav(target) {
     });
 }
 
+function rerenderCurrentView() {
+    if (!state.token) {
+        renderHeroLogin();
+        return;
+    }
+    if (state.onboarding?.needs_onboarding && state.onboardingOptions) {
+        renderOnboarding(state.onboardingOptions);
+        return;
+    }
+    const activeNav = document.querySelector("[data-nav].is-active")?.getAttribute("data-nav");
+    if (activeNav === "adventure") {
+        renderAdventure();
+        return;
+    }
+    renderHome();
+}
+
 document.querySelectorAll("[data-nav]").forEach((button) => {
     button.addEventListener("click", async () => {
         const target = button.getAttribute("data-nav");
@@ -943,7 +1183,13 @@ document.querySelectorAll("[data-nav]").forEach((button) => {
 
 logoutButton.addEventListener("click", logout);
 refreshButton.addEventListener("click", () => bootstrapAuthenticatedApp(true));
+languageSwitch?.addEventListener("change", (event) => {
+    saveLocale(event.target.value);
+    renderStaticChromeLabels();
+    rerenderCurrentView();
+});
 window.handleCredentialResponse = handleCredentialResponse;
 window.onPokemonImageError = onPokemonImageError;
 
+renderStaticChromeLabels();
 bootstrapAuthenticatedApp(false);

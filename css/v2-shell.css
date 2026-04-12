@@ -164,6 +164,25 @@ body {
     gap: 10px;
 }
 
+.language-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(188, 220, 255, 0.16);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-soft);
+}
+
+.language-switch select {
+    border: none;
+    background: transparent;
+    color: var(--text-main);
+    font: inherit;
+    outline: none;
+}
+
 .topbar-profile {
     display: inline-flex;
     align-items: center;
@@ -346,6 +365,21 @@ body {
     display: flex;
     flex-direction: column;
     gap: 14px;
+}
+
+.hero-banner-card {
+    overflow: hidden;
+    border: 1px solid var(--line-soft);
+    border-radius: var(--radius-lg);
+    background: rgba(12, 24, 40, 0.56);
+    box-shadow: var(--shadow-md);
+}
+
+.hero-banner-image {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
 }
 
 .metric-card,
@@ -594,7 +628,14 @@ body {
     border: 1px solid rgba(167, 205, 255, 0.18);
     background: rgba(255, 255, 255, 0.04);
     color: var(--text-main);
+    color-scheme: dark;
     font: inherit;
+}
+
+.field select option,
+.language-switch select option {
+    background: #102036;
+    color: #f6f8fc;
 }
 
 .avatar-grid {
@@ -759,6 +800,10 @@ body {
         width: 100%;
         justify-content: space-between;
         flex-wrap: wrap;
+    }
+
+    .language-switch {
+        order: -2;
     }
 
     .topbar-profile {
