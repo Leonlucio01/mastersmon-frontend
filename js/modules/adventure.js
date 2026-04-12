@@ -62,6 +62,64 @@ function flashCard() {
   return `<div class="adventure-flash ${adventureViewState.flashKind === "error" ? "is-error" : adventureViewState.flashKind === "success" ? "is-success" : ""}">${escapeHtml(adventureViewState.flash)}</div>`;
 }
 
+function bindDynamicAdventureEvents() {
+  document.getElementById("openShopFromAdventureBtn")?.addEventListener("click", () => {
+    document.querySelector('[data-nav="shop"]')?.click();
+  });
+
+  document.querySelectorAll("[data-capture-ball]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      await captureEncounter(button.getAttribute("data-capture-ball"));
+    });
+  });
+
+  document.querySelectorAll("[data-adv-go]").forEach((button) => {
+    button.addEventListener("click", () => {
+      document.querySelector(`[data-nav="${button.getAttribute("data-adv-go")}"]`)?.click();
+    });
+  });
+}
+
+function syncAdventureDom() {
+  const flashSlot = document.getElementById("adventureFlashSlot");
+  if (flashSlot) flashSlot.innerHTML = flashCard();
+
+  const token = document.getElementById("adventurePlayerToken");
+  if (token) {
+    token.style.left = `${adventureViewState.playerX}%`;
+    token.style.top = `${adventureViewState.playerY}%`;
+  }
+
+  const grassState = document.getElementById("adventureGrassState");
+  if (grassState) {
+    grassState.textContent = isInGrass() ? "Hierba alta" : "Ruta segura";
+    grassState.className = `pill ${isInGrass() ? "tag-accent" : ""}`;
+  }
+
+  const stepState = document.getElementById("adventureStepState");
+  if (stepState) stepState.textContent = `Paso ${adventureViewState.stepCount}`;
+
+  const coordX = document.getElementById("adventureCoordX");
+  if (coordX) coordX.textContent = `X ${adventureViewState.playerX}`;
+
+  const coordY = document.getElementById("adventureCoordY");
+  if (coordY) coordY.textContent = `Y ${adventureViewState.playerY}`;
+
+  const mission = routeMissionCopy();
+  const missionTitle = document.getElementById("adventureMissionTitle");
+  if (missionTitle) missionTitle.textContent = mission.title;
+  const missionBody = document.getElementById("adventureMissionBody");
+  if (missionBody) missionBody.textContent = mission.body;
+
+  const encounterSlot = document.getElementById("adventureEncounterSlot");
+  if (encounterSlot) encounterSlot.innerHTML = renderEncounterPanel();
+
+  const utilitySlot = document.getElementById("adventureUtilitySlot");
+  if (utilitySlot) utilitySlot.innerHTML = renderRouteUtility();
+
+  bindDynamicAdventureEvents();
+}
+
 function regionStatusText() {
   if (adventureViewState.activeEncounter) return "Encounter live";
   if (adventureViewState.selectedZoneCode) return "Exploring";
@@ -190,10 +248,10 @@ function renderMapStage() {
           <p class="body-copy">${escapeHtml(mission.body)}</p>
         </div>
         <div class="pill-row">
-          <span class="pill ${isInGrass() ? "tag-accent" : ""}">${escapeHtml(isInGrass() ? "Hierba alta" : "Ruta segura")}</span>
-          <span class="pill">Paso ${escapeHtml(adventureViewState.stepCount)}</span>
-          <span class="pill">X ${escapeHtml(adventureViewState.playerX)}</span>
-          <span class="pill">Y ${escapeHtml(adventureViewState.playerY)}</span>
+          <span id="adventureGrassState" class="pill ${isInGrass() ? "tag-accent" : ""}">${escapeHtml(isInGrass() ? "Hierba alta" : "Ruta segura")}</span>
+          <span id="adventureStepState" class="pill">Paso ${escapeHtml(adventureViewState.stepCount)}</span>
+          <span id="adventureCoordX" class="pill">X ${escapeHtml(adventureViewState.playerX)}</span>
+          <span id="adventureCoordY" class="pill">Y ${escapeHtml(adventureViewState.playerY)}</span>
         </div>
       </div>
 
@@ -203,7 +261,7 @@ function renderMapStage() {
         <div class="grass-hotspot" aria-hidden="true"></div>
         <div class="zone-path-overlay" aria-hidden="true"></div>
         ${zone ? `
-          <div class="player-token" style="left:${adventureViewState.playerX}%; top:${adventureViewState.playerY}%;">
+          <div id="adventurePlayerToken" class="player-token" style="left:${adventureViewState.playerX}%; top:${adventureViewState.playerY}%;">
             <img src="${escapeHtml(activeAvatar())}" alt="Trainer" onerror="onAvatarImageError(this)">
           </div>` : ""}
         <div class="map-hud">
@@ -216,8 +274,8 @@ function renderMapStage() {
       <div class="adventure-map-footer">
         <article class="adventure-mission-card">
           <span class="eyebrow">Mission</span>
-          <strong>${escapeHtml(mission.title)}</strong>
-          <p>${escapeHtml(mission.body)}</p>
+          <strong id="adventureMissionTitle">${escapeHtml(mission.title)}</strong>
+          <p id="adventureMissionBody">${escapeHtml(mission.body)}</p>
         </article>
         <div class="map-control-row">
           <div class="movement-pad">
@@ -225,13 +283,17 @@ function renderMapStage() {
             <button class="move-btn move-left" type="button" data-move="left" aria-label="Mover izquierda">Left</button>
             <button class="move-btn move-right" type="button" data-move="right" aria-label="Mover derecha">Right</button>
             <button class="move-btn move-down" type="button" data-move="down" aria-label="Mover abajo">Down</button>
+            <div class="movement-keys">WASD / Arrows</div>
           </div>
           <div class="map-actions">
             <article class="map-action-card">
               <strong>Encuentro automatico</strong>
-              <p>Mueve el avatar hasta la hierba. Si la ruta esta activa, el Pokemon aparece mientras caminas.</p>
+              <p>Cada paso dentro de la hierba consulta un encuentro nuevo. Si sigues avanzando, puede cambiar el Pokemon salvaje en pantalla.</p>
             </article>
-            <button class="soft-btn" type="button" id="refreshZoneBtn" ${adventureViewState.selectedZoneCode ? "" : "disabled"}>Recargar zona</button>
+            <article class="map-action-card">
+              <strong>Movimiento libre</strong>
+              <p>Tambien puedes moverte con W, A, S y D. El mapa ya no deberia parpadear mientras avanzas.</p>
+            </article>
           </div>
         </div>
       </div>
@@ -316,7 +378,7 @@ function renderEncounterPanel() {
       </div>
       <article class="adventure-help-panel">
         <strong>Como funciona la captura</strong>
-        <p>Camina hasta la hierba alta y deja que el encuentro aparezca mientras avanzas. Cuando salga el Pokemon, usa una ball desde este panel.</p>
+        <p>La lista mostrada viene del servidor para la ruta activa. Entra a la hierba y cada paso puede traer un Pokemon distinto. Cuando salga uno, usa una ball desde este panel.</p>
       </article>
     </section>`;
 }
@@ -388,7 +450,7 @@ function renderRegionShell() {
 
   return `
     <section class="adventure-region-shell" id="adventurePlayStage">
-      ${flashCard()}
+      <div id="adventureFlashSlot">${flashCard()}</div>
       <section class="section-card adventure-campaign-header">
         <div class="adventure-region-head">
           <div>
@@ -431,10 +493,10 @@ function renderRegionShell() {
       <section class="adventure-main-grid">
         <div class="adventure-left-column">
           ${renderMapStage()}
-          ${renderRouteUtility()}
+          <div id="adventureUtilitySlot">${renderRouteUtility()}</div>
         </div>
         <div class="adventure-right-column">
-          ${renderEncounterPanel()}
+          <div id="adventureEncounterSlot">${renderEncounterPanel()}</div>
         </div>
       </section>
     </section>`;
@@ -442,12 +504,6 @@ function renderRegionShell() {
 
 function bindAdventureEvents() {
   document.getElementById("backHomeBtn")?.addEventListener("click", () => document.querySelector('[data-nav="home"]')?.click());
-  document.getElementById("refreshAdventureBtn")?.addEventListener("click", async () => {
-    const response = await fetchAuth("/v2/adventure/regions");
-    state.regions = response.data || [];
-    renderAdventure();
-  });
-
   document.querySelectorAll("[data-region-code]").forEach((button) => {
     button.addEventListener("click", async () => {
       await loadRegionDetail(button.getAttribute("data-region-code"));
@@ -479,7 +535,15 @@ function bindAdventureEvents() {
         event.preventDefault();
         movePlayer(0, -STEP);
       }
+      if (event.key === "w" || event.key === "W") {
+        event.preventDefault();
+        movePlayer(0, -STEP);
+      }
       if (event.key === "ArrowDown") {
+        event.preventDefault();
+        movePlayer(0, STEP);
+      }
+      if (event.key === "s" || event.key === "S") {
         event.preventDefault();
         movePlayer(0, STEP);
       }
@@ -487,7 +551,15 @@ function bindAdventureEvents() {
         event.preventDefault();
         movePlayer(-STEP, 0);
       }
+      if (event.key === "a" || event.key === "A") {
+        event.preventDefault();
+        movePlayer(-STEP, 0);
+      }
       if (event.key === "ArrowRight") {
+        event.preventDefault();
+        movePlayer(STEP, 0);
+      }
+      if (event.key === "d" || event.key === "D") {
         event.preventDefault();
         movePlayer(STEP, 0);
       }
@@ -495,26 +567,7 @@ function bindAdventureEvents() {
     keyboardBound = true;
   }
 
-  document.getElementById("refreshZoneBtn")?.addEventListener("click", async () => {
-    if (!adventureViewState.selectedZoneCode) return;
-    await loadZoneDetail(adventureViewState.selectedZoneCode);
-  });
-
-  document.getElementById("openShopFromAdventureBtn")?.addEventListener("click", () => {
-    document.querySelector('[data-nav="shop"]')?.click();
-  });
-
-  document.querySelectorAll("[data-capture-ball]").forEach((button) => {
-    button.addEventListener("click", async () => {
-      await captureEncounter(button.getAttribute("data-capture-ball"));
-    });
-  });
-
-  document.querySelectorAll("[data-adv-go]").forEach((button) => {
-    button.addEventListener("click", () => {
-      document.querySelector(`[data-nav="${button.getAttribute("data-adv-go")}"]`)?.click();
-    });
-  });
+  bindDynamicAdventureEvents();
 }
 
 export function renderAdventure() {
@@ -530,7 +583,6 @@ export function renderAdventure() {
           <p>La idea ya no es abrir una pagina de mapas. La idea es elegir campana regional, cargar una ruta, caminar con el avatar y encontrar Pokemon dentro del mismo flujo.</p>
           <div class="hero-actions">
             <button class="primary-btn" type="button" id="backHomeBtn">${escapeHtml(tr("adventure.back"))}</button>
-            <button class="soft-btn" type="button" id="refreshAdventureBtn">${escapeHtml(tr("adventure.refresh"))}</button>
           </div>
         </div>
         <div class="hero-aside adventure-hero-metrics">
@@ -613,12 +665,12 @@ async function loadZoneDetail(zoneCode, rerender = true) {
 
 async function createEncounter(options = {}) {
   const triggeredByWalk = Boolean(options.triggeredByWalk);
-  if (!adventureViewState.selectedZoneCode || !isInGrass() || adventureViewState.activeEncounter || adventureViewState.busy) {
+  if (!adventureViewState.selectedZoneCode || !isInGrass() || adventureViewState.busy) {
     return;
   }
 
   adventureViewState.busy = true;
-  if (!triggeredByWalk) renderAdventure();
+  if (!triggeredByWalk) syncAdventureDom();
 
   try {
     const response = await fetchAuth(`/v2/adventure/zones/${adventureViewState.selectedZoneCode}/encounters`, {
@@ -635,7 +687,7 @@ async function createEncounter(options = {}) {
     adventureViewState.flashKind = "error";
   } finally {
     adventureViewState.busy = false;
-    renderAdventure();
+    syncAdventureDom();
   }
 }
 
@@ -676,7 +728,7 @@ async function captureEncounter(ballItemCode) {
     adventureViewState.captureAction = "";
   } finally {
     adventureViewState.busy = false;
-    renderAdventure();
+    syncAdventureDom();
   }
 }
 
@@ -686,21 +738,16 @@ async function movePlayer(dx, dy) {
   adventureViewState.playerY = Math.max(MAP_BOUNDS.minY, Math.min(MAP_BOUNDS.maxY, adventureViewState.playerY + dy));
   adventureViewState.stepCount += 1;
 
-  if (adventureViewState.activeEncounter) {
-    renderAdventure();
-    return;
-  }
-
   if (isInGrass()) {
-    adventureViewState.flash = "Pisaste la hierba alta. El siguiente encuentro puede dispararse mientras avanzas.";
+    adventureViewState.flash = "Pisaste la hierba alta. Cada paso puede traer un encuentro nuevo.";
     adventureViewState.flashKind = "success";
   } else {
     adventureViewState.flash = "Sigue caminando hacia la hierba alta para provocar encuentros salvajes.";
     adventureViewState.flashKind = "info";
   }
-  renderAdventure();
+  syncAdventureDom();
 
-  if (isInGrass() && Math.random() <= 0.42) {
+  if (isInGrass()) {
     await createEncounter({ triggeredByWalk: true });
   }
 }

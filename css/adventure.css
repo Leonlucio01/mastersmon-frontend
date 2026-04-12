@@ -363,6 +363,17 @@
     rgba(255, 255, 255, 0.04);
 }
 
+.movement-keys {
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%);
+  color: var(--text-dim);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+}
+
 .move-btn {
   position: absolute;
   min-width: 74px;
@@ -410,6 +421,12 @@
   top: 20px;
   min-height: 720px;
   align-content: start;
+}
+
+#adventureEncounterSlot,
+#adventureUtilitySlot,
+#adventureFlashSlot {
+  display: grid;
 }
 
 .encounter-panel-live {
