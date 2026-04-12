@@ -1,3 +1,41 @@
+.home-system-ribbon {
+  display: grid;
+  gap: 14px;
+  background:
+    linear-gradient(90deg, rgba(122,227,255,.07), rgba(255,216,138,.05), rgba(140,255,193,.06)),
+    rgba(9,19,34,.72);
+}
+
+.home-system-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.home-system-head strong {
+  font-family: "Sora", sans-serif;
+  font-size: 1.05rem;
+}
+
+.home-system-feed {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.home-feed-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 42px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.09);
+  color: var(--text-soft);
+  font-size: .92rem;
+}
+
 .home-hub-hero {
   position: relative;
   overflow: hidden;
@@ -249,6 +287,32 @@
   grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
 }
 
+.home-dock-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.home-dock-card {
+  padding: 18px;
+  border-radius: 22px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid var(--line-soft);
+}
+
+.home-dock-card strong {
+  display: block;
+  margin: 10px 0 8px;
+  font-family: "Sora", sans-serif;
+  font-size: 1.2rem;
+}
+
+.home-dock-card p {
+  min-height: 68px;
+  color: var(--text-soft);
+  line-height: 1.55;
+}
+
 .home-main-stack,
 .home-side-stack {
   display: grid;
@@ -398,6 +462,10 @@
   .home-command-board {
     grid-template-columns: 1fr;
   }
+
+  .home-dock-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 960px) {
@@ -425,7 +493,8 @@
   .home-alerts-grid,
   .home-team-grid,
   .home-continue-route,
-  .home-wallets-panel .wallet-grid {
+  .home-wallets-panel .wallet-grid,
+  .home-dock-grid {
     grid-template-columns: 1fr;
   }
 

@@ -238,6 +238,26 @@ export function renderHome() {
     regionName,
   });
   const favoriteMember = members[0] || null;
+  const systemFeed = [
+    homeAlerts.unclaimed_rewards_count
+      ? `${formatNumber(homeAlerts.unclaimed_rewards_count)} reward(s) listas para reclamar`
+      : "No tienes rewards bloqueando tu progreso",
+    homeAlerts.pending_trade_count
+      ? `${formatNumber(homeAlerts.pending_trade_count)} trade(s) siguen abiertas`
+      : "Trade sin movimientos urgentes",
+    currentZone !== "-"
+      ? `Zona activa: ${currentZone}`
+      : `Aun no has cargado una zona en ${regionName}`,
+    nextGymName !== "-"
+      ? `Siguiente gym objetivo: ${nextGymName}`
+      : "Todavia no hay gym objetivo visible",
+  ];
+  const quickDock = [
+    { eyebrow: "Adventure", title: "Volver al mapa", text: "Continua el loop principal y activa encuentros.", target: "adventure", kind: "primary" },
+    { eyebrow: "Team", title: "Pulir equipo", text: "Revisa sinergia, niveles y huecos del team activo.", target: "team", kind: "soft" },
+    { eyebrow: "Collection", title: "Ver capturas", text: "Consulta especies, shiny y progreso del Pokedex.", target: "collection", kind: "soft" },
+    { eyebrow: "Shop", title: "Reponer items", text: "Compra balls y consumibles para volver al mapa listo.", target: "shop", kind: "soft" },
+  ];
   const socialCards = [
     {
       eyebrow: "Ranking",
@@ -265,6 +285,16 @@ export function renderHome() {
   ];
 
   refs.appContent.innerHTML = `
+    <section class="home-system-ribbon section-card">
+      <div class="home-system-head">
+        <span class="eyebrow">System live</span>
+        <strong>Tu hub ya deberia sentirse como una base activa, no como una portada estatica.</strong>
+      </div>
+      <div class="home-system-feed">
+        ${systemFeed.map((item) => `<span class="home-feed-pill">${escapeHtml(item)}</span>`).join("")}
+      </div>
+    </section>
+
     <section class="home-hub-hero section-card">
       <div class="home-hub-grid">
         <div class="home-identity-card">
@@ -339,6 +369,24 @@ export function renderHome() {
             <button class="soft-btn" type="button" id="viewGoal">${escapeHtml(tr("home.nextGym"))}</button>
           </div>
         </aside>
+      </div>
+    </section>
+
+    <section class="home-dock-panel section-card">
+      <div class="section-head">
+        <div>
+          <h2>Centro de mando</h2>
+          <p>Accesos utiles para seguir tu progreso sin perder contexto ni navegar entre pantallas como si fuera una web clasica.</p>
+        </div>
+      </div>
+      <div class="home-dock-grid">
+        ${quickDock.map((card) => `
+          <article class="home-dock-card">
+            <span class="eyebrow">${escapeHtml(card.eyebrow)}</span>
+            <strong>${escapeHtml(card.title)}</strong>
+            <p>${escapeHtml(card.text)}</p>
+            <button class="${card.kind === "primary" ? "primary-btn" : "soft-btn"}" type="button" data-go-target="${escapeHtml(card.target)}">${escapeHtml(card.title)}</button>
+          </article>`).join("")}
       </div>
     </section>
 
