@@ -18,8 +18,8 @@ function buildAlerts(homeAlerts = {}, tradeSummary = {}) {
   if (homeAlerts.idle_ready) {
     alerts.push("Idle listo para reclamar");
   }
-  if ((tradeSummary.open_offers || 0) > 0) {
-    alerts.push(`${formatNumber(tradeSummary.open_offers)} oferta(s) visibles en trade`);
+  if ((tradeSummary.market_open_offers || 0) > 0) {
+    alerts.push(`${formatNumber(tradeSummary.market_open_offers)} oferta(s) visibles en trade`);
   }
   return alerts;
 }

@@ -115,7 +115,6 @@ function setupUi() {
     saveLocale(event.target.value);
     await bootstrap(document.querySelector("[data-nav].is-active")?.getAttribute("data-nav") || "home", true);
   });
-  refs.refreshButton?.addEventListener("click", async () => bootstrap(document.querySelector("[data-nav].is-active")?.getAttribute("data-nav") || "home", true));
   refs.logoutButton?.addEventListener("click", () => {
     clearToken();
     refs.logoutButton.classList.add("hidden");

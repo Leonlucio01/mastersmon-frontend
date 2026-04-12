@@ -6,16 +6,16 @@ const ASSET_MANIFESTS = {
   loading: null,
 };
 
-const SPRITE_BASE_NORMAL = 'img/pokemon-png/sprites_normal/sprites_normal';
-const SPRITE_BASE_SHINY = 'img/pokemon-png/sprites_shiny/sprites_shiny';
-const ITEM_BASE = 'img/items';
-const AVATAR_BASE = 'img/avatars';
-const MAPS_BASE = 'img/maps';
+const SPRITE_BASE_NORMAL = '/img/pokemon-png/sprites_normal';
+const SPRITE_BASE_SHINY = '/img/pokemon-png/sprites_shiny';
+const ITEM_BASE = '/img/items';
+const AVATAR_BASE = '/img/avatars';
+const MAPS_BASE = '/img/maps';
 const FALLBACKS = {
-  pokemon: 'https://placehold.co/96x96/png?text=Pokemon',
-  item: 'https://placehold.co/72x72/png?text=Item',
-  avatar: 'https://placehold.co/64x64/png?text=Avatar',
-  map: 'https://placehold.co/600x320/png?text=Region',
+  pokemon: '/img/pokemon-png/sprites_normal/0001.png',
+  item: '/img/items/official/0004_poke-ball.png',
+  avatar: '/img/avatars/steven.png',
+  map: '/img/Banner.png',
 };
 
 function safeArray(value) {
@@ -51,9 +51,9 @@ export async function ensureAssetManifests() {
   if (ASSET_MANIFESTS.loading) return ASSET_MANIFESTS.loading;
 
   ASSET_MANIFESTS.loading = Promise.all([
-    loadJson('data/manifests/sprites_manifest.json').catch(() => []),
-    loadJson('data/manifests/items_manifest.json').catch(() => []),
-    loadJson('data/manifests/items_custom_manifest.json').catch(() => []),
+    loadJson('/data/manifests/sprites_manifest.json').catch(() => []),
+    loadJson('/data/manifests/items_manifest.json').catch(() => []),
+    loadJson('/data/manifests/items_custom_manifest.json').catch(() => []),
   ]).then(([sprites, items, customItems]) => {
     ASSET_MANIFESTS.sprites = safeArray(sprites);
     ASSET_MANIFESTS.items = safeArray(items);
@@ -146,15 +146,15 @@ export function getItemImage(item = {}) {
 export function getAvatarImage(value = '') {
   const raw = String(value || '').trim();
   if (!raw) return FALLBACKS.avatar;
-  if (/^https?:\/\//i.test(raw) || raw.startsWith('img/')) return raw;
+  if (/^https?:\/\//i.test(raw) || raw.startsWith('/img/') || raw.startsWith('img/')) return raw;
   return `${AVATAR_BASE}/${normalizeText(raw).replace(/[^a-z0-9-]+/g, '')}.png`;
 }
 
 export function getMapImage(value = '') {
   const raw = String(value || '').trim();
   if (!raw) return FALLBACKS.map;
-  if (/^https?:\/\//i.test(raw) || raw.startsWith('img/')) return raw;
-  return `${MAPS_BASE}/${raw.replace(/^\/+/, '')}`;
+  if (/^https?:\/\//i.test(raw) || raw.startsWith('/img/') || raw.startsWith('img/')) return raw;
+  return `${MAPS_BASE}/${raw.replace(/^\/+/, '').replace(/^img\/maps\/?/, '')}`;
 }
 
 export function getAssetAuditSummary() {
