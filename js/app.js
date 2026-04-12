@@ -8,46 +8,46 @@ import { ensureAssetManifests, getAssetAuditSummary } from "./core/assets.js";
 import { setAfterLoginHandler } from "./modules/login.js";
 import { setAfterOnboardingHandler } from "./modules/onboarding.js";
 
+function resetAuthenticatedState() {
+  state.profile = null;
+  state.onboarding = null;
+  state.onboardingOptions = null;
+  state.home = null;
+  state.homeAlerts = null;
+  state.regions = [];
+  state.collectionSummary = null;
+  state.teamActive = null;
+  state.gymsSummary = null;
+  state.houseSummary = null;
+  state.houseStorage = null;
+  state.houseUpgrades = null;
+  state.tradeSummary = null;
+  state.tradeOffers = [];
+  state.tradeTransactions = [];
+  state.tradeAvailablePokemon = [];
+  state.shopCatalog = [];
+  state.shopBenefits = [];
+  state.shopPurchases = [];
+  state.shopSync = { status: "idle", message: "", orderId: "" };
+  state.rankingSummary = null;
+}
+
 async function bootstrap(view = "home", force = false) {
   state.token = getToken();
   await ensureAssetManifests();
   state.assetAudit = getAssetAuditSummary();
+
   if (!state.token) {
     state.user = null;
-    state.onboarding = null;
-    state.onboardingOptions = null;
-    state.home = null;
-    state.regions = [];
-    state.houseSummary = null;
-    state.houseStorage = null;
-    state.houseUpgrades = null;
-    state.tradeSummary = null;
-    state.tradeOffers = [];
-    state.tradeTransactions = [];
-    state.tradeAvailablePokemon = [];
-    state.shopCatalog = [];
-    state.shopBenefits = [];
-    state.shopPurchases = [];
-    state.shopSync = { status: "idle", message: "", orderId: "" };
-    state.rankingSummary = null;
+    resetAuthenticatedState();
     renderTopbarProfile();
+    refs.logoutButton?.classList.add("hidden");
     renderCurrentView("home");
     return;
   }
 
   if (force) {
-    state.onboarding = null;
-    state.onboardingOptions = null;
-    state.home = null;
-    state.regions = [];
-    state.houseSummary = null;
-    state.houseStorage = null;
-    state.houseUpgrades = null;
-    state.tradeSummary = null;
-    state.tradeOffers = [];
-    state.tradeTransactions = [];
-    state.tradeAvailablePokemon = [];
-    state.rankingSummary = null;
+    resetAuthenticatedState();
   }
 
   refs.logoutButton?.classList.remove("hidden");
@@ -66,18 +66,36 @@ async function bootstrap(view = "home", force = false) {
     if (state.onboarding?.needs_onboarding) {
       const optionsResponse = await fetchAuth("/v2/onboarding/options");
       state.onboardingOptions = optionsResponse.data || { starters: [], regions: [] };
-      refs.logoutButton?.classList.remove("hidden");
       renderCurrentView("home");
       return;
     }
 
-    const [homeResponse, regionsResponse] = await Promise.all([
-      fetchAuth("/v2/home/summary"),
-      fetchAuth("/v2/adventure/regions"),
+    const [
+      profileResponse,
+      homeResponse,
+      homeAlertsResponse,
+      regionsResponse,
+      collectionSummaryResponse,
+      teamActiveResponse,
+      gymsSummaryResponse,
+    ] = await Promise.all([
+      fetchAuth("/v2/profile/me").catch(() => ({ data: null })),
+      fetchAuth("/v2/home/summary").catch(() => ({ data: null })),
+      fetchAuth("/v2/home/alerts").catch(() => ({ data: null })),
+      fetchAuth("/v2/adventure/regions").catch(() => ({ data: [] })),
+      fetchAuth("/v2/collection/summary").catch(() => ({ data: null })),
+      fetchAuth("/v2/team/active").catch(() => ({ data: null })),
+      fetchAuth("/v2/gyms/summary").catch(() => ({ data: null })),
     ]);
 
+    state.profile = profileResponse.data || null;
     state.home = homeResponse.data || null;
+    state.homeAlerts = homeAlertsResponse.data || null;
     state.regions = regionsResponse.data || [];
+    state.collectionSummary = collectionSummaryResponse.data || null;
+    state.teamActive = teamActiveResponse.data || null;
+    state.gymsSummary = gymsSummaryResponse.data || null;
+    renderTopbarProfile();
     renderCurrentView(view);
   } catch (error) {
     if (error.status === 401) {
@@ -95,15 +113,15 @@ function setupUi() {
   refs.languageSwitch.value = state.locale;
   refs.languageSwitch.addEventListener("change", async (event) => {
     saveLocale(event.target.value);
-    await bootstrap(document.querySelector('[data-nav].is-active')?.getAttribute('data-nav') || "home", true);
+    await bootstrap(document.querySelector("[data-nav].is-active")?.getAttribute("data-nav") || "home", true);
   });
-  refs.refreshButton?.addEventListener("click", async () => bootstrap(document.querySelector('[data-nav].is-active')?.getAttribute('data-nav') || "home", true));
+  refs.refreshButton?.addEventListener("click", async () => bootstrap(document.querySelector("[data-nav].is-active")?.getAttribute("data-nav") || "home", true));
   refs.logoutButton?.addEventListener("click", () => {
     clearToken();
     refs.logoutButton.classList.add("hidden");
     bootstrap("home", true);
   });
-  bindNavigation(async () => bootstrap(document.querySelector('[data-nav].is-active')?.getAttribute('data-nav') || "home", true));
+  bindNavigation(async () => bootstrap(document.querySelector("[data-nav].is-active")?.getAttribute("data-nav") || "home", true));
 }
 
 setAfterLoginHandler(async () => bootstrap("home", true));

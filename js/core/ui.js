@@ -1,5 +1,6 @@
 import { state } from "./state.js";
 import { tr } from "./i18n.js";
+import { getAvatarImage } from "./assets.js";
 
 export const refs = {
   appContent: document.getElementById("appContent"),
@@ -14,8 +15,21 @@ export function escapeHtml(value = "") {
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
+    .replace(/\"/g, "&quot;")
     .replace(/'/g, "&#39;");
+}
+
+export function formatNumber(value = 0) {
+  const num = Number(value || 0);
+  if (!Number.isFinite(num)) return "0";
+  return new Intl.NumberFormat(state.locale === "en" ? "en-US" : "es-ES").format(num);
+}
+
+export function progressPct(current = 0, total = 0) {
+  const safeTotal = Number(total || 0);
+  const safeCurrent = Number(current || 0);
+  if (!safeTotal || safeTotal <= 0) return 0;
+  return Math.max(0, Math.min(100, Math.round((safeCurrent / safeTotal) * 100)));
 }
 
 export function statusCard(message, kind = "info") {
@@ -31,15 +45,16 @@ export function setActiveNav(target) {
 export function renderTopbarProfile() {
   const mount = refs.topbarProfile;
   if (!mount) return;
-  if (!state.user) {
+  const profile = state.profile || state.user;
+  if (!profile) {
     mount.classList.add("hidden");
     mount.innerHTML = "";
     return;
   }
   mount.classList.remove("hidden");
-  const photo = state.user.photo_url || "https://placehold.co/64x64/png";
-  const name = state.user.display_name || state.user.email || tr("common.trainer");
-  mount.innerHTML = `<img src="${escapeHtml(photo)}" alt="${escapeHtml(name)}"><div><strong>${escapeHtml(name)}</strong></div>`;
+  const photo = profile.photo_url || profile.avatar_url || getAvatarImage(profile.avatar_code || state.selectedAvatarCode || "steven");
+  const name = profile.display_name || profile.username || profile.email || tr("common.trainer");
+  mount.innerHTML = `<img src="${escapeHtml(photo)}" alt="${escapeHtml(name)}" onerror="onAvatarImageError(this)"><div><strong>${escapeHtml(name)}</strong></div>`;
 }
 
 export function onPokemonImageError(img) {
@@ -47,3 +62,9 @@ export function onPokemonImageError(img) {
   img.src = "https://placehold.co/400x220/png?text=Mastersmon";
 }
 window.onPokemonImageError = onPokemonImageError;
+
+export function onAvatarImageError(img) {
+  img.onerror = null;
+  img.src = getAvatarImage("steven");
+}
+window.onAvatarImageError = onAvatarImageError;

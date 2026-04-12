@@ -1,9 +1,11 @@
 export const state = {
   token: "",
   user: null,
+  profile: null,
   onboarding: null,
   onboardingOptions: null,
   home: null,
+  homeAlerts: null,
   regions: [],
   collectionSummary: null,
   collectionItems: [],
