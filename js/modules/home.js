@@ -29,6 +29,69 @@ function teamToneLabel(code = "neutral") {
   return map[String(code || "neutral").toLowerCase()] || code || "Neutral";
 }
 
+function partyBadges(member = {}) {
+  const badges = [];
+  const primaryType = member.primary_type || member.type_1 || member.type1 || member.element;
+  const secondaryType = member.secondary_type || member.type_2 || member.type2;
+  const rarity = member.rarity || member.rarity_label || (member.is_shiny ? "Shiny" : "Normal");
+
+  if (primaryType) badges.push({ label: String(primaryType), tone: "type" });
+  if (secondaryType) badges.push({ label: String(secondaryType), tone: "type" });
+  if (rarity) badges.push({ label: String(rarity), tone: "rarity" });
+  if (member.is_favorite) badges.push({ label: "Favorite", tone: "favorite" });
+
+  return badges.slice(0, 3);
+}
+
+function normalizeTone(value = "") {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-");
+}
+
+function partyTheme(member = {}, index = 0) {
+  const rarity = normalizeTone(member.rarity || member.rarity_label || (member.is_shiny ? "shiny" : "normal"));
+  const primaryType = normalizeTone(member.primary_type || member.type_1 || member.type1 || member.element || "neutral");
+  const presets = [
+    { glow: "rgba(92, 214, 255, .34)", edge: "rgba(92, 214, 255, .44)" },
+    { glow: "rgba(145, 255, 164, .30)", edge: "rgba(145, 255, 164, .4)" },
+    { glow: "rgba(255, 190, 98, .30)", edge: "rgba(255, 190, 98, .42)" },
+  ];
+  const preset = presets[index % presets.length];
+
+  const rarityMap = {
+    legendary: { glow: "rgba(255, 167, 55, .38)", edge: "rgba(255, 167, 55, .58)" },
+    epic: { glow: "rgba(178, 123, 255, .34)", edge: "rgba(178, 123, 255, .52)" },
+    rare: { glow: "rgba(92, 214, 255, .34)", edge: "rgba(92, 214, 255, .46)" },
+    shiny: { glow: "rgba(255, 215, 111, .42)", edge: "rgba(255, 215, 111, .58)" },
+  };
+
+  const typeMap = {
+    fire: { glow: "rgba(255, 125, 82, .34)", edge: "rgba(255, 125, 82, .5)" },
+    water: { glow: "rgba(87, 170, 255, .32)", edge: "rgba(87, 170, 255, .46)" },
+    grass: { glow: "rgba(110, 221, 135, .3)", edge: "rgba(110, 221, 135, .42)" },
+    electric: { glow: "rgba(255, 223, 94, .34)", edge: "rgba(255, 223, 94, .48)" },
+    psychic: { glow: "rgba(255, 118, 185, .3)", edge: "rgba(255, 118, 185, .46)" },
+    dragon: { glow: "rgba(121, 122, 255, .34)", edge: "rgba(121, 122, 255, .48)" },
+    ghost: { glow: "rgba(144, 115, 255, .3)", edge: "rgba(144, 115, 255, .46)" },
+    dark: { glow: "rgba(132, 148, 174, .26)", edge: "rgba(132, 148, 174, .42)" },
+    bug: { glow: "rgba(184, 255, 118, .28)", edge: "rgba(184, 255, 118, .4)" },
+    fighting: { glow: "rgba(255, 118, 118, .3)", edge: "rgba(255, 118, 118, .46)" },
+    steel: { glow: "rgba(180, 210, 225, .28)", edge: "rgba(180, 210, 225, .42)" },
+    fairy: { glow: "rgba(255, 168, 222, .32)", edge: "rgba(255, 168, 222, .48)" },
+  };
+
+  return rarityMap[rarity] || typeMap[primaryType] || preset;
+}
+
+function primaryBadge(member = {}) {
+  if (member.rarity || member.rarity_label || member.is_shiny) {
+    return member.rarity || member.rarity_label || "Shiny";
+  }
+  return member.primary_type || member.type_1 || member.type1 || member.element || "Normal";
+}
+
 function buildMainMission({ currentZone, nextGymName, regionName, teamPower }) {
   if (currentZone && currentZone !== "-") {
     return {
@@ -265,20 +328,38 @@ export function renderHome() {
             <div class="section-head home-mini-head">
               <div>
                 <h2>Active party</h2>
-                <p>Tus Pokémon principales deberían verse aquí primero.</p>
+                <p>Tu roster visible, listo para combate y captura.</p>
               </div>
-              <button class="soft-btn" type="button" data-go-target="team">Abrir team</button>
+              <div class="home-party-head-actions">
+                <span class="home-party-capacity">${escapeHtml(formatNumber(members.length))}/6 slots</span>
+                <button class="soft-btn" type="button" data-go-target="team">Abrir team</button>
+              </div>
             </div>
             <div class="home-party-grid">
               ${featuredParty.length ? featuredParty.map((member, index) => `
-                <article class="home-party-card ${index === 0 ? "is-featured" : ""}">
-                  <span class="home-slot-id">#${index + 1}</span>
+                <article class="home-party-card ${index === 0 ? "is-featured" : ""}" style="--party-glow:${escapeHtml(partyTheme(member, index).glow)}; --party-edge:${escapeHtml(partyTheme(member, index).edge)};">
+                  <div class="home-party-card-head">
+                    <span class="home-slot-id">#${index + 1}</span>
+                    <span class="home-party-rarity">${escapeHtml(primaryBadge(member))}</span>
+                  </div>
+                  <div class="home-party-orb"></div>
                   <img src="${escapeHtml(getPokemonSprite(member))}" alt="${escapeHtml(member.display_name || member.name || "Pokemon")}" onerror="onPokemonImageError(this)">
-                  <strong>${escapeHtml(member.display_name || member.name || "Pokemon")}</strong>
-                  <small>Lv ${escapeHtml(formatNumber(member.level || 1))}</small>
+                  <div class="home-party-copy">
+                    <strong>${escapeHtml(member.display_name || member.name || "Pokemon")}</strong>
+                    <small>Lv ${escapeHtml(formatNumber(member.level || 1))} - ${escapeHtml(member.variant || member.variant_name || "Normal")}</small>
+                  </div>
+                  <div class="home-party-badges">
+                    ${partyBadges(member).map((badge) => `<span class="home-party-badge tone-${escapeHtml(badge.tone)}">${escapeHtml(badge.label)}</span>`).join("")}
+                  </div>
                   <div class="home-party-bars">
+                    <span class="home-stat-copy"><b>HP</b><strong>${escapeHtml(formatNumber(member.current_hp || member.hp || 0))} / ${escapeHtml(formatNumber(member.max_hp || member.hp || 0))}</strong></span>
                     <span class="home-stat-line"><i style="width:${escapeHtml(String(progressPct(member.current_hp || member.hp || 0, member.max_hp || member.hp || 1)))}%"></i></span>
+                    <span class="home-stat-copy"><b>XP</b><strong>${escapeHtml(formatNumber(member.exp || 0))} / ${escapeHtml(formatNumber(member.next_level_exp || 100))}</strong></span>
                     <span class="home-stat-line home-stat-line-xp"><i style="width:${escapeHtml(String(progressPct(member.exp || 0, member.next_level_exp || 100)))}%"></i></span>
+                  </div>
+                  <div class="home-party-actions">
+                    <button class="ghost-btn" type="button" data-go-target="team">Party</button>
+                    <button class="soft-btn" type="button" data-go-target="collection">Ficha</button>
                   </div>
                 </article>`).join("") : `
                 <div class="placeholder-card home-party-empty">
@@ -292,7 +373,7 @@ export function renderHome() {
                   <img src="${escapeHtml(getPokemonSprite(member))}" alt="${escapeHtml(member.display_name || member.name || "Pokemon")}" onerror="onPokemonImageError(this)">
                   <div>
                     <strong>#${featuredParty.length + index + 1} ${escapeHtml(member.display_name || member.name || "Pokemon")}</strong>
-                    <small>Lv ${escapeHtml(formatNumber(member.level || 1))}</small>
+                    <small>Lv ${escapeHtml(formatNumber(member.level || 1))} - ${escapeHtml(member.primary_type || member.type_1 || member.type1 || "Normal")}</small>
                   </div>
                 </article>`).join("") : `<span class="home-reserve-empty">Completa más slots para que la party tenga profundidad.</span>`}
             </div>
