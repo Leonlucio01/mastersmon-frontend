@@ -17,6 +17,31 @@ const FALLBACKS = {
   avatar: '/img/avatars/steven.png',
   map: '/img/Banner.png',
 };
+const ITEM_CODE_ALIASES = {
+  poke_ball: 'poke-ball',
+  super_ball: 'great-ball',
+  ultra_ball: 'ultra-ball',
+  master_ball: 'master-ball',
+  super_potion: 'super-potion',
+  max_potion: 'max-potion',
+  king_s_rock: 'kings-rock',
+  piedra_fuego: 'fire-stone',
+  piedra_agua: 'water-stone',
+  piedra_trueno: 'thunder-stone',
+  piedra_hoja: 'leaf-stone',
+  piedra_lunar: 'moon-stone',
+  sun_stone: 'sun-stone',
+  shiny_stone: 'shiny-stone',
+  dusk_stone: 'dusk-stone',
+  dawn_stone: 'dawn-stone',
+  oval_stone: 'oval-stone',
+  metal_coat: 'metal-coat',
+  dragon_scale: 'dragon-scale',
+  up_grade: 'up-grade',
+  link_cable: 'linking-cord',
+  deepseatooth: 'deep-sea-tooth',
+  deepseascale: 'deep-sea-scale',
+};
 
 function safeArray(value) {
   return Array.isArray(value) ? value : [];
@@ -32,6 +57,11 @@ function normalizeText(value = '') {
 
 function normalizeVariantSuffix(value = '') {
   return normalizeText(value).replace(/[^a-z0-9]+/g, '');
+}
+
+function normalizeItemLookup(value = '') {
+  const normalized = normalizeText(value).replace(/_/g, '-').replace(/\s+/g, '-');
+  return ITEM_CODE_ALIASES[normalized.replace(/-/g, '_')] || ITEM_CODE_ALIASES[normalized] || normalized;
 }
 
 function normalizeSpriteId(value) {
@@ -158,13 +188,13 @@ export function getPokemonSprite(pokemon = {}, shinyOverride = null) {
 function findItemEntry({ itemId = null, itemCode = '', itemName = '' } = {}) {
   const items = [...safeArray(ASSET_MANIFESTS.customItems), ...safeArray(ASSET_MANIFESTS.items)];
   if (!items.length) return null;
-  const normalizedCode = normalizeText(itemCode).replace(/_/g, '-');
-  const normalizedName = normalizeText(itemName).replace(/\s+/g, '-');
+  const normalizedCode = normalizeItemLookup(itemCode);
+  const normalizedName = normalizeItemLookup(itemName);
 
   return items.find((entry) => {
     const entryId = Number(entry?.item_id || 0);
-    const entryCode = normalizeText(entry?.item_code || '').replace(/_/g, '-');
-    const entryName = normalizeText(entry?.display_name || entry?.item_name || '').replace(/\s+/g, '-');
+    const entryCode = normalizeItemLookup(entry?.item_code || '');
+    const entryName = normalizeItemLookup(entry?.display_name || entry?.item_name || '');
     if (itemId && entryId === Number(itemId)) return true;
     if (normalizedCode && entryCode === normalizedCode) return true;
     if (normalizedName && entryName === normalizedName) return true;
@@ -174,7 +204,17 @@ function findItemEntry({ itemId = null, itemCode = '', itemName = '' } = {}) {
 
 export function getItemImage(item = {}) {
   const direct = item?.image_url || item?.icon_url || item?.asset_url || item?.image || '';
-  if (direct && !/placehold\.co/i.test(String(direct))) return normalizeItemAssetPath(String(direct));
+  const directText = String(direct || '');
+  if (directText && !/placehold\.co/i.test(directText)) {
+    const legacyFile = directText.split('/').pop()?.replace(/\.png$/i, '') || '';
+    const entryFromLegacy = findItemEntry({
+      itemId: item?.item_id || item?.id || null,
+      itemCode: legacyFile,
+      itemName: item?.display_name || item?.item_name || item?.nombre || item?.name || '',
+    });
+    if (entryFromLegacy?.file) return `${ITEM_BASE}/${entryFromLegacy.file}`;
+    return normalizeItemAssetPath(directText);
+  }
 
   const entry = findItemEntry({
     itemId: item?.item_id || item?.id || null,

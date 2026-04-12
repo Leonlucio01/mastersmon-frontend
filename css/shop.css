@@ -109,6 +109,26 @@
   padding: 24px;
 }
 
+.shop-category-block {
+  display: grid;
+  gap: 16px;
+}
+
+.shop-category-block + .shop-category-block {
+  margin-top: 22px;
+}
+
+.shop-category-head h4 {
+  margin: 8px 0 6px;
+  font-size: 24px;
+}
+
+.shop-category-head p {
+  margin: 0;
+  color: var(--text-soft);
+  line-height: 1.6;
+}
+
 .shop-panel-head {
   display: flex;
   align-items: flex-start;

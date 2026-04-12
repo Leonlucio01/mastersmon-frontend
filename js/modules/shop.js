@@ -25,15 +25,46 @@ function utilityInventoryMap() {
   return new Map(items.map((item) => [item.code, item]));
 }
 
+function utilityCategory(item) {
+  const kind = String(item?.item_kind || "").toLowerCase();
+  if (kind === "captura") return "Pokeballs";
+  if (kind === "curacion") return "Pociones";
+  if (kind === "revival") return "Revivir";
+  if (kind === "evolucion") return "Evolución";
+  return "Otros";
+}
+
+function utilityCategoryDescription(category) {
+  if (category === "Pokeballs") return "Captura y control del loop principal de Adventure.";
+  if (category === "Pociones") return "Recuperación básica para sostener progresión y combate.";
+  if (category === "Revivir") return "Soporte de emergencia para peleas difíciles.";
+  if (category === "Evolución") return "Piedras y objetos para ramas evolutivas y upgrades.";
+  return "Items utilitarios del juego.";
+}
+
 function renderUtilityCatalog() {
   if (!state.shopUtilityCatalog.length) {
     return `<div class="shop-empty">No hay items del juego disponibles todavía.</div>`;
   }
 
   const inventory = utilityInventoryMap();
-  return `
-    <div class="shop-products-grid shop-products-grid-utility">
-      ${state.shopUtilityCatalog.map((item) => {
+  const categories = new Map();
+  state.shopUtilityCatalog.forEach((item) => {
+    const category = utilityCategory(item);
+    categories.set(category, [...(categories.get(category) || []), item]);
+  });
+
+  return Array.from(categories.entries()).map(([category, items]) => `
+    <section class="shop-category-block">
+      <div class="shop-category-head">
+        <div>
+          <span class="shop-chip">${escapeHtml(category)}</span>
+          <h4>${escapeHtml(category)}</h4>
+          <p>${escapeHtml(utilityCategoryDescription(category))}</p>
+        </div>
+      </div>
+      <div class="shop-products-grid shop-products-grid-utility">
+        ${items.map((item) => {
         const owned = inventory.get(item.code)?.quantity ?? item.owned_quantity ?? 0;
         return `
           <article class="shop-product-card shop-product-card-utility">
@@ -61,7 +92,8 @@ function renderUtilityCatalog() {
             </div>
           </article>`;
       }).join("")}
-    </div>`;
+      </div>
+    </section>`).join("");
 }
 
 function premiumExtras(product) {
