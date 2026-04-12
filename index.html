@@ -12,15 +12,33 @@
     <header class="topbar">
       <div class="brand">
         <img src="img/Logo MastersMon.png" class="logo" alt="Mastersmon" />
-        <strong>Mastersmon</strong>
+        <div class="brand-copy">
+          <strong>Mastersmon</strong>
+          <small>Trainer Hub</small>
+        </div>
       </div>
 
-      <nav>
+      <nav class="nav">
         <button data-nav="home" class="active" type="button">Home</button>
         <button data-nav="adventure" type="button">Adventure</button>
       </nav>
 
-      <div class="auth-box">
+      <div class="topbar-actions">
+        <select id="languageSwitch" aria-label="Idioma">
+          <option value="es">ES</option>
+          <option value="en">EN</option>
+        </select>
+        <button id="refreshBtn" type="button">Refresh</button>
+        <button id="logoutBtn" type="button" class="hidden">Salir</button>
+      </div>
+    </header>
+
+    <section id="authMount" class="auth-mount hidden">
+      <div class="auth-card">
+        <span class="eyebrow">Google Sign-In</span>
+        <h2>Inicia sesión para entrar al juego</h2>
+        <p>Esta base ya conecta con la API real del backend para sesión, Home y Adventure.</p>
+
         <div id="g_id_onload"
              data-client_id="REEMPLAZA_CON_TU_GOOGLE_CLIENT_ID"
              data-callback="handleCredentialResponse">
@@ -28,23 +46,20 @@
 
         <div class="g_id_signin"
              data-type="standard"
-             data-size="medium"
+             data-size="large"
              data-theme="outline"
              data-text="signin_with"
              data-shape="pill"
              data-logo_alignment="left">
         </div>
 
-        <div id="userBox" class="hidden">
-          <span id="userName"></span>
-          <button id="logoutBtn" type="button">Logout</button>
-        </div>
+        <div id="loginStatus"></div>
       </div>
-    </header>
+    </section>
 
     <main id="content"></main>
   </div>
 
   <script src="app.js"></script>
 </body>
-</html>
+</html>\n
