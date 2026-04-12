@@ -1,0 +1,7 @@
+.team-screen-shell { display:grid; gap:20px; }
+.team-screen-layout { display:grid; grid-template-columns: 1fr .95fr; gap:20px; }
+.team-panel, .team-side-panel { padding:18px; border-radius:20px; background:rgba(255,255,255,.05); border:1px solid var(--line-soft); }
+.team-screen-layout .team-list, .team-screen-layout .roster-list { display:grid; gap:12px; }
+.team-warning-list { display:grid; gap:10px; }
+.team-warning-item { padding:12px 14px; border-radius:16px; background:rgba(255,216,138,.08); color:#ffe5a6; border:1px solid rgba(255,216,138,.18); }
+@media (max-width: 1100px) { .team-screen-layout { grid-template-columns:1fr; } }

@@ -37,6 +37,14 @@ export function renderHome() {
         </div>
 
         <div class="section-card">
+          <div class="section-head"><div><h2>Quick links</h2></div></div>
+          <div class="hero-actions">
+            <button class="primary-btn" type="button" id="goCollection">Open Collection</button>
+            <button class="soft-btn" type="button" id="goTeam">Open Team</button>
+          </div>
+        </div>
+
+        <div class="section-card">
           <div class="section-head"><div><h2>${escapeHtml(tr("home.modules"))}</h2></div></div>
           <div class="module-grid">
             ${modules.map(m => `<article class="module-card"><strong>${m}</strong><p class="body-copy">Preparado para crecer dentro de js/modules/${m}.js</p></article>`).join("")}
@@ -59,7 +67,7 @@ export function renderHome() {
       </div>
     </section>`;
 
-  document.getElementById("goAdventure")?.addEventListener("click", () => {
-    document.querySelector('[data-nav="adventure"]')?.click();
-  });
+  document.getElementById("goAdventure")?.addEventListener("click", () => { document.querySelector('[data-nav="adventure"]')?.click(); });
+  document.getElementById("goCollection")?.addEventListener("click", () => { document.querySelector('[data-nav="collection"]')?.click(); });
+  document.getElementById("goTeam")?.addEventListener("click", () => { document.querySelector('[data-nav="team"]')?.click(); });
 }

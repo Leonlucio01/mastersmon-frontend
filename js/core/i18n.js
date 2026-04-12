@@ -8,6 +8,8 @@ const TRANSLATIONS = {
     onboarding: { title: "Let us prepare your trainer.", complete: "Complete onboarding", reload: "Reload options", starter: "Choose your starter", count: "Showing {visible} of {total} starters." },
     home: { title: "Trainer hub", body: "This screen already consumes V2 APIs with a modular structure.", continue: "Continue adventure", profile: "Active profile", wallets: "Wallets", modules: "Backend modules already available", team: "Active team" },
     adventure: { eyebrow: "Adventure", title: "Explore the world as the real core of the game.", body: "This module is now separated from the shell and ready to grow without filling the project with more HTML files.", detail: "View detail", active: "Active", available: "Available", refresh: "Refresh regions", back: "Back to home", loaded: "Adventure module separated in js/modules/adventure.js and css/adventure.css." },
+    collection: { title: "My Collection", body: "Collection is now its own module, connected to summary, list and detail from V2." },
+    team: { title: "Active Team", body: "Team now lives as its own module with selection and save flow from the collection." },
     common: { trainer: "Trainer", loading: "Loading...", error: "Something went wrong." }
   },
   es: {
@@ -16,6 +18,8 @@ const TRANSLATIONS = {
     onboarding: { title: "Vamos a preparar a tu entrenador.", complete: "Completar onboarding", reload: "Recargar opciones", starter: "Elige tu starter", count: "Mostrando {visible} de {total} starters." },
     home: { title: "Trainer hub", body: "Esta pantalla ya consume APIs V2 con estructura modular.", continue: "Continuar aventura", profile: "Perfil activo", wallets: "Wallets", modules: "Módulos backend ya disponibles", team: "Equipo activo" },
     adventure: { eyebrow: "Adventure", title: "Explora el mundo como eje real del juego.", body: "Este módulo ahora está separado del shell y listo para crecer sin volver a llenar el proyecto de más HTML.", detail: "Ver detalle", active: "Activa", available: "Disponible", refresh: "Actualizar regiones", back: "Volver al home", loaded: "Adventure ya vive aparte en js/modules/adventure.js y css/adventure.css." },
+    collection: { title: "Mi colección", body: "Collection ahora ya es su propio módulo, conectado al summary, lista y detalle de V2." },
+    team: { title: "Equipo activo", body: "Team ahora vive como módulo propio, con selección y guardado conectados a la colección." },
     common: { trainer: "Entrenador", loading: "Cargando...", error: "Algo salió mal." }
   }
 };
