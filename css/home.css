@@ -1,508 +1,418 @@
-.home-system-ribbon {
+.home-live-strip {
   display: grid;
   gap: 14px;
+  overflow: hidden;
   background:
-    linear-gradient(90deg, rgba(122,227,255,.07), rgba(255,216,138,.05), rgba(140,255,193,.06)),
-    rgba(9,19,34,.72);
+    linear-gradient(90deg, rgba(122,227,255,.08), rgba(255,216,138,.05), rgba(140,255,193,.08)),
+    rgba(9,19,34,.74);
 }
 
-.home-system-head {
+.home-live-track {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
   gap: 12px;
-}
-
-.home-system-head strong {
-  font-family: "Sora", sans-serif;
-  font-size: 1.05rem;
-}
-
-.home-system-feed {
-  display: flex;
   flex-wrap: wrap;
-  gap: 10px;
 }
 
-.home-feed-pill {
+.home-live-item {
   display: inline-flex;
   align-items: center;
   min-height: 42px;
-  padding: 10px 14px;
+  padding: 10px 16px;
   border-radius: 999px;
-  background: rgba(255,255,255,.05);
-  border: 1px solid rgba(255,255,255,.09);
+  border: 1px solid rgba(255,255,255,.1);
+  background: rgba(255,255,255,.04);
   color: var(--text-soft);
-  font-size: .92rem;
 }
 
-.home-hub-hero {
+.home-hub-shell {
   position: relative;
   overflow: hidden;
-}
-
-.home-hub-hero::before,
-.home-hub-hero::after {
-  content: "";
-  position: absolute;
-  border-radius: 50%;
-  pointer-events: none;
-}
-
-.home-hub-hero::before {
-  width: 340px;
-  height: 340px;
-  top: -120px;
-  left: -80px;
-  background: radial-gradient(circle, rgba(122, 227, 255, 0.16), transparent 70%);
-}
-
-.home-hub-hero::after {
-  width: 300px;
-  height: 300px;
-  right: -60px;
-  bottom: -120px;
-  background: radial-gradient(circle, rgba(255, 216, 138, 0.12), transparent 72%);
-}
-
-.home-hub-grid,
-.home-command-board {
-  display: grid;
-  gap: 20px;
-}
-
-.home-hub-grid {
-  grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr);
-  align-items: stretch;
-}
-
-.home-identity-card,
-.home-continue-card,
-.home-goal-card,
-.home-social-card,
-.home-team-slot,
-.home-command-stat,
-.home-progress-card,
-.home-alert-card,
-.wallet-card {
-  position: relative;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--line-soft);
-  border-radius: 22px;
-}
-
-.home-identity-card,
-.home-continue-card {
-  z-index: 1;
-}
-
-.home-identity-card {
-  padding: 26px;
+  padding: 28px;
   background:
-    linear-gradient(145deg, rgba(122, 227, 255, 0.08), rgba(255, 255, 255, 0.03)),
-    rgba(255, 255, 255, 0.03);
+    radial-gradient(circle at 12% 14%, rgba(122,227,255,.13), transparent 28%),
+    radial-gradient(circle at 80% 22%, rgba(255,216,138,.08), transparent 28%),
+    linear-gradient(180deg, rgba(14,28,46,.9), rgba(8,18,31,.86));
 }
 
-.home-identity-head {
+.home-hub-layout,
+.home-grid-shell {
   display: grid;
-  grid-template-columns: 116px 1fr;
   gap: 20px;
-  align-items: center;
 }
 
-.home-avatar-lg {
-  width: 116px;
-  height: 116px;
-  padding: 10px;
-  border-radius: 32px;
+.home-hub-layout {
+  grid-template-columns: 330px minmax(0, 1fr);
+}
+
+.home-pilot-panel,
+.home-command-stage,
+.home-mission-card,
+.home-party-stage,
+.home-action-tile,
+.home-now-card,
+.home-metric-box {
+  border: 1px solid var(--line-soft);
+  border-radius: 24px;
+  background: rgba(255,255,255,.05);
+}
+
+.home-pilot-panel {
+  padding: 22px;
+  display: grid;
+  gap: 18px;
+}
+
+.home-pilot-top {
+  display: grid;
+  gap: 16px;
+  justify-items: center;
+  text-align: center;
+}
+
+.home-avatar-frame {
+  width: 148px;
+  height: 148px;
+  padding: 12px;
+  border-radius: 34px;
+  background: linear-gradient(180deg, rgba(122,227,255,.2), rgba(255,255,255,.04));
+  border: 1px solid rgba(255,255,255,.16);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.12);
+}
+
+.home-avatar-frame img {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.04));
-  border: 1px solid rgba(255,255,255,.18);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+  border-radius: 26px;
 }
 
-.home-identity-copy h1 {
-  margin: 10px 0 12px;
+.home-pilot-copy h1 {
+  margin: 10px 0 0;
   font-family: "Sora", sans-serif;
-  font-size: clamp(2rem, 4vw, 3.4rem);
-  line-height: 0.98;
+  font-size: clamp(2rem, 3.8vw, 3.2rem);
+  line-height: 1;
 }
 
-.home-identity-copy p,
-.home-continue-card p,
-.home-goal-card p,
-.home-social-card p,
-.home-alert-card p,
-.home-progress-card small,
-.wallet-card small {
-  color: var(--text-soft);
-  line-height: 1.65;
+.home-pilot-tags {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 12px;
 }
 
-.home-identity-pills,
-.home-continue-route,
-.home-command-stats,
-.home-progress-rail,
-.home-wallets-panel .wallet-grid,
-.home-social-list,
-.home-alerts-grid,
-.home-team-grid,
-.home-goals-list {
+.home-profile-stats,
+.home-wallet-strip,
+.home-metric-stack {
   display: grid;
   gap: 12px;
 }
 
-.home-identity-pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+.home-profile-stats {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.home-command-stats {
-  margin-top: 24px;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-
-.home-command-stat {
-  padding: 16px;
-}
-
-.home-command-stat span,
-.home-progress-card span,
-.home-social-card span,
-.wallet-card span {
-  display: block;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  font-size: 11px;
-}
-
-.home-command-stat strong,
-.home-progress-card strong,
-.home-social-card strong,
-.wallet-card strong {
-  display: block;
-  margin-top: 8px;
-  font-family: "Sora", sans-serif;
-  font-size: 1.8rem;
-}
-
-.home-command-stat small {
-  display: block;
-  margin-top: 6px;
-  color: var(--text-soft);
-  line-height: 1.5;
-}
-
-.home-exp-shell {
-  margin-top: 22px;
-  padding: 16px 18px;
+.home-profile-stats article,
+.home-wallet-pill,
+.home-metric-box {
+  padding: 14px;
   border-radius: 18px;
-  background: rgba(8, 16, 29, 0.3);
+  background: rgba(255,255,255,.04);
   border: 1px solid rgba(255,255,255,.08);
 }
 
-.home-exp-top {
+.home-profile-stats span,
+.home-wallet-pill span,
+.home-metric-box span,
+.home-mission-card small,
+.home-slot-id {
+  display: block;
+  color: var(--text-dim);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.home-profile-stats strong,
+.home-wallet-pill strong,
+.home-metric-box strong {
+  display: block;
+  margin-top: 8px;
+  font-family: "Sora", sans-serif;
+  font-size: 1.45rem;
+}
+
+.home-level-panel {
+  padding: 14px;
+  border-radius: 20px;
+  background: rgba(7,14,24,.46);
+  border: 1px solid rgba(255,255,255,.08);
+}
+
+.home-level-copy {
   display: flex;
   justify-content: space-between;
+  gap: 12px;
   align-items: center;
-  gap: 10px;
   margin-bottom: 10px;
 }
 
-.home-exp-top span {
+.home-level-copy span {
   color: var(--text-dim);
-  text-transform: uppercase;
-  letter-spacing: .06em;
   font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
 }
 
-.home-exp-top strong {
-  font-size: 1rem;
+.home-command-stage {
+  display: grid;
+  gap: 18px;
+  background: transparent;
+  border: none;
 }
 
-.home-exp-bar {
-  width: 100%;
-  height: 12px;
+.home-mission-card,
+.home-party-stage {
+  padding: 22px;
+}
+
+.home-mission-card {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: end;
+  background:
+    linear-gradient(135deg, rgba(122,227,255,.14), rgba(255,255,255,.04)),
+    rgba(255,255,255,.04);
+}
+
+.home-mission-card h2 {
+  margin: 10px 0;
+  font-family: "Sora", sans-serif;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  line-height: .96;
+}
+
+.home-mission-card p,
+.home-mini-head p,
+.home-now-card p,
+.home-reserve-empty {
+  color: var(--text-soft);
+  line-height: 1.6;
+}
+
+.home-party-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.home-party-card,
+.home-reserve-card {
+  position: relative;
+  padding: 16px;
+  border-radius: 24px;
+  border: 1px solid rgba(255,255,255,.08);
+  background: rgba(7,14,24,.5);
+}
+
+.home-party-card.is-featured {
+  background:
+    radial-gradient(circle at top, rgba(122,227,255,.15), transparent 40%),
+    rgba(7,14,24,.58);
+  box-shadow: 0 0 0 1px rgba(122,227,255,.15);
+}
+
+.home-party-card img {
+  display: block;
+  width: 120px;
+  height: 120px;
+  margin: 12px auto 10px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.home-party-card strong,
+.home-reserve-card strong {
+  display: block;
+  font-size: 1.2rem;
+  font-family: "Sora", sans-serif;
+}
+
+.home-party-card small,
+.home-reserve-card small {
+  display: block;
+  margin-top: 4px;
+  color: var(--text-dim);
+}
+
+.home-party-bars {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.home-stat-line {
+  display: block;
+  height: 10px;
   border-radius: 999px;
   overflow: hidden;
   background: rgba(255,255,255,.08);
 }
 
-.home-exp-fill {
+.home-stat-line i {
+  display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, #69d9ff 0%, #4da2ff 52%, #89ffb7 100%);
+  background: linear-gradient(90deg, #7dffad 0%, #35dd83 100%);
 }
 
-.home-continue-card {
-  padding: 26px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  background:
-    linear-gradient(180deg, rgba(255, 216, 138, 0.08), rgba(122, 227, 255, 0.06)),
-    rgba(255,255,255,.03);
+.home-stat-line-xp i {
+  background: linear-gradient(90deg, #69d9ff 0%, #4da2ff 100%);
 }
 
-.home-continue-card h2 {
-  margin: 12px 0;
-  font-family: "Sora", sans-serif;
-  font-size: clamp(1.7rem, 3vw, 2.3rem);
-  line-height: 1.05;
-}
-
-.home-continue-route {
-  margin: 20px 0 18px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.home-continue-route article {
-  padding: 14px;
-  border-radius: 18px;
-  background: rgba(255,255,255,.05);
-  border: 1px solid rgba(255,255,255,.08);
-}
-
-.home-continue-route span {
-  display: block;
-  color: var(--text-dim);
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: .06em;
-}
-
-.home-continue-route strong {
-  display: block;
-  margin-top: 8px;
-  font-size: 1.15rem;
-}
-
-.home-hero-actions {
-  margin-top: 4px;
-}
-
-.home-command-board {
-  grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
-}
-
-.home-dock-grid {
+.home-reserve-row {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
-}
-
-.home-dock-card {
-  padding: 18px;
-  border-radius: 22px;
-  background: rgba(255,255,255,.05);
-  border: 1px solid var(--line-soft);
-}
-
-.home-dock-card strong {
-  display: block;
-  margin: 10px 0 8px;
-  font-family: "Sora", sans-serif;
-  font-size: 1.2rem;
-}
-
-.home-dock-card p {
-  min-height: 68px;
-  color: var(--text-soft);
-  line-height: 1.55;
-}
-
-.home-main-stack,
-.home-side-stack {
-  display: grid;
-  gap: 20px;
-}
-
-.home-team-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 14px;
 }
 
-.home-team-slot {
-  padding: 14px;
-  text-align: center;
-  display: grid;
-  justify-items: center;
-  gap: 8px;
+.home-reserve-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-.home-team-sprite {
-  width: 78px;
-  height: 78px;
-  display: grid;
-  place-items: center;
-  border-radius: 22px;
-  background: rgba(8, 16, 29, 0.42);
-  border: 1px solid rgba(255,255,255,.08);
-}
-
-.home-team-sprite img {
-  width: 64px;
-  height: 64px;
+.home-reserve-card img {
+  width: 58px;
+  height: 58px;
   object-fit: contain;
   image-rendering: pixelated;
 }
 
-.home-team-slot strong {
-  font-size: 1rem;
+.home-grid-shell {
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.1fr) 280px;
+  align-items: start;
 }
 
-.home-team-slot small {
-  color: var(--text-dim);
-}
-
-.home-empty-state p {
-  margin: 8px 0 0;
-}
-
-.home-progress-rail {
+.home-quick-actions,
+.home-now-grid {
+  display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.home-progress-card {
-  padding: 16px;
-}
-
-.home-progress-card.is-goal {
-  background: linear-gradient(180deg, rgba(122,227,255,.12), rgba(255,255,255,.04));
-}
-
-.home-progress-card small {
-  display: block;
-  margin-top: 8px;
-}
-
-.home-alerts-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.home-alert-card {
-  padding: 18px;
-}
-
-.home-alert-card strong {
-  display: block;
-  margin: 12px 0 10px;
-  font-size: 1.15rem;
-  line-height: 1.3;
-}
-
-.home-alert-reward {
-  background: linear-gradient(180deg, rgba(140,255,193,.12), rgba(255,255,255,.04));
-}
-
-.home-alert-social {
-  background: linear-gradient(180deg, rgba(122,227,255,.12), rgba(255,255,255,.04));
-}
-
-.home-alert-warning {
-  background: linear-gradient(180deg, rgba(255,216,138,.14), rgba(255,255,255,.04));
-}
-
-.home-alert-goal {
-  background: linear-gradient(180deg, rgba(255,151,98,.12), rgba(255,255,255,.04));
-}
-
-.home-alert-calm,
-.home-alert-info {
-  background: rgba(255,255,255,.05);
-}
-
-.home-inline-action {
-  margin-top: 8px;
-}
-
-.home-wallets-panel .wallet-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.wallet-card {
-  padding: 16px;
-}
-
-.wallet-card small {
-  display: block;
-  margin-top: 8px;
-}
-
-.home-goals-list,
-.home-social-list {
   gap: 14px;
 }
 
-.home-goal-card,
-.home-social-card {
+.home-action-tile,
+.home-now-card {
   padding: 18px;
+  text-align: left;
 }
 
-.home-goal-card strong,
-.home-social-card strong {
+.home-action-tile span {
   display: block;
-  margin: 10px 0 8px;
-  font-size: 1.4rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-size: 11px;
+}
+
+.home-action-tile strong {
+  display: block;
+  margin-top: 10px;
+  font-size: 1.28rem;
   font-family: "Sora", sans-serif;
 }
 
-.home-social-list {
+.home-action-tile.is-primary {
+  background: linear-gradient(135deg, rgba(76,201,255,.92), rgba(47,156,255,.86));
+  color: #06111d;
+  border: none;
+}
+
+.home-action-tile.is-primary span,
+.home-action-tile.is-primary strong {
+  color: #06111d;
+}
+
+.home-now-card strong {
+  display: block;
+  font-size: 1.05rem;
+  font-family: "Sora", sans-serif;
+}
+
+.home-now-card p {
+  min-height: 52px;
+  margin: 10px 0 12px;
+}
+
+.home-now-card.tone-reward {
+  background: linear-gradient(180deg, rgba(140,255,193,.12), rgba(255,255,255,.03));
+}
+
+.home-now-card.tone-social {
+  background: linear-gradient(180deg, rgba(122,227,255,.12), rgba(255,255,255,.03));
+}
+
+.home-now-card.tone-warning {
+  background: linear-gradient(180deg, rgba(255,216,138,.13), rgba(255,255,255,.03));
+}
+
+.home-now-card.tone-goal {
+  background: linear-gradient(180deg, rgba(255,151,98,.14), rgba(255,255,255,.03));
+}
+
+.home-metric-stack {
   grid-template-columns: 1fr;
 }
 
-.home-goal-card button,
-.home-social-card button {
-  margin-top: 8px;
+.home-mini-head {
+  margin-bottom: 16px;
 }
 
 @media (max-width: 1180px) {
-  .home-hub-grid,
-  .home-command-board {
+  .home-hub-layout,
+  .home-grid-shell {
     grid-template-columns: 1fr;
   }
 
-  .home-dock-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .home-metric-stack {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 960px) {
-  .home-command-stats,
-  .home-progress-rail,
-  .home-alerts-grid,
-  .home-team-grid,
-  .home-wallets-panel .wallet-grid {
+@media (max-width: 900px) {
+  .home-party-grid,
+  .home-reserve-row,
+  .home-profile-stats,
+  .home-quick-actions,
+  .home-now-grid,
+  .home-metric-stack {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .home-mission-card {
+    flex-direction: column;
+    align-items: start;
   }
 }
 
-@media (max-width: 760px) {
-  .home-identity-head {
-    grid-template-columns: 1fr;
-    text-align: center;
-  }
-
-  .home-avatar-lg {
-    margin: 0 auto;
-  }
-
-  .home-command-stats,
-  .home-progress-rail,
-  .home-alerts-grid,
-  .home-team-grid,
-  .home-continue-route,
-  .home-wallets-panel .wallet-grid,
-  .home-dock-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .home-continue-card,
-  .home-identity-card,
-  .home-alert-card,
-  .home-goal-card,
-  .home-social-card {
+@media (max-width: 680px) {
+  .home-hub-shell {
     padding: 20px;
+  }
+
+  .home-party-grid,
+  .home-reserve-row,
+  .home-profile-stats,
+  .home-quick-actions,
+  .home-now-grid,
+  .home-metric-stack {
+    grid-template-columns: 1fr;
+  }
+
+  .home-avatar-frame {
+    width: 124px;
+    height: 124px;
   }
 }
