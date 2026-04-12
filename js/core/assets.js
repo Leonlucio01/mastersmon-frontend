@@ -6,8 +6,8 @@ const ASSET_MANIFESTS = {
   loading: null,
 };
 
-const SPRITE_BASE_NORMAL = 'img/pokemon-png/sprites_normal';
-const SPRITE_BASE_SHINY = 'img/pokemon-png/sprites_shiny';
+const SPRITE_BASE_NORMAL = 'img/pokemon-png/sprites_normal/sprites_normal';
+const SPRITE_BASE_SHINY = 'img/pokemon-png/sprites_shiny/sprites_shiny';
 const ITEM_BASE = 'img/items';
 const AVATAR_BASE = 'img/avatars';
 const MAPS_BASE = 'img/maps';
