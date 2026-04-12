@@ -15,6 +15,13 @@ async function bootstrap(view = "home", force = false) {
     state.onboardingOptions = null;
     state.home = null;
     state.regions = [];
+    state.houseSummary = null;
+    state.houseStorage = null;
+    state.houseUpgrades = null;
+    state.tradeSummary = null;
+    state.tradeOffers = [];
+    state.tradeTransactions = [];
+    state.tradeAvailablePokemon = [];
     renderTopbarProfile();
     renderCurrentView("home");
     return;
@@ -25,6 +32,13 @@ async function bootstrap(view = "home", force = false) {
     state.onboardingOptions = null;
     state.home = null;
     state.regions = [];
+    state.houseSummary = null;
+    state.houseStorage = null;
+    state.houseUpgrades = null;
+    state.tradeSummary = null;
+    state.tradeOffers = [];
+    state.tradeTransactions = [];
+    state.tradeAvailablePokemon = [];
   }
 
   refs.logoutButton?.classList.remove("hidden");

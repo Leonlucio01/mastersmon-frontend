@@ -41,6 +41,8 @@ export function renderHome() {
           <div class="hero-actions">
             <button class="primary-btn" type="button" id="goCollection">Open Collection</button>
             <button class="soft-btn" type="button" id="goTeam">Open Team</button>
+            <button class="soft-btn" type="button" id="goHouse">Open House</button>
+            <button class="soft-btn" type="button" id="goTrade">Open Trade</button>
           </div>
         </div>
 
@@ -70,4 +72,6 @@ export function renderHome() {
   document.getElementById("goAdventure")?.addEventListener("click", () => { document.querySelector('[data-nav="adventure"]')?.click(); });
   document.getElementById("goCollection")?.addEventListener("click", () => { document.querySelector('[data-nav="collection"]')?.click(); });
   document.getElementById("goTeam")?.addEventListener("click", () => { document.querySelector('[data-nav="team"]')?.click(); });
+  document.getElementById("goHouse")?.addEventListener("click", () => { document.querySelector('[data-nav="house"]')?.click(); });
+  document.getElementById("goTrade")?.addEventListener("click", () => { document.querySelector('[data-nav="trade"]')?.click(); });
 }

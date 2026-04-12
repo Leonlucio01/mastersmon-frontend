@@ -7,6 +7,8 @@ import { renderAdventure } from "../modules/adventure.js";
 import { renderCollection } from "../modules/collection.js";
 import { renderTeam } from "../modules/team.js";
 import { renderGyms } from "../modules/gyms.js";
+import { renderHouse } from "../modules/house.js";
+import { renderTrade } from "../modules/trade.js";
 
 export function renderCurrentView(view = "home") {
   if (!state.token) {
@@ -19,26 +21,23 @@ export function renderCurrentView(view = "home") {
     renderOnboarding();
     return;
   }
-  if (view === "adventure") {
-    setActiveNav("adventure");
-    renderAdventure();
+
+  const map = {
+    home: () => renderHome(),
+    adventure: () => renderAdventure(),
+    collection: () => renderCollection(true),
+    team: () => renderTeam(true),
+    gyms: () => renderGyms(true),
+    house: () => renderHouse(true),
+    trade: () => renderTrade(true),
+  };
+
+  if (map[view]) {
+    setActiveNav(view);
+    map[view]();
     return;
   }
-  if (view === "collection") {
-    setActiveNav("collection");
-    renderCollection(true);
-    return;
-  }
-  if (view === "team") {
-    setActiveNav("team");
-    renderTeam(true);
-    return;
-  }
-  if (view === "gyms") {
-    setActiveNav("gyms");
-    renderGyms(true);
-    return;
-  }
+
   setActiveNav("home");
   renderHome();
 }
@@ -47,28 +46,7 @@ export function bindNavigation(onRefresh) {
   document.querySelectorAll("[data-nav]").forEach((button) => {
     button.addEventListener("click", async () => {
       const target = button.getAttribute("data-nav");
-      if (target === "adventure") {
-        renderCurrentView("adventure");
-        return;
-      }
-      if (target === "home") {
-        renderCurrentView("home");
-        return;
-      }
-      if (target === "collection") {
-        renderCurrentView("collection");
-        return;
-      }
-      if (target === "team") {
-        renderCurrentView("team");
-        return;
-      }
-      if (target === "gyms") {
-        renderCurrentView("gyms");
-        return;
-      }
-      refs.appContent.innerHTML = `<section class="section-card"><div class="placeholder-card"><strong>${target}</strong><p class="body-copy">Este módulo entra después. La estructura ya está lista en js/modules.</p></div></section>`;
-      setActiveNav(target);
+      renderCurrentView(target || "home");
     });
   });
 
