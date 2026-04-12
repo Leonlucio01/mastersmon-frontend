@@ -348,6 +348,7 @@ body {
 .onboarding-grid,
 .adventure-grid {
     grid-template-columns: 1.05fr 0.95fr;
+    align-items: start;
 }
 
 .team-grid,
@@ -463,6 +464,13 @@ body {
     flex-direction: column;
     gap: 12px;
     cursor: pointer;
+    text-align: left;
+}
+
+.starter-card .pokemon-figure {
+    object-fit: contain;
+    padding: 14px;
+    background: rgba(255, 255, 255, 0.03);
 }
 
 .starter-card.is-selected {

@@ -104,6 +104,24 @@ function teamLabel(teamCode) {
     return labels[teamCode] || teamCode || "Neutral";
 }
 
+function resolvePokemonAssetUrl(assetUrl) {
+    const value = String(assetUrl || "").trim();
+    if (!value) return "";
+
+    if (value.startsWith("/img/pokemon-png/") && !value.includes("/sprites_normal/") && !value.includes("/sprites_shiny/")) {
+        const fileName = value.split("/").pop();
+        return `/img/pokemon-png/sprites_normal/${fileName}`;
+    }
+
+    return value;
+}
+
+function onPokemonImageError(imageElement) {
+    if (!imageElement) return;
+    imageElement.dataset.failed = "1";
+    imageElement.style.visibility = "hidden";
+}
+
 function renderStatus(message, type = "status") {
     const klass = type === "error" ? "error-banner" : type === "success" ? "success-banner" : "status-banner";
     return `<div class="${klass}">${escapeHtml(message)}</div>`;
@@ -313,7 +331,7 @@ function renderOnboarding(optionsData) {
                     <div class="starter-grid">
                         ${starters.map((starter) => `
                             <button class="starter-card ${starter.id === state.selectedStarterId ? "is-selected" : ""}" type="button" data-starter-id="${starter.id}">
-                                <img class="pokemon-figure" src="${escapeHtml(starter.asset_url || "")}" alt="${escapeHtml(starter.name)}">
+                                <img class="pokemon-figure" src="${escapeHtml(resolvePokemonAssetUrl(starter.asset_url || ""))}" alt="${escapeHtml(starter.name)}" onerror="onPokemonImageError(this)">
                                 <div>
                                     <strong>${escapeHtml(starter.name)}</strong>
                                     <div class="pill-row">
@@ -440,7 +458,7 @@ function renderHome() {
                         ${(teamSummary.members || []).map((member) => `
                             <article class="member-card">
                                 <div class="pokemon-inline">
-                                    <img src="${escapeHtml(member.asset_url || "")}" alt="${escapeHtml(member.name)}">
+                                    <img src="${escapeHtml(resolvePokemonAssetUrl(member.asset_url || ""))}" alt="${escapeHtml(member.name)}" onerror="onPokemonImageError(this)">
                                     <div>
                                         <strong>${escapeHtml(member.name)}</strong>
                                         <div class="pill-row">
@@ -516,7 +534,7 @@ function renderAdventure() {
             <div class="regions-grid">
                 ${regions.map((region) => `
                     <article class="region-card">
-                        <img class="region-banner" src="${escapeHtml(region.card_asset_path || "")}" alt="${escapeHtml(region.name)}">
+                        <img class="region-banner" src="${escapeHtml(region.card_asset_path || "")}" alt="${escapeHtml(region.name)}" onerror="onPokemonImageError(this)">
                         <div>
                             <strong>${escapeHtml(region.name)}</strong>
                             <div class="pill-row">
@@ -759,5 +777,6 @@ document.querySelectorAll("[data-nav]").forEach((button) => {
 logoutButton.addEventListener("click", logout);
 refreshButton.addEventListener("click", () => bootstrapAuthenticatedApp(true));
 window.handleCredentialResponse = handleCredentialResponse;
+window.onPokemonImageError = onPokemonImageError;
 
 bootstrapAuthenticatedApp(false);
