@@ -1,55 +1,59 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mastersmon V2</title>
-    <meta name="description" content="Mastersmon V2 - Trainer Hub, onboarding y aventura mobile-first.">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/v2-shell.css?v=v2-shell-2">
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mastersmon V2 Modular</title>
+  <meta name="description" content="Mastersmon V2 modular: shell, auth, onboarding, home y adventure.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/shell.css">
+  <link rel="stylesheet" href="css/auth.css">
+  <link rel="stylesheet" href="css/home.css">
+  <link rel="stylesheet" href="css/adventure.css">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
-    <div class="shell-bg shell-bg-top"></div>
-    <div class="shell-bg shell-bg-bottom"></div>
+  <div class="shell-bg shell-bg-top"></div>
+  <div class="shell-bg shell-bg-bottom"></div>
 
-    <div id="app" class="app-shell">
-        <header class="topbar">
-            <a class="brand" href="index.html" aria-label="Mastersmon V2">
-                <span class="brand-mark">M</span>
-                <span class="brand-copy">
-                    <strong>Mastersmon</strong>
-                    <small>V2 Trainer Hub</small>
-                </span>
-            </a>
+  <div id="app" class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="index.html" aria-label="Mastersmon V2">
+        <span class="brand-mark">M</span>
+        <span class="brand-copy">
+          <strong>Mastersmon</strong>
+          <small>V2 Modular</small>
+        </span>
+      </a>
 
-            <nav class="topnav" aria-label="Principal">
-                <button class="topnav-link is-active" type="button" data-nav="home">Home</button>
-                <button class="topnav-link" type="button" data-nav="adventure">Adventure</button>
-                <button class="topnav-link" type="button" data-nav="collection">Collection</button>
-                <button class="topnav-link" type="button" data-nav="team">Team</button>
-                <button class="topnav-link" type="button" data-nav="more">More</button>
-            </nav>
+      <nav class="topnav" aria-label="Principal">
+        <button class="topnav-link is-active" type="button" data-nav="home">Home</button>
+        <button class="topnav-link" type="button" data-nav="adventure">Adventure</button>
+        <button class="topnav-link" type="button" data-nav="collection">Collection</button>
+        <button class="topnav-link" type="button" data-nav="team">Team</button>
+        <button class="topnav-link" type="button" data-nav="more">More</button>
+      </nav>
 
-            <div class="topbar-actions">
-                <label class="language-switch" for="languageSwitch">
-                    <span>Lang</span>
-                    <select id="languageSwitch" aria-label="Language">
-                        <option value="en">EN</option>
-                        <option value="es">ES</option>
-                    </select>
-                </label>
-                <div id="topbarProfile" class="topbar-profile hidden" aria-live="polite"></div>
-                <button id="refreshButton" class="ghost-btn" type="button">Refresh</button>
-                <button id="logoutButton" class="ghost-btn hidden" type="button">Salir</button>
-            </div>
-        </header>
+      <div class="topbar-actions">
+        <label class="language-switch" for="languageSwitch">
+          <span>Lang</span>
+          <select id="languageSwitch" aria-label="Language">
+            <option value="en">EN</option>
+            <option value="es">ES</option>
+          </select>
+        </label>
+        <div id="topbarProfile" class="topbar-profile hidden" aria-live="polite"></div>
+        <button id="refreshButton" class="ghost-btn" type="button">Refresh</button>
+        <button id="logoutButton" class="ghost-btn hidden" type="button">Salir</button>
+      </div>
+    </header>
 
-        <main id="appContent" class="app-content" aria-live="polite"></main>
-    </div>
+    <main id="appContent" class="app-content" aria-live="polite"></main>
+  </div>
 
-    <script src="js/v2-shell.js?v=v2-shell-2" defer></script>
+  <script type="module" src="js/app.js"></script>
 </body>
 </html>
