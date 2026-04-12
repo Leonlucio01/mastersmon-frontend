@@ -13,11 +13,15 @@ const state = {
     error: "",
     selectedStarterId: null,
     selectedRegionCode: "",
+    selectedStarterGeneration: "all",
+    selectedAvatarCode: "steven",
 };
 
 const appContent = document.getElementById("appContent");
 const logoutButton = document.getElementById("logoutButton");
 const refreshButton = document.getElementById("refreshButton");
+const topbarProfile = document.getElementById("topbarProfile");
+let googleRenderAttempts = 0;
 
 function getTokenStorage() {
     try {
@@ -104,6 +108,57 @@ function teamLabel(teamCode) {
     return labels[teamCode] || teamCode || "Neutral";
 }
 
+function getTrainerInitials(name) {
+    const words = String(name || "Trainer")
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean)
+        .slice(0, 2);
+    return words.map((word) => word[0]?.toUpperCase() || "").join("") || "T";
+}
+
+function getTrainerSummary() {
+    return state.home?.trainer || state.onboarding?.profile || state.user || {};
+}
+
+function resolveTrainerAvatarUrl(trainer) {
+    const avatarCode = String(trainer?.avatar_code || state.selectedAvatarCode || "steven").trim().toLowerCase();
+    if (avatarCode) {
+        return `/img/avatars/${avatarCode}.png`;
+    }
+    return String(trainer?.avatar_url || trainer?.photo_url || "").trim();
+}
+
+function renderTopbarProfile() {
+    if (!topbarProfile) return;
+
+    const trainer = getTrainerSummary();
+    const displayName = trainer.display_name || trainer.email?.split("@")[0] || "";
+    const avatarUrl = resolveTrainerAvatarUrl(trainer);
+    const teamName = teamLabel(trainer.team || trainer.trainer_team || "neutral");
+
+    if (!state.token || !displayName) {
+        topbarProfile.innerHTML = "";
+        topbarProfile.classList.add("hidden");
+        return;
+    }
+
+    topbarProfile.innerHTML = `
+        <div class="trainer-chip">
+            ${avatarUrl ? `
+                <img class="trainer-chip-avatar" src="${escapeHtml(avatarUrl)}" alt="${escapeHtml(displayName)}">
+            ` : `
+                <span class="trainer-chip-fallback">${escapeHtml(getTrainerInitials(displayName))}</span>
+            `}
+            <div class="trainer-chip-copy">
+                <strong>${escapeHtml(displayName)}</strong>
+                <small>${escapeHtml(teamName)}</small>
+            </div>
+        </div>
+    `;
+    topbarProfile.classList.remove("hidden");
+}
+
 function resolvePokemonAssetUrl(assetUrl) {
     const value = String(assetUrl || "").trim();
     if (!value) return "";
@@ -147,8 +202,20 @@ function renderSkeletonHome() {
 
 function renderGoogleButton() {
     const mount = document.getElementById("googleLoginMount");
-    if (!mount || !window.google?.accounts?.id) return;
+    if (!mount) return;
 
+    if (!window.google?.accounts?.id) {
+        googleRenderAttempts += 1;
+        if (googleRenderAttempts <= 20) {
+            mount.innerHTML = `<div class="status-banner">Cargando acceso con Google...</div>`;
+            window.setTimeout(renderGoogleButton, 350);
+        } else {
+            mount.innerHTML = `<div class="error-banner">No pudimos cargar Google automáticamente. Prueba recargando una vez.</div>`;
+        }
+        return;
+    }
+
+    googleRenderAttempts = 0;
     mount.innerHTML = "";
     window.google.accounts.id.initialize({
         client_id: GOOGLE_CLIENT_ID,
@@ -170,6 +237,7 @@ function scrollToLogin() {
 }
 
 function renderHeroLogin() {
+    renderTopbarProfile();
     appContent.innerHTML = `
         <section class="hero-panel">
             <div class="hero-grid">
@@ -246,14 +314,32 @@ function renderHeroLogin() {
 
 function renderOnboarding(optionsData) {
     const profile = state.onboarding?.profile || {};
+    const avatars = optionsData.avatars || [];
     const starters = optionsData.starters || [];
     const regions = optionsData.regions || [];
+    const starterGenerations = Array.from(new Set(starters.map((starter) => starter.generation_id))).sort((a, b) => a - b);
+    if (state.selectedStarterGeneration !== "all" && !starterGenerations.includes(Number(state.selectedStarterGeneration))) {
+        state.selectedStarterGeneration = "all";
+    }
+
+    const visibleStarters = state.selectedStarterGeneration === "all"
+        ? starters
+        : starters.filter((starter) => String(starter.generation_id) === String(state.selectedStarterGeneration));
+
     if (!state.selectedStarterId && starters[0]) {
         state.selectedStarterId = starters[0].id;
     }
     if (!state.selectedRegionCode && regions[0]) {
         state.selectedRegionCode = regions[0].code;
     }
+    if (!state.selectedAvatarCode) {
+        state.selectedAvatarCode = profile.avatar_code || state.user?.avatar_code || avatars[0]?.code || "steven";
+    }
+    if (!visibleStarters.some((starter) => starter.id === state.selectedStarterId) && visibleStarters[0]) {
+        state.selectedStarterId = visibleStarters[0].id;
+    }
+
+    renderTopbarProfile();
 
     appContent.innerHTML = `
         <section class="hero-panel">
@@ -267,10 +353,23 @@ function renderOnboarding(optionsData) {
                     </p>
                 </div>
                 <div class="hero-aside">
-                    <article class="metric-card">
-                        <span>Entrenador</span>
-                        <strong>${escapeHtml(profile.display_name || state.user?.display_name || "Trainer")}</strong>
-                        <p class="body-copy">Tu perfil se completará y te daremos tu primer Pokémon listo para el equipo activo.</p>
+                    <article class="trainer-spotlight">
+                        <div class="trainer-spotlight-head">
+                            ${resolveTrainerAvatarUrl({ avatar_code: state.selectedAvatarCode, photo_url: profile.photo_url || state.user?.photo_url }) ? `
+                                <img class="trainer-spotlight-avatar" src="${escapeHtml(resolveTrainerAvatarUrl({ avatar_code: state.selectedAvatarCode, photo_url: profile.photo_url || state.user?.photo_url }))}" alt="${escapeHtml(profile.display_name || state.user?.display_name || "Trainer")}">
+                            ` : `
+                                <span class="trainer-spotlight-fallback">${escapeHtml(getTrainerInitials(profile.display_name || state.user?.display_name || "Trainer"))}</span>
+                            `}
+                            <div>
+                                <span>Entrenador</span>
+                                <strong>${escapeHtml(profile.display_name || state.user?.display_name || "Trainer")}</strong>
+                                <p class="body-copy">Vamos a dejar tu perfil listo con identidad, starter y región inicial.</p>
+                            </div>
+                        </div>
+                        <div class="pill-row">
+                            <span class="pill tag-accent">${escapeHtml(teamLabel(profile.trainer_team || "neutral"))}</span>
+                            <span class="pill">${visibleStarters.length} starters visibles</span>
+                        </div>
                     </article>
                 </div>
             </div>
@@ -292,6 +391,18 @@ function renderOnboarding(optionsData) {
                         <div class="field">
                             <label for="displayNameInput">Nombre del entrenador</label>
                             <input id="displayNameInput" name="displayName" type="text" value="${escapeHtml(profile.display_name || state.user?.display_name || "")}" placeholder="Jhonatan León">
+                        </div>
+
+                        <div class="field">
+                            <label>Avatar</label>
+                            <div class="avatar-grid">
+                                ${avatars.map((avatar) => `
+                                    <button class="avatar-card ${state.selectedAvatarCode === avatar.code ? "is-selected" : ""}" type="button" data-avatar-code="${escapeHtml(avatar.code)}">
+                                        <img src="${escapeHtml(avatar.asset_url)}" alt="${escapeHtml(avatar.name)}" onerror="onPokemonImageError(this)">
+                                        <span>${escapeHtml(avatar.name)}</span>
+                                    </button>
+                                `).join("")}
+                            </div>
                         </div>
 
                         <div class="field">
@@ -325,19 +436,31 @@ function renderOnboarding(optionsData) {
                     <div class="section-head">
                         <div>
                             <h2>Elige tu starter</h2>
-                            <p>Solo mostramos starters activos del catálogo V2 para que el flujo ya nazca alineado con la base nueva.</p>
+                            <p>Ahora ya no mostramos una lista eterna. Puedes filtrar por generación y comparar mejor cada opción.</p>
                         </div>
                     </div>
+                    <div class="starter-toolbar">
+                        <div class="generation-filter" role="tablist" aria-label="Filtrar starters por generación">
+                            <button class="filter-chip ${state.selectedStarterGeneration === "all" ? "is-active" : ""}" type="button" data-starter-generation="all">Todas</button>
+                            ${starterGenerations.map((generationId) => `
+                                <button class="filter-chip ${String(state.selectedStarterGeneration) === String(generationId) ? "is-active" : ""}" type="button" data-starter-generation="${generationId}">Gen ${generationId}</button>
+                            `).join("")}
+                        </div>
+                        <p class="body-copy">Mostrando ${visibleStarters.length} de ${starters.length} starters activos.</p>
+                    </div>
                     <div class="starter-grid">
-                        ${starters.map((starter) => `
+                        ${visibleStarters.map((starter) => `
                             <button class="starter-card ${starter.id === state.selectedStarterId ? "is-selected" : ""}" type="button" data-starter-id="${starter.id}">
-                                <img class="pokemon-figure" src="${escapeHtml(resolvePokemonAssetUrl(starter.asset_url || ""))}" alt="${escapeHtml(starter.name)}" onerror="onPokemonImageError(this)">
-                                <div>
+                                <div class="starter-card-art">
+                                    <img class="pokemon-figure" src="${escapeHtml(resolvePokemonAssetUrl(starter.asset_url || ""))}" alt="${escapeHtml(starter.name)}" onerror="onPokemonImageError(this)">
+                                </div>
+                                <div class="starter-card-copy">
                                     <strong>${escapeHtml(starter.name)}</strong>
                                     <div class="pill-row">
                                         <span class="pill">Gen ${starter.generation_id}</span>
                                         <span class="pill tag-accent">${escapeHtml(starter.primary_type_name || "Starter")}</span>
                                     </div>
+                                    <p class="body-copy">Starter base para comenzar esta región con una elección más ordenada y visual.</p>
                                 </div>
                             </button>
                         `).join("")}
@@ -350,6 +473,20 @@ function renderOnboarding(optionsData) {
     document.querySelectorAll("[data-starter-id]").forEach((button) => {
         button.addEventListener("click", () => {
             state.selectedStarterId = Number(button.getAttribute("data-starter-id"));
+            renderOnboarding(optionsData);
+        });
+    });
+
+    document.querySelectorAll("[data-starter-generation]").forEach((button) => {
+        button.addEventListener("click", () => {
+            state.selectedStarterGeneration = button.getAttribute("data-starter-generation");
+            renderOnboarding(optionsData);
+        });
+    });
+
+    document.querySelectorAll("[data-avatar-code]").forEach((button) => {
+        button.addEventListener("click", () => {
+            state.selectedAvatarCode = button.getAttribute("data-avatar-code");
             renderOnboarding(optionsData);
         });
     });
@@ -371,6 +508,7 @@ function renderHome() {
     const teamSummary = state.home?.team_summary || { members: [] };
     const milestones = state.home?.milestones || {};
     const currentZone = state.home?.adventure?.current_zone || null;
+    renderTopbarProfile();
 
     appContent.innerHTML = `
         <section class="hero-panel">
@@ -389,6 +527,20 @@ function renderHome() {
                 </div>
 
                 <div class="hero-aside">
+                    <article class="trainer-spotlight">
+                        <div class="trainer-spotlight-head">
+                            ${resolveTrainerAvatarUrl(trainer) ? `
+                                <img class="trainer-spotlight-avatar" src="${escapeHtml(resolveTrainerAvatarUrl(trainer))}" alt="${escapeHtml(trainer.display_name || "Trainer")}">
+                            ` : `
+                                <span class="trainer-spotlight-fallback">${escapeHtml(getTrainerInitials(trainer.display_name || "Trainer"))}</span>
+                            `}
+                            <div>
+                                <span>Perfil activo</span>
+                                <strong>${escapeHtml(trainer.display_name || "Trainer")}</strong>
+                                <p class="body-copy">${escapeHtml(teamLabel(trainer.team))} · avatar ${escapeHtml(trainer.avatar_code || "base")}</p>
+                            </div>
+                        </div>
+                    </article>
                     <article class="metric-card">
                         <span>Progreso regional</span>
                         <strong>${escapeHtml(progress.current_region_completion_pct || 0)}%</strong>
@@ -499,6 +651,7 @@ function renderHome() {
 
 function renderAdventure() {
     const regions = state.regions || [];
+    renderTopbarProfile();
     appContent.innerHTML = `
         <section class="hero-panel">
             <div class="hero-grid">
@@ -635,6 +788,7 @@ async function submitOnboarding(event) {
                 trainer_team: trainerTeam,
                 starter_species_id: state.selectedStarterId,
                 region_code: regionCode,
+                avatar_code: state.selectedAvatarCode,
                 language_code: "es",
                 timezone_code: "America/Lima",
             }),
@@ -662,6 +816,7 @@ async function handleCredentialResponse(response) {
 
         saveToken(payload.data?.token || "");
         state.user = payload.data?.user || null;
+        renderTopbarProfile();
         await bootstrapAuthenticatedApp(true);
     } catch (error) {
         if (loginStatusArea) {
@@ -676,6 +831,7 @@ async function bootstrapAuthenticatedApp(forceRefresh = false, targetView = "hom
     }
 
     if (!state.token) {
+        renderTopbarProfile();
         renderHeroLogin();
         logoutButton.classList.add("hidden");
         return;
@@ -697,8 +853,10 @@ async function bootstrapAuthenticatedApp(forceRefresh = false, targetView = "hom
         ]);
         state.user = meResponse.data?.user || state.user;
         state.onboarding = onboardingResponse.data || null;
+        renderTopbarProfile();
 
         if (state.onboarding?.needs_onboarding) {
+            setActiveNav("home");
             const optionsResponse = await fetchAuth("/v2/onboarding/options");
             state.onboardingOptions = optionsResponse.data || { starters: [], regions: [] };
             renderOnboarding(state.onboardingOptions);
@@ -713,14 +871,17 @@ async function bootstrapAuthenticatedApp(forceRefresh = false, targetView = "hom
         state.regions = regionsResponse.data || [];
 
         if (targetView === "adventure") {
+            setActiveNav("adventure");
             renderAdventure();
         } else {
+            setActiveNav("home");
             renderHome();
         }
     } catch (error) {
         if (error.status === 401) {
             clearToken();
             state.user = null;
+            renderTopbarProfile();
             renderHeroLogin();
             return;
         }
@@ -735,14 +896,20 @@ function logout() {
     state.home = null;
     state.regions = [];
     logoutButton.classList.add("hidden");
+    renderTopbarProfile();
     renderHeroLogin();
+}
+
+function setActiveNav(target) {
+    document.querySelectorAll("[data-nav]").forEach((item) => {
+        item.classList.toggle("is-active", item.getAttribute("data-nav") === target);
+    });
 }
 
 document.querySelectorAll("[data-nav]").forEach((button) => {
     button.addEventListener("click", async () => {
         const target = button.getAttribute("data-nav");
-        document.querySelectorAll("[data-nav]").forEach((item) => item.classList.remove("is-active"));
-        button.classList.add("is-active");
+        setActiveNav(target);
 
         if (!state.token) {
             renderHeroLogin();

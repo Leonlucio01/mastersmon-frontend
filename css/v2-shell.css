@@ -164,6 +164,57 @@ body {
     gap: 10px;
 }
 
+.topbar-profile {
+    display: inline-flex;
+    align-items: center;
+}
+
+.trainer-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    padding: 8px 12px 8px 8px;
+    border-radius: 999px;
+    border: 1px solid rgba(188, 220, 255, 0.16);
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: var(--shadow-md);
+}
+
+.trainer-chip-avatar,
+.trainer-chip-fallback {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex: 0 0 auto;
+}
+
+.trainer-chip-fallback {
+    display: grid;
+    place-items: center;
+    color: #07263b;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+}
+
+.trainer-chip-copy {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.trainer-chip-copy strong,
+.trainer-chip-copy small {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.trainer-chip-copy small {
+    color: var(--text-dim);
+}
+
 .ghost-btn {
     background: rgba(255, 255, 255, 0.05);
     color: var(--text-main);
@@ -312,6 +363,50 @@ body {
         rgba(12, 24, 40, 0.56);
 }
 
+.trainer-spotlight {
+    border: 1px solid var(--line-soft);
+    border-radius: var(--radius-lg);
+    padding: 18px;
+    background:
+        radial-gradient(circle at top left, rgba(122, 227, 255, 0.14), transparent 45%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.018)),
+        rgba(14, 27, 46, 0.76);
+    box-shadow: var(--shadow-md);
+}
+
+.trainer-spotlight-head {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 14px;
+}
+
+.trainer-spotlight-avatar,
+.trainer-spotlight-fallback {
+    width: 76px;
+    height: 76px;
+    border-radius: 22px;
+    object-fit: cover;
+    flex: 0 0 auto;
+}
+
+.trainer-spotlight-fallback {
+    display: grid;
+    place-items: center;
+    color: #07263b;
+    font-family: "Sora", sans-serif;
+    font-size: 1.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+}
+
+.trainer-spotlight-head strong {
+    display: block;
+    margin: 4px 0 6px;
+    font-family: "Sora", sans-serif;
+    font-size: 1.45rem;
+}
+
 .metrics-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
 }
@@ -364,7 +459,38 @@ body {
 }
 
 .starter-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.starter-toolbar {
+    display: grid;
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.generation-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.filter-chip {
+    appearance: none;
+    border: 1px solid rgba(167, 205, 255, 0.18);
+    border-radius: 999px;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-soft);
+    font: inherit;
+    cursor: pointer;
+    transition: transform 160ms ease, background 160ms ease, color 160ms ease, border-color 160ms ease;
+}
+
+.filter-chip:hover,
+.filter-chip.is-active {
+    color: var(--text-main);
+    border-color: rgba(122, 227, 255, 0.34);
+    background: rgba(122, 227, 255, 0.12);
 }
 
 .pokemon-figure,
@@ -471,6 +597,47 @@ body {
     font: inherit;
 }
 
+.avatar-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.avatar-card {
+    appearance: none;
+    display: grid;
+    gap: 8px;
+    justify-items: center;
+    padding: 10px;
+    border-radius: 18px;
+    border: 1px solid rgba(167, 205, 255, 0.18);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-soft);
+    font: inherit;
+    cursor: pointer;
+    transition: transform 160ms ease, background 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+
+.avatar-card img {
+    width: 72px;
+    height: 72px;
+    border-radius: 18px;
+    object-fit: cover;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.avatar-card span {
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+
+.avatar-card:hover,
+.avatar-card.is-selected {
+    color: var(--text-main);
+    border-color: rgba(122, 227, 255, 0.34);
+    background: rgba(122, 227, 255, 0.1);
+}
+
 .starter-card {
     display: flex;
     flex-direction: column;
@@ -478,15 +645,38 @@ body {
     cursor: pointer;
     text-align: left;
     border-radius: 22px;
+    color: var(--text-main);
+    border: 1px solid rgba(167, 205, 255, 0.18);
+    padding: 14px;
+    background:
+        radial-gradient(circle at top, rgba(122, 227, 255, 0.08), transparent 55%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.015)),
+        rgba(13, 26, 44, 0.82);
+}
+
+.starter-card-art {
+    border-radius: 20px;
+    background:
+        radial-gradient(circle at top, rgba(122, 227, 255, 0.14), transparent 52%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.012)),
+        rgba(255, 255, 255, 0.025);
+    overflow: hidden;
 }
 
 .starter-card .pokemon-figure {
     object-fit: contain;
-    min-height: 160px;
+    min-height: 190px;
     padding: 16px;
-    background:
-        radial-gradient(circle at top, rgba(122, 227, 255, 0.08), transparent 55%),
-        rgba(255, 255, 255, 0.03);
+}
+
+.starter-card-copy {
+    display: grid;
+    gap: 10px;
+}
+
+.starter-card-copy strong {
+    font-family: "Sora", sans-serif;
+    font-size: 1.15rem;
 }
 
 .starter-card.is-selected {
@@ -499,6 +689,14 @@ body {
 
 .module-card.is-disabled {
     opacity: 0.55;
+}
+
+.starter-card .body-copy,
+.module-card .body-copy,
+.region-card .body-copy,
+.zone-card .body-copy,
+.member-card .body-copy {
+    color: var(--text-soft);
 }
 
 .skeleton {
@@ -557,6 +755,17 @@ body {
         overflow-x: auto;
     }
 
+    .topbar-actions {
+        width: 100%;
+        justify-content: space-between;
+        flex-wrap: wrap;
+    }
+
+    .topbar-profile {
+        order: -1;
+        width: 100%;
+    }
+
     .hero-panel,
     .section-card,
     .auth-card,
@@ -572,5 +781,9 @@ body {
     .zones-grid,
     .starter-grid {
         grid-template-columns: 1fr;
+    }
+
+    .avatar-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 }
