@@ -465,24 +465,34 @@ function scrollToLogin() {
 function renderHeroLogin() {
     renderTopbarProfile();
     appContent.innerHTML = `
-        <section class="hero-panel">
-            <div class="hero-grid">
-                <div class="hero-copy">
+        <section class="hero-panel hero-panel-launch">
+            <div class="hero-grid hero-grid-launch">
+                <div class="hero-copy hero-copy-launch">
                     <span class="eyebrow">${escapeHtml(tr("login.eyebrow"))}</span>
                     <h1>${escapeHtml(tr("login.title"))}</h1>
                     <p>
                         Dejamos atrás la web partida en páginas sueltas. Esta nueva entrada ya está pensada como shell del juego:
                         login, onboarding, home y adventure sobre la API V2.
                     </p>
+                    <div class="launch-pills">
+                        <span class="launch-pill">MMO-lite</span>
+                        <span class="launch-pill">Collector RPG</span>
+                        <span class="launch-pill">Adventure First</span>
+                    </div>
                     <div class="hero-actions">
                         <button class="primary-btn" type="button" id="heroLoginBtn">${escapeHtml(tr("login.loginCta"))}</button>
                         <button class="soft-btn" type="button" id="heroPreviewBtn">${escapeHtml(tr("login.previewCta"))}</button>
                     </div>
                 </div>
 
-                <div class="hero-aside">
-                    <article class="hero-banner-card">
+                <div class="hero-aside hero-aside-launch">
+                    <article class="hero-banner-card hero-banner-card-large">
                         <img class="hero-banner-image" src="/img/Banner.png" alt="Mastersmon banner">
+                        <div class="hero-banner-overlay">
+                            <span class="eyebrow">Mastersmon World</span>
+                            <strong>Enter the next trainer journey</strong>
+                            <p>Pick your avatar, starter and region, then jump into the world map with a real game hub.</p>
+                        </div>
                     </article>
                     <article class="metric-card">
                         <span>Base V2</span>
@@ -498,7 +508,7 @@ function renderHeroLogin() {
             </div>
         </section>
 
-        <section class="section-card">
+        <section class="section-card section-card-launch">
             <div class="section-head">
                 <div>
                     <h2>${escapeHtml(tr("login.quickTitle"))}</h2>
@@ -506,7 +516,7 @@ function renderHeroLogin() {
                 </div>
             </div>
             <div class="login-grid">
-                <article class="auth-card">
+                <article class="auth-card auth-card-launch">
                     <span class="eyebrow">${escapeHtml(tr("login.authEyebrow"))}</span>
                     <h2>${escapeHtml(tr("login.authTitle"))}</h2>
                     <p class="body-copy">${escapeHtml(tr("login.authBody"))}</p>

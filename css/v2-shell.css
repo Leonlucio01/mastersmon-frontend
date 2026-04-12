@@ -300,6 +300,14 @@ body {
         rgba(18, 35, 56, 0.9);
 }
 
+.hero-panel-launch {
+    padding: 34px;
+    background:
+        radial-gradient(circle at top left, rgba(122, 227, 255, 0.18), transparent 28%),
+        radial-gradient(circle at 85% 12%, rgba(255, 216, 138, 0.18), transparent 22%),
+        linear-gradient(135deg, rgba(13, 31, 52, 0.96), rgba(10, 22, 38, 0.92));
+}
+
 .eyebrow {
     display: inline-flex;
     gap: 8px;
@@ -332,6 +340,36 @@ body {
 .hero-grid {
     grid-template-columns: 1.3fr 0.9fr;
     align-items: stretch;
+}
+
+.hero-grid-launch {
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 22px;
+}
+
+.hero-copy-launch h1 {
+    max-width: 11ch;
+    font-size: clamp(2.4rem, 4.5vw, 4.5rem);
+}
+
+.launch-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.launch-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 9px 12px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(188, 220, 255, 0.14);
+    color: var(--text-main);
+    font-size: 0.82rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
 }
 
 .hero-copy h1,
@@ -367,12 +405,17 @@ body {
     gap: 14px;
 }
 
+.hero-aside-launch {
+    gap: 16px;
+}
+
 .hero-banner-card {
     overflow: hidden;
     border: 1px solid var(--line-soft);
     border-radius: var(--radius-lg);
     background: rgba(12, 24, 40, 0.56);
     box-shadow: var(--shadow-md);
+    position: relative;
 }
 
 .hero-banner-image {
@@ -380,6 +423,40 @@ body {
     width: 100%;
     aspect-ratio: 16 / 9;
     object-fit: cover;
+}
+
+.hero-banner-card-large .hero-banner-image {
+    aspect-ratio: 4 / 3;
+    min-height: 100%;
+}
+
+.hero-banner-overlay {
+    position: absolute;
+    inset: auto 16px 16px 16px;
+    display: grid;
+    gap: 8px;
+    padding: 16px;
+    border-radius: 18px;
+    background: linear-gradient(180deg, rgba(9, 18, 31, 0.55), rgba(9, 18, 31, 0.85));
+    border: 1px solid rgba(188, 220, 255, 0.14);
+}
+
+.hero-banner-overlay strong {
+    font-family: "Sora", sans-serif;
+    font-size: 1.35rem;
+}
+
+.hero-banner-overlay p {
+    margin: 0;
+    color: var(--text-soft);
+    line-height: 1.5;
+}
+
+.metric-card-accent {
+    background:
+        radial-gradient(circle at top left, rgba(122, 227, 255, 0.16), transparent 35%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.015)),
+        rgba(12, 24, 40, 0.62);
 }
 
 .metric-card,
@@ -609,6 +686,17 @@ body {
     min-height: 280px;
 }
 
+.auth-card-launch {
+    min-height: 320px;
+    justify-content: center;
+}
+
+.section-card-launch {
+    background:
+        linear-gradient(180deg, rgba(13, 27, 45, 0.88), rgba(10, 20, 35, 0.78)),
+        rgba(17, 32, 53, 0.8);
+}
+
 .field-grid,
 .field {
     display: grid;
@@ -768,6 +856,10 @@ body {
     .login-grid,
     .onboarding-grid {
         grid-template-columns: 1fr;
+    }
+
+    .hero-copy-launch h1 {
+        max-width: none;
     }
 
     .metrics-grid {
