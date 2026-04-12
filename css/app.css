@@ -33,6 +33,11 @@ body.modal-open { overflow: hidden; }
 button, select, input { font: inherit; }
 a { color: inherit; }
 .hidden { display: none !important; }
+.app-content > *,
+.section-card,
+.hero-panel {
+  animation: rise-in .42s ease both;
+}
 .skeleton {
   position: relative;
   overflow: hidden;
@@ -47,6 +52,16 @@ a { color: inherit; }
   animation: shimmer 1.2s infinite;
 }
 @keyframes shimmer { to { transform: translateX(100%); } }
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 .body-copy { color: var(--text-soft); line-height: 1.6; }
 .stack-actions, .pill-row, .hero-actions { display: flex; flex-wrap: wrap; gap: 10px; }
 .ghost-btn, .soft-btn, .primary-btn {
@@ -56,14 +71,19 @@ a { color: inherit; }
   background: rgba(255,255,255,.06);
   color: var(--text-main);
   cursor: pointer;
+  transition: transform .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease;
 }
 .primary-btn {
   background: linear-gradient(180deg, #4cc9ff 0%, #2f9cff 100%);
   color: #06111d;
   border: none;
   font-weight: 800;
+  box-shadow: 0 12px 26px rgba(47,156,255,.24);
 }
-.soft-btn:hover, .ghost-btn:hover, .primary-btn:hover { transform: translateY(-1px); }
+.soft-btn:hover, .ghost-btn:hover, .primary-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(0,0,0,.16);
+}
 .pill {
   display: inline-flex;
   align-items: center;
@@ -81,6 +101,7 @@ a { color: inherit; }
   padding: 20px;
   background: rgba(255,255,255,.06);
   border: 1px solid var(--line-soft);
+  backdrop-filter: blur(10px);
 }
 .status-card.is-error { border-color: rgba(255,122,122,.35); color: #ffd6d6; }
 .app-modal {

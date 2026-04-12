@@ -65,9 +65,13 @@
   background: rgba(91, 184, 255, 0.08);
 }
 
+.adventure-region-card.is-selected {
+  box-shadow: 0 18px 34px rgba(47,156,255,.12);
+}
+
 .region-banner {
   width: 100%;
-  height: 190px;
+  height: 220px;
   object-fit: cover;
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.08);
@@ -295,6 +299,7 @@
   background: rgba(5, 16, 26, 0.64);
   border: 1px solid rgba(122, 227, 255, 0.38);
   box-shadow: 0 16px 32px rgba(0, 0, 0, 0.28);
+  animation: hover-token 2.2s ease-in-out infinite;
 }
 
 .player-token::after {
@@ -541,6 +546,12 @@
 .adventure-flash.is-success {
   border-color: rgba(123, 232, 166, 0.24);
   background: rgba(123, 232, 166, 0.08);
+}
+
+@keyframes hover-token {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+  100% { transform: translateY(0); }
 }
 
 @keyframes ball-throw {

@@ -169,6 +169,13 @@
 .shop-product-card {
   display: grid;
   gap: 14px;
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+
+.shop-product-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(122,227,255,.28);
+  box-shadow: 0 16px 30px rgba(0,0,0,.14);
 }
 
 .shop-product-card-utility {
@@ -232,6 +239,10 @@
   display: block;
   margin: 8px 0 6px;
   font-size: 18px;
+}
+
+.shop-history-card {
+  min-height: 160px;
 }
 
 .shop-empty {
