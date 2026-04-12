@@ -6,6 +6,7 @@ import { renderHome } from "../modules/home.js";
 import { renderAdventure } from "../modules/adventure.js";
 import { renderCollection } from "../modules/collection.js";
 import { renderTeam } from "../modules/team.js";
+import { renderGyms } from "../modules/gyms.js";
 
 export function renderCurrentView(view = "home") {
   if (!state.token) {
@@ -33,6 +34,11 @@ export function renderCurrentView(view = "home") {
     renderTeam(true);
     return;
   }
+  if (view === "gyms") {
+    setActiveNav("gyms");
+    renderGyms(true);
+    return;
+  }
   setActiveNav("home");
   renderHome();
 }
@@ -55,6 +61,10 @@ export function bindNavigation(onRefresh) {
       }
       if (target === "team") {
         renderCurrentView("team");
+        return;
+      }
+      if (target === "gyms") {
+        renderCurrentView("gyms");
         return;
       }
       refs.appContent.innerHTML = `<section class="section-card"><div class="placeholder-card"><strong>${target}</strong><p class="body-copy">Este módulo entra después. La estructura ya está lista en js/modules.</p></div></section>`;
