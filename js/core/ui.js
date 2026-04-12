@@ -5,7 +5,7 @@ import { getAvatarImage } from "./assets.js";
 export const refs = {
   appContent: document.getElementById("appContent"),
   logoutButton: document.getElementById("logoutButton"),
-  refreshButton: document.getElementById("refreshButton"),
+  teamBadgeButton: document.getElementById("teamBadgeButton"),
   topbarProfile: document.getElementById("topbarProfile"),
   languageSwitch: document.getElementById("languageSwitch"),
 };
@@ -44,17 +44,24 @@ export function setActiveNav(target) {
 
 export function renderTopbarProfile() {
   const mount = refs.topbarProfile;
+  const teamButton = refs.teamBadgeButton;
   if (!mount) return;
   const profile = state.profile || state.user;
   if (!profile) {
     mount.classList.add("hidden");
     mount.innerHTML = "";
+    teamButton?.classList.add("hidden");
     return;
   }
   mount.classList.remove("hidden");
-  const photo = profile.photo_url || profile.avatar_url || getAvatarImage(profile.avatar_code || state.selectedAvatarCode || "steven");
+  const photo = getAvatarImage(profile.avatar_code || state.selectedAvatarCode || "steven");
   const name = profile.display_name || profile.username || profile.email || tr("common.trainer");
   mount.innerHTML = `<img src="${escapeHtml(photo)}" alt="${escapeHtml(name)}" onerror="onAvatarImageError(this)"><div><strong>${escapeHtml(name)}</strong></div>`;
+  if (teamButton) {
+    const trainerTeam = String(profile.trainer_team || state.home?.trainer?.team || "neutral").toUpperCase();
+    teamButton.textContent = trainerTeam;
+    teamButton.classList.remove("hidden");
+  }
 }
 
 export function onPokemonImageError(img) {

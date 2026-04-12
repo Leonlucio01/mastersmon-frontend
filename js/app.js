@@ -117,6 +117,9 @@ function setupUi() {
     saveLocale(event.target.value);
     await bootstrap(document.querySelector("[data-nav].is-active")?.getAttribute("data-nav") || "home", true);
   });
+  refs.teamBadgeButton?.addEventListener("click", () => {
+    document.querySelector('[data-nav="team"]')?.click();
+  });
   refs.logoutButton?.addEventListener("click", () => {
     clearToken();
     refs.logoutButton.classList.add("hidden");
