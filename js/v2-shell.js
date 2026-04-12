@@ -77,6 +77,20 @@ const TRANSLATIONS = {
             noTeam: "There are no members in the active team yet.",
             backendModulesTitle: "Modules already living in the backend",
             backendModulesBody: "We keep them visible from home to mark the direction of the game while we complete the full UI.",
+            walletsTitle: "Wallets and settings",
+            walletsBody: "This snapshot comes from profile/me so the shell can feel like a real trainer hub.",
+            settingsTitle: "Trainer settings",
+            notifications: "Notifications",
+            music: "Music",
+            reducedMotion: "Reduced motion",
+            activeGoalsTitle: "Current goals",
+            activeGoalsBody: "The home now answers what to do next and what is about to unlock.",
+            nextGymGoal: "Next gym",
+            nextHouseGoal: "House milestone",
+            collectionGoal: "Collection milestone",
+            profileButton: "Refresh profile",
+            openCollection: "Open collection",
+            openTeam: "Open team",
         },
         adventure: {
             eyebrow: "Adventure",
@@ -168,6 +182,20 @@ const TRANSLATIONS = {
             noTeam: "Todavía no hay miembros en el equipo activo.",
             backendModulesTitle: "Módulos que ya viven en el backend",
             backendModulesBody: "Los dejamos visibles desde el home para marcar la dirección del juego mientras completamos la UI completa.",
+            walletsTitle: "Wallets y settings",
+            walletsBody: "Este bloque viene de profile/me para que el shell se sienta como un hub real del entrenador.",
+            settingsTitle: "Ajustes del entrenador",
+            notifications: "Notificaciones",
+            music: "Música",
+            reducedMotion: "Movimiento reducido",
+            activeGoalsTitle: "Objetivos actuales",
+            activeGoalsBody: "El home ahora responde qué hacer después y qué está por desbloquearse.",
+            nextGymGoal: "Próximo gym",
+            nextHouseGoal: "Meta de house",
+            collectionGoal: "Meta de colección",
+            profileButton: "Actualizar perfil",
+            openCollection: "Abrir colección",
+            openTeam: "Abrir team",
         },
         adventure: {
             eyebrow: "Adventure",
@@ -192,6 +220,7 @@ const state = {
     user: null,
     onboarding: null,
     onboardingOptions: null,
+    profile: null,
     home: null,
     regions: [],
     loading: false,
@@ -730,12 +759,45 @@ function renderOnboarding(optionsData) {
     document.getElementById("onboardingForm")?.addEventListener("submit", submitOnboarding);
 }
 
+function formatNumber(value) {
+    const numeric = Number(value || 0);
+    try {
+        return new Intl.NumberFormat(state.locale === "es" ? "es-PE" : "en-US").format(numeric);
+    } catch (_) {
+        return String(numeric);
+    }
+}
+
+function renderWalletPills(wallets = []) {
+    if (!Array.isArray(wallets) || !wallets.length) {
+        return `<div class="panel-note">No hay wallets activas todavía.</div>`;
+    }
+    return wallets.map((wallet) => `
+        <article class="wallet-card">
+            <span>${escapeHtml(wallet.name || wallet.code || "Wallet")}</span>
+            <strong>${escapeHtml(formatNumber(wallet.balance || 0))}</strong>
+            <p class="body-copy">${escapeHtml(wallet.code || "-")}</p>
+        </article>
+    `).join("");
+}
+
+function boolLabel(value) {
+    return value ? (state.locale === "es" ? "Activo" : "Enabled") : (state.locale === "es" ? "Off" : "Off");
+}
+
 function renderHome() {
     const trainer = state.home?.trainer || {};
     const progress = state.home?.progress || {};
     const teamSummary = state.home?.team_summary || { members: [] };
     const milestones = state.home?.milestones || {};
     const currentZone = state.home?.adventure?.current_zone || null;
+    const profile = state.profile || {};
+    const wallets = Array.isArray(profile.wallets) ? profile.wallets : [];
+    const settings = {
+        notifications: Boolean(profile.notifications_enabled),
+        music: Boolean(profile.music_enabled),
+        reducedMotion: Boolean(profile.reduced_motion),
+    };
     renderTopbarProfile();
 
     appContent.innerHTML = `
@@ -743,9 +805,9 @@ function renderHome() {
             <div class="hero-grid">
                 <div class="hero-copy">
                     <span class="eyebrow">${escapeHtml(tr("home.eyebrow"))}</span>
-                    <h1>${escapeHtml(trainer.display_name || "Trainer")}</h1>
+                    <h1>${escapeHtml(trainer.display_name || profile.display_name || "Trainer")}</h1>
                     <p>
-                        ${escapeHtml(teamLabel(trainer.team))} · Región activa: ${escapeHtml(trainer.active_region?.name || "Sin región")}
+                        ${escapeHtml(teamLabel(trainer.team || profile.trainer_team))} · Región activa: ${escapeHtml(trainer.active_region?.name || "Sin región")}
                         · Nivel ${escapeHtml(trainer.trainer_level || 1)}
                     </p>
                     <div class="hero-actions">
@@ -764,8 +826,8 @@ function renderHome() {
                             `}
                             <div>
                                 <span>${escapeHtml(tr("home.profileActive"))}</span>
-                                <strong>${escapeHtml(trainer.display_name || "Trainer")}</strong>
-                                <p class="body-copy">${escapeHtml(teamLabel(trainer.team))} · avatar ${escapeHtml(trainer.avatar_code || "base")}</p>
+                                <strong>${escapeHtml(trainer.display_name || profile.display_name || "Trainer")}</strong>
+                                <p class="body-copy">${escapeHtml(teamLabel(trainer.team || profile.trainer_team))} · avatar ${escapeHtml(profile.avatar_code || trainer.avatar_code || "base")}</p>
                             </div>
                         </div>
                     </article>
@@ -812,12 +874,38 @@ function renderHome() {
         <section class="section-card">
             <div class="section-head">
                 <div>
+                    <h2>${escapeHtml(tr("home.activeGoalsTitle"))}</h2>
+                    <p>${escapeHtml(tr("home.activeGoalsBody"))}</p>
+                </div>
+            </div>
+            <div class="goal-grid">
+                <article class="metric-card">
+                    <span>${escapeHtml(tr("home.nextGymGoal"))}</span>
+                    <strong>${escapeHtml(progress.next_gym?.name || tr("home.noGym"))}</strong>
+                    <p class="body-copy">${escapeHtml(tr("home.recommendedLevel", { level: progress.next_gym?.recommended_level || "—" }))}</p>
+                </article>
+                <article class="metric-card">
+                    <span>${escapeHtml(tr("home.nextHouseGoal"))}</span>
+                    <strong>${escapeHtml(milestones.next_house_upgrade?.code || "House base")}</strong>
+                    <p class="body-copy">Storage ${escapeHtml(milestones.next_house_upgrade?.storage_capacity || "—")}</p>
+                </article>
+                <article class="metric-card">
+                    <span>${escapeHtml(tr("home.collectionGoal"))}</span>
+                    <strong>${escapeHtml(milestones.collection_unique_owned || milestones.collection_owned || 0)}</strong>
+                    <p class="body-copy">${escapeHtml(state.locale === "es" ? "Tu Pokédex ya empieza a tomar forma." : "Your Pokédex is starting to take shape.")}</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="section-card">
+            <div class="section-head">
+                <div>
                     <h2>${escapeHtml(tr("home.adventureTeamTitle"))}</h2>
                     <p>${escapeHtml(tr("home.adventureTeamBody"))}</p>
                 </div>
             </div>
             <div class="home-grid">
-                <article class="section-card">
+                <article class="section-card inner-card">
                     <h2>${escapeHtml(tr("home.continueTitle"))}</h2>
                     <p class="section-subtitle">
                         ${currentZone ? `${escapeHtml(currentZone.name)} · Lv ${escapeHtml(currentZone.level_min)}-${escapeHtml(currentZone.level_max)}` : escapeHtml(tr("home.noZone"))}
@@ -831,7 +919,7 @@ function renderHome() {
                     </div>
                 </article>
 
-                <article class="section-card">
+                <article class="section-card inner-card">
                     <h2>${escapeHtml(tr("home.teamSnapshot"))}</h2>
                     <p class="section-subtitle">Poder estimado: ${escapeHtml(teamSummary.power_score || 0)}</p>
                     <div class="team-grid">
@@ -850,7 +938,29 @@ function renderHome() {
                             </article>
                         `).join("") || `<div class="panel-note">${escapeHtml(tr("home.noTeam"))}</div>`}
                     </div>
+                    <div class="stack-actions">
+                        <button class="soft-btn" type="button" id="openCollectionBtn">${escapeHtml(tr("home.openCollection"))}</button>
+                        <button class="soft-btn" type="button" id="openTeamBtn">${escapeHtml(tr("home.openTeam"))}</button>
+                    </div>
                 </article>
+            </div>
+        </section>
+
+        <section class="section-card">
+            <div class="section-head">
+                <div>
+                    <h2>${escapeHtml(tr("home.walletsTitle"))}</h2>
+                    <p>${escapeHtml(tr("home.walletsBody"))}</p>
+                </div>
+                <button class="soft-btn" type="button" id="refreshProfileBtn">${escapeHtml(tr("home.profileButton"))}</button>
+            </div>
+            <div class="wallet-grid">
+                ${renderWalletPills(wallets)}
+            </div>
+            <div class="settings-strip">
+                <article class="setting-chip"><span>${escapeHtml(tr("home.notifications"))}</span><strong>${escapeHtml(boolLabel(settings.notifications))}</strong></article>
+                <article class="setting-chip"><span>${escapeHtml(tr("home.music"))}</span><strong>${escapeHtml(boolLabel(settings.music))}</strong></article>
+                <article class="setting-chip"><span>${escapeHtml(tr("home.reducedMotion"))}</span><strong>${escapeHtml(boolLabel(settings.reducedMotion))}</strong></article>
             </div>
         </section>
 
@@ -875,6 +985,15 @@ function renderHome() {
     document.getElementById("goAdventureBtn")?.addEventListener("click", renderAdventure);
     document.getElementById("openAdventureRegionsBtn")?.addEventListener("click", renderAdventure);
     document.getElementById("refreshHomeBtn")?.addEventListener("click", () => bootstrapAuthenticatedApp(true));
+    document.getElementById("refreshProfileBtn")?.addEventListener("click", () => bootstrapAuthenticatedApp(true));
+    document.getElementById("openCollectionBtn")?.addEventListener("click", () => {
+        setActiveNav("collection");
+        appContent.innerHTML = renderStatus("Collection será el siguiente módulo en esta V2.", "status");
+    });
+    document.getElementById("openTeamBtn")?.addEventListener("click", () => {
+        setActiveNav("team");
+        appContent.innerHTML = renderStatus("Team será el siguiente módulo en esta V2.", "status");
+    });
 }
 
 function renderAdventure() {
@@ -1063,6 +1182,7 @@ async function bootstrapAuthenticatedApp(forceRefresh = false, targetView = "hom
     }
 
     if (forceRefresh) {
+        state.profile = null;
         state.home = null;
         state.regions = [];
         state.onboarding = null;
@@ -1088,10 +1208,12 @@ async function bootstrapAuthenticatedApp(forceRefresh = false, targetView = "hom
             return;
         }
 
-        const [homeResponse, regionsResponse] = await Promise.all([
+        const [profileResponse, homeResponse, regionsResponse] = await Promise.all([
+            fetchAuth("/v2/profile/me"),
             fetchAuth("/v2/home/summary"),
             fetchAuth("/v2/adventure/regions"),
         ]);
+        state.profile = profileResponse.data || null;
         state.home = homeResponse.data || null;
         state.regions = regionsResponse.data || [];
 
@@ -1118,6 +1240,7 @@ function logout() {
     clearToken();
     state.user = null;
     state.onboarding = null;
+    state.profile = null;
     state.home = null;
     state.regions = [];
     logoutButton.classList.add("hidden");
