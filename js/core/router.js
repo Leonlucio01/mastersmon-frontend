@@ -9,6 +9,7 @@ import { renderTeam } from "../modules/team.js";
 import { renderGyms } from "../modules/gyms.js";
 import { renderHouse } from "../modules/house.js";
 import { renderTrade } from "../modules/trade.js";
+import { renderShop } from "../modules/shop.js";
 
 export function renderCurrentView(view = "home") {
   if (!state.token) {
@@ -30,6 +31,7 @@ export function renderCurrentView(view = "home") {
     gyms: () => renderGyms(true),
     house: () => renderHouse(true),
     trade: () => renderTrade(true),
+    shop: () => renderShop(true),
   };
 
   if (map[view]) {

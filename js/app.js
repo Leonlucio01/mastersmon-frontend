@@ -22,6 +22,14 @@ async function bootstrap(view = "home", force = false) {
     state.tradeOffers = [];
     state.tradeTransactions = [];
     state.tradeAvailablePokemon = [];
+    state.shopCatalog = [];
+    state.shopBenefits = [];
+    state.shopPurchases = [];
+    state.shopSync = { status: "idle", message: "", orderId: "" };
+    state.shopCatalog = [];
+    state.shopBenefits = [];
+    state.shopPurchases = [];
+    state.shopSync = { status: "idle", message: "", orderId: "" };
     renderTopbarProfile();
     renderCurrentView("home");
     return;
