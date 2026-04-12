@@ -1,8 +1,8 @@
 import { fetchAuth } from "../core/api.js";
-import { refs, escapeHtml, renderTopbarProfile, statusCard } from "../core/ui.js";
+import { refs, escapeHtml, renderTopbarProfile } from "../core/ui.js";
 import { state } from "../core/state.js";
 import { tr } from "../core/i18n.js";
-import { getMapImage, getPokemonSprite } from "../core/assets.js";
+import { getItemImage, getMapImage, getPokemonSprite } from "../core/assets.js";
 
 const adventureViewState = {
   selectedRegionCode: "",
@@ -13,6 +13,7 @@ const adventureViewState = {
   flash: "",
   flashKind: "info",
   busy: false,
+  captureAction: "",
 };
 
 function activeRegionFromList(regions) {
@@ -22,6 +23,14 @@ function activeRegionFromList(regions) {
 function selectedZoneFromRegion() {
   const zones = adventureViewState.regionDetail?.zones || [];
   return zones.find((zone) => zone.code === adventureViewState.selectedZoneCode) || zones[0] || null;
+}
+
+function invalidateCapturedData() {
+  state.collectionSummary = null;
+  state.collectionItems = [];
+  state.collectionDetail = null;
+  state.home = null;
+  state.homeAlerts = null;
 }
 
 function flashCard() {
@@ -41,11 +50,17 @@ function renderEncounterPanel() {
           <div>
             <span class="eyebrow">Wild encounter</span>
             <h2>${escapeHtml(activeEncounter.name)}</h2>
-            <p class="body-copy">Nivel ${escapeHtml(activeEncounter.level)} · ${escapeHtml(activeEncounter.is_shiny ? "Shiny" : "Normal")}</p>
+            <p class="body-copy">Nivel ${escapeHtml(activeEncounter.level)} - ${escapeHtml(activeEncounter.is_shiny ? "Shiny" : "Normal")}</p>
           </div>
         </div>
         <div class="encounter-hero">
           <div class="encounter-art">
+            ${adventureViewState.busy && adventureViewState.captureAction ? `
+              <div class="encounter-capture-overlay">
+                <img class="encounter-ball-image" src="${escapeHtml(getItemImage({ item_code: adventureViewState.captureAction }))}" alt="${escapeHtml(adventureViewState.captureAction)}">
+                <span>Lanzando ${escapeHtml(adventureViewState.captureAction)}</span>
+              </div>
+            ` : ""}
             <img src="${escapeHtml(getPokemonSprite(activeEncounter))}" alt="${escapeHtml(activeEncounter.name)}" onerror="onPokemonImageError(this)">
           </div>
           <div class="encounter-copy">
@@ -58,6 +73,7 @@ function renderEncounterPanel() {
         <div class="capture-grid">
           ${balls.length ? balls.map((ball) => `
             <button class="capture-ball-card" type="button" data-capture-ball="${escapeHtml(ball.item_code)}" ${adventureViewState.busy ? "disabled" : ""}>
+              <img src="${escapeHtml(getItemImage({ item_code: ball.item_code }))}" alt="${escapeHtml(ball.item_code)}">
               <strong>${escapeHtml(ball.item_code)}</strong>
               <span>x${escapeHtml(ball.quantity)}</span>
               <small>${escapeHtml(ball.capture_rate_pct)}% catch</small>
@@ -281,6 +297,7 @@ async function loadRegionDetail(regionCode) {
     adventureViewState.regionDetail = data;
     adventureViewState.selectedZoneCode = data.zones?.find((zone) => zone.is_current)?.code || data.zones?.[0]?.code || "";
     adventureViewState.activeEncounter = null;
+    adventureViewState.captureAction = "";
     if (adventureViewState.selectedZoneCode) {
       await loadZoneDetail(adventureViewState.selectedZoneCode, false);
       return;
@@ -301,6 +318,7 @@ async function loadZoneDetail(zoneCode, rerender = true) {
     adventureViewState.selectedZoneCode = zoneCode;
     adventureViewState.zoneDetail = response.data || null;
     adventureViewState.activeEncounter = null;
+    adventureViewState.captureAction = "";
   } catch (error) {
     adventureViewState.flash = error.message || "No se pudo cargar la zona.";
     adventureViewState.flashKind = "error";
@@ -321,6 +339,7 @@ async function createEncounter() {
       body: JSON.stringify({ mode: "walk" }),
     });
     adventureViewState.activeEncounter = response.data?.encounter || null;
+    adventureViewState.captureAction = "";
     adventureViewState.flash = "Encontraste un Pokemon salvaje. Elige una ball para capturarlo.";
     adventureViewState.flashKind = "success";
   } catch (error) {
@@ -335,6 +354,7 @@ async function createEncounter() {
 async function captureEncounter(ballItemCode) {
   if (!adventureViewState.activeEncounter?.id || !ballItemCode) return;
   adventureViewState.busy = true;
+  adventureViewState.captureAction = ballItemCode;
   renderAdventure();
 
   try {
@@ -344,11 +364,14 @@ async function captureEncounter(ballItemCode) {
     });
     const data = response.data || {};
     adventureViewState.activeEncounter = null;
+    adventureViewState.captureAction = "";
     adventureViewState.flash = data.message || (data.captured ? "Pokemon capturado." : "El Pokemon escapo.");
     adventureViewState.flashKind = data.captured ? "success" : "error";
+    if (data.captured) invalidateCapturedData();
   } catch (error) {
     adventureViewState.flash = error.message || "No se pudo completar la captura.";
     adventureViewState.flashKind = "error";
+    adventureViewState.captureAction = "";
   } finally {
     adventureViewState.busy = false;
     renderAdventure();
