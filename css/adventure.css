@@ -1,4 +1,8 @@
-.adventure-shell {
+.adventure-shell,
+.adventure-region-selector,
+.adventure-region-shell,
+.adventure-left-column,
+.adventure-right-column {
   display: grid;
   gap: 24px;
 }
@@ -6,8 +10,8 @@
 .adventure-v2-hero {
   overflow: hidden;
   background:
-    radial-gradient(circle at 12% 0%, rgba(122, 227, 255, 0.18), transparent 28%),
-    radial-gradient(circle at 100% 0%, rgba(119, 255, 194, 0.12), transparent 24%),
+    radial-gradient(circle at 10% 0%, rgba(122, 227, 255, 0.18), transparent 28%),
+    radial-gradient(circle at 100% 12%, rgba(255, 216, 138, 0.12), transparent 24%),
     rgba(10, 20, 36, 0.92);
 }
 
@@ -23,40 +27,36 @@
   gap: 14px;
 }
 
-.adventure-region-selector,
-.adventure-region-shell {
-  display: grid;
-  gap: 20px;
-}
-
-.regions-grid {
-  display: grid;
+.adventure-regions-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
 }
 
-.region-card,
+.adventure-region-card,
 .zone-card,
 .region-overview-card,
+.adventure-map-shell,
 .encounter-panel,
+.adventure-utility-card,
 .encounter-preview-card,
 .capture-ball-card,
-.adventure-map-shell {
+.adventure-mission-card,
+.map-action-card {
   padding: 18px;
-  border-radius: 22px;
+  border-radius: 24px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--line-soft);
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.14);
 }
 
-.region-card {
-  display: grid;
-  gap: 12px;
+.adventure-region-card,
+.zone-card-adventure,
+.capture-ball-card {
   transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
 }
 
-.region-card.is-selected,
-.region-card:hover,
+.adventure-region-card.is-selected,
+.adventure-region-card:hover,
 .zone-card-adventure.is-selected,
 .zone-card-adventure:hover,
 .capture-ball-card:hover:not(:disabled) {
@@ -67,15 +67,55 @@
 
 .region-banner {
   width: 100%;
-  height: 180px;
+  height: 190px;
   object-fit: cover;
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.08);
 }
 
-.region-card strong,
+.adventure-region-card {
+  display: grid;
+  gap: 12px;
+}
+
+.adventure-region-copy strong,
 .zone-card strong {
   font-size: 1.1rem;
+}
+
+.adventure-region-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: var(--text-soft);
+  font-size: 0.92rem;
+}
+
+.adventure-empty-shell {
+  min-height: 260px;
+  display: grid;
+  place-items: center;
+}
+
+.adventure-empty-state {
+  max-width: 700px;
+  text-align: center;
+}
+
+.adventure-empty-state h2 {
+  margin: 12px 0 10px;
+  font-family: "Sora", sans-serif;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+}
+
+.adventure-empty-state p {
+  color: var(--text-soft);
+  line-height: 1.7;
+}
+
+.adventure-campaign-header {
+  display: grid;
+  gap: 20px;
 }
 
 .adventure-region-head {
@@ -92,8 +132,10 @@
 
 .adventure-region-head p,
 .zone-card p,
-.region-card p,
-.region-overview-card p {
+.region-overview-card p,
+.adventure-mission-card p,
+.adventure-utility-card p,
+.map-action-card p {
   margin: 0;
   color: var(--text-soft);
   line-height: 1.6;
@@ -101,7 +143,8 @@
 
 .adventure-region-pills,
 .featured-species,
-.pill-row {
+.pill-row,
+.adventure-history-list {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
@@ -136,17 +179,41 @@
     linear-gradient(135deg, rgba(91, 184, 255, 0.06), rgba(255, 255, 255, 0.04));
 }
 
+.adventure-zone-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.zone-card-adventure {
+  display: grid;
+  gap: 14px;
+}
+
+.zone-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.featured-species-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.featured-species-pill img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
 .adventure-main-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(360px, 0.85fr);
   gap: 18px;
   align-items: start;
-}
-
-.adventure-left-column,
-.adventure-right-column {
-  display: grid;
-  gap: 18px;
 }
 
 .adventure-map-shell {
@@ -166,7 +233,7 @@
 .adventure-map-stage {
   position: relative;
   overflow: hidden;
-  min-height: 540px;
+  min-height: 560px;
   margin-top: 14px;
   border-radius: 28px;
   border: 1px solid rgba(122, 227, 255, 0.28);
@@ -211,9 +278,7 @@
   top: 43%;
   height: 18px;
   border-radius: 999px;
-  background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.18), rgba(122, 227, 255, 0.28));
-  filter: blur(0.2px);
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.18), rgba(122, 227, 255, 0.28));
   opacity: 0.9;
 }
 
@@ -263,12 +328,24 @@
   gap: 8px;
 }
 
+.adventure-map-footer {
+  display: grid;
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.adventure-mission-card strong {
+  display: block;
+  margin: 10px 0 8px;
+  font-family: "Sora", sans-serif;
+  font-size: 1.2rem;
+}
+
 .map-control-row {
   display: grid;
   grid-template-columns: 220px minmax(0, 1fr);
   gap: 16px;
   align-items: stretch;
-  margin-top: 18px;
 }
 
 .movement-pad {
@@ -291,7 +368,6 @@
   background: rgba(10, 24, 38, 0.88);
   color: var(--text-main);
   font-weight: 700;
-  letter-spacing: 0.02em;
   cursor: pointer;
   transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
 }
@@ -302,32 +378,12 @@
   background: rgba(19, 38, 58, 0.96);
 }
 
-.move-up {
-  top: 14px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.move-left {
-  top: 58px;
-  left: 16px;
-}
-
-.move-right {
-  top: 58px;
-  right: 16px;
-}
-
-.move-down {
-  bottom: 14px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
+.move-up { top: 14px; left: 50%; transform: translateX(-50%); }
+.move-left { top: 58px; left: 16px; }
+.move-right { top: 58px; right: 16px; }
+.move-down { bottom: 14px; left: 50%; transform: translateX(-50%); }
 .move-up:hover,
-.move-down:hover {
-  transform: translateX(-50%) translateY(-2px);
-}
+.move-down:hover { transform: translateX(-50%) translateY(-2px); }
 
 .map-actions {
   display: grid;
@@ -339,67 +395,7 @@
   display: grid;
   gap: 8px;
   align-content: start;
-  padding: 18px;
-  border-radius: 20px;
-  border: 1px dashed rgba(122, 227, 255, 0.24);
-  background: rgba(255, 255, 255, 0.04);
-}
-
-.map-action-card strong {
-  font-size: 1rem;
-}
-
-.map-action-card p {
-  margin: 0;
-  color: var(--text-soft);
-  line-height: 1.6;
-}
-
-.map-primary-action,
-.map-actions .soft-btn {
-  min-height: 72px;
-  font-size: 1rem;
-  border-radius: 20px;
-}
-
-.zone-route-shell {
-  display: grid;
-  gap: 16px;
-}
-
-.zone-list {
-  display: grid;
-  gap: 14px;
-}
-
-.zone-list-adventure {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.zone-card-adventure {
-  display: grid;
-  gap: 14px;
-  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
-}
-
-.zone-card-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 12px;
-}
-
-.featured-species-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.featured-species-pill img {
-  width: 20px;
-  height: 20px;
-  object-fit: contain;
-  image-rendering: pixelated;
+  border-style: dashed;
 }
 
 .encounter-panel {
@@ -417,10 +413,16 @@
     rgba(255, 255, 255, 0.05);
 }
 
-.encounter-preview-row {
+.encounter-preview-row,
+.capture-grid,
+.adventure-utility-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
+}
+
+.encounter-preview-row,
+.capture-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .encounter-preview-card {
@@ -436,16 +438,6 @@
   height: 96px;
   object-fit: contain;
   image-rendering: pixelated;
-}
-
-.encounter-preview-card strong {
-  font-size: 1rem;
-}
-
-.encounter-preview-card span,
-.capture-ball-card span,
-.capture-ball-card small {
-  color: var(--text-soft);
 }
 
 .encounter-hero {
@@ -492,12 +484,8 @@
   animation: ball-throw 0.95s ease-in-out infinite;
 }
 
-.encounter-capture-overlay span {
-  color: var(--text-main);
-  font-weight: 700;
-}
-
-.encounter-copy {
+.encounter-copy,
+.adventure-utility-card {
   display: grid;
   gap: 12px;
 }
@@ -508,12 +496,6 @@
   gap: 8px;
 }
 
-.capture-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-}
-
 .capture-ball-card {
   appearance: none;
   cursor: pointer;
@@ -521,7 +503,6 @@
   gap: 6px;
   justify-items: start;
   text-align: left;
-  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
 }
 
 .capture-ball-card img {
@@ -538,7 +519,10 @@
 .adventure-help-panel {
   display: grid;
   gap: 8px;
-  border-style: dashed;
+  border: 1px dashed var(--line-soft);
+  border-radius: 20px;
+  padding: 18px;
+  background: rgba(255,255,255,.03);
 }
 
 .adventure-flash {
@@ -560,29 +544,21 @@
 }
 
 @keyframes ball-throw {
-  0% {
-    transform: translateX(-18px) translateY(10px) scale(0.9) rotate(-16deg);
-    opacity: 0.7;
-  }
-  50% {
-    transform: translateX(18px) translateY(-12px) scale(1.05) rotate(12deg);
-    opacity: 1;
-  }
-  100% {
-    transform: translateX(-18px) translateY(10px) scale(0.9) rotate(-16deg);
-    opacity: 0.7;
-  }
+  0% { transform: translateX(-18px) translateY(10px) scale(0.9) rotate(-16deg); opacity: 0.7; }
+  50% { transform: translateX(18px) translateY(-12px) scale(1.05) rotate(12deg); opacity: 1; }
+  100% { transform: translateX(-18px) translateY(10px) scale(0.9) rotate(-16deg); opacity: 0.7; }
 }
 
 @media (max-width: 1180px) {
   .adventure-v2-hero-grid,
-  .regions-grid,
+  .adventure-regions-grid,
   .region-overview-grid,
   .adventure-main-grid,
-  .zone-list-adventure,
+  .adventure-zone-grid,
   .map-control-row,
   .capture-grid,
-  .adventure-hero-metrics {
+  .adventure-hero-metrics,
+  .adventure-utility-grid {
     grid-template-columns: 1fr;
   }
 
