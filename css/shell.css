@@ -7,6 +7,9 @@
   padding:16px 18px; margin-bottom: 20px;
   background: rgba(9,19,34,.78); border:1px solid var(--line-soft);
   backdrop-filter: blur(12px); border-radius: 24px; box-shadow: var(--shadow-md);
+  position: relative;
+  z-index: 30;
+  overflow: visible;
 }
 .brand { display:flex; align-items:center; gap:14px; text-decoration:none; }
 .brand-mark {
@@ -21,6 +24,7 @@
   align-items:center;
   gap:10px;
   min-width:0;
+  overflow: visible;
 }
 .topnav {
   display:flex;
@@ -39,6 +43,7 @@
 .topnav-more {
   position:relative;
   flex:0 0 auto;
+  z-index: 40;
 }
 .topnav-more summary {
   list-style:none;
@@ -61,7 +66,7 @@
   box-shadow: var(--shadow-md);
   display:grid;
   gap:8px;
-  z-index: 4;
+  z-index: 60;
 }
 .topnav-link-sub {
   width:100%;

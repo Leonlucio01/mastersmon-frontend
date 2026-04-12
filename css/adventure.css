@@ -335,6 +335,26 @@
   gap: 12px;
 }
 
+.map-action-card {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  padding: 18px;
+  border-radius: 20px;
+  border: 1px dashed rgba(122, 227, 255, 0.24);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.map-action-card strong {
+  font-size: 1rem;
+}
+
+.map-action-card p {
+  margin: 0;
+  color: var(--text-soft);
+  line-height: 1.6;
+}
+
 .map-primary-action,
 .map-actions .soft-btn {
   min-height: 72px;

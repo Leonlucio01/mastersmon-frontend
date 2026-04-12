@@ -26,6 +26,8 @@ function resetAuthenticatedState() {
   state.tradeTransactions = [];
   state.tradeAvailablePokemon = [];
   state.shopCatalog = [];
+  state.shopSummary = null;
+  state.shopUtilityCatalog = [];
   state.shopBenefits = [];
   state.shopPurchases = [];
   state.shopSync = { status: "idle", message: "", orderId: "" };
