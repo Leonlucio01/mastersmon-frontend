@@ -32,7 +32,7 @@ export const state = {
   shopUtilityCatalog: [],
   shopBenefits: [],
   shopPurchases: [],
-  shopView: "premium",
+  shopView: "utility",
   shopSync: { status: "idle", message: "", orderId: "" },
   rankingSummary: null,
   rankingLimit: 10,

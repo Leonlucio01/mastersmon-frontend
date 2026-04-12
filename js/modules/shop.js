@@ -49,20 +49,40 @@ function renderUtilityCatalog() {
             <p>${escapeHtml(item.description || "Item util para el loop del juego.")}</p>
             <div class="shop-product-meta-line">
               <span class="shop-chip">${escapeHtml(item.item_kind || "item")}</span>
-              <span class="shop-chip">Pack x${escapeHtml(item.pack_quantity || 1)}</span>
               <span class="shop-chip is-success">Tienes ${escapeHtml(formatNumber(owned))}</span>
             </div>
             <div class="shop-product-price">
               <strong>${escapeHtml(formatNumber(item.price_gold || 0))} Gold</strong>
-              <span class="body-copy">por pack</span>
+              <span class="body-copy">por unidad</span>
             </div>
             <div class="shop-product-actions">
-              <button class="primary-btn" type="button" data-buy-item="${escapeHtml(item.code)}">Comprar 1 pack</button>
-              <button class="soft-btn" type="button" data-buy-item="${escapeHtml(item.code)}" data-buy-qty="5">Comprar 5 packs</button>
+              <button class="primary-btn" type="button" data-buy-item="${escapeHtml(item.code)}">Comprar 1 unidad</button>
+              <button class="soft-btn" type="button" data-buy-item="${escapeHtml(item.code)}" data-buy-qty="5">Comprar 5 unidades</button>
             </div>
           </article>`;
       }).join("")}
     </div>`;
+}
+
+function premiumExtras(product) {
+  const metadata = typeof product?.metadata === "object" && product.metadata ? product.metadata : {};
+  const notes = [];
+  if (metadata.grant_item_codigo) {
+    notes.push(`Incluye: ${metadata.grant_item_codigo}`);
+  }
+  if (metadata.cantidad) {
+    notes.push(`Cantidad: ${metadata.cantidad}`);
+  }
+  if (metadata.scope) {
+    notes.push(`Scope: ${metadata.scope}`);
+  }
+  if (metadata.season_code) {
+    notes.push(`Season: ${metadata.season_code}`);
+  }
+  if (metadata.requires_selection) {
+    notes.push("Requiere selección");
+  }
+  return notes;
 }
 
 function renderPremiumCatalog() {
@@ -84,6 +104,9 @@ function renderPremiumCatalog() {
             </div>
           </div>
           <p>${escapeHtml(product.description || product.metadata?.notes || "Producto premium disponible en el catálogo V2.")}</p>
+          <div class="shop-product-meta-line">
+            ${(premiumExtras(product)).map((note) => `<span class="shop-chip">${escapeHtml(note)}</span>`).join("") || `<span class="shop-chip">${escapeHtml(product.product_type || "premium")}</span>`}
+          </div>
           <div class="shop-product-price">
             <strong>${escapeHtml(`${Number(product.price_usd || 0).toFixed(2)} USD`)}</strong>
             <span class="body-copy">${escapeHtml(product.product_type || "premium")}</span>
@@ -185,7 +208,7 @@ export async function renderShop(force = false) {
   refs.appContent.innerHTML = statusCard("Cargando Shop...");
   try {
     await ensureShopLoaded(force);
-    if (!state.shopView) state.shopView = "utility";
+    if (force || !state.shopView) state.shopView = "utility";
     const wallet = getGoldWallet();
     refs.appContent.innerHTML = `
       <section class="shop-shell">
