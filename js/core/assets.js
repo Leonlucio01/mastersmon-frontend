@@ -40,6 +40,49 @@ function normalizeSpriteId(value) {
   return String(num).padStart(4, '0');
 }
 
+function ensureLeadingSlash(path = '') {
+  const raw = String(path || '').trim();
+  if (!raw) return '';
+  if (/^https?:\/\//i.test(raw)) return raw;
+  return raw.startsWith('/') ? raw : `/${raw}`;
+}
+
+function normalizePokemonAssetPath(path = '') {
+  const raw = ensureLeadingSlash(path);
+  if (!raw || /^https?:\/\//i.test(raw)) return raw;
+  if (!raw.startsWith('/img/pokemon-png/')) return raw;
+  if (raw.startsWith('/img/pokemon-png/sprites_normal/') || raw.startsWith('/img/pokemon-png/sprites_shiny/')) {
+    return raw;
+  }
+
+  const fileName = raw.split('/').pop() || '';
+  if (!fileName) return raw;
+  const isShiny = /_s(?=\.png$)/i.test(fileName);
+  return `${isShiny ? SPRITE_BASE_SHINY : SPRITE_BASE_NORMAL}/${fileName}`;
+}
+
+function normalizeItemAssetPath(path = '') {
+  const raw = ensureLeadingSlash(path);
+  if (!raw || /^https?:\/\//i.test(raw)) return raw;
+  if (raw.startsWith('/img/items/')) return raw;
+  if (raw.startsWith('/official/') || raw.startsWith('/custom/')) return `${ITEM_BASE}${raw}`;
+  return raw;
+}
+
+function normalizeMapAssetPath(path = '') {
+  const raw = ensureLeadingSlash(path);
+  if (!raw || /^https?:\/\//i.test(raw)) return raw;
+  if (raw.startsWith('/img/maps/')) return raw;
+  return `${MAPS_BASE}/${raw.replace(/^\/+/, '').replace(/^img\/maps\/?/, '')}`;
+}
+
+function normalizeAvatarAssetPath(path = '') {
+  const raw = ensureLeadingSlash(path);
+  if (!raw || /^https?:\/\//i.test(raw)) return raw;
+  if (raw.startsWith('/img/avatars/')) return raw;
+  return `${AVATAR_BASE}/${raw.replace(/^\/+/, '')}`;
+}
+
 async function loadJson(path) {
   const response = await fetch(path, { cache: 'no-store' });
   if (!response.ok) throw new Error(`No se pudo cargar ${path}`);
@@ -90,7 +133,7 @@ export function getPokemonSprite(pokemon = {}, shinyOverride = null) {
   const direct = pokemon?.asset_url || pokemon?.imagen || pokemon?.imagen_url || pokemon?.image || pokemon?.sprite || '';
   const directText = String(direct || '');
   if (directText && !/placehold\.co/i.test(directText) && !/pokeapi\.co\/api\/v2\//i.test(directText)) {
-    return directText;
+    return normalizePokemonAssetPath(directText);
   }
 
   const shiny = shinyOverride !== null
@@ -131,7 +174,7 @@ function findItemEntry({ itemId = null, itemCode = '', itemName = '' } = {}) {
 
 export function getItemImage(item = {}) {
   const direct = item?.image_url || item?.icon_url || item?.asset_url || item?.image || '';
-  if (direct && !/placehold\.co/i.test(String(direct))) return String(direct);
+  if (direct && !/placehold\.co/i.test(String(direct))) return normalizeItemAssetPath(String(direct));
 
   const entry = findItemEntry({
     itemId: item?.item_id || item?.id || null,
@@ -146,15 +189,15 @@ export function getItemImage(item = {}) {
 export function getAvatarImage(value = '') {
   const raw = String(value || '').trim();
   if (!raw) return FALLBACKS.avatar;
-  if (/^https?:\/\//i.test(raw) || raw.startsWith('/img/') || raw.startsWith('img/')) return raw;
+  if (/^https?:\/\//i.test(raw) || raw.startsWith('/img/') || raw.startsWith('img/')) return normalizeAvatarAssetPath(raw);
   return `${AVATAR_BASE}/${normalizeText(raw).replace(/[^a-z0-9-]+/g, '')}.png`;
 }
 
 export function getMapImage(value = '') {
   const raw = String(value || '').trim();
   if (!raw) return FALLBACKS.map;
-  if (/^https?:\/\//i.test(raw) || raw.startsWith('/img/') || raw.startsWith('img/')) return raw;
-  return `${MAPS_BASE}/${raw.replace(/^\/+/, '').replace(/^img\/maps\/?/, '')}`;
+  if (/^https?:\/\//i.test(raw) || raw.startsWith('/img/') || raw.startsWith('img/')) return normalizeMapAssetPath(raw);
+  return normalizeMapAssetPath(raw);
 }
 
 export function getAssetAuditSummary() {

@@ -59,7 +59,7 @@ export function renderTopbarProfile() {
 
 export function onPokemonImageError(img) {
   img.onerror = null;
-  img.src = "https://placehold.co/400x220/png?text=Mastersmon";
+  img.src = "/img/pokemon-png/sprites_normal/0001.png";
 }
 window.onPokemonImageError = onPokemonImageError;
 
