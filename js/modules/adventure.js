@@ -2,7 +2,7 @@ import { fetchAuth } from "../core/api.js";
 import { refs, escapeHtml, renderTopbarProfile } from "../core/ui.js";
 import { state } from "../core/state.js";
 import { tr } from "../core/i18n.js";
-import { getItemImage, getMapImage, getPokemonSprite } from "../core/assets.js";
+import { getAvatarImage, getItemImage, getMapImage, getPokemonSprite } from "../core/assets.js";
 
 const adventureViewState = {
   selectedRegionCode: "",
@@ -14,7 +14,14 @@ const adventureViewState = {
   flashKind: "info",
   busy: false,
   captureAction: "",
+  playerX: 72,
+  playerY: 78,
 };
+
+const STEP = 8;
+const MAP_BOUNDS = { minX: 10, maxX: 90, minY: 12, maxY: 88 };
+const GRASS_ZONE = { minX: 62, maxX: 88, minY: 56, maxY: 86 };
+let keyboardBound = false;
 
 function activeRegionFromList(regions) {
   return regions.find((region) => region.is_active_region) || regions[0] || null;
@@ -25,6 +32,10 @@ function selectedZoneFromRegion() {
   return zones.find((zone) => zone.code === adventureViewState.selectedZoneCode) || zones[0] || null;
 }
 
+function activeAvatar() {
+  return getAvatarImage(state.profile?.avatar_code || state.user?.avatar_code || state.selectedAvatarCode || "steven");
+}
+
 function invalidateCapturedData() {
   state.collectionSummary = null;
   state.collectionItems = [];
@@ -33,9 +44,78 @@ function invalidateCapturedData() {
   state.homeAlerts = null;
 }
 
+function isInGrass() {
+  const { playerX, playerY } = adventureViewState;
+  return playerX >= GRASS_ZONE.minX && playerX <= GRASS_ZONE.maxX && playerY >= GRASS_ZONE.minY && playerY <= GRASS_ZONE.maxY;
+}
+
+function canSearchEncounter() {
+  return Boolean(adventureViewState.selectedZoneCode) && isInGrass() && !adventureViewState.busy;
+}
+
+function movePlayer(dx, dy) {
+  adventureViewState.playerX = Math.max(MAP_BOUNDS.minX, Math.min(MAP_BOUNDS.maxX, adventureViewState.playerX + dx));
+  adventureViewState.playerY = Math.max(MAP_BOUNDS.minY, Math.min(MAP_BOUNDS.maxY, adventureViewState.playerY + dy));
+  if (!isInGrass() && !adventureViewState.activeEncounter) {
+    adventureViewState.flash = "Mueve al entrenador hacia la hierba para buscar Pokemon salvajes.";
+    adventureViewState.flashKind = "info";
+  } else if (isInGrass() && !adventureViewState.activeEncounter) {
+    adventureViewState.flash = "Estas en zona de hierba. Ya puedes buscar un encuentro.";
+    adventureViewState.flashKind = "success";
+  }
+  renderAdventure();
+}
+
 function flashCard() {
   if (!adventureViewState.flash) return "";
-  return `<div class="adventure-flash ${adventureViewState.flashKind === "error" ? "is-error" : "is-success"}">${escapeHtml(adventureViewState.flash)}</div>`;
+  return `<div class="adventure-flash ${adventureViewState.flashKind === "error" ? "is-error" : adventureViewState.flashKind === "success" ? "is-success" : ""}">${escapeHtml(adventureViewState.flash)}</div>`;
+}
+
+function renderMapPanel() {
+  const zone = adventureViewState.zoneDetail?.zone || null;
+  return `
+    <section class="section-card adventure-map-shell">
+      <div class="section-head adventure-map-head">
+        <div>
+          <span class="eyebrow">World hub</span>
+          <h2>${escapeHtml(zone?.name || "Selecciona una zona")}</h2>
+          <p class="body-copy">${escapeHtml(zone ? "Camina por el mapa, entra a la hierba y dispara encuentros salvajes." : "Carga una zona para abrir el mapa jugable.")}</p>
+        </div>
+        <div class="pill-row">
+          <span class="pill ${isInGrass() ? "tag-accent" : ""}">${escapeHtml(isInGrass() ? "En hierba alta" : "Fuera de hierba")}</span>
+          <span class="pill">X ${escapeHtml(adventureViewState.playerX)}</span>
+          <span class="pill">Y ${escapeHtml(adventureViewState.playerY)}</span>
+        </div>
+      </div>
+
+      <div class="adventure-map-stage">
+        ${zone ? `<img class="adventure-map-image" src="${escapeHtml(getMapImage(zone.map_asset_path || zone.card_asset_path))}" alt="${escapeHtml(zone.name)}" onerror="onPokemonImageError(this)">` : `<div class="empty-panel">Sin mapa cargado.</div>`}
+        <div class="adventure-map-mask"></div>
+        <div class="grass-hotspot" aria-hidden="true"></div>
+        <div class="zone-path-overlay" aria-hidden="true"></div>
+        <div class="player-token" style="left:${adventureViewState.playerX}%; top:${adventureViewState.playerY}%;">
+          <img src="${escapeHtml(activeAvatar())}" alt="Trainer" onerror="onAvatarImageError(this)">
+        </div>
+        <div class="map-hud">
+          <span class="pill">Zona: ${escapeHtml(zone?.biome || "-")}</span>
+          <span class="pill">Lv ${escapeHtml(zone?.level_min || 1)}-${escapeHtml(zone?.level_max || 1)}</span>
+          <span class="pill">Power ${escapeHtml(adventureViewState.zoneDetail?.player_state?.recommended_team_power || 0)}</span>
+        </div>
+      </div>
+
+      <div class="map-control-row">
+        <div class="movement-pad">
+          <button class="move-btn move-up" type="button" data-move="up" aria-label="Mover arriba">Up</button>
+          <button class="move-btn move-left" type="button" data-move="left" aria-label="Mover izquierda">Left</button>
+          <button class="move-btn move-right" type="button" data-move="right" aria-label="Mover derecha">Right</button>
+          <button class="move-btn move-down" type="button" data-move="down" aria-label="Mover abajo">Down</button>
+        </div>
+        <div class="map-actions">
+          <button class="primary-btn map-primary-action" type="button" id="startEncounterBtn" ${canSearchEncounter() ? "" : "disabled"}>Buscar encuentro</button>
+          <button class="soft-btn" type="button" id="refreshZoneBtn" ${adventureViewState.selectedZoneCode ? "" : "disabled"}>Recargar zona</button>
+        </div>
+      </div>
+    </section>`;
 }
 
 function renderEncounterPanel() {
@@ -45,7 +125,7 @@ function renderEncounterPanel() {
   if (activeEncounter) {
     const balls = activeEncounter.capture?.available_balls || [];
     return `
-      <section class="section-card encounter-panel">
+      <section class="section-card encounter-panel encounter-panel-live">
         <div class="section-head">
           <div>
             <span class="eyebrow">Wild encounter</span>
@@ -84,28 +164,17 @@ function renderEncounterPanel() {
   }
 
   if (!zoneDetail?.zone) {
-    return `<section class="section-card encounter-panel"><div class="empty-panel">Selecciona una zona para abrir el mapa y empezar la exploracion.</div></section>`;
+    return `<section class="section-card encounter-panel"><div class="empty-panel">Selecciona una zona para abrir el mapa, caminar y empezar a buscar Pokemon.</div></section>`;
   }
 
   const preview = zoneDetail.encounter_preview || {};
-  const zone = zoneDetail.zone;
-  const playerState = zoneDetail.player_state || {};
-
   return `
     <section class="section-card encounter-panel">
       <div class="section-head">
         <div>
-          <span class="eyebrow">Adventure hub</span>
-          <h2>${escapeHtml(zone.name)}</h2>
-          <p class="body-copy">Mapa base de exploracion, encuentros y captura para esta zona.</p>
-        </div>
-      </div>
-      <div class="map-stage">
-        <img class="map-stage-image" src="${escapeHtml(getMapImage(zone.map_asset_path || zone.card_asset_path))}" alt="${escapeHtml(zone.name)}" onerror="onPokemonImageError(this)">
-        <div class="map-stage-overlay">
-          <span class="pill tag-accent">${escapeHtml(zone.biome || "-")}</span>
-          <span class="pill">Lv ${escapeHtml(zone.level_min || 1)}-${escapeHtml(zone.level_max || 1)}</span>
-          <span class="pill">Power ${escapeHtml(playerState.recommended_team_power || 0)}</span>
+          <span class="eyebrow">Encounter deck</span>
+          <h2>Wild preview</h2>
+          <p class="body-copy">Estas especies pueden aparecer en esta zona.</p>
         </div>
       </div>
       <div class="encounter-preview-row">
@@ -117,9 +186,9 @@ function renderEncounterPanel() {
           </article>
         `).join("") || `<div class="empty-panel">No hay preview de especies para esta zona.</div>`}
       </div>
-      <div class="hero-actions">
-        <button class="primary-btn" type="button" id="startEncounterBtn" ${adventureViewState.busy ? "disabled" : ""}>Buscar encuentro</button>
-        <button class="soft-btn" type="button" id="refreshZoneBtn">Recargar zona</button>
+      <div class="empty-panel adventure-help-panel">
+        <strong>Como capturar</strong>
+        <p>Mueve el avatar hasta la hierba alta, pulsa Buscar encuentro y luego elige una ball. Tambien puedes usar las flechas del teclado.</p>
       </div>
     </section>`;
 }
@@ -161,33 +230,46 @@ function renderRegionDetail() {
         <article class="region-overview-card"><span>Zone active</span><strong>${escapeHtml(selectedZone?.name || "-")}</strong><p class="body-copy">Zona cargada en el hub.</p></article>
       </div>
 
-      <div class="adventure-play-layout">
-        <div class="zone-list zone-list-adventure">
-          ${zones.map((zone) => `
-            <article class="zone-card zone-card-adventure ${zone.code === adventureViewState.selectedZoneCode ? "is-selected" : ""}">
-              <div class="zone-card-head">
-                <div>
-                  <strong>${escapeHtml(zone.name)}</strong>
-                  <div class="pill-row">
-                    <span class="pill">${escapeHtml(zone.biome || "-")}</span>
-                    <span class="pill">Lv ${escapeHtml(zone.level_min || 1)}-${escapeHtml(zone.level_max || 1)}</span>
+      <div class="adventure-main-grid">
+        <div class="adventure-left-column">
+          ${renderMapPanel()}
+          <section class="section-card zone-route-shell">
+            <div class="section-head">
+              <div>
+                <h2>Zone route</h2>
+                <p class="body-copy">Carga otra zona si quieres cambiar de escenario o preparar nuevos encuentros.</p>
+              </div>
+            </div>
+            <div class="zone-list zone-list-adventure">
+              ${zones.map((zone) => `
+                <article class="zone-card zone-card-adventure ${zone.code === adventureViewState.selectedZoneCode ? "is-selected" : ""}">
+                  <div class="zone-card-head">
+                    <div>
+                      <strong>${escapeHtml(zone.name)}</strong>
+                      <div class="pill-row">
+                        <span class="pill">${escapeHtml(zone.biome || "-")}</span>
+                        <span class="pill">Lv ${escapeHtml(zone.level_min || 1)}-${escapeHtml(zone.level_max || 1)}</span>
+                      </div>
+                    </div>
+                    <button class="soft-btn" type="button" data-zone-code="${escapeHtml(zone.code)}">${zone.code === adventureViewState.selectedZoneCode ? "Loaded" : "Open zone"}</button>
                   </div>
-                </div>
-                <button class="soft-btn" type="button" data-zone-code="${escapeHtml(zone.code)}">${zone.code === adventureViewState.selectedZoneCode ? "Loaded" : "Open zone"}</button>
-              </div>
-              <p>${escapeHtml(zone.code === selectedZone?.code ? "Zona cargada en el panel de mapa y encuentros." : "Cargala para ver mapa, preview y comenzar encuentros.")}</p>
-              <div class="featured-species">
-                ${(zone.featured_species || []).map((pokemon) => `
-                  <span class="pill tag-accent featured-species-pill">
-                    <img src="${escapeHtml(getPokemonSprite(pokemon))}" alt="${escapeHtml(pokemon.name || "Pokemon")}" onerror="onPokemonImageError(this)">
-                    <span>${escapeHtml(pokemon.name)}</span>
-                  </span>
-                `).join("") || `<span class="pill">Sin destacadas</span>`}
-              </div>
-            </article>`).join("")}
+                  <p>${escapeHtml(zone.code === selectedZone?.code ? "Zona cargada en el panel de mapa y encuentros." : "Cargala para ver mapa, preview y comenzar encuentros.")}</p>
+                  <div class="featured-species">
+                    ${(zone.featured_species || []).map((pokemon) => `
+                      <span class="pill tag-accent featured-species-pill">
+                        <img src="${escapeHtml(getPokemonSprite(pokemon))}" alt="${escapeHtml(pokemon.name || "Pokemon")}" onerror="onPokemonImageError(this)">
+                        <span>${escapeHtml(pokemon.name)}</span>
+                      </span>
+                    `).join("") || `<span class="pill">Sin destacadas</span>`}
+                  </div>
+                </article>`).join("")}
+            </div>
+          </section>
         </div>
 
-        ${renderEncounterPanel()}
+        <div class="adventure-right-column">
+          ${renderEncounterPanel()}
+        </div>
       </div>
     </section>`;
 }
@@ -211,6 +293,40 @@ function bindAdventureEvents() {
       await loadZoneDetail(button.getAttribute("data-zone-code"));
     });
   });
+
+  document.querySelectorAll("[data-move]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const direction = button.getAttribute("data-move");
+      if (direction === "up") movePlayer(0, -STEP);
+      if (direction === "down") movePlayer(0, STEP);
+      if (direction === "left") movePlayer(-STEP, 0);
+      if (direction === "right") movePlayer(STEP, 0);
+    });
+  });
+
+  if (!keyboardBound) {
+    window.addEventListener("keydown", (event) => {
+      if (!adventureViewState.selectedZoneCode) return;
+      if (["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName)) return;
+      if (event.key === "ArrowUp") {
+        event.preventDefault();
+        movePlayer(0, -STEP);
+      }
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+        movePlayer(0, STEP);
+      }
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        movePlayer(-STEP, 0);
+      }
+      if (event.key === "ArrowRight") {
+        event.preventDefault();
+        movePlayer(STEP, 0);
+      }
+    });
+    keyboardBound = true;
+  }
 
   document.getElementById("startEncounterBtn")?.addEventListener("click", async () => {
     await createEncounter();
@@ -237,12 +353,12 @@ export function renderAdventure() {
   }
 
   refs.appContent.innerHTML = `
-    <section class="hero-panel">
-      <div class="hero-grid">
+    <section class="hero-panel adventure-v2-hero">
+      <div class="hero-grid adventure-v2-hero-grid">
         <div class="hero-copy">
           <span class="eyebrow">${escapeHtml(tr("adventure.eyebrow"))}</span>
-          <h1>Explora, encuentra y captura.</h1>
-          <p>Adventure ya no deberia sentirse como un listado. Ahora es el hub de juego para abrir regiones, cargar zonas y lanzar encuentros reales.</p>
+          <h1>Adventure V2 se juega en el mapa.</h1>
+          <p>La idea ya no es listar regiones. La idea es caminar, entrar a la hierba, encontrar Pokemon y capturarlos desde un hub visual mucho mas claro.</p>
           <div class="hero-actions">
             <button class="primary-btn" type="button" id="backHomeBtn">${escapeHtml(tr("adventure.back"))}</button>
             <button class="soft-btn" type="button" id="refreshAdventureBtn">${escapeHtml(tr("adventure.refresh"))}</button>
@@ -250,13 +366,13 @@ export function renderAdventure() {
         </div>
         <div class="hero-aside adventure-hero-metrics">
           <article class="metric-card"><span>Regions</span><strong>${regions.length}</strong><p class="body-copy">Modulos regionales cargados.</p></article>
-          <article class="metric-card"><span>Zone</span><strong>${escapeHtml(adventureViewState.zoneDetail?.zone?.name || "-")}</strong><p class="body-copy">Zona activa en el hub.</p></article>
+          <article class="metric-card"><span>Status</span><strong>${escapeHtml(isInGrass() ? "Ready" : "Walk")}</strong><p class="body-copy">${escapeHtml(isInGrass() ? "Ya puedes buscar encuentro." : "Lleva el avatar hacia la hierba alta.")}</p></article>
         </div>
       </div>
     </section>
 
     <section class="adventure-shell">
-      <section class="section-card">
+      <section class="section-card adventure-region-selector">
         <div class="section-head"><div><h2>Regions</h2><p>${escapeHtml(tr("adventure.loaded"))}</p></div></div>
         <div class="regions-grid">
           ${regions.map((region) => `
@@ -298,6 +414,8 @@ async function loadRegionDetail(regionCode) {
     adventureViewState.selectedZoneCode = data.zones?.find((zone) => zone.is_current)?.code || data.zones?.[0]?.code || "";
     adventureViewState.activeEncounter = null;
     adventureViewState.captureAction = "";
+    adventureViewState.playerX = 72;
+    adventureViewState.playerY = 78;
     if (adventureViewState.selectedZoneCode) {
       await loadZoneDetail(adventureViewState.selectedZoneCode, false);
       return;
@@ -319,6 +437,10 @@ async function loadZoneDetail(zoneCode, rerender = true) {
     adventureViewState.zoneDetail = response.data || null;
     adventureViewState.activeEncounter = null;
     adventureViewState.captureAction = "";
+    adventureViewState.playerX = 72;
+    adventureViewState.playerY = 78;
+    adventureViewState.flash = "Zona cargada. Mueve el entrenador hacia la hierba alta para buscar Pokemon.";
+    adventureViewState.flashKind = "info";
   } catch (error) {
     adventureViewState.flash = error.message || "No se pudo cargar la zona.";
     adventureViewState.flashKind = "error";
@@ -328,7 +450,13 @@ async function loadZoneDetail(zoneCode, rerender = true) {
 }
 
 async function createEncounter() {
-  if (!adventureViewState.selectedZoneCode) return;
+  if (!adventureViewState.selectedZoneCode || !isInGrass()) {
+    adventureViewState.flash = "Primero entra a la hierba alta para buscar un encuentro.";
+    adventureViewState.flashKind = "error";
+    renderAdventure();
+    return;
+  }
+
   adventureViewState.busy = true;
   adventureViewState.flash = "";
   renderAdventure();
