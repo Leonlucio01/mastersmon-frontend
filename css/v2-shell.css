@@ -301,11 +301,40 @@ body {
 }
 
 .hero-panel-launch {
+    isolation: isolate;
     padding: 34px;
     background:
         radial-gradient(circle at top left, rgba(122, 227, 255, 0.18), transparent 28%),
         radial-gradient(circle at 85% 12%, rgba(255, 216, 138, 0.18), transparent 22%),
         linear-gradient(135deg, rgba(13, 31, 52, 0.96), rgba(10, 22, 38, 0.92));
+}
+
+.hero-panel-launch::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(90deg, rgba(8, 18, 31, 0.94) 0%, rgba(8, 18, 31, 0.82) 34%, rgba(8, 18, 31, 0.54) 62%, rgba(8, 18, 31, 0.78) 100%),
+        url("/img/Banner.png") center 26% / cover no-repeat;
+    opacity: 0.78;
+    transform: scale(1.02);
+    z-index: -2;
+}
+
+.hero-panel-launch::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 78% 28%, rgba(255, 226, 123, 0.18), transparent 18%),
+        radial-gradient(circle at 12% 18%, rgba(122, 227, 255, 0.1), transparent 24%),
+        linear-gradient(180deg, rgba(8, 18, 31, 0.12), rgba(8, 18, 31, 0.34));
+    z-index: -1;
+}
+
+.hero-panel-launch > * {
+    position: relative;
+    z-index: 1;
 }
 
 .eyebrow {
@@ -410,70 +439,6 @@ body {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 16px;
     align-content: start;
-}
-
-.hero-banner-card {
-    overflow: hidden;
-    border: 1px solid var(--line-soft);
-    border-radius: var(--radius-lg);
-    background: rgba(12, 24, 40, 0.56);
-    box-shadow: var(--shadow-md);
-    position: relative;
-}
-
-.hero-banner-card::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background:
-        radial-gradient(circle at 50% 32%, rgba(255, 229, 127, 0.16), transparent 24%),
-        linear-gradient(180deg, rgba(7, 17, 30, 0.04) 0%, rgba(7, 17, 30, 0.18) 45%, rgba(7, 17, 30, 0.72) 100%);
-    pointer-events: none;
-}
-
-.hero-banner-image {
-    display: block;
-    width: 100%;
-    aspect-ratio: 16 / 9;
-    object-fit: cover;
-}
-
-.hero-banner-card-large {
-    grid-column: 1 / -1;
-    min-height: 340px;
-}
-
-.hero-banner-card-large .hero-banner-image {
-    height: 100%;
-    min-height: 340px;
-    aspect-ratio: auto;
-    object-position: center 28%;
-    transform: scale(1.04);
-    transform-origin: center;
-}
-
-.hero-banner-overlay {
-    position: absolute;
-    z-index: 1;
-    inset: auto 18px 18px 18px;
-    display: grid;
-    gap: 8px;
-    padding: 18px;
-    border-radius: 18px;
-    background: linear-gradient(180deg, rgba(8, 19, 33, 0.36), rgba(8, 19, 33, 0.88));
-    border: 1px solid rgba(188, 220, 255, 0.14);
-    backdrop-filter: blur(10px);
-}
-
-.hero-banner-overlay strong {
-    font-family: "Sora", sans-serif;
-    font-size: 1.35rem;
-}
-
-.hero-banner-overlay p {
-    margin: 0;
-    color: var(--text-soft);
-    line-height: 1.5;
 }
 
 .metric-card-accent {
@@ -753,15 +718,18 @@ body {
 .avatar-grid {
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 10px;
+    gap: 12px;
 }
 
 .avatar-card {
     appearance: none;
     display: grid;
-    gap: 8px;
+    grid-template-rows: 92px auto;
+    gap: 10px;
     justify-items: center;
-    padding: 10px;
+    align-items: start;
+    min-height: 146px;
+    padding: 12px 10px;
     border-radius: 18px;
     border: 1px solid rgba(167, 205, 255, 0.18);
     background: rgba(255, 255, 255, 0.04);
@@ -772,16 +740,26 @@ body {
 }
 
 .avatar-card img {
-    width: 72px;
-    height: 72px;
+    width: 100%;
+    max-width: 92px;
+    height: 92px;
     border-radius: 18px;
-    object-fit: cover;
-    background: rgba(255, 255, 255, 0.05);
+    object-fit: contain;
+    object-position: center top;
+    padding: 6px;
+    background:
+        radial-gradient(circle at top, rgba(122, 227, 255, 0.12), transparent 60%),
+        rgba(255, 255, 255, 0.05);
 }
 
 .avatar-card span {
     font-size: 0.82rem;
     font-weight: 600;
+    line-height: 1.2;
+    text-align: center;
+    min-height: 2.2em;
+    display: grid;
+    align-items: center;
 }
 
 .avatar-card:hover,

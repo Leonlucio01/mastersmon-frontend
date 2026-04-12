@@ -486,14 +486,6 @@ function renderHeroLogin() {
                 </div>
 
                 <div class="hero-aside hero-aside-launch">
-                    <article class="hero-banner-card hero-banner-card-large">
-                        <img class="hero-banner-image" src="/img/Banner.png" alt="Mastersmon banner">
-                        <div class="hero-banner-overlay">
-                            <span class="eyebrow">Mastersmon World</span>
-                            <strong>Enter the next trainer journey</strong>
-                            <p>Pick your avatar, starter and region, then jump into the world map with a real game hub.</p>
-                        </div>
-                    </article>
                     <article class="metric-card">
                         <span>Base V2</span>
                         <strong>${escapeHtml(tr("login.baseTitle"))}</strong>
