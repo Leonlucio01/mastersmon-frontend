@@ -2,6 +2,7 @@ import { fetchAuth } from "../core/api.js";
 import { refs, escapeHtml, statusCard } from "../core/ui.js";
 import { state } from "../core/state.js";
 import { tr } from "../core/i18n.js";
+import { getPokemonSprite } from "../core/assets.js";
 
 function typeClassFromName(name = "") {
   const value = String(name || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -55,7 +56,7 @@ function renderPokemonCard(item) {
     <article class="pokemon-card ${selected ? "is-selected" : ""}" data-pokemon-card="${item.user_pokemon_id}">
       <div class="pokemon-card-top">
         <div class="pokemon-card-art type-${escapeHtml(typeClassFromName(item.primary_type_name || item.variant || "normal"))}">
-          <img src="${escapeHtml(item.asset_url || "https://placehold.co/96x96/png")}" alt="${escapeHtml(item.display_name)}" onerror="onPokemonImageError(this)">
+          <img src="${escapeHtml(getPokemonSprite(item))}" alt="${escapeHtml(item.display_name)}" onerror="onPokemonImageError(this)">
         </div>
         <div class="pokemon-card-copy">
           <strong>${escapeHtml(item.display_name)}</strong>
@@ -77,7 +78,7 @@ function renderDetail(detail) {
   return `
     <article class="pokemon-detail-card">
       <div class="pokemon-detail-top">
-        <div class="pokemon-detail-art"><img src="${escapeHtml(detail.asset_url || "https://placehold.co/128x128/png")}" alt="${escapeHtml(detail.display_name || detail.species_name)}" onerror="onPokemonImageError(this)"></div>
+        <div class="pokemon-detail-art"><img src="${escapeHtml(getPokemonSprite(detail))}" alt="${escapeHtml(detail.display_name || detail.species_name)}" onerror="onPokemonImageError(this)"></div>
         <div class="pokemon-detail-copy">
           <strong>${escapeHtml(detail.display_name || detail.species_name)}</strong>
           <p>${escapeHtml(detail.species_description || "Sin descripción todavía.")}</p>
@@ -151,7 +152,7 @@ function teamSelectionCards() {
 function availableRoster() {
   return state.collectionItems.map(item => `
     <article class="roster-card">
-      <div class="roster-card-art"><img src="${escapeHtml(item.asset_url || "https://placehold.co/96x96/png")}" alt="${escapeHtml(item.display_name)}" onerror="onPokemonImageError(this)"></div>
+      <div class="roster-card-art"><img src="${escapeHtml(getPokemonSprite(item))}" alt="${escapeHtml(item.display_name)}" onerror="onPokemonImageError(this)"></div>
       <div class="roster-card-copy"><strong>${escapeHtml(item.display_name)}</strong><p>Lv ${escapeHtml(item.level)} · ${escapeHtml(item.variant_name || item.variant || "Normal")}</p><div class="roster-card-meta">${item.is_shiny ? `<span class="pokemon-pill is-shiny">Shiny</span>` : ""}${item.is_favorite ? `<span class="pokemon-pill is-favorite">Favorite</span>` : ""}</div></div>
       <div class="roster-card-actions">${state.teamSelection.includes(item.user_pokemon_id) ? `<button type="button" class="soft-btn" data-remove-team="${item.user_pokemon_id}">In team</button>` : `<button type="button" class="primary-btn" data-add-team="${item.user_pokemon_id}">Add</button>`}</div>
     </article>`).join("");

@@ -2,6 +2,7 @@ import { fetchAuth } from "../core/api.js";
 import { refs, escapeHtml, statusCard } from "../core/ui.js";
 import { state } from "../core/state.js";
 import { tr } from "../core/i18n.js";
+import { getPokemonSprite } from "../core/assets.js";
 
 async function ensureTeamLoaded(force = false) {
   if (!force && state.teamActive && state.collectionItems.length) return;
@@ -21,7 +22,7 @@ function selectedMembers() {
 function renderTeamMember(member, slotIndex) {
   return `
     <article class="team-member-card">
-      <div class="team-member-art"><img src="${escapeHtml(member.asset_url || "https://placehold.co/96x96/png")}" alt="${escapeHtml(member.display_name)}" onerror="onPokemonImageError(this)"></div>
+      <div class="team-member-art"><img src="${escapeHtml(getPokemonSprite(member))}" alt="${escapeHtml(member.display_name)}" onerror="onPokemonImageError(this)"></div>
       <div class="team-member-copy"><strong>Slot ${slotIndex + 1} · ${escapeHtml(member.display_name)}</strong><p>Lv ${escapeHtml(member.level)} · ${escapeHtml(member.variant || member.variant_name || "normal")}</p><div class="team-member-meta">${member.is_shiny ? `<span class="team-pill is-active">Shiny</span>` : ""}${member.is_favorite ? `<span class="team-pill">Favorite</span>` : ""}</div></div>
       <div class="team-member-actions"><button class="ghost-btn" type="button" data-remove-team="${member.user_pokemon_id}">Remove</button></div>
     </article>`;
@@ -30,7 +31,7 @@ function renderTeamMember(member, slotIndex) {
 function renderRosterItem(item) {
   return `
     <article class="roster-card">
-      <div class="roster-card-art"><img src="${escapeHtml(item.asset_url || "https://placehold.co/96x96/png")}" alt="${escapeHtml(item.display_name)}" onerror="onPokemonImageError(this)"></div>
+      <div class="roster-card-art"><img src="${escapeHtml(getPokemonSprite(item))}" alt="${escapeHtml(item.display_name)}" onerror="onPokemonImageError(this)"></div>
       <div class="roster-card-copy"><strong>${escapeHtml(item.display_name)}</strong><p>Lv ${escapeHtml(item.level)} · ${escapeHtml(item.variant_name || item.variant || "Normal")}</p><div class="roster-card-meta">${item.is_team_locked ? `<span class="team-pill is-active">Active</span>` : ""}${item.is_shiny ? `<span class="team-pill">Shiny</span>` : ""}</div></div>
       <div class="roster-card-actions">${state.teamSelection.includes(item.user_pokemon_id) ? `<button class="soft-btn" type="button" data-remove-team="${item.user_pokemon_id}">Selected</button>` : `<button class="primary-btn" type="button" data-add-team="${item.user_pokemon_id}">Add</button>`}</div>
     </article>`;

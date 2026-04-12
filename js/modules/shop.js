@@ -1,6 +1,7 @@
 import { state } from "../core/state.js";
 import { refs, statusCard, escapeHtml } from "../core/ui.js";
 import { fetchAuth } from "../core/api.js";
+import { getItemImage } from "../core/assets.js";
 
 const SUPPORTED_CODES = ["idle_masters_1m", "battle_exp_x2_pack5", "battle_gold_x2_pack5"];
 const META = {
@@ -115,7 +116,7 @@ function renderPremiumProducts() {
                 <span class="shop-chip">Premium</span>
                 <h4>${escapeHtml(product?.nombre || meta.title)}</h4>
               </div>
-              <div class="shop-product-icon">${meta.icon}</div>
+              <div class="shop-product-icon shop-product-icon-image"><img src="${escapeHtml(getItemImage({ item_code: code, item_name: product?.nombre || meta.title }))}" alt="${escapeHtml(product?.nombre || meta.title)}" onerror="onPokemonImageError(this)"></div>
             </div>
             <p>${escapeHtml(String(product?.metadata?.notes || meta.note || ""))}</p>
             <div class="shop-product-price">
@@ -217,7 +218,7 @@ function renderShopShell() {
       </section>
 
       <section class="shop-summary-grid">
-        <article class="shop-summary-card"><small>Catalogo</small><strong>${state.shopCatalog.length}</strong></article>
+        <article class="shop-summary-card"><small>Catalogo</small><strong>${state.shopCatalog.length}</strong><p class="body-copy">Manifests items: ${escapeHtml(state.assetAudit?.items ?? 0)} · custom: ${escapeHtml(state.assetAudit?.customItems ?? 0)}</p></article>
         <article class="shop-summary-card"><small>Compras</small><strong>${state.shopPurchases.length}</strong></article>
         <article class="shop-summary-card"><small>Activos</small><strong>${state.shopBenefits.length}</strong></article>
       </section>

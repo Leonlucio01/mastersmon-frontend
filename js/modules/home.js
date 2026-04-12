@@ -1,6 +1,7 @@
 import { refs, escapeHtml, renderTopbarProfile } from "../core/ui.js";
 import { state } from "../core/state.js";
 import { tr } from "../core/i18n.js";
+import { getPokemonSprite } from "../core/assets.js";
 
 export function renderHome() {
   renderTopbarProfile();
@@ -8,7 +9,7 @@ export function renderHome() {
   const trainer = home.trainer || {};
   const wallets = home.wallets || [];
   const members = home.active_team?.members || [];
-  const modules = ["collection","team","gyms","house","trade"];
+  const modules = ["collection","team","gyms","house","trade","ranking"];
 
   refs.appContent.innerHTML = `
     <section class="hero-panel">
@@ -43,6 +44,7 @@ export function renderHome() {
             <button class="soft-btn" type="button" id="goTeam">Open Team</button>
             <button class="soft-btn" type="button" id="goHouse">Open House</button>
             <button class="soft-btn" type="button" id="goTrade">Open Trade</button>
+            <button class="soft-btn" type="button" id="goRanking">Open Ranking</button>
           </div>
         </div>
 
@@ -60,7 +62,7 @@ export function renderHome() {
           <div class="team-list">
             ${members.length ? members.map(member => `
               <article class="team-member">
-                <img src="${escapeHtml(member.asset_url || "https://placehold.co/96x96/png")}" alt="${escapeHtml(member.name || member.display_name || "Pokemon")}" onerror="onPokemonImageError(this)">
+                <img src="${escapeHtml(getPokemonSprite(member))}" alt="${escapeHtml(member.name || member.display_name || "Pokemon")}" onerror="onPokemonImageError(this)">
                 <div><strong>${escapeHtml(member.name || member.display_name || "Pokemon")}</strong><br><small>Lv ${escapeHtml(member.level || 1)}</small></div>
                 <span class="pill">${escapeHtml(member.variant || "normal")}</span>
               </article>`).join("") : `<div class="placeholder-card">Sin miembros todavía.</div>`}
@@ -74,4 +76,5 @@ export function renderHome() {
   document.getElementById("goTeam")?.addEventListener("click", () => { document.querySelector('[data-nav="team"]')?.click(); });
   document.getElementById("goHouse")?.addEventListener("click", () => { document.querySelector('[data-nav="house"]')?.click(); });
   document.getElementById("goTrade")?.addEventListener("click", () => { document.querySelector('[data-nav="trade"]')?.click(); });
+  document.getElementById("goRanking")?.addEventListener("click", () => { document.querySelector('[data-nav="ranking"]')?.click(); });
 }

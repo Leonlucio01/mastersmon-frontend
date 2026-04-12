@@ -2,6 +2,7 @@ import { fetchAuth } from "../core/api.js";
 import { refs, escapeHtml, renderTopbarProfile, statusCard } from "../core/ui.js";
 import { state } from "../core/state.js";
 import { tr } from "../core/i18n.js";
+import { getMapImage, getPokemonSprite } from "../core/assets.js";
 
 export function renderAdventure() {
   renderTopbarProfile();
@@ -30,7 +31,7 @@ export function renderAdventure() {
         <div class="regions-grid">
           ${regions.map(region => `
             <article class="region-card">
-              <img class="region-banner" src="${escapeHtml(region.card_asset_path || "https://placehold.co/600x320/png")}" alt="${escapeHtml(region.name)}" onerror="onPokemonImageError(this)">
+              <img class="region-banner" src="${escapeHtml(getMapImage(region.card_asset_path))}" alt="${escapeHtml(region.name)}" onerror="onPokemonImageError(this)">
               <div>
                 <strong>${escapeHtml(region.name)}</strong>
                 <div class="pill-row">
@@ -79,7 +80,7 @@ async function loadRegionDetail(regionCode) {
                 <strong>${escapeHtml(zone.name)}</strong>
                 <div class="pill-row"><span class="pill">${escapeHtml(zone.biome || zone.tipo_ambiente || "-")}</span><span class="pill">Lv ${escapeHtml(zone.level_min || 1)}-${escapeHtml(zone.level_max || 1)}</span></div>
                 <p>${escapeHtml(zone.description || "Zona lista para exploración modular.")}</p>
-                <div class="featured-species">${(zone.featured_species || []).map(p => `<span class="pill tag-accent">${escapeHtml(p.name)}</span>`).join("") || `<span class="pill">Sin destacadas</span>`}</div>
+                <div class="featured-species">${(zone.featured_species || []).map(p => `<span class="pill tag-accent featured-species-pill"><img src="${escapeHtml(getPokemonSprite(p))}" alt="${escapeHtml(p.name || 'Pokemon')}" onerror="onPokemonImageError(this)"><span>${escapeHtml(p.name)}</span></span>`).join("") || `<span class="pill">Sin destacadas</span>`}</div>
               </article>`).join("")}
           </div>
           <div class="region-overview-grid">

@@ -15,3 +15,6 @@
 @media (max-width: 960px) {
   .regions-grid, .zones-grid, .adventure-layout, .region-overview-grid { grid-template-columns: 1fr; }
 }
+
+.featured-species-pill{display:inline-flex;align-items:center;gap:8px;}
+.featured-species-pill img{width:20px;height:20px;object-fit:contain;image-rendering:pixelated;}

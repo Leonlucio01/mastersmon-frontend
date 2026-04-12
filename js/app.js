@@ -4,11 +4,14 @@ import { refs, renderTopbarProfile, statusCard } from "./core/ui.js";
 import { getToken, clearToken } from "./core/auth.js";
 import { fetchAuth } from "./core/api.js";
 import { bindNavigation, renderCurrentView } from "./core/router.js";
+import { ensureAssetManifests, getAssetAuditSummary } from "./core/assets.js";
 import { setAfterLoginHandler } from "./modules/login.js";
 import { setAfterOnboardingHandler } from "./modules/onboarding.js";
 
 async function bootstrap(view = "home", force = false) {
   state.token = getToken();
+  await ensureAssetManifests();
+  state.assetAudit = getAssetAuditSummary();
   if (!state.token) {
     state.user = null;
     state.onboarding = null;
@@ -26,10 +29,7 @@ async function bootstrap(view = "home", force = false) {
     state.shopBenefits = [];
     state.shopPurchases = [];
     state.shopSync = { status: "idle", message: "", orderId: "" };
-    state.shopCatalog = [];
-    state.shopBenefits = [];
-    state.shopPurchases = [];
-    state.shopSync = { status: "idle", message: "", orderId: "" };
+    state.rankingSummary = null;
     renderTopbarProfile();
     renderCurrentView("home");
     return;
@@ -47,6 +47,7 @@ async function bootstrap(view = "home", force = false) {
     state.tradeOffers = [];
     state.tradeTransactions = [];
     state.tradeAvailablePokemon = [];
+    state.rankingSummary = null;
   }
 
   refs.logoutButton?.classList.remove("hidden");
