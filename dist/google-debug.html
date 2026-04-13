@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Google Debug</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #020617;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        margin: 0;
+      }
+      .card {
+        width: 100%;
+        max-width: 520px;
+        background: rgba(15, 23, 42, 0.95);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
+        padding: 32px;
+        box-sizing: border-box;
+      }
+      h1 {
+        margin: 0 0 12px;
+      }
+      p {
+        color: #cbd5e1;
+      }
+      #btn {
+        margin: 24px 0;
+        min-height: 48px;
+      }
+      pre {
+        white-space: pre-wrap;
+        word-break: break-word;
+        background: rgba(0, 0, 0, 0.25);
+        padding: 12px;
+        border-radius: 12px;
+        color: #93c5fd;
+      }
+    </style>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+  </head>
+  <body>
+    <div class="card">
+      <h1>Google Debug</h1>
+      <p>Prueba aislada del cliente OAuth sin React.</p>
+
+      <div id="btn"></div>
+
+      <pre id="out">Cargando...</pre>
+    </div>
+
+    <script>
+      const CLIENT_ID =
+        "535230935122-vqqd262fjhetd408li95420bb8cas5vb.apps.googleusercontent.com";
+
+      const out = document.getElementById("out");
+
+      function log(message, data) {
+        if (data !== undefined) {
+          console.log(message, data);
+          out.textContent = message + "\n\n" + JSON.stringify(data, null, 2);
+        } else {
+          console.log(message);
+          out.textContent = String(message);
+        }
+      }
+
+      function initGoogle() {
+        try {
+          if (!window.google || !window.google.accounts || !window.google.accounts.id) {
+            log("Google Identity Services no está disponible.");
+            return;
+          }
+
+          log("Inicializando con client_id: " + CLIENT_ID);
+
+          window.google.accounts.id.initialize({
+            client_id: CLIENT_ID,
+            callback: (response) => {
+              log("Credential recibida correctamente", response);
+            },
+            auto_select: false,
+            cancel_on_tap_outside: true
+          });
+
+          window.google.accounts.id.renderButton(
+            document.getElementById("btn"),
+            {
+              type: "standard",
+              theme: "filled_black",
+              size: "large",
+              text: "continue_with",
+              shape: "pill",
+              logo_alignment: "left",
+              width: 280
+            }
+          );
+
+          log("Botón renderizado. Haz clic para probar.");
+        } catch (error) {
+          console.error(error);
+          log("Error al inicializar Google", {
+            message: error?.message || String(error)
+          });
+        }
+      }
+
+      window.addEventListener("load", () => {
+        const timer = setInterval(() => {
+          if (window.google?.accounts?.id) {
+            clearInterval(timer);
+            initGoogle();
+          }
+        }, 200);
+
+        setTimeout(() => {
+          if (!window.google?.accounts?.id) {
+            clearInterval(timer);
+            log("Timeout cargando Google Identity Services.");
+          }
+        }, 8000);
+      });
+    </script>
+  </body>
+</html>
