@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html, body, #root {
+  min-height: 100%;
+}
+
+body {
+  @apply bg-slate-950 text-slate-100 antialiased;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.5) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.35);
+  border-radius: 999px;
+}
+
+.panel {
+  @apply rounded-2xl border border-white/10 bg-white/5 shadow-panel backdrop-blur;
+}
+
+.page-title {
+  @apply text-2xl font-bold tracking-tight text-white;
+}
+
+.page-subtitle {
+  @apply text-sm text-slate-300;
+}
+
+.grid-dashboard {
+  @apply grid gap-4 lg:grid-cols-12;
+}
+
+.widget {
+  @apply panel p-4;
+}
+
+a.active-link {
+  @apply bg-brand-500/20 text-brand-200;
+}
