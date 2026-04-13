@@ -130,6 +130,11 @@ export function LoginPage() {
 
 export function PublicHomePage() {
   const token = useAuthStore((s) => s.token);
+
+  if (token) {
+    return <Navigate to="/hub" replace />;
+  }
+
   const navigate = useNavigate();
   const qc = useQueryClient();
   const setAuthToken = useAuthStore((s) => s.setAuthToken);
