@@ -1,7 +1,7 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, Navigate, Outlet, useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { GoogleLogin } from "@react-oauth/google";
+import { useEffect, useRef, useState } from "react";
 import { queryKeys } from "@/shared/api/queryKeys";
 import { ApiError } from "@/shared/api/client";
 import { Button, Card, ErrorBlock, Input, LoadingBlock, PageHeader, ProgressBar, Select, Stat, TextArea, Badge } from "@/shared/ui";
@@ -55,6 +55,99 @@ export function AppGate() {
   return <Outlet />;
 }
 
+const GOOGLE_CLIENT_ID =
+  "353230935122-vqqd262fjhetd408li95420bb8cas5vb.apps.googleusercontent.com";
+
+declare global {
+  interface Window {
+    google?: any;
+  }
+}
+
+function loadGoogleIdentityScript(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (window.google?.accounts?.id) {
+      resolve();
+      return;
+    }
+
+    const existing = document.querySelector(
+      'script[src="https://accounts.google.com/gsi/client"]'
+    ) as HTMLScriptElement | null;
+
+    if (existing) {
+      existing.addEventListener("load", () => resolve(), { once: true });
+      existing.addEventListener("error", () => reject(new Error("No se pudo cargar Google GSI")), {
+        once: true
+      });
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.defer = true;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error("No se pudo cargar Google GSI"));
+    document.head.appendChild(script);
+  });
+}
+
+function GoogleSignInButton(props: { onCredential: (credential: string) => void }) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function initGoogle() {
+      try {
+        await loadGoogleIdentityScript();
+
+        if (cancelled || !window.google?.accounts?.id || !containerRef.current) return;
+
+        window.google.accounts.id.initialize({
+          client_id: GOOGLE_CLIENT_ID,
+          callback: (response: { credential?: string }) => {
+            if (response?.credential) {
+              props.onCredential(response.credential);
+            }
+          }
+        });
+
+        containerRef.current.innerHTML = "";
+
+        window.google.accounts.id.renderButton(containerRef.current, {
+          theme: "filled_black",
+          size: "large",
+          text: "continue_with",
+          shape: "pill",
+          logo_alignment: "left",
+          width: 260
+        });
+      } catch (err) {
+        console.error(err);
+        if (!cancelled) {
+          setError("No se pudo cargar Google Sign-In.");
+        }
+      }
+    }
+
+    initGoogle();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [props]);
+
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <div ref={containerRef} />
+      {error ? <div className="text-xs text-red-300">{error}</div> : null}
+    </div>
+  );
+}
+
 export function LoginPage() {
   const setAuthToken = useAuthStore((s) => s.setAuthToken);
   const navigate = useNavigate();
@@ -80,19 +173,10 @@ export function LoginPage() {
 
         <div className="space-y-4">
           <div className="flex justify-center">
-            <GoogleLogin
-              onSuccess={(credentialResponse) => {
-                if (credentialResponse.credential) {
-                  mutation.mutate(credentialResponse.credential);
-                }
+            <GoogleSignInButton
+              onCredential={(credential) => {
+                mutation.mutate(credential);
               }}
-              onError={() => {
-                alert("No se pudo autenticar con Google.");
-              }}
-              theme="filled_black"
-              shape="pill"
-              size="large"
-              text="continue_with"
             />
           </div>
 
@@ -221,22 +305,13 @@ export function PublicHomePage() {
 
             <div className="space-y-4">
               {!token ? (
-                <div className="flex justify-center">
-                  <GoogleLogin
-                    onSuccess={(credentialResponse) => {
-                      if (credentialResponse.credential) {
-                        mutation.mutate(credentialResponse.credential);
-                      }
-                    }}
-                    onError={() => {
-                      alert("No se pudo autenticar con Google.");
-                    }}
-                    theme="filled_black"
-                    shape="pill"
-                    size="large"
-                    text="continue_with"
-                  />
-                </div>
+              <div className="flex justify-center">
+                <GoogleSignInButton
+                  onCredential={(credential) => {
+                    mutation.mutate(credential);
+                  }}
+                />
+              </div>
               ) : (
                 <Button className="w-full" onClick={() => navigate("/hub")}>
                   Ir al hub
