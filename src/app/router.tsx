@@ -1,11 +1,12 @@
-import { createHashRouter, Navigate } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import { AppShell } from "@/app/layouts/AppShell";
 import {
   AppGate,
   PublicOnly,
   LoginPage,
   OnboardingPage,
-  HomePage
+  HomePage,
+  PublicHomePage
 } from "@/app/pages";
 
 function PlaceholderPage({ title }: { title: string }) {
@@ -19,7 +20,11 @@ function PlaceholderPage({ title }: { title: string }) {
   );
 }
 
-export const router = createHashRouter([
+export const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <PublicHomePage />
+  },
   {
     path: "/login",
     element: <PublicOnly />,
@@ -31,24 +36,104 @@ export const router = createHashRouter([
     children: [{ index: true, element: <OnboardingPage /> }]
   },
   {
-    path: "/",
+    path: "/hub",
     element: <AppGate />,
     children: [
       {
         element: <AppShell />,
         children: [
-          { index: true, element: <Navigate to="/hub" replace /> },
-          { path: "hub", element: <HomePage /> },
-          { path: "adventure", element: <PlaceholderPage title="Aventura" /> },
-          { path: "collection", element: <PlaceholderPage title="Colección" /> },
-          { path: "team", element: <PlaceholderPage title="Equipo" /> },
-          { path: "gyms", element: <PlaceholderPage title="Gimnasios" /> },
-          { path: "house", element: <PlaceholderPage title="Casa" /> },
-          { path: "shop", element: <PlaceholderPage title="Tienda" /> },
-          { path: "trade", element: <PlaceholderPage title="Trade" /> },
-          { path: "ranking", element: <PlaceholderPage title="Ranking" /> },
-          { path: "profile", element: <PlaceholderPage title="Perfil" /> }
+          { index: true, element: <HomePage /> }
         ]
+      }
+    ]
+  },
+  {
+    path: "/adventure",
+    element: <AppGate />,
+    children: [
+      {
+        element: <AppShell />,
+        children: [{ index: true, element: <PlaceholderPage title="Aventura" /> }]
+      }
+    ]
+  },
+  {
+    path: "/collection",
+    element: <AppGate />,
+    children: [
+      {
+        element: <AppShell />,
+        children: [{ index: true, element: <PlaceholderPage title="Colección" /> }]
+      }
+    ]
+  },
+  {
+    path: "/team",
+    element: <AppGate />,
+    children: [
+      {
+        element: <AppShell />,
+        children: [{ index: true, element: <PlaceholderPage title="Equipo" /> }]
+      }
+    ]
+  },
+  {
+    path: "/gyms",
+    element: <AppGate />,
+    children: [
+      {
+        element: <AppShell />,
+        children: [{ index: true, element: <PlaceholderPage title="Gimnasios" /> }]
+      }
+    ]
+  },
+  {
+    path: "/house",
+    element: <AppGate />,
+    children: [
+      {
+        element: <AppShell />,
+        children: [{ index: true, element: <PlaceholderPage title="Casa" /> }]
+      }
+    ]
+  },
+  {
+    path: "/shop",
+    element: <AppGate />,
+    children: [
+      {
+        element: <AppShell />,
+        children: [{ index: true, element: <PlaceholderPage title="Tienda" /> }]
+      }
+    ]
+  },
+  {
+    path: "/trade",
+    element: <AppGate />,
+    children: [
+      {
+        element: <AppShell />,
+        children: [{ index: true, element: <PlaceholderPage title="Trade" /> }]
+      }
+    ]
+  },
+  {
+    path: "/ranking",
+    element: <AppGate />,
+    children: [
+      {
+        element: <AppShell />,
+        children: [{ index: true, element: <PlaceholderPage title="Ranking" /> }]
+      }
+    ]
+  },
+  {
+    path: "/profile",
+    element: <AppGate />,
+    children: [
+      {
+        element: <AppShell />,
+        children: [{ index: true, element: <PlaceholderPage title="Perfil" /> }]
       }
     ]
   }

@@ -128,6 +128,164 @@ export function LoginPage() {
   );
 }
 
+export function PublicHomePage() {
+  const token = useAuthStore((s) => s.token);
+  const navigate = useNavigate();
+  const qc = useQueryClient();
+  const setAuthToken = useAuthStore((s) => s.setAuthToken);
+
+  const mutation = useMutation({
+    mutationFn: loginWithGoogle,
+    onSuccess: async (data) => {
+      setAuthToken(data.token);
+      await qc.invalidateQueries();
+      navigate("/hub", { replace: true });
+    }
+  });
+
+  return (
+    <div className="min-h-screen bg-hub-gradient">
+      <div className="mx-auto flex min-h-screen max-w-6xl flex-col justify-center px-4 py-10">
+        <div className="grid items-center gap-8 lg:grid-cols-2">
+          <div className="space-y-6">
+            <span className="inline-flex rounded-full border border-brand-400/30 bg-brand-500/10 px-3 py-1 text-sm text-brand-200">
+              Mundo Pokémon · Colección · Aventura · Gimnasios
+            </span>
+
+            <div className="space-y-4">
+              <h1 className="text-4xl font-extrabold tracking-tight text-white md:text-6xl">
+                MastersMon
+              </h1>
+              <p className="max-w-2xl text-lg text-slate-300">
+                Explora regiones, captura Pokémon, arma tu equipo, mejora tu casa y
+                progresa como entrenador en una experiencia online conectada a tu cuenta.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              {token ? (
+                <Button
+                  className="px-6 py-3 text-base"
+                  onClick={() => navigate("/hub")}
+                >
+                  Continuar partida
+                </Button>
+              ) : (
+                <Button
+                  className="px-6 py-3 text-base"
+                  onClick={() => {
+                    const loginSection = document.getElementById("public-login-box");
+                    loginSection?.scrollIntoView({ behavior: "smooth", block: "center" });
+                  }}
+                >
+                  Conectarse con Google
+                </Button>
+              )}
+
+              <Button
+                className="border border-white/10 bg-white/5 px-6 py-3 text-base text-white hover:bg-white/10"
+                onClick={() => navigate("/hub")}
+              >
+                Ver hub
+              </Button>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-3">
+              <Card>
+                <div className="text-sm text-slate-400">Colección</div>
+                <div className="mt-1 text-lg font-semibold text-white">Pokédex viva</div>
+              </Card>
+              <Card>
+                <div className="text-sm text-slate-400">Progreso</div>
+                <div className="mt-1 text-lg font-semibold text-white">Gimnasios y regiones</div>
+              </Card>
+              <Card>
+                <div className="text-sm text-slate-400">Social</div>
+                <div className="mt-1 text-lg font-semibold text-white">Trade y ranking</div>
+              </Card>
+            </div>
+          </div>
+
+          <Card className="mx-auto w-full max-w-md p-8" id="public-login-box">
+            <div className="mb-6 text-center">
+              <h2 className="text-3xl font-bold text-white">Empieza tu aventura</h2>
+              <p className="mt-2 text-sm text-slate-300">
+                Entra con Google para guardar tu progreso y acceder al hub del juego.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              {!token ? (
+                <div className="flex justify-center">
+                  <GoogleLogin
+                    onSuccess={(credentialResponse) => {
+                      if (credentialResponse.credential) {
+                        mutation.mutate(credentialResponse.credential);
+                      }
+                    }}
+                    onError={() => {
+                      alert("No se pudo autenticar con Google.");
+                    }}
+                    theme="filled_black"
+                    shape="pill"
+                    size="large"
+                    text="continue_with"
+                  />
+                </div>
+              ) : (
+                <Button className="w-full" onClick={() => navigate("/hub")}>
+                  Ir al hub
+                </Button>
+              )}
+
+              <div className="rounded-xl border border-white/10 bg-black/20 p-4">
+                <div className="mb-2 text-sm font-semibold text-white">Acceso rápido</div>
+                <p className="mb-3 text-xs text-slate-400">
+                  Si ya tienes un token válido, puedes pegarlo aquí para entrar manualmente.
+                </p>
+
+                <ManualTokenLogin />
+              </div>
+
+              {mutation.isError ? (
+                <ErrorBlock message={(mutation.error as Error).message} />
+              ) : null}
+            </div>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ManualTokenLogin() {
+  const [manualToken, setManualToken] = useState("");
+  const setAuthToken = useAuthStore((s) => s.setAuthToken);
+  const navigate = useNavigate();
+  const qc = useQueryClient();
+
+  return (
+    <>
+      <Input
+        value={manualToken}
+        onChange={(e) => setManualToken(e.target.value)}
+        placeholder="Bearer token"
+      />
+      <Button
+        className="mt-3 w-full"
+        onClick={() => {
+          if (!manualToken.trim()) return;
+          setAuthToken(manualToken.trim());
+          qc.invalidateQueries();
+          navigate("/hub", { replace: true });
+        }}
+      >
+        Entrar con token
+      </Button>
+    </>
+  );
+}
+
 export function OnboardingPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
@@ -419,3 +577,5 @@ export function HomePage() {
         </div>
     );
 }
+
+
