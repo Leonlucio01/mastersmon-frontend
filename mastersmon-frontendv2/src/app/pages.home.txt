@@ -1,1 +1,0 @@
-Reemplaza manualmente la función HomePage dentro de src/app/pages.tsx por esta versión:
