@@ -2,7 +2,8 @@ import { fetchAuth } from "../core/api.js";
 import { refs, escapeHtml, renderTopbarProfile, openAppModal } from "../core/ui.js";
 import { state } from "../core/state.js";
 import { tr } from "../core/i18n.js";
-import { getAvatarImage, getItemImage, getMapImage, getPokemonSprite } from "../core/assets.js";
+import { getAvatarImage, getItemImage, getMapImage, getMapMoveAsset, getPokemonSprite } from "../core/assets.js";
+import { playCaptureFx, playEncounterFx, playShinyFx, playStepFx, startMapMusic } from "../core/game-audio.js";
 
 const adventureViewState = {
   selectedRegionCode: "",
@@ -18,11 +19,11 @@ const adventureViewState = {
   playerY: 74,
   stepCount: 0,
   encounterHistory: [],
+  activeEncounterSignature: "",
 };
 
 const STEP = 8;
 const MAP_BOUNDS = { minX: 10, maxX: 90, minY: 12, maxY: 88 };
-const GRASS_ZONE = { minX: 62, maxX: 88, minY: 56, maxY: 86 };
 let keyboardBound = false;
 
 function currentRegion() {
@@ -48,9 +49,7 @@ function invalidateCapturedData() {
 }
 
 function isInGrass() {
-  if (!adventureViewState.zoneDetail?.zone) return false;
-  const { playerX, playerY } = adventureViewState;
-  return playerX >= GRASS_ZONE.minX && playerX <= GRASS_ZONE.maxX && playerY >= GRASS_ZONE.minY && playerY <= GRASS_ZONE.maxY;
+  return Boolean(adventureViewState.zoneDetail?.zone);
 }
 
 function scrollAdventureIntoView() {
@@ -92,7 +91,7 @@ function syncAdventureDom() {
 
   const grassState = document.getElementById("adventureGrassState");
   if (grassState) {
-    grassState.textContent = isInGrass() ? "Hierba alta" : "Ruta segura";
+    grassState.textContent = isInGrass() ? "Zona viva" : "Ruta segura";
     grassState.className = `pill ${isInGrass() ? "tag-accent" : ""}`;
   }
 
@@ -157,6 +156,29 @@ function routeMissionCopy() {
     title: `Continua la ruta de ${zone.name}`,
     body: "Camina por el mapa, entra a la hierba alta y deja que el encuentro aparezca sin depender de un boton separado.",
   };
+}
+
+function encounterSignature(encounter = null) {
+  if (!encounter) return "";
+  return `${encounter.id || encounter.name || "wild"}:${encounter.is_shiny ? "shiny" : "normal"}`;
+}
+
+function maybeCelebrateShiny(encounter) {
+  const signature = encounterSignature(encounter);
+  if (!encounter?.is_shiny || !signature || signature === adventureViewState.activeEncounterSignature) return;
+  adventureViewState.activeEncounterSignature = signature;
+  playShinyFx();
+  openAppModal({
+    eyebrow: "Shiny alert",
+    title: `${encounter.name} shiny aparecio`,
+    body: `
+      <p>Acaba de salir una variante shiny dentro de la ruta activa.</p>
+      <p>Esta es justo la clase de momento que debe sentirse especial en Mastersmon V2. Lanza una ball y no la dejes ir.</p>`,
+    actions: [
+      { label: "Intentar captura", kind: "primary" },
+      { label: "Seguir caminando", kind: "soft" },
+    ],
+  });
 }
 
 function zoneDifficultyLabel(zone) {
@@ -269,7 +291,7 @@ function renderMapStage() {
           <p class="body-copy">${escapeHtml(mission.body)}</p>
         </div>
         <div class="pill-row">
-          <span id="adventureGrassState" class="pill ${isInGrass() ? "tag-accent" : ""}">${escapeHtml(isInGrass() ? "Hierba alta" : "Ruta segura")}</span>
+          <span id="adventureGrassState" class="pill ${isInGrass() ? "tag-accent" : ""}">${escapeHtml(isInGrass() ? "Zona viva" : "Ruta segura")}</span>
           <span id="adventureStepState" class="pill">Paso ${escapeHtml(adventureViewState.stepCount)}</span>
           <span id="adventureCoordX" class="pill">X ${escapeHtml(adventureViewState.playerX)}</span>
           <span id="adventureCoordY" class="pill">Y ${escapeHtml(adventureViewState.playerY)}</span>
@@ -279,8 +301,7 @@ function renderMapStage() {
       <div class="adventure-map-stage">
         ${zone ? `<img class="adventure-map-image" src="${escapeHtml(getMapImage(zone.map_asset_path || zone.card_asset_path))}" alt="${escapeHtml(zone.name)}" onerror="onPokemonImageError(this)">` : `<div class="empty-panel">Selecciona una region y luego una zona para cargar el mapa.</div>`}
         <div class="adventure-map-mask"></div>
-        <div class="grass-hotspot" aria-hidden="true"></div>
-        <div class="zone-path-overlay" aria-hidden="true"></div>
+        <div class="encounter-field-overlay" aria-hidden="true"></div>
         ${zone ? `
           <div id="adventurePlayerToken" class="player-token" style="left:${adventureViewState.playerX}%; top:${adventureViewState.playerY}%;">
             <img src="${escapeHtml(activeAvatar())}" alt="Trainer" onerror="onAvatarImageError(this)">
@@ -300,20 +321,23 @@ function renderMapStage() {
         </article>
         <div class="map-control-row">
           <div class="movement-pad">
-            <button class="move-btn move-up" type="button" data-move="up" aria-label="Mover arriba">Up</button>
-            <button class="move-btn move-left" type="button" data-move="left" aria-label="Mover izquierda">Left</button>
-            <button class="move-btn move-right" type="button" data-move="right" aria-label="Mover derecha">Right</button>
-            <button class="move-btn move-down" type="button" data-move="down" aria-label="Mover abajo">Down</button>
+            <div class="move-pad-core" aria-hidden="true">
+              <img src="${escapeHtml(getMapMoveAsset("center"))}" alt="">
+            </div>
+            <button class="move-btn move-up" type="button" data-move="up" aria-label="Mover arriba"><img src="${escapeHtml(getMapMoveAsset("up"))}" alt=""></button>
+            <button class="move-btn move-left" type="button" data-move="left" aria-label="Mover izquierda"><img src="${escapeHtml(getMapMoveAsset("left"))}" alt=""></button>
+            <button class="move-btn move-right" type="button" data-move="right" aria-label="Mover derecha"><img src="${escapeHtml(getMapMoveAsset("right"))}" alt=""></button>
+            <button class="move-btn move-down" type="button" data-move="down" aria-label="Mover abajo"><img src="${escapeHtml(getMapMoveAsset("down"))}" alt=""></button>
             <div class="movement-keys">WASD / Arrows</div>
           </div>
           <div class="map-actions">
             <article class="map-action-card">
               <strong>Encuentro automatico</strong>
-              <p>Cada paso dentro de la hierba consulta un encuentro nuevo. Si sigues avanzando, puede cambiar el Pokemon salvaje en pantalla.</p>
+              <p>Cada paso consulta un encuentro nuevo en la ruta activa. Si sigues avanzando, puede cambiar el Pokemon salvaje en pantalla.</p>
             </article>
             <article class="map-action-card">
               <strong>Movimiento libre</strong>
-              <p>Tambien puedes moverte con W, A, S y D. El mapa ya no deberia parpadear mientras avanzas.</p>
+              <p>Tambien puedes moverte con W, A, S y D. El mapa ahora mantiene la escena estable mientras avanzas.</p>
             </article>
           </div>
         </div>
@@ -681,9 +705,11 @@ async function loadZoneDetail(zoneCode, rerender = true) {
     adventureViewState.playerX = 28;
     adventureViewState.playerY = 74;
     adventureViewState.stepCount = 0;
-    adventureViewState.flash = "Zona cargada. Camina hacia la hierba alta para activar encuentros dentro del mapa.";
+    adventureViewState.activeEncounterSignature = "";
+    adventureViewState.flash = "Zona cargada. Empieza a caminar y la ruta ira consultando encuentros del servidor dentro del mapa.";
     adventureViewState.flashKind = "info";
     addHistoryEntry(`Ruta cargada: ${response.data?.zone?.name || zoneCode}`);
+    startMapMusic();
   } catch (error) {
     adventureViewState.flash = error.message || "No se pudo cargar la zona.";
     adventureViewState.flashKind = "error";
@@ -707,8 +733,12 @@ async function createEncounter(options = {}) {
       body: JSON.stringify({ mode: "walk" }),
     });
     adventureViewState.activeEncounter = response.data?.encounter || null;
+    playEncounterFx();
+    maybeCelebrateShiny(adventureViewState.activeEncounter);
     adventureViewState.captureAction = "";
-    adventureViewState.flash = "Un Pokemon salvaje aparecio mientras caminabas por la hierba.";
+    adventureViewState.flash = adventureViewState.activeEncounter?.is_shiny
+      ? "Un shiny aparecio mientras avanzabas por la ruta."
+      : "Un Pokemon salvaje aparecio mientras avanzabas por la ruta.";
     adventureViewState.flashKind = "success";
     addHistoryEntry(`Encuentro: ${response.data?.encounter?.name || "Pokemon salvaje"}`);
   } catch (error) {
@@ -734,11 +764,13 @@ async function captureEncounter(ballItemCode) {
     const data = response.data || {};
     const encounterName = adventureViewState.activeEncounter?.name || "Pokemon";
     adventureViewState.activeEncounter = null;
+    adventureViewState.activeEncounterSignature = "";
     adventureViewState.captureAction = "";
     adventureViewState.flash = data.message || (data.captured ? "Pokemon capturado." : "El Pokemon escapo.");
     adventureViewState.flashKind = data.captured ? "success" : "error";
     addHistoryEntry(data.captured ? `Captura exitosa: ${encounterName}` : `Escapo: ${encounterName}`);
     if (data.captured) invalidateCapturedData();
+    playCaptureFx(Boolean(data.captured));
 
     openAppModal({
       eyebrow: data.captured ? "Capture success" : "Capture failed",
@@ -763,15 +795,16 @@ async function captureEncounter(ballItemCode) {
 
 async function movePlayer(dx, dy) {
   if (!adventureViewState.zoneDetail?.zone || adventureViewState.busy) return;
+  playStepFx();
   adventureViewState.playerX = Math.max(MAP_BOUNDS.minX, Math.min(MAP_BOUNDS.maxX, adventureViewState.playerX + dx));
   adventureViewState.playerY = Math.max(MAP_BOUNDS.minY, Math.min(MAP_BOUNDS.maxY, adventureViewState.playerY + dy));
   adventureViewState.stepCount += 1;
 
   if (isInGrass()) {
-    adventureViewState.flash = "Pisaste la hierba alta. Cada paso puede traer un encuentro nuevo.";
+    adventureViewState.flash = "La ruta esta activa. Cada paso puede traer un encuentro nuevo.";
     adventureViewState.flashKind = "success";
   } else {
-    adventureViewState.flash = "Sigue caminando hacia la hierba alta para provocar encuentros salvajes.";
+    adventureViewState.flash = "Sigue caminando por la ruta para provocar encuentros salvajes.";
     adventureViewState.flashKind = "info";
   }
   syncAdventureDom();

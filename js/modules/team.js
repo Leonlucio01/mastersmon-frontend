@@ -11,19 +11,31 @@ async function ensureTeamLoaded(force = false) {
     fetchAuth("/v2/collection/pokemon?limit=120"),
   ]);
   state.teamActive = teamResponse.data || { members: [], warnings: [] };
-  state.teamSelection = (state.teamActive.members || []).map(member => member.user_pokemon_id);
+  state.teamSelection = (state.teamActive.members || []).map((member) => member.user_pokemon_id);
   state.collectionItems = collectionResponse.data?.items || [];
 }
 
 function selectedMembers() {
-  return state.collectionItems.filter(item => state.teamSelection.includes(item.user_pokemon_id));
+  return state.collectionItems.filter((item) => state.teamSelection.includes(item.user_pokemon_id));
 }
 
 function renderTeamMember(member, slotIndex) {
   return `
     <article class="team-member-card">
+      <span class="team-slot-index">#${slotIndex + 1}</span>
       <div class="team-member-art"><img src="${escapeHtml(getPokemonSprite(member))}" alt="${escapeHtml(member.display_name)}" onerror="onPokemonImageError(this)"></div>
-      <div class="team-member-copy"><strong>Slot ${slotIndex + 1} · ${escapeHtml(member.display_name)}</strong><p>Lv ${escapeHtml(member.level)} · ${escapeHtml(member.variant || member.variant_name || "normal")}</p><div class="team-member-meta">${member.is_shiny ? `<span class="team-pill is-active">Shiny</span>` : ""}${member.is_favorite ? `<span class="team-pill">Favorite</span>` : ""}</div></div>
+      <div class="team-member-copy">
+        <strong>${escapeHtml(member.display_name)}</strong>
+        <p>Lv ${escapeHtml(member.level)} · ${escapeHtml(member.variant_name || member.variant || "Normal")}</p>
+        <div class="team-member-bars">
+          <span><em>HP</em><i></i></span>
+          <span><em>XP</em><i></i></span>
+        </div>
+        <div class="team-member-meta">
+          ${member.is_shiny ? `<span class="team-pill is-active">Shiny</span>` : ""}
+          ${member.is_favorite ? `<span class="team-pill">Favorite</span>` : ""}
+        </div>
+      </div>
       <div class="team-member-actions"><button class="ghost-btn" type="button" data-remove-team="${member.user_pokemon_id}">Remove</button></div>
     </article>`;
 }
@@ -32,8 +44,19 @@ function renderRosterItem(item) {
   return `
     <article class="roster-card">
       <div class="roster-card-art"><img src="${escapeHtml(getPokemonSprite(item))}" alt="${escapeHtml(item.display_name)}" onerror="onPokemonImageError(this)"></div>
-      <div class="roster-card-copy"><strong>${escapeHtml(item.display_name)}</strong><p>Lv ${escapeHtml(item.level)} · ${escapeHtml(item.variant_name || item.variant || "Normal")}</p><div class="roster-card-meta">${item.is_team_locked ? `<span class="team-pill is-active">Active</span>` : ""}${item.is_shiny ? `<span class="team-pill">Shiny</span>` : ""}</div></div>
-      <div class="roster-card-actions">${state.teamSelection.includes(item.user_pokemon_id) ? `<button class="soft-btn" type="button" data-remove-team="${item.user_pokemon_id}">Selected</button>` : `<button class="primary-btn" type="button" data-add-team="${item.user_pokemon_id}">Add</button>`}</div>
+      <div class="roster-card-copy">
+        <strong>${escapeHtml(item.display_name)}</strong>
+        <p>Lv ${escapeHtml(item.level)} · ${escapeHtml(item.variant_name || item.variant || "Normal")}</p>
+        <div class="roster-card-meta">
+          ${item.is_team_locked ? `<span class="team-pill is-active">Active</span>` : ""}
+          ${item.is_shiny ? `<span class="team-pill">Shiny</span>` : ""}
+        </div>
+      </div>
+      <div class="roster-card-actions">
+        ${state.teamSelection.includes(item.user_pokemon_id)
+          ? `<button class="soft-btn" type="button" data-remove-team="${item.user_pokemon_id}">Selected</button>`
+          : `<button class="primary-btn" type="button" data-add-team="${item.user_pokemon_id}">Add</button>`}
+      </div>
     </article>`;
 }
 
@@ -41,7 +64,7 @@ async function saveTeam() {
   const saveButton = document.getElementById("saveTeamBtn");
   const statusMount = document.getElementById("teamSaveStatus");
   if (!state.teamSelection.length) {
-    statusMount.innerHTML = statusCard("Select at least one Pokémon.", "error");
+    statusMount.innerHTML = statusCard("Select at least one Pokemon.", "error");
     return;
   }
   saveButton.disabled = true;
@@ -62,14 +85,14 @@ async function saveTeam() {
 }
 
 function bindTeamEvents() {
-  document.querySelectorAll("[data-add-team]").forEach(btn => btn.addEventListener("click", () => {
+  document.querySelectorAll("[data-add-team]").forEach((btn) => btn.addEventListener("click", () => {
     const id = Number(btn.getAttribute("data-add-team"));
     if (!state.teamSelection.includes(id) && state.teamSelection.length < 6) state.teamSelection.push(id);
     renderTeam(false);
   }));
-  document.querySelectorAll("[data-remove-team]").forEach(btn => btn.addEventListener("click", () => {
+  document.querySelectorAll("[data-remove-team]").forEach((btn) => btn.addEventListener("click", () => {
     const id = Number(btn.getAttribute("data-remove-team"));
-    state.teamSelection = state.teamSelection.filter(value => Number(value) !== id);
+    state.teamSelection = state.teamSelection.filter((value) => Number(value) !== id);
     renderTeam(false);
   }));
   document.getElementById("saveTeamBtn")?.addEventListener("click", saveTeam);
@@ -84,7 +107,17 @@ export async function renderTeam(force = false) {
     const warnings = Array.isArray(state.teamActive?.warnings) ? state.teamActive.warnings : [];
     refs.appContent.innerHTML = `
       <section class="hero-panel team-screen-shell">
-        <div class="section-head"><div><span class="eyebrow">Team</span><h2>${escapeHtml(tr("team.title"))}</h2><p class="body-copy">${escapeHtml(tr("team.body"))}</p></div><div class="stack-actions"><button class="soft-btn" id="teamSyncBtn" type="button">Sync</button><button class="primary-btn" id="saveTeamBtn" type="button">Save active team</button></div></div>
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Team</span>
+            <h2>${escapeHtml(tr("team.title"))}</h2>
+            <p class="body-copy">Aqui vive tu party real. Collection vuelve a ser galeria y Team se queda con los 6 slots activos y la preparacion tactica.</p>
+          </div>
+          <div class="stack-actions">
+            <button class="soft-btn" id="teamSyncBtn" type="button">Sync</button>
+            <button class="primary-btn" id="saveTeamBtn" type="button">Save active team</button>
+          </div>
+        </div>
         <div id="teamSaveStatus"></div>
         <div class="team-screen-layout">
           <div class="team-panel">
@@ -93,12 +126,17 @@ export async function renderTeam(force = false) {
               <article class="team-builder-stat"><span>Warnings</span><strong>${warnings.length}</strong></article>
               <article class="team-builder-stat"><span>Preset</span><strong>${escapeHtml(state.teamActive?.team?.name || "Active Team")}</strong></article>
             </div>
-            <div class="section-head" style="margin-top:16px"><div><h2>Current lineup</h2></div></div>
-            <div class="team-list">${members.length ? members.map((member, index) => renderTeamMember(member, index)).join("") : `<div class="empty-panel">No Pokémon selected yet.</div>`}</div>
+            <div class="section-head" style="margin-top:16px">
+              <div>
+                <h2>Current lineup</h2>
+                <p class="body-copy">Tus 6 miembros activos ya deberian sentirse como cards de party dentro del hub.</p>
+              </div>
+            </div>
+            <div class="team-list">${members.length ? members.map((member, index) => renderTeamMember(member, index)).join("") : `<div class="empty-panel">No Pokemon selected yet.</div>`}</div>
           </div>
           <aside class="team-side-panel">
-            <div class="section-head"><div><h2>Available roster</h2><p class="body-copy">Choose up to 6 Pokémon from your collection.</p></div></div>
-            ${warnings.length ? `<div class="team-warning-list">${warnings.map(w => `<div class="team-warning-item">${escapeHtml(w)}</div>`).join("")}</div>` : ""}
+            <div class="section-head"><div><h2>Available roster</h2><p class="body-copy">Choose up to 6 Pokemon from your collection.</p></div></div>
+            ${warnings.length ? `<div class="team-warning-list">${warnings.map((warning) => `<div class="team-warning-item">${escapeHtml(warning)}</div>`).join("")}</div>` : ""}
             <div class="roster-list">${state.collectionItems.length ? state.collectionItems.map(renderRosterItem).join("") : `<div class="empty-panel">No collection data available.</div>`}</div>
           </aside>
         </div>

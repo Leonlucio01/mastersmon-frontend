@@ -28,8 +28,8 @@
 }
 
 .adventure-regions-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
 }
 
 .adventure-region-card,
@@ -71,27 +71,28 @@
 
 .region-banner {
   width: 100%;
-  height: 124px;
+  height: 92px;
   object-fit: cover;
-  border-radius: 16px;
+  border-radius: 14px;
   background: rgba(255, 255, 255, 0.08);
 }
 
 .adventure-region-card {
   display: grid;
-  grid-template-columns: 220px minmax(0, 1fr) auto;
+  grid-template-columns: 1fr;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
+  padding: 14px;
 }
 
 .adventure-region-content {
   display: grid;
-  gap: 10px;
+  gap: 8px;
 }
 
 .adventure-region-copy strong,
 .zone-card strong {
-  font-size: 1.1rem;
+  font-size: 1rem;
 }
 
 .adventure-region-stats {
@@ -197,8 +198,9 @@
 
 .zone-card-adventure {
   display: grid;
-  gap: 10px;
-  min-height: 168px;
+  gap: 8px;
+  min-height: 144px;
+  padding: 16px;
 }
 
 .zone-card-head {
@@ -273,30 +275,20 @@
   inset: 0;
   background:
     linear-gradient(180deg, rgba(7, 14, 24, 0.08), rgba(7, 14, 24, 0.28)),
-    radial-gradient(circle at 80% 72%, rgba(123, 232, 166, 0.12), transparent 18%);
+    radial-gradient(circle at 50% 50%, rgba(123, 232, 166, 0.06), transparent 48%);
 }
 
-.grass-hotspot {
+.encounter-field-overlay {
   position: absolute;
-  left: 62%;
-  top: 56%;
-  width: 26%;
-  height: 30%;
-  border: 2px dashed rgba(123, 232, 166, 0.7);
-  border-radius: 24px;
-  background: rgba(74, 201, 112, 0.18);
-  box-shadow: 0 0 0 999px rgba(6, 16, 25, 0.06) inset;
-}
-
-.zone-path-overlay {
-  position: absolute;
-  left: 15%;
-  right: 32%;
-  top: 43%;
-  height: 18px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.18), rgba(122, 227, 255, 0.28));
-  opacity: 0.9;
+  inset: 0;
+  border-radius: 28px;
+  background:
+    linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(255,255,255,0.04) 1px, transparent 1px),
+    radial-gradient(circle at 65% 72%, rgba(123, 232, 166, 0.14), transparent 22%),
+    radial-gradient(circle at 38% 32%, rgba(122, 227, 255, 0.09), transparent 22%);
+  background-size: 56px 56px, 56px 56px, auto, auto;
+  opacity: 0.62;
 }
 
 .player-token {
@@ -376,6 +368,24 @@
     rgba(255, 255, 255, 0.04);
 }
 
+.move-pad-core {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 42px;
+  height: 42px;
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+  opacity: 0.55;
+}
+
+.move-pad-core img,
+.move-btn img {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
 .movement-keys {
   position: absolute;
   left: 50%;
@@ -389,15 +399,16 @@
 
 .move-btn {
   position: absolute;
-  min-width: 74px;
-  height: 50px;
-  padding: 0 16px;
-  border-radius: 16px;
+  width: 68px;
+  height: 68px;
+  padding: 0;
+  border-radius: 22px;
   border: 1px solid rgba(122, 227, 255, 0.34);
   background: rgba(10, 24, 38, 0.88);
   color: var(--text-main);
-  font-weight: 700;
   cursor: pointer;
+  display: grid;
+  place-items: center;
   transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
 }
 
@@ -407,10 +418,10 @@
   background: rgba(19, 38, 58, 0.96);
 }
 
-.move-up { top: 14px; left: 50%; transform: translateX(-50%); }
-.move-left { top: 58px; left: 16px; }
-.move-right { top: 58px; right: 16px; }
-.move-down { bottom: 14px; left: 50%; transform: translateX(-50%); }
+.move-up { top: 10px; left: 50%; transform: translateX(-50%); }
+.move-left { top: 52px; left: 12px; }
+.move-right { top: 52px; right: 12px; }
+.move-down { bottom: 12px; left: 50%; transform: translateX(-50%); }
 .move-up:hover,
 .move-down:hover { transform: translateX(-50%) translateY(-2px); }
 
@@ -544,6 +555,10 @@
   width: 44px;
   height: 44px;
   object-fit: contain;
+}
+
+.capture-ball-card strong {
+  text-transform: capitalize;
 }
 
 .capture-ball-card em {

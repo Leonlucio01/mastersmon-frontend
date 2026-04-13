@@ -11,11 +11,13 @@ const SPRITE_BASE_SHINY = '/img/pokemon-png/sprites_shiny';
 const ITEM_BASE = '/img/items';
 const AVATAR_BASE = '/img/avatars';
 const MAPS_BASE = '/img/maps';
+const MAP_MOVE_BASE = '/img/maps/move';
 const FALLBACKS = {
   pokemon: '/img/pokemon-png/sprites_normal/0001.png',
   item: '/img/items/official/0004_poke-ball.png',
   avatar: '/img/avatars/steven.png',
   map: '/img/Banner.png',
+  logo: '/img/Logo MastersMon.png',
 };
 const ITEM_CODE_ALIASES = {
   poke_ball: 'poke-ball',
@@ -238,6 +240,29 @@ export function getMapImage(value = '') {
   if (!raw) return FALLBACKS.map;
   if (/^https?:\/\//i.test(raw) || raw.startsWith('/img/') || raw.startsWith('img/')) return normalizeMapAssetPath(raw);
   return normalizeMapAssetPath(raw);
+}
+
+export function getMapMoveAsset(direction = '') {
+  const key = normalizeText(direction);
+  const map = {
+    center: `${MAP_MOVE_BASE}/center.png`,
+    up: `${MAP_MOVE_BASE}/north_able.png`,
+    north: `${MAP_MOVE_BASE}/north_able.png`,
+    down: `${MAP_MOVE_BASE}/south_able.png`,
+    south: `${MAP_MOVE_BASE}/south_able.png`,
+    left: `${MAP_MOVE_BASE}/west_able.png`,
+    west: `${MAP_MOVE_BASE}/west_able.png`,
+    right: `${MAP_MOVE_BASE}/east_able.png`,
+    east: `${MAP_MOVE_BASE}/east_able.png`,
+  };
+  return map[key] || `${MAP_MOVE_BASE}/center.png`;
+}
+
+export function getBrandAsset(name = '') {
+  const key = normalizeText(name);
+  if (key === 'logo' || key === 'mastersmon') return FALLBACKS.logo;
+  if (key === 'banner' || key === 'home-banner') return FALLBACKS.map;
+  return FALLBACKS.logo;
 }
 
 export function getAssetAuditSummary() {
