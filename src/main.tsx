@@ -17,3 +17,5 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     </GoogleOAuthProvider>
   </React.StrictMode>
 );
+
+console.log("GOOGLE CLIENT ID:", env.googleClientId);
