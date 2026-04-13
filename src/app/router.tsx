@@ -1,12 +1,11 @@
-import { createBrowserRouter, Navigate } from "react-router-dom";
+import { createBrowserRouter } from "react-router-dom";
 import { AppShell } from "@/app/layouts/AppShell";
 import {
   AppGate,
-  PublicOnly,
   LoginPage,
   OnboardingPage,
   HomePage,
-  PublicHomePage
+  PublicHomePage,
 } from "@/app/pages";
 
 function PlaceholderPage({ title }: { title: string }) {
@@ -23,17 +22,20 @@ function PlaceholderPage({ title }: { title: string }) {
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <PublicHomePage />
+    element: <PublicHomePage />,
   },
   {
     path: "/login",
-    element: <PublicOnly />,
-    children: [{ index: true, element: <LoginPage /> }]
+    element: <PublicHomePage />,
+  },
+  {
+    path: "/acceso",
+    element: <LoginPage />,
   },
   {
     path: "/onboarding",
     element: <AppGate />,
-    children: [{ index: true, element: <OnboardingPage /> }]
+    children: [{ index: true, element: <OnboardingPage /> }],
   },
   {
     path: "/hub",
@@ -41,11 +43,9 @@ export const router = createBrowserRouter([
     children: [
       {
         element: <AppShell />,
-        children: [
-          { index: true, element: <HomePage /> }
-        ]
-      }
-    ]
+        children: [{ index: true, element: <HomePage /> }],
+      },
+    ],
   },
   {
     path: "/adventure",
@@ -53,9 +53,9 @@ export const router = createBrowserRouter([
     children: [
       {
         element: <AppShell />,
-        children: [{ index: true, element: <PlaceholderPage title="Aventura" /> }]
-      }
-    ]
+        children: [{ index: true, element: <PlaceholderPage title="Aventura" /> }],
+      },
+    ],
   },
   {
     path: "/collection",
@@ -63,9 +63,9 @@ export const router = createBrowserRouter([
     children: [
       {
         element: <AppShell />,
-        children: [{ index: true, element: <PlaceholderPage title="Colección" /> }]
-      }
-    ]
+        children: [{ index: true, element: <PlaceholderPage title="Colección" /> }],
+      },
+    ],
   },
   {
     path: "/team",
@@ -73,9 +73,9 @@ export const router = createBrowserRouter([
     children: [
       {
         element: <AppShell />,
-        children: [{ index: true, element: <PlaceholderPage title="Equipo" /> }]
-      }
-    ]
+        children: [{ index: true, element: <PlaceholderPage title="Equipo" /> }],
+      },
+    ],
   },
   {
     path: "/gyms",
@@ -83,9 +83,9 @@ export const router = createBrowserRouter([
     children: [
       {
         element: <AppShell />,
-        children: [{ index: true, element: <PlaceholderPage title="Gimnasios" /> }]
-      }
-    ]
+        children: [{ index: true, element: <PlaceholderPage title="Gimnasios" /> }],
+      },
+    ],
   },
   {
     path: "/house",
@@ -93,9 +93,9 @@ export const router = createBrowserRouter([
     children: [
       {
         element: <AppShell />,
-        children: [{ index: true, element: <PlaceholderPage title="Casa" /> }]
-      }
-    ]
+        children: [{ index: true, element: <PlaceholderPage title="Casa" /> }],
+      },
+    ],
   },
   {
     path: "/shop",
@@ -103,9 +103,9 @@ export const router = createBrowserRouter([
     children: [
       {
         element: <AppShell />,
-        children: [{ index: true, element: <PlaceholderPage title="Tienda" /> }]
-      }
-    ]
+        children: [{ index: true, element: <PlaceholderPage title="Tienda" /> }],
+      },
+    ],
   },
   {
     path: "/trade",
@@ -113,9 +113,9 @@ export const router = createBrowserRouter([
     children: [
       {
         element: <AppShell />,
-        children: [{ index: true, element: <PlaceholderPage title="Trade" /> }]
-      }
-    ]
+        children: [{ index: true, element: <PlaceholderPage title="Trade" /> }],
+      },
+    ],
   },
   {
     path: "/ranking",
@@ -123,9 +123,9 @@ export const router = createBrowserRouter([
     children: [
       {
         element: <AppShell />,
-        children: [{ index: true, element: <PlaceholderPage title="Ranking" /> }]
-      }
-    ]
+        children: [{ index: true, element: <PlaceholderPage title="Ranking" /> }],
+      },
+    ],
   },
   {
     path: "/profile",
@@ -133,8 +133,8 @@ export const router = createBrowserRouter([
     children: [
       {
         element: <AppShell />,
-        children: [{ index: true, element: <PlaceholderPage title="Perfil" /> }]
-      }
-    ]
-  }
+        children: [{ index: true, element: <PlaceholderPage title="Perfil" /> }],
+      },
+    ],
+  },
 ]);

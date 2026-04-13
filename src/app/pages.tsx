@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Navigate, Outlet, useNavigate } from "react-router-dom";
+import { Link, Navigate, Outlet, useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/shared/api/queryKeys";
 import {
@@ -9,6 +9,9 @@ import {
   Input,
   LoadingBlock,
   PageHeader,
+  ProgressBar,
+  Select,
+  Stat,
 } from "@/shared/ui";
 import { useAuthStore } from "@/features/auth/auth.store";
 import { getAuthMe, loginWithGoogle } from "@/features/auth/auth.api";
@@ -17,6 +20,7 @@ import {
   getOnboardingOptions,
   getOnboardingState,
 } from "@/features/onboarding/onboarding.api";
+import { getHomeAlerts, getHomeSummary } from "@/features/home/home.api";
 
 const GOOGLE_CLIENT_ID =
   "535230935122-vqqd262fjhetd408li95420bb8cas5vb.apps.googleusercontent.com";
@@ -83,61 +87,38 @@ function loadGoogleIdentityScript(): Promise<void> {
   });
 }
 
-function DebugPanel({ lines }: { lines: string[] }) {
-  return (
-    <div className="rounded-xl border border-yellow-500/30 bg-yellow-500/10 p-4">
-      <div className="mb-2 text-sm font-semibold text-yellow-200">Debug login</div>
-      <div className="space-y-1 text-xs text-yellow-100">
-        {lines.length ? lines.map((line, i) => <div key={i}>• {line}</div>) : <div>Sin eventos todavía.</div>}
-      </div>
-    </div>
-  );
-}
-
 function GoogleSignInButton(props: {
   onCredential: (credential: string) => void;
-  onDebug: (message: string) => void;
 }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const onCredentialRef = useRef(props.onCredential);
-  const onDebugRef = useRef(props.onDebug);
   const [error, setError] = useState("");
 
   useEffect(() => {
     onCredentialRef.current = props.onCredential;
-    onDebugRef.current = props.onDebug;
-  }, [props.onCredential, props.onDebug]);
+  }, [props.onCredential]);
 
   useEffect(() => {
     let cancelled = false;
 
     async function initGoogle() {
       try {
-        onDebugRef.current(`CLIENT_ID: ${GOOGLE_CLIENT_ID}`);
         await loadGoogleIdentityScript();
-        onDebugRef.current("Script Google cargado.");
 
         const googleId = window.google?.accounts?.id;
-        if (cancelled || !googleId || !containerRef.current) {
-          onDebugRef.current("Google ID no disponible.");
-          return;
-        }
+        if (cancelled || !googleId || !containerRef.current) return;
 
         googleId.initialize({
           client_id: GOOGLE_CLIENT_ID,
           callback: (response: { credential?: string }) => {
             if (response?.credential) {
-              onDebugRef.current(`Credential recibida (${response.credential.length} chars).`);
               onCredentialRef.current(response.credential);
-            } else {
-              onDebugRef.current("Google respondió sin credential.");
             }
           },
           auto_select: false,
           cancel_on_tap_outside: true,
         });
 
-        onDebugRef.current("Google initialize OK.");
         containerRef.current.innerHTML = "";
 
         googleId.renderButton(containerRef.current, {
@@ -149,13 +130,11 @@ function GoogleSignInButton(props: {
           logo_alignment: "left",
           width: 280,
         });
-
-        onDebugRef.current("Botón renderizado.");
       } catch (err) {
-        const msg = err instanceof Error ? err.message : "Error cargando Google.";
-        console.error(err);
-        setError(msg);
-        onDebugRef.current(`Error: ${msg}`);
+        console.error("Google GSI init error:", err);
+        if (!cancelled) {
+          setError("No se pudo cargar Google Sign-In.");
+        }
       }
     }
 
@@ -187,7 +166,7 @@ export function PublicOnly() {
 
 export function AppGate() {
   const token = useAuthStore((s) => s.token);
-  if (!token) return <Navigate to="/login" replace />;
+  if (!token) return <Navigate to="/" replace />;
 
   const meQuery = useQuery({
     queryKey: queryKeys.auth.me,
@@ -228,23 +207,13 @@ export function LoginPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [manualToken, setManualToken] = useState("");
-  const [debugLines, setDebugLines] = useState<string[]>([]);
-
-  const pushDebug = (message: string) => {
-    setDebugLines((prev) => [message, ...prev].slice(0, 12));
-  };
 
   const mutation = useMutation({
     mutationFn: loginWithGoogle,
-    onMutate: () => pushDebug("Enviando credential al backend..."),
     onSuccess: (data) => {
-      pushDebug("Backend respondió OK.");
       setAuthToken(data.token);
       qc.invalidateQueries();
       navigate("/hub", { replace: true });
-    },
-    onError: (error) => {
-      pushDebug(`Error backend: ${(error as Error).message}`);
     },
   });
 
@@ -261,18 +230,16 @@ export function LoginPage() {
         <div className="space-y-4">
           <div className="flex justify-center">
             <GoogleSignInButton
-              onDebug={pushDebug}
               onCredential={(credential) => {
-                pushDebug("onCredential ejecutado.");
                 mutation.mutate(credential);
               }}
             />
           </div>
 
-          <DebugPanel lines={debugLines} />
-
           <div className="rounded-xl border border-white/10 bg-black/20 p-4">
-            <div className="mb-2 text-sm font-semibold text-white">Fallback manual</div>
+            <div className="mb-2 text-sm font-semibold text-white">
+              Fallback manual
+            </div>
             <p className="mb-3 text-xs text-slate-400">
               Si ya tienes un token válido, puedes pegarlo aquí para entrar rápido.
             </p>
@@ -304,17 +271,104 @@ export function LoginPage() {
 }
 
 export function PublicHomePage() {
+  const token = useAuthStore((s) => s.token);
+
+  if (token) {
+    return <Navigate to="/hub" replace />;
+  }
+
+  const navigate = useNavigate();
+  const qc = useQueryClient();
+  const setAuthToken = useAuthStore((s) => s.setAuthToken);
+
+  const mutation = useMutation({
+    mutationFn: loginWithGoogle,
+    onSuccess: async (data) => {
+      setAuthToken(data.token);
+      await qc.invalidateQueries();
+      navigate("/hub", { replace: true });
+    },
+  });
+
   return (
-    <div className="mx-auto flex min-h-screen max-w-4xl items-center justify-center px-4">
-      <Card className="w-full p-10">
-        <h1 className="text-4xl font-bold text-white">MastersMon</h1>
-        <p className="mt-3 text-slate-300">
-          Home pública temporal.
-        </p>
-        <Button className="mt-6" onClick={() => (window.location.href = "/login")}>
-          Ir a login
-        </Button>
-      </Card>
+    <div className="min-h-screen bg-hub-gradient">
+      <div className="mx-auto flex min-h-screen max-w-6xl flex-col justify-center px-4 py-10">
+        <div className="grid items-center gap-8 lg:grid-cols-2">
+          <div className="space-y-6">
+            <span className="inline-flex rounded-full border border-brand-400/30 bg-brand-500/10 px-3 py-1 text-sm text-brand-200">
+              Mundo Pokémon · Colección · Aventura · Gimnasios
+            </span>
+
+            <div className="space-y-4">
+              <h1 className="text-4xl font-extrabold tracking-tight text-white md:text-6xl">
+                MastersMon
+              </h1>
+              <p className="max-w-2xl text-lg text-slate-300">
+                Explora regiones, captura Pokémon, arma tu equipo, mejora tu casa y
+                progresa como entrenador en una experiencia online conectada a tu cuenta.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <Button
+                className="px-6 py-3 text-base"
+                onClick={() => {
+                  const loginSection = document.getElementById("public-login-box");
+                  loginSection?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center",
+                  });
+                }}
+              >
+                Conectarse con Google
+              </Button>
+
+              <Button
+                className="border border-white/10 bg-white/5 px-6 py-3 text-base text-white hover:bg-white/10"
+                onClick={() => navigate("/acceso")}
+              >
+                Ir a acceso
+              </Button>
+            </div>
+          </div>
+
+          <Card className="mx-auto w-full max-w-md p-8" id="public-login-box">
+            <div className="mb-6 text-center">
+              <h2 className="text-3xl font-bold text-white">
+                Empieza tu aventura
+              </h2>
+              <p className="mt-2 text-sm text-slate-300">
+                Entra con Google para guardar tu progreso y acceder al hub del juego.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex justify-center">
+                <GoogleSignInButton
+                  onCredential={(credential) => {
+                    mutation.mutate(credential);
+                  }}
+                />
+              </div>
+
+              <div className="rounded-xl border border-white/10 bg-black/20 p-4">
+                <div className="mb-2 text-sm font-semibold text-white">
+                  Acceso rápido
+                </div>
+                <p className="mb-3 text-xs text-slate-400">
+                  Si ya tienes un token válido, puedes pegarlo aquí para entrar manualmente.
+                </p>
+
+                <ManualTokenLogin />
+              </div>
+
+              {mutation.isError ? (
+                <ErrorBlock message={(mutation.error as Error).message} />
+              ) : null}
+            </div>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }
@@ -491,8 +545,8 @@ export function OnboardingPage() {
 export function HomePage() {
   return (
     <div className="mx-auto max-w-5xl p-6">
-      <PageHeader title="Hub principal" subtitle="Debug hub" />
-      <Card className="p-6 text-white">Login completado.</Card>
+      <PageHeader title="Hub principal" subtitle="Login completado." />
+      <Card className="p-6 text-white">Estás dentro del juego.</Card>
     </div>
   );
 }
