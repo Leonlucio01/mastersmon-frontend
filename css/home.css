@@ -209,8 +209,8 @@
 .home-mission-card h2 {
   margin: 10px 0;
   font-family: "Sora", sans-serif;
-  font-size: clamp(2rem, 4vw, 3.2rem);
-  line-height: .96;
+  font-size: clamp(1.7rem, 3vw, 2.7rem);
+  line-height: 1;
 }
 
 .home-mission-card p,
@@ -451,20 +451,57 @@
 }
 
 .home-reserve-card {
-  display: flex;
-  align-items: center;
+  display: grid;
   gap: 12px;
-  min-height: 94px;
+  min-height: 156px;
   background:
+    radial-gradient(circle at 24% 38%, var(--party-glow, rgba(122,227,255,.14)), transparent 26%),
     linear-gradient(180deg, rgba(13, 20, 33, .88), rgba(9, 16, 28, .82)),
     rgba(255,255,255,.03);
 }
 
+.home-reserve-card-head,
+.home-reserve-body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.home-reserve-thumb {
+  width: 72px;
+  height: 72px;
+  border-radius: 20px;
+  display: grid;
+  place-items: center;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+  flex: 0 0 auto;
+}
+
 .home-reserve-card img {
-  width: 58px;
-  height: 58px;
+  width: 54px;
+  height: 54px;
   object-fit: contain;
   image-rendering: pixelated;
+}
+
+.home-reserve-meta {
+  display: grid;
+  gap: 6px;
+  flex: 1 1 auto;
+}
+
+.home-party-badges-compact {
+  justify-content: flex-start;
+}
+
+.home-mission-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
 }
 
 .home-grid-shell {

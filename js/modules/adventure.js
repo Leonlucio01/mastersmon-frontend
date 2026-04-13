@@ -168,6 +168,23 @@ function zoneDifficultyLabel(zone) {
   return "Alto riesgo";
 }
 
+function humanizeCode(value = "") {
+  return String(value || "")
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function visualCatchLabel(ball = {}) {
+  const pct = Number(ball.capture_rate_pct || 0);
+  if (ball.item_code === "master_ball") {
+    return { title: "Garantizada", detail: "Captura total" };
+  }
+  if (pct >= 80) return { title: "Rate alta", detail: `${pct}% real` };
+  if (pct >= 55) return { title: "Rate media", detail: `${pct}% real` };
+  if (pct >= 30) return { title: "Rate baja", detail: `${pct}% real` };
+  return { title: "Rate dificil", detail: `${pct}% real` };
+}
+
 function renderRegionSelector(regions) {
   return `
     <section class="section-card adventure-region-selector">
@@ -181,17 +198,19 @@ function renderRegionSelector(regions) {
         ${regions.map((region) => `
           <article class="region-card adventure-region-card ${region.code === adventureViewState.selectedRegionCode ? "is-selected" : ""}">
             <img class="region-banner" src="${escapeHtml(getMapImage(region.card_asset_path))}" alt="${escapeHtml(region.name)}" onerror="onPokemonImageError(this)">
-            <div class="adventure-region-copy">
-              <strong>${escapeHtml(region.name)}</strong>
-              <div class="pill-row">
-                <span class="pill">Gen ${escapeHtml(region.generation_id || "-")}</span>
-                <span class="pill ${region.is_active_region ? "tag-accent" : ""}">${escapeHtml(region.is_active_region ? tr("adventure.active") : tr("adventure.available"))}</span>
+            <div class="adventure-region-content">
+              <div class="adventure-region-copy">
+                <strong>${escapeHtml(region.name)}</strong>
+                <div class="pill-row">
+                  <span class="pill">Gen ${escapeHtml(region.generation_id || "-")}</span>
+                  <span class="pill ${region.is_active_region ? "tag-accent" : ""}">${escapeHtml(region.is_active_region ? tr("adventure.active") : tr("adventure.available"))}</span>
+                </div>
               </div>
-            </div>
-            <div class="adventure-region-stats">
-              <span>${escapeHtml(region.zone_count || 0)} zonas</span>
-              <span>${escapeHtml(region.completed_gyms || 0)}/${escapeHtml(region.total_gyms || 0)} gyms</span>
-              <span>${escapeHtml(region.completion_pct || 0)}% progress</span>
+              <div class="adventure-region-stats">
+                <span>${escapeHtml(region.zone_count || 0)} zonas</span>
+                <span>${escapeHtml(region.completed_gyms || 0)}/${escapeHtml(region.total_gyms || 0)} gyms</span>
+                <span>${escapeHtml(region.completion_pct || 0)}% progress</span>
+              </div>
             </div>
             <button class="soft-btn" type="button" data-region-code="${escapeHtml(region.code)}">${region.code === adventureViewState.selectedRegionCode ? "Loaded" : "Entrar al mapa"}</button>
           </article>`).join("")}
@@ -222,13 +241,15 @@ function renderRouteRail(zones = []) {
               </div>
               <button class="soft-btn" type="button" data-zone-code="${escapeHtml(zone.code)}">${zone.code === adventureViewState.selectedZoneCode ? "Loaded" : "Open zone"}</button>
             </div>
-            <p>${escapeHtml(zone.code === adventureViewState.selectedZoneCode ? "Zona activa dentro del mapa jugable." : "Cargala para abrir el mapa, ver especies y caminar por la ruta.")}</p>
-            <div class="featured-species">
-              ${(zone.featured_species || []).map((pokemon) => `
-                <span class="pill tag-accent featured-species-pill">
-                  <img src="${escapeHtml(getPokemonSprite(pokemon))}" alt="${escapeHtml(pokemon.name || "Pokemon")}" onerror="onPokemonImageError(this)">
-                  <span>${escapeHtml(pokemon.name)}</span>
-                </span>`).join("") || `<span class="pill">Sin destacadas</span>`}
+            <div class="adventure-zone-body">
+              <p>${escapeHtml(zone.code === adventureViewState.selectedZoneCode ? "Zona activa dentro del mapa jugable." : "Carga la ruta, mira especies del servidor y entra al mapa." )}</p>
+              <div class="featured-species">
+                ${(zone.featured_species || []).map((pokemon) => `
+                  <span class="pill tag-accent featured-species-pill">
+                    <img src="${escapeHtml(getPokemonSprite(pokemon))}" alt="${escapeHtml(pokemon.name || "Pokemon")}" onerror="onPokemonImageError(this)">
+                    <span>${escapeHtml(pokemon.name)}</span>
+                  </span>`).join("") || `<span class="pill">Sin destacadas</span>`}
+              </div>
             </div>
           </article>`).join("")}
       </div>
@@ -332,13 +353,17 @@ function renderEncounterPanel() {
           </div>
         </div>
         <div class="capture-grid">
-          ${balls.length ? balls.map((ball) => `
+          ${balls.length ? balls.map((ball) => {
+            const catchInfo = visualCatchLabel(ball);
+            return `
             <button class="capture-ball-card" type="button" data-capture-ball="${escapeHtml(ball.item_code)}" ${adventureViewState.busy ? "disabled" : ""}>
               <img src="${escapeHtml(getItemImage({ item_code: ball.item_code }))}" alt="${escapeHtml(ball.item_code)}">
-              <strong>${escapeHtml(ball.item_code)}</strong>
+              <strong>${escapeHtml(humanizeCode(ball.item_code))}</strong>
               <span>x${escapeHtml(ball.quantity)}</span>
-              <small>${escapeHtml(ball.capture_rate_pct)}% catch</small>
-            </button>`).join("") : `
+              <small>${escapeHtml(catchInfo.title)}</small>
+              <em>${escapeHtml(catchInfo.detail)}</em>
+            </button>`;
+          }).join("") : `
             <div class="empty-panel">
               <strong>No tienes balls disponibles para capturar.</strong>
               <p>Abre la tienda, compra Poke Balls con gold y vuelve a la ruta para continuar el loop.</p>
@@ -379,6 +404,10 @@ function renderEncounterPanel() {
       <article class="adventure-help-panel">
         <strong>Como funciona la captura</strong>
         <p>La lista mostrada viene del servidor para la ruta activa. Entra a la hierba y cada paso puede traer un Pokemon distinto. Cuando salga uno, usa una ball desde este panel.</p>
+        <div class="pill-row">
+          <span class="pill tag-accent">Servidor activo</span>
+          <span class="pill">${escapeHtml(preview.species_count || 0)} especies en pool</span>
+        </div>
       </article>
     </section>`;
 }

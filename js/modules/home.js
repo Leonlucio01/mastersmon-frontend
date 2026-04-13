@@ -33,7 +33,7 @@ function partyBadges(member = {}) {
   const badges = [];
   const primaryType = member.primary_type || member.type_1 || member.type1 || member.element;
   const secondaryType = member.secondary_type || member.type_2 || member.type2;
-  const rarity = member.rarity || member.rarity_label || (member.is_shiny ? "Shiny" : "Normal");
+  const rarity = member.rarity || member.rarity_label || (member.is_shiny ? "Shiny" : "");
 
   if (primaryType) badges.push({ label: String(primaryType), tone: "type" });
   if (secondaryType) badges.push({ label: String(secondaryType), tone: "type" });
@@ -86,10 +86,23 @@ function partyTheme(member = {}, index = 0) {
 }
 
 function primaryBadge(member = {}) {
-  if (member.rarity || member.rarity_label || member.is_shiny) {
+  const rarity = String(member.rarity || member.rarity_label || (member.is_shiny ? "Shiny" : "")).toLowerCase();
+  if (rarity && rarity !== "normal") {
     return member.rarity || member.rarity_label || "Shiny";
   }
   return member.primary_type || member.type_1 || member.type1 || member.element || "Normal";
+}
+
+function pokemonFlavorLine(member = {}) {
+  const types = [
+    member.primary_type || member.type_1 || member.type1 || member.element,
+    member.secondary_type || member.type_2 || member.type2,
+  ].filter(Boolean);
+  const rarity = member.rarity || member.rarity_label || (member.is_shiny ? "Shiny" : "");
+
+  if (types.length) return types.join(" / ");
+  if (rarity && String(rarity).toLowerCase() !== "normal") return String(rarity);
+  return "Base form";
 }
 
 function buildMainMission({ currentZone, nextGymName, regionName, teamPower }) {
@@ -317,6 +330,12 @@ export function renderHome() {
               <small>${escapeHtml(mission.subtitle)}</small>
               <h2>${escapeHtml(mission.title)}</h2>
               <p>${escapeHtml(mission.body)}</p>
+              <div class="home-mission-meta">
+                <span class="pill">Region ${escapeHtml(regionName)}</span>
+                <span class="pill">${escapeHtml(currentZone && currentZone !== "-" ? currentZone : "Sin zona activa")}</span>
+                <span class="pill">${escapeHtml(nextGymName && nextGymName !== "-" ? `Gym ${nextGymName}` : "Objetivo abierto")}</span>
+                <span class="pill tag-accent">Power ${escapeHtml(formatNumber(teamPower))}</span>
+              </div>
             </div>
             <div class="hero-actions">
               <button class="primary-btn" type="button" data-go-target="${escapeHtml(mission.primary.target)}">${escapeHtml(mission.primary.label)}</button>
@@ -346,7 +365,7 @@ export function renderHome() {
                   <img src="${escapeHtml(getPokemonSprite(member))}" alt="${escapeHtml(member.display_name || member.name || "Pokemon")}" onerror="onPokemonImageError(this)">
                   <div class="home-party-copy">
                     <strong>${escapeHtml(member.display_name || member.name || "Pokemon")}</strong>
-                    <small>Lv ${escapeHtml(formatNumber(member.level || 1))} - ${escapeHtml(member.variant || member.variant_name || "Normal")}</small>
+                    <small>Lv ${escapeHtml(formatNumber(member.level || 1))} - ${escapeHtml(pokemonFlavorLine(member))}</small>
                   </div>
                   <div class="home-party-badges">
                     ${partyBadges(member).map((badge) => `<span class="home-party-badge tone-${escapeHtml(badge.tone)}">${escapeHtml(badge.label)}</span>`).join("")}
@@ -369,11 +388,22 @@ export function renderHome() {
             </div>
             <div class="home-reserve-row">
               ${reserveParty.length ? reserveParty.map((member, index) => `
-                <article class="home-reserve-card">
-                  <img src="${escapeHtml(getPokemonSprite(member))}" alt="${escapeHtml(member.display_name || member.name || "Pokemon")}" onerror="onPokemonImageError(this)">
-                  <div>
-                    <strong>#${featuredParty.length + index + 1} ${escapeHtml(member.display_name || member.name || "Pokemon")}</strong>
-                    <small>Lv ${escapeHtml(formatNumber(member.level || 1))} - ${escapeHtml(member.primary_type || member.type_1 || member.type1 || "Normal")}</small>
+                <article class="home-reserve-card" style="--party-glow:${escapeHtml(partyTheme(member, featuredParty.length + index).glow)}; --party-edge:${escapeHtml(partyTheme(member, featuredParty.length + index).edge)};">
+                  <div class="home-reserve-card-head">
+                    <span class="home-slot-id">#${featuredParty.length + index + 1}</span>
+                    <span class="home-party-rarity">${escapeHtml(primaryBadge(member))}</span>
+                  </div>
+                  <div class="home-reserve-body">
+                    <div class="home-reserve-thumb">
+                      <img src="${escapeHtml(getPokemonSprite(member))}" alt="${escapeHtml(member.display_name || member.name || "Pokemon")}" onerror="onPokemonImageError(this)">
+                    </div>
+                    <div class="home-reserve-meta">
+                      <strong>${escapeHtml(member.display_name || member.name || "Pokemon")}</strong>
+                      <small>Lv ${escapeHtml(formatNumber(member.level || 1))} - ${escapeHtml(pokemonFlavorLine(member))}</small>
+                      <div class="home-party-badges home-party-badges-compact">
+                        ${partyBadges(member).slice(0, 2).map((badge) => `<span class="home-party-badge tone-${escapeHtml(badge.tone)}">${escapeHtml(badge.label)}</span>`).join("")}
+                      </div>
+                    </div>
                   </div>
                 </article>`).join("") : `<span class="home-reserve-empty">Completa más slots para que la party tenga profundidad.</span>`}
             </div>
