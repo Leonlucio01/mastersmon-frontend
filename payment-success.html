@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mastersmon - Pago exitoso</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/menu.css?v=team2">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        .payment-page {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 28px 24px 52px;
+        }
+
+        .payment-shell {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 340px;
+            gap: 24px;
+            align-items: start;
+        }
+
+        .payment-card {
+            background: #fff;
+            border: 1px solid #dbe4f0;
+            border-radius: 28px;
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+            overflow: hidden;
+        }
+
+        .payment-hero {
+            padding: 32px;
+            background:
+                radial-gradient(circle at top left, rgba(59,130,246,0.16), transparent 38%),
+                linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+            border-bottom: 1px solid #e8eef7;
+        }
+
+        .payment-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #1d4ed8;
+            background: rgba(37, 99, 235, 0.10);
+            border: 1px solid rgba(37, 99, 235, 0.18);
+        }
+
+        .payment-title {
+            margin: 18px 0 10px;
+            font-size: clamp(28px, 3.2vw, 42px);
+            line-height: 1.08;
+            color: #0f172a;
+        }
+
+        .payment-subtitle {
+            margin: 0;
+            max-width: 740px;
+            font-size: 16px;
+            line-height: 1.7;
+            color: #475569;
+        }
+
+        .payment-content {
+            padding: 30px 32px 32px;
+        }
+
+        .payment-status-box {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            padding: 20px 22px;
+            border-radius: 22px;
+            border: 1px solid #dbeafe;
+            background: linear-gradient(180deg, #f8fbff 0%, #f0f7ff 100%);
+            margin-bottom: 20px;
+        }
+
+        .payment-status-box.is-success {
+            border-color: #bbf7d0;
+            background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%);
+        }
+
+        .payment-status-box.is-error {
+            border-color: #fecaca;
+            background: linear-gradient(180deg, #fff5f5 0%, #ffffff 100%);
+        }
+
+        .payment-status-box.is-warning {
+            border-color: #fde68a;
+            background: linear-gradient(180deg, #fffbeb 0%, #ffffff 100%);
+        }
+
+        .payment-status-icon {
+            width: 58px;
+            height: 58px;
+            flex: 0 0 58px;
+            display: grid;
+            place-items: center;
+            border-radius: 18px;
+            font-size: 28px;
+            background: #ffffff;
+            border: 1px solid #dbeafe;
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.10);
+        }
+
+        .payment-status-title {
+            margin: 0 0 8px;
+            color: #0f172a;
+            font-size: clamp(24px, 2.4vw, 36px);
+        }
+
+        .payment-status-text {
+            margin: 0;
+            color: #475569;
+            line-height: 1.7;
+            white-space: pre-wrap;
+        }
+
+        .payment-loading {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .payment-spinner {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid #bfdbfe;
+            border-top-color: #2563eb;
+            animation: paymentSpin 0.8s linear infinite;
+        }
+
+        @keyframes paymentSpin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .payment-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .payment-info-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            padding: 16px;
+            background: #f8fafc;
+        }
+
+        .payment-info-label {
+            display: block;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #64748b;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .payment-info-value {
+            margin: 0;
+            color: #0f172a;
+            font-size: 16px;
+            font-weight: 800;
+            word-break: break-word;
+        }
+
+        .payment-benefit {
+            margin-bottom: 20px;
+            border-radius: 20px;
+            border: 1px solid #bbf7d0;
+            background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%);
+            padding: 18px 20px;
+        }
+
+        .payment-benefit h3 {
+            margin: 0 0 8px;
+            color: #166534;
+            font-size: 18px;
+        }
+
+        .payment-benefit p {
+            margin: 0;
+            color: #166534;
+            line-height: 1.7;
+        }
+
+        .payment-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+        }
+
+        .payment-btn {
+            appearance: none;
+            text-decoration: none;
+            border: 0;
+            border-radius: 16px;
+            padding: 14px 22px;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform 0.18s ease;
+        }
+
+        .payment-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .payment-btn-primary {
+            background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
+            color: #fff;
+            box-shadow: 0 12px 24px rgba(37, 99, 235, 0.22);
+        }
+
+        .payment-btn-secondary {
+            background: #eef2f7;
+            color: #0f172a;
+            box-shadow: inset 0 0 0 1px #dbe4f0;
+        }
+
+        .payment-side {
+            padding: 26px 22px;
+        }
+
+        .payment-side h3 {
+            margin: 0 0 16px;
+            font-size: 18px;
+            color: #0f172a;
+        }
+
+        .payment-side-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .payment-side-item {
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            background: #f8fafc;
+            padding: 16px;
+        }
+
+        .payment-side-item strong {
+            display: block;
+            margin-bottom: 8px;
+            color: #0f172a;
+        }
+
+        .payment-side-item span {
+            display: block;
+            color: #475569;
+            line-height: 1.7;
+        }
+
+        .payment-debug {
+            margin-top: 20px;
+            padding: 16px;
+            border-radius: 18px;
+            background: #0f172a;
+            color: #e2e8f0;
+            font-size: 12px;
+            line-height: 1.6;
+            overflow: auto;
+        }
+
+        .oculto {
+            display: none !important;
+        }
+
+        @media (max-width: 980px) {
+            .payment-shell {
+                grid-template-columns: 1fr;
+            }
+
+            .payment-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 640px) {
+            .payment-page {
+                padding: 18px 14px 34px;
+            }
+
+            .payment-hero,
+            .payment-content {
+                padding-left: 18px;
+                padding-right: 18px;
+            }
+
+            .payment-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="menu menu-pro">
+    <div class="menu-topbar">
+        <h1 class="logo">Mastersmon</h1>
+
+        <nav class="menu-nav-desktop">
+            <a href="index.html" data-i18n="menu_pokedex">Pokedex</a>
+            <a href="maps.html" data-i18n="menu_maps">Maps</a>
+            <div class="menu-dropdown menu-dropdown-play">
+                <button class="menu-dropdown-toggle" type="button" data-menu-dropdown-toggle="play" aria-expanded="false">
+                    <span data-i18n="menu_play">Battle</span>
+                    <span class="menu-dropdown-caret" aria-hidden="true">▾</span>
+                </button>
+                <div class="menu-dropdown-panel" role="menu" aria-label="Battle">
+                    <a href="battle.html" class="menu-dropdown-link" data-i18n="menu_play_battle_ia">Battle IA</a>
+                    <a href="gyms.html" class="menu-dropdown-link" data-i18n="menu_play_gyms">Gyms</a>
+                    <a href="#" class="menu-dropdown-link menu-disabled" onclick="return false;" aria-disabled="true" data-i18n="menu_play_pvp">PvP</a>
+                    <a href="idle.html" class="menu-dropdown-link" data-i18n="menu_play_idle">Idle</a>
+                </div>
+            </div>
+            <a href="mypokemon.html" data-i18n="menu_collection">Collection</a>
+            <a href="pokemart.html" class="active" data-i18n="menu_shop">Shop</a>
+            <div class="menu-dropdown menu-dropdown-more">
+                <button class="menu-dropdown-toggle" type="button" data-menu-dropdown-toggle="more" aria-expanded="false">
+                    <span data-i18n="menu_more">More</span>
+                    <span class="menu-dropdown-caret" aria-hidden="true">▾</span>
+                </button>
+                <div class="menu-dropdown-panel" role="menu" aria-label="More">
+                    <a href="ranking.html" class="menu-dropdown-link" data-i18n="menu_ranking">Ranking</a>
+                </div>
+            </div>
+        </nav>
+
+        <div class="menu-auth-area">
+            <div class="lang-switch">
+                <select id="languageSelect" data-i18n-aria-label="idle_language_label" aria-label="Language">
+                    <option value="en">EN</option>
+                    <option value="es">ES</option>
+                </select>
+            </div>
+
+            <div id="loginMenuContainer">
+                <div id="g_id_onload"
+                     data-client_id="535230935122-vqqd262fjhetd408li95420bb8cas5vb.apps.googleusercontent.com"
+                     data-callback="handleCredentialResponse">
+                </div>
+
+                <div class="g_id_signin"
+                     data-type="standard"
+                     data-size="medium"
+                     data-theme="outline"
+                     data-text="signin_with"
+                     data-shape="pill"
+                     data-logo_alignment="left">
+                </div>
+            </div>
+
+            <div id="usuarioMenu" class="oculto">
+                <span id="nombreUsuario"></span>
+                <button id="cerrarSesionMenu" type="button" data-i18n="menu_logout">Logout</button>
+            </div>
+        </div>
+
+        <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open menu">☰</button>
+    </div>
+
+    <div class="menu-links-mobile" id="menuMobile">
+        <div class="mobile-panel">
+            <a href="index.html" data-i18n="menu_pokedex">Pokedex</a>
+            <a href="maps.html" data-i18n="menu_maps">Maps</a>
+            <button class="menu-mobile-group-toggle" type="button" data-menu-mobile-group-toggle="play" aria-expanded="false">
+                <span data-i18n="menu_play">Battle</span>
+                <span class="menu-mobile-caret" aria-hidden="true">▾</span>
+            </button>
+            <div class="menu-mobile-submenu" data-menu-mobile-group="play">
+                <a href="battle.html" class="menu-mobile-submenu-link" data-i18n="menu_play_battle_ia">Battle IA</a>
+                <a href="gyms.html" class="menu-mobile-submenu-link" data-i18n="menu_play_gyms">Gyms</a>
+                <a href="#" class="menu-mobile-submenu-link menu-disabled" onclick="return false;" aria-disabled="true" data-i18n="menu_play_pvp">PvP</a>
+                <a href="idle.html" class="menu-mobile-submenu-link" data-i18n="menu_play_idle">Idle</a>
+            </div>
+            <a href="mypokemon.html" data-i18n="menu_collection">Collection</a>
+            <a href="pokemart.html" class="active" data-i18n="menu_shop">Shop</a>
+            <button class="menu-mobile-group-toggle" type="button" data-menu-mobile-group-toggle="more" aria-expanded="false">
+                <span data-i18n="menu_more">More</span>
+                <span class="menu-mobile-caret" aria-hidden="true">▾</span>
+            </button>
+            <div class="menu-mobile-submenu" data-menu-mobile-group="more">
+                <a href="ranking.html" class="menu-mobile-submenu-link" data-i18n="menu_ranking">Ranking</a>
+            </div>
+
+            <div class="menu-mobile-user">
+                <div class="lang-switch">
+                    <select id="languageSelectMobile" data-i18n-aria-label="idle_language_label" aria-label="Language">
+                        <option value="en">EN</option>
+                        <option value="es">ES</option>
+                    </select>
+                </div>
+
+                <div id="loginMenuContainerMobile">
+                    <div class="g_id_signin"
+                         data-type="standard"
+                         data-size="medium"
+                         data-theme="outline"
+                         data-text="signin_with"
+                         data-shape="pill"
+                         data-logo_alignment="left">
+                    </div>
+                </div>
+
+                <div id="usuarioMenuMobile" class="oculto">
+                    <span id="nombreUsuarioMobile"></span>
+                    <button id="cerrarSesionMenuMobile" type="button" data-i18n="menu_logout">Logout</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <main class="payment-page">
+        <section class="payment-shell">
+            <article class="payment-card">
+                <div class="payment-hero">
+                    <span class="payment-kicker">PayPal return</span>
+                    <h1 class="payment-title">Payment confirmation</h1>
+                    <p class="payment-subtitle">
+                        We are validating your PayPal order and synchronizing the purchased content in your account. This page performs the capture automatically.
+                    </p>
+                </div>
+
+                <div class="payment-content">
+                    <div id="paymentSuccessStatus" class="payment-status-box is-loading">
+                        <div class="payment-status-icon">💳</div>
+                        <div>
+                            <h2 id="paymentSuccessTitle" class="payment-status-title">Validating your payment…</h2>
+                            <p id="paymentSuccessText" class="payment-status-text">
+                                <span class="payment-loading"><span class="payment-spinner"></span>Contacting Mastersmon backend and PayPal.</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div id="paymentSuccessInfo" class="payment-grid oculto">
+                        <div class="payment-info-card">
+                            <span class="payment-info-label">Product</span>
+                            <p id="paymentProductName" class="payment-info-value">—</p>
+                        </div>
+                        <div class="payment-info-card">
+                            <span class="payment-info-label">Order</span>
+                            <p id="paymentOrderId" class="payment-info-value">—</p>
+                        </div>
+                        <div class="payment-info-card">
+                            <span class="payment-info-label">Purchase ID</span>
+                            <p id="paymentCompraId" class="payment-info-value">—</p>
+                        </div>
+                        <div class="payment-info-card">
+                            <span class="payment-info-label">Status</span>
+                            <p id="paymentCompraEstado" class="payment-info-value">—</p>
+                        </div>
+                    </div>
+
+                    <div id="paymentBenefitBox" class="payment-benefit oculto">
+                        <h3 id="paymentBenefitTitle">Purchase delivered</h3>
+                        <p id="paymentBenefitText">Your purchase is already available in this account.</p>
+                    </div>
+
+                    <div class="payment-actions">
+                        <a class="payment-btn payment-btn-primary" href="battle.html">Go to Battle</a>
+                        <a class="payment-btn payment-btn-secondary" href="pokemart.html">Back to PokeMart</a>
+                    </div>
+
+                    <pre id="paymentDebugBox" class="payment-debug oculto"></pre>
+                </div>
+            </article>
+
+            <aside class="payment-card payment-side">
+                <h3>What happens on this page</h3>
+                <div class="payment-side-list">
+                    <div class="payment-side-item">
+                        <strong>1. Read PayPal token</strong>
+                        <span>We read the token returned by PayPal from the URL and look for the matching purchase in your account.</span>
+                    </div>
+                    <div class="payment-side-item">
+                        <strong>2. Capture order</strong>
+                        <span>The page calls the backend automatically so the purchase is confirmed and synchronized in PostgreSQL.</span>
+                    </div>
+                    <div class="payment-side-item">
+                        <strong>3. Deliver content</strong>
+                        <span>Depending on the product, your account receives a premium benefit or the purchased items in your inventory.</span>
+                    </div>
+                </div>
+            </aside>
+        </section>
+    </main>
+
+    <script src="js/api.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/menu.js?v=team2"></script>
+    <script src="js/gmail.js"></script>
+    <script src="js/payment.js"></script>
+</body>
+</html>

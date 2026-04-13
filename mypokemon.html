@@ -3,21 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mastersmon - Pokedex</title>
-    <link rel="stylesheet" href="css/style.css?v=trainerfix4">
-    <link rel="stylesheet" href="css/menu.css?v=team3">
-    <link rel="stylesheet" href="css/pokemon.css">
+    <title>Mastersmon - Collection</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/menu.css?v=team2">
+    <link rel="stylesheet" href="css/mypokemon.css">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 
-    <!-- HEADER -->
     <header class="menu menu-pro">
     <div class="menu-topbar">
         <h1 class="logo">Mastersmon</h1>
 
         <nav class="menu-nav-desktop">
-            <a href="index.html" class="active" data-i18n="menu_pokedex">Pokedex</a>
+            <a href="index.html" data-i18n="menu_pokedex">Pokedex</a>
             <a href="maps.html" data-i18n="menu_maps">Maps</a>
             <div class="menu-dropdown menu-dropdown-play">
                 <button class="menu-dropdown-toggle" type="button" data-menu-dropdown-toggle="play" aria-expanded="false">
@@ -31,7 +30,7 @@
                     <a href="idle.html" class="menu-dropdown-link" data-i18n="menu_play_idle">Idle</a>
                 </div>
             </div>
-            <a href="mypokemon.html" data-i18n="menu_collection">Collection</a>
+            <a href="mypokemon.html" class="active" data-i18n="menu_collection">Collection</a>
             <a href="pokemart.html" data-i18n="menu_shop">Shop</a>
             <div class="menu-dropdown menu-dropdown-more">
                 <button class="menu-dropdown-toggle" type="button" data-menu-dropdown-toggle="more" aria-expanded="false">
@@ -79,7 +78,7 @@
 
     <div class="menu-links-mobile" id="menuMobile">
         <div class="mobile-panel">
-            <a href="index.html" class="active" data-i18n="menu_pokedex">Pokedex</a>
+            <a href="index.html" data-i18n="menu_pokedex">Pokedex</a>
             <a href="maps.html" data-i18n="menu_maps">Maps</a>
             <button class="menu-mobile-group-toggle" type="button" data-menu-mobile-group-toggle="play" aria-expanded="false">
                 <span data-i18n="menu_play">Battle</span>
@@ -91,7 +90,7 @@
                 <a href="#" class="menu-mobile-submenu-link menu-disabled" onclick="return false;" aria-disabled="true" data-i18n="menu_play_pvp">PvP</a>
                 <a href="idle.html" class="menu-mobile-submenu-link" data-i18n="menu_play_idle">Idle</a>
             </div>
-            <a href="mypokemon.html" data-i18n="menu_collection">Collection</a>
+            <a href="mypokemon.html" class="active" data-i18n="menu_collection">Collection</a>
             <a href="pokemart.html" data-i18n="menu_shop">Shop</a>
             <button class="menu-mobile-group-toggle" type="button" data-menu-mobile-group-toggle="more" aria-expanded="false">
                 <span data-i18n="menu_more">More</span>
@@ -130,61 +129,46 @@
 </header>
 
 
-    <section class="banner">
-        <img src="img/Banner.png" alt="Pokemon Banner">
-    </section>
-
-    <section id="trainerLaunchSection" class="trainer-launch-section" aria-live="polite">
-        <div id="trainerLaunchShell" class="trainer-launch-shell"></div>
-    </section>
-
-    <section id="starterJourneySection" class="starter-journey-section oculto" aria-live="polite">
-        <div class="starter-journey-shell">
-            <article class="starter-journey-card">
-                <div class="starter-journey-top">
-                    <div>
-                        <span class="starter-journey-badge" data-i18n="onboarding_panel_badge">Starter Journey</span>
-                        <h2 id="starterJourneyTitle" data-i18n="onboarding_panel_title">Complete your first steps</h2>
-                        <p id="starterJourneyText" data-i18n="onboarding_panel_text">Capture Pokémon, build your team, and win your first Battle IA to unlock onboarding rewards.</p>
-                    </div>
-                    <div class="starter-journey-progress-box">
-                        <small id="starterJourneyProgressLabel" data-i18n="onboarding_progress_label">Progress</small>
-                        <strong id="starterJourneyProgressValue">0 / 3</strong>
-                        <span id="starterJourneyProgressPercent">0%</span>
-                    </div>
-                </div>
-
-                <div id="starterJourneyLiveRewards" class="starter-journey-live-rewards oculto"></div>
-
-                <div id="starterJourneyGrid" class="starter-journey-grid"></div>
-
-                <div class="starter-final-reward" id="starterFinalRewardBox">
-                    <div>
-                        <small data-i18n="onboarding_final_reward_label">Final reward</small>
-                        <strong id="starterFinalRewardTitle" data-i18n="onboarding_final_reward_text">Complete the 3 missions to unlock an extra welcome reward.</strong>
-                    </div>
-                    <div id="starterFinalRewardStatus" class="starter-final-reward-status">—</div>
-                </div>
-            </article>
-        </div>
-    </section>
-
     <section class="seccion-pokedex">
         <div class="encabezado-pokedex">
-            <h2 class="titulo" data-i18n="pokedex_title">POKEDEX</h2>
-            <p class="subtitulo" data-i18n="pokedex_subtitle">Explore, search, and filter your favorite Pokémon</p>
+            <h2 class="titulo" data-i18n="mypokemon_title">MY POKEMON</h2>
+            <p class="subtitulo" data-i18n="mypokemon_subtitle">Your collection, levels and evolutions</p>
         </div>
 
-        <div class="filtros">
+        <div id="avatarSelectorSection" class="avatar-studio-box mypokemon-panel-box"></div>
+
+        <div id="inventarioUsuario" class="battle-placeholder mypokemon-panel-box">
+            <h3 data-i18n="mypokemon_inventory_title">🎒 Inventory</h3>
+            <p data-i18n="mypokemon_inventory_loading">Loading inventory...</p>
+        </div>
+
+        <div id="resumenColeccion" class="resumen-coleccion">
+            <div class="resumen-card">
+                <span data-i18n="mypokemon_summary_total">📘 Total Pokémon</span>
+                <strong>...</strong>
+            </div>
+            <div class="resumen-card">
+                <span data-i18n="mypokemon_summary_shiny">✨ Shinys</span>
+                <strong>...</strong>
+            </div>
+            <div class="resumen-card">
+                <span data-i18n="mypokemon_summary_progress">📈 Pokédex Progress</span>
+                <strong>...</strong>
+            </div>
+        </div>
+
+        <div id="mensajeEvolucion" class="mensaje-evolucion oculto"></div>
+
+        <div class="filtros-mis-pokemon">
             <input
                 type="text"
-                id="buscarPokemon"
-                placeholder="🔎 Search Pokémon..."
-                data-i18n-placeholder="pokedex_search_placeholder"
+                id="buscarMiPokemon"
+                placeholder="🔎 Search my Pokémon..."
+                data-i18n-placeholder="mypokemon_search_placeholder"
             >
 
-            <select id="filtroTipo">
-                <option value="" data-i18n="type_all">All types</option>
+            <select id="filtroMiTipo">
+                <option value="" data-i18n="mypokemon_all_types">All types</option>
                 <option value="Normal" data-i18n="type_normal">Normal</option>
                 <option value="Fuego" data-i18n="type_fire">Fire</option>
                 <option value="Agua" data-i18n="type_water">Water</option>
@@ -202,10 +186,10 @@
                 <option value="Dragon" data-i18n="type_dragon">Dragon</option>
                 <option value="Acero" data-i18n="type_steel">Steel</option>
                 <option value="Hada" data-i18n="type_fairy">Fairy</option>
-                <option value="Siniestro" data-i18n="type_dark">Dark</option>
+                <option value="Dark" data-i18n="type_dark">Dark</option>
             </select>
 
-            <select id="filtroGeneracion">
+            <select id="filtroMiGeneracion">
                 <option value="" data-i18n="pokedex_all_generations">All generations</option>
                 <option value="1" data-i18n="pokedex_generation_1">Gen 1</option>
                 <option value="2" data-i18n="pokedex_generation_2">Gen 2</option>
@@ -218,55 +202,69 @@
                 <option value="9" data-i18n="pokedex_generation_9">Gen 9</option>
             </select>
 
-            <button id="modoShiny" type="button">✨ Shiny</button>
+            <select id="filtroMiRareza">
+                <option value="" data-i18n="battle_filter_all">All</option>
+                <option value="normal" data-i18n="battle_filter_normal">Normal</option>
+                <option value="shiny" data-i18n="battle_filter_shiny">Shiny</option>
+            </select>
+
+            <select id="ordenMisPokemon">
+                <option value="pokemon_id_asc" data-i18n="battle_sort_id">Pokémon ID</option>
+                <option value="hp_desc" data-i18n="battle_sort_hp">HP</option>
+                <option value="ataque_desc" data-i18n="battle_sort_atk">ATK</option>
+                <option value="defensa_desc" data-i18n="battle_sort_def">DEF</option>
+                <option value="nivel_desc" data-i18n="battle_sort_level">Level</option>
+                <option value="reciente" data-i18n="battle_sort_recent">Most recent</option>
+            </select>
         </div>
 
-        <div id="pokedex"></div>
+        <div id="misPokemonContainer" class="maps-grid">
+            <div class="empty-box">
+                <h3 data-i18n="battle_loading_collection_title">Loading your collection...</h3>
+                <p data-i18n="mypokemon_loading_text">Please wait a moment.</p>
+            </div>
+        </div>
     </section>
 
-    <div id="detallePokemon" class="modal oculto">
-        <div class="modal-content">
-            <span class="cerrar" onclick="cerrarDetalle()">✖</span>
-            <div id="contenidoDetalle"></div>
+    <div id="modalEvolucion" class="modal oculto">
+        <div class="modal-content modal-evolucion">
+            <span class="cerrar" onclick="cerrarModalEvolucion()">✖</span>
+            <div id="contenidoModalEvolucion"></div>
         </div>
     </div>
 
-    <div id="starterJourneyModal" class="starter-modal-overlay oculto" aria-hidden="true">
-        <div class="starter-modal-box">
-            <span id="starterJourneyModalBadge" class="starter-modal-badge" data-i18n="onboarding_modal_badge">Welcome trainer</span>
-            <h3 id="starterJourneyModalTitle" data-i18n="onboarding_modal_title">Your first mission path is ready</h3>
-            <p id="starterJourneyModalText" data-i18n="onboarding_modal_text">Start with Maps, build your 6-Pokémon squad in Battle, and win your first Battle IA to unlock beginner rewards.</p>
+    <div id="modalConfirmarSoltar" class="modal oculto">
+        <div class="modal-content modal-soltar">
+            <span class="cerrar" onclick="cerrarModalSoltar()">✖</span>
+            <h2 class="titulo-modal-evolucion" data-i18n="mypokemon_release_modal_title">Release Pokémon</h2>
+            <p class="subtitulo-modal-evolucion" id="textoConfirmarSoltar">
+                Are you sure you want to release this Pokémon?
+            </p>
 
-            <div class="starter-modal-steps">
-                <div class="starter-modal-step">
-                    <span>1</span>
-                    <strong data-i18n="onboarding_modal_step_maps">Catch 6 Pokémon in Maps</strong>
-                </div>
-                <div class="starter-modal-step">
-                    <span>2</span>
-                    <strong data-i18n="onboarding_modal_step_team">Save your first 6-Pokémon squad</strong>
-                </div>
-                <div class="starter-modal-step">
-                    <span>3</span>
-                    <strong data-i18n="onboarding_modal_step_battle">Win your first Battle IA</strong>
-                </div>
+            <div class="evolucion-botones">
+                <button class="btn-cancelar-modal" onclick="cerrarModalSoltar()" data-i18n="battle_cancel">Cancel</button>
+                <button class="btn-soltar-confirmar" id="btnConfirmarSoltar" type="button" data-i18n="mypokemon_release_confirm">
+                    Yes, release
+                </button>
             </div>
+        </div>
+    </div>
 
-            <p class="starter-modal-hint" data-i18n="onboarding_modal_primary_hint">This welcome route can be completed in a few minutes and unlocks instant rewards.</p>
-
-            <div class="starter-modal-actions starter-modal-actions-single">
-                <button id="starterJourneyModalStart" class="starter-modal-btn starter-modal-btn-primary" type="button" data-i18n="onboarding_start_now">Start now</button>
-            </div>
+    <div id="modalMovimientosPokemon" class="modal oculto">
+        <div class="modal-content modal-evolucion">
+            <span class="cerrar" onclick="cerrarModalMovimientosPokemon()">✖</span>
+            <div id="contenidoModalMovimientosPokemon"></div>
         </div>
     </div>
 
     <script src="js/api.js"></script>
     <script src="js/i18n.js"></script>
-    <script src="js/menu.js?v=team3"></script>
-    <script src="js/items.js?v=itemslocal2"></script>
-    <script src="js/sprites.js?v=spriteslocal2"></script>
-    <script src="js/pokemon.js?v=local2"></script>
-    <script src="js/gmail.js?v=team3"></script>
-    <script src="js/app.js?v=team4"></script>
+    <script src="js/menu.js?v=team2"></script>
+    <script src="js/sprites.js"></script>
+    <script src="js/items.js"></script>
+    <script src="js/gmail.js"></script>
+    <script src="js/mypokemon.js"></script>
+
+
 </body>
 </html>
