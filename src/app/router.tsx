@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate } from "react-router-dom";
+import { createHashRouter, Navigate } from "react-router-dom";
 import { AppShell } from "@/app/layouts/AppShell";
 import {
   AppGate,
@@ -19,7 +19,7 @@ function PlaceholderPage({ title }: { title: string }) {
   );
 }
 
-export const router = createBrowserRouter([
+export const router = createHashRouter([
   {
     path: "/login",
     element: <PublicOnly />,
