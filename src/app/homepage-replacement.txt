@@ -1,0 +1,142 @@
+export function HomePage() {
+  const summaryQuery = useQuery({
+    queryKey: queryKeys.home.summary,
+    queryFn: getHomeSummary
+  });
+
+  const alertsQuery = useQuery({
+    queryKey: queryKeys.home.alerts,
+    queryFn: getHomeAlerts
+  });
+
+  if (summaryQuery.isLoading) return <LoadingBlock />;
+  if (summaryQuery.isError) {
+    return <ErrorBlock message={(summaryQuery.error as Error).message} />;
+  }
+
+  const data = summaryQuery.data;
+  const alerts = alertsQuery.data;
+
+  return (
+    <div>
+      <PageHeader
+        title="Hub principal"
+        subtitle="Tu centro de control del entrenador."
+      />
+
+      <div className="grid-dashboard">
+        <Card className="lg:col-span-8">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div>
+              <div className="text-xs uppercase tracking-wide text-slate-400">
+                Entrenador
+              </div>
+              <div className="text-2xl font-bold text-white">
+                {data.trainer.display_name}
+              </div>
+              <div className="text-sm text-slate-300">
+                Región activa: {data.trainer.active_region?.name || "Sin región"}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+              <Stat label="Nivel trainer" value={data.trainer.trainer_level} />
+              <Stat label="Exp actual" value={data.trainer.trainer_exp} />
+              <Stat label="Siguiente nivel" value={data.trainer.next_level_exp} />
+            </div>
+          </div>
+
+          <div className="mt-4">
+            <ProgressBar
+              value={data.trainer.trainer_exp}
+              max={data.trainer.next_level_exp}
+            />
+          </div>
+        </Card>
+
+        <Card className="lg:col-span-4">
+          <div className="mb-3 text-lg font-semibold text-white">
+            Acciones rápidas
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <Link className="rounded-xl border border-white/10 bg-black/20 p-3 text-sm hover:bg-white/10" to="/adventure">Explorar</Link>
+            <Link className="rounded-xl border border-white/10 bg-black/20 p-3 text-sm hover:bg-white/10" to="/team">Equipo</Link>
+            <Link className="rounded-xl border border-white/10 bg-black/20 p-3 text-sm hover:bg-white/10" to="/collection">Colección</Link>
+            <Link className="rounded-xl border border-white/10 bg-black/20 p-3 text-sm hover:bg-white/10" to="/gyms">Gimnasios</Link>
+            <Link className="rounded-xl border border-white/10 bg-black/20 p-3 text-sm hover:bg-white/10" to="/house">Casa</Link>
+            <Link className="rounded-xl border border-white/10 bg-black/20 p-3 text-sm hover:bg-white/10" to="/shop">Tienda</Link>
+            <Link className="rounded-xl border border-white/10 bg-black/20 p-3 text-sm hover:bg-white/10" to="/trade">Trade</Link>
+          </div>
+        </Card>
+
+        <Card className="lg:col-span-6">
+          <div className="mb-3 text-lg font-semibold text-white">Aventura</div>
+
+          {data.adventure.current_zone ? (
+            <div className="space-y-2 text-sm text-slate-300">
+              <div><strong>Zona:</strong> {data.adventure.current_zone.name}</div>
+              <div><strong>Bioma:</strong> {data.adventure.current_zone.biome}</div>
+              <div>
+                <strong>Nivel recomendado:</strong>{" "}
+                {data.adventure.current_zone.recommended_level_min} - {data.adventure.current_zone.recommended_level_max}
+              </div>
+              <Link to="/adventure" className="inline-block mt-3 text-brand-300 hover:underline">
+                Continuar aventura →
+              </Link>
+            </div>
+          ) : (
+            <div className="text-sm text-slate-400">No hay zona activa.</div>
+          )}
+        </Card>
+
+        <Card className="lg:col-span-6">
+          <div className="mb-3 text-lg font-semibold text-white">Progreso</div>
+          <div className="grid grid-cols-2 gap-3">
+            <Stat label="Zonas desbloqueadas" value={data.progress.unlocked_zones} />
+            <Stat label="Gimnasios completados" value={data.progress.completed_gyms} />
+            <Stat label="Progreso región" value={`${data.progress.current_region_completion_pct}%`} />
+          </div>
+        </Card>
+
+        <Card className="lg:col-span-6">
+          <div className="mb-3 text-lg font-semibold text-white">Equipo</div>
+
+          {data.team_summary.members?.length ? (
+            <div className="grid grid-cols-3 gap-2">
+              {data.team_summary.members.map((p: any) => (
+                <div
+                  key={p.user_pokemon_id}
+                  className="rounded-xl border border-white/10 bg-black/20 p-2 text-xs"
+                >
+                  <div className="font-medium text-white">{p.name}</div>
+                  <div className="text-slate-400">Lv {p.level}</div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-sm text-slate-400">Sin equipo activo.</div>
+          )}
+        </Card>
+
+        <Card className="lg:col-span-6">
+          <div className="mb-3 text-lg font-semibold text-white">Alertas</div>
+
+          {alertsQuery.isLoading && <LoadingBlock />}
+          {alertsQuery.isError && (
+            <ErrorBlock message={(alertsQuery.error as Error).message} />
+          )}
+
+          {alerts && !alertsQuery.isLoading && !alertsQuery.isError ? (
+            <div className="grid grid-cols-2 gap-3">
+              <Stat label="Trades pendientes" value={alerts.pending_trade_count ?? 0} />
+              <Stat label="Rewards sin reclamar" value={alerts.unclaimed_rewards_count ?? 0} />
+              <Stat label="Nuevos desbloqueos" value={alerts.new_unlocks_count ?? 0} />
+              <Stat label="Battle rewards" value={alerts.battle_rewards_ready ? "Listas" : "No"} />
+            </div>
+          ) : null}
+        </Card>
+      </div>
+    </div>
+  );
+}
