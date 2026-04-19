@@ -129,6 +129,7 @@ export class HomeSceneV2 extends Phaser.Scene {
   }
 
   private renderShell(): void {
+    this.tweens.killAll();
     this.children.removeAll(true);
 
     const { width, height } = this.scale;
@@ -246,40 +247,60 @@ export class HomeSceneV2 extends Phaser.Scene {
       fontStyle: '700'
     });
 
-    this.add.text(rightX, shellY + 190, state ? 'Tu avatar, economia y tus seis Pokemon ahora son el foco principal de entrada.' : 'Carga tu progreso y continua tu aventura.', {
-      fontSize: '20px',
+    this.add.text(rightX, shellY + 190, state ? 'Tu avatar, economia y tus seis Pokemon ahora dominan la entrada al juego.' : 'Carga tu progreso y continua tu aventura.', {
+      fontSize: '18px',
       color: '#d6e4f7',
       wordWrap: { width: rightWidth - 36 },
       lineSpacing: 6
     });
 
-    const summary = this.add.rectangle(rightX, shellY + 270, rightWidth - 36, 108, 0x0b1628, 0.58).setOrigin(0, 0);
+    const commandLabels = ['DEX', 'MAP', 'PVP', 'GYM'];
+    commandLabels.forEach((label, index) => {
+      const chipX = rightX + index * 86;
+      const chip = this.add.rectangle(chipX, shellY + 252, 72, 40, 0x13263a, 0.96).setOrigin(0, 0);
+      chip.setStrokeStyle(1, accent, index === 0 ? 0.34 : 0.14);
+      this.add.text(chipX + 36, shellY + 272, label, {
+        fontSize: '13px',
+        color: '#e4f4ff',
+        fontStyle: '700'
+      }).setOrigin(0.5);
+      this.tweens.add({
+        targets: chip,
+        y: chip.y - 3,
+        duration: 900 + index * 120,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut'
+      });
+    });
+
+    const summary = this.add.rectangle(rightX, shellY + 308, rightWidth - 36, 96, 0x0b1628, 0.58).setOrigin(0, 0);
     summary.setStrokeStyle(1, 0x86a7d0, 0.14);
 
-    this.add.text(rightX + 18, shellY + 292, 'Resumen jugable', {
+    this.add.text(rightX + 18, shellY + 328, 'Resumen jugable', {
       fontSize: '13px',
       color: '#8fb9ff',
       fontStyle: '600'
     });
 
-    this.add.text(rightX + 18, shellY + 318, state ? `${state.teamCount}/6 slots · ${state.onboardingPercent}% onboarding` : 'Explora y fortalece tu equipo', {
-      fontSize: '22px',
+    this.add.text(rightX + 18, shellY + 352, state ? `${state.teamCount}/6 slots · ${state.onboardingPercent}% onboarding` : 'Explora y fortalece tu equipo', {
+      fontSize: '20px',
       color: '#ecf4ff',
       fontStyle: '700'
     });
 
-    this.add.text(rightX + 18, shellY + 352, state ? `Siguiente foco: ${state.nextTarget} · Starter: ${state.starterName}` : 'Tu progreso aparece aqui al iniciar sesion.', {
-      fontSize: '14px',
+    this.add.text(rightX + 18, shellY + 380, state ? `Siguiente foco: ${state.nextTarget} · Starter: ${state.starterName}` : 'Tu progreso aparece aqui al iniciar sesion.', {
+      fontSize: '13px',
       color: '#a9bdd8',
       wordWrap: { width: rightWidth - 170 }
     });
 
     if (state?.avatarAsset && this.textures.exists('home-v2-avatar')) {
-      const avatarCard = this.add.rectangle(rightX + rightWidth - 128, shellY + 284, 96, 78, 0x0b1528, 0.74).setOrigin(0, 0);
+      const avatarCard = this.add.rectangle(rightX + rightWidth - 128, shellY + 320, 96, 72, 0x0b1528, 0.74).setOrigin(0, 0);
       avatarCard.setStrokeStyle(1, 0x86a7d0, 0.14);
-      const avatar = this.add.image(rightX + rightWidth - 80, shellY + 322, 'home-v2-avatar');
-      avatar.setDisplaySize(46, 46);
-      this.add.text(rightX + rightWidth - 126, shellY + 366, 'Avatar', {
+      const avatar = this.add.image(rightX + rightWidth - 80, shellY + 354, 'home-v2-avatar');
+      avatar.setDisplaySize(42, 42);
+      this.add.text(rightX + rightWidth - 126, shellY + 392, 'Avatar', {
         fontSize: '11px',
         color: '#9db4d1'
       });

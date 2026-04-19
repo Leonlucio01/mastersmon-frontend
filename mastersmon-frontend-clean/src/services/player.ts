@@ -1,5 +1,5 @@
 import { api } from './api';
-import type { ItemRow, OnboardingData, PlayerPokemon, TeamSlot, TrainerSetup, User } from '../types/models';
+import type { ItemRow, OnboardingData, PlayerPokemon, PokemonEvolutionState, PokemonMovesResponse, TeamSlot, TrainerSetup, User } from '../types/models';
 
 export function getMe(): Promise<User> {
   return api.get<User>('/usuario/me');
@@ -34,5 +34,38 @@ export function markOnboardingWelcome(vista = true): Promise<OnboardingData> {
 }
 
 export function getPokemonMoves(usuarioPokemonId: number): Promise<unknown> {
-  return api.get(`/usuario/pokemon/${usuarioPokemonId}/movimientos`);
+  return api.get<PokemonMovesResponse>(`/usuario/pokemon/${usuarioPokemonId}/movimientos`);
+}
+
+export function equipPokemonMove(usuarioPokemonId: number, movimientoId: number, slot: number): Promise<PokemonMovesResponse> {
+  return api.post<PokemonMovesResponse>(`/usuario/pokemon/${usuarioPokemonId}/movimientos/equipar`, {
+    movimiento_id: movimientoId,
+    slot
+  });
+}
+
+export function getPokemonEvolutionState(usuarioPokemonId: number): Promise<PokemonEvolutionState> {
+  return api.get<PokemonEvolutionState>(`/usuario/pokemon/${usuarioPokemonId}/evolucion`);
+}
+
+export function evolvePokemonByLevel(usuarioId: number, usuarioPokemonId: number): Promise<{ ok: boolean; mensaje: string }> {
+  return api.post<{ ok: boolean; mensaje: string }>('/pokemon/evolucionar-nivel', {
+    usuario_id: usuarioId,
+    usuario_pokemon_id: usuarioPokemonId
+  });
+}
+
+export function evolvePokemonByItem(usuarioId: number, usuarioPokemonId: number, itemId: number): Promise<{ ok: boolean; mensaje: string }> {
+  return api.post<{ ok: boolean; mensaje: string }>('/pokemon/evolucionar-item', {
+    usuario_id: usuarioId,
+    usuario_pokemon_id: usuarioPokemonId,
+    item_id: itemId
+  });
+}
+
+export function releaseMyPokemon(usuarioId: number, usuarioPokemonId: number): Promise<{ ok: boolean; mensaje: string }> {
+  return api.post<{ ok: boolean; mensaje: string }>('/usuario/soltar-pokemon', {
+    usuario_id: usuarioId,
+    usuario_pokemon_id: usuarioPokemonId
+  });
 }

@@ -1,8 +1,8 @@
-import type { OnboardingData, PlayerPokemon, TeamSlot, ViewKey } from '../types/models';
+import type { OnboardingData, PlayerPokemon, PokemonEvolutionOption, PokemonEvolutionState, PokemonMoveRow, PokemonMovesResponse, TeamSlot, ViewKey } from '../types/models';
 import { sessionStore } from '../store/session';
 import { playerStore } from '../store/player';
 import { renderGoogleButton, fetchAuthMe, logout } from '../services/auth';
-import { getMe, getMyItems, getMyPokemon, getMyTeam, getOnboarding, getPokemonMoves, getTrainerSetup, markOnboardingWelcome, saveMyTeam } from '../services/player';
+import { equipPokemonMove, evolvePokemonByItem, evolvePokemonByLevel, getMe, getMyItems, getMyPokemon, getMyTeam, getOnboarding, getPokemonEvolutionState, getPokemonMoves, getTrainerSetup, markOnboardingWelcome, releaseMyPokemon, saveMyTeam } from '../services/player';
 import { startArena, claimArenaVictory } from '../services/battle';
 import { generateEncounter, getPresence, getZones, tryCapture, updatePresence } from '../services/maps';
 import { getGymCatalog, getGymProgress, startGym, claimGymReward } from '../services/gyms';
@@ -47,7 +47,7 @@ export async function renderView(view: ViewKey, refs: ShellRefs): Promise<void> 
       await renderHomeV2(refs);
       return;
     case 'pokemon':
-      await renderPokemon(refs);
+      await renderPokemonV2(refs);
       return;
     case 'team':
       await renderTeam(refs);
@@ -463,6 +463,149 @@ async function renderPokemon(refs: ShellRefs): Promise<void> {
       }
     });
   });
+}
+
+async function renderPokemonV2(refs: ShellRefs): Promise<void> {
+  ensureAuthenticated(refs.panelRoot, refs.onNavigate);
+  const [pokemon, items] = await Promise.all([getMyPokemon(), getMyItems()]);
+  playerStore.pokemon = pokemon;
+  playerStore.items = items;
+
+  const summary = {
+    total: pokemon.length,
+    shiny: pokemon.filter((row) => row.es_shiny).length,
+    average: pokemon.length ? Math.round(pokemon.reduce((sum, row) => sum + Number(row.nivel || 0), 0) / pokemon.length) : 0,
+    items: items.reduce((sum, row) => sum + Number(row.cantidad || 0), 0)
+  };
+
+  refs.panelRoot.innerHTML = `
+    <section class="pokemon-shell-v2">
+      <section class="section-card">
+        <div class="pokemon-topbar-v2">
+          <div class="pokemon-title-copy">
+            <h3>My Pokemon</h3>
+            <p>Tu caja ahora tiene filtros utiles, acceso rapido a movimientos, evolucion y gestion directa desde una sola vista.</p>
+          </div>
+          <div class="home-chip-row">
+            <span class="badge">${summary.total} en caja</span>
+            <span class="badge">${summary.shiny} shiny</span>
+            <span class="badge">Lv ${summary.average || 0}</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="pokemon-summary-strip">
+        <article class="pokemon-summary-tile"><span>Total</span><strong>${formatNumber(summary.total)}</strong></article>
+        <article class="pokemon-summary-tile"><span>Shiny</span><strong>${formatNumber(summary.shiny)}</strong></article>
+        <article class="pokemon-summary-tile"><span>Lv promedio</span><strong>${summary.average ? `Lv ${summary.average}` : 'Lv 0'}</strong></article>
+        <article class="pokemon-summary-tile"><span>Items</span><strong>${formatNumber(summary.items)}</strong></article>
+      </section>
+
+      <section class="section-card">
+        <div class="pokemon-filter-bar">
+          <div class="pokemon-filter-field">
+            <label for="pokemon-search-v2">Buscar</label>
+            <input id="pokemon-search-v2" class="input" type="text" placeholder="Nombre o tipo" />
+          </div>
+          <div class="pokemon-filter-field">
+            <label for="pokemon-type-v2">Tipo</label>
+            <select id="pokemon-type-v2" class="select">
+              <option value="">Todos</option>
+              ${Array.from(new Set(pokemon.flatMap((row) => String(row.tipo || '').split('/').map((part) => part.trim()).filter(Boolean)))).sort().map((type) => `<option value="${escapeHtml(type)}">${escapeHtml(type)}</option>`).join('')}
+            </select>
+          </div>
+          <div class="pokemon-filter-field">
+            <label for="pokemon-rare-v2">Rareza</label>
+            <select id="pokemon-rare-v2" class="select">
+              <option value="">Todos</option>
+              <option value="normal">Normal</option>
+              <option value="shiny">Shiny</option>
+            </select>
+          </div>
+          <div class="pokemon-filter-field">
+            <label for="pokemon-sort-v2">Orden</label>
+            <select id="pokemon-sort-v2" class="select">
+              <option value="level_desc">Nivel</option>
+              <option value="id_asc">ID</option>
+              <option value="name_asc">Nombre</option>
+              <option value="attack_desc">Ataque</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <section class="pokemon-inventory-strip">
+        ${items.slice(0, 4).map((item) => {
+          const asset = getItemAsset(item.item_codigo || null);
+          return `
+            <article class="pokemon-inventory-chip">
+              <div class="pokemon-inventory-chip__media">
+                ${asset ? `<img src="${escapeHtml(asset)}" alt="${escapeHtml(item.nombre)}" />` : `<span class="home-thumb-fallback">${escapeHtml(String(item.nombre || 'IT').slice(0, 2).toUpperCase())}</span>`}
+              </div>
+              <div>
+                <strong>${escapeHtml(item.nombre)}</strong>
+                <small>x${formatNumber(item.cantidad || 0)}</small>
+              </div>
+            </article>
+          `;
+        }).join('') || '<div class="empty-state">No hay items visibles todavia.</div>'}
+      </section>
+
+      <section class="section-card">
+        <div id="pokemon-grid-v2" class="pokemon-grid-v2"></div>
+      </section>
+    </section>
+  `;
+
+  const search = document.getElementById('pokemon-search-v2') as HTMLInputElement | null;
+  const type = document.getElementById('pokemon-type-v2') as HTMLSelectElement | null;
+  const rare = document.getElementById('pokemon-rare-v2') as HTMLSelectElement | null;
+  const sort = document.getElementById('pokemon-sort-v2') as HTMLSelectElement | null;
+  const grid = document.getElementById('pokemon-grid-v2') as HTMLElement | null;
+  const pokemonMap = new Map(pokemon.map((row) => [row.id, row]));
+
+  const paint = (): void => {
+    if (!grid) return;
+    const rows = filterPokemonCollection(pokemon, {
+      search: search?.value || '',
+      type: type?.value || '',
+      rare: rare?.value || '',
+      sort: sort?.value || 'level_desc'
+    });
+
+    grid.innerHTML = rows.length
+      ? rows.map(renderPokemonCardV2).join('')
+      : '<div class="empty-state">No hay resultados con esos filtros.</div>';
+
+    grid.querySelectorAll<HTMLElement>('[data-pokemon-action]').forEach((button) => {
+      button.addEventListener('click', async () => {
+        const action = String(button.dataset.pokemonAction || '');
+        const pokemonId = Number(button.dataset.pokemonId || 0);
+        const row = pokemonMap.get(pokemonId);
+        if (!row) return;
+
+        if (action === 'moves') {
+          await openPokemonMovesModal(row);
+          return;
+        }
+
+        if (action === 'evolve') {
+          await openPokemonEvolutionModal(row, refs);
+          return;
+        }
+
+        if (action === 'release') {
+          await confirmReleasePokemon(row, refs);
+        }
+      });
+    });
+  };
+
+  [search, type, rare, sort].forEach((node) => node?.addEventListener('input', paint));
+  type?.addEventListener('change', paint);
+  rare?.addEventListener('change', paint);
+  sort?.addEventListener('change', paint);
+  paint();
 }
 
 async function renderTeam(refs: ShellRefs): Promise<void> {
@@ -1123,6 +1266,339 @@ function renderHomePanelMetric(label: string, value: string, detail: string): st
       <strong>${escapeHtml(value)}</strong>
       <small>${escapeHtml(detail)}</small>
     </div>`;
+}
+
+function filterPokemonCollection(
+  rows: PlayerPokemon[],
+  filters: { search: string; type: string; rare: string; sort: string }
+): PlayerPokemon[] {
+  const search = String(filters.search || '').trim().toLowerCase();
+  const type = String(filters.type || '').trim().toLowerCase();
+  const rare = String(filters.rare || '').trim().toLowerCase();
+  const sort = String(filters.sort || 'level_desc');
+
+  const filtered = rows.filter((row) => {
+    const haystack = `${row.nombre} ${row.tipo || ''}`.toLowerCase();
+    const matchesSearch = !search || haystack.includes(search);
+    const matchesType = !type || String(row.tipo || '').toLowerCase().split('/').map((part) => part.trim()).includes(type);
+    const matchesRare = !rare || (rare === 'shiny' ? row.es_shiny : !row.es_shiny);
+    return matchesSearch && matchesType && matchesRare;
+  });
+
+  filtered.sort((left, right) => {
+    if (sort === 'id_asc') return left.pokemon_id - right.pokemon_id;
+    if (sort === 'name_asc') return left.nombre.localeCompare(right.nombre);
+    if (sort === 'attack_desc') return Number(right.ataque || 0) - Number(left.ataque || 0);
+    return Number(right.nivel || 0) - Number(left.nivel || 0);
+  });
+
+  return filtered;
+}
+
+function renderPokemonCardV2(row: PlayerPokemon): string {
+  const progress = Math.max(8, Math.min(100, Number(row.experiencia_total || row.experiencia || row.nivel || 1) % 100));
+  return `
+    <article class="pokemon-card-v2" data-rare="${row.es_shiny ? 'shiny' : 'normal'}">
+      <div class="pokemon-card-v2__head">
+        <div>
+          <strong class="pokemon-detail-title">${escapeHtml(row.nombre)}</strong>
+          <small>#${row.pokemon_id} · ${escapeHtml(row.tipo || 'Tipo libre')}</small>
+        </div>
+        <div class="home-chip-row">
+          <span class="badge">${row.es_shiny ? 'shiny' : 'normal'}</span>
+          <span class="badge">Lv ${row.nivel}</span>
+        </div>
+      </div>
+      <div class="pokemon-card-v2__art">
+        <img src="${escapeHtml(getPokemonCardImage(row.pokemon_id, row.es_shiny, row.imagen))}" alt="${escapeHtml(row.nombre)}" />
+      </div>
+      <div class="pokemon-card-v2__body">
+        <div class="pokemon-meta-grid">
+          <div class="pokemon-meta-pill"><span>HP</span><strong>${formatNumber(Number(row.hp_actual || row.hp_max || 0))}</strong></div>
+          <div class="pokemon-meta-pill"><span>ATK</span><strong>${formatNumber(Number(row.ataque || 0))}</strong></div>
+          <div class="pokemon-meta-pill"><span>DEF</span><strong>${formatNumber(Number(row.defensa || 0))}</strong></div>
+          <div class="pokemon-meta-pill"><span>SPD</span><strong>${formatNumber(Number(row.velocidad || 0))}</strong></div>
+        </div>
+        <div class="pokemon-meta-line">Progreso visible</div>
+        <div class="pokemon-progress-bar"><span style="width:${progress}%"></span></div>
+      </div>
+      <div class="pokemon-card-v2__actions">
+        <button class="pokemon-action-btn is-accent" data-pokemon-action="moves" data-pokemon-id="${row.id}">Moves</button>
+        <button class="pokemon-action-btn" data-pokemon-action="evolve" data-pokemon-id="${row.id}">Evolve</button>
+        <button class="pokemon-action-btn is-danger" data-pokemon-action="release" data-pokemon-id="${row.id}">Release</button>
+      </div>
+    </article>`;
+}
+
+function closeOverlayModal(): void {
+  document.querySelector('.overlay-modal-backdrop')?.remove();
+}
+
+function openOverlayModal(content: string): HTMLDivElement {
+  closeOverlayModal();
+  const backdrop = document.createElement('div');
+  backdrop.className = 'overlay-modal-backdrop';
+  backdrop.innerHTML = `<div class="overlay-modal-card">${content}</div>`;
+  backdrop.addEventListener('click', (event) => {
+    if (event.target === backdrop || (event.target as HTMLElement).closest('[data-close-overlay]')) {
+      closeOverlayModal();
+    }
+  });
+  document.body.appendChild(backdrop);
+  return backdrop;
+}
+
+async function openPokemonMovesModal(row: PlayerPokemon): Promise<void> {
+  const backdrop = openOverlayModal(`
+    <div class="modal-head">
+      <div>
+        <p class="home-kicker">Moves</p>
+        <h3>${escapeHtml(row.nombre)}</h3>
+      </div>
+      <button class="modal-close" data-close-overlay="1">X</button>
+    </div>
+    <div class="empty-state">Cargando movimientos...</div>
+  `);
+
+  const state = {
+    selectedSlot: 1,
+    selectedMoveId: 0,
+    data: await getPokemonMoves(row.id) as PokemonMovesResponse
+  };
+
+  const render = (): void => {
+    const equippedBySlot = new Map<number, PokemonMoveRow>();
+    (state.data.movimientos || []).forEach((move) => {
+      if (move.slot) equippedBySlot.set(Number(move.slot), move);
+    });
+    if (!state.selectedMoveId) {
+      state.selectedMoveId = Number(equippedBySlot.get(state.selectedSlot)?.movimiento_id || 0);
+    }
+
+    const selectedMove = (state.data.movimientos || []).find((move) => Number(move.movimiento_id) === Number(state.selectedMoveId)) || null;
+    const slotsHtml = Array.from({ length: 4 }, (_, index) => {
+      const slot = index + 1;
+      const move = equippedBySlot.get(slot) || null;
+      return `
+        <button class="move-slot ${slot === state.selectedSlot ? 'is-selected' : ''}" data-slot-select="${slot}">
+          <div class="move-slot-top">
+            <strong>Slot ${slot}</strong>
+            <span class="badge">${move ? 'equipado' : 'vacio'}</span>
+          </div>
+          <small>${move ? escapeHtml(move.nombre) : 'Selecciona un movimiento'}</small>
+        </button>
+      `;
+    }).join('');
+
+    const movesHtml = (state.data.movimientos || []).map((move) => `
+      <button class="move-card ${Number(move.movimiento_id) === Number(state.selectedMoveId) ? 'is-selected' : ''}" data-move-select="${move.movimiento_id}">
+        <div class="move-card-top">
+          <div>
+            <strong>${escapeHtml(move.nombre)}</strong>
+            <small>${escapeHtml(move.descripcion || 'Movimiento desbloqueado')}</small>
+          </div>
+          <span class="badge">${move.slot ? `slot ${move.slot}` : 'libre'}</span>
+        </div>
+        <div class="move-pill-row">
+          <span class="move-pill">${escapeHtml(move.tipo || 'neutral')}</span>
+          <span class="move-pill">${escapeHtml(move.categoria || 'status')}</span>
+          <span class="move-pill">Lv ${Number(move.nivel_requerido || 1)}</span>
+        </div>
+        <div class="move-stat-row">
+          <span class="move-stat">Power ${formatNumber(Number(move.potencia || 0))}</span>
+          <span class="move-stat">Acc ${formatNumber(Number(move.precision_pct || 0))}%</span>
+          <span class="move-stat">CD ${formatNumber(Number(move.cooldown_turnos || 0))}</span>
+        </div>
+      </button>
+    `).join('');
+
+    const actionLabel = selectedMove ? `Equipar ${selectedMove.nombre} en slot ${state.selectedSlot}` : 'Elige un movimiento';
+    backdrop.querySelector('.overlay-modal-card')!.innerHTML = `
+      <div class="modal-head">
+        <div>
+          <p class="home-kicker">Moves</p>
+          <h3>${escapeHtml(row.nombre)}</h3>
+          <div class="modal-chip-row">
+            <span class="badge">${escapeHtml(state.data.usuario_pokemon?.tipo || row.tipo || 'tipo')}</span>
+            <span class="badge">Lv ${state.data.usuario_pokemon?.nivel || row.nivel}</span>
+            <span class="badge">${state.data.movimientos.length} moves</span>
+          </div>
+        </div>
+        <button class="modal-close" data-close-overlay="1">X</button>
+      </div>
+      <div class="move-layout">
+        <div class="move-slot-list">${slotsHtml}</div>
+        <div class="move-card-list">
+          ${movesHtml}
+          <button class="pokemon-action-btn is-accent" data-move-equip="${selectedMove ? selectedMove.movimiento_id : ''}" ${selectedMove ? '' : 'disabled'}>${escapeHtml(actionLabel)}</button>
+        </div>
+      </div>
+    `;
+
+    backdrop.querySelectorAll<HTMLElement>('[data-slot-select]').forEach((button) => {
+      button.addEventListener('click', () => {
+        state.selectedSlot = Number(button.dataset.slotSelect || 1);
+        state.selectedMoveId = Number(equippedBySlot.get(state.selectedSlot)?.movimiento_id || state.selectedMoveId || 0);
+        render();
+      });
+    });
+
+    backdrop.querySelectorAll<HTMLElement>('[data-move-select]').forEach((button) => {
+      button.addEventListener('click', () => {
+        state.selectedMoveId = Number(button.dataset.moveSelect || 0);
+        render();
+      });
+    });
+
+    backdrop.querySelector<HTMLElement>('[data-move-equip]')?.addEventListener('click', async () => {
+      if (!state.selectedMoveId) return;
+      const result = await equipPokemonMove(row.id, state.selectedMoveId, state.selectedSlot);
+      state.data = {
+        ...state.data,
+        movimientos: result.movimientos,
+        equipados: result.equipados
+      };
+      showToast('Moves', 'Movimiento equipado');
+      render();
+    });
+  };
+
+  render();
+}
+
+async function openPokemonEvolutionModal(row: PlayerPokemon, refs: ShellRefs): Promise<void> {
+  const user = sessionStore.getUser();
+  if (!user) return;
+
+  const state = await getPokemonEvolutionState(row.id);
+  if (!state.puede_evolucionar) {
+    showToast('Evolucion', state.motivo || 'Este Pokemon no puede evolucionar ahora');
+    return;
+  }
+
+  const options = state.opciones || [];
+  let selected = options.find((option) => option.listo) || options[0];
+  if (!selected) {
+    showToast('Evolucion', 'No hay evolucion disponible');
+    return;
+  }
+
+  const render = (): HTMLDivElement => openOverlayModal(`
+    <div class="modal-head">
+      <div>
+        <p class="home-kicker">Evolution</p>
+        <h3>${escapeHtml(row.nombre)}</h3>
+        <div class="modal-chip-row">
+          <span class="badge">Lv ${row.nivel}</span>
+          <span class="badge">${selected.tipo}</span>
+          <span class="badge">${selected.listo ? 'listo' : 'pendiente'}</span>
+        </div>
+      </div>
+      <button class="modal-close" data-close-overlay="1">X</button>
+    </div>
+    <div class="evolution-layout">
+      <div class="evolution-chain">
+        <article class="evolution-preview-card">
+          <div class="evolution-card-art">
+            <img src="${escapeHtml(getPokemonCardImage(row.pokemon_id, row.es_shiny, row.imagen))}" alt="${escapeHtml(row.nombre)}" />
+          </div>
+          <strong>${escapeHtml(row.nombre)}</strong>
+          <small>Actual</small>
+        </article>
+        <div class="evolution-arrow">></div>
+        <article class="evolution-preview-card">
+          <div class="evolution-card-art">
+            <img src="${escapeHtml(getPokemonCardImage(selected.evoluciona_a, row.es_shiny, null))}" alt="${escapeHtml(selected.evolucion_nombre)}" />
+          </div>
+          <strong>${escapeHtml(selected.evolucion_nombre)}</strong>
+          <small>${selected.tipo === 'item' ? `Item: ${escapeHtml(selected.item_nombre || 'requerido')}` : `Nivel ${selected.nivel_requerido || '-'}`}</small>
+        </article>
+      </div>
+      <div class="move-card-list">
+        ${(options || []).map((option) => `
+          <button class="move-card ${option === selected ? 'is-selected' : ''}" data-evo-option="${option.evoluciona_a}">
+            <div class="move-card-top">
+              <strong>${escapeHtml(option.evolucion_nombre)}</strong>
+              <span class="badge">${escapeHtml(option.tipo)}</span>
+            </div>
+            <div class="move-pill-row">
+              ${option.tipo === 'item'
+                ? `<span class="move-pill">${escapeHtml(option.item_nombre || 'item')}</span><span class="move-pill">x${formatNumber(option.cantidad || 0)}</span>`
+                : `<span class="move-pill">Nivel ${formatNumber(option.nivel_requerido || 0)}</span>`}
+              <span class="move-pill">${option.listo ? 'listo' : 'faltante'}</span>
+            </div>
+          </button>
+        `).join('')}
+      </div>
+      <button class="pokemon-action-btn is-accent" data-evo-confirm="1" ${selected.listo ? '' : 'disabled'}>${selected.tipo === 'item' ? 'Usar item y evolucionar' : 'Evolucionar ahora'}</button>
+    </div>
+  `);
+
+  let backdrop = render();
+
+  const bind = (): void => {
+    backdrop.querySelectorAll<HTMLElement>('[data-evo-option]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const target = Number(button.dataset.evoOption || 0);
+        selected = options.find((option) => Number(option.evoluciona_a) === target) || selected;
+        backdrop = render();
+        bind();
+      });
+    });
+
+    backdrop.querySelector<HTMLElement>('[data-evo-confirm]')?.addEventListener('click', async () => {
+      if (!selected.listo) return;
+      let result: { ok: boolean; mensaje: string };
+      if (selected.tipo === 'item' && selected.item_id) {
+        result = await evolvePokemonByItem(user.id, row.id, selected.item_id);
+      } else {
+        result = await evolvePokemonByLevel(user.id, row.id);
+      }
+      if (!result.ok) {
+        showToast('Evolucion', result.mensaje || 'No se pudo evolucionar');
+        return;
+      }
+      closeOverlayModal();
+      showToast('Evolucion', result.mensaje || `${row.nombre} evoluciono correctamente`);
+      await renderPokemonV2(refs);
+    });
+  };
+
+  bind();
+}
+
+async function confirmReleasePokemon(row: PlayerPokemon, refs: ShellRefs): Promise<void> {
+  const user = sessionStore.getUser();
+  if (!user) return;
+
+  const backdrop = openOverlayModal(`
+    <div class="modal-head">
+      <div>
+        <p class="home-kicker">Release</p>
+        <h3>${escapeHtml(row.nombre)}</h3>
+      </div>
+      <button class="modal-close" data-close-overlay="1">X</button>
+    </div>
+    <div class="evolution-layout">
+      <p>Vas a liberar este Pokemon de tu coleccion. Esta accion impacta tu caja y no deberia hacerse por error.</p>
+      <div class="modal-chip-row">
+        <span class="badge">Lv ${row.nivel}</span>
+        <span class="badge">${escapeHtml(row.tipo || 'sin tipo')}</span>
+      </div>
+      <button class="pokemon-action-btn is-danger" data-release-confirm="1">Confirmar release</button>
+    </div>
+  `);
+
+  backdrop.querySelector<HTMLElement>('[data-release-confirm]')?.addEventListener('click', async () => {
+    const result = await releaseMyPokemon(user.id, row.id);
+    if (!result.ok) {
+      showToast('Coleccion', result.mensaje || 'No se pudo liberar');
+      return;
+    }
+    closeOverlayModal();
+    showToast('Coleccion', result.mensaje || `${row.nombre} fue liberado`);
+    await renderPokemonV2(refs);
+  });
 }
 
 function normalizeAssetToken(value: string): string {
