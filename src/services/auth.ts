@@ -7,12 +7,23 @@ declare global {
     google?: {
       accounts: {
         id: {
-          initialize: (config: { client_id: string; callback: (response: { credential: string }) => void }) => void;
+          initialize: (config: {
+            client_id: string;
+            callback: (response: { credential: string }) => void;
+          }) => void;
           renderButton: (element: HTMLElement, options: Record<string, unknown>) => void;
           prompt: () => void;
         };
       };
     };
+  }
+
+  interface ImportMetaEnv {
+    readonly VITE_GOOGLE_CLIENT_ID?: string;
+  }
+
+  interface ImportMeta {
+    readonly env: ImportMetaEnv;
   }
 }
 
@@ -22,6 +33,10 @@ interface AuthResponse {
   usuario: User;
   usuario_nuevo: boolean;
   mensaje: string;
+}
+
+function getGoogleClientId(): string {
+  return (import.meta.env.VITE_GOOGLE_CLIENT_ID || '').trim();
 }
 
 export async function loginWithGoogleCredential(credential: string): Promise<AuthResponse> {
@@ -41,19 +56,28 @@ export function logout(): void {
   sessionStore.clear();
 }
 
-export function renderGoogleButton(target: HTMLElement, onSuccess: (response: AuthResponse) => void, onError: (message: string) => void): void {
+export function renderGoogleButton(
+  target: HTMLElement,
+  onSuccess: (response: AuthResponse) => void,
+  onError: (message: string) => void
+): void {
   target.innerHTML = '';
-  const clientId = (import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined)?.trim();
+
+  const clientId = getGoogleClientId();
 
   if (!clientId) {
-    target.innerHTML = '<div class="empty-state">Falta configurar <strong>VITE_GOOGLE_CLIENT_ID</strong> en el frontend.</div>';
+    target.innerHTML =
+      '<div class="empty-state">Falta configurar <strong>VITE_GOOGLE_CLIENT_ID</strong> en el frontend.</div>';
     return;
   }
 
   if (!window.google?.accounts?.id) {
-    target.innerHTML = '<div class="empty-state">Google Identity Services aún no terminó de cargar.</div>';
+    target.innerHTML =
+      '<div class="empty-state">Google Identity Services aún no terminó de cargar.</div>';
     return;
   }
+
+  console.log('[Google Login] client_id activo:', clientId);
 
   window.google.accounts.id.initialize({
     client_id: clientId,
@@ -75,5 +99,6 @@ export function renderGoogleButton(target: HTMLElement, onSuccess: (response: Au
     width: 320
   });
 
-  window.google.accounts.id.prompt();
+  // Opcional: comenta esto mientras validamos el client_id
+  // window.google.accounts.id.prompt();
 }
