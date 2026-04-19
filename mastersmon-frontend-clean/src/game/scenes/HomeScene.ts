@@ -4,19 +4,17 @@ import { playerStore } from '../../store/player';
 import { getTrainerSetup, getOnboarding } from '../../services/player';
 import { getGymProgress } from '../../services/gyms';
 import { getAvatarAsset, getBadgeAsset, getScenarioBackdrop, getTrainerAsset } from '../../utils/gameAssets';
-import { getPokemonCardImage } from '../../utils/pokeSprites';
 
 interface HeroState {
   regionCode: string;
   regionLabel: string;
   leaderName: string;
-  badgeName: string;
+  badgeKey: string;
   badgeLabel: string;
   trainerAsset: string | null;
   badgeAsset: string | null;
   backdropAsset: string | null;
   avatarAsset: string | null;
-  starterAsset: string | null;
   starterName: string;
   teamColor: string;
   onboardingPercent: number;
@@ -59,7 +57,7 @@ const LEADER_BACKDROP_HINTS: Record<string, string> = {
   flannery: 'caverna_fuego',
   norman: 'bosque_tropical',
   winona: 'pilar_del_cielo',
-  tate_liza: 'jardin_lunar',
+  tateliza: 'jardin_lunar',
   juan: 'laguna_coral'
 };
 
@@ -94,31 +92,29 @@ export class HomeScene extends Phaser.Scene {
 
       const regionCode = String(nextGym?.region_codigo || 'kanto').toLowerCase();
       const leaderName = String(nextGym?.lider_nombre || 'Misty');
-      const badgeName = String(nextGym?.medalla_nombre || 'Cascade Badge');
-      const badgeCode = String(nextGym?.codigo || '').split('-').pop() || badgeName;
+      const badgeLabel = String(nextGym?.medalla_nombre || 'Cascade Badge');
+      const badgeKey = this.normalizeAssetToken(badgeLabel).replace(/_badge$/i, '');
       const trainerAsset = getTrainerAsset(regionCode, leaderName, nextGym?.trainer_asset_path as string | undefined);
-      const badgeAsset = getBadgeAsset(regionCode, badgeCode, nextGym?.badge_asset_path as string | undefined);
-      const backdropHint = LEADER_BACKDROP_HINTS[this.normalizeName(leaderName)] || REGION_BACKDROP_FALLBACKS[regionCode]?.[0] || 'bosque_verde';
+      const badgeAsset = getBadgeAsset(regionCode, badgeKey, nextGym?.badge_asset_path as string | undefined);
+      const backdropHint = LEADER_BACKDROP_HINTS[this.normalizeAssetToken(leaderName)] || REGION_BACKDROP_FALLBACKS[regionCode]?.[0] || 'bosque_verde';
       const backdropAsset = getScenarioBackdrop(regionCode, backdropHint);
-      const starterName = String(trainerSetup?.starter_code || 'charmander');
-      const avatarAsset = getAvatarAsset(user?.avatar_id || trainerSetup?.avatar_id || null, user?.avatar_url || null);
-      const starterAsset = getPokemonCardImage(starterName, false);
+      const starterName = String(trainerSetup?.starter_code || 'starter');
+      const avatarAsset = getAvatarAsset(user?.avatar_id || trainerSetup?.avatar_id || null, user?.foto || null);
 
       this.heroState = {
         regionCode,
         regionLabel: REGION_LABELS[regionCode] || this.toTitleCase(regionCode.replace(/_/g, ' ')),
         leaderName,
-        badgeName: badgeCode,
-        badgeLabel: badgeName,
+        badgeKey,
+        badgeLabel,
         trainerAsset,
         badgeAsset,
         backdropAsset,
         avatarAsset,
-        starterAsset,
         starterName,
         teamColor: String(trainerSetup?.team_color || 'blue'),
         onboardingPercent: Number(onboarding?.progreso?.porcentaje || 0),
-        teamCount: playerStore.team.length
+        teamCount: playerStore.team.length,
       };
 
       this.renderShell();
@@ -136,8 +132,7 @@ export class HomeScene extends Phaser.Scene {
       { key: 'home-backdrop', url: state.backdropAsset },
       { key: 'home-trainer', url: state.trainerAsset },
       { key: 'home-badge', url: state.badgeAsset },
-      { key: 'home-avatar', url: state.avatarAsset },
-      { key: 'home-starter', url: state.starterAsset }
+      { key: 'home-avatar', url: state.avatarAsset }
     ];
 
     let shouldStart = false;
@@ -172,161 +167,158 @@ export class HomeScene extends Phaser.Scene {
     if (state?.backdropAsset && this.textures.exists('home-backdrop')) {
       const backdrop = this.add.image(width * 0.5, height * 0.5, 'home-backdrop');
       backdrop.setDisplaySize(width, height);
-      backdrop.setAlpha(0.18);
+      backdrop.setAlpha(0.14);
     }
 
-    this.add.circle(width * 0.18, height * 0.3, 165, this.resolveAccentColor(state?.teamColor), 0.12).setBlendMode(Phaser.BlendModes.SCREEN);
-    this.add.circle(width * 0.82, height * 0.76, 225, 0x7a5cff, 0.08).setBlendMode(Phaser.BlendModes.SCREEN);
+    this.add.circle(width * 0.18, height * 0.32, 150, this.resolveAccentColor(state?.teamColor), 0.14).setBlendMode(Phaser.BlendModes.SCREEN);
+    this.add.circle(width * 0.82, height * 0.78, 210, 0x7a5cff, 0.08).setBlendMode(Phaser.BlendModes.SCREEN);
 
-    const hero = this.add.container(42, 38);
-    const heroWidth = width - 84;
-    const heroHeight = height - 112;
+    const margin = 34;
+    const heroWidth = width - margin * 2;
+    const heroHeight = height - 72;
+    const heroX = margin;
+    const heroY = 28;
+    const leftWidth = Math.max(300, Math.floor(heroWidth * 0.42));
+    const contentX = heroX + leftWidth + 44;
+    const contentWidth = heroWidth - leftWidth - 78;
+    const accent = this.resolveAccentColor(state?.teamColor);
 
-    const heroPanel = this.add.rectangle(0, 0, heroWidth, heroHeight, 0x0f1e35, 0.74).setOrigin(0, 0);
-    heroPanel.setStrokeStyle(1, 0x86a7d0, 0.18);
-    hero.add(heroPanel);
+    const heroBg = this.add.rectangle(heroX, heroY, heroWidth, heroHeight, 0x0d1b31, 0.68).setOrigin(0, 0);
+    heroBg.setStrokeStyle(1, 0x86a7d0, 0.18);
 
-    const mediaWidth = Math.min(430, heroWidth * 0.48);
-    const mediaHeight = heroHeight - 86;
-    const mediaPanel = this.add.rectangle(26, 24, mediaWidth, mediaHeight, 0x0b1528, 0.58).setOrigin(0, 0);
-    mediaPanel.setStrokeStyle(1, 0x86a7d0, 0.16);
-    hero.add(mediaPanel);
+    if (state?.backdropAsset && this.textures.exists('home-backdrop')) {
+      const heroBackdrop = this.add.image(heroX + heroWidth * 0.5, heroY + heroHeight * 0.5, 'home-backdrop');
+      heroBackdrop.setDisplaySize(heroWidth, heroHeight);
+      heroBackdrop.setAlpha(0.26);
+    }
 
-    const trainerPanel = this.add.rectangle(42, 42, mediaWidth * 0.56, mediaHeight - 36, 0x09111f, 0.82).setOrigin(0, 0);
-    trainerPanel.setStrokeStyle(1, 0x86a7d0, 0.18);
-    hero.add(trainerPanel);
+    const overlay = this.add.graphics();
+    overlay.fillStyle(0x07101d, 0.46);
+    overlay.fillRect(heroX, heroY, heroWidth, heroHeight);
+    overlay.fillGradientStyle(0x08111e, 0x0b1a30, 0x08111e, 0x07111d, 0.46);
+    overlay.fillRect(heroX, heroY, heroWidth, heroHeight);
 
-    const badgePanel = this.add.rectangle(42 + mediaWidth * 0.60, 42, mediaWidth * 0.30, 88, 0x09111f, 0.82).setOrigin(0, 0);
-    badgePanel.setStrokeStyle(1, 0x86a7d0, 0.18);
-    hero.add(badgePanel);
+    const sidePanel = this.add.rectangle(heroX + 26, heroY + 26, leftWidth - 18, heroHeight - 52, 0x08111d, 0.58).setOrigin(0, 0);
+    sidePanel.setStrokeStyle(1, 0x86a7d0, 0.15);
 
-    const starterPanel = this.add.rectangle(42 + mediaWidth * 0.60, 146, mediaWidth * 0.30, 88, 0x09111f, 0.82).setOrigin(0, 0);
-    starterPanel.setStrokeStyle(1, 0x86a7d0, 0.18);
-    hero.add(starterPanel);
+    const stageGlow = this.add.ellipse(heroX + leftWidth * 0.42, heroY + heroHeight - 106, leftWidth * 0.42, 36, accent, 0.28);
+    stageGlow.setBlendMode(Phaser.BlendModes.SCREEN);
 
     if (state?.trainerAsset && this.textures.exists('home-trainer')) {
-      const trainer = this.add.image(42 + mediaWidth * 0.28, 42 + (mediaHeight - 36) * 0.55, 'home-trainer');
-      trainer.setDisplaySize(mediaWidth * 0.28, mediaHeight * 0.48);
+      const trainer = this.add.image(heroX + leftWidth * 0.48, heroY + heroHeight * 0.62, 'home-trainer');
+      trainer.setDisplaySize(leftWidth * 0.34, heroHeight * 0.58);
       trainer.setOrigin(0.5, 0.5);
-      hero.add(trainer);
     }
 
-    if (state?.badgeAsset && this.textures.exists('home-badge')) {
-      const badge = this.add.image(42 + mediaWidth * 0.75, 86, 'home-badge');
-      badge.setDisplaySize(66, 66);
-      badge.setOrigin(0.5, 0.5);
-      hero.add(badge);
-    }
+    const infoPanel = this.add.rectangle(contentX - 18, heroY + 30, contentWidth, heroHeight - 60, 0x0a1424, 0.18).setOrigin(0, 0);
+    infoPanel.setStrokeStyle(1, 0x86a7d0, 0.08);
 
-    if (state?.starterAsset && this.textures.exists('home-starter')) {
-      const starter = this.add.image(42 + mediaWidth * 0.75, 190, 'home-starter');
-      starter.setDisplaySize(78, 78);
-      starter.setOrigin(0.5, 0.5);
-      hero.add(starter);
-    }
-
-    const contentX = mediaWidth + 58;
-    const titleText = state ? 'Siguiente objetivo' : 'Centro de mando';
-    const subtitleText = state
-      ? `${state.leaderName} te espera por la medalla ${state.badgeLabel}.`
-      : 'Carga tu progreso, revisa tu equipo y prepara tu siguiente reto.';
-
-    hero.add(this.add.text(contentX, 34, titleText, {
-      fontSize: '18px',
+    const kicker = this.add.text(contentX, heroY + 36, 'Objetivo activo', {
+      fontSize: '15px',
       color: '#b7d4ff',
       fontStyle: '600'
-    }));
+    });
+    kicker.setAlpha(0.96);
 
-    hero.add(this.add.text(contentX, 62, state?.regionLabel.toUpperCase() || 'HOME', {
+    const regionPill = this.add.text(contentX, heroY + 70, state?.regionLabel.toUpperCase() || 'HOME', {
       fontSize: '12px',
-      color: '#8bb7ff',
-      backgroundColor: '#1a2c49',
-      padding: { x: 10, y: 5 }
-    }).setAlpha(0.95));
+      color: '#d9e7ff',
+      backgroundColor: '#1b3152',
+      padding: { x: 12, y: 6 }
+    });
+    regionPill.setAlpha(0.96);
 
-    hero.add(this.add.text(contentX, 110, state ? state.leaderName : 'MastersMon', {
-      fontSize: '38px',
+    if (state?.badgeAsset && this.textures.exists('home-badge')) {
+      const badgeFrame = this.add.circle(heroX + heroWidth - 72, heroY + 74, 34, 0x12243d, 0.94);
+      badgeFrame.setStrokeStyle(2, accent, 0.46);
+      const badge = this.add.image(heroX + heroWidth - 72, heroY + 74, 'home-badge');
+      badge.setDisplaySize(48, 48);
+      this.children.bringToTop(badge);
+    }
+
+    this.add.text(contentX, heroY + 132, state ? state.leaderName : 'MastersMon', {
+      fontSize: '44px',
       color: '#ecf4ff',
       fontStyle: '700'
-    }));
+    });
 
-    hero.add(this.add.text(contentX, 160, subtitleText, {
-      fontSize: '17px',
-      color: '#d4e2f6',
-      wordWrap: { width: Math.max(240, heroWidth - contentX - 34) },
+    const subtitle = state
+      ? `${state.leaderName} te espera por la medalla ${state.badgeLabel}.`
+      : 'Carga tu progreso y continúa tu aventura.';
+
+    this.add.text(contentX, heroY + 188, subtitle, {
+      fontSize: '20px',
+      color: '#d6e4f7',
+      wordWrap: { width: contentWidth - 36 },
       lineSpacing: 6
-    }));
+    });
 
-    const chipTexts = state
-      ? [
-          `${state.teamCount || 0}/6 equipo`,
-          `${state.onboardingPercent}% onboarding`,
-          state.regionLabel,
-          state.badgeLabel
-        ]
-      : ['Home', 'Login', 'Progress', 'Gyms'];
+    const highlight = this.add.rectangle(contentX, heroY + 270, contentWidth - 36, 96, 0x0b1628, 0.56).setOrigin(0, 0);
+    highlight.setStrokeStyle(1, 0x86a7d0, 0.14);
 
-    let chipX = contentX;
-    chipTexts.forEach((value) => {
-      const chip = this.add.text(chipX, heroHeight - 118, value, {
-        fontSize: '12px',
-        color: '#c0d2ee',
-        backgroundColor: '#223650',
-        padding: { x: 10, y: 6 }
-      }).setAlpha(0.95);
-      hero.add(chip);
-      chipX += chip.width + 10;
+    this.add.text(contentX + 18, heroY + 290, 'Siguiente paso', {
+      fontSize: '13px',
+      color: '#8fb9ff',
+      fontStyle: '600'
+    });
+
+    this.add.text(contentX + 18, heroY + 314, state ? `Desafía el Gym de ${state.leaderName}` : 'Explora y fortalece tu equipo', {
+      fontSize: '22px',
+      color: '#ecf4ff',
+      fontStyle: '700'
+    });
+
+    this.add.text(contentX + 18, heroY + 346, state
+      ? `Ruta: ${state.regionLabel} · Medalla: ${state.badgeLabel}`
+      : 'Tu progreso aparece aquí al iniciar sesión.', {
+      fontSize: '14px',
+      color: '#a9bdd8',
+      wordWrap: { width: contentWidth - 170 }
     });
 
     if (state?.avatarAsset && this.textures.exists('home-avatar')) {
-      const avatarFrame = this.add.circle(heroWidth - 82, 64, 34, 0x152741, 0.98);
-      avatarFrame.setStrokeStyle(2, this.resolveAccentColor(state.teamColor), 0.42);
-      hero.add(avatarFrame);
-
-      const avatar = this.add.image(heroWidth - 82, 64, 'home-avatar');
-      avatar.setDisplaySize(54, 54);
-      hero.add(avatar);
+      const avatarCard = this.add.rectangle(contentX + contentWidth - 128, heroY + 282, 96, 72, 0x0b1528, 0.74).setOrigin(0, 0);
+      avatarCard.setStrokeStyle(1, 0x86a7d0, 0.14);
+      const avatar = this.add.image(contentX + contentWidth - 80, heroY + 318, 'home-avatar');
+      avatar.setDisplaySize(46, 46);
+      this.add.text(contentX + contentWidth - 126, heroY + 360, 'Tu perfil', {
+        fontSize: '11px',
+        color: '#9db4d1'
+      });
     }
+
+    const chipValues = state
+      ? [
+          `${state.teamCount || 0}/6 equipo`,
+          `${state.onboardingPercent}% onboarding`,
+          state.badgeLabel,
+          `starter: ${state.starterName}`
+        ]
+      : ['Home', 'Login', 'Progress'];
+
+    let chipX = contentX;
+    let chipY = heroY + heroHeight - 104;
+    chipValues.forEach((value) => {
+      const chip = this.add.text(chipX, chipY, value, {
+        fontSize: '12px',
+        color: '#c7d8ee',
+        backgroundColor: '#203651',
+        padding: { x: 11, y: 6 }
+      }).setAlpha(0.95);
+      chipX += chip.width + 10;
+      if (chipX > heroX + heroWidth - 180) {
+        chipX = contentX;
+        chipY += 34;
+      }
+    });
 
     const user = sessionStore.getUser();
     if (user) {
-      hero.add(this.add.text(heroWidth - 136, 122, user.nombre, {
-        fontSize: '15px',
-        color: '#ecf4ff',
-        fontStyle: '700',
-        align: 'right'
-      }).setOrigin(1, 0));
-      hero.add(this.add.text(heroWidth - 136, 144, `${this.formatNumber(user.pokedolares || 0)} Pokédolares`, {
-        fontSize: '12px',
-        color: '#9db4d1',
-        align: 'right'
-      }).setOrigin(1, 0));
+      this.add.text(contentX, heroY + heroHeight - 54, `${user.nombre} · ${this.formatNumber(user.pokedolares || 0)} Pokédolares`, {
+        fontSize: '13px',
+        color: '#a7bbd8'
+      });
     }
-
-    const footer = this.add.rectangle(heroWidth * 0.5, heroHeight - 46, heroWidth - 40, 64, 0xffffff, 0.035).setOrigin(0.5, 0.5);
-    footer.setStrokeStyle(1, 0x86a7d0, 0.14);
-    hero.add(footer);
-
-    const footerText = state
-      ? `${state.regionLabel} · ${state.badgeLabel} · ${state.starterName}`
-      : 'Home · progreso · equipo';
-    hero.add(this.add.text(30, heroHeight - 56, footerText, {
-      fontSize: '13px',
-      color: '#bcd0ea'
-    }));
-
-    this.add.text(36, 30, 'Home', {
-      fontSize: '34px',
-      color: '#ecf4ff',
-      fontStyle: '700'
-    });
-
-    this.add.text(36, 74, 'Centro de mando del entrenador', {
-      fontSize: '15px',
-      color: '#9db4d1'
-    });
-
-    this.add.existing(hero);
   }
 
   private resolveAccentColor(teamColor?: string): number {
@@ -342,7 +334,7 @@ export class HomeScene extends Phaser.Scene {
     return new Intl.NumberFormat('en-US').format(value);
   }
 
-  private normalizeName(value: string): string {
+  private normalizeAssetToken(value: string): string {
     return value
       .toLowerCase()
       .trim()
