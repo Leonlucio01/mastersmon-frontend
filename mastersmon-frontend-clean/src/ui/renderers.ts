@@ -10,7 +10,8 @@ import { getBossRanking, getBossState, getIdleState, startBoss, startIdle, claim
 import { buyItem, getItemShop } from '../services/shop';
 import { getPaymentsCatalog } from '../services/payments';
 import { getRankingSummary } from '../services/ranking';
-import { getPokemonCardImage } from '../utils/pokeSprites';
+import { getPokemonCardImage, getLocalPokemonSpriteByDexKey } from '../utils/pokeSprites';
+import { getAvatarAsset, getBadgeAsset, getItemAsset, getScenarioBackdrop, getTrainerAsset } from '../utils/gameAssets';
 import { showToast, escapeHtml } from './toast';
 
 interface ShellRefs {
@@ -81,9 +82,20 @@ export async function refreshPlayerMini(target: HTMLElement): Promise<void> {
     target.innerHTML = '<div class="player-mini"><div class="avatar-dot">?</div><div><strong>Invitado</strong><small>Inicia sesión para continuar</small></div></div>';
     return;
   }
+
+  const trainerData = (playerStore.trainerSetup || {}) as Record<string, unknown>;
+  const userData = user as unknown as Record<string, unknown>;
+  const avatarId = String(trainerData.avatar_id || userData.avatar_id || '').trim();
+  const localAvatar = getAvatarAsset(avatarId);
+  const avatarMarkup = localAvatar
+    ? `<img src="${escapeHtml(localAvatar)}" alt="${escapeHtml(user.nombre)}" />`
+    : user.foto
+      ? `<img src="${escapeHtml(user.foto)}" alt="${escapeHtml(user.nombre)}" />`
+      : `<div class="avatar-dot">${escapeHtml((user.nombre || 'M').charAt(0).toUpperCase())}</div>`;
+
   target.innerHTML = `
     <div class="player-mini">
-      ${user.foto ? `<img src="${escapeHtml(user.foto)}" alt="${escapeHtml(user.nombre)}" />` : `<div class="avatar-dot">${escapeHtml((user.nombre || 'M').charAt(0).toUpperCase())}</div>`}
+      ${avatarMarkup}
       <div>
         <strong>${escapeHtml(user.nombre)}</strong>
         <small>${formatNumber(user.pokedolares || 0)} Pokédolares</small>
@@ -95,19 +107,41 @@ async function renderHome(refs: ShellRefs): Promise<void> {
   const root = refs.panelRoot;
 
   if (!sessionStore.isAuthenticated()) {
+    const guestBackdrop = getScenarioBackdrop('kanto') || '';
+    const starterStrip = [1, 4, 7]
+      .map((id) => getLocalPokemonSpriteByDexKey(id, false))
+      .filter(Boolean)
+      .map((url, index) => `<div class="starter-chip"><img src="${escapeHtml(String(url))}" alt="starter-${index}" /></div>`)
+      .join('');
+
     root.innerHTML = `
-      <section class="section-card">
-        <h3>Comienza tu aventura</h3>
-        <p>Accede con tu cuenta para cargar tu equipo, tu caja y el progreso de tu partida.</p>
-        <div id="google-login-slot" class="section-card"></div>
+      <section class="section-card home-hero home-hero--guest">
+        <div class="home-hero__media">
+          ${guestBackdrop ? `<img class="home-hero__backdrop" src="${escapeHtml(guestBackdrop)}" alt="Región inicial" />` : ''}
+          <div class="home-hero__shade"></div>
+          <div class="home-hero__starter-strip">${starterStrip}</div>
+        </div>
+        <div class="home-hero__content">
+          <span class="hero-kicker">MastersMon</span>
+          <h3>Comienza tu aventura</h3>
+          <p>Accede para cargar tu equipo, tu caja y el progreso de tu partida.</p>
+          <div id="google-login-slot" class="google-button-shell"></div>
+          <div class="stack home-badges">
+            <span class="badge">Kanto • Johto • Hoenn</span>
+            <span class="badge">Captura</span>
+            <span class="badge">Gyms</span>
+            <span class="badge">Boss / Idle</span>
+          </div>
+        </div>
       </section>
+
       <section class="section-card">
         <h3>Modos destacados</h3>
-        <div class="section-grid">
-          <div class="metric-card"><span>🧬 Captura</span><strong>Mapas</strong></div>
-          <div class="metric-card"><span>⚔️ Combate</span><strong>Arena</strong></div>
-          <div class="metric-card"><span>🏛️ Progreso</span><strong>Gyms</strong></div>
-          <div class="metric-card"><span>👹 Evento</span><strong>Boss / Idle</strong></div>
+        <div class="home-shortcuts-grid compact-shortcuts">
+          ${renderHomeShortcutVisual('maps', 'Mapas', 'Explora y captura', getScenarioBackdrop('kanto'))}
+          ${renderHomeShortcutVisual('arena', 'Arena', 'Combate rápido', getItemAsset('mega-ring'))}
+          ${renderHomeShortcutVisual('gyms', 'Gyms', 'Progreso regional', getBadgeAsset('kanto', 'cascade'))}
+          ${renderHomeShortcutVisual('bossIdle', 'Boss / Idle', 'Evento y farmeo', getItemAsset('booster_battle_exp_x2_24h'))}
         </div>
       </section>
     `;
@@ -152,51 +186,75 @@ async function renderHome(refs: ShellRefs): Promise<void> {
   const homeState = resolveHomeState(onboarding, team.equipo, gymProgress, bossState, idleState);
   const nextGym = (gymProgress.siguiente_gym as Record<string, unknown> | null) || null;
   const idleSession = (idleState.sesion as Record<string, unknown> | null) || null;
+  const regionCode = String(nextGym?.region_codigo || 'kanto');
+  const trainerName = String(nextGym?.lider_slug || nextGym?.lider_nombre || nextGym?.codigo || '');
+  const badgeName = String(nextGym?.medalla_slug || nextGym?.medalla_nombre || nextGym?.codigo || '');
+  const trainerAsset = getTrainerAsset(regionCode, trainerName, nextGym?.trainer_asset_path as string | undefined);
+  const badgeAsset = getBadgeAsset(regionCode, badgeName, nextGym?.badge_asset_path as string | undefined);
+  const heroBackdrop = getScenarioBackdrop(regionCode);
+  const trainerSetupData = trainerSetup as unknown as Record<string, unknown>;
+  const avatarAsset = getAvatarAsset(String(trainerSetupData.avatar_id || (me as unknown as Record<string, unknown>).avatar_id || ''));
+  const starterPreview = getStarterPreview(String(trainerSetupData.starter_code || '')) || pickLeadPokemonSprite(team.equipo) || getItemAsset('poke-ball');
+  const idleAsset = getItemAsset(String(idleSession?.estado || '').toLowerCase() === 'reclamable' ? 'booster_battle_gold_x2_24h' : 'booster_battle_exp_x2_24h') || getItemAsset('poke-ball');
+  const bossAsset = getItemAsset('mega-ring') || getItemAsset('shiny-charm');
+  const mapsAsset = getScenarioBackdrop(regionCode) || getScenarioBackdrop('kanto');
+  const pokemonAsset = pickLeadPokemonSprite(team.equipo) || getStarterPreview(String(trainerSetupData.starter_code || ''));
 
   root.innerHTML = `
-    <section class="section-card">
-      <h3>${escapeHtml(homeState.title)}</h3>
-      <p>${escapeHtml(homeState.subtitle)}</p>
-      <div class="row" style="margin-top: 1rem; gap: 0.75rem; flex-wrap: wrap;">
-        <button data-go-view="${homeState.primaryView}">${escapeHtml(homeState.primaryLabel)}</button>
-        ${homeState.secondaryView && homeState.secondaryLabel ? `<button class="secondary-button" data-go-view="${homeState.secondaryView}">${escapeHtml(homeState.secondaryLabel)}</button>` : ''}
+    <section class="section-card home-hero">
+      <div class="home-hero__media">
+        ${heroBackdrop ? `<img class="home-hero__backdrop" src="${escapeHtml(heroBackdrop)}" alt="${escapeHtml(regionCode)}" />` : ''}
+        <div class="home-hero__shade"></div>
+        <div class="home-hero__media-stack">
+          ${trainerAsset ? `<div class="hero-trainer-card"><img src="${escapeHtml(trainerAsset)}" alt="${escapeHtml(trainerName || 'Líder')}" /></div>` : ''}
+          ${badgeAsset ? `<div class="hero-badge-card"><img src="${escapeHtml(badgeAsset)}" alt="${escapeHtml(badgeName || 'Medalla')}" /></div>` : ''}
+          ${starterPreview ? `<div class="hero-starter-card"><img src="${escapeHtml(starterPreview)}" alt="Preview" /></div>` : ''}
+        </div>
       </div>
-      <div class="stack" style="margin-top: 1rem;">
-        ${homeState.badges.map((badge) => `<span class="badge">${escapeHtml(badge)}</span>`).join('')}
+      <div class="home-hero__content">
+        <span class="hero-kicker">${escapeHtml(regionCode.toUpperCase())}</span>
+        <h3>${escapeHtml(homeState.title)}</h3>
+        <p>${escapeHtml(homeState.subtitle)}</p>
+        <div class="row home-hero__actions">
+          <button data-go-view="${homeState.primaryView}">${escapeHtml(homeState.primaryLabel)}</button>
+          ${homeState.secondaryView && homeState.secondaryLabel ? `<button class="secondary-button" data-go-view="${homeState.secondaryView}">${escapeHtml(homeState.secondaryLabel)}</button>` : ''}
+        </div>
+        <div class="stack home-badges">
+          ${homeState.badges.map((badge) => `<span class="badge">${escapeHtml(badge)}</span>`).join('')}
+        </div>
       </div>
     </section>
 
     <section class="section-card">
       <h3>Resumen rápido</h3>
-      <div class="section-grid">
-        <div class="metric-card"><span>Entrenador</span><strong>${escapeHtml(me.nombre)}</strong></div>
-        <div class="metric-card"><span>Pokédolares</span><strong>${formatNumber(me.pokedolares || 0)}</strong></div>
-        <div class="metric-card"><span>Pokémon</span><strong>${pokemon.length}</strong></div>
-        <div class="metric-card"><span>Equipo</span><strong>${team.equipo.length}/6</strong></div>
-        <div class="metric-card"><span>Items</span><strong>${items.length}</strong></div>
-        <div class="metric-card"><span>Onboarding</span><strong>${onboarding.progreso.porcentaje}%</strong></div>
+      <div class="home-summary-grid">
+        ${renderHomeSummaryCard('Entrenador', me.nombre, trainerSetup.setup_completed ? 'Configurado' : 'Pendiente', avatarAsset || me.foto || null)}
+        ${renderHomeSummaryCard('Pokédolares', formatNumber(me.pokedolares || 0), 'Economía', getItemAsset('poke-ball'))}
+        ${renderHomeSummaryCard('Pokémon', String(pokemon.length), 'Caja activa', pokemonAsset)}
+        ${renderHomeSummaryCard('Equipo', `${team.equipo.length}/6`, 'Listo para combate', pickLeadPokemonSprite(team.equipo))}
+        ${renderHomeSummaryCard('Onboarding', `${onboarding.progreso.porcentaje}%`, `${onboarding.progreso.completadas}/${onboarding.progreso.total} misiones`, getItemAsset('shiny-charm'))}
       </div>
     </section>
 
     <section class="section-card">
       <h3>Estado actual</h3>
-      <div class="section-grid">
-        ${renderStatusMetric('Gym', nextGym ? `${String(nextGym.lider_nombre || nextGym.codigo || 'Siguiente reto')}` : 'Completados', nextGym ? String(nextGym.medalla_nombre || nextGym.region_codigo || 'Disponible') : 'Todos listos')}
-        ${renderStatusMetric('Boss', bossState.activo ? 'Activo' : 'En espera', bossState.activo ? `Termina en ${formatSecondsCompact(Number(bossState.segundos_para_fin || 0))}` : `Inicia en ${formatSecondsCompact(Number(bossState.segundos_para_inicio || 0))}`)}
-        ${renderStatusMetric('Idle', Boolean(idleState.activa) ? String(idleSession?.estado || 'activa') : 'Sin sesión', Boolean(idleState.activa) ? `${Number(idleSession?.progreso_pct || 0)}% · ${formatSecondsCompact(Number(idleSession?.segundos_restantes || 0))}` : 'Disponible')}
-        ${renderStatusMetric('Trainer', trainerSetup.setup_completed ? 'Listo' : 'Pendiente', trainerSetup.team_color ? `Color ${String(trainerSetup.team_color)}` : 'Configura tu estilo')}
+      <div class="home-state-grid">
+        ${renderHomeStateTile('Gym', nextGym ? String(nextGym.lider_nombre || nextGym.codigo || 'Siguiente reto') : 'Completados', nextGym ? String(nextGym.medalla_nombre || nextGym.region_codigo || 'Disponible') : 'Todos listos', badgeAsset)}
+        ${renderHomeStateTile('Boss', bossState.activo ? 'Activo' : 'En espera', bossState.activo ? `Termina en ${formatSecondsCompact(Number(bossState.segundos_para_fin || 0))}` : `Inicia en ${formatSecondsCompact(Number(bossState.segundos_para_inicio || 0))}`, bossAsset)}
+        ${renderHomeStateTile('Idle', Boolean(idleState.activa) ? String(idleSession?.estado || 'activa') : 'Disponible', Boolean(idleState.activa) ? `${Number(idleSession?.progreso_pct || 0)}% · ${formatSecondsCompact(Number(idleSession?.segundos_restantes || 0))}` : 'Listo para iniciar', idleAsset)}
+        ${renderHomeStateTile('Trainer', trainerSetup.setup_completed ? 'Listo' : 'Pendiente', trainerSetup.team_color ? `Color ${String(trainerSetup.team_color)}` : 'Configura tu estilo', avatarAsset || me.foto || null)}
       </div>
     </section>
 
     <section class="section-card">
       <h3>Accesos rápidos</h3>
-      <div class="section-grid">
-        ${homeShortcut('🧬', 'My Pokémon', 'Caja y evolución', 'pokemon')}
-        ${homeShortcut('👥', 'Team', 'Ajustar equipo', 'team')}
-        ${homeShortcut('⚔️', 'Arena', 'Combate rápido', 'arena')}
-        ${homeShortcut('🗺️', 'Maps', 'Explorar y capturar', 'maps')}
-        ${homeShortcut('🏛️', 'Gyms', 'Progreso regional', 'gyms')}
-        ${homeShortcut('👹', 'Boss / Idle', 'Evento y farmeo', 'bossIdle')}
+      <div class="home-shortcuts-grid">
+        ${renderHomeShortcutVisual('pokemon', 'My Pokémon', 'Caja y evolución', pokemonAsset)}
+        ${renderHomeShortcutVisual('team', 'Team', 'Armar equipo', pickLeadPokemonSprite(team.equipo) || starterPreview)}
+        ${renderHomeShortcutVisual('arena', 'Arena', 'Combate rápido', getItemAsset('mega-ring'))}
+        ${renderHomeShortcutVisual('maps', 'Maps', 'Explorar y capturar', mapsAsset)}
+        ${renderHomeShortcutVisual('gyms', 'Gyms', 'Progreso regional', badgeAsset || getBadgeAsset(regionCode, badgeName))}
+        ${renderHomeShortcutVisual('bossIdle', 'Boss / Idle', 'Evento y farmeo', idleAsset || bossAsset)}
       </div>
     </section>
   `;
@@ -772,6 +830,72 @@ async function renderRanking(refs: ShellRefs): Promise<void> {
       </div>
     </section>
   `;
+}
+
+function pickLeadPokemonSprite(team: TeamSlot[]): string | null {
+  const lead = team.find((row) => row.es_lider) || team[0];
+  if (!lead) return null;
+  return getPokemonCardImage(lead.pokemon_id, lead.es_shiny, lead.imagen);
+}
+
+function getStarterPreview(starterCode: string | null | undefined): string | null {
+  const key = String(starterCode || '').trim().toLowerCase();
+  const starterDex: Record<string, number> = {
+    bulbasaur: 1,
+    charmander: 4,
+    squirtle: 7,
+    chikorita: 152,
+    cyndaquil: 155,
+    totodile: 158,
+    treecko: 252,
+    torchic: 255,
+    mudkip: 258,
+    turtwig: 387,
+    chimchar: 390,
+    piplup: 393,
+    snivy: 495,
+    tepig: 498,
+    oshawott: 501,
+  };
+  const dex = starterDex[key];
+  return dex ? getLocalPokemonSpriteByDexKey(dex, false) : null;
+}
+
+function renderHomeSummaryCard(label: string, value: string, detail: string, assetUrl?: string | null): string {
+  return `
+    <article class="home-summary-card">
+      ${assetUrl ? `<div class="home-summary-card__thumb"><img src="${escapeHtml(assetUrl)}" alt="${escapeHtml(label)}" /></div>` : '<div class="home-summary-card__thumb home-summary-card__thumb--empty"></div>'}
+      <div>
+        <span>${escapeHtml(label)}</span>
+        <strong>${escapeHtml(value)}</strong>
+        <small>${escapeHtml(detail)}</small>
+      </div>
+    </article>`;
+}
+
+function renderHomeStateTile(label: string, value: string, detail: string, assetUrl?: string | null): string {
+  return `
+    <article class="home-state-tile">
+      ${assetUrl ? `<div class="home-state-tile__thumb"><img src="${escapeHtml(assetUrl)}" alt="${escapeHtml(label)}" /></div>` : '<div class="home-state-tile__thumb home-state-tile__thumb--empty"></div>'}
+      <div>
+        <span>${escapeHtml(label)}</span>
+        <strong>${escapeHtml(value)}</strong>
+        <small>${escapeHtml(detail)}</small>
+      </div>
+    </article>`;
+}
+
+function renderHomeShortcutVisual(view: ViewKey, title: string, subtitle: string, assetUrl?: string | null): string {
+  return `
+    <button class="home-shortcut-card" data-go-view="${view}">
+      <div class="home-shortcut-card__media">
+        ${assetUrl ? `<img src="${escapeHtml(assetUrl)}" alt="${escapeHtml(title)}" />` : '<div class="home-shortcut-card__placeholder"></div>'}
+      </div>
+      <div class="home-shortcut-card__copy">
+        <strong>${escapeHtml(title)}</strong>
+        <small>${escapeHtml(subtitle)}</small>
+      </div>
+    </button>`;
 }
 
 function ensureAuthenticated(root: HTMLElement, onNavigate: (view: ViewKey) => void): void {
