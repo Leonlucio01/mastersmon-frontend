@@ -4,16 +4,16 @@ import type { ViewKey } from './types/models';
 import { bindLogoutButton, renderView, tryRestoreSession } from './ui/renderers';
 
 const views: Array<{ key: ViewKey; icon: string; title: string; subtitle: string; scene: string }> = [
-  { key: 'home', icon: '🏠', title: 'Home', subtitle: 'Login y hub', scene: 'HomeScene' },
-  { key: 'pokemon', icon: '🧬', title: 'My Pokémon', subtitle: 'Caja y sprites', scene: 'PokemonScene' },
-  { key: 'team', icon: '👥', title: 'Team', subtitle: 'Equipo 1–6', scene: 'TeamScene' },
-  { key: 'arena', icon: '⚔️', title: 'Arena', subtitle: 'Sesiones rápidas', scene: 'ArenaScene' },
-  { key: 'onboarding', icon: '✨', title: 'Onboarding', subtitle: 'Primeras metas', scene: 'OnboardingScene' },
-  { key: 'maps', icon: '🗺️', title: 'Maps', subtitle: 'Encuentros online', scene: 'MapsScene' },
-  { key: 'gyms', icon: '🏛️', title: 'Gyms', subtitle: 'Regiones y medallas', scene: 'GymsScene' },
-  { key: 'bossIdle', icon: '👹', title: 'Boss / Idle', subtitle: 'Evento y auto-farm', scene: 'BossIdleScene' },
-  { key: 'shop', icon: '🛒', title: 'Shop', subtitle: 'Items y premium', scene: 'ShopScene' },
-  { key: 'ranking', icon: '🏆', title: 'Ranking', subtitle: 'Top global', scene: 'RankingScene' }
+  { key: 'home', icon: 'hub', title: 'Home', subtitle: 'Estado, progreso y accesos', scene: 'HomeScene' },
+  { key: 'pokemon', icon: 'dex', title: 'My Pokemon', subtitle: 'Caja, movimientos y evolucion', scene: 'PokemonScene' },
+  { key: 'team', icon: 'tm', title: 'Team', subtitle: 'Slots 1-6 y core de combate', scene: 'TeamScene' },
+  { key: 'arena', icon: 'pvp', title: 'Arena', subtitle: 'Sesiones rapidas y recompensas', scene: 'ArenaScene' },
+  { key: 'onboarding', icon: 'new', title: 'Onboarding', subtitle: 'Primeras metas y rewards', scene: 'OnboardingScene' },
+  { key: 'maps', icon: 'map', title: 'Maps', subtitle: 'Explorar, presencia y captura', scene: 'MapsScene' },
+  { key: 'gyms', icon: 'gym', title: 'Gyms', subtitle: 'Ruta regional y medallas', scene: 'GymsScene' },
+  { key: 'bossIdle', icon: 'raid', title: 'Boss / Idle', subtitle: 'Evento global y auto farm', scene: 'BossIdleScene' },
+  { key: 'shop', icon: 'shop', title: 'Shop', subtitle: 'Items, premium e historial', scene: 'ShopScene' },
+  { key: 'ranking', icon: 'top', title: 'Ranking', subtitle: 'Top global de jugadores', scene: 'RankingScene' }
 ];
 
 const sidebarNav = document.getElementById('sidebar-nav') as HTMLElement;
@@ -47,6 +47,7 @@ function renderSidebar(): void {
 async function navigate(view: ViewKey): Promise<void> {
   activeView = view;
   renderSidebar();
+
   const next = views.find((item) => item.key === view);
   if (next) {
     game.scene.start(next.scene);
