@@ -150,6 +150,10 @@ export function getMapAsset(regionOrName?: string | null, mapName?: string | nul
   );
 }
 
+export function getScenarioBackdrop(regionOrName?: string | null, mapName?: string | null, backendPath?: string | null): string | null {
+  return getMapAsset(regionOrName, mapName, backendPath);
+}
+
 export function getItemAsset(code?: string | null, backendPath?: string | null): string | null {
   const pathCandidate = cleanupBackendPath(backendPath);
   const normalizedCode = code ? normalizeValue(code) : null;
