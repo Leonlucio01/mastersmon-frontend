@@ -62,13 +62,17 @@ function resolveKeyCandidates(input: string | number): string[] {
   const normalized = normalizeName(raw);
   const directDex = normalizeDexKey(raw);
 
-  return Array.from(new Set([
-    directDex,
-    normalized,
-    normalized.replace(/-/g, '_'),
-    normalized.replace(/_/g, '-'),
-    raw.padStart && /^\d+$/.test(raw) ? raw.padStart(4, '0') : raw,
-  ].filter(Boolean)));
+  return Array.from(
+    new Set(
+      [
+        directDex,
+        normalized,
+        normalized.replace(/-/g, '_'),
+        normalized.replace(/_/g, '-'),
+        /^\d+$/.test(raw) ? raw.padStart(4, '0') : raw
+      ].filter(Boolean)
+    )
+  );
 }
 
 export function getLocalPokemonSpriteByDexKey(dexKey: string | number, shiny = false): string | null {
