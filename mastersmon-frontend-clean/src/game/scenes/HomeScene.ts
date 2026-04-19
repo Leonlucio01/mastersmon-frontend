@@ -1,9 +1,10 @@
 import Phaser from 'phaser';
 import { sessionStore } from '../../store/session';
 import { playerStore } from '../../store/player';
-import { getTrainerSetup, getOnboarding } from '../../services/player';
+import { getMyPokemon, getMyTeam, getTrainerSetup, getOnboarding } from '../../services/player';
 import { getGymProgress } from '../../services/gyms';
 import { getAvatarAsset, getBadgeAsset, getScenarioBackdrop, getTrainerAsset } from '../../utils/gameAssets';
+import { getPokemonCardImage } from '../../utils/pokeSprites';
 
 interface HeroState {
   regionCode: string;
@@ -19,6 +20,9 @@ interface HeroState {
   teamColor: string;
   onboardingPercent: number;
   teamCount: number;
+  playerName: string;
+  pokedolares: number;
+  teamSprites: string[];
 }
 
 const REGION_LABELS: Record<string, string> = {
@@ -76,23 +80,29 @@ export class HomeScene extends Phaser.Scene {
 
   private async loadHeroState(): Promise<void> {
     try {
-      const [gymProgressRaw, trainerSetupRaw, onboardingRaw] = await Promise.all([
+      const [gymProgressRaw, trainerSetupRaw, onboardingRaw, myTeamRaw, myPokemonRaw] = await Promise.all([
         getGymProgress().catch(() => null),
         getTrainerSetup().catch(() => null),
-        getOnboarding().catch(() => null)
+        getOnboarding().catch(() => null),
+        getMyTeam().catch(() => null),
+        getMyPokemon().catch(() => null)
       ]);
 
       if (trainerSetupRaw) playerStore.trainerSetup = trainerSetupRaw;
       if (onboardingRaw) playerStore.onboarding = onboardingRaw;
+      if (myTeamRaw?.equipo) playerStore.team = myTeamRaw.equipo;
+      if (Array.isArray(myPokemonRaw)) playerStore.pokemon = myPokemonRaw;
 
       const nextGym = ((gymProgressRaw as Record<string, unknown> | null)?.siguiente_gym as Record<string, unknown> | null) || null;
       const trainerSetup = trainerSetupRaw || playerStore.trainerSetup;
       const onboarding = onboardingRaw || playerStore.onboarding;
       const user = sessionStore.getUser();
+      const orderedTeam = [...playerStore.team].sort((a, b) => a.posicion - b.posicion);
+      const fallbackPokemon = Array.isArray(myPokemonRaw) ? myPokemonRaw : playerStore.pokemon;
 
       const regionCode = String(nextGym?.region_codigo || 'kanto').toLowerCase();
-      const leaderName = String(nextGym?.lider_nombre || 'Misty');
-      const badgeLabel = String(nextGym?.medalla_nombre || 'Cascade Badge');
+      const leaderName = String(nextGym?.lider_nombre || 'Objetivo regional');
+      const badgeLabel = String(nextGym?.medalla_nombre || 'Progress Badge');
       const badgeKey = this.normalizeAssetToken(badgeLabel).replace(/_badge$/i, '');
       const trainerAsset = getTrainerAsset(regionCode, leaderName, nextGym?.trainer_asset_path as string | undefined);
       const badgeAsset = getBadgeAsset(regionCode, badgeKey, nextGym?.badge_asset_path as string | undefined);
@@ -100,6 +110,11 @@ export class HomeScene extends Phaser.Scene {
       const backdropAsset = getScenarioBackdrop(regionCode, backdropHint);
       const starterName = String(trainerSetup?.starter_code || 'starter');
       const avatarAsset = getAvatarAsset(user?.avatar_id || trainerSetup?.avatar_id || null, user?.foto || null);
+      const spritePool = orderedTeam.length ? orderedTeam : fallbackPokemon.slice(0, 6);
+      const teamSprites = spritePool
+        .slice(0, 6)
+        .map((row) => getPokemonCardImage(row.pokemon_id, row.es_shiny, row.imagen))
+        .filter(Boolean);
 
       this.heroState = {
         regionCode,
@@ -114,7 +129,10 @@ export class HomeScene extends Phaser.Scene {
         starterName,
         teamColor: String(trainerSetup?.team_color || 'blue'),
         onboardingPercent: Number(onboarding?.progreso?.porcentaje || 0),
-        teamCount: playerStore.team.length,
+        teamCount: orderedTeam.length,
+        playerName: String(user?.nombre || 'Entrenador'),
+        pokedolares: Number(user?.pokedolares || 0),
+        teamSprites
       };
 
       this.renderShell();
@@ -134,6 +152,10 @@ export class HomeScene extends Phaser.Scene {
       { key: 'home-badge', url: state.badgeAsset },
       { key: 'home-avatar', url: state.avatarAsset }
     ];
+
+    state.teamSprites.forEach((url, index) => {
+      queue.push({ key: `home-team-${index}`, url });
+    });
 
     let shouldStart = false;
     for (const entry of queue) {

@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { BootScene } from './scenes/BootScene';
 import { PreloadScene } from './scenes/PreloadScene';
-import { HomeScene } from './scenes/HomeScene';
+import { HomeSceneV2 } from './scenes/HomeSceneV2';
 import { PokemonScene } from './scenes/PokemonScene';
 import { TeamScene } from './scenes/TeamScene';
 import { ArenaScene } from './scenes/ArenaScene';
@@ -20,7 +20,7 @@ export function createGame(parent: string): Phaser.Game {
     scene: [
       BootScene,
       PreloadScene,
-      HomeScene,
+      HomeSceneV2,
       PokemonScene,
       TeamScene,
       ArenaScene,

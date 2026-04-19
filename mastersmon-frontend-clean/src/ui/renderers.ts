@@ -44,7 +44,7 @@ export async function renderView(view: ViewKey, refs: ShellRefs): Promise<void> 
 
   switch (view) {
     case 'home':
-      await renderHome(refs);
+      await renderHomeV2(refs);
       return;
     case 'pokemon':
       await renderPokemon(refs);
@@ -210,6 +210,221 @@ async function renderHome(refs: ShellRefs): Promise<void> {
         ${renderHomeShortcutVisual('maps', 'Maps', 'Explorar y capturar', mapAsset, '🗺️')}
         ${renderHomeShortcutVisual('gyms', 'Gyms', 'Progreso regional', badgeAsset, '🏛️')}
         ${renderHomeShortcutVisual('bossIdle', 'Boss / Idle', 'Evento y farmeo', idleAsset, '👹')}
+      </div>
+    </section>
+  `;
+
+  root.querySelectorAll('[data-go-view]').forEach((button) => {
+    button.addEventListener('click', () => {
+      refs.onNavigate((button as HTMLElement).dataset.goView as ViewKey);
+    });
+  });
+}
+
+async function renderHomeV2(refs: ShellRefs): Promise<void> {
+  const root = refs.panelRoot;
+
+  if (!sessionStore.isAuthenticated()) {
+    root.innerHTML = `
+      <section class="section-card">
+        <h3>Comienza tu aventura</h3>
+        <p>Accede con tu cuenta para cargar tu equipo, tu caja y el progreso de tu partida.</p>
+        <div id="google-login-slot-v2" class="section-card"></div>
+      </section>
+      <section class="section-card">
+        <h3>Comandos base</h3>
+        <div class="home-shortcuts-grid compact-shortcuts">
+          ${renderHomeShortcutVisual('maps', 'Mapas', 'Explorar y capturar', null, 'MAP')}
+          ${renderHomeShortcutVisual('pokemon', 'My Pokemon', 'Caja y evolucion', null, 'DEX')}
+          ${renderHomeShortcutVisual('arena', 'Arena', 'Combate rapido', null, 'PVP')}
+          ${renderHomeShortcutVisual('gyms', 'Gyms', 'Retos regionales', null, 'GYM')}
+        </div>
+      </section>
+    `;
+
+    const slot = document.getElementById('google-login-slot-v2');
+    if (slot) {
+      renderGoogleButton(
+        slot,
+        async (result) => {
+          showToast('Sesion iniciada', result.mensaje);
+          await refs.refreshShell();
+          refs.onNavigate('home');
+        },
+        (message) => showToast('Login', message)
+      );
+    }
+    return;
+  }
+
+  const [me, trainerSetup, items, pokemon, team, onboarding, gymProgressRaw, bossStateRaw, idleStateRaw] = await Promise.all([
+    getMe(),
+    getTrainerSetup(),
+    getMyItems(),
+    getMyPokemon(),
+    getMyTeam(),
+    getOnboarding(),
+    getGymProgress(),
+    getBossState(),
+    getIdleState()
+  ]);
+
+  sessionStore.setUser(me);
+  playerStore.trainerSetup = trainerSetup;
+  playerStore.items = items;
+  playerStore.pokemon = pokemon;
+  playerStore.team = team.equipo;
+  playerStore.onboarding = onboarding;
+
+  const gymProgress = gymProgressRaw as Record<string, unknown>;
+  const bossState = bossStateRaw as Record<string, unknown>;
+  const idleState = idleStateRaw as Record<string, unknown>;
+  const orderedTeam = [...team.equipo].sort((a, b) => a.posicion - b.posicion);
+  const homeState = resolveHomeState(onboarding, orderedTeam, gymProgress, bossState, idleState);
+  const nextGym = (gymProgress.siguiente_gym as Record<string, unknown> | null) || null;
+  const idleSession = (idleState.sesion as Record<string, unknown> | null) || null;
+
+  const regionCode = String(nextGym?.region_codigo || 'kanto').toLowerCase();
+  const leaderName = String(nextGym?.lider_nombre || 'Siguiente gym');
+  const badgeLabel = String(nextGym?.medalla_nombre || 'Badge');
+  const badgeKey = normalizeAssetToken(badgeLabel).replace(/_badge$/i, '');
+
+  const avatarAsset = getAvatarAsset(me.avatar_id || trainerSetup.avatar_id || null, me.foto || null);
+  const trainerAsset = nextGym ? getTrainerAsset(regionCode, leaderName, nextGym?.trainer_asset_path as string | undefined) : null;
+  const badgeAsset = nextGym ? getBadgeAsset(regionCode, badgeKey, nextGym?.badge_asset_path as string | undefined) : null;
+  const mapAsset = getScenarioBackdrop(regionCode, resolveScenarioHint(leaderName, regionCode));
+  const leadTeam = orderedTeam[0] || null;
+  const firstPokemon = pokemon[0] || null;
+  const idleAsset = getItemAsset('booster_battle_exp_x2_24h') || getItemAsset('0004_poke-ball');
+  const itemShowcase = items.slice(0, 3);
+  const averageLevel = orderedTeam.length
+    ? Math.round(orderedTeam.reduce((sum, slot) => sum + Number(slot.nivel || 0), 0) / orderedTeam.length)
+    : 0;
+  const teamPower = orderedTeam.reduce((sum, slot) => sum + Number(slot.ataque || 0) + Number(slot.ataque_especial || 0), 0);
+  const activeRegion = nextGym ? String(nextGym.region_codigo || regionCode).toUpperCase() : 'FREE';
+
+  const commandButtons = [
+    {
+      view: homeState.primaryView,
+      label: homeState.primaryLabel,
+      icon: homeState.primaryView === 'maps' ? 'MAP' : homeState.primaryView === 'team' ? 'TM' : homeState.primaryView === 'bossIdle' ? 'BOS' : homeState.primaryView === 'gyms' ? 'GYM' : 'GO',
+      accent: 'is-primary'
+    },
+    homeState.secondaryView && homeState.secondaryLabel
+      ? {
+          view: homeState.secondaryView,
+          label: homeState.secondaryLabel,
+          icon: homeState.secondaryView === 'pokemon' ? 'DEX' : homeState.secondaryView === 'team' ? 'TM' : homeState.secondaryView === 'arena' ? 'PVP' : 'GO',
+          accent: ''
+        }
+      : null,
+    { view: 'pokemon' as ViewKey, label: 'My Pokemon', icon: 'DEX', accent: '' },
+    { view: 'maps' as ViewKey, label: 'Maps', icon: 'MAP', accent: '' },
+    { view: 'arena' as ViewKey, label: 'Arena', icon: 'PVP', accent: '' },
+    { view: 'gyms' as ViewKey, label: 'Gyms', icon: 'GYM', accent: '' }
+  ].filter(Boolean) as Array<{ view: ViewKey; label: string; icon: string; accent: string }>;
+
+  root.innerHTML = `
+    <section class="home-command-shell">
+      <div class="home-hero-v2">
+        <div class="home-identity-card">
+          <div class="home-identity-head">
+            ${avatarAsset ? `<img class="home-avatar-xl" src="${escapeHtml(avatarAsset)}" alt="${escapeHtml(me.nombre)}" />` : `<div class="home-avatar-xl home-avatar-xl--fallback">${escapeHtml((me.nombre || 'M').charAt(0).toUpperCase())}</div>`}
+            <div>
+              <p class="home-kicker">Tu centro de mando</p>
+              <h3>${escapeHtml(me.nombre)}</h3>
+              <div class="home-chip-row">
+                <span class="badge">${escapeHtml(activeRegion)}</span>
+                <span class="badge">${orderedTeam.length}/6 team</span>
+                <span class="badge">${formatNumber(me.pokedolares || 0)} $</span>
+                <span class="badge">${onboarding.progreso.porcentaje}% onboarding</span>
+              </div>
+            </div>
+          </div>
+          <p class="home-identity-copy">${escapeHtml(homeState.subtitle)}</p>
+          <div class="home-command-actions">
+            ${commandButtons.map((button) => renderHomeCommandButton(button.view, button.label, button.icon, button.accent)).join('')}
+          </div>
+        </div>
+
+        <div class="home-focus-card">
+          <p class="home-kicker">Foco actual</p>
+          <h4>${escapeHtml(homeState.title)}</h4>
+          <p>${escapeHtml(nextGym ? `${leaderName} sigue como siguiente objetivo, pero ahora el Home prioriza tu cuenta, equipo y ritmo de juego.` : homeState.subtitle)}</p>
+          <div class="home-focus-art">
+            ${trainerAsset ? `<img src="${escapeHtml(trainerAsset)}" alt="${escapeHtml(leaderName)}" />` : mapAsset ? `<img src="${escapeHtml(mapAsset)}" alt="${escapeHtml(activeRegion)}" />` : '<span class="home-focus-fallback">MM</span>'}
+          </div>
+          <div class="home-stat-stack">
+            ${renderHomePanelMetric('Lv promedio', averageLevel ? `Lv ${averageLevel}` : 'Sin team', averageLevel ? 'base de combate' : 'arma tu equipo')}
+            ${renderHomePanelMetric('Potencia', teamPower ? formatNumber(teamPower) : '0', 'ataque visible')}
+            ${renderHomePanelMetric('Caja', formatNumber(pokemon.length), 'pokemon listos')}
+          </div>
+        </div>
+      </div>
+
+      <div class="home-team-strip">
+        ${Array.from({ length: 6 }, (_, index) => renderHomeTeamSlot(orderedTeam[index] || null, index + 1)).join('')}
+      </div>
+
+      <div class="home-dashboard-grid">
+        <section class="home-panel-card">
+          <p class="home-kicker">Objetivo activo</p>
+          <div class="home-objective-card">
+            <div>
+              <h4>${escapeHtml(homeState.title)}</h4>
+              <p>${escapeHtml(homeState.subtitle)}</p>
+            </div>
+            <div class="home-chip-row">
+              ${homeState.badges.map((badge) => `<span class="badge">${escapeHtml(badge)}</span>`).join('')}
+            </div>
+          </div>
+        </section>
+
+        <section class="home-panel-card">
+          <p class="home-kicker">Estado del mundo</p>
+          <div class="home-state-grid home-state-grid--v2">
+            ${renderHomeStateTile('Gym', nextGym ? leaderName : 'Libre', nextGym ? badgeLabel : 'Sin bloqueo', badgeAsset, 'GYM')}
+            ${renderHomeStateTile('Boss', bossState.activo ? 'Activo' : 'En espera', bossState.activo ? `Cierra en ${formatSecondsCompact(Number(bossState.segundos_para_fin || 0))}` : `Abre en ${formatSecondsCompact(Number(bossState.segundos_para_inicio || 0))}`, null, 'BOS')}
+            ${renderHomeStateTile('Idle', Boolean(idleState.activa) ? 'En curso' : 'Disponible', Boolean(idleState.activa) ? `${Number(idleSession?.progreso_pct || 0)}%` : 'Listo para iniciar', idleAsset, 'IDL')}
+            ${renderHomeStateTile('Mapa', activeRegion, nextGym ? 'Ruta siguiente' : 'Exploracion libre', mapAsset, 'MAP')}
+          </div>
+        </section>
+
+        <section class="home-panel-card">
+          <p class="home-kicker">Inventario rapido</p>
+          <div class="home-item-strip">
+            ${itemShowcase.length
+              ? itemShowcase
+                  .map((item) => {
+                    const asset = getItemAsset(item.item_codigo || null);
+                    return `
+                      <article class="home-item-chip">
+                        <div class="home-item-chip__media">
+                          ${asset ? `<img src="${escapeHtml(asset)}" alt="${escapeHtml(item.nombre)}" />` : `<span>${escapeHtml(String(item.nombre || 'IT').slice(0, 2).toUpperCase())}</span>`}
+                        </div>
+                        <div>
+                          <strong>${escapeHtml(item.nombre)}</strong>
+                          <small>x${formatNumber(item.cantidad || 0)}</small>
+                        </div>
+                      </article>
+                    `;
+                  })
+                  .join('')
+              : '<div class="empty-state">Todavia no hay items cargados en el inventario.</div>'}
+          </div>
+        </section>
+
+        <section class="home-panel-card">
+          <p class="home-kicker">Atajos del jugador</p>
+          <div class="home-shortcuts-grid compact-shortcuts">
+            ${renderHomeShortcutVisual('pokemon', 'My Pokemon', 'Caja, stats y evolucion', firstPokemon ? getPokemonCardImage(firstPokemon.pokemon_id, firstPokemon.es_shiny, firstPokemon.imagen) : null, 'DEX')}
+            ${renderHomeShortcutVisual('team', 'Team', 'Tus 6 slots activos', leadTeam ? getPokemonCardImage(leadTeam.pokemon_id, leadTeam.es_shiny, leadTeam.imagen) : null, 'TM')}
+            ${renderHomeShortcutVisual('arena', 'Arena', 'Combate rapido', trainerAsset, 'PVP')}
+            ${renderHomeShortcutVisual('maps', 'Maps', 'Explorar y capturar', mapAsset, 'MAP')}
+            ${renderHomeShortcutVisual('bossIdle', 'Boss / Idle', 'Evento y farmeo', idleAsset, 'BOS')}
+            ${renderHomeShortcutVisual('shop', 'Shop', 'Items y premium', itemShowcase[0] ? getItemAsset(itemShowcase[0].item_codigo || null) : null, 'SHP')}
+          </div>
+        </section>
       </div>
     </section>
   `;
@@ -870,6 +1085,44 @@ function renderHomeShortcutVisual(view: ViewKey, title: string, subtitle: string
         <small>${escapeHtml(subtitle)}</small>
       </span>
     </button>`;
+}
+
+function renderHomeCommandButton(view: ViewKey, label: string, icon: string, accent = ''): string {
+  return `
+    <button class="home-command-button ${accent}" data-go-view="${view}" title="${escapeHtml(label)}" aria-label="${escapeHtml(label)}">
+      <span>${escapeHtml(icon)}</span>
+    </button>`;
+}
+
+function renderHomeTeamSlot(slot: TeamSlot | null, position: number): string {
+  if (!slot) {
+    return `
+      <article class="home-team-slot home-team-slot--empty">
+        <span class="home-team-slot__index">0${position}</span>
+        <div class="home-team-slot__empty">+</div>
+        <strong>Libre</strong>
+        <small>Agrega un Pokemon</small>
+      </article>`;
+  }
+
+  return `
+    <article class="home-team-slot ${slot.es_lider ? 'home-team-slot--leader' : ''}">
+      <span class="home-team-slot__index">0${position}</span>
+      <div class="home-team-slot__sprite">
+        <img src="${escapeHtml(getPokemonCardImage(slot.pokemon_id, slot.es_shiny, slot.imagen))}" alt="${escapeHtml(slot.nombre)}" />
+      </div>
+      <strong>${escapeHtml(slot.nombre)}</strong>
+      <small>Lv ${slot.nivel}${slot.es_shiny ? ' · shiny' : ''}</small>
+    </article>`;
+}
+
+function renderHomePanelMetric(label: string, value: string, detail: string): string {
+  return `
+    <div class="home-panel-metric">
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(value)}</strong>
+      <small>${escapeHtml(detail)}</small>
+    </div>`;
 }
 
 function normalizeAssetToken(value: string): string {

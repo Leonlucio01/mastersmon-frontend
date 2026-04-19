@@ -4,7 +4,7 @@ import type { ViewKey } from './types/models';
 import { bindLogoutButton, renderView, tryRestoreSession } from './ui/renderers';
 
 const views: Array<{ key: ViewKey; icon: string; title: string; subtitle: string; scene: string }> = [
-  { key: 'home', icon: 'hub', title: 'Home', subtitle: 'Estado, progreso y accesos', scene: 'HomeScene' },
+  { key: 'home', icon: 'hub', title: 'Home', subtitle: 'Estado, progreso y accesos', scene: 'HomeSceneV2' },
   { key: 'pokemon', icon: 'dex', title: 'My Pokemon', subtitle: 'Caja, movimientos y evolucion', scene: 'PokemonScene' },
   { key: 'team', icon: 'tm', title: 'Team', subtitle: 'Slots 1-6 y core de combate', scene: 'TeamScene' },
   { key: 'arena', icon: 'pvp', title: 'Arena', subtitle: 'Sesiones rapidas y recompensas', scene: 'ArenaScene' },
