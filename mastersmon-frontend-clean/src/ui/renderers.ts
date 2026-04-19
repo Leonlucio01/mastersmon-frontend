@@ -1,4 +1,4 @@
-import type { PlayerPokemon, TeamSlot, ViewKey } from '../types/models';
+import type { OnboardingData, PlayerPokemon, TeamSlot, ViewKey } from '../types/models';
 import { sessionStore } from '../store/session';
 import { playerStore } from '../store/player';
 import { renderGoogleButton, fetchAuthMe, logout } from '../services/auth';
@@ -97,29 +97,17 @@ async function renderHome(refs: ShellRefs): Promise<void> {
   if (!sessionStore.isAuthenticated()) {
     root.innerHTML = `
       <section class="section-card">
-        <h3>Bienvenido a MastersMon Web</h3>
-        <p>Este starter arranca desde <strong>Home</strong> y deja el login integrado ahí mismo, como pediste. El botón usa Google Identity Services y luego llama a tu backend para obtener el JWT.</p>
+        <h3>Comienza tu aventura</h3>
+        <p>Accede con tu cuenta para cargar tu equipo, tu caja y el progreso de tu partida.</p>
         <div id="google-login-slot" class="section-card"></div>
-        <div class="section-grid">
-          <div class="metric-card"><span>Motor</span><strong>Phaser 3</strong></div>
-          <div class="metric-card"><span>Build</span><strong>Vite + TS</strong></div>
-          <div class="metric-card"><span>Sprites</span><strong>PokeAPI</strong></div>
-          <div class="metric-card"><span>Estilo</span><strong>UI por iconos</strong></div>
-        </div>
       </section>
       <section class="section-card">
-        <h4>Ruta de arranque</h4>
-        <div class="stack">
-          <span class="badge">🏠 Home</span>
-          <span class="badge">🧬 My Pokémon</span>
-          <span class="badge">👥 Team</span>
-          <span class="badge">⚔️ Arena</span>
-          <span class="badge">✨ Onboarding</span>
-          <span class="badge">🗺️ Maps</span>
-          <span class="badge">🏛️ Gyms</span>
-          <span class="badge">👹 Boss / Idle</span>
-          <span class="badge">🛒 Shop</span>
-          <span class="badge">🏆 Ranking</span>
+        <h3>Modos destacados</h3>
+        <div class="section-grid">
+          <div class="metric-card"><span>🧬 Captura</span><strong>Mapas</strong></div>
+          <div class="metric-card"><span>⚔️ Combate</span><strong>Arena</strong></div>
+          <div class="metric-card"><span>🏛️ Progreso</span><strong>Gyms</strong></div>
+          <div class="metric-card"><span>👹 Evento</span><strong>Boss / Idle</strong></div>
         </div>
       </section>
     `;
@@ -139,13 +127,16 @@ async function renderHome(refs: ShellRefs): Promise<void> {
     return;
   }
 
-  const [me, trainerSetup, items, pokemon, team, onboarding] = await Promise.all([
+  const [me, trainerSetup, items, pokemon, team, onboarding, gymProgressRaw, bossStateRaw, idleStateRaw] = await Promise.all([
     getMe(),
     getTrainerSetup(),
     getMyItems(),
     getMyPokemon(),
     getMyTeam(),
-    getOnboarding()
+    getOnboarding(),
+    getGymProgress(),
+    getBossState(),
+    getIdleState()
   ]);
 
   sessionStore.setUser(me);
@@ -155,7 +146,26 @@ async function renderHome(refs: ShellRefs): Promise<void> {
   playerStore.team = team.equipo;
   playerStore.onboarding = onboarding;
 
+  const gymProgress = gymProgressRaw as Record<string, unknown>;
+  const bossState = bossStateRaw as Record<string, unknown>;
+  const idleState = idleStateRaw as Record<string, unknown>;
+  const homeState = resolveHomeState(onboarding, team.equipo, gymProgress, bossState, idleState);
+  const nextGym = (gymProgress.siguiente_gym as Record<string, unknown> | null) || null;
+  const idleSession = (idleState.sesion as Record<string, unknown> | null) || null;
+
   root.innerHTML = `
+    <section class="section-card">
+      <h3>${escapeHtml(homeState.title)}</h3>
+      <p>${escapeHtml(homeState.subtitle)}</p>
+      <div class="row" style="margin-top: 1rem; gap: 0.75rem; flex-wrap: wrap;">
+        <button data-go-view="${homeState.primaryView}">${escapeHtml(homeState.primaryLabel)}</button>
+        ${homeState.secondaryView && homeState.secondaryLabel ? `<button class="secondary-button" data-go-view="${homeState.secondaryView}">${escapeHtml(homeState.secondaryLabel)}</button>` : ''}
+      </div>
+      <div class="stack" style="margin-top: 1rem;">
+        ${homeState.badges.map((badge) => `<span class="badge">${escapeHtml(badge)}</span>`).join('')}
+      </div>
+    </section>
+
     <section class="section-card">
       <h3>Resumen rápido</h3>
       <div class="section-grid">
@@ -169,24 +179,24 @@ async function renderHome(refs: ShellRefs): Promise<void> {
     </section>
 
     <section class="section-card">
-      <h3>Trainer setup</h3>
-      <div class="list-item">
-        <strong>Avatar:</strong> ${escapeHtml(trainerSetup.avatar_id || 'steven')}<br />
-        <strong>Team color:</strong> ${escapeHtml(trainerSetup.team_color || 'sin definir')}<br />
-        <strong>Starter sugerido:</strong> ${escapeHtml(trainerSetup.starter_code || 'sin definir')}<br />
-        <strong>Completado:</strong> ${trainerSetup.setup_completed ? 'sí' : 'no'}
+      <h3>Estado actual</h3>
+      <div class="section-grid">
+        ${renderStatusMetric('Gym', nextGym ? `${String(nextGym.lider_nombre || nextGym.codigo || 'Siguiente reto')}` : 'Completados', nextGym ? String(nextGym.medalla_nombre || nextGym.region_codigo || 'Disponible') : 'Todos listos')}
+        ${renderStatusMetric('Boss', bossState.activo ? 'Activo' : 'En espera', bossState.activo ? `Termina en ${formatSecondsCompact(Number(bossState.segundos_para_fin || 0))}` : `Inicia en ${formatSecondsCompact(Number(bossState.segundos_para_inicio || 0))}`)}
+        ${renderStatusMetric('Idle', Boolean(idleState.activa) ? String(idleSession?.estado || 'activa') : 'Sin sesión', Boolean(idleState.activa) ? `${Number(idleSession?.progreso_pct || 0)}% · ${formatSecondsCompact(Number(idleSession?.segundos_restantes || 0))}` : 'Disponible')}
+        ${renderStatusMetric('Trainer', trainerSetup.setup_completed ? 'Listo' : 'Pendiente', trainerSetup.team_color ? `Color ${String(trainerSetup.team_color)}` : 'Configura tu estilo')}
       </div>
     </section>
 
     <section class="section-card">
-      <h3>Navegación recomendada</h3>
+      <h3>Accesos rápidos</h3>
       <div class="section-grid">
-        ${homeShortcut('🧬', 'My Pokémon', 'Revisar colección y stats', 'pokemon')}
-        ${homeShortcut('👥', 'Team', 'Armar el equipo principal', 'team')}
-        ${homeShortcut('⚔️', 'Arena', 'Probar flow de combate', 'arena')}
-        ${homeShortcut('🗺️', 'Maps', 'Encuentros y captura', 'maps')}
-        ${homeShortcut('🏛️', 'Gyms', 'Ver progreso y próximos retos', 'gyms')}
-        ${homeShortcut('👹', 'Boss / Idle', 'Evento diario y farmeo', 'bossIdle')}
+        ${homeShortcut('🧬', 'My Pokémon', 'Caja y evolución', 'pokemon')}
+        ${homeShortcut('👥', 'Team', 'Ajustar equipo', 'team')}
+        ${homeShortcut('⚔️', 'Arena', 'Combate rápido', 'arena')}
+        ${homeShortcut('🗺️', 'Maps', 'Explorar y capturar', 'maps')}
+        ${homeShortcut('🏛️', 'Gyms', 'Progreso regional', 'gyms')}
+        ${homeShortcut('👹', 'Boss / Idle', 'Evento y farmeo', 'bossIdle')}
       </div>
     </section>
   `;
@@ -804,6 +814,124 @@ function renderTeamCard(row: TeamSlot): string {
       <p>Lv ${row.nivel} · HP ${row.hp_actual}/${row.hp_max}</p>
     </article>`;
 }
+
+function resolveHomeState(
+  onboarding: OnboardingData,
+  team: TeamSlot[],
+  gymProgress: Record<string, unknown>,
+  bossState: Record<string, unknown>,
+  idleState: Record<string, unknown>
+): {
+  title: string;
+  subtitle: string;
+  primaryLabel: string;
+  primaryView: ViewKey;
+  secondaryLabel?: string;
+  secondaryView?: ViewKey;
+  badges: string[];
+} {
+  const badges = [
+    `${team.length}/6 equipo`,
+    `${onboarding.progreso.porcentaje}% onboarding`
+  ];
+
+  const nextGym = (gymProgress.siguiente_gym as Record<string, unknown> | null) || null;
+  const idleSession = (idleState.sesion as Record<string, unknown> | null) || null;
+
+  if (onboarding.progreso.porcentaje < 100) {
+    return {
+      title: 'Primeros pasos',
+      subtitle: 'Completa captura, equipo y tu primera batalla para desbloquear mejor ritmo de progreso.',
+      primaryLabel: 'Ver misiones',
+      primaryView: 'onboarding',
+      secondaryLabel: team.length < 6 ? 'Ajustar team' : 'Ir a Maps',
+      secondaryView: team.length < 6 ? 'team' : 'maps',
+      badges: [...badges, `${onboarding.progreso.completadas}/${onboarding.progreso.total} misiones`]
+    };
+  }
+
+  if (Boolean(idleState.activa) && idleSession) {
+    const progress = Number(idleSession.progreso_pct || 0);
+    const remaining = formatSecondsCompact(Number(idleSession.segundos_restantes || 0));
+    const reclaimable = String(idleSession.estado || '') === 'reclamable';
+    return {
+      title: reclaimable ? 'Reclama tu farmeo' : 'Idle en curso',
+      subtitle: reclaimable ? 'Tu sesión terminó. Entra para reclamar experiencia, pokédolares e ítems.' : `Tu sesión sigue activa. Restan ${remaining}.`,
+      primaryLabel: 'Abrir Boss / Idle',
+      primaryView: 'bossIdle',
+      secondaryLabel: 'Ver Team',
+      secondaryView: 'team',
+      badges: [...badges, `${progress}% idle`, reclaimable ? 'listo para reclamar' : `restan ${remaining}`]
+    };
+  }
+
+  if (Boolean(bossState.activo)) {
+    const remaining = formatSecondsCompact(Number(bossState.segundos_para_fin || 0));
+    return {
+      title: 'Boss del mundo activo',
+      subtitle: `El evento del día ya está abierto. Te quedan ${remaining} para participar.`,
+      primaryLabel: 'Entrar al Boss',
+      primaryView: 'bossIdle',
+      secondaryLabel: 'Revisar Team',
+      secondaryView: 'team',
+      badges: [...badges, 'evento activo', `cierra en ${remaining}`]
+    };
+  }
+
+  if (nextGym) {
+    return {
+      title: 'Siguiente reto',
+      subtitle: `${String(nextGym.lider_nombre || 'Gym líder')} te espera por la medalla ${String(nextGym.medalla_nombre || 'siguiente')}.`,
+      primaryLabel: 'Ver Gyms',
+      primaryView: 'gyms',
+      secondaryLabel: team.length < 6 ? 'Completar Team' : 'Entrar a Arena',
+      secondaryView: team.length < 6 ? 'team' : 'arena',
+      badges: [...badges, String(nextGym.region_codigo || 'gym'), String(nextGym.codigo || 'siguiente')]
+    };
+  }
+
+  if (team.length < 6) {
+    return {
+      title: 'Completa tu equipo',
+      subtitle: 'Necesitas un team sólido para Arena, Boss e Idle. Ajusta tus mejores seis Pokémon.',
+      primaryLabel: 'Ir a Team',
+      primaryView: 'team',
+      secondaryLabel: 'Ver colección',
+      secondaryView: 'pokemon',
+      badges: [...badges, `${team.length}/6 slots ocupados`]
+    };
+  }
+
+  return {
+    title: 'Tu equipo está listo',
+    subtitle: 'Continúa con Arena, explora Maps o sigue avanzando por los Gyms.',
+    primaryLabel: 'Ir a Arena',
+    primaryView: 'arena',
+    secondaryLabel: 'Explorar Maps',
+    secondaryView: 'maps',
+    badges: [...badges, 'listo para combate']
+  };
+}
+
+function renderStatusMetric(label: string, value: string, detail: string): string {
+  return `
+    <div class="metric-card">
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(value)}</strong>
+      <small>${escapeHtml(detail)}</small>
+    </div>`;
+}
+
+function formatSecondsCompact(totalSeconds: number): string {
+  const safe = Math.max(0, Number(totalSeconds || 0));
+  if (!safe) return 'ahora';
+  const hours = Math.floor(safe / 3600);
+  const minutes = Math.floor((safe % 3600) / 60);
+  if (hours > 0) return `${hours}h ${minutes}m`;
+  if (minutes > 0) return `${minutes}m`;
+  return `${safe}s`;
+}
+
 
 function homeShortcut(icon: string, title: string, subtitle: string, view: ViewKey): string {
   return `
