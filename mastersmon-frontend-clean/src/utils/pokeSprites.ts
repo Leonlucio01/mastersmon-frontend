@@ -1,67 +1,62 @@
-const normalModules = import.meta.glob('../../img/pokemon-png/sprites_normal/*.{png,jpg,jpeg,webp}', { eager: true, import: 'default' }) as Record<string, string>;
-const shinyModules = import.meta.glob('../../img/pokemon-png/sprites_shiny/*.{png,jpg,jpeg,webp}', { eager: true, import: 'default' }) as Record<string, string>;
+type SpriteEntry = {
+  default?: string;
+};
 
-function normalizeSpriteKey(value: string | number | null | undefined): string {
-  if (typeof value === 'number') {
-    return String(Math.max(1, Math.trunc(value))).padStart(4, '0');
-  }
+const normalModules = import.meta.glob('../../img/pokemon-png/sprites_normal/*.{png,jpg,jpeg,webp}', {
+  eager: true
+}) as Record<string, SpriteEntry | string>;
 
-  const raw = String(value || '').trim().toLowerCase();
-  if (!raw) return '';
-  return raw
-    .replace(/^.*[\\/]/, '')
-    .replace(/\.[^.]+$/, '')
-    .replace(/[^a-z0-9_]+/g, '_');
+const shinyModules = import.meta.glob('../../img/pokemon-png/sprites_shiny/*.{png,jpg,jpeg,webp}', {
+  eager: true
+}) as Record<string, SpriteEntry | string>;
+
+function extractUrl(mod: SpriteEntry | string): string {
+  return typeof mod === 'string' ? mod : mod.default || '';
 }
 
-function buildSpriteIndex(modules: Record<string, string>): Map<string, string> {
-  const index = new Map<string, string>();
-  for (const [path, url] of Object.entries(modules)) {
-    const file = path.replace(/^.*[\\/]/, '').replace(/\.[^.]+$/, '').toLowerCase();
-    index.set(file, url);
-  }
-  return index;
+function normalizeName(value: string): string {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/\./g, '')
+    .replace(/'/g, '')
+    .replace(/é/g, 'e');
 }
 
-const normalIndex = buildSpriteIndex(normalModules);
-const shinyIndex = buildSpriteIndex(shinyModules);
+function buildSpriteMap(modules: Record<string, SpriteEntry | string>): Record<string, string> {
+  const result: Record<string, string> = {};
 
-export function getPokeApiSpriteUrl(pokemonId: number, shiny = false): string {
-  const safeId = Math.max(1, Number(pokemonId || 1));
-  if (shiny) {
-    return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${safeId}.png`;
-  }
-  return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${safeId}.png`;
-}
-
-export function getLocalPokemonSpriteByDexKey(key: string | number, shiny = false): string | null {
-  const normalized = normalizeSpriteKey(key);
-  if (!normalized) return null;
-  return (shiny ? shinyIndex : normalIndex).get(normalized) || null;
-}
-
-function resolveFromLocalImage(localImage?: string | null, shiny = false): string | null {
-  const normalized = normalizeSpriteKey(localImage);
-  if (!normalized) return null;
-
-  if (shiny && !normalized.endsWith('_s')) {
-    const shinyVersion = `${normalized}_s`;
-    return shinyIndex.get(shinyVersion) || shinyIndex.get(normalized) || normalIndex.get(normalized) || null;
+  for (const [path, mod] of Object.entries(modules)) {
+    const file = path.split('/').pop() || '';
+    const base = file.replace(/\.(png|jpg|jpeg|webp)$/i, '');
+    result[base.toLowerCase()] = extractUrl(mod);
   }
 
-  return (shiny ? shinyIndex : normalIndex).get(normalized) || null;
+  return result;
 }
 
-export function getPokemonCardImage(pokemonId: number, shiny: boolean, localImage?: string | null): string {
-  const fromLocalImage = resolveFromLocalImage(localImage, shiny);
-  if (fromLocalImage) return fromLocalImage;
+const normalMap = buildSpriteMap(normalModules);
+const shinyMap = buildSpriteMap(shinyModules);
 
-  if (localImage && /^https?:\/\//i.test(localImage.trim())) {
-    return localImage;
+function resolveKeyFromPokemon(input: string | number): string[] {
+  if (typeof input === 'number') {
+    const num = String(input).padStart(4, '0');
+    return [num];
   }
 
-  const local = getLocalPokemonSpriteByDexKey(pokemonId, shiny);
-  if (local) return local;
+  const raw = normalizeName(input);
+  return [raw];
+}
 
-  return getPokeApiSpriteUrl(pokemonId, shiny);
+export function getPokemonSprite(input: string | number, shiny = false): string | null {
+  const keys = resolveKeyFromPokemon(input);
+  const target = shiny ? shinyMap : normalMap;
+
+  for (const key of keys) {
+    if (target[key]) return target[key];
+    if (shiny && target[`${key}_s`]) return target[`${key}_s`];
+  }
+
+  return null;
 }
