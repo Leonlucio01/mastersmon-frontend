@@ -610,7 +610,7 @@ async function renderPokemonV2(refs: ShellRefs): Promise<void> {
 
       <section class="pokemon-inventory-strip">
         ${items.map((item) => {
-          const asset = getItemAsset(item.item_codigo || null);
+          const asset = getItemAsset(item.item_codigo || item.nombre || null) || getItemAsset(item.nombre || null);
           return `
             <article class="pokemon-inventory-chip">
               <div class="pokemon-inventory-chip__media">
@@ -1790,11 +1790,11 @@ function renderPokemonCardV2(row: PlayerPokemon): string {
   return `
     <article class="pokemon-card-v2" data-rare="${row.es_shiny ? 'shiny' : 'normal'}" data-pokemon-inspect="${row.id}" role="button" tabindex="0" aria-label="Ver atributos de ${escapeHtml(row.nombre)}">
       <div class="pokemon-card-v2__head">
-        <div>
+        <div class="pokemon-card-v2__identity">
           <strong class="pokemon-detail-title">${escapeHtml(row.nombre)}</strong>
           <small>#${row.pokemon_id} · ${escapeHtml(row.tipo || 'Tipo libre')}</small>
         </div>
-        <div class="home-chip-row">
+        <div class="home-chip-row pokemon-card-v2__chips">
           <span class="badge">${row.es_shiny ? 'shiny' : 'normal'}</span>
           <span class="badge">Lv ${row.nivel}</span>
         </div>
@@ -1814,9 +1814,9 @@ function renderPokemonCardV2(row: PlayerPokemon): string {
         <div class="pokemon-card-v2__hint">Click para ver atributos completos</div>
       </div>
       <div class="pokemon-card-v2__actions">
-        <button class="pokemon-action-btn is-accent" data-pokemon-action="moves" data-pokemon-id="${row.id}">Movimientos</button>
-        <button class="pokemon-action-btn" data-pokemon-action="evolve" data-pokemon-id="${row.id}">Evolucionar</button>
-        <button class="pokemon-action-btn is-danger" data-pokemon-action="release" data-pokemon-id="${row.id}">Liberar</button>
+        <button class="pokemon-action-btn is-accent" data-pokemon-action="moves" data-pokemon-id="${row.id}">Skill</button>
+        <button class="pokemon-action-btn" data-pokemon-action="evolve" data-pokemon-id="${row.id}">Evolve</button>
+        <button class="pokemon-action-btn is-danger" data-pokemon-action="release" data-pokemon-id="${row.id}">Release</button>
       </div>
     </article>`;
 }
@@ -2018,9 +2018,9 @@ async function openPokemonDetailModal(row: PlayerPokemon, refs: ShellRefs): Prom
       </section>
 
       <div class="pokemon-inspect-actions">
-        <button class="pokemon-action-btn is-accent" data-detail-action="moves">Ver movimientos</button>
-        <button class="pokemon-action-btn" data-detail-action="evolve">Intentar evolucion</button>
-        <button class="pokemon-action-btn is-danger" data-detail-action="release">Liberar</button>
+        <button class="pokemon-action-btn is-accent" data-detail-action="moves">Skill</button>
+        <button class="pokemon-action-btn" data-detail-action="evolve">Evolve</button>
+        <button class="pokemon-action-btn is-danger" data-detail-action="release">Release</button>
       </div>
     </div>
   `);
@@ -2252,21 +2252,11 @@ function renderMapDetailPanel(
 ): string {
   const selectedBall = balls.find((item) => Number(item.item_id) === selectedBallId) || null;
   const mapImage = getMapAsset(null, zone.nombre, zone.escenario_imagen || zone.imagen || null) || String(zone.escenario_imagen || zone.imagen || '');
+  const encounterImage = encounter?.encuentro_token
+    ? getPokemonCardImage(Number(encounter.pokemon_id || 0), Boolean(encounter.es_shiny), String(encounter.imagen || ''))
+    : '';
   return `
     <div class="maps-detail-shell">
-      <div class="maps-detail-hero">
-        ${mapImage ? `<img src="${escapeHtml(mapImage)}" alt="${escapeHtml(zone.nombre)}" />` : '<div class="maps-detail-hero__fallback">MAP</div>'}
-        <div class="maps-detail-hero__avatar" style="left:${avatarPos.x}%; top:${avatarPos.y}%;">
-          ${avatarAsset ? `<img src="${escapeHtml(avatarAsset)}" alt="avatar" />` : '<span>MM</span>'}
-        </div>
-      </div>
-      <div class="maps-move-pad">
-        <button class="maps-move-pad__btn maps-move-pad__btn--north" data-map-move="north"><img src="${escapeHtml(MAP_MOVE_NORTH)}" alt="Norte" /></button>
-        <button class="maps-move-pad__btn maps-move-pad__btn--west" data-map-move="west"><img src="${escapeHtml(MAP_MOVE_WEST)}" alt="Oeste" /></button>
-        <button class="maps-move-pad__btn maps-move-pad__btn--center" data-map-move="center"><img src="${escapeHtml(MAP_MOVE_CENTER)}" alt="Centro" /></button>
-        <button class="maps-move-pad__btn maps-move-pad__btn--east" data-map-move="east"><img src="${escapeHtml(MAP_MOVE_EAST)}" alt="Este" /></button>
-        <button class="maps-move-pad__btn maps-move-pad__btn--south" data-map-move="south"><img src="${escapeHtml(MAP_MOVE_SOUTH)}" alt="Sur" /></button>
-      </div>
       <div class="maps-detail-copy">
         <p class="home-kicker">Zona activa</p>
         <h3>${escapeHtml(zone.nombre)}</h3>
@@ -2278,43 +2268,77 @@ function renderMapDetailPanel(
         </div>
       </div>
 
-      <div class="maps-detail-actions">
-        <button class="secondary-button" data-map-presence="1">Registrar presencia</button>
-        <button data-map-encounter="1">Generar encuentro</button>
-      </div>
-
-      <div class="maps-ball-strip">
-        ${balls.length ? balls.map((item) => `
-          <button class="maps-ball-chip ${Number(item.item_id) === selectedBallId ? 'is-selected' : ''}" data-ball-pick="${item.item_id}">
-            <strong>${escapeHtml(item.nombre)}</strong>
-            <small>x${formatNumber(item.cantidad)}</small>
-          </button>
-        `).join('') : '<div class="empty-state">No tienes Pokeballs disponibles.</div>'}
-      </div>
-
-      ${presence ? `
-        <div class="maps-presence-box">
-          <strong>Presencia registrada</strong>
-          <small>${escapeHtml(JSON.stringify(presence))}</small>
-        </div>
-      ` : ''}
-
-      ${encounter?.encuentro_token ? `
-        <article class="maps-encounter-card ${Boolean(encounter.es_shiny) ? 'is-shiny' : ''}">
-          <div class="maps-encounter-card__art">
-            <img src="${escapeHtml(getPokemonCardImage(Number(encounter.pokemon_id || 0), Boolean(encounter.es_shiny), String(encounter.imagen || '')))}" alt="${escapeHtml(String(encounter.nombre || 'Pokemon'))}" />
+      <div class="maps-stage-layout">
+        <section class="maps-stage-main">
+          <div class="maps-detail-hero">
+            ${mapImage ? `<img src="${escapeHtml(mapImage)}" alt="${escapeHtml(zone.nombre)}" />` : '<div class="maps-detail-hero__fallback">MAP</div>'}
+            <div class="maps-detail-hero__avatar" style="left:${avatarPos.x}%; top:${avatarPos.y}%;">
+              ${avatarAsset ? `<img src="${escapeHtml(avatarAsset)}" alt="avatar" />` : '<span>MM</span>'}
+            </div>
           </div>
-          <div class="maps-encounter-card__copy">
-            ${Boolean(encounter.es_shiny) ? '<span class="maps-shiny-alert">Shiny detectado</span>' : ''}
-            <strong>${escapeHtml(String(encounter.nombre || 'Pokemon'))}</strong>
-            <small>Lv ${formatNumber(Number(encounter.nivel || 1))}${Boolean(encounter.es_shiny) ? ' · shiny' : ''}</small>
-            <div class="code-box">token: ${escapeHtml(String(encounter.encuentro_token || ''))}</div>
+          <div class="maps-detail-actions">
+            <button class="secondary-button" data-map-presence="1">Presence</button>
+            <button data-map-encounter="1">Encounter</button>
           </div>
-          <button class="pokemon-action-btn is-accent" data-map-capture="1" ${selectedBall ? '' : 'disabled'}>${selectedBall ? `Capturar con ${escapeHtml(selectedBall.nombre)}` : 'Elige una Pokeball'}</button>
-        </article>
-      ` : `
-        <div class="empty-state">Genera un encuentro para ver aqui al Pokemon salvaje y lanzar una Pokeball.</div>
-      `}
+          <div class="maps-stage-footer">
+            <div class="maps-stage-footer__title">
+              <span>Live Route</span>
+              <strong>${presence ? 'Presence synced' : 'Ready to register'}</strong>
+            </div>
+            <div class="maps-stage-footer__chips">
+              <span class="badge">${selectedBall ? escapeHtml(selectedBall.nombre) : 'No ball'}</span>
+              <span class="badge">${encounter?.encuentro_token ? 'wild active' : 'awaiting spawn'}</span>
+            </div>
+          </div>
+        </section>
+
+        <aside class="maps-stage-side">
+          <section class="maps-side-card maps-side-card--encounter">
+            <span class="home-kicker">Pokemon</span>
+            ${encounter?.encuentro_token ? `
+              <article class="maps-encounter-card ${Boolean(encounter.es_shiny) ? 'is-shiny' : ''}">
+                <div class="maps-encounter-card__art">
+                  <img src="${escapeHtml(encounterImage)}" alt="${escapeHtml(String(encounter.nombre || 'Pokemon'))}" />
+                </div>
+                <div class="maps-encounter-card__copy">
+                  ${Boolean(encounter.es_shiny) ? '<span class="maps-shiny-alert">Shiny</span>' : ''}
+                  <strong>${escapeHtml(String(encounter.nombre || 'Pokemon'))}</strong>
+                  <small>Lv ${formatNumber(Number(encounter.nivel || 1))}${Boolean(encounter.es_shiny) ? ' - shiny' : ''}</small>
+                </div>
+                <button class="pokemon-action-btn is-accent" data-map-capture="1" ${selectedBall ? '' : 'disabled'}>${selectedBall ? `Catch with ${escapeHtml(selectedBall.nombre)}` : 'Pick a ball'}</button>
+              </article>
+            ` : `
+              <div class="maps-side-empty">
+                <strong>No encounter yet</strong>
+                <small>Generate one to preview the wild Pokemon here.</small>
+              </div>
+            `}
+          </section>
+
+          <section class="maps-side-card maps-side-card--items">
+            <span class="home-kicker">Items</span>
+            <div class="maps-ball-strip">
+              ${balls.length ? balls.map((item) => `
+                <button class="maps-ball-chip ${Number(item.item_id) === selectedBallId ? 'is-selected' : ''}" data-ball-pick="${item.item_id}">
+                  <strong>${escapeHtml(item.nombre)}</strong>
+                  <small>x${formatNumber(item.cantidad)}</small>
+                </button>
+              `).join('') : '<div class="empty-state">No tienes Pokeballs disponibles.</div>'}
+            </div>
+          </section>
+
+          <section class="maps-side-card maps-side-card--move">
+            <span class="home-kicker">Move</span>
+            <div class="maps-move-pad">
+              <button class="maps-move-pad__btn maps-move-pad__btn--north" data-map-move="north"><img src="${escapeHtml(MAP_MOVE_NORTH)}" alt="Norte" /></button>
+              <button class="maps-move-pad__btn maps-move-pad__btn--west" data-map-move="west"><img src="${escapeHtml(MAP_MOVE_WEST)}" alt="Oeste" /></button>
+              <button class="maps-move-pad__btn maps-move-pad__btn--center" data-map-move="center"><img src="${escapeHtml(MAP_MOVE_CENTER)}" alt="Centro" /></button>
+              <button class="maps-move-pad__btn maps-move-pad__btn--east" data-map-move="east"><img src="${escapeHtml(MAP_MOVE_EAST)}" alt="Este" /></button>
+              <button class="maps-move-pad__btn maps-move-pad__btn--south" data-map-move="south"><img src="${escapeHtml(MAP_MOVE_SOUTH)}" alt="Sur" /></button>
+            </div>
+          </section>
+        </aside>
+      </div>
     </div>
   `;
 }

@@ -61,9 +61,11 @@ function buildIndex(modules: AssetModuleMap, marker: string): AssetIndex {
     const parts = noExt.split('/').filter(Boolean).map((part) => normalizeValue(part));
     const joined = parts.join('/');
     const basename = parts[parts.length - 1] || '';
+    const basenameWithoutNumericPrefix = basename.replace(/^\d+_/, '');
 
     if (joined) out[joined] = url;
     if (basename) out[basename] = url;
+    if (basenameWithoutNumericPrefix) out[basenameWithoutNumericPrefix] = url;
   }
 
   return out;

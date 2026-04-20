@@ -152,7 +152,7 @@ export class HomeSceneV2 extends Phaser.Scene {
     if (state?.backdropAsset && this.textures.exists('home-v2-backdrop')) {
       const backdrop = this.add.image(width * 0.5, height * 0.5, 'home-v2-backdrop');
       backdrop.setDisplaySize(width, height);
-      backdrop.setAlpha(0.18);
+      backdrop.setAlpha(0.16);
     }
 
     this.add.circle(width * 0.18, height * 0.26, 160, accent, 0.14).setBlendMode(Phaser.BlendModes.SCREEN);
@@ -163,144 +163,118 @@ export class HomeSceneV2 extends Phaser.Scene {
     const shellHeight = height - 72;
     const shellX = margin;
     const shellY = 28;
-    const leftWidth = Math.max(280, Math.floor(shellWidth * 0.36));
-    const rightX = shellX + leftWidth + 38;
-    const rightWidth = shellWidth - leftWidth - 66;
+    const mapWidth = Math.max(520, Math.floor(shellWidth * 0.72));
+    const sideWidth = shellWidth - mapWidth - 34;
+    const mapX = shellX + 18;
+    const mapY = shellY + 18;
+    const rightX = mapX + mapWidth + 16;
+    const rightY = mapY;
+    const heroHeight = Math.max(320, shellHeight - 176);
 
     const shell = this.add.rectangle(shellX, shellY, shellWidth, shellHeight, 0x0d1b31, 0.66).setOrigin(0, 0);
     shell.setStrokeStyle(1, 0x86a7d0, 0.18);
 
-    const leftPanel = this.add.rectangle(shellX + 24, shellY + 24, leftWidth - 12, shellHeight - 48, 0x08111d, 0.6).setOrigin(0, 0);
-    leftPanel.setStrokeStyle(1, 0x86a7d0, 0.14);
+    const mapPanel = this.add.rectangle(mapX, mapY, mapWidth, shellHeight - 36, 0x08111d, 0.56).setOrigin(0, 0);
+    mapPanel.setStrokeStyle(1, 0x86a7d0, 0.14);
 
-    if (state?.avatarAsset && this.textures.exists('home-v2-avatar')) {
-      const avatarRing = this.add.circle(shellX + leftWidth * 0.48, shellY + 116, 52, 0x102340, 0.96);
-      avatarRing.setStrokeStyle(2, accent, 0.42);
-      const avatar = this.add.image(shellX + leftWidth * 0.48, shellY + 116, 'home-v2-avatar');
-      avatar.setDisplaySize(84, 84);
+    const hero = this.add.rectangle(mapX + 18, mapY + 18, mapWidth - 36, heroHeight, 0x102235, 0.96).setOrigin(0, 0);
+    hero.setStrokeStyle(1, accent, 0.16);
+
+    if (state?.backdropAsset && this.textures.exists('home-v2-backdrop')) {
+      const heroBackdrop = this.add.image(mapX + mapWidth / 2, mapY + 18 + heroHeight / 2, 'home-v2-backdrop');
+      heroBackdrop.setDisplaySize(mapWidth - 36, heroHeight);
+      heroBackdrop.setAlpha(0.98);
     }
 
-    this.add.text(shellX + 42, shellY + 190, state?.playerName || 'Entrenador', {
-      fontSize: '28px',
-      color: '#eff7ff',
-      fontStyle: '700'
-    });
+    const overlay = this.add.rectangle(mapX + 18, mapY + 18, mapWidth - 36, heroHeight, 0x08111d, 0.14).setOrigin(0, 0);
+    overlay.setStrokeStyle(1, 0xffffff, 0.04);
 
-    this.add.text(shellX + 42, shellY + 224, state ? `${state.teamCount}/6 team · ${this.formatNumber(state.pokedolares)} $` : 'Carga tu perfil', {
-      fontSize: '14px',
-      color: '#b5cbe5'
-    });
-
-    this.add.text(shellX + 42, shellY + 258, 'Equipo activo', {
-      fontSize: '13px',
-      color: '#8fb9ff',
+    this.add.text(mapX + 42, mapY + 40, 'Map Preview', {
+      fontSize: '16px',
+      color: '#cbe0ff',
       fontStyle: '600'
     });
 
-    for (let index = 0; index < 6; index += 1) {
-      const slotX = shellX + 40 + (index % 3) * 74;
-      const slotY = shellY + 298 + Math.floor(index / 3) * 126;
-      const slot = this.add.rectangle(slotX, slotY, 62, 104, 0x0b1528, 0.74).setOrigin(0, 0);
-      slot.setStrokeStyle(1, index === 0 ? accent : 0x86a7d0, index === 0 ? 0.34 : 0.16);
-
-      this.add.text(slotX + 8, slotY + 8, `0${index + 1}`, {
-        fontSize: '10px',
-        color: '#9db4d1'
-      });
-
-      if (state?.teamSprites[index] && this.textures.exists(`home-v2-team-${index}`)) {
-        const poke = this.add.image(slotX + 31, slotY + 40, `home-v2-team-${index}`);
-        poke.setDisplaySize(46, 46);
-      } else {
-        this.add.text(slotX + 31, slotY + 38, '+', {
-          fontSize: '24px',
-          color: '#9db4d1',
-          fontStyle: '700'
-        }).setOrigin(0.5);
-      }
-
-      this.add.text(slotX + 31, slotY + 66, state?.teamSprites[index] ? 'Activo' : 'Libre', {
-        fontSize: '10px',
-        color: '#9db4d1'
-      }).setOrigin(0.5);
-    }
-
-    const rightPanel = this.add.rectangle(rightX - 18, shellY + 28, rightWidth, shellHeight - 56, 0x0a1424, 0.22).setOrigin(0, 0);
-    rightPanel.setStrokeStyle(1, 0x86a7d0, 0.08);
-
-    this.add.text(rightX, shellY + 38, 'Ficha del entrenador', {
-      fontSize: '15px',
-      color: '#b7d4ff',
-      fontStyle: '600'
-    });
-
-    this.add.text(rightX, shellY + 72, state?.regionLabel.toUpperCase() || 'HOME', {
+    this.add.text(mapX + 42, mapY + 68, state?.regionLabel.toUpperCase() || 'HOME', {
       fontSize: '12px',
       color: '#d9e7ff',
       backgroundColor: '#1b3152',
       padding: { x: 12, y: 6 }
     });
 
-    this.add.text(rightX, shellY + 132, state?.playerName || 'MastersMon', {
-      fontSize: '42px',
-      color: '#ecf4ff',
-      fontStyle: '700'
-    });
+    if (state?.avatarAsset && this.textures.exists('home-v2-avatar')) {
+      const avatarRing = this.add.circle(mapX + mapWidth * 0.63, mapY + heroHeight * 0.72, 34, 0x102340, 0.94);
+      avatarRing.setStrokeStyle(2, accent, 0.42);
+      const avatar = this.add.image(mapX + mapWidth * 0.63, mapY + heroHeight * 0.72, 'home-v2-avatar');
+      avatar.setDisplaySize(54, 54);
+    }
 
-    this.add.text(rightX, shellY + 188, state ? 'Cuenta, economia y progreso regional visibles de forma compacta.' : 'Carga tu progreso y continua tu aventura.', {
-      fontSize: '17px',
-      color: '#d6e4f7',
-      wordWrap: { width: rightWidth - 36 },
-      lineSpacing: 6
-    });
+    const footer = this.add.rectangle(mapX + 18, mapY + heroHeight + 44, mapWidth - 36, 96, 0x0b1628, 0.68).setOrigin(0, 0);
+    footer.setStrokeStyle(1, 0x86a7d0, 0.12);
 
-    const summary = this.add.rectangle(rightX, shellY + 246, rightWidth - 36, 88, 0x0b1628, 0.58).setOrigin(0, 0);
-    summary.setStrokeStyle(1, 0x86a7d0, 0.14);
-
-    this.add.text(rightX + 18, shellY + 264, 'Resumen del jugador', {
+    this.add.text(mapX + 42, mapY + heroHeight + 60, 'Field Status', {
       fontSize: '13px',
       color: '#8fb9ff',
       fontStyle: '600'
     });
 
-    this.add.text(rightX + 18, shellY + 286, state ? `${state.teamCount}/6 slots · ${state.onboardingPercent}% onboarding` : 'Explora y fortalece tu equipo', {
-      fontSize: '18px',
+    this.add.text(mapX + 42, mapY + heroHeight + 84, state ? `${state.teamCount}/6 team slots ready` : 'Load your team', {
+      fontSize: '20px',
       color: '#ecf4ff',
       fontStyle: '700'
     });
 
-    this.add.text(rightX + 18, shellY + 310, state ? `Starter: ${state.starterName} · Region base: ${state.regionLabel}` : 'Tu progreso aparece aqui al iniciar sesion.', {
+    this.add.text(mapX + 42, mapY + heroHeight + 112, state ? `Starter ${state.starterName} - ${this.formatNumber(state.pokedolares)} Pokedolares` : 'Track your route from home.', {
       fontSize: '12px',
-      color: '#a9bdd8',
-      wordWrap: { width: rightWidth - 72 }
+      color: '#a9bdd8'
+    });
+
+    const sidePanel = this.add.rectangle(rightX, rightY, sideWidth, shellHeight - 36, 0x0a1424, 0.4).setOrigin(0, 0);
+    sidePanel.setStrokeStyle(1, 0x86a7d0, 0.12);
+
+    const sideCards = [
+      { title: 'Pokemon', value: state?.teamSprites[0] ? 'Active lead' : 'Waiting', note: 'Compact encounter slot' },
+      { title: 'Items', value: state ? `${state.teamCount} ready` : '0', note: 'Capture loadout and balls' },
+      { title: 'Move', value: 'Pad', note: 'North - West - East - South' }
+    ];
+
+    sideCards.forEach((card, index) => {
+      const cardY = rightY + 22 + index * 156;
+      const block = this.add.rectangle(rightX + 18, cardY, sideWidth - 36, 134, 0x102030, 0.86).setOrigin(0, 0);
+      block.setStrokeStyle(1, index === 0 ? accent : 0x86a7d0, index === 0 ? 0.18 : 0.1);
+      this.add.text(rightX + 40, cardY + 18, card.title, {
+        fontSize: '13px',
+        color: '#8fb9ff',
+        fontStyle: '600'
+      });
+      this.add.text(rightX + 40, cardY + 48, card.value, {
+        fontSize: '28px',
+        color: '#eff7ff',
+        fontStyle: '700'
+      });
+      this.add.text(rightX + 40, cardY + 86, card.note, {
+        fontSize: '12px',
+        color: '#a9bdd8',
+        wordWrap: { width: sideWidth - 92 }
+      });
     });
 
     state?.regionSummary.forEach((region, index) => {
-      const cardX = rightX + index * 116;
-      const cardY = shellY + 356;
-      const regionCard = this.add.rectangle(cardX, cardY, 102, 62, 0x102030, 0.86).setOrigin(0, 0);
-      regionCard.setStrokeStyle(1, accent, 0.12);
-      this.add.text(cardX + 10, cardY + 12, region.label, {
-        fontSize: '11px',
+      const cardWidth = (sideWidth - 62) / 2;
+      const cardX = rightX + 18 + (index % 2) * (cardWidth + 10);
+      const cardY = rightY + shellHeight - 136 + Math.floor(index / 2) * 48;
+      const regionCard = this.add.rectangle(cardX, cardY, cardWidth, 40, 0x0f1f31, 0.88).setOrigin(0, 0);
+      regionCard.setStrokeStyle(1, accent, 0.08);
+      this.add.text(cardX + 10, cardY + 8, region.label, {
+        fontSize: '10px',
         color: '#cfe1f4'
       });
-      this.add.text(cardX + 10, cardY + 32, `${region.earned}/${region.total}`, {
-        fontSize: '18px',
+      this.add.text(cardX + 10, cardY + 22, `${region.earned}/${region.total}`, {
+        fontSize: '13px',
         color: region.earned > 0 ? '#e8f7ee' : '#8ea2b7',
         fontStyle: '700'
       });
-      this.add.text(cardX + 58, cardY + 34, 'badges', {
-        fontSize: '10px',
-        color: '#8ea2b7'
-      });
     });
-
-    if (state) {
-      this.add.text(rightX, shellY + shellHeight - 54, `${state.playerName} · ${this.formatNumber(state.pokedolares)} Pokedolares`, {
-        fontSize: '13px',
-        color: '#a7bbd8'
-      });
-    }
   }
 
   private resolveAccentColor(teamColor?: string): number {
