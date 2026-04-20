@@ -72,6 +72,12 @@ select {
   font: inherit;
 }
 
+select,
+select option {
+  color: var(--text);
+  background: #102130;
+}
+
 button {
   border: 0;
   border-radius: 999px;
@@ -368,6 +374,14 @@ button:disabled {
   gap: 12px;
   min-height: 0;
   align-items: start;
+}
+
+#content-grid.content-grid--panel-only {
+  grid-template-columns: 1fr;
+}
+
+#content-grid.content-grid--panel-only #game-root {
+  display: none;
 }
 
 #game-root,
@@ -1039,8 +1053,73 @@ button:disabled {
   gap: 0.8rem;
 }
 
+.home-panel-card--wide {
+  grid-column: 1 / -1;
+}
+
 .home-state-grid--v2 {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.home-region-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+
+.home-region-card {
+  padding: 0.9rem;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.home-region-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin-bottom: 0.7rem;
+}
+
+.home-region-card__head strong {
+  font-family: 'Space Grotesk', 'IBM Plex Sans', sans-serif;
+}
+
+.home-region-badge-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+.home-region-badge {
+  width: 100%;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.home-region-badge img {
+  width: 70%;
+  height: 70%;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.home-region-badge.is-locked {
+  filter: grayscale(1);
+  opacity: 0.5;
+}
+
+.home-region-badge.is-earned {
+  filter: none;
+  opacity: 1;
+  box-shadow: 0 10px 18px rgba(101, 229, 197, 0.08);
 }
 
 .home-objective-card {
@@ -1468,7 +1547,8 @@ button:disabled {
   }
 
   .pokemon-summary-strip,
-  .pokemon-inventory-strip {
+  .pokemon-inventory-strip,
+  .home-region-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -1518,7 +1598,8 @@ button:disabled {
   .pokemon-inventory-strip,
   .pokemon-filter-bar,
   .pokemon-card-v2__actions,
-  .evolution-chain {
+  .evolution-chain,
+  .home-region-grid {
     grid-template-columns: 1fr;
   }
 }

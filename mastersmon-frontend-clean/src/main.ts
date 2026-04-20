@@ -18,6 +18,7 @@ const views: Array<{ key: ViewKey; icon: string; title: string; subtitle: string
 
 const sidebarNav = document.getElementById('sidebar-nav') as HTMLElement;
 const panelRoot = document.getElementById('panel-root') as HTMLElement;
+const contentGrid = document.getElementById('content-grid') as HTMLElement;
 const playerMiniCard = document.getElementById('player-mini-card') as HTMLElement;
 const viewTitle = document.getElementById('view-title') as HTMLElement;
 const viewSubtitle = document.getElementById('view-subtitle') as HTMLElement;
@@ -47,6 +48,7 @@ function renderSidebar(): void {
 async function navigate(view: ViewKey): Promise<void> {
   activeView = view;
   renderSidebar();
+  contentGrid.classList.toggle('content-grid--panel-only', view === 'pokemon');
 
   const next = views.find((item) => item.key === view);
   if (next) {

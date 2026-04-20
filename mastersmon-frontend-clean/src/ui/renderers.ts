@@ -276,9 +276,11 @@ async function renderHomeV2(refs: ShellRefs): Promise<void> {
   playerStore.team = team.equipo;
   playerStore.onboarding = onboarding;
 
+  const [gymCatalogRaw] = await Promise.all([getGymCatalog()]);
   const gymProgress = gymProgressRaw as Record<string, unknown>;
   const bossState = bossStateRaw as Record<string, unknown>;
   const idleState = idleStateRaw as Record<string, unknown>;
+  const gymCatalog = ((gymCatalogRaw as { gyms?: Array<Record<string, unknown>> }).gyms || []) as Array<Record<string, unknown>>;
   const orderedTeam = [...team.equipo].sort((a, b) => a.posicion - b.posicion);
   const homeState = resolveHomeState(onboarding, orderedTeam, gymProgress, bossState, idleState);
   const nextGym = (gymProgress.siguiente_gym as Record<string, unknown> | null) || null;
@@ -367,6 +369,16 @@ async function renderHomeV2(refs: ShellRefs): Promise<void> {
       </div>
 
       <div class="home-dashboard-grid">
+        <section class="home-panel-card home-panel-card--wide">
+          <p class="home-kicker">Medallas por region</p>
+          <div class="home-region-grid">
+            ${renderHomeRegionMedalCard(gymCatalog, 'kanto', 'Kanto')}
+            ${renderHomeRegionMedalCard(gymCatalog, 'johto', 'Johto')}
+            ${renderHomeRegionMedalCard(gymCatalog, 'hoenn', 'Hoenn')}
+            ${renderHomeRegionMedalCard(gymCatalog, 'zona_especial', 'Especial')}
+          </div>
+        </section>
+
         <section class="home-panel-card">
           <p class="home-kicker">Objetivo activo</p>
           <div class="home-objective-card">
@@ -1266,6 +1278,37 @@ function renderHomePanelMetric(label: string, value: string, detail: string): st
       <strong>${escapeHtml(value)}</strong>
       <small>${escapeHtml(detail)}</small>
     </div>`;
+}
+
+function renderHomeRegionMedalCard(gyms: Array<Record<string, unknown>>, regionCode: string, regionLabel: string): string {
+  const rows = gyms.filter((gym) => String(gym.region_codigo || '').toLowerCase() === regionCode);
+  const completed = rows.filter((gym) => Boolean(gym.completado)).length;
+  const total = rows.length || 8;
+  const badges = rows.length
+    ? rows.map((gym) => {
+        const badgeLabel = String(gym.medalla_nombre || 'badge');
+        const badgeKey = normalizeAssetToken(badgeLabel).replace(/_badge$/i, '');
+        const badgeAsset = getBadgeAsset(regionCode, badgeKey, gym.badge_asset_path as string | undefined);
+        const completedGym = Boolean(gym.completado);
+        return `
+          <span class="home-region-badge ${completedGym ? 'is-earned' : 'is-locked'}">
+            ${badgeAsset ? `<img src="${escapeHtml(badgeAsset)}" alt="${escapeHtml(badgeLabel)}" />` : `<span>${escapeHtml(badgeLabel.slice(0, 2).toUpperCase())}</span>`}
+          </span>
+        `;
+      }).join('')
+    : Array.from({ length: 8 }, () => '<span class="home-region-badge is-locked"><span>--</span></span>').join('');
+
+  return `
+    <article class="home-region-card">
+      <div class="home-region-card__head">
+        <strong>${escapeHtml(regionLabel)}</strong>
+        <span class="badge">${completed}/${total}</span>
+      </div>
+      <div class="home-region-badge-row">
+        ${badges}
+      </div>
+    </article>
+  `;
 }
 
 function filterPokemonCollection(

@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { sessionStore } from '../../store/session';
 import { playerStore } from '../../store/player';
 import { getMyPokemon, getMyTeam, getOnboarding, getTrainerSetup } from '../../services/player';
-import { getGymProgress } from '../../services/gyms';
+import { getGymCatalog, getGymProgress } from '../../services/gyms';
 import { getAvatarAsset, getBadgeAsset, getScenarioBackdrop } from '../../utils/gameAssets';
 import { getPokemonCardImage } from '../../utils/pokeSprites';
 
@@ -20,6 +20,7 @@ interface HomeVisualState {
   pokedolares: number;
   nextTarget: string;
   teamSprites: string[];
+  regionSummary: Array<{ label: string; earned: number; total: number }>;
 }
 
 const REGION_LABELS: Record<string, string> = {
@@ -51,10 +52,11 @@ export class HomeSceneV2 extends Phaser.Scene {
 
   private async loadHomeState(): Promise<void> {
     try {
-      const [trainerSetupRaw, onboardingRaw, gymProgressRaw, myTeamRaw, myPokemonRaw] = await Promise.all([
+      const [trainerSetupRaw, onboardingRaw, gymProgressRaw, gymCatalogRaw, myTeamRaw, myPokemonRaw] = await Promise.all([
         getTrainerSetup().catch(() => null),
         getOnboarding().catch(() => null),
         getGymProgress().catch(() => null),
+        getGymCatalog().catch(() => null),
         getMyTeam().catch(() => null),
         getMyPokemon().catch(() => null)
       ]);
@@ -73,6 +75,21 @@ export class HomeSceneV2 extends Phaser.Scene {
       const badgeKey = this.normalizeAssetToken(badgeLabel).replace(/_badge$/i, '');
       const avatarAsset = getAvatarAsset(user?.avatar_id || trainerSetupRaw?.avatar_id || null, user?.foto || null);
 
+      const gyms = ((gymCatalogRaw as { gyms?: Array<Record<string, unknown>> } | null)?.gyms || []) as Array<Record<string, unknown>>;
+      const regionSummary = [
+        { code: 'kanto', label: 'Kanto' },
+        { code: 'johto', label: 'Johto' },
+        { code: 'hoenn', label: 'Hoenn' },
+        { code: 'zona_especial', label: 'Especial' }
+      ].map((region) => {
+        const rows = gyms.filter((gym) => String(gym.region_codigo || '').toLowerCase() === region.code);
+        return {
+          label: region.label,
+          earned: rows.filter((gym) => Boolean(gym.completado)).length,
+          total: rows.length || 8
+        };
+      });
+
       this.viewState = {
         playerName: String(user?.nombre || 'Entrenador'),
         avatarAsset,
@@ -86,6 +103,7 @@ export class HomeSceneV2 extends Phaser.Scene {
         teamCount: orderedTeam.length,
         pokedolares: Number(user?.pokedolares || 0),
         nextTarget: String(nextGym?.lider_nombre || 'Fortalece tu equipo'),
+        regionSummary,
         teamSprites: spritePool
           .slice(0, 6)
           .map((row) => getPokemonCardImage(row.pokemon_id, row.es_shiny, row.imagen))
@@ -293,6 +311,26 @@ export class HomeSceneV2 extends Phaser.Scene {
       fontSize: '13px',
       color: '#a9bdd8',
       wordWrap: { width: rightWidth - 170 }
+    });
+
+    state?.regionSummary.forEach((region, index) => {
+      const cardX = rightX + index * 116;
+      const cardY = shellY + 426;
+      const regionCard = this.add.rectangle(cardX, cardY, 102, 62, 0x102030, 0.86).setOrigin(0, 0);
+      regionCard.setStrokeStyle(1, accent, 0.12);
+      this.add.text(cardX + 10, cardY + 12, region.label, {
+        fontSize: '11px',
+        color: '#cfe1f4'
+      });
+      this.add.text(cardX + 10, cardY + 32, `${region.earned}/${region.total}`, {
+        fontSize: '18px',
+        color: region.earned > 0 ? '#e8f7ee' : '#8ea2b7',
+        fontStyle: '700'
+      });
+      this.add.text(cardX + 58, cardY + 34, 'badges', {
+        fontSize: '10px',
+        color: '#8ea2b7'
+      });
     });
 
     if (state?.avatarAsset && this.textures.exists('home-v2-avatar')) {
