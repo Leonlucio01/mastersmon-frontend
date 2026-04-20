@@ -49,7 +49,7 @@ async function navigate(view: ViewKey): Promise<void> {
   activeView = view;
   renderSidebar();
   const hasSession = Boolean(localStorage.getItem('mastersmon_token'));
-  contentGrid.classList.toggle('content-grid--panel-only', view === 'pokemon' || (view === 'home' && !hasSession));
+  contentGrid.classList.toggle('content-grid--panel-only', ['pokemon', 'team', 'maps', 'gyms'].includes(view) || (view === 'home' && !hasSession));
   contentGrid.classList.toggle('content-grid--home-stack', view === 'home' && hasSession);
 
   const next = views.find((item) => item.key === view);
@@ -77,6 +77,7 @@ async function navigate(view: ViewKey): Promise<void> {
 function refreshShell(): void {
   const hasSession = localStorage.getItem('mastersmon_token');
   logoutBtn.classList.toggle('hidden', !hasSession);
+  playerMiniCard.classList.toggle('hidden', !hasSession);
   void navigate(activeView);
 }
 

@@ -272,7 +272,7 @@ export class HomeSceneV2 extends Phaser.Scene {
     this.add.text(rightX + 18, shellY + 310, state ? `Starter: ${state.starterName} · Region base: ${state.regionLabel}` : 'Tu progreso aparece aqui al iniciar sesion.', {
       fontSize: '12px',
       color: '#a9bdd8',
-      wordWrap: { width: rightWidth - 36 }
+      wordWrap: { width: rightWidth - 72 }
     });
 
     state?.regionSummary.forEach((region, index) => {
@@ -294,17 +294,6 @@ export class HomeSceneV2 extends Phaser.Scene {
         color: '#8ea2b7'
       });
     });
-
-    if (state?.avatarAsset && this.textures.exists('home-v2-avatar')) {
-      const avatarCard = this.add.rectangle(rightX + rightWidth - 118, shellY + 246, 90, 88, 0x0b1528, 0.74).setOrigin(0, 0);
-      avatarCard.setStrokeStyle(1, 0x86a7d0, 0.14);
-      const avatar = this.add.image(rightX + rightWidth - 73, shellY + 282, 'home-v2-avatar');
-      avatar.setDisplaySize(42, 42);
-      this.add.text(rightX + rightWidth - 108, shellY + 316, 'avatar', {
-        fontSize: '11px',
-        color: '#9db4d1'
-      });
-    }
 
     if (state) {
       this.add.text(rightX, shellY + shellHeight - 54, `${state.playerName} · ${this.formatNumber(state.pokedolares)} Pokedolares`, {

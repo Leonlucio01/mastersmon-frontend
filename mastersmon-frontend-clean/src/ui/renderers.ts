@@ -11,7 +11,7 @@ import { buyItem, getItemShop } from '../services/shop';
 import { getPaymentsCatalog } from '../services/payments';
 import { getRankingSummary } from '../services/ranking';
 import { getPokemonCardImage } from '../utils/pokeSprites';
-import { getAvatarAsset, getBadgeAsset, getItemAsset, getScenarioBackdrop, getTrainerAsset } from '../utils/gameAssets';
+import { getAvatarAsset, getBadgeAsset, getItemAsset, getMapAsset, getScenarioBackdrop, getTrainerAsset } from '../utils/gameAssets';
 import { showToast, escapeHtml } from './toast';
 
 interface ShellRefs {
@@ -24,6 +24,11 @@ interface ShellRefs {
 }
 
 const HOME_LOGIN_BANNER = new URL('../../img/Banner.png', import.meta.url).href;
+const MAP_MOVE_CENTER = new URL('../../img/maps/move/center.png', import.meta.url).href;
+const MAP_MOVE_NORTH = new URL('../../img/maps/move/north_able.png', import.meta.url).href;
+const MAP_MOVE_SOUTH = new URL('../../img/maps/move/south_able.png', import.meta.url).href;
+const MAP_MOVE_EAST = new URL('../../img/maps/move/east_able.png', import.meta.url).href;
+const MAP_MOVE_WEST = new URL('../../img/maps/move/west_able.png', import.meta.url).href;
 
 const WORLD_ICON_MAP: Record<string, string> = {
   Gym: 'GYM',
@@ -71,7 +76,7 @@ export async function renderView(view: ViewKey, refs: ShellRefs): Promise<void> 
       await renderMapsV2(refs);
       return;
     case 'gyms':
-      await renderGyms(refs);
+      await renderGymsV2(refs);
       return;
     case 'bossIdle':
       await renderBossIdle(refs);
@@ -466,24 +471,6 @@ async function renderHomeV3(refs: ShellRefs): Promise<void> {
 
   root.innerHTML = `
     <section class="home-dock-shell">
-      <section class="home-dock-card home-dock-card--lead">
-        <div class="home-dock-card__head">
-          ${avatarAsset ? `<img class="home-avatar-xl home-avatar-xl--dock" src="${escapeHtml(avatarAsset)}" alt="${escapeHtml(me.nombre)}" />` : `<div class="home-avatar-xl home-avatar-xl--fallback home-avatar-xl--dock">${escapeHtml((me.nombre || 'M').charAt(0).toUpperCase())}</div>`}
-          <div>
-            <p class="home-kicker">Centro de operaciones</p>
-            <h3>${escapeHtml(me.nombre)}</h3>
-            <p class="home-identity-copy">La ficha vive arriba. Aqui abajo solo quedan accesos rapidos y estado util para seguir jugando sin repetir el mismo contenido.</p>
-          </div>
-        </div>
-        <div class="home-chip-row">
-          <span class="badge">${escapeHtml(activeRegion)}</span>
-          <span class="badge">${orderedTeam.length}/6 team</span>
-          <span class="badge">Lv ${averageLevel || 0}</span>
-          <span class="badge">${formatNumber(me.pokedolares || 0)} $</span>
-          <span class="badge">${onboarding.progreso.porcentaje}% onboarding</span>
-        </div>
-      </section>
-
       <section class="home-action-grid-v3">
         ${renderHomeActionCard('team', 'TEAM', 'Editar slots', orderedTeam.length ? `${orderedTeam.length}/6 listos` : 'arma tu core', 'Ordena, cambia y guarda tu equipo principal.')}
         ${renderHomeActionCard('pokemon', 'DEX', 'Caja', `${formatNumber(pokemon.length)} pokemon`, 'Revisa stats, movimientos y evolucion desde una sola vista.')}
@@ -622,7 +609,7 @@ async function renderPokemonV2(refs: ShellRefs): Promise<void> {
       </section>
 
       <section class="pokemon-inventory-strip">
-        ${items.slice(0, 4).map((item) => {
+        ${items.map((item) => {
           const asset = getItemAsset(item.item_codigo || null);
           return `
             <article class="pokemon-inventory-chip">
@@ -1016,6 +1003,9 @@ async function renderMapsV2(refs: ShellRefs): Promise<void> {
   let selectedBallId = Number(balls[0]?.item_id || 0);
   let currentEncounter: Record<string, unknown> | null = null;
   let presenceSnapshot: Record<string, unknown> | null = null;
+  let avatarPos = { x: 48, y: 58 };
+  const user = sessionStore.getUser();
+  const avatarAsset = getAvatarAsset(user?.avatar_id || null, user?.foto || null);
 
   refs.panelRoot.innerHTML = `
     <section class="maps-shell">
@@ -1051,7 +1041,7 @@ async function renderMapsV2(refs: ShellRefs): Promise<void> {
     zoneGrid.innerHTML = zones.map((row) => renderMapZoneCard(row, Number(row.id) === selectedZoneId)).join('');
 
     detailPanel.innerHTML = zone
-      ? renderMapDetailPanel(zone, presenceSnapshot, currentEncounter, balls, selectedBallId)
+      ? renderMapDetailPanel(zone, presenceSnapshot, currentEncounter, balls, selectedBallId, avatarPos, avatarAsset)
       : '<div class="empty-state">No hay zonas disponibles.</div>';
 
     zoneGrid.querySelectorAll<HTMLElement>('[data-zone-pick]').forEach((button) => {
@@ -1059,6 +1049,7 @@ async function renderMapsV2(refs: ShellRefs): Promise<void> {
         selectedZoneId = Number(button.dataset.zonePick || 0);
         currentEncounter = null;
         presenceSnapshot = null;
+        avatarPos = { x: 48, y: 58 };
         paint();
       });
     });
@@ -1116,6 +1107,19 @@ async function renderMapsV2(refs: ShellRefs): Promise<void> {
       } catch (error) {
         showToast('Captura', error instanceof Error ? error.message : 'No se pudo capturar');
       }
+    });
+
+    detailPanel.querySelectorAll<HTMLElement>('[data-map-move]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const move = String(button.dataset.mapMove || '');
+        const step = 9;
+        if (move === 'north') avatarPos.y = Math.max(14, avatarPos.y - step);
+        if (move === 'south') avatarPos.y = Math.min(82, avatarPos.y + step);
+        if (move === 'west') avatarPos.x = Math.max(10, avatarPos.x - step);
+        if (move === 'east') avatarPos.x = Math.min(86, avatarPos.x + step);
+        if (move === 'center') avatarPos = { x: 48, y: 58 };
+        paint();
+      });
     });
   };
 
@@ -1219,6 +1223,103 @@ async function renderMaps(refs: ShellRefs): Promise<void> {
         });
       } catch (error) {
         showToast('Maps', error instanceof Error ? error.message : 'No se pudo generar encuentro');
+      }
+    });
+  });
+}
+
+async function renderGymsV2(refs: ShellRefs): Promise<void> {
+  ensureAuthenticated(refs.panelRoot, refs.onNavigate);
+  const [catalog, progress, team] = await Promise.all([getGymCatalog(), getGymProgress(), getMyTeam()]);
+  playerStore.team = team.equipo;
+  const gyms = (catalog as { gyms?: Array<Record<string, unknown>> }).gyms || [];
+  const progressData = progress as Record<string, unknown>;
+
+  refs.panelRoot.innerHTML = `
+    <section class="team-builder-shell">
+      <section class="section-card">
+        <div class="pokemon-topbar-v2">
+          <div class="pokemon-title-copy">
+            <h3>Gyms</h3>
+            <p>Ruta regional, medallas y acceso rapido a cada lider sin dejar un espacio muerto en la vista.</p>
+          </div>
+          <div class="home-chip-row">
+            <span class="badge">${progressData.completados ?? 0} completos</span>
+            <span class="badge">${progressData.desbloqueados ?? 0} desbloqueados</span>
+            <span class="badge">${progressData.porcentaje ?? 0}%</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-grid">
+        <div class="metric-card"><span>Total Gyms</span><strong>${progressData.total_gyms ?? 0}</strong></div>
+        <div class="metric-card"><span>Completados</span><strong>${progressData.completados ?? 0}</strong></div>
+        <div class="metric-card"><span>Desbloqueados</span><strong>${progressData.desbloqueados ?? 0}</strong></div>
+        <div class="metric-card"><span>Team listo</span><strong>${playerStore.team.length}/6</strong></div>
+      </section>
+
+      <section class="gym-grid gym-grid--v2">
+        ${gyms.map((gym) => {
+          const region = String(gym.region_codigo || gym.region_nombre || '');
+          const leader = String(gym.lider_nombre || gym.codigo || 'Gym');
+          const badge = String(gym.medalla_nombre || 'Medalla');
+          const trainerAsset = getTrainerAsset(region, leader, gym.trainer_asset_path as string | undefined);
+          const badgeAsset = getBadgeAsset(region, badge, gym.badge_asset_path as string | undefined);
+          return `
+            <article class="gym-card gym-card--v2">
+              <div class="gym-card__media">
+                ${trainerAsset ? `<img src="${escapeHtml(trainerAsset)}" alt="${escapeHtml(leader)}" />` : `<span class="home-thumb-fallback">GYM</span>`}
+              </div>
+              <div class="gym-card__copy">
+                <strong>${escapeHtml(leader)}</strong>
+                <small>${escapeHtml(String(gym.region_nombre || gym.region_codigo || 'region'))}</small>
+                <div class="home-chip-row">
+                  <span class="badge ${gym.desbloqueado ? 'success' : ''}">${gym.desbloqueado ? 'Desbloqueado' : 'Bloqueado'}</span>
+                  <span class="badge ${gym.completado ? 'warning' : ''}">${gym.completado ? 'Completado' : 'Pendiente'}</span>
+                </div>
+                <div class="gym-card__badge-row">
+                  ${badgeAsset ? `<img src="${escapeHtml(badgeAsset)}" alt="${escapeHtml(badge)}" />` : `<span class="badge">${escapeHtml(badge)}</span>`}
+                </div>
+              </div>
+              <button class="pokemon-action-btn is-accent" data-start-gym-v2="${escapeHtml(String(gym.codigo || ''))}" ${gym.desbloqueado ? '' : 'disabled'}>Entrar</button>
+            </article>
+          `;
+        }).join('')}
+      </section>
+    </section>
+  `;
+
+  refs.panelRoot.querySelectorAll<HTMLElement>('[data-start-gym-v2]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const code = button.dataset.startGymV2 || '';
+      if (!code) return;
+      try {
+        const result = await startGym(code, playerStore.team.map((row) => row.id));
+        const token = String((result as Record<string, unknown>).gym_session_token || '');
+        const backdrop = openOverlayModal(`
+          <div class="modal-head">
+            <div>
+              <p class="home-kicker">Sesion de Gym</p>
+              <h3>${escapeHtml(code)}</h3>
+            </div>
+            <button class="modal-close" data-close-overlay="1">X</button>
+          </div>
+          <div class="evolution-layout">
+            <div class="code-box">gym_session_token = ${escapeHtml(token)}</div>
+            <button class="pokemon-action-btn is-accent" data-claim-gym-v2="1">Reclamar victoria</button>
+          </div>
+        `);
+        backdrop.querySelector<HTMLElement>('[data-claim-gym-v2]')?.addEventListener('click', async () => {
+          try {
+            const reward = await claimGymReward(token, true, 12);
+            closeOverlayModal();
+            showJsonModal('Resultado Gym', reward, refs.panelRoot);
+          } catch (error) {
+            showToast('Gym', error instanceof Error ? error.message : 'No se pudo reclamar');
+          }
+        });
+      } catch (error) {
+        showToast('Gym', error instanceof Error ? error.message : 'No se pudo iniciar');
       }
     });
   });
@@ -1705,9 +1806,9 @@ function renderPokemonCardV2(row: PlayerPokemon): string {
         <div class="pokemon-card-v2__hint">Click para ver atributos completos</div>
       </div>
       <div class="pokemon-card-v2__actions">
-        <button class="pokemon-action-btn is-accent" data-pokemon-action="moves" data-pokemon-id="${row.id}">Moves</button>
-        <button class="pokemon-action-btn" data-pokemon-action="evolve" data-pokemon-id="${row.id}">Evolve</button>
-        <button class="pokemon-action-btn is-danger" data-pokemon-action="release" data-pokemon-id="${row.id}">Release</button>
+        <button class="pokemon-action-btn is-accent" data-pokemon-action="moves" data-pokemon-id="${row.id}">Movimientos</button>
+        <button class="pokemon-action-btn" data-pokemon-action="evolve" data-pokemon-id="${row.id}">Evolucionar</button>
+        <button class="pokemon-action-btn is-danger" data-pokemon-action="release" data-pokemon-id="${row.id}">Liberar</button>
       </div>
     </article>`;
 }
@@ -2119,9 +2220,10 @@ function renderTeamRosterCard(row: PlayerPokemon, assigned: boolean, selectedSlo
 }
 
 function renderMapZoneCard(zone: { id: number; nombre: string; descripcion?: string | null; card_imagen?: string | null; species_count?: number }, selected: boolean): string {
+  const cardImage = String(zone.card_imagen || getMapAsset(null, zone.nombre, null) || '');
   return `
     <button class="maps-zone-card ${selected ? 'is-selected' : ''}" data-zone-pick="${zone.id}">
-      ${zone.card_imagen ? `<span class="maps-zone-card__art"><img src="${escapeHtml(zone.card_imagen)}" alt="${escapeHtml(zone.nombre)}" /></span>` : `<span class="maps-zone-card__art maps-zone-card__art--empty">MAP</span>`}
+      ${cardImage ? `<span class="maps-zone-card__art"><img src="${escapeHtml(cardImage)}" alt="${escapeHtml(zone.nombre)}" /></span>` : `<span class="maps-zone-card__art maps-zone-card__art--empty">MAP</span>`}
       <span class="maps-zone-card__copy">
         <strong>${escapeHtml(zone.nombre)}</strong>
         <small>${escapeHtml(zone.descripcion || 'Explora la zona, reporta presencia y genera encuentros.')}</small>
@@ -2136,13 +2238,26 @@ function renderMapDetailPanel(
   presence: Record<string, unknown> | null,
   encounter: Record<string, unknown> | null,
   balls: Array<{ item_id: number; nombre: string; cantidad: number }>,
-  selectedBallId: number
+  selectedBallId: number,
+  avatarPos: { x: number; y: number },
+  avatarAsset: string | null
 ): string {
   const selectedBall = balls.find((item) => Number(item.item_id) === selectedBallId) || null;
+  const mapImage = String(zone.escenario_imagen || zone.imagen || getMapAsset(null, zone.nombre, null) || '');
   return `
     <div class="maps-detail-shell">
       <div class="maps-detail-hero">
-        ${(zone.escenario_imagen || zone.imagen) ? `<img src="${escapeHtml(String(zone.escenario_imagen || zone.imagen || ''))}" alt="${escapeHtml(zone.nombre)}" />` : '<div class="maps-detail-hero__fallback">MAP</div>'}
+        ${mapImage ? `<img src="${escapeHtml(mapImage)}" alt="${escapeHtml(zone.nombre)}" />` : '<div class="maps-detail-hero__fallback">MAP</div>'}
+        <div class="maps-detail-hero__avatar" style="left:${avatarPos.x}%; top:${avatarPos.y}%;">
+          ${avatarAsset ? `<img src="${escapeHtml(avatarAsset)}" alt="avatar" />` : '<span>MM</span>'}
+        </div>
+      </div>
+      <div class="maps-move-pad">
+        <button class="maps-move-pad__btn maps-move-pad__btn--north" data-map-move="north"><img src="${escapeHtml(MAP_MOVE_NORTH)}" alt="Norte" /></button>
+        <button class="maps-move-pad__btn maps-move-pad__btn--west" data-map-move="west"><img src="${escapeHtml(MAP_MOVE_WEST)}" alt="Oeste" /></button>
+        <button class="maps-move-pad__btn maps-move-pad__btn--center" data-map-move="center"><img src="${escapeHtml(MAP_MOVE_CENTER)}" alt="Centro" /></button>
+        <button class="maps-move-pad__btn maps-move-pad__btn--east" data-map-move="east"><img src="${escapeHtml(MAP_MOVE_EAST)}" alt="Este" /></button>
+        <button class="maps-move-pad__btn maps-move-pad__btn--south" data-map-move="south"><img src="${escapeHtml(MAP_MOVE_SOUTH)}" alt="Sur" /></button>
       </div>
       <div class="maps-detail-copy">
         <p class="home-kicker">Zona activa</p>
