@@ -23,6 +23,8 @@ interface ShellRefs {
   refreshShell: () => void;
 }
 
+const HOME_LOGIN_BANNER = new URL('../../img/Banner.png', import.meta.url).href;
+
 const WORLD_ICON_MAP: Record<string, string> = {
   Gym: 'GYM',
   Boss: 'BOS',
@@ -51,13 +53,13 @@ export async function renderView(view: ViewKey, refs: ShellRefs): Promise<void> 
 
   switch (view) {
     case 'home':
-      await renderHomeV2(refs);
+      await renderHomeV3(refs);
       return;
     case 'pokemon':
       await renderPokemonV2(refs);
       return;
     case 'team':
-      await renderTeam(refs);
+      await renderTeamV2(refs);
       return;
     case 'arena':
       await renderArena(refs);
@@ -66,7 +68,7 @@ export async function renderView(view: ViewKey, refs: ShellRefs): Promise<void> 
       await renderOnboarding(refs);
       return;
     case 'maps':
-      await renderMaps(refs);
+      await renderMapsV2(refs);
       return;
     case 'gyms':
       await renderGyms(refs);
@@ -374,6 +376,153 @@ async function renderHomeV2(refs: ShellRefs): Promise<void> {
   });
 }
 
+async function renderHomeV3(refs: ShellRefs): Promise<void> {
+  const root = refs.panelRoot;
+
+  if (!sessionStore.isAuthenticated()) {
+    root.innerHTML = `
+      <section class="login-showcase">
+        <div class="login-showcase__hero">
+          <div class="login-showcase__copy">
+            <p class="home-kicker">MastersMon Online</p>
+            <h2>Una entrada separada del home para que el juego se sienta mejor desde el primer clic.</h2>
+            <p>Usamos tu banner como portada del acceso. Cuando el usuario inicia sesion, esta pantalla desaparece y el home queda reservado para la ficha del entrenador, el team y la accion.</p>
+            <div class="login-showcase__chips">
+              <span class="badge">captura</span>
+              <span class="badge">team builder</span>
+              <span class="badge">gyms</span>
+              <span class="badge">maps</span>
+            </div>
+            <div id="google-login-slot-v3" class="login-showcase__cta"></div>
+          </div>
+          <div class="login-showcase__art">
+            <img src="${escapeHtml(HOME_LOGIN_BANNER)}" alt="Banner MastersMon" />
+          </div>
+        </div>
+        <div class="login-showcase__grid">
+          ${renderHomeShortcutVisual('maps', 'Mapas', 'Explorar y capturar', null, 'MAP')}
+          ${renderHomeShortcutVisual('pokemon', 'My Pokemon', 'Caja y evolucion', null, 'DEX')}
+          ${renderHomeShortcutVisual('team', 'Team', 'Armar tus 6 slots', null, 'TM')}
+          ${renderHomeShortcutVisual('gyms', 'Gyms', 'Retos regionales', null, 'GYM')}
+        </div>
+      </section>
+    `;
+
+    const slot = document.getElementById('google-login-slot-v3');
+    if (slot) {
+      renderGoogleButton(
+        slot,
+        async (result) => {
+          showToast('Sesion iniciada', result.mensaje);
+          await refs.refreshShell();
+          refs.onNavigate('home');
+        },
+        (message) => showToast('Login', message)
+      );
+    }
+
+    root.querySelectorAll('[data-go-view]').forEach((button) => {
+      button.addEventListener('click', () => {
+        refs.onNavigate((button as HTMLElement).dataset.goView as ViewKey);
+      });
+    });
+    return;
+  }
+
+  const [me, trainerSetup, pokemon, team, onboarding, gymProgressRaw, bossStateRaw, idleStateRaw, gymCatalogRaw] = await Promise.all([
+    getMe(),
+    getTrainerSetup(),
+    getMyPokemon(),
+    getMyTeam(),
+    getOnboarding(),
+    getGymProgress(),
+    getBossState(),
+    getIdleState(),
+    getGymCatalog()
+  ]);
+
+  sessionStore.setUser(me);
+  playerStore.trainerSetup = trainerSetup;
+  playerStore.pokemon = pokemon;
+  playerStore.team = team.equipo;
+  playerStore.onboarding = onboarding;
+
+  const gymProgress = gymProgressRaw as Record<string, unknown>;
+  const bossState = bossStateRaw as Record<string, unknown>;
+  const idleState = idleStateRaw as Record<string, unknown>;
+  const gymCatalog = ((gymCatalogRaw as { gyms?: Array<Record<string, unknown>> }).gyms || []) as Array<Record<string, unknown>>;
+  const orderedTeam = [...team.equipo].sort((a, b) => a.posicion - b.posicion);
+  const nextGym = (gymProgress.siguiente_gym as Record<string, unknown> | null) || null;
+  const idleSession = (idleState.sesion as Record<string, unknown> | null) || null;
+  const regionCode = String(nextGym?.region_codigo || 'kanto').toLowerCase();
+  const leaderName = String(nextGym?.lider_nombre || 'Siguiente gym');
+  const badgeLabel = String(nextGym?.medalla_nombre || 'Badge');
+  const avatarAsset = getAvatarAsset(me.avatar_id || trainerSetup.avatar_id || null, me.foto || null);
+  const averageLevel = orderedTeam.length
+    ? Math.round(orderedTeam.reduce((sum, slot) => sum + Number(slot.nivel || 0), 0) / orderedTeam.length)
+    : 0;
+  const teamPower = orderedTeam.reduce((sum, slot) => sum + Number(slot.ataque || 0) + Number(slot.ataque_especial || 0), 0);
+  const activeRegion = nextGym ? String(nextGym.region_codigo || regionCode).toUpperCase() : 'FREE';
+
+  root.innerHTML = `
+    <section class="home-dock-shell">
+      <section class="home-dock-card home-dock-card--lead">
+        <div class="home-dock-card__head">
+          ${avatarAsset ? `<img class="home-avatar-xl home-avatar-xl--dock" src="${escapeHtml(avatarAsset)}" alt="${escapeHtml(me.nombre)}" />` : `<div class="home-avatar-xl home-avatar-xl--fallback home-avatar-xl--dock">${escapeHtml((me.nombre || 'M').charAt(0).toUpperCase())}</div>`}
+          <div>
+            <p class="home-kicker">Centro de operaciones</p>
+            <h3>${escapeHtml(me.nombre)}</h3>
+            <p class="home-identity-copy">La ficha vive arriba. Aqui abajo solo quedan accesos rapidos y estado util para seguir jugando sin repetir el mismo contenido.</p>
+          </div>
+        </div>
+        <div class="home-chip-row">
+          <span class="badge">${escapeHtml(activeRegion)}</span>
+          <span class="badge">${orderedTeam.length}/6 team</span>
+          <span class="badge">Lv ${averageLevel || 0}</span>
+          <span class="badge">${formatNumber(me.pokedolares || 0)} $</span>
+          <span class="badge">${onboarding.progreso.porcentaje}% onboarding</span>
+        </div>
+      </section>
+
+      <section class="home-action-grid-v3">
+        ${renderHomeActionCard('team', 'TEAM', 'Editar slots', orderedTeam.length ? `${orderedTeam.length}/6 listos` : 'arma tu core', 'Ordena, cambia y guarda tu equipo principal.')}
+        ${renderHomeActionCard('pokemon', 'DEX', 'Caja', `${formatNumber(pokemon.length)} pokemon`, 'Revisa stats, movimientos y evolucion desde una sola vista.')}
+        ${renderHomeActionCard('maps', 'MAP', 'Explorar', nextGym ? String(nextGym.region_codigo || activeRegion) : 'zonas activas', 'Genera encuentros, reporta presencia y captura.')}
+        ${renderHomeActionCard('gyms', 'GYM', 'Gyms', nextGym ? leaderName : 'sin bloqueo', 'Continua tu ruta regional y desbloquea medallas.')}
+        ${renderHomeActionCard('arena', 'PVP', 'Arena', teamPower ? formatNumber(teamPower) : '0 poder', 'Usa tu team guardado para sesiones rapidas.')}
+        ${renderHomeActionCard('bossIdle', 'IDL', 'Boss / Idle', Boolean(idleState.activa) ? 'idle en curso' : 'listo', 'Farm diario, progreso pasivo y boss global.')}
+      </section>
+
+      <div class="home-dashboard-grid">
+        <section class="home-panel-card">
+          <p class="home-kicker">Estado del mundo</p>
+          <div class="home-state-grid home-state-grid--v2">
+            ${renderHomeStateTile('Gym', nextGym ? leaderName : 'Libre', nextGym ? badgeLabel : 'Sin bloqueo', null, 'GYM')}
+            ${renderHomeStateTile('Boss', bossState.activo ? 'Activo' : 'En espera', bossState.activo ? `Cierra en ${formatSecondsCompact(Number(bossState.segundos_para_fin || 0))}` : `Abre en ${formatSecondsCompact(Number(bossState.segundos_para_inicio || 0))}`, null, 'BOS')}
+            ${renderHomeStateTile('Idle', Boolean(idleState.activa) ? 'En curso' : 'Disponible', Boolean(idleState.activa) ? `${Number(idleSession?.progreso_pct || 0)}%` : 'Listo para iniciar', null, 'IDL')}
+            ${renderHomeStateTile('Mapa', activeRegion, nextGym ? 'Ruta siguiente' : 'Exploracion libre', null, 'MAP')}
+          </div>
+        </section>
+        <section class="home-panel-card">
+          <p class="home-kicker">Medallas por region</p>
+          <div class="home-region-grid">
+            ${renderHomeRegionMedalCard(gymCatalog, 'kanto', 'Kanto')}
+            ${renderHomeRegionMedalCard(gymCatalog, 'johto', 'Johto')}
+            ${renderHomeRegionMedalCard(gymCatalog, 'hoenn', 'Hoenn')}
+            ${renderHomeRegionMedalCard(gymCatalog, 'zona_especial', 'Especial')}
+          </div>
+        </section>
+      </div>
+    </section>
+  `;
+
+  root.querySelectorAll('[data-go-view]').forEach((button) => {
+    button.addEventListener('click', () => {
+      refs.onNavigate((button as HTMLElement).dataset.goView as ViewKey);
+    });
+  });
+}
+
 async function renderPokemon(refs: ShellRefs): Promise<void> {
   ensureAuthenticated(refs.panelRoot, refs.onNavigate);
   const pokemon = await getMyPokemon();
@@ -566,6 +715,133 @@ async function renderPokemonV2(refs: ShellRefs): Promise<void> {
   paint();
 }
 
+async function renderTeamV2(refs: ShellRefs): Promise<void> {
+  ensureAuthenticated(refs.panelRoot, refs.onNavigate);
+  const [teamResult, pokemon] = await Promise.all([getMyTeam(), getMyPokemon()]);
+  playerStore.team = teamResult.equipo;
+  playerStore.pokemon = pokemon;
+
+  const orderedTeam = [...teamResult.equipo].sort((a, b) => a.posicion - b.posicion);
+  const teamSlots = Array.from({ length: 6 }, (_, index) => orderedTeam.find((slot) => slot.posicion === index + 1) || null);
+  const pokemonMap = new Map(pokemon.map((row) => [row.id, row]));
+  let selectedSlot = Math.max(1, teamSlots.findIndex((slot) => !slot) + 1 || 1);
+
+  refs.panelRoot.innerHTML = `
+    <section class="team-builder-shell">
+      <section class="section-card">
+        <div class="pokemon-topbar-v2">
+          <div class="pokemon-title-copy">
+            <h3>Team Builder</h3>
+            <p>Selecciona un slot y asigna tu Pokemon con un flujo mas claro. El slot 1 funciona como lider visible del equipo.</p>
+          </div>
+          <div class="home-chip-row">
+            <span class="badge">${orderedTeam.length}/6 slots</span>
+            <span class="badge">${formatNumber(pokemon.length)} en caja</span>
+          </div>
+        </div>
+      </section>
+      <section class="team-builder-layout">
+        <section class="section-card">
+          <div class="team-builder-board">
+            <div id="team-slot-grid" class="team-slot-grid"></div>
+            <div class="team-builder-actions">
+              <button id="team-save-btn">Guardar team</button>
+              <button id="team-autofill-btn" class="secondary-button">Auto fill</button>
+              <button id="team-clear-btn" class="ghost-button">Limpiar</button>
+            </div>
+          </div>
+        </section>
+        <section class="section-card">
+          <div class="pokemon-filter-bar">
+            <div class="pokemon-filter-field">
+              <label for="team-search">Buscar</label>
+              <input id="team-search" class="input" type="text" placeholder="Nombre o tipo" />
+            </div>
+          </div>
+          <div id="team-roster-grid" class="team-roster-grid"></div>
+        </section>
+      </section>
+    </section>
+  `;
+
+  const slotGrid = document.getElementById('team-slot-grid') as HTMLElement | null;
+  const rosterGrid = document.getElementById('team-roster-grid') as HTMLElement | null;
+  const search = document.getElementById('team-search') as HTMLInputElement | null;
+
+  const paint = (): void => {
+    if (!slotGrid || !rosterGrid) return;
+    slotGrid.innerHTML = teamSlots.map((slot, index) => renderTeamBuilderSlot(slot, index + 1, selectedSlot === index + 1)).join('');
+
+    const searchValue = String(search?.value || '').trim().toLowerCase();
+    const assignedIds = new Set(teamSlots.filter(Boolean).map((slot) => Number(slot?.id || 0)));
+    const rows = pokemon.filter((row) => {
+      const haystack = `${row.nombre} ${row.tipo || ''}`.toLowerCase();
+      return !searchValue || haystack.includes(searchValue);
+    });
+
+    rosterGrid.innerHTML = rows.map((row) => renderTeamRosterCard(row, assignedIds.has(row.id), selectedSlot)).join('');
+
+    slotGrid.querySelectorAll<HTMLElement>('[data-team-slot]').forEach((button) => {
+      button.addEventListener('click', () => {
+        selectedSlot = Number(button.dataset.teamSlot || 1);
+        paint();
+      });
+    });
+
+    slotGrid.querySelectorAll<HTMLElement>('[data-team-remove]').forEach((button) => {
+      button.addEventListener('click', (event) => {
+        event.stopPropagation();
+        const slotIndex = Number(button.dataset.teamRemove || 1) - 1;
+        teamSlots[slotIndex] = null;
+        paint();
+      });
+    });
+
+    rosterGrid.querySelectorAll<HTMLElement>('[data-team-assign]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const pokemonId = Number(button.dataset.teamAssign || 0);
+        const row = pokemonMap.get(pokemonId);
+        if (!row) return;
+        const existingIndex = teamSlots.findIndex((slot) => Number(slot?.id || 0) === pokemonId);
+        if (existingIndex >= 0) teamSlots[existingIndex] = null;
+        teamSlots[selectedSlot - 1] = { ...row, posicion: selectedSlot, es_lider: selectedSlot === 1 };
+        paint();
+      });
+    });
+
+    rosterGrid.querySelectorAll<HTMLElement>('[data-team-inspect]').forEach((button) => {
+      button.addEventListener('click', async () => {
+        const pokemonId = Number(button.dataset.teamInspect || 0);
+        const row = pokemonMap.get(pokemonId);
+        if (!row) return;
+        await openPokemonDetailModal(row, refs);
+      });
+    });
+  };
+
+  document.getElementById('team-save-btn')?.addEventListener('click', async () => {
+    const ids = teamSlots.filter(Boolean).map((slot) => Number(slot?.id || 0));
+    await saveTeamIds(ids, refs);
+  });
+
+  document.getElementById('team-autofill-btn')?.addEventListener('click', () => {
+    pokemon.slice(0, 6).forEach((row, index) => {
+      teamSlots[index] = { ...row, posicion: index + 1, es_lider: index === 0 };
+    });
+    selectedSlot = Math.min(6, pokemon.slice(0, 6).length || 1);
+    paint();
+  });
+
+  document.getElementById('team-clear-btn')?.addEventListener('click', () => {
+    for (let index = 0; index < teamSlots.length; index += 1) teamSlots[index] = null;
+    selectedSlot = 1;
+    paint();
+  });
+
+  search?.addEventListener('input', paint);
+  paint();
+}
+
 async function renderTeam(refs: ShellRefs): Promise<void> {
   ensureAuthenticated(refs.panelRoot, refs.onNavigate);
   const [teamResult, pokemon] = await Promise.all([getMyTeam(), getMyPokemon()]);
@@ -729,6 +1005,121 @@ async function renderOnboarding(refs: ShellRefs): Promise<void> {
       showToast('Onboarding', error instanceof Error ? error.message : 'No se pudo actualizar');
     }
   });
+}
+
+async function renderMapsV2(refs: ShellRefs): Promise<void> {
+  ensureAuthenticated(refs.panelRoot, refs.onNavigate);
+  const [zones, items] = await Promise.all([getZones(), getMyItems()]);
+  playerStore.items = items;
+  const balls = items.filter((item) => (item.item_codigo || '').includes('ball'));
+  let selectedZoneId = Number(zones[0]?.id || 0);
+  let selectedBallId = Number(balls[0]?.item_id || 0);
+  let currentEncounter: Record<string, unknown> | null = null;
+  let presenceSnapshot: Record<string, unknown> | null = null;
+
+  refs.panelRoot.innerHTML = `
+    <section class="maps-shell">
+      <section class="section-card">
+        <div class="pokemon-topbar-v2">
+          <div class="pokemon-title-copy">
+            <h3>Maps Explorer</h3>
+            <p>Selecciona una zona, registra presencia y genera encuentros desde un flujo continuo. La captura queda visible con la Pokeball que elijas.</p>
+          </div>
+          <div class="home-chip-row">
+            <span class="badge">${formatNumber(zones.length)} zonas</span>
+            <span class="badge">${formatNumber(balls.length)} balls</span>
+          </div>
+        </div>
+      </section>
+      <section class="maps-layout">
+        <section class="section-card">
+          <div id="maps-zone-grid" class="maps-zone-grid"></div>
+        </section>
+        <section class="section-card">
+          <div id="maps-detail-panel"></div>
+        </section>
+      </section>
+    </section>
+  `;
+
+  const zoneGrid = document.getElementById('maps-zone-grid') as HTMLElement | null;
+  const detailPanel = document.getElementById('maps-detail-panel') as HTMLElement | null;
+
+  const paint = (): void => {
+    if (!zoneGrid || !detailPanel) return;
+    const zone = zones.find((row) => Number(row.id) === selectedZoneId) || zones[0] || null;
+    zoneGrid.innerHTML = zones.map((row) => renderMapZoneCard(row, Number(row.id) === selectedZoneId)).join('');
+
+    detailPanel.innerHTML = zone
+      ? renderMapDetailPanel(zone, presenceSnapshot, currentEncounter, balls, selectedBallId)
+      : '<div class="empty-state">No hay zonas disponibles.</div>';
+
+    zoneGrid.querySelectorAll<HTMLElement>('[data-zone-pick]').forEach((button) => {
+      button.addEventListener('click', () => {
+        selectedZoneId = Number(button.dataset.zonePick || 0);
+        currentEncounter = null;
+        presenceSnapshot = null;
+        paint();
+      });
+    });
+
+    detailPanel.querySelectorAll<HTMLElement>('[data-ball-pick]').forEach((button) => {
+      button.addEventListener('click', () => {
+        selectedBallId = Number(button.dataset.ballPick || 0);
+        paint();
+      });
+    });
+
+    detailPanel.querySelector<HTMLElement>('[data-map-presence]')?.addEventListener('click', async () => {
+      if (!zone) return;
+      try {
+        await updatePresence(zone.id, 'entry');
+        presenceSnapshot = await getPresence(zone.id) as Record<string, unknown>;
+        showToast('Maps', `Presencia registrada en ${zone.nombre}`);
+        paint();
+      } catch (error) {
+        showToast('Maps', error instanceof Error ? error.message : 'No se pudo actualizar presencia');
+      }
+    });
+
+    detailPanel.querySelector<HTMLElement>('[data-map-encounter]')?.addEventListener('click', async () => {
+      if (!zone) return;
+      try {
+        currentEncounter = await generateEncounter(zone.id) as Record<string, unknown>;
+        if (!currentEncounter.encuentro_token) {
+          showToast('Maps', 'No se genero encuentro esta vez');
+        }
+        paint();
+      } catch (error) {
+        showToast('Maps', error instanceof Error ? error.message : 'No se pudo generar encuentro');
+      }
+    });
+
+    detailPanel.querySelector<HTMLElement>('[data-map-capture]')?.addEventListener('click', async () => {
+      if (!currentEncounter?.encuentro_token) return;
+      const selectedBall = balls.find((item) => Number(item.item_id) === selectedBallId) || null;
+      if (!selectedBall) {
+        showToast('Captura', 'No tienes una Pokeball seleccionada');
+        return;
+      }
+      try {
+        const capture = await tryCapture({
+          pokemon_id: Number(currentEncounter.pokemon_id || 0),
+          nivel: Number(currentEncounter.nivel || 1),
+          es_shiny: Boolean(currentEncounter.es_shiny),
+          hp_actual: Number(currentEncounter.hp || currentEncounter.hp_max || 100),
+          hp_maximo: Number(currentEncounter.hp_max || currentEncounter.hp || 100),
+          item_id: Number(selectedBall.item_id),
+          encuentro_token: String(currentEncounter.encuentro_token)
+        });
+        showJsonModal('Resultado de captura', capture, refs.panelRoot);
+      } catch (error) {
+        showToast('Captura', error instanceof Error ? error.message : 'No se pudo capturar');
+      }
+    });
+  };
+
+  paint();
 }
 
 async function renderMaps(refs: ShellRefs): Promise<void> {
@@ -1676,6 +2067,132 @@ async function confirmReleasePokemon(row: PlayerPokemon, refs: ShellRefs): Promi
     showToast('Coleccion', result.mensaje || `${row.nombre} fue liberado`);
     await renderPokemonV2(refs);
   });
+}
+
+function renderHomeActionCard(view: ViewKey, icon: string, title: string, meta: string, copy: string): string {
+  return `
+    <button class="home-action-card-v3" data-go-view="${view}">
+      <span class="home-action-card-v3__icon">${escapeHtml(icon)}</span>
+      <span class="home-action-card-v3__copy">
+        <strong>${escapeHtml(title)}</strong>
+        <small>${escapeHtml(meta)}</small>
+        <span>${escapeHtml(copy)}</span>
+      </span>
+    </button>
+  `;
+}
+
+function renderTeamBuilderSlot(slot: TeamSlot | null, position: number, selected: boolean): string {
+  return `
+    <button class="team-slot-card ${selected ? 'is-selected' : ''} ${slot ? '' : 'is-empty'}" data-team-slot="${position}">
+      <span class="team-slot-card__index">0${position}</span>
+      ${slot ? `
+        <div class="team-slot-card__art"><img src="${escapeHtml(getPokemonCardImage(slot.pokemon_id, slot.es_shiny, slot.imagen))}" alt="${escapeHtml(slot.nombre)}" /></div>
+        <strong>${escapeHtml(slot.nombre)}</strong>
+        <small>Lv ${slot.nivel}${position === 1 ? ' · lider' : ''}</small>
+        <span class="team-slot-card__remove" data-team-remove="${position}">x</span>
+      ` : `
+        <div class="team-slot-card__empty">+</div>
+        <strong>Slot libre</strong>
+        <small>Asignar Pokemon</small>
+      `}
+    </button>
+  `;
+}
+
+function renderTeamRosterCard(row: PlayerPokemon, assigned: boolean, selectedSlot: number): string {
+  return `
+    <article class="team-roster-card ${assigned ? 'is-assigned' : ''}">
+      <div class="team-roster-card__art">
+        <img src="${escapeHtml(getPokemonCardImage(row.pokemon_id, row.es_shiny, row.imagen))}" alt="${escapeHtml(row.nombre)}" />
+      </div>
+      <div class="team-roster-card__copy">
+        <strong>${escapeHtml(row.nombre)}</strong>
+        <small>#${row.pokemon_id} · Lv ${row.nivel} · ${escapeHtml(row.tipo || 'tipo libre')}</small>
+      </div>
+      <div class="team-roster-card__actions">
+        <button class="pokemon-action-btn is-accent" data-team-assign="${row.id}">${assigned ? `Mover a slot ${selectedSlot}` : `Enviar a slot ${selectedSlot}`}</button>
+        <button class="pokemon-action-btn" data-team-inspect="${row.id}">Ver</button>
+      </div>
+    </article>
+  `;
+}
+
+function renderMapZoneCard(zone: { id: number; nombre: string; descripcion?: string | null; card_imagen?: string | null; species_count?: number }, selected: boolean): string {
+  return `
+    <button class="maps-zone-card ${selected ? 'is-selected' : ''}" data-zone-pick="${zone.id}">
+      ${zone.card_imagen ? `<span class="maps-zone-card__art"><img src="${escapeHtml(zone.card_imagen)}" alt="${escapeHtml(zone.nombre)}" /></span>` : `<span class="maps-zone-card__art maps-zone-card__art--empty">MAP</span>`}
+      <span class="maps-zone-card__copy">
+        <strong>${escapeHtml(zone.nombre)}</strong>
+        <small>${escapeHtml(zone.descripcion || 'Explora la zona, reporta presencia y genera encuentros.')}</small>
+      </span>
+      <span class="badge">${formatNumber(Number(zone.species_count || 0))} species</span>
+    </button>
+  `;
+}
+
+function renderMapDetailPanel(
+  zone: { id: number; nombre: string; descripcion?: string | null; imagen?: string | null; escenario_imagen?: string | null; species_count?: number },
+  presence: Record<string, unknown> | null,
+  encounter: Record<string, unknown> | null,
+  balls: Array<{ item_id: number; nombre: string; cantidad: number }>,
+  selectedBallId: number
+): string {
+  const selectedBall = balls.find((item) => Number(item.item_id) === selectedBallId) || null;
+  return `
+    <div class="maps-detail-shell">
+      <div class="maps-detail-hero">
+        ${(zone.escenario_imagen || zone.imagen) ? `<img src="${escapeHtml(String(zone.escenario_imagen || zone.imagen || ''))}" alt="${escapeHtml(zone.nombre)}" />` : '<div class="maps-detail-hero__fallback">MAP</div>'}
+      </div>
+      <div class="maps-detail-copy">
+        <p class="home-kicker">Zona activa</p>
+        <h3>${escapeHtml(zone.nombre)}</h3>
+        <p>${escapeHtml(zone.descripcion || 'Explora la zona, reporta presencia y genera encuentros.')}</p>
+        <div class="home-chip-row">
+          <span class="badge">${formatNumber(Number(zone.species_count || 0))} species</span>
+          <span class="badge">${presence ? 'presencia lista' : 'sin presencia'}</span>
+          <span class="badge">${encounter?.encuentro_token ? 'encuentro activo' : 'sin encuentro'}</span>
+        </div>
+      </div>
+
+      <div class="maps-detail-actions">
+        <button class="secondary-button" data-map-presence="1">Registrar presencia</button>
+        <button data-map-encounter="1">Generar encuentro</button>
+      </div>
+
+      <div class="maps-ball-strip">
+        ${balls.length ? balls.map((item) => `
+          <button class="maps-ball-chip ${Number(item.item_id) === selectedBallId ? 'is-selected' : ''}" data-ball-pick="${item.item_id}">
+            <strong>${escapeHtml(item.nombre)}</strong>
+            <small>x${formatNumber(item.cantidad)}</small>
+          </button>
+        `).join('') : '<div class="empty-state">No tienes Pokeballs disponibles.</div>'}
+      </div>
+
+      ${presence ? `
+        <div class="maps-presence-box">
+          <strong>Presencia registrada</strong>
+          <small>${escapeHtml(JSON.stringify(presence))}</small>
+        </div>
+      ` : ''}
+
+      ${encounter?.encuentro_token ? `
+        <article class="maps-encounter-card">
+          <div class="maps-encounter-card__art">
+            <img src="${escapeHtml(getPokemonCardImage(Number(encounter.pokemon_id || 0), Boolean(encounter.es_shiny), String(encounter.imagen || '')))}" alt="${escapeHtml(String(encounter.nombre || 'Pokemon'))}" />
+          </div>
+          <div class="maps-encounter-card__copy">
+            <strong>${escapeHtml(String(encounter.nombre || 'Pokemon'))}</strong>
+            <small>Lv ${formatNumber(Number(encounter.nivel || 1))}${Boolean(encounter.es_shiny) ? ' · shiny' : ''}</small>
+            <div class="code-box">token: ${escapeHtml(String(encounter.encuentro_token || ''))}</div>
+          </div>
+          <button class="pokemon-action-btn is-accent" data-map-capture="1" ${selectedBall ? '' : 'disabled'}>${selectedBall ? `Capturar con ${escapeHtml(selectedBall.nombre)}` : 'Elige una Pokeball'}</button>
+        </article>
+      ` : `
+        <div class="empty-state">Genera un encuentro para ver aqui al Pokemon salvaje y lanzar una Pokeball.</div>
+      `}
+    </div>
+  `;
 }
 
 function normalizeAssetToken(value: string): string {

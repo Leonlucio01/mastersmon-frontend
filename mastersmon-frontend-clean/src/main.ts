@@ -48,7 +48,9 @@ function renderSidebar(): void {
 async function navigate(view: ViewKey): Promise<void> {
   activeView = view;
   renderSidebar();
-  contentGrid.classList.toggle('content-grid--panel-only', view === 'pokemon');
+  const hasSession = Boolean(localStorage.getItem('mastersmon_token'));
+  contentGrid.classList.toggle('content-grid--panel-only', view === 'pokemon' || (view === 'home' && !hasSession));
+  contentGrid.classList.toggle('content-grid--home-stack', view === 'home' && hasSession);
 
   const next = views.find((item) => item.key === view);
   if (next) {

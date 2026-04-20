@@ -384,6 +384,19 @@ button:disabled {
   display: none;
 }
 
+#content-grid.content-grid--home-stack {
+  grid-template-columns: 1fr;
+}
+
+#content-grid.content-grid--home-stack #game-root {
+  min-height: 500px;
+}
+
+#content-grid.content-grid--home-stack #panel-root {
+  max-height: none;
+  overflow: visible;
+}
+
 #game-root,
 #panel-root {
   min-height: 0;
@@ -806,6 +819,396 @@ button:disabled {
 .home-command-shell {
   display: grid;
   gap: 1rem;
+}
+
+.login-showcase,
+.home-dock-shell,
+.team-builder-shell,
+.maps-shell {
+  display: grid;
+  gap: 1rem;
+}
+
+.login-showcase__hero {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(360px, 1.1fr);
+  gap: 1rem;
+  align-items: stretch;
+  padding: 1rem;
+  border-radius: 28px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02)),
+    rgba(255, 255, 255, 0.01);
+  border: 1px solid var(--line);
+}
+
+.login-showcase__copy {
+  display: grid;
+  align-content: center;
+  gap: 0.8rem;
+}
+
+.login-showcase__copy h2 {
+  margin: 0;
+  font-family: 'Space Grotesk', 'IBM Plex Sans', sans-serif;
+  font-size: clamp(2rem, 3vw, 3.3rem);
+  line-height: 1.05;
+}
+
+.login-showcase__copy p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.login-showcase__chips,
+.login-showcase__grid,
+.home-action-grid-v3,
+.team-slot-grid,
+.team-roster-grid,
+.maps-zone-grid,
+.maps-ball-strip {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.login-showcase__chips {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.login-showcase__cta {
+  margin-top: 0.2rem;
+}
+
+.login-showcase__art {
+  min-height: 360px;
+  border-radius: 28px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.login-showcase__art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.login-showcase__grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.home-dock-card {
+  padding: 1rem 1.1rem;
+  border-radius: 26px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.home-dock-card__head {
+  display: grid;
+  grid-template-columns: 86px minmax(0, 1fr);
+  gap: 0.9rem;
+  align-items: center;
+}
+
+.home-avatar-xl--dock {
+  width: 86px;
+  height: 86px;
+}
+
+.home-action-grid-v3 {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.home-action-card-v3 {
+  display: grid;
+  grid-template-columns: 58px 1fr;
+  gap: 0.75rem;
+  align-items: start;
+  width: 100%;
+  padding: 0.95rem;
+  border-radius: 24px;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: none;
+  color: var(--text);
+}
+
+.home-action-card-v3__icon {
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(101, 229, 197, 0.18), rgba(63, 198, 231, 0.16));
+  border: 1px solid rgba(101, 229, 197, 0.2);
+  font-family: 'Space Grotesk', 'IBM Plex Sans', sans-serif;
+  font-weight: 700;
+}
+
+.home-action-card-v3__copy {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.home-action-card-v3__copy strong {
+  font-family: 'Space Grotesk', 'IBM Plex Sans', sans-serif;
+}
+
+.home-action-card-v3__copy small,
+.home-action-card-v3__copy span {
+  color: var(--muted);
+}
+
+.team-builder-layout,
+.maps-layout {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.85fr) minmax(0, 1.15fr);
+  gap: 1rem;
+}
+
+.team-builder-board {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.team-slot-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.team-slot-card {
+  position: relative;
+  display: grid;
+  gap: 0.35rem;
+  justify-items: center;
+  width: 100%;
+  padding: 0.9rem 0.7rem;
+  border-radius: 22px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text);
+  box-shadow: none;
+}
+
+.team-slot-card.is-selected {
+  border-color: rgba(101, 229, 197, 0.28);
+  box-shadow: 0 14px 28px rgba(101, 229, 197, 0.08);
+}
+
+.team-slot-card__index,
+.team-slot-card__remove {
+  position: absolute;
+  top: 0.7rem;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.team-slot-card__index {
+  left: 0.8rem;
+}
+
+.team-slot-card__remove {
+  right: 0.8rem;
+}
+
+.team-slot-card__art,
+.team-slot-card__empty {
+  width: 72px;
+  height: 72px;
+  display: grid;
+  place-items: center;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.team-slot-card__art img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.team-slot-card__empty {
+  font-family: 'Space Grotesk', 'IBM Plex Sans', sans-serif;
+  font-size: 1.8rem;
+}
+
+.team-builder-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.team-roster-grid {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  margin-top: 1rem;
+}
+
+.team-roster-card,
+.maps-zone-card,
+.maps-ball-chip,
+.maps-presence-box,
+.maps-encounter-card {
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.team-roster-card {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  gap: 0.85rem;
+  padding: 0.85rem;
+}
+
+.team-roster-card__art {
+  width: 92px;
+  height: 92px;
+  display: grid;
+  place-items: center;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.team-roster-card__art img {
+  width: 82px;
+  height: 82px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.team-roster-card__copy {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.team-roster-card__copy small,
+.maps-zone-card__copy small,
+.maps-encounter-card__copy small {
+  color: var(--muted);
+}
+
+.team-roster-card__actions {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.6rem;
+  margin-top: 0.7rem;
+}
+
+.team-roster-card.is-assigned {
+  border-color: rgba(255, 209, 102, 0.22);
+}
+
+.maps-zone-grid {
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.maps-zone-card {
+  display: grid;
+  gap: 0.7rem;
+  width: 100%;
+  padding: 0.85rem;
+  text-align: left;
+  color: var(--text);
+  box-shadow: none;
+}
+
+.maps-zone-card.is-selected {
+  border-color: rgba(101, 229, 197, 0.28);
+}
+
+.maps-zone-card__art {
+  width: 100%;
+  height: 150px;
+  display: grid;
+  place-items: center;
+  border-radius: 20px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.maps-zone-card__art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.maps-zone-card__art--empty,
+.maps-detail-hero__fallback {
+  font-family: 'Space Grotesk', 'IBM Plex Sans', sans-serif;
+  font-size: 1.1rem;
+  color: var(--sky);
+}
+
+.maps-detail-shell {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.maps-detail-hero {
+  width: 100%;
+  min-height: 220px;
+  border-radius: 26px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.maps-detail-hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.maps-detail-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.maps-ball-strip {
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+
+.maps-ball-chip {
+  display: grid;
+  gap: 0.2rem;
+  width: 100%;
+  padding: 0.85rem;
+  text-align: left;
+  color: var(--text);
+  box-shadow: none;
+}
+
+.maps-ball-chip.is-selected {
+  border-color: rgba(101, 229, 197, 0.28);
+}
+
+.maps-encounter-card {
+  display: grid;
+  gap: 0.8rem;
+  padding: 0.9rem;
+}
+
+.maps-encounter-card__art {
+  width: 120px;
+  height: 120px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.maps-encounter-card__art img {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+  image-rendering: pixelated;
 }
 
 .home-hero-v2 {
@@ -1622,7 +2025,10 @@ button:disabled {
   .home-hero-v2,
   .home-dashboard-grid,
   .pokemon-topbar-v2,
-  .move-layout {
+  .move-layout,
+  .login-showcase__hero,
+  .team-builder-layout,
+  .maps-layout {
     grid-template-columns: 1fr;
   }
 
@@ -1635,7 +2041,12 @@ button:disabled {
   .home-region-grid,
   .pokemon-inspect-stats,
   .pokemon-inspect-progress__copy,
-  .pokemon-inspect-actions {
+  .pokemon-inspect-actions,
+  .login-showcase__grid,
+  .home-action-grid-v3,
+  .team-builder-actions,
+  .team-slot-grid,
+  .maps-detail-actions {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -1694,7 +2105,18 @@ button:disabled {
   .pokemon-inspect-stats,
   .pokemon-inspect-progress__copy,
   .pokemon-inspect-actions,
-  .pokemon-inspect-hero {
+  .pokemon-inspect-hero,
+  .login-showcase__grid,
+  .home-action-grid-v3,
+  .team-builder-actions,
+  .team-slot-grid,
+  .maps-detail-actions,
+  .team-roster-card__actions {
+    grid-template-columns: 1fr;
+  }
+
+  .home-dock-card__head,
+  .team-roster-card {
     grid-template-columns: 1fr;
   }
 }
