@@ -11,7 +11,7 @@ import { buyItem, getItemShop } from '../services/shop';
 import { getPaymentsCatalog } from '../services/payments';
 import { getRankingSummary } from '../services/ranking';
 import { getPokemonCardImage } from '../utils/pokeSprites';
-import { getAvatarAsset, getBadgeAsset, getItemAsset, getMapAsset, getScenarioBackdrop, getTrainerAsset } from '../utils/gameAssets';
+import { getAvatarAsset, getBadgeAsset, getItemAsset, getMapAsset, getMapCardAsset, getScenarioBackdrop, getTrainerAsset } from '../utils/gameAssets';
 import { showToast, escapeHtml } from './toast';
 
 interface ShellRefs {
@@ -435,11 +435,11 @@ async function renderHomeV3(refs: ShellRefs): Promise<void> {
   }
 
   const [me, trainerSetup, pokemon, team, onboarding, gymProgressRaw, bossStateRaw, idleStateRaw, gymCatalogRaw] = await Promise.all([
-    getMe(),
-    getTrainerSetup(),
-    getMyPokemon(),
-    getMyTeam(),
-    getOnboarding(),
+    sessionStore.getUser() ? Promise.resolve(sessionStore.getUser()!) : getMe(),
+    playerStore.trainerSetup ? Promise.resolve(playerStore.trainerSetup) : getTrainerSetup(),
+    playerStore.pokemon.length ? Promise.resolve(playerStore.pokemon) : getMyPokemon(),
+    playerStore.team.length ? Promise.resolve({ equipo: playerStore.team }) : getMyTeam(),
+    playerStore.onboarding ? Promise.resolve(playerStore.onboarding) : getOnboarding(),
     getGymProgress(),
     getBossState(),
     getIdleState(),
@@ -878,8 +878,14 @@ async function renderTeam(refs: ShellRefs): Promise<void> {
 async function saveTeamIds(ids: number[], refs: ShellRefs): Promise<void> {
   try {
     const result = await saveMyTeam(ids);
+    playerStore.team = ids
+      .map((id, index) => {
+        const row = playerStore.pokemon.find((pokemon) => pokemon.id === id);
+        return row ? { ...row, posicion: index + 1, es_lider: index === 0 } : null;
+      })
+      .filter(Boolean) as TeamSlot[];
     showToast('Equipo', result.ok ? 'Equipo guardado correctamente' : 'No se pudo guardar');
-    await renderTeam(refs);
+    await renderTeamV2(refs);
   } catch (error) {
     showToast('Equipo', error instanceof Error ? error.message : 'No se pudo guardar el equipo');
   }
@@ -1079,6 +1085,8 @@ async function renderMapsV2(refs: ShellRefs): Promise<void> {
         currentEncounter = await generateEncounter(zone.id) as Record<string, unknown>;
         if (!currentEncounter.encuentro_token) {
           showToast('Maps', 'No se genero encuentro esta vez');
+        } else if (Boolean(currentEncounter.es_shiny)) {
+          showToast('Shiny encontrado', `${String(currentEncounter.nombre || 'Pokemon')} aparecio en version shiny`);
         }
         paint();
       } catch (error) {
@@ -2220,7 +2228,7 @@ function renderTeamRosterCard(row: PlayerPokemon, assigned: boolean, selectedSlo
 }
 
 function renderMapZoneCard(zone: { id: number; nombre: string; descripcion?: string | null; card_imagen?: string | null; species_count?: number }, selected: boolean): string {
-  const cardImage = String(zone.card_imagen || getMapAsset(null, zone.nombre, null) || '');
+  const cardImage = getMapCardAsset(null, zone.nombre, zone.card_imagen || null) || String(zone.card_imagen || '');
   return `
     <button class="maps-zone-card ${selected ? 'is-selected' : ''}" data-zone-pick="${zone.id}">
       ${cardImage ? `<span class="maps-zone-card__art"><img src="${escapeHtml(cardImage)}" alt="${escapeHtml(zone.nombre)}" /></span>` : `<span class="maps-zone-card__art maps-zone-card__art--empty">MAP</span>`}
@@ -2243,7 +2251,7 @@ function renderMapDetailPanel(
   avatarAsset: string | null
 ): string {
   const selectedBall = balls.find((item) => Number(item.item_id) === selectedBallId) || null;
-  const mapImage = String(zone.escenario_imagen || zone.imagen || getMapAsset(null, zone.nombre, null) || '');
+  const mapImage = getMapAsset(null, zone.nombre, zone.escenario_imagen || zone.imagen || null) || String(zone.escenario_imagen || zone.imagen || '');
   return `
     <div class="maps-detail-shell">
       <div class="maps-detail-hero">
@@ -2292,11 +2300,12 @@ function renderMapDetailPanel(
       ` : ''}
 
       ${encounter?.encuentro_token ? `
-        <article class="maps-encounter-card">
+        <article class="maps-encounter-card ${Boolean(encounter.es_shiny) ? 'is-shiny' : ''}">
           <div class="maps-encounter-card__art">
             <img src="${escapeHtml(getPokemonCardImage(Number(encounter.pokemon_id || 0), Boolean(encounter.es_shiny), String(encounter.imagen || '')))}" alt="${escapeHtml(String(encounter.nombre || 'Pokemon'))}" />
           </div>
           <div class="maps-encounter-card__copy">
+            ${Boolean(encounter.es_shiny) ? '<span class="maps-shiny-alert">Shiny detectado</span>' : ''}
             <strong>${escapeHtml(String(encounter.nombre || 'Pokemon'))}</strong>
             <small>Lv ${formatNumber(Number(encounter.nivel || 1))}${Boolean(encounter.es_shiny) ? ' · shiny' : ''}</small>
             <div class="code-box">token: ${escapeHtml(String(encounter.encuentro_token || ''))}</div>

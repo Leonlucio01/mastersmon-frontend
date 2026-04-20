@@ -20,6 +20,10 @@ const mapModules = import.meta.glob('../../img/maps/escenarios/**/*.{png,jpg,jpe
   eager: true
 }) as AssetModuleMap;
 
+const mapCardModules = import.meta.glob('../../img/maps/cards/**/*.{png,jpg,jpeg,webp}', {
+  eager: true
+}) as AssetModuleMap;
+
 const itemModules = import.meta.glob('../../img/items/**/*.{png,jpg,jpeg,webp}', {
   eager: true
 }) as AssetModuleMap;
@@ -69,6 +73,7 @@ const avatarIndex = buildIndex(avatarModules, '/avatars/');
 const trainerIndex = buildIndex(trainerModules, '/trainers/');
 const badgeIndex = buildIndex(badgeModules, '/bagde/');
 const mapIndex = buildIndex(mapModules, '/maps/escenarios/');
+const mapCardIndex = buildIndex(mapCardModules, '/maps/cards/');
 const itemIndex = buildIndex(itemModules, '/items/');
 
 function cleanupBackendPath(value?: string | null): string | null {
@@ -144,6 +149,21 @@ export function getMapAsset(regionOrName?: string | null, mapName?: string | nul
     mapIndex,
     pathCandidate,
     pathCandidate?.replace(/^maps\/escenarios\//, '') || null,
+    region && map ? `${region}/${map}` : null,
+    map,
+    regionOrName || null
+  );
+}
+
+export function getMapCardAsset(regionOrName?: string | null, mapName?: string | null, backendPath?: string | null): string | null {
+  const pathCandidate = cleanupBackendPath(backendPath);
+  const region = regionOrName ? normalizeValue(regionOrName) : null;
+  const map = mapName ? normalizeValue(mapName) : null;
+
+  return pickFromIndex(
+    mapCardIndex,
+    pathCandidate,
+    pathCandidate?.replace(/^maps\/cards\//, '') || null,
     region && map ? `${region}/${map}` : null,
     map,
     regionOrName || null
