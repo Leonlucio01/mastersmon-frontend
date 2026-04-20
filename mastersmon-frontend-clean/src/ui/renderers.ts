@@ -23,6 +23,13 @@ interface ShellRefs {
   refreshShell: () => void;
 }
 
+const WORLD_ICON_MAP: Record<string, string> = {
+  Gym: 'GYM',
+  Boss: 'BOS',
+  Idle: 'IDL',
+  Mapa: 'MAP'
+};
+
 const sceneMeta: Record<ViewKey, { title: string; subtitle: string }> = {
   home: { title: 'Home', subtitle: 'Tu hub principal y acceso rápido al juego' },
   pokemon: { title: 'My Pokémon', subtitle: 'Caja, stats, rareza, shiny y movimientos' },
@@ -128,10 +135,9 @@ async function renderHome(refs: ShellRefs): Promise<void> {
     return;
   }
 
-  const [me, trainerSetup, items, pokemon, team, onboarding, gymProgressRaw, bossStateRaw, idleStateRaw] = await Promise.all([
+  const [me, trainerSetup, pokemon, team, onboarding, gymProgressRaw, bossStateRaw, idleStateRaw] = await Promise.all([
     getMe(),
     getTrainerSetup(),
-    getMyItems(),
     getMyPokemon(),
     getMyTeam(),
     getOnboarding(),
@@ -142,7 +148,6 @@ async function renderHome(refs: ShellRefs): Promise<void> {
 
   sessionStore.setUser(me);
   playerStore.trainerSetup = trainerSetup;
-  playerStore.items = items;
   playerStore.pokemon = pokemon;
   playerStore.team = team.equipo;
   playerStore.onboarding = onboarding;
@@ -292,39 +297,12 @@ async function renderHomeV2(refs: ShellRefs): Promise<void> {
   const badgeKey = normalizeAssetToken(badgeLabel).replace(/_badge$/i, '');
 
   const avatarAsset = getAvatarAsset(me.avatar_id || trainerSetup.avatar_id || null, me.foto || null);
-  const trainerAsset = nextGym ? getTrainerAsset(regionCode, leaderName, nextGym?.trainer_asset_path as string | undefined) : null;
-  const badgeAsset = nextGym ? getBadgeAsset(regionCode, badgeKey, nextGym?.badge_asset_path as string | undefined) : null;
-  const mapAsset = getScenarioBackdrop(regionCode, resolveScenarioHint(leaderName, regionCode));
   const leadTeam = orderedTeam[0] || null;
-  const firstPokemon = pokemon[0] || null;
-  const idleAsset = getItemAsset('booster_battle_exp_x2_24h') || getItemAsset('0004_poke-ball');
-  const itemShowcase = items.slice(0, 3);
   const averageLevel = orderedTeam.length
     ? Math.round(orderedTeam.reduce((sum, slot) => sum + Number(slot.nivel || 0), 0) / orderedTeam.length)
     : 0;
   const teamPower = orderedTeam.reduce((sum, slot) => sum + Number(slot.ataque || 0) + Number(slot.ataque_especial || 0), 0);
   const activeRegion = nextGym ? String(nextGym.region_codigo || regionCode).toUpperCase() : 'FREE';
-
-  const commandButtons = [
-    {
-      view: homeState.primaryView,
-      label: homeState.primaryLabel,
-      icon: homeState.primaryView === 'maps' ? 'MAP' : homeState.primaryView === 'team' ? 'TM' : homeState.primaryView === 'bossIdle' ? 'BOS' : homeState.primaryView === 'gyms' ? 'GYM' : 'GO',
-      accent: 'is-primary'
-    },
-    homeState.secondaryView && homeState.secondaryLabel
-      ? {
-          view: homeState.secondaryView,
-          label: homeState.secondaryLabel,
-          icon: homeState.secondaryView === 'pokemon' ? 'DEX' : homeState.secondaryView === 'team' ? 'TM' : homeState.secondaryView === 'arena' ? 'PVP' : 'GO',
-          accent: ''
-        }
-      : null,
-    { view: 'pokemon' as ViewKey, label: 'My Pokemon', icon: 'DEX', accent: '' },
-    { view: 'maps' as ViewKey, label: 'Maps', icon: 'MAP', accent: '' },
-    { view: 'arena' as ViewKey, label: 'Arena', icon: 'PVP', accent: '' },
-    { view: 'gyms' as ViewKey, label: 'Gyms', icon: 'GYM', accent: '' }
-  ].filter(Boolean) as Array<{ view: ViewKey; label: string; icon: string; accent: string }>;
 
   root.innerHTML = `
     <section class="home-command-shell">
@@ -333,7 +311,7 @@ async function renderHomeV2(refs: ShellRefs): Promise<void> {
           <div class="home-identity-head">
             ${avatarAsset ? `<img class="home-avatar-xl" src="${escapeHtml(avatarAsset)}" alt="${escapeHtml(me.nombre)}" />` : `<div class="home-avatar-xl home-avatar-xl--fallback">${escapeHtml((me.nombre || 'M').charAt(0).toUpperCase())}</div>`}
             <div>
-              <p class="home-kicker">Tu centro de mando</p>
+              <p class="home-kicker">Perfil del entrenador</p>
               <h3>${escapeHtml(me.nombre)}</h3>
               <div class="home-chip-row">
                 <span class="badge">${escapeHtml(activeRegion)}</span>
@@ -343,18 +321,15 @@ async function renderHomeV2(refs: ShellRefs): Promise<void> {
               </div>
             </div>
           </div>
-          <p class="home-identity-copy">${escapeHtml(homeState.subtitle)}</p>
-          <div class="home-command-actions">
-            ${commandButtons.map((button) => renderHomeCommandButton(button.view, button.label, button.icon, button.accent)).join('')}
-          </div>
+          <p class="home-identity-copy">Cuenta, equipo activo y avance regional en una sola lectura. El foco principal aqui es tu roster y tu progreso.</p>
         </div>
 
         <div class="home-focus-card">
-          <p class="home-kicker">Foco actual</p>
+          <p class="home-kicker">Resumen del roster</p>
           <h4>${escapeHtml(homeState.title)}</h4>
-          <p>${escapeHtml(nextGym ? `${leaderName} sigue como siguiente objetivo, pero ahora el Home prioriza tu cuenta, equipo y ritmo de juego.` : homeState.subtitle)}</p>
+          <p>${escapeHtml(`Starter ${trainerSetup.starter_code || 'starter'} · ${orderedTeam.length}/6 listos · ${pokemon.length} en caja.`)}</p>
           <div class="home-focus-art">
-            ${trainerAsset ? `<img src="${escapeHtml(trainerAsset)}" alt="${escapeHtml(leaderName)}" />` : mapAsset ? `<img src="${escapeHtml(mapAsset)}" alt="${escapeHtml(activeRegion)}" />` : '<span class="home-focus-fallback">MM</span>'}
+            ${leadTeam ? `<img src="${escapeHtml(getPokemonCardImage(leadTeam.pokemon_id, leadTeam.es_shiny, leadTeam.imagen))}" alt="${escapeHtml(leadTeam.nombre)}" />` : avatarAsset ? `<img src="${escapeHtml(avatarAsset)}" alt="${escapeHtml(me.nombre)}" />` : '<span class="home-focus-fallback">MM</span>'}
           </div>
           <div class="home-stat-stack">
             ${renderHomePanelMetric('Lv promedio', averageLevel ? `Lv ${averageLevel}` : 'Sin team', averageLevel ? 'base de combate' : 'arma tu equipo')}
@@ -380,61 +355,12 @@ async function renderHomeV2(refs: ShellRefs): Promise<void> {
         </section>
 
         <section class="home-panel-card">
-          <p class="home-kicker">Objetivo activo</p>
-          <div class="home-objective-card">
-            <div>
-              <h4>${escapeHtml(homeState.title)}</h4>
-              <p>${escapeHtml(homeState.subtitle)}</p>
-            </div>
-            <div class="home-chip-row">
-              ${homeState.badges.map((badge) => `<span class="badge">${escapeHtml(badge)}</span>`).join('')}
-            </div>
-          </div>
-        </section>
-
-        <section class="home-panel-card">
           <p class="home-kicker">Estado del mundo</p>
           <div class="home-state-grid home-state-grid--v2">
-            ${renderHomeStateTile('Gym', nextGym ? leaderName : 'Libre', nextGym ? badgeLabel : 'Sin bloqueo', badgeAsset, 'GYM')}
+            ${renderHomeStateTile('Gym', nextGym ? leaderName : 'Libre', nextGym ? badgeLabel : 'Sin bloqueo', null, 'GYM')}
             ${renderHomeStateTile('Boss', bossState.activo ? 'Activo' : 'En espera', bossState.activo ? `Cierra en ${formatSecondsCompact(Number(bossState.segundos_para_fin || 0))}` : `Abre en ${formatSecondsCompact(Number(bossState.segundos_para_inicio || 0))}`, null, 'BOS')}
-            ${renderHomeStateTile('Idle', Boolean(idleState.activa) ? 'En curso' : 'Disponible', Boolean(idleState.activa) ? `${Number(idleSession?.progreso_pct || 0)}%` : 'Listo para iniciar', idleAsset, 'IDL')}
-            ${renderHomeStateTile('Mapa', activeRegion, nextGym ? 'Ruta siguiente' : 'Exploracion libre', mapAsset, 'MAP')}
-          </div>
-        </section>
-
-        <section class="home-panel-card">
-          <p class="home-kicker">Inventario rapido</p>
-          <div class="home-item-strip">
-            ${itemShowcase.length
-              ? itemShowcase
-                  .map((item) => {
-                    const asset = getItemAsset(item.item_codigo || null);
-                    return `
-                      <article class="home-item-chip">
-                        <div class="home-item-chip__media">
-                          ${asset ? `<img src="${escapeHtml(asset)}" alt="${escapeHtml(item.nombre)}" />` : `<span>${escapeHtml(String(item.nombre || 'IT').slice(0, 2).toUpperCase())}</span>`}
-                        </div>
-                        <div>
-                          <strong>${escapeHtml(item.nombre)}</strong>
-                          <small>x${formatNumber(item.cantidad || 0)}</small>
-                        </div>
-                      </article>
-                    `;
-                  })
-                  .join('')
-              : '<div class="empty-state">Todavia no hay items cargados en el inventario.</div>'}
-          </div>
-        </section>
-
-        <section class="home-panel-card">
-          <p class="home-kicker">Atajos del jugador</p>
-          <div class="home-shortcuts-grid compact-shortcuts">
-            ${renderHomeShortcutVisual('pokemon', 'My Pokemon', 'Caja, stats y evolucion', firstPokemon ? getPokemonCardImage(firstPokemon.pokemon_id, firstPokemon.es_shiny, firstPokemon.imagen) : null, 'DEX')}
-            ${renderHomeShortcutVisual('team', 'Team', 'Tus 6 slots activos', leadTeam ? getPokemonCardImage(leadTeam.pokemon_id, leadTeam.es_shiny, leadTeam.imagen) : null, 'TM')}
-            ${renderHomeShortcutVisual('arena', 'Arena', 'Combate rapido', trainerAsset, 'PVP')}
-            ${renderHomeShortcutVisual('maps', 'Maps', 'Explorar y capturar', mapAsset, 'MAP')}
-            ${renderHomeShortcutVisual('bossIdle', 'Boss / Idle', 'Evento y farmeo', idleAsset, 'BOS')}
-            ${renderHomeShortcutVisual('shop', 'Shop', 'Items y premium', itemShowcase[0] ? getItemAsset(itemShowcase[0].item_codigo || null) : null, 'SHP')}
+            ${renderHomeStateTile('Idle', Boolean(idleState.activa) ? 'En curso' : 'Disponible', Boolean(idleState.activa) ? `${Number(idleSession?.progreso_pct || 0)}%` : 'Listo para iniciar', null, 'IDL')}
+            ${renderHomeStateTile('Mapa', activeRegion, nextGym ? 'Ruta siguiente' : 'Exploracion libre', null, 'MAP')}
           </div>
         </section>
       </div>
@@ -609,6 +535,26 @@ async function renderPokemonV2(refs: ShellRefs): Promise<void> {
         if (action === 'release') {
           await confirmReleasePokemon(row, refs);
         }
+      });
+    });
+
+    grid.querySelectorAll<HTMLElement>('[data-pokemon-inspect]').forEach((card) => {
+      const openInspect = async (): Promise<void> => {
+        const pokemonId = Number(card.dataset.pokemonInspect || 0);
+        const row = pokemonMap.get(pokemonId);
+        if (!row) return;
+        await openPokemonDetailModal(row, refs);
+      };
+
+      card.addEventListener('click', async (event) => {
+        if ((event.target as HTMLElement).closest('[data-pokemon-action]')) return;
+        await openInspect();
+      });
+
+      card.addEventListener('keydown', async (event) => {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        await openInspect();
       });
     });
   };
@@ -1218,9 +1164,10 @@ function renderHomeSummaryCard(label: string, value: string, detail: string, ima
 }
 
 function renderHomeStateTile(label: string, value: string, detail: string, imageUrl: string | null, fallback: string): string {
+  const icon = WORLD_ICON_MAP[label] || fallback;
   return `
     <article class="home-state-tile">
-      ${renderThumbVisual(imageUrl, fallback, 'home-state-tile__thumb', 'home-thumb-fallback')}
+      ${renderThumbVisual(imageUrl, icon, 'home-state-tile__thumb', 'home-thumb-fallback')}
       <div>
         <span>${escapeHtml(label)}</span>
         <strong>${escapeHtml(value)}</strong>
@@ -1341,7 +1288,7 @@ function filterPokemonCollection(
 function renderPokemonCardV2(row: PlayerPokemon): string {
   const progress = Math.max(8, Math.min(100, Number(row.experiencia_total || row.experiencia || row.nivel || 1) % 100));
   return `
-    <article class="pokemon-card-v2" data-rare="${row.es_shiny ? 'shiny' : 'normal'}">
+    <article class="pokemon-card-v2" data-rare="${row.es_shiny ? 'shiny' : 'normal'}" data-pokemon-inspect="${row.id}" role="button" tabindex="0" aria-label="Ver atributos de ${escapeHtml(row.nombre)}">
       <div class="pokemon-card-v2__head">
         <div>
           <strong class="pokemon-detail-title">${escapeHtml(row.nombre)}</strong>
@@ -1364,6 +1311,7 @@ function renderPokemonCardV2(row: PlayerPokemon): string {
         </div>
         <div class="pokemon-meta-line">Progreso visible</div>
         <div class="pokemon-progress-bar"><span style="width:${progress}%"></span></div>
+        <div class="pokemon-card-v2__hint">Click para ver atributos completos</div>
       </div>
       <div class="pokemon-card-v2__actions">
         <button class="pokemon-action-btn is-accent" data-pokemon-action="moves" data-pokemon-id="${row.id}">Moves</button>
@@ -1507,6 +1455,92 @@ async function openPokemonMovesModal(row: PlayerPokemon): Promise<void> {
   };
 
   render();
+}
+
+async function openPokemonDetailModal(row: PlayerPokemon, refs: ShellRefs): Promise<void> {
+  const progress = Math.max(8, Math.min(100, Number(row.experiencia_total || row.experiencia || row.nivel || 1) % 100));
+  const totalPower = Number(row.ataque || 0) + Number(row.ataque_especial || 0) + Number(row.velocidad || 0);
+  const backdrop = openOverlayModal(`
+    <div class="modal-head">
+      <div>
+        <p class="home-kicker">Atributos del Pokemon</p>
+        <h3>${escapeHtml(row.nombre)}</h3>
+        <div class="modal-chip-row">
+          <span class="badge">#${row.pokemon_id}</span>
+          <span class="badge">${escapeHtml(row.tipo || 'sin tipo')}</span>
+          <span class="badge">Lv ${row.nivel}</span>
+          ${row.es_shiny ? '<span class="badge shiny">shiny</span>' : ''}
+        </div>
+      </div>
+      <button class="modal-close" data-close-overlay="1">X</button>
+    </div>
+    <div class="pokemon-inspect-layout">
+      <article class="pokemon-inspect-hero">
+        <div class="pokemon-inspect-art">
+          <img src="${escapeHtml(getPokemonCardImage(row.pokemon_id, row.es_shiny, row.imagen))}" alt="${escapeHtml(row.nombre)}" />
+        </div>
+        <div class="pokemon-inspect-summary">
+          <div class="pokemon-inspect-summary__row">
+            <span>Rareza</span>
+            <strong>${row.es_shiny ? 'Shiny' : `Rareza ${formatNumber(Number(row.rareza || 1))}`}</strong>
+          </div>
+          <div class="pokemon-inspect-summary__row">
+            <span>Generacion</span>
+            <strong>${formatNumber(Number(row.generacion || 1))}</strong>
+          </div>
+          <div class="pokemon-inspect-summary__row">
+            <span>Victorias</span>
+            <strong>${formatNumber(Number(row.victorias_total || 0))}</strong>
+          </div>
+          <div class="pokemon-inspect-summary__row">
+            <span>Poder visible</span>
+            <strong>${formatNumber(totalPower)}</strong>
+          </div>
+        </div>
+      </article>
+
+      <section class="pokemon-inspect-stats">
+        <article class="pokemon-meta-pill"><span>HP</span><strong>${formatNumber(Number(row.hp_actual || row.hp_max || 0))}</strong></article>
+        <article class="pokemon-meta-pill"><span>HP Max</span><strong>${formatNumber(Number(row.hp_max || 0))}</strong></article>
+        <article class="pokemon-meta-pill"><span>ATK</span><strong>${formatNumber(Number(row.ataque || 0))}</strong></article>
+        <article class="pokemon-meta-pill"><span>DEF</span><strong>${formatNumber(Number(row.defensa || 0))}</strong></article>
+        <article class="pokemon-meta-pill"><span>SP ATK</span><strong>${formatNumber(Number(row.ataque_especial || 0))}</strong></article>
+        <article class="pokemon-meta-pill"><span>SPD</span><strong>${formatNumber(Number(row.velocidad || 0))}</strong></article>
+      </section>
+
+      <section class="pokemon-inspect-progress">
+        <div class="pokemon-meta-line">Experiencia</div>
+        <div class="pokemon-progress-bar"><span style="width:${progress}%"></span></div>
+        <div class="pokemon-inspect-progress__copy">
+          <span>Total ${formatNumber(Number(row.experiencia_total || 0))}</span>
+          <span>Base ${formatNumber(Number(row.experiencia || 0))}</span>
+        </div>
+      </section>
+
+      <div class="pokemon-inspect-actions">
+        <button class="pokemon-action-btn is-accent" data-detail-action="moves">Ver movimientos</button>
+        <button class="pokemon-action-btn" data-detail-action="evolve">Intentar evolucion</button>
+        <button class="pokemon-action-btn is-danger" data-detail-action="release">Liberar</button>
+      </div>
+    </div>
+  `);
+
+  backdrop.querySelectorAll<HTMLElement>('[data-detail-action]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const action = String(button.dataset.detailAction || '');
+      if (action === 'moves') {
+        await openPokemonMovesModal(row);
+        return;
+      }
+      if (action === 'evolve') {
+        await openPokemonEvolutionModal(row, refs);
+        return;
+      }
+      if (action === 'release') {
+        await confirmReleasePokemon(row, refs);
+      }
+    });
+  });
 }
 
 async function openPokemonEvolutionModal(row: PlayerPokemon, refs: ShellRefs): Promise<void> {
