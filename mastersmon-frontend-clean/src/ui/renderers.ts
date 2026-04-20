@@ -58,7 +58,7 @@ export async function renderView(view: ViewKey, refs: ShellRefs): Promise<void> 
 
   switch (view) {
     case 'home':
-      await renderHomeV3(refs);
+      await renderHomeV2(refs);
       return;
     case 'pokemon':
       await renderPokemonV2(refs);
@@ -288,7 +288,7 @@ async function renderHomeV2(refs: ShellRefs): Promise<void> {
   playerStore.team = team.equipo;
   playerStore.onboarding = onboarding;
 
-  const [gymCatalogRaw] = await Promise.all([getGymCatalog()]);
+  const gymCatalogRaw = await getGymCatalog();
   const gymProgress = gymProgressRaw as Record<string, unknown>;
   const bossState = bossStateRaw as Record<string, unknown>;
   const idleState = idleStateRaw as Record<string, unknown>;
@@ -301,10 +301,7 @@ async function renderHomeV2(refs: ShellRefs): Promise<void> {
   const regionCode = String(nextGym?.region_codigo || 'kanto').toLowerCase();
   const leaderName = String(nextGym?.lider_nombre || 'Siguiente gym');
   const badgeLabel = String(nextGym?.medalla_nombre || 'Badge');
-  const badgeKey = normalizeAssetToken(badgeLabel).replace(/_badge$/i, '');
-
   const avatarAsset = getAvatarAsset(me.avatar_id || trainerSetup.avatar_id || null, me.foto || null);
-  const leadTeam = orderedTeam[0] || null;
   const averageLevel = orderedTeam.length
     ? Math.round(orderedTeam.reduce((sum, slot) => sum + Number(slot.nivel || 0), 0) / orderedTeam.length)
     : 0;
@@ -313,54 +310,51 @@ async function renderHomeV2(refs: ShellRefs): Promise<void> {
 
   root.innerHTML = `
     <section class="home-command-shell">
-      <div class="home-hero-v2">
-        <div class="home-identity-card">
+      <section class="home-profile-shell">
+        <article class="home-identity-card home-profile-card">
           <div class="home-identity-head">
             ${avatarAsset ? `<img class="home-avatar-xl" src="${escapeHtml(avatarAsset)}" alt="${escapeHtml(me.nombre)}" />` : `<div class="home-avatar-xl home-avatar-xl--fallback">${escapeHtml((me.nombre || 'M').charAt(0).toUpperCase())}</div>`}
             <div>
-              <p class="home-kicker">Perfil del entrenador</p>
+              <p class="home-kicker">Trainer Profile</p>
               <h3>${escapeHtml(me.nombre)}</h3>
+              <p class="home-identity-copy">Tu home ahora prioriza perfil, equipo y accesos directos. Quitamos el bloque visual grande para que la lectura sea mas comoda.</p>
               <div class="home-chip-row">
                 <span class="badge">${escapeHtml(activeRegion)}</span>
                 <span class="badge">${orderedTeam.length}/6 team</span>
+                <span class="badge">${formatNumber(pokemon.length)} pokemon</span>
                 <span class="badge">${formatNumber(me.pokedolares || 0)} $</span>
-                <span class="badge">${onboarding.progreso.porcentaje}% onboarding</span>
               </div>
             </div>
           </div>
-          <p class="home-identity-copy">Cuenta, equipo activo y avance regional en una sola lectura. El foco principal aqui es tu roster y tu progreso.</p>
-        </div>
+        </article>
 
-        <div class="home-focus-card">
-          <p class="home-kicker">Resumen del roster</p>
+        <article class="home-focus-card home-profile-side">
+          <p class="home-kicker">Resumen rapido</p>
           <h4>${escapeHtml(homeState.title)}</h4>
-          <p>${escapeHtml(`Starter ${trainerSetup.starter_code || 'starter'} · ${orderedTeam.length}/6 listos · ${pokemon.length} en caja.`)}</p>
-          <div class="home-focus-art">
-            ${leadTeam ? `<img src="${escapeHtml(getPokemonCardImage(leadTeam.pokemon_id, leadTeam.es_shiny, leadTeam.imagen))}" alt="${escapeHtml(leadTeam.nombre)}" />` : avatarAsset ? `<img src="${escapeHtml(avatarAsset)}" alt="${escapeHtml(me.nombre)}" />` : '<span class="home-focus-fallback">MM</span>'}
-          </div>
+          <p>${escapeHtml(`Starter ${trainerSetup.starter_code || 'starter'} - onboarding ${onboarding.progreso.porcentaje}% - ${orderedTeam.length}/6 slots listos.`)}</p>
           <div class="home-stat-stack">
             ${renderHomePanelMetric('Lv promedio', averageLevel ? `Lv ${averageLevel}` : 'Sin team', averageLevel ? 'base de combate' : 'arma tu equipo')}
             ${renderHomePanelMetric('Potencia', teamPower ? formatNumber(teamPower) : '0', 'ataque visible')}
             ${renderHomePanelMetric('Caja', formatNumber(pokemon.length), 'pokemon listos')}
           </div>
-        </div>
-      </div>
+        </article>
+      </section>
 
-      <div class="home-team-strip">
-        ${Array.from({ length: 6 }, (_, index) => renderHomeTeamSlot(orderedTeam[index] || null, index + 1)).join('')}
-      </div>
+      <section class="home-panel-card">
+        <p class="home-kicker">Equipo principal</p>
+        <div class="home-team-strip">
+          ${Array.from({ length: 6 }, (_, index) => renderHomeTeamSlot(orderedTeam[index] || null, index + 1)).join('')}
+        </div>
+      </section>
+
+      <section class="home-action-grid-v3 home-action-grid-v3--compact">
+        ${renderHomeActionCard('team', 'TEAM', 'Editar slots', orderedTeam.length ? `${orderedTeam.length}/6 listos` : 'arma tu core', 'Ordena y guarda tu equipo principal.')}
+        ${renderHomeActionCard('pokemon', 'DEX', 'Caja', `${formatNumber(pokemon.length)} pokemon`, 'Revisa stats, moves y evolucion.')}
+        ${renderHomeActionCard('maps', 'MAP', 'Explorar', nextGym ? String(nextGym.region_codigo || activeRegion) : 'zonas activas', 'Genera encuentros y captura.')}
+        ${renderHomeActionCard('gyms', 'GYM', 'Gyms', nextGym ? leaderName : 'sin bloqueo', 'Continua tu ruta regional.')}
+      </section>
 
       <div class="home-dashboard-grid">
-        <section class="home-panel-card home-panel-card--wide">
-          <p class="home-kicker">Medallas por region</p>
-          <div class="home-region-grid">
-            ${renderHomeRegionMedalCard(gymCatalog, 'kanto', 'Kanto')}
-            ${renderHomeRegionMedalCard(gymCatalog, 'johto', 'Johto')}
-            ${renderHomeRegionMedalCard(gymCatalog, 'hoenn', 'Hoenn')}
-            ${renderHomeRegionMedalCard(gymCatalog, 'zona_especial', 'Especial')}
-          </div>
-        </section>
-
         <section class="home-panel-card">
           <p class="home-kicker">Estado del mundo</p>
           <div class="home-state-grid home-state-grid--v2">
@@ -368,6 +362,16 @@ async function renderHomeV2(refs: ShellRefs): Promise<void> {
             ${renderHomeStateTile('Boss', bossState.activo ? 'Activo' : 'En espera', bossState.activo ? `Cierra en ${formatSecondsCompact(Number(bossState.segundos_para_fin || 0))}` : `Abre en ${formatSecondsCompact(Number(bossState.segundos_para_inicio || 0))}`, null, 'BOS')}
             ${renderHomeStateTile('Idle', Boolean(idleState.activa) ? 'En curso' : 'Disponible', Boolean(idleState.activa) ? `${Number(idleSession?.progreso_pct || 0)}%` : 'Listo para iniciar', null, 'IDL')}
             ${renderHomeStateTile('Mapa', activeRegion, nextGym ? 'Ruta siguiente' : 'Exploracion libre', null, 'MAP')}
+          </div>
+        </section>
+
+        <section class="home-panel-card">
+          <p class="home-kicker">Medallas por region</p>
+          <div class="home-region-grid">
+            ${renderHomeRegionMedalCard(gymCatalog, 'kanto', 'Kanto')}
+            ${renderHomeRegionMedalCard(gymCatalog, 'johto', 'Johto')}
+            ${renderHomeRegionMedalCard(gymCatalog, 'hoenn', 'Hoenn')}
+            ${renderHomeRegionMedalCard(gymCatalog, 'zona_especial', 'Especial')}
           </div>
         </section>
       </div>

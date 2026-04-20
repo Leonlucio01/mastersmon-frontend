@@ -49,8 +49,8 @@ async function navigate(view: ViewKey): Promise<void> {
   activeView = view;
   renderSidebar();
   const hasSession = Boolean(localStorage.getItem('mastersmon_token'));
-  contentGrid.classList.toggle('content-grid--panel-only', ['pokemon', 'team', 'maps', 'gyms'].includes(view) || (view === 'home' && !hasSession));
-  contentGrid.classList.toggle('content-grid--home-stack', view === 'home' && hasSession);
+  contentGrid.classList.toggle('content-grid--panel-only', ['home', 'pokemon', 'team', 'maps', 'gyms'].includes(view) || (view === 'home' && !hasSession));
+  contentGrid.classList.remove('content-grid--home-stack');
 
   const next = views.find((item) => item.key === view);
   if (next) {

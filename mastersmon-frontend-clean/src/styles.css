@@ -821,6 +821,17 @@ button:disabled {
   gap: 1rem;
 }
 
+.home-profile-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.7fr);
+  gap: 0.9rem;
+}
+
+.home-profile-card,
+.home-profile-side {
+  min-height: 100%;
+}
+
 .login-showcase,
 .home-dock-shell,
 .team-builder-shell,
@@ -919,6 +930,10 @@ button:disabled {
 
 .home-action-grid-v3 {
   grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+}
+
+.home-action-grid-v3--compact {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .home-action-card-v3 {
@@ -2255,6 +2270,7 @@ button:disabled {
   }
 
   .home-hero-v2,
+  .home-profile-shell,
   .home-dashboard-grid,
   .pokemon-topbar-v2,
   .move-layout,
