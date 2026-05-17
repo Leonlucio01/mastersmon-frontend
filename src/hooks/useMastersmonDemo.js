@@ -1,6 +1,4 @@
 // src/hooks/useMastersmonDemo.js
-// Hook opcional para probar el flujo demo en React.
-// Puedes usarlo en una pantalla temporal o en el hub.
 
 import { useCallback, useEffect, useState } from "react";
 import {
@@ -29,6 +27,7 @@ export function useMastersmonDemo() {
 
   const [currentEncounter, setCurrentEncounter] = useState(null);
   const [lastCaptureResult, setLastCaptureResult] = useState(null);
+  const [selectedMap, setSelectedMap] = useState("bosque-verde");
 
   const refreshAll = useCallback(async () => {
     setLoading(true);
@@ -47,7 +46,7 @@ export function useMastersmonDemo() {
         getDemoProfile(),
         getDemoInventory(),
         getDemoTeam(),
-        getDemoCollection({ limit: 100 }),
+        getDemoCollection({ limit: 120 }),
         getDemoPokedexSummary(),
         getMaps(),
         getServerRecentCaptures({ limit: 20 }),
@@ -67,7 +66,7 @@ export function useMastersmonDemo() {
     }
   }, []);
 
-  const findEncounter = useCallback(async (mapSlug = "bosque-verde") => {
+  const findEncounter = useCallback(async (mapSlug = selectedMap) => {
     setLoading(true);
     setError("");
     setLastCaptureResult(null);
@@ -82,7 +81,7 @@ export function useMastersmonDemo() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [selectedMap]);
 
   const captureLatest = useCallback(async (ballSlug = "poke-ball") => {
     setLoading(true);
@@ -94,7 +93,7 @@ export function useMastersmonDemo() {
 
       await refreshAll();
 
-      if (result?.success) {
+      if (result?.success || result?.encounter_status === "fled") {
         setCurrentEncounter(null);
       }
 
@@ -123,6 +122,8 @@ export function useMastersmonDemo() {
     recentCaptures,
     currentEncounter,
     lastCaptureResult,
+    selectedMap,
+    setSelectedMap,
     refreshAll,
     findEncounter,
     captureLatest,
