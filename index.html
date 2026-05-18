@@ -2061,8 +2061,19 @@
     .lineup-card{display:grid;grid-template-columns:54px 1fr auto;gap:10px;align-items:center;background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:12px;padding:8px;margin-bottom:8px}.lineup-card img{width:54px;height:54px;object-fit:contain}.lineup-card small{display:block;color:var(--muted)}
     .vs-bubble{height:46px;width:46px;border-radius:50%;display:grid;place-items:center;background:#e83d3d;color:white;font-weight:1000;margin:80px auto 0;box-shadow:0 10px 18px rgba(232,61,61,.25)}
     .battle-log-box{background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:14px;min-height:154px;padding:12px;color:#d7e1f5}
-    .battle-actions-panel{margin-top:14px;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:16px;padding:14px}.skill-row{display:grid;grid-template-columns:150px 1fr 120px;gap:12px;align-items:center;border-top:1px solid var(--line);padding-top:12px;margin-top:12px}.skill-buttons{display:flex;gap:10px;flex-wrap:wrap}.skill-buttons button{border-radius:999px;padding:10px 15px}.inventory-row{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}.ball-options{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.ball-option{border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.05);padding:8px;display:flex;align-items:center;gap:7px;cursor:pointer}.ball-option.active{border-color:rgba(255,207,87,.8);background:rgba(255,207,87,.15)}.ball-option img{width:28px;height:28px}.wild-card{text-align:center}.wild-card img{width:92px;height:92px;object-fit:contain;display:block;margin:8px auto}.select-banner{background:#dfeafe;color:#0d3570;border-radius:12px;text-align:center;padding:10px;font-weight:1000;margin-bottom:12px}
+    .battle-actions-panel{margin-top:14px;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:16px;padding:14px}.skill-row{display:grid;grid-template-columns:150px 1fr 120px;gap:12px;align-items:center;border-top:1px solid var(--line);padding-top:12px;margin-top:12px}.skill-buttons{display:flex;gap:10px;flex-wrap:wrap}.skill-buttons button{border-radius:999px;padding:10px 15px}.inventory-row{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}.ball-options{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.ball-option{border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.05);color:white;padding:8px;display:flex;align-items:center;gap:7px;cursor:pointer}.ball-option.active{border-color:rgba(255,207,87,.8);background:rgba(255,207,87,.15)}.ball-option img{width:28px;height:28px}.wild-card{text-align:center}.wild-card img{width:92px;height:92px;object-fit:contain;display:block;margin:8px auto}.select-banner{background:#dfeafe;color:#0d3570;border-radius:12px;text-align:center;padding:10px;font-weight:1000;margin-bottom:12px}
     @media(max-width:1100px){.encounter-battle-grid{grid-template-columns:1fr}.vs-bubble{margin:0 auto}.skill-row{grid-template-columns:1fr}.ball-options{grid-template-columns:repeat(2,1fr)}}
+    #battleModal .big-modal{overflow:hidden}
+    #battleModal .big-modal-content{overflow-x:hidden}
+    #battleModal .encounter-battle-grid{grid-template-columns:minmax(160px,.95fr) 46px minmax(140px,.8fr) minmax(260px,1.25fr);max-width:100%}
+    #battleModal .ball-options{grid-template-columns:repeat(2,minmax(112px,1fr))}
+    #battleModal .ball-option{min-width:0;min-height:64px;justify-content:flex-start}
+    #battleModal .ball-option.is-disabled{opacity:.48;cursor:not-allowed;filter:saturate(.6)}
+    #battleModal .ball-option div{min-width:0}
+    #battleModal .ball-option strong{display:block;line-height:1.05;white-space:normal;overflow-wrap:normal;word-break:normal}
+    #battleModal .ball-option span{display:block;margin-top:4px;color:var(--gold);font-weight:1000}
+    @media(max-width:1250px){#battleModal .encounter-battle-grid{grid-template-columns:1fr 42px 1fr}#battleModal .battle-column:last-child{grid-column:1/-1}}
+    @media(max-width:520px){#battleModal .ball-options{grid-template-columns:1fr}}
 
 
 
@@ -4564,6 +4575,7 @@ V28 future database modules to include from the start:
     currentSpawns: [],
     currentEncounter: null,
     activeEncounters: [],
+    encounterLoading: false,
     selectedBall: "poke-ball",
   };
 
@@ -4662,7 +4674,13 @@ V28 future database modules to include from the start:
   }
 
   function ballLabel(slug){
-    return String(slug || "poke-ball").replace(/-/g, " ");
+    const labels = {
+      "poke-ball": "Poké Ball",
+      "great-ball": "Great Ball",
+      "ultra-ball": "Ultra Ball",
+      "master-ball": "Master Ball",
+    };
+    return labels[slug] || String(slug || "poke-ball").replace(/-/g, " ");
   }
 
   function updateBattleBallCounts(){
@@ -4670,6 +4688,59 @@ V28 future database modules to include from the start:
       const slug = el.getAttribute("data-ball-count");
       el.textContent = `x${getBallQty(slug)}`;
     });
+  }
+
+  function clearCurrentEncounter(){
+    state.currentEncounter = null;
+    try{
+      activeMapEncounter = {id:null, shiny:false};
+      mapEncounterActive = false;
+      selectedEncounter = null;
+      selectedEncounterShiny = false;
+    }catch(_ignored){}
+  }
+
+  function syncLegacyEncounter(encounter){
+    if(!encounter) return;
+    try{
+      selectedEncounter = Number(encounter.dex_number || selectedEncounter || 0);
+      selectedEncounterShiny = !!encounter.is_shiny;
+      activeMapEncounter = {id:selectedEncounter, shiny:!!encounter.is_shiny};
+      mapEncounterActive = true;
+      const seed = String(encounter.encounter_id || Date.now()).split("").reduce((n,ch)=>n + ch.charCodeAt(0), 0);
+      wildPos = {
+        x: Math.max(14, Math.min(84, 18 + (seed % 68))),
+        y: Math.max(14, Math.min(76, 18 + ((seed * 7) % 58))),
+      };
+    }catch(_ignored){}
+  }
+
+  async function requestMapEncounter(reason = "busqueda"){
+    if(state.encounterLoading) return state.currentEncounter;
+    const map = state.currentMap || state.maps.find(m=>m.slug==="bosque-verde") || state.maps[0];
+    if(!map) throw new Error("No hay mapa seleccionado");
+    state.encounterLoading = true;
+    try{
+      if(typeof showMapToast === "function"){
+        showMapToast(reason === "caminar" ? `Buscando encuentro por caminar en ${map.name}...` : `Buscando encuentro real en ${map.name}...`);
+      }
+      const encounter = await api("/api/encounters", {
+        method: "POST",
+        body: JSON.stringify({mapSlug: map.slug}),
+      });
+      state.currentMap = map;
+      state.currentEncounter = encounter;
+      state.activeEncounters = [encounter, ...state.activeEncounters.filter(e => e.encounter_id !== encounter.encounter_id)];
+      syncLegacyEncounter(encounter);
+      renderAdventureMap();
+      if(typeof updateMapPositions === "function") updateMapPositions();
+      if(typeof showMapToast === "function"){
+        showMapToast(`${encounter.is_shiny ? "Shiny " : ""}${encounter.pokemon_name} aparecio${reason === "caminar" ? " en el mapa por caminar" : ""}.`, "success");
+      }
+      return encounter;
+    } finally {
+      state.encounterLoading = false;
+    }
   }
 
   function collectionByDex(dex){
@@ -4872,7 +4943,7 @@ V28 future database modules to include from the start:
     try{
       const map = state.maps.find(m=>m.slug===slug) || state.maps[0];
       state.currentMap = map;
-      state.currentEncounter = null;
+      clearCurrentEncounter();
       state.currentSpawns = await api(`/api/maps/${encodeURIComponent(map.slug)}/spawns`);
       window.showPage("mapAdventure");
       renderAdventureMap();
@@ -4945,6 +5016,8 @@ V28 future database modules to include from the start:
     if(rates){
       rates.innerHTML = `<strong>Spawns reales</strong><span>${map.total_spawns || state.currentSpawns.length} especies configuradas</span><span>Rango: Nv. ${map.min_spawn_level || "-"}-${map.max_spawn_level || "-"}</span>`;
     }
+    if(battleBtn) battleBtn.dataset.encounter = e?.encounter_id || "";
+    if(typeof updateMapPositions === "function") updateMapPositions();
   };
 
   window.findMapEncounter = async function(){
@@ -4972,6 +5045,31 @@ V28 future database modules to include from the start:
     }
   };
 
+  window.findMapEncounter = function(){
+    requestMapEncounter("busqueda").catch(showApiError);
+  };
+
+  window.spawnRandomEncounter = function(reason = "caminar"){
+    requestMapEncounter(reason).catch(showApiError);
+  };
+
+  window.movePlayer = function(dx, dy){
+    try{
+      playerPos.x = Math.max(5, Math.min(90, playerPos.x + dx * 5));
+      playerPos.y = Math.max(8, Math.min(82, playerPos.y + dy * 5));
+      walkSteps++;
+      if(typeof updateMapPositions === "function") updateMapPositions();
+      const dist = Math.abs(playerPos.x - wildPos.x) + Math.abs(playerPos.y - wildPos.y);
+      if(walkSteps % 4 === 0){
+        requestMapEncounter("caminar").catch(showApiError);
+      } else if(dist < 10 && typeof showMapToast === "function"){
+        showMapToast("Estas cerca de un Pokemon salvaje. Pulsa Click aqui para batalla.");
+      }
+    }catch(error){
+      showApiError(error);
+    }
+  };
+
   window.openEncounterBattle = function(){
     const e = state.currentEncounter;
     if(!e){
@@ -4983,10 +5081,14 @@ V28 future database modules to include from the start:
     const teamHtml = teamRows.map(t => `<div class="lineup-card ${t.player_monster_id === first?.player_monster_id ? "selected":""}">
       <img src="${asset(t.selected_sprite_path)}" ${imgFallbackAttr()}><div><strong>${t.pokemon_name}</strong><small>Nivel ${t.level} · ${typeEs(t.primary_type)}<br>HP ${t.current_hp || 35}/${t.current_hp || 35}</small></div><button class="blue-btn" disabled>${t.player_monster_id === first?.player_monster_id ? "Pick":"En team"}</button></div>`).join("");
 
-    const balls = ["poke-ball","great-ball","ultra-ball","master-ball"].map(b => {
+    const availableBalls = ["poke-ball","great-ball","ultra-ball","master-ball"];
+    if(!state.selectedBall || getBallQty(state.selectedBall) <= 0){
+      state.selectedBall = availableBalls.find(b => getBallQty(b) > 0) || "";
+    }
+    const balls = availableBalls.map(b => {
       const qty = getBallQty(b);
-      return `<div class="ball-option ${state.selectedBall === b ? "active":""}" onclick="selectBattleBall('${b}',this)">
-        <img src="${ballIcon(b)}"><div><strong>${ballLabel(b)}</strong><span data-ball-count="${b}">x${qty}</span></div></div>`;
+      return `<button type="button" class="ball-option ${state.selectedBall === b ? "active":""} ${qty <= 0 ? "is-disabled":""}" ${qty <= 0 ? "disabled" : ""} onclick="selectBattleBall('${b}',this)">
+        <img src="${ballIcon(b)}" alt=""><div><strong>${ballLabel(b)}</strong><span data-ball-count="${b}">x${qty}</span></div></button>`;
     }).join("");
 
     document.querySelector("#battleModal header strong").textContent = "Encuentro salvaje";
@@ -5015,6 +5117,8 @@ V28 future database modules to include from the start:
   };
 
   window.selectBattleBall = function(ball, el){
+    if(!ball) return showApiError(new Error("Selecciona una Ball para capturar."));
+    if(getBallQty(ball) <= 0) return showApiError(new Error("No tienes unidades disponibles de esta Ball."));
     state.selectedBall = ball;
     document.querySelectorAll(".ball-option").forEach(x=>x.classList.remove("active"));
     if(el) el.classList.add("active");
@@ -5026,7 +5130,8 @@ V28 future database modules to include from the start:
     const log = byId("battleLog");
     try{
       const selectedQty = getBallQty(state.selectedBall);
-      if(selectedQty <= 0) throw new Error(`No tienes ${ballLabel(state.selectedBall)} disponibles para esta captura.`);
+      if(!state.selectedBall) throw new Error("Selecciona una Ball para capturar.");
+      if(selectedQty <= 0) throw new Error("No tienes unidades disponibles de esta Ball.");
       if(log) log.innerHTML = `<strong>Captura</strong><br>Lanzaste ${ballLabel(state.selectedBall)} hacia ${e.pokemon_name}...`;
       const result = await api("/api/captures", {
         method: "POST",
@@ -5064,6 +5169,77 @@ V28 future database modules to include from the start:
       }
       if(lower.includes("expired") || lower.includes("expir")){
         state.currentEncounter = null;
+        byId("battleModal")?.classList.add("hidden");
+        try{
+          state.activeEncounters = await api("/api/encounters/active");
+        }catch(_ignored){}
+        renderAdventureMap();
+      }
+      showApiError(error);
+    }
+  };
+  window.captureEncounter = window.captureEncounterReal;
+
+  window.captureEncounterReal = async function(){
+    const e = state.currentEncounter;
+    const log = byId("battleLog");
+    if(!e) return showApiError(new Error("No hay encuentro activo"));
+    if(!state.selectedBall) return showApiError(new Error("Selecciona una Ball para capturar."));
+
+    try{
+      const selectedQty = getBallQty(state.selectedBall);
+      if(selectedQty <= 0) throw new Error("No tienes unidades disponibles de esta Ball.");
+
+      if(log){
+        log.classList.remove("success-log","fail-log");
+        log.innerHTML = `<strong>Captura</strong><br>Lanzaste ${ballLabel(state.selectedBall)} hacia ${e.pokemon_name}...`;
+      }
+
+      const result = await api("/api/captures", {
+        method: "POST",
+        body: JSON.stringify({encounterId: e.encounter_id, ballSlug: state.selectedBall}),
+      });
+
+      const status = String(result.encounter_status || "").toLowerCase();
+      const escaped = status === "fled" || status === "escaped";
+      const expired = status === "expired";
+      const resultTitle = result.success ? "Captura exitosa" : expired ? "El encuentro expiro" : escaped ? "El Pokemon escapo" : "La captura fallo";
+
+      if(log){
+        log.classList.remove("success-log","fail-log");
+        log.classList.add(result.success ? "success-log" : "fail-log");
+        log.innerHTML = `<strong>${resultTitle}</strong><br>${result.message || resultTitle}<br>Chance: ${(Number(result.capture_chance || 0)*100).toFixed(1)}% · Roll: ${(Number(result.roll || 0)*100).toFixed(1)}%`;
+      }
+
+      await refreshApiData();
+      updateBattleBallCounts();
+
+      if(result.success || escaped || expired){
+        clearCurrentEncounter();
+        byId("battleModal")?.classList.add("hidden");
+        window.showPage("mapAdventure");
+        renderAll();
+        if(state.currentMap){
+          state.currentSpawns = await api(`/api/maps/${encodeURIComponent(state.currentMap.slug)}/spawns`);
+        }
+        renderAdventureMap();
+        if(typeof showMapToast === "function"){
+          showMapToast(result.success ? `Captura exitosa: ${result.pokemon_name || e.pokemon_name}.` : resultTitle, result.success ? "success" : "fail");
+        }
+        return;
+      }
+
+      renderAll();
+      renderAdventureMap();
+    }catch(error){
+      const lower = String(error?.message || "").toLowerCase();
+      if(log){
+        log.classList.remove("success-log");
+        log.classList.add("fail-log");
+        log.innerHTML = `<strong>${getErrorMessage(error)}</strong><br>Selecciona otra Ball o busca un encuentro nuevo si el actual ya no esta disponible.`;
+      }
+      if(lower.includes("expired") || lower.includes("expir")){
+        clearCurrentEncounter();
         byId("battleModal")?.classList.add("hidden");
         try{
           state.activeEncounters = await api("/api/encounters/active");
