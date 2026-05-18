@@ -3896,13 +3896,16 @@ function attackWild(){
  }
 }
 function captureEncounter(){
+ if(typeof window.captureEncounterReal === 'function') return window.captureEncounterReal();
+ showMapToast('La captura real todavia esta cargando. Intenta de nuevo en unos segundos.', 'fail');
+ return;
  if(window.__captureBusy) return;
  if(activeMapEncounter && activeMapEncounter.id){selectedEncounter=Number(activeMapEncounter.id);selectedEncounterShiny=!!activeMapEncounter.shiny;}
  const m=ensureMonsterById(selectedEncounter);
  const wildLabel=(selectedEncounterShiny?'Shiny ':'')+m.n;
  const log=document.getElementById('battleLog');
  const chance=ballCatchChance(selectedBall);
- const success=Math.random() < chance;
+ const success=false;
  window.__captureBusy=true;
  if(log){
    log.classList.remove('success-log','fail-log');
@@ -4602,8 +4605,12 @@ V28 future database modules to include from the start:
     }
     return message;
   }
+  function isHandledGameplayError(error){
+    const lower = String(error?.message || "").toLowerCase();
+    return lower.includes("ball") || lower.includes("inventory") || lower.includes("insufficient") || lower.includes("expired") || lower.includes("expir") || lower.includes("fled") || lower.includes("escaped");
+  }
   function showApiError(error){
-    console.error(error);
+    if(!isHandledGameplayError(error)) console.error(error);
     if(typeof showMapToast === "function") showMapToast("⚠️ " + getErrorMessage(error), "fail");
     else alert(getErrorMessage(error));
   }
@@ -4652,6 +4659,17 @@ V28 future database modules to include from the start:
   function ballIcon(slug){
     const item = state.inventory.find(i => i.item_slug === slug);
     return asset(item?.icon_path || `/img/items/official/${slug}.png`);
+  }
+
+  function ballLabel(slug){
+    return String(slug || "poke-ball").replace(/-/g, " ");
+  }
+
+  function updateBattleBallCounts(){
+    document.querySelectorAll("[data-ball-count]").forEach(el => {
+      const slug = el.getAttribute("data-ball-count");
+      el.textContent = `x${getBallQty(slug)}`;
+    });
   }
 
   function collectionByDex(dex){
@@ -4858,7 +4876,18 @@ V28 future database modules to include from the start:
       state.currentSpawns = await api(`/api/maps/${encodeURIComponent(map.slug)}/spawns`);
       window.showPage("mapAdventure");
       renderAdventureMap();
-    }catch(error){ showApiError(error); }
+    }catch(error){
+      const lower = String(error?.message || "").toLowerCase();
+      if(lower.includes("expired") || lower.includes("expir")){
+        state.currentEncounter = null;
+        byId("battleModal")?.classList.add("hidden");
+        try{
+          state.activeEncounters = await api("/api/encounters/active");
+        }catch(_ignored){}
+        renderAdventureMap();
+      }
+      showApiError(error);
+    }
   };
 
   function renderSpawnGrid(){
@@ -4902,7 +4931,7 @@ V28 future database modules to include from the start:
       if(wildMap){ wildMap.src = asset(e.selected_sprite_path); wildMap.setAttribute("onerror", imgFallbackCode()); wildMap.classList.remove("is-hidden"); }
       if(panelSprite){ panelSprite.src = asset(e.selected_sprite_path); panelSprite.setAttribute("onerror", imgFallbackCode()); }
       if(name) name.textContent = `${e.is_shiny ? "✨ Shiny " : ""}${e.pokemon_name} apareció`;
-      if(text) text.innerHTML = `Nivel ${e.level} · ${typeEs(e.primary_type)}${e.secondary_type ? `/${typeEs(e.secondary_type)}` : ""}<br>Encounter activo.`;
+      if(text) text.innerHTML = `Mapa: ${map.name}<br>Nivel ${e.level} · ${typeEs(e.primary_type)}${e.secondary_type ? `/${typeEs(e.secondary_type)}` : ""}<br>ID encuentro: ${e.encounter_id}`;
       if(battleBtn){ battleBtn.disabled = false; battleBtn.textContent = "Click aquí para batalla"; }
     } else {
       if(wildMap) wildMap.classList.add("is-hidden");
@@ -4929,7 +4958,18 @@ V28 future database modules to include from the start:
       });
       renderAdventureMap();
       if(typeof showMapToast === "function") showMapToast(`Apareció ${state.currentEncounter.pokemon_name} Nv. ${state.currentEncounter.level}`, "success");
-    }catch(error){ showApiError(error); }
+    }catch(error){
+      const lower = String(error?.message || "").toLowerCase();
+      if(lower.includes("expired") || lower.includes("expir")){
+        state.currentEncounter = null;
+        byId("battleModal")?.classList.add("hidden");
+        try{
+          state.activeEncounters = await api("/api/encounters/active");
+        }catch(_ignored){}
+        renderAdventureMap();
+      }
+      showApiError(error);
+    }
   };
 
   window.openEncounterBattle = function(){
@@ -4946,12 +4986,12 @@ V28 future database modules to include from the start:
     const balls = ["poke-ball","great-ball","ultra-ball","master-ball"].map(b => {
       const qty = getBallQty(b);
       return `<div class="ball-option ${state.selectedBall === b ? "active":""}" onclick="selectBattleBall('${b}',this)">
-        <img src="${ballIcon(b)}"><div><strong>${b.replace("-", " ")}</strong><span>x${qty}</span></div></div>`;
+        <img src="${ballIcon(b)}"><div><strong>${ballLabel(b)}</strong><span data-ball-count="${b}">x${qty}</span></div></div>`;
     }).join("");
 
     document.querySelector("#battleModal header strong").textContent = "Encuentro salvaje";
     byId("battleContent").innerHTML = `
-      <div class="select-banner">Encuentro real desde PostgreSQL: ${e.is_shiny ? "✨ Shiny " : ""}${e.pokemon_name}</div>
+      <div class="select-banner">Mapa: ${(state.currentMap || {}).name || "Mapa"} · ${e.is_shiny ? "✨ Shiny " : ""}${e.pokemon_name}</div>
       <div class="encounter-battle-grid">
         <div class="battle-column"><h3>Tu equipo</h3>${teamHtml || "<p class='muted'>No hay equipo activo.</p>"}</div>
         <div class="vs-bubble">VS</div>
@@ -4960,6 +5000,7 @@ V28 future database modules to include from the start:
           <span class="mon-variant-badge ${e.is_shiny ? "shiny":"normal"}">${e.is_shiny ? "✨ Shiny":"Normal"}</span>
           <img src="${asset(e.selected_sprite_path)}" ${imgFallbackAttr()}>
           <strong>${e.pokemon_name}</strong>
+          ${e.secondary_type ? `<small>Tipo secundario: ${typeEs(e.secondary_type)}</small>` : ""}
           <small>Nivel ${e.level} · ${typeEs(e.primary_type)}</small>
         </div>
         <div class="battle-column">
@@ -4979,26 +5020,34 @@ V28 future database modules to include from the start:
     if(el) el.classList.add("active");
   };
 
-  window.captureEncounter = async function(){
+  window.captureEncounterReal = async function(){
     const e = state.currentEncounter;
     if(!e) return showApiError(new Error("No hay encuentro activo"));
     const log = byId("battleLog");
     try{
-      if(log) log.innerHTML = `<strong>Captura</strong><br>Lanzaste ${state.selectedBall.replace("-", " ")} hacia ${e.pokemon_name}...`;
+      const selectedQty = getBallQty(state.selectedBall);
+      if(selectedQty <= 0) throw new Error(`No tienes ${ballLabel(state.selectedBall)} disponibles para esta captura.`);
+      if(log) log.innerHTML = `<strong>Captura</strong><br>Lanzaste ${ballLabel(state.selectedBall)} hacia ${e.pokemon_name}...`;
       const result = await api("/api/captures", {
         method: "POST",
         body: JSON.stringify({encounterId: e.encounter_id, ballSlug: state.selectedBall}),
       });
+      const escaped = result.encounter_status === "fled" || result.encounter_status === "escaped";
+      const resultTitle = result.success ? "Captura exitosa" : escaped ? "El Pokemon escapo" : "La captura fallo";
       if(log){
         log.classList.remove("success-log","fail-log");
         log.classList.add(result.success ? "success-log" : "fail-log");
+        log.innerHTML = `<strong>${resultTitle}</strong><br>${result.message || resultTitle}<br>Chance: ${(Number(result.capture_chance || 0)*100).toFixed(1)}% · Roll: ${(Number(result.roll || 0)*100).toFixed(1)}%`;
         log.innerHTML = `<strong>${result.success ? "¡Capturado!" : "¡Falló!"}</strong><br>${result.message}<br>Chance: ${(Number(result.capture_chance || 0)*100).toFixed(1)}% · Roll: ${(Number(result.roll || 0)*100).toFixed(1)}%`;
+        log.innerHTML = `<strong>${resultTitle}</strong><br>${result.message || resultTitle}<br>Chance: ${(Number(result.capture_chance || 0)*100).toFixed(1)}% · Roll: ${(Number(result.roll || 0)*100).toFixed(1)}%`;
       }
       await refreshApiData();
-      if(result.success || result.encounter_status === "fled"){
+      updateBattleBallCounts();
+      if(result.success || escaped){
         state.currentEncounter = null;
         byId("battleModal").classList.add("hidden");
         window.showPage("mapAdventure");
+        if(typeof showMapToast === "function") showMapToast(result.success ? `Captura exitosa: ${result.pokemon_name || e.pokemon_name}.` : `El Pokemon escapo: ${result.pokemon_name || e.pokemon_name}.`, result.success ? "success" : "fail");
         if(typeof showMapToast === "function") showMapToast(result.success ? `✅ ${result.pokemon_name} capturado.` : `⚠️ ${result.pokemon_name} escapó.`, result.success ? "success" : "fail");
       }
       renderAll();
@@ -5006,8 +5055,25 @@ V28 future database modules to include from the start:
         state.currentSpawns = await api(`/api/maps/${encodeURIComponent(state.currentMap.slug)}/spawns`);
         renderAdventureMap();
       }
-    }catch(error){ showApiError(error); }
+    }catch(error){
+      const lower = String(error?.message || "").toLowerCase();
+      if(log){
+        log.classList.remove("success-log");
+        log.classList.add("fail-log");
+        log.innerHTML = `<strong>${getErrorMessage(error)}</strong><br>Selecciona otra Ball o busca un encuentro nuevo si el actual ya no esta disponible.`;
+      }
+      if(lower.includes("expired") || lower.includes("expir")){
+        state.currentEncounter = null;
+        byId("battleModal")?.classList.add("hidden");
+        try{
+          state.activeEncounters = await api("/api/encounters/active");
+        }catch(_ignored){}
+        renderAdventureMap();
+      }
+      showApiError(error);
+    }
   };
+  window.captureEncounter = window.captureEncounterReal;
 
   window.attackWild = function(){
     const log = byId("battleLog");
@@ -5018,7 +5084,7 @@ V28 future database modules to include from the start:
     }
   };
 
-  window.renderAll = function(){
+  window.renderAll = function(options = {}){
     renderWallet();
     if(typeof renderDonationBanner === "function") renderDonationBanner();
     renderCaptures();
@@ -5033,7 +5099,7 @@ V28 future database modules to include from the start:
     if(typeof renderGyms === "function") renderGyms();
     if(typeof renderBossRanking === "function") renderBossRanking();
     if(typeof renderRanking === "function") renderRanking();
-    window.showPage("hub");
+    if(options.showHub) window.showPage("hub");
   };
 
   window.enterGame = async function(){
@@ -5043,10 +5109,10 @@ V28 future database modules to include from the start:
     byId("chatFab").classList.remove("hidden");
     try{
       await refreshApiData();
-      renderAll();
+      renderAll({showHub:true});
     }catch(error){
       showApiError(error);
-      renderAll();
+      renderAll({showHub:true});
     }
   };
 
