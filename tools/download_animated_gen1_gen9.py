@@ -34,7 +34,7 @@ POKEAPI_SPECIES = "https://pokeapi.co/api/v2/pokemon-species?limit=2000&offset=0
 USER_AGENT = "MastersMonAssetDownloader/1.0 (+https://github.com/Leonlucio01/mastersmon-frontend)"
 
 # Showdown usa algunos nombres distintos a PokeAPI para especies base.
-# El script tambien prueba variantes automaticas, pero estos alias corrigen casos conocidos.
+# El script tambien valida variantes automaticas, pero estos alias corrigen casos conocidos.
 SHOWDOWN_ALIASES: dict[str, list[str]] = {
     "nidoran-f": ["nidoran-f", "nidoranf"],
     "nidoran-m": ["nidoran", "nidoranm", "nidoran-m"],

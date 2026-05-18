@@ -1,13 +1,10 @@
 # MastersMon Frontend API Layer
 
-Copia estos archivos en `mastersmon-frontend`.
-
 ## Archivos
 
 ```txt
 src/api/mastersmonApi.js
-src/hooks/useMastersmonDemo.js
-src/components/MastersmonApiDemo.jsx
+src/hooks/useMastersmon.js
 .env.example
 ```
 
@@ -21,34 +18,24 @@ VITE_API_URL=https://mastersmon-api.onrender.com
 
 Luego reinicia Vite.
 
-## Uso básico
+## Uso basico
 
 ```js
 import {
-  getDemoProfile,
-  getDemoInventory,
-  getDemoCollection,
-  createDemoEncounter,
-  captureLatestDemoEncounter,
+  getProfile,
+  getInventory,
+  getCollection,
+  createEncounter,
+  captureEncounter,
 } from "./api/mastersmonApi";
 
-const profile = await getDemoProfile();
-const inventory = await getDemoInventory();
-const encounter = await createDemoEncounter("bosque-verde");
-const result = await captureLatestDemoEncounter("poke-ball");
-const collection = await getDemoCollection();
+const profile = await getProfile();
+const inventory = await getInventory();
+const encounter = await createEncounter("bosque-verde");
+const result = await captureEncounter(encounter.encounter_id, "poke-ball");
+const collection = await getCollection();
 ```
 
-## Prueba rápida en React
+## Uso en React
 
-Puedes importar el componente temporal:
-
-```jsx
-import MastersmonApiDemo from "./components/MastersmonApiDemo";
-
-export default function App() {
-  return <MastersmonApiDemo />;
-}
-```
-
-Cuando confirmes que todo funciona, reemplaza este componente por integración real en tu hub.
+`useMastersmon()` centraliza perfil, inventario, equipo, mapas, Pokedex, encuentros y capturas.

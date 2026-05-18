@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MastersMon Prototype V30</title>
+  <title>MastersMon Online</title>
   <style>
     :root{
       --bg:#151824;
@@ -2686,7 +2686,7 @@
       </div>
       <div class="or">OR</div>
       <div class="modal-col">
-        <h3>Acceso rápido</h3><p class="muted" style="line-height:1.55;margin-bottom:24px">Entra con Google para usar tu cuenta real en MastersMon. En este prototipo entra al demo.</p>
+        <h3>Acceso rápido</h3><p class="muted" style="line-height:1.55;margin-bottom:24px">Entra a MastersMon Online y continúa tu aventura en el Servidor Verdantia.</p>
         <button class="social-btn google" onclick="enterGame()">G &nbsp; Continuar con Google</button>
         <button class="social-btn facebook" onclick="enterGame()">f &nbsp; Accesar con Facebook</button>
       </div>
@@ -2717,7 +2717,7 @@
               <button onclick="showPage('events');closeProfileMenu()">📅 Eventos y torneos</button>
               <button onclick="showPage('achievements');closeProfileMenu()">🏅 Logros</button>
               <hr>
-              <button onclick="logoutDemo()">🚪 Cerrar sesión</button>
+              <button onclick="logoutGame()">🚪 Cerrar sesión</button>
             </div>
           </div>
         </div>
@@ -3892,7 +3892,7 @@ function attackWild(){
  if(log){
    log.classList.remove('fail-log','win-log');
    log.classList.add(ctx.type==='wild'?'success-log':'hit-log');
-   log.innerHTML=`<strong>Round ${window.__battleTurns+1}</strong><br>${selectedPlayerMon.n} usó un ataque contra ${enemyLabel}. ${ctx.type==='wild'?'El Pokémon quedó debilitado: la próxima Ball tiene más probabilidad de captura.':'El rival perdió HP. Puedes reclamar la victoria del prototipo.'}`;
+   log.innerHTML=`<strong>Round ${window.__battleTurns+1}</strong><br>${selectedPlayerMon.n} usó un ataque contra ${enemyLabel}. ${ctx.type==='wild'?'El Pokémon quedó debilitado: la próxima Ball tiene más probabilidad de captura.':'El rival perdió HP. Puedes reclamar la victoria .'}`;
  }
 }
 function captureEncounter(){
@@ -4219,7 +4219,7 @@ document.addEventListener('click', function(e){
  const wrap=document.querySelector('.profile-wrap');
  if(menu && wrap && !wrap.contains(e.target)) menu.classList.add('hidden');
 });
-function logoutDemo(){
+function logoutGame(){
  closeProfileMenu();
  document.getElementById('app').classList.remove('active');
  document.getElementById('landing').style.display='block';
@@ -4538,16 +4538,14 @@ V28 future database modules to include from the start:
 */
 
 </script>
-<!-- V30: fixes shiny evolution preview, market containment and candy level-up flow. -->
-
 <script>
 /* =========================================================
-   MastersMon API bridge for Prototype V30
-   This block overrides selected prototype functions so the
-   existing UI consumes the real Node/Express API.
+   MastersMon API bridge
+   This block connects the existing UI to the Node/Express API.
    ========================================================= */
 (function(){
-  const API_BASE = "https://mastersmon-api.onrender.com";
+  const ENV_API_BASE = "%VITE_API_URL%";
+  const API_BASE = window.MASTERSMON_API_URL || (ENV_API_BASE.startsWith("%") ? "" : ENV_API_BASE) || "https://mastersmon-api.onrender.com";
 
   const state = {
     loading: false,
@@ -4562,6 +4560,7 @@ V28 future database modules to include from the start:
     currentMap: null,
     currentSpawns: [],
     currentEncounter: null,
+    activeEncounters: [],
     selectedBall: "poke-ball",
   };
 
@@ -4577,8 +4576,31 @@ V28 future database modules to include from the start:
     const map = {normal:"Normal",fire:"Fuego",water:"Agua",grass:"Planta",electric:"Eléctrico",ice:"Hielo",fighting:"Lucha",poison:"Veneno",ground:"Tierra",flying:"Volador",psychic:"Psíquico",bug:"Bicho",rock:"Roca",ghost:"Fantasma",dragon:"Dragón",dark:"Siniestro",steel:"Acero",fairy:"Hada"};
     return map[t] || t || "-";
   }
+  function imgFallbackAttr(){
+    return `onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png';this.classList.add('fallback-static')"`;
+  }
+  function imgFallbackCode(){
+    return "this.onerror=null;this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png';this.classList.add('fallback-static')";
+  }
   function getErrorMessage(error){
-    return error?.message || "Error conectando con la API";
+    const message = error?.message || "Error de conexion";
+    const lower = message.toLowerCase();
+    if(lower.includes("failed to fetch") || lower.includes("networkerror") || lower.includes("load failed")){
+      return "No pudimos conectar con el servidor. Si Render esta despertando, vuelve a intentar en unos segundos.";
+    }
+    if(lower.includes("503") || lower.includes("502") || lower.includes("504")){
+      return "El servidor esta iniciando o no responde. Intenta nuevamente en unos segundos.";
+    }
+    if(lower.includes("ball") || lower.includes("inventory") || lower.includes("insufficient")){
+      return "No tienes Balls disponibles para esta captura.";
+    }
+    if(lower.includes("expired") || lower.includes("expir")){
+      return "El encuentro expiro. Busca otro encuentro salvaje.";
+    }
+    if(lower.includes("fled") || lower.includes("escaped")){
+      return "El Pokemon escapo. Busca otro encuentro para intentarlo otra vez.";
+    }
+    return message;
   }
   function showApiError(error){
     console.error(error);
@@ -4597,15 +4619,16 @@ V28 future database modules to include from the start:
 
   async function refreshApiData(){
     state.loading = true;
-    const [profile, inventory, team, collection, summary, maps, captures, pokedex] = await Promise.all([
-      api("/api/demo/me"),
-      api("/api/demo/inventory"),
-      api("/api/demo/team"),
-      api("/api/demo/collection?limit=240"),
-      api("/api/demo/pokedex-summary"),
+    const [profile, inventory, team, collection, summary, maps, captures, pokedex, activeEncounters] = await Promise.all([
+      api("/api/me"),
+      api("/api/me/inventory"),
+      api("/api/me/team"),
+      api("/api/me/collection?limit=240"),
+      api("/api/me/pokedex-summary"),
       api("/api/maps"),
       api("/api/server/recent-captures?limit=100"),
-      api("/api/demo/pokedex?generation=1"),
+      api("/api/me/pokedex?generation=1"),
+      api("/api/encounters/active"),
     ]);
 
     state.profile = profile || null;
@@ -4616,6 +4639,7 @@ V28 future database modules to include from the start:
     state.maps = Array.isArray(maps) ? maps : [];
     state.recentCaptures = Array.isArray(captures) ? captures : [];
     state.pokedex = Array.isArray(pokedex) ? pokedex : [];
+    state.activeEncounters = Array.isArray(activeEncounters) ? activeEncounters : [];
     if(!state.currentMap && state.maps.length) state.currentMap = state.maps.find(m=>m.slug==="bosque-verde") || state.maps[0];
     state.loading = false;
     return state;
@@ -4639,15 +4663,14 @@ V28 future database modules to include from the start:
     const avatar = asset(p.avatar_path || "/img/avatars/leon.png");
     document.querySelectorAll(".profile-btn img").forEach(img => { img.src = avatar; });
     const name = p.trainer_name || "Entrenador León";
-    const email = p.email || "demo@mastersmon.com";
-    document.querySelectorAll(".profile-btn strong").forEach(el => el.textContent = name);
+        document.querySelectorAll(".profile-btn strong").forEach(el => el.textContent = name);
     document.querySelectorAll(".profile-btn span").forEach(el => el.textContent = `${fmt(p.gold)} Pokedólares`);
     const trainerHqName = document.querySelector("#trainerhq .trainer-profile h2");
     if(trainerHqName) trainerHqName.textContent = name;
     const trainerHqAvatar = document.querySelector("#trainerhq .trainer-avatar-big img");
     if(trainerHqAvatar) trainerHqAvatar.src = avatar;
     const appTopBrand = document.querySelector(".app-top .brand span");
-    if(appTopBrand) appTopBrand.textContent = email;
+    if(appTopBrand) appTopBrand.textContent = "Servidor Verdantia";
   }
 
   window.renderWallet = function(){
@@ -4673,7 +4696,7 @@ V28 future database modules to include from the start:
     const sprite = asset(c.selected_sprite_path);
     const trainer = c.trainer_name || c.trainer || "Entrenador León";
     const map = c.map_name || c.captured_map_name || c.zone || "Mapa";
-    return `<div class="log"><img class="pokemon-img-clean" src="${sprite}"><div><strong>${trainer} capturó ${name} ${c.is_shiny || c.shiny ? '<span class="shiny-star">★</span>' : ''}</strong><span>${map} · ${new Date(c.created_at || c.captured_at || Date.now()).toLocaleString()}</span></div></div>`;
+    return `<div class="log"><img class="pokemon-img-clean" src="${sprite}" ${imgFallbackAttr()}><div><strong>${trainer} capturó ${name} ${c.is_shiny || c.shiny ? '<span class="shiny-star">★</span>' : ''}</strong><span>${map} · ${new Date(c.created_at || c.captured_at || Date.now()).toLocaleString()}</span></div></div>`;
   }
 
   window.renderCaptures = function(){
@@ -4747,7 +4770,7 @@ V28 future database modules to include from the start:
     if(col) col.innerHTML = list.map(m => `
       <div class="collection-card ${m.is_shiny ? 'is-shiny':'is-normal'} ${activeIds.has(m.player_monster_id) ? 'in-team' : ''}">
         <span class="mon-variant-badge ${m.is_shiny ? 'shiny':'normal'}">${m.is_shiny ? '✨ Shiny':'Normal'}</span>
-        <img src="${asset(m.selected_sprite_path)}">
+        <img src="${asset(m.selected_sprite_path)}" ${imgFallbackAttr()}>
         <strong>${m.pokemon_name}</strong>
         <p>Nv. ${m.level} · ${typeEs(m.primary_type)}</p>
         <button class="primary" disabled>${activeIds.has(m.player_monster_id) ? 'En equipo' : 'Próximamente'}</button>
@@ -4767,7 +4790,7 @@ V28 future database modules to include from the start:
     grid.innerHTML = list.map(m => `
       <div class="dex-card ${m.is_shiny ? 'is-shiny':'is-normal'}">
         <span class="mon-variant-badge ${m.is_shiny ? 'shiny':'normal'}">${m.is_shiny ? '✨ Shiny':'Normal'}</span>
-        <img src="${asset(m.selected_sprite_path)}">
+        <img src="${asset(m.selected_sprite_path)}" ${imgFallbackAttr()}>
         <strong>${m.pokemon_name}</strong>
         <p>Nv. ${m.level} · ${typeEs(m.primary_type)}${activeIds.has(m.player_monster_id) ? ' · Equipo' : ''}</p>
         <button class="ghost" style="margin-top:10px" onclick="alert('Ficha real en siguiente paso')">Ver ficha</button>
@@ -4846,7 +4869,7 @@ V28 future database modules to include from the start:
       const owned = collectionDex.has(Number(s.dex_number));
       return `<div class="map-poke ${owned ? "owned":"unowned"}">
         <span class="${owned ? "owned-ball":"unknown-mark"}">${owned ? "✓":"?"}</span>
-        <img src="${asset(s.animated_path || s.sprite_path)}">
+        <img src="${asset(s.animated_path || s.sprite_path)}" ${imgFallbackAttr()}>
         <strong>#${s.dex_number}</strong>
         <span>${s.pokemon_name}</span>
         <span class="owned-count">Nv. ${s.min_level}-${s.max_level} · peso ${s.spawn_weight}</span>
@@ -4876,8 +4899,8 @@ V28 future database modules to include from the start:
     const battleBtn = byId("adventureBattleBtn");
 
     if(e){
-      if(wildMap){ wildMap.src = asset(e.selected_sprite_path); wildMap.classList.remove("is-hidden"); }
-      if(panelSprite) panelSprite.src = asset(e.selected_sprite_path);
+      if(wildMap){ wildMap.src = asset(e.selected_sprite_path); wildMap.setAttribute("onerror", imgFallbackCode()); wildMap.classList.remove("is-hidden"); }
+      if(panelSprite){ panelSprite.src = asset(e.selected_sprite_path); panelSprite.setAttribute("onerror", imgFallbackCode()); }
       if(name) name.textContent = `${e.is_shiny ? "✨ Shiny " : ""}${e.pokemon_name} apareció`;
       if(text) text.innerHTML = `Nivel ${e.level} · ${typeEs(e.primary_type)}${e.secondary_type ? `/${typeEs(e.secondary_type)}` : ""}<br>Encounter activo.`;
       if(battleBtn){ battleBtn.disabled = false; battleBtn.textContent = "Click aquí para batalla"; }
@@ -4900,7 +4923,7 @@ V28 future database modules to include from the start:
       const map = state.currentMap || state.maps.find(m=>m.slug==="bosque-verde") || state.maps[0];
       if(!map) throw new Error("No hay mapa seleccionado");
       if(typeof showMapToast === "function") showMapToast("Buscando encuentro real en " + map.name + "...");
-      state.currentEncounter = await api("/api/demo/encounters", {
+      state.currentEncounter = await api("/api/encounters", {
         method: "POST",
         body: JSON.stringify({mapSlug: map.slug}),
       });
@@ -4918,7 +4941,7 @@ V28 future database modules to include from the start:
     const teamRows = state.team.filter(t=>t.player_monster_id);
     const first = teamRows[0];
     const teamHtml = teamRows.map(t => `<div class="lineup-card ${t.player_monster_id === first?.player_monster_id ? "selected":""}">
-      <img src="${asset(t.selected_sprite_path)}"><div><strong>${t.pokemon_name}</strong><small>Nivel ${t.level} · ${typeEs(t.primary_type)}<br>HP ${t.current_hp || 35}/${t.current_hp || 35}</small></div><button class="blue-btn" disabled>${t.player_monster_id === first?.player_monster_id ? "Pick":"En team"}</button></div>`).join("");
+      <img src="${asset(t.selected_sprite_path)}" ${imgFallbackAttr()}><div><strong>${t.pokemon_name}</strong><small>Nivel ${t.level} · ${typeEs(t.primary_type)}<br>HP ${t.current_hp || 35}/${t.current_hp || 35}</small></div><button class="blue-btn" disabled>${t.player_monster_id === first?.player_monster_id ? "Pick":"En team"}</button></div>`).join("");
 
     const balls = ["poke-ball","great-ball","ultra-ball","master-ball"].map(b => {
       const qty = getBallQty(b);
@@ -4935,7 +4958,7 @@ V28 future database modules to include from the start:
         <div class="battle-column wild-card">
           <h3>Pokémon salvaje</h3>
           <span class="mon-variant-badge ${e.is_shiny ? "shiny":"normal"}">${e.is_shiny ? "✨ Shiny":"Normal"}</span>
-          <img src="${asset(e.selected_sprite_path)}">
+          <img src="${asset(e.selected_sprite_path)}" ${imgFallbackAttr()}>
           <strong>${e.pokemon_name}</strong>
           <small>Nivel ${e.level} · ${typeEs(e.primary_type)}</small>
         </div>
@@ -4962,7 +4985,7 @@ V28 future database modules to include from the start:
     const log = byId("battleLog");
     try{
       if(log) log.innerHTML = `<strong>Captura</strong><br>Lanzaste ${state.selectedBall.replace("-", " ")} hacia ${e.pokemon_name}...`;
-      const result = await api("/api/demo/captures", {
+      const result = await api("/api/captures", {
         method: "POST",
         body: JSON.stringify({encounterId: e.encounter_id, ballSlug: state.selectedBall}),
       });
@@ -4991,7 +5014,7 @@ V28 future database modules to include from the start:
     if(log){
       log.classList.remove("fail-log");
       log.classList.add("success-log");
-      log.innerHTML = `<strong>Attack!</strong><br>Tu Pokémon debilitó al rival. En esta versión MVP la fórmula final de captura vive en PostgreSQL.`;
+      log.innerHTML = `<strong>Attack!</strong><br>Tu Pokémon debilitó al rival. En esta versión MastersMon Online la fórmula final de captura vive en PostgreSQL.`;
     }
   };
 

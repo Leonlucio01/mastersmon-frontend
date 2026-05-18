@@ -1,11 +1,7 @@
-// src/components/MastersmonApiDemo.jsx
-// Componente temporal para probar la API desde el frontend.
-// Si no tienes carpeta src/components, créala.
-
-import { useMastersmonDemo } from "../hooks/useMastersmonDemo";
+import { useMastersmon } from "../hooks/useMastersmon";
 import { getAssetUrl } from "../api/mastersmonApi";
 
-export default function MastersmonApiDemo() {
+export default function MastersmonApiPanel() {
   const {
     loading,
     error,
@@ -18,13 +14,13 @@ export default function MastersmonApiDemo() {
     currentEncounter,
     lastCaptureResult,
     findEncounter,
-    captureLatest,
+    captureCurrent,
     refreshAll,
-  } = useMastersmonDemo();
+  } = useMastersmon();
 
   return (
     <div style={{ padding: 24, color: "white", background: "#111827", minHeight: "100vh" }}>
-      <h1>MastersMon API Demo</h1>
+      <h1>MastersMon Online</h1>
 
       {loading && <p>Cargando...</p>}
       {error && <p style={{ color: "#f87171" }}>{error}</p>}
@@ -33,17 +29,17 @@ export default function MastersmonApiDemo() {
       <button onClick={() => findEncounter("bosque-verde")} style={{ marginLeft: 8 }}>
         Buscar en Bosque Verde
       </button>
-      <button onClick={() => captureLatest("poke-ball")} style={{ marginLeft: 8 }}>
-        Capturar último con Poké Ball
+      <button onClick={() => captureCurrent("poke-ball")} style={{ marginLeft: 8 }}>
+        Capturar ultimo con Poke Ball
       </button>
 
       <section>
-        <h2>Perfil</h2>
+        <h2>Perfil del entrenador</h2>
         <pre>{JSON.stringify(profile, null, 2)}</pre>
       </section>
 
       <section>
-        <h2>Pokédex</h2>
+        <h2>Pokedex</h2>
         <pre>{JSON.stringify(pokedexSummary, null, 2)}</pre>
       </section>
 
@@ -53,7 +49,7 @@ export default function MastersmonApiDemo() {
           <div>
             <p>
               {currentEncounter.pokemon_name} Nv. {currentEncounter.level}
-              {currentEncounter.is_shiny ? " ✨" : ""}
+              {currentEncounter.is_shiny ? " shiny" : ""}
             </p>
             <img
               src={getAssetUrl(currentEncounter.selected_sprite_path)}
@@ -74,7 +70,7 @@ export default function MastersmonApiDemo() {
       </section>
 
       <section>
-        <h2>Equipo</h2>
+        <h2>Equipo activo</h2>
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
           {team.map((slot) => (
             <div key={slot.slot_number} style={{ border: "1px solid #374151", padding: 12, width: 150 }}>
@@ -90,7 +86,7 @@ export default function MastersmonApiDemo() {
                   />
                 </>
               ) : (
-                <p>Vacío</p>
+                <p>Vacio</p>
               )}
             </div>
           ))}
@@ -113,7 +109,7 @@ export default function MastersmonApiDemo() {
         <ul>
           {maps.map((map) => (
             <li key={map.map_id}>
-              {map.name} ({map.slug}) — spawns: {map.total_spawns}
+              {map.name} ({map.slug}) - spawns: {map.total_spawns}
             </li>
           ))}
         </ul>
@@ -125,7 +121,7 @@ export default function MastersmonApiDemo() {
           {collection.map((monster) => (
             <div key={monster.player_monster_id} style={{ border: "1px solid #374151", padding: 12, width: 160 }}>
               <strong>{monster.pokemon_name}</strong>
-              <p>Nv. {monster.level} {monster.is_shiny ? "✨" : ""}</p>
+              <p>Nv. {monster.level} {monster.is_shiny ? "shiny" : ""}</p>
               <img
                 src={getAssetUrl(monster.selected_sprite_path)}
                 alt={monster.pokemon_name}

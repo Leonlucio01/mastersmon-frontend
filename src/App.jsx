@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { getAssetUrl } from "./api/mastersmonApi";
-import { useMastersmonDemo } from "./hooks/useMastersmonDemo";
+import { useMastersmon } from "./hooks/useMastersmon";
 import "./styles.css";
 
 function StatCard({ label, value }) {
@@ -81,8 +81,8 @@ export default function App() {
     setSelectedMap,
     refreshAll,
     findEncounter,
-    captureLatest,
-  } = useMastersmonDemo();
+    captureCurrent,
+  } = useMastersmon();
 
   const pokeBallQty = useMemo(() => {
     return inventory.find((item) => item.item_slug === "poke-ball")?.quantity ?? 0;
@@ -94,11 +94,10 @@ export default function App() {
     <main className="app-shell">
       <section className="hero">
         <div>
-          <p className="eyebrow">MastersMon MVP</p>
-          <h1>Base jugable conectada a PostgreSQL</h1>
+          <p className="eyebrow">MastersMon Online</p>
+          <h1>Servidor Verdantia</h1>
           <p className="hero__text">
-            Este frontend ya consume la API real: perfil, inventario, equipo,
-            mapas, encuentros, capturas y colección.
+            Explora mapas, encuentra monstruos salvajes y fortalece tu colección.
           </p>
 
           <div className="hero__actions">
@@ -114,7 +113,7 @@ export default function App() {
             </button>
             <button
               className="capture"
-              onClick={() => captureLatest("poke-ball")}
+              onClick={() => captureCurrent("poke-ball")}
               disabled={loading || pokeBallQty <= 0}
             >
               Capturar con Poké Ball ({pokeBallQty})
@@ -208,7 +207,7 @@ export default function App() {
 
         <article className="panel">
           <p className="eyebrow">Equipo</p>
-          <h2>Team activo</h2>
+          <h2>Equipo activo</h2>
           <div className="team-grid">
             {team.map((slot) => (
               <TeamSlot key={slot.slot_number} slot={slot} />

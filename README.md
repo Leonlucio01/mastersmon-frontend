@@ -1,16 +1,12 @@
-# MastersMon Frontend Vite Start
+# MastersMon Frontend
 
-Este paquete convierte `mastersmon-frontend` en una app Vite/React funcional, conectada a:
+Frontend de MastersMon Online conectado a:
 
 ```txt
 https://mastersmon-api.onrender.com
 ```
 
-## Como instalar
-
-Copia estos archivos en la raiz de `mastersmon-frontend`, manteniendo tus carpetas actuales `img/` y `audio/`.
-
-Debe quedar:
+## Estructura
 
 ```txt
 mastersmon-frontend/
@@ -27,7 +23,7 @@ mastersmon-frontend/
     api/
       mastersmonApi.js
     hooks/
-      useMastersmonDemo.js
+      useMastersmon.js
 ```
 
 ## Ejecutar local

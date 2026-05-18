@@ -27,34 +27,34 @@ export function getHealth() {
   return request("/api/health");
 }
 
-export function getDemoProfile() {
-  return request("/api/demo/me");
+export function getProfile() {
+  return request("/api/me");
 }
 
-export function getDemoInventory() {
-  return request("/api/demo/inventory");
+export function getInventory() {
+  return request("/api/me/inventory");
 }
 
-export function getDemoTeam() {
-  return request("/api/demo/team");
+export function getTeam() {
+  return request("/api/me/team");
 }
 
-export function getDemoCollection({ limit = 100 } = {}) {
-  return request(`/api/demo/collection?limit=${encodeURIComponent(limit)}`);
+export function getCollection({ limit = 100 } = {}) {
+  return request(`/api/me/collection?limit=${encodeURIComponent(limit)}`);
 }
 
-export function getDemoPokedexSummary() {
-  return request("/api/demo/pokedex-summary");
+export function getPokedexSummary() {
+  return request("/api/me/pokedex-summary");
 }
 
-export function getDemoPokedex({ generation, caught } = {}) {
+export function getPokedex({ generation, caught } = {}) {
   const params = new URLSearchParams();
 
   if (generation) params.set("generation", String(generation));
   if (caught !== undefined && caught !== null) params.set("caught", String(caught));
 
   const query = params.toString();
-  return request(`/api/demo/pokedex${query ? `?${query}` : ""}`);
+  return request(`/api/me/pokedex${query ? `?${query}` : ""}`);
 }
 
 export function getMaps() {
@@ -65,34 +65,50 @@ export function getMapSpawns(mapSlug) {
   return request(`/api/maps/${encodeURIComponent(mapSlug)}/spawns`);
 }
 
-export function createDemoEncounter(mapSlug = "bosque-verde") {
-  return request("/api/demo/encounters", {
+export function createEncounter(mapSlug = "bosque-verde") {
+  return request("/api/encounters", {
     method: "POST",
     body: JSON.stringify({ mapSlug }),
   });
 }
 
-export function getActiveDemoEncounters() {
-  return request("/api/demo/encounters/active");
+export function getActiveEncounters() {
+  return request("/api/encounters/active");
 }
 
-export function captureDemoEncounter(encounterId, ballSlug = "poke-ball") {
-  return request("/api/demo/captures", {
+export function captureEncounter(encounterId, ballSlug = "poke-ball") {
+  return request("/api/captures", {
     method: "POST",
     body: JSON.stringify({ encounterId, ballSlug }),
   });
 }
 
-export function captureLatestDemoEncounter(ballSlug = "poke-ball") {
-  return request("/api/demo/captures/latest", {
-    method: "POST",
-    body: JSON.stringify({ ballSlug }),
-  });
+export async function captureLatestEncounter(ballSlug = "poke-ball") {
+  const encounters = await getActiveEncounters();
+  const encounterId = encounters?.[0]?.encounter_id;
+
+  if (!encounterId) {
+    throw new Error("No hay encuentro activo. Busca un encuentro salvaje primero.");
+  }
+
+  return captureEncounter(encounterId, ballSlug);
 }
 
-export function getServerRecentCaptures({ limit = 20 } = {}) {
+export function getRecentCaptures({ limit = 20 } = {}) {
   return request(`/api/server/recent-captures?limit=${encodeURIComponent(limit)}`);
 }
+
+export const getDemoProfile = getProfile;
+export const getDemoInventory = getInventory;
+export const getDemoTeam = getTeam;
+export const getDemoCollection = getCollection;
+export const getDemoPokedexSummary = getPokedexSummary;
+export const getDemoPokedex = getPokedex;
+export const createDemoEncounter = createEncounter;
+export const getActiveDemoEncounters = getActiveEncounters;
+export const captureDemoEncounter = captureEncounter;
+export const captureLatestDemoEncounter = captureLatestEncounter;
+export const getServerRecentCaptures = getRecentCaptures;
 
 export function getAssetUrl(path) {
   if (!path) return "";
