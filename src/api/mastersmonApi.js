@@ -1,14 +1,33 @@
 // src/api/mastersmonApi.js
 
 const DEFAULT_API_URL = "https://mastersmon-api.onrender.com";
+const TOKEN_KEY = "mastersmon_token";
 
 export const API_BASE_URL =
   import.meta.env.VITE_API_URL?.replace(/\/$/, "") || DEFAULT_API_URL;
+
+export function getToken() {
+  return localStorage.getItem(TOKEN_KEY);
+}
+
+export function setToken(token) {
+  if (token) localStorage.setItem(TOKEN_KEY, token);
+}
+
+export function clearToken() {
+  localStorage.removeItem(TOKEN_KEY);
+}
+
+export function authHeaders() {
+  const token = getToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
 
 async function request(path, options = {}) {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     headers: {
       "Content-Type": "application/json",
+      ...authHeaders(),
       ...(options.headers || {}),
     },
     ...options,
@@ -17,10 +36,49 @@ async function request(path, options = {}) {
   const data = await response.json().catch(() => null);
 
   if (!response.ok) {
-    throw new Error(data?.error || `Request failed with status ${response.status}`);
+    if (response.status === 401) {
+      clearToken();
+      window.dispatchEvent(new CustomEvent("mastersmon:session-expired"));
+    }
+
+    const error = new Error(data?.error || `Request failed with status ${response.status}`);
+    error.status = response.status;
+    throw error;
   }
 
   return data;
+}
+
+export async function register({ email, password, trainerName }) {
+  const data = await request("/api/auth/register", {
+    method: "POST",
+    body: JSON.stringify({ email, password, trainerName }),
+  });
+
+  if (data?.token) setToken(data.token);
+  return data;
+}
+
+export async function login({ email, password }) {
+  const data = await request("/api/auth/login", {
+    method: "POST",
+    body: JSON.stringify({ email, password }),
+  });
+
+  if (data?.token) setToken(data.token);
+  return data;
+}
+
+export async function logout() {
+  try {
+    await request("/api/auth/logout", { method: "POST" });
+  } finally {
+    clearToken();
+  }
+}
+
+export function getAuthMe() {
+  return request("/api/auth/me");
 }
 
 export function getHealth() {

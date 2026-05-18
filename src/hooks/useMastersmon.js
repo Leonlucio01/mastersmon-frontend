@@ -30,7 +30,7 @@ function friendlyError(error) {
   return message;
 }
 
-export function useMastersmon() {
+export function useMastersmon({ enabled = true } = {}) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -135,8 +135,8 @@ export function useMastersmon() {
   }, [activeEncounters, currentEncounter, refreshAll]);
 
   useEffect(() => {
-    refreshAll();
-  }, [refreshAll]);
+    if (enabled) refreshAll();
+  }, [enabled, refreshAll]);
 
   return {
     loading,

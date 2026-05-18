@@ -2687,19 +2687,19 @@
 
   <section id="authOverlay" class="overlay">
     <div id="authModal" class="auth-modal">
-      <div class="modal-head"><div><strong id="authLabel">Iniciar.</strong> Juego Gratis! &nbsp; <span>No Tengo Cuenta?</span> <a href="#" onclick="setAuthMode('register')">Registrarse</a></div><button onclick="closeAuth()">×</button></div>
+      <div class="modal-head"><div><strong id="authLabel">Entrar</strong> &nbsp; <span>Continuar en Verdantia</span> <a href="#" onclick="setAuthMode('register')">Crear cuenta</a></div><button onclick="closeAuth()">×</button></div>
       <div class="modal-col left">
-        <h3 class="login-title">Acceso al servidor</h3><h3 class="register-title">Crear entrenador</h3>
+        <h3 class="login-title">Entrar</h3><h3 class="register-title">Crear cuenta</h3>
         <div class="form">
-          <div class="login-extra"><label>Dirección de correo</label><input value="test@mastersmon.com"><label>Contraseña</label><input type="password" value="123456"><div class="form-row"><label style="margin:0;text-transform:none"><input type="checkbox"> Recordarme</label><a href="#">Recuperar contraseña?</a></div><button class="login-btn" onclick="enterGame()">Iniciar</button></div>
-          <div class="register-extra"><label>Nombre de entrenador</label><input value="Entrenador León"><label>Correo</label><input value="nuevo@mastersmon.com"><label>Starter inicial</label><select><option>Bulbasaur</option><option>Charmander</option><option>Squirtle</option><option>Pikachu</option></select><div class="trainer-pick"><div class="pick"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/1.gif"><strong>Verde</strong></div><div class="pick"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/4.gif"><strong>Rojo</strong></div><div class="pick"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/7.gif"><strong>Azul</strong></div><div class="pick"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/25.gif"><strong>Rayo</strong></div></div><button class="login-btn" onclick="enterGame()">Crear</button></div>
+          <div class="login-extra"><label>Email</label><input id="loginEmail" type="email" autocomplete="email"><label>Contraseña</label><input id="loginPassword" type="password" autocomplete="current-password"><button class="login-btn" onclick="loginGame()">Entrar</button></div>
+          <div class="register-extra"><label>Nombre de entrenador</label><input id="registerTrainerName" minlength="2"><label>Email</label><input id="registerEmail" type="email" autocomplete="email"><label>Contraseña</label><input id="registerPassword" type="password" autocomplete="new-password" minlength="6"><label>Confirmar contraseña</label><input id="registerPasswordConfirm" type="password" autocomplete="new-password" minlength="6"><div class="trainer-pick"><div class="pick"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/25.gif"><strong>Pikachu</strong></div></div><button class="login-btn" onclick="registerGame()">Crear cuenta</button></div>
+          <p id="authError" class="error hidden" style="margin-top:14px"></p>
         </div>
       </div>
-      <div class="or">OR</div>
+      <div class="or">o</div>
       <div class="modal-col">
-        <h3>Acceso rápido</h3><p class="muted" style="line-height:1.55;margin-bottom:24px">Entra a MastersMon Online y continúa tu aventura en el Servidor Verdantia.</p>
-        <button class="social-btn google" onclick="enterGame()">G &nbsp; Continuar con Google</button>
-        <button class="social-btn facebook" onclick="enterGame()">f &nbsp; Accesar con Facebook</button>
+        <h3>Entrar como invitado</h3><p class="muted" style="line-height:1.55;margin-bottom:24px">Continúa temporalmente en el Servidor Verdantia mientras conectas tu cuenta.</p>
+        <button class="social-btn google" onclick="enterGuestGame()">Entrar como invitado</button>
       </div>
     </div>
   </section>
@@ -3699,7 +3699,7 @@ function makeCaptures(count=100){const arr=[];for(let i=0;i<count;i++){const m=m
 const captures=makeCaptures(100);
 function openAuth(mode='login'){document.getElementById('authOverlay').classList.remove('hidden');setAuthMode(mode)}
 function closeAuth(){document.getElementById('authOverlay').classList.add('hidden')}
-function setAuthMode(mode){const m=document.getElementById('authModal');m.classList.toggle('register-mode',mode==='register');document.getElementById('authLabel').textContent=mode==='register'?'Registrarse.':'Iniciar.'}
+function setAuthMode(mode){const m=document.getElementById('authModal');m.classList.toggle('register-mode',mode==='register');document.getElementById('authLabel').textContent=mode==='register'?'Crear cuenta':'Entrar';document.getElementById('authError')?.classList.add('hidden')}
 function enterGame(){document.getElementById('authOverlay').classList.add('hidden');document.getElementById('landing').style.display='none';document.getElementById('app').classList.add('active');document.getElementById('chatFab').classList.remove('hidden');renderAll()}
 function showPage(id){document.querySelectorAll('.menu button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active')}
 document.querySelectorAll('.menu button').forEach(btn=>btn.onclick=()=>showPage(btn.dataset.page));
@@ -4560,6 +4560,7 @@ V28 future database modules to include from the start:
 (function(){
   const ENV_API_BASE = "%VITE_API_URL%";
   const API_BASE = window.MASTERSMON_API_URL || (ENV_API_BASE.startsWith("%") ? "" : ENV_API_BASE) || "https://mastersmon-api.onrender.com";
+  const TOKEN_KEY = "mastersmon_token";
 
   const state = {
     loading: false,
@@ -4580,6 +4581,10 @@ V28 future database modules to include from the start:
   };
 
   function byId(id){ return document.getElementById(id); }
+  function getToken(){ return localStorage.getItem(TOKEN_KEY); }
+  function setToken(token){ if(token) localStorage.setItem(TOKEN_KEY, token); }
+  function clearToken(){ localStorage.removeItem(TOKEN_KEY); }
+  function authHeaders(){ const token = getToken(); return token ? {Authorization:`Bearer ${token}`} : {}; }
   function fmt(n){ return Number(n || 0).toLocaleString("es-ES"); }
   function safeText(v, fallback="-"){ return (v === null || v === undefined || v === "") ? fallback : String(v); }
   function asset(path){
@@ -4626,13 +4631,35 @@ V28 future database modules to include from the start:
     if(typeof showMapToast === "function") showMapToast("⚠️ " + getErrorMessage(error), "fail");
     else alert(getErrorMessage(error));
   }
+  function showAuthError(message){
+    const el = byId("authError");
+    if(!el) return;
+    el.textContent = message || "No pudimos iniciar sesion.";
+    el.classList.remove("hidden");
+  }
+  function clearAuthError(){
+    const el = byId("authError");
+    if(!el) return;
+    el.textContent = "";
+    el.classList.add("hidden");
+  }
   async function api(path, options={}){
     const res = await fetch(`${API_BASE}${path}`, {
-      headers: {"Content-Type":"application/json", ...(options.headers || {})},
+      headers: {"Content-Type":"application/json", ...authHeaders(), ...(options.headers || {})},
       ...options,
     });
     const data = await res.json().catch(()=>null);
-    if(!res.ok) throw new Error(data?.error || `API error ${res.status}`);
+    if(!res.ok){
+      if(res.status === 401){
+        clearToken();
+        byId("app")?.classList.remove("active");
+        if(byId("landing")) byId("landing").style.display = "block";
+        byId("chatFab")?.classList.add("hidden");
+        openAuth("login");
+        showAuthError("Tu sesión expiró. Inicia sesión de nuevo.");
+      }
+      throw new Error(data?.error || `API error ${res.status}`);
+    }
     return data;
   }
 
@@ -5278,6 +5305,47 @@ V28 future database modules to include from the start:
     if(options.showHub) window.showPage("hub");
   };
 
+  window.loginGame = async function(){
+    clearAuthError();
+    try{
+      const email = byId("loginEmail")?.value || "";
+      const password = byId("loginPassword")?.value || "";
+      const data = await api("/api/auth/login", {
+        method: "POST",
+        body: JSON.stringify({email, password}),
+      });
+      setToken(data.token);
+      await window.enterGame();
+    }catch(error){
+      showAuthError(getErrorMessage(error));
+    }
+  };
+
+  window.registerGame = async function(){
+    clearAuthError();
+    try{
+      const trainerName = byId("registerTrainerName")?.value || "";
+      const email = byId("registerEmail")?.value || "";
+      const password = byId("registerPassword")?.value || "";
+      const confirm = byId("registerPasswordConfirm")?.value || "";
+      if(password !== confirm) throw new Error("Las contraseñas no coinciden.");
+      const data = await api("/api/auth/register", {
+        method: "POST",
+        body: JSON.stringify({email, password, trainerName}),
+      });
+      setToken(data.token);
+      await window.enterGame();
+    }catch(error){
+      showAuthError(getErrorMessage(error));
+    }
+  };
+
+  window.enterGuestGame = async function(){
+    clearToken();
+    clearAuthError();
+    await window.enterGame();
+  };
+
   window.enterGame = async function(){
     byId("authOverlay").classList.add("hidden");
     byId("landing").style.display = "none";
@@ -5291,6 +5359,30 @@ V28 future database modules to include from the start:
       renderAll({showHub:true});
     }
   };
+
+  window.logoutGame = async function(){
+    closeProfileMenu();
+    try{
+      await api("/api/auth/logout", {method:"POST"});
+    }catch(_ignored){}
+    clearToken();
+    byId("app").classList.remove("active");
+    byId("landing").style.display = "block";
+    byId("chatFab").classList.add("hidden");
+    openAuth("login");
+  };
+
+  (async function restoreAuthSession(){
+    if(!getToken()) return;
+    try{
+      await api("/api/auth/me");
+      await window.enterGame();
+    }catch(_ignored){
+      clearToken();
+      openAuth("login");
+      showAuthError("Tu sesión expiró. Inicia sesión de nuevo.");
+    }
+  })();
 
   // Expose for debugging in browser console.
   window.MASTERSMON_API_STATE = state;
