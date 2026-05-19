@@ -24,25 +24,34 @@ export function authHeaders() {
 }
 
 async function request(path, options = {}) {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    headers: {
-      "Content-Type": "application/json",
-      ...authHeaders(),
-      ...(options.headers || {}),
-    },
-    ...options,
-  });
+  let response;
+
+  try {
+    response = await fetch(`${API_BASE_URL}${path}`, {
+      headers: {
+        "Content-Type": "application/json",
+        ...authHeaders(),
+        ...(options.headers || {}),
+      },
+      ...options,
+    });
+  } catch (networkError) {
+    const error = new Error("No se pudo conectar con el servidor.");
+    error.code = "NETWORK_ERROR";
+    throw error;
+  }
 
   const data = await response.json().catch(() => null);
 
   if (!response.ok) {
-    if (response.status === 401) {
+    if (response.status === 401 && path !== "/api/auth/login") {
       clearToken();
       window.dispatchEvent(new CustomEvent("mastersmon:session-expired"));
     }
 
     const error = new Error(data?.error || `Request failed with status ${response.status}`);
     error.status = response.status;
+    error.code = data?.code;
     throw error;
   }
 
@@ -156,16 +165,6 @@ export function getRecentCaptures({ limit = 20 } = {}) {
   return request(`/api/server/recent-captures?limit=${encodeURIComponent(limit)}`);
 }
 
-export const getDemoProfile = getProfile;
-export const getDemoInventory = getInventory;
-export const getDemoTeam = getTeam;
-export const getDemoCollection = getCollection;
-export const getDemoPokedexSummary = getPokedexSummary;
-export const getDemoPokedex = getPokedex;
-export const createDemoEncounter = createEncounter;
-export const getActiveDemoEncounters = getActiveEncounters;
-export const captureDemoEncounter = captureEncounter;
-export const captureLatestDemoEncounter = captureLatestEncounter;
 export const getServerRecentCaptures = getRecentCaptures;
 
 export function getAssetUrl(path) {

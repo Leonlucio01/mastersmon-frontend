@@ -47,6 +47,22 @@ export function useMastersmon({ enabled = true } = {}) {
   const [lastCaptureResult, setLastCaptureResult] = useState(null);
   const [selectedMap, setSelectedMap] = useState("bosque-verde");
 
+  const resetGameState = useCallback(() => {
+    setLoading(false);
+    setError("");
+    setProfile(null);
+    setInventory([]);
+    setTeam([]);
+    setCollection([]);
+    setPokedexSummary(null);
+    setMaps([]);
+    setRecentCaptures([]);
+    setActiveEncounters([]);
+    setCurrentEncounter(null);
+    setLastCaptureResult(null);
+    setSelectedMap("bosque-verde");
+  }, []);
+
   const refreshAll = useCallback(async () => {
     setLoading(true);
     setError("");
@@ -156,5 +172,6 @@ export function useMastersmon({ enabled = true } = {}) {
     refreshAll,
     findEncounter,
     captureCurrent,
+    resetGameState,
   };
 }

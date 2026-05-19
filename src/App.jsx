@@ -72,6 +72,17 @@ function TeamSlot({ slot }) {
   );
 }
 
+function getAuthErrorMessage(error) {
+  if (error?.code === "EMAIL_USED") return "Este email ya tiene una cuenta.";
+  if (error?.code === "PASSWORD_TOO_SHORT") return "La contraseña debe tener al menos 6 caracteres.";
+  if (error?.code === "TRAINER_NAME_REQUIRED") return "Ingresa un nombre de entrenador.";
+  if (error?.code === "INVALID_CREDENTIALS") return "Email o contraseña incorrectos.";
+  if (error?.code === "NETWORK_ERROR") return "No se pudo conectar con el servidor.";
+  if (error?.status === 409) return "Este email ya tiene una cuenta.";
+  if (error?.status === 401) return "Email o contraseña incorrectos.";
+  return error?.message || "No se pudo conectar con el servidor.";
+}
+
 function AuthScreen({ message, onEnterGuest, onAuthenticated }) {
   const [mode, setMode] = useState("login");
   const [email, setEmail] = useState("");
@@ -79,6 +90,7 @@ function AuthScreen({ message, onEnterGuest, onAuthenticated }) {
   const [trainerName, setTrainerName] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [guestSubmitting, setGuestSubmitting] = useState(false);
   const [error, setError] = useState("");
 
   async function handleSubmit(event) {
@@ -88,8 +100,16 @@ function AuthScreen({ message, onEnterGuest, onAuthenticated }) {
 
     try {
       if (mode === "register") {
+        if (!trainerName.trim()) {
+          throw new Error("Ingresa un nombre de entrenador.");
+        }
+
+        if (password.length < 6) {
+          throw new Error("La contraseña debe tener al menos 6 caracteres.");
+        }
+
         if (password !== confirmPassword) {
-          throw new Error("Las contrasenas no coinciden.");
+          throw new Error("Las contraseñas no coinciden.");
         }
 
         await register({ email, password, trainerName });
@@ -99,9 +119,22 @@ function AuthScreen({ message, onEnterGuest, onAuthenticated }) {
 
       onAuthenticated();
     } catch (err) {
-      setError(err?.message || "No pudimos iniciar sesion.");
+      setError(getAuthErrorMessage(err));
     } finally {
       setSubmitting(false);
+    }
+  }
+
+  async function handleGuest() {
+    setGuestSubmitting(true);
+    setError("");
+
+    try {
+      await onEnterGuest();
+    } catch {
+      setError("No se pudo conectar con el servidor.");
+    } finally {
+      setGuestSubmitting(false);
     }
   }
 
@@ -119,6 +152,7 @@ function AuthScreen({ message, onEnterGuest, onAuthenticated }) {
         <div className="auth-tabs">
           <button
             className={mode === "login" ? "primary" : ""}
+            disabled={submitting || guestSubmitting}
             type="button"
             onClick={() => setMode("login")}
           >
@@ -126,6 +160,7 @@ function AuthScreen({ message, onEnterGuest, onAuthenticated }) {
           </button>
           <button
             className={mode === "register" ? "primary" : ""}
+            disabled={submitting || guestSubmitting}
             type="button"
             onClick={() => setMode("register")}
           >
@@ -171,7 +206,7 @@ function AuthScreen({ message, onEnterGuest, onAuthenticated }) {
 
           {mode === "register" ? (
             <label>
-              Confirmar contrasena
+              Confirmar contraseña
               <input
                 autoComplete="new-password"
                 minLength={6}
@@ -188,10 +223,10 @@ function AuthScreen({ message, onEnterGuest, onAuthenticated }) {
 
           <div className="auth-actions">
             <button className="primary" disabled={submitting} type="submit">
-              {mode === "login" ? "Entrar" : "Crear cuenta"}
+              {submitting ? (mode === "login" ? "Entrando..." : "Creando...") : mode === "login" ? "Entrar" : "Crear cuenta"}
             </button>
-            <button disabled={submitting} type="button" onClick={onEnterGuest}>
-              Entrar como invitado
+            <button disabled={submitting || guestSubmitting} type="button" onClick={handleGuest}>
+              {guestSubmitting ? "Cargando..." : "Entrar como invitado"}
             </button>
           </div>
         </form>
@@ -222,6 +257,7 @@ export default function App() {
     refreshAll,
     findEncounter,
     captureCurrent,
+    resetGameState,
   } = useMastersmon({ enabled: isPlaying });
 
   useEffect(() => {
@@ -238,7 +274,7 @@ export default function App() {
         if (active) setIsPlaying(true);
       } catch {
         clearToken();
-        if (active) setAuthMessage("Tu sesion expiro. Inicia sesion de nuevo.");
+        if (active) setAuthMessage("Tu sesión expiró. Inicia sesión de nuevo.");
       } finally {
         if (active) setCheckingSession(false);
       }
@@ -254,8 +290,9 @@ export default function App() {
   useEffect(() => {
     function handleExpiredSession() {
       clearToken();
+      resetGameState();
       setIsPlaying(false);
-      setAuthMessage("Tu sesion expiro. Inicia sesion de nuevo.");
+      setAuthMessage("Tu sesión expiró. Inicia sesión de nuevo.");
     }
 
     window.addEventListener("mastersmon:session-expired", handleExpiredSession);
@@ -270,6 +307,7 @@ export default function App() {
 
   async function handleLogout() {
     await logout();
+    resetGameState();
     setIsPlaying(false);
     setAuthMessage("");
   }
@@ -278,7 +316,7 @@ export default function App() {
     return (
       <main className="auth-shell">
         <section className="auth-card">
-          <p className="muted">Cargando sesion...</p>
+          <p className="muted">Cargando sesión...</p>
         </section>
       </main>
     );
@@ -293,6 +331,8 @@ export default function App() {
           setIsPlaying(true);
         }}
         onEnterGuest={() => {
+          clearToken();
+          resetGameState();
           setAuthMessage("");
           setIsPlaying(true);
         }}
@@ -329,7 +369,7 @@ export default function App() {
               Capturar con Poke Ball ({pokeBallQty})
             </button>
             <button onClick={handleLogout} disabled={loading}>
-              Cerrar sesion
+              Cerrar sesión
             </button>
           </div>
 
@@ -345,6 +385,9 @@ export default function App() {
           />
           <h2>{profile?.trainer_name || "Entrenador"}</h2>
           <p>{profile?.email}</p>
+          <button onClick={handleLogout} disabled={loading}>
+            Cerrar sesión
+          </button>
 
           <div className="wallet">
             <StatCard label="Nivel" value={profile?.level} />
