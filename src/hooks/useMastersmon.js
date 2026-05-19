@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import {
+  buyShopItem,
   captureEncounter,
   autoBuildTeam,
   clearTeamSlot,
@@ -11,6 +12,7 @@ import {
   getPokedexSummary,
   getProfile,
   getRecentCaptures,
+  getShopItems,
   getTeam,
   setTeamSlot,
 } from "../api/mastersmonApi";
@@ -43,6 +45,7 @@ export function useMastersmon({ enabled = true } = {}) {
   const [collection, setCollection] = useState([]);
   const [pokedexSummary, setPokedexSummary] = useState(null);
   const [maps, setMaps] = useState([]);
+  const [shopItems, setShopItems] = useState([]);
   const [recentCaptures, setRecentCaptures] = useState([]);
   const [activeEncounters, setActiveEncounters] = useState([]);
 
@@ -59,6 +62,7 @@ export function useMastersmon({ enabled = true } = {}) {
     setCollection([]);
     setPokedexSummary(null);
     setMaps([]);
+    setShopItems([]);
     setRecentCaptures([]);
     setActiveEncounters([]);
     setCurrentEncounter(null);
@@ -78,6 +82,7 @@ export function useMastersmon({ enabled = true } = {}) {
         collectionData,
         pokedexSummaryData,
         mapsData,
+        shopItemsData,
         recentCapturesData,
         activeEncountersData,
       ] = await Promise.all([
@@ -87,6 +92,7 @@ export function useMastersmon({ enabled = true } = {}) {
         getCollection({ limit: 120 }),
         getPokedexSummary(),
         getMaps(),
+        getShopItems(),
         getRecentCaptures({ limit: 20 }),
         getActiveEncounters(),
       ]);
@@ -97,6 +103,7 @@ export function useMastersmon({ enabled = true } = {}) {
       setCollection(collectionData);
       setPokedexSummary(pokedexSummaryData);
       setMaps(mapsData);
+      setShopItems(shopItemsData);
       setRecentCaptures(recentCapturesData);
       setActiveEncounters(activeEncountersData);
     } catch (err) {
@@ -204,6 +211,35 @@ export function useMastersmon({ enabled = true } = {}) {
     }
   }, []);
 
+  const loadShopItems = useCallback(async () => {
+    const items = await getShopItems();
+    setShopItems(items);
+    return items;
+  }, []);
+
+  const buyItem = useCallback(async (itemSlug, quantity = 1) => {
+    setLoading(true);
+    setError("");
+
+    try {
+      const result = await buyShopItem(itemSlug, quantity);
+      const [profileData, inventoryData, shopItemsData] = await Promise.all([
+        getProfile(),
+        getInventory(),
+        getShopItems(),
+      ]);
+      setProfile(profileData);
+      setInventory(inventoryData);
+      setShopItems(shopItemsData);
+      return result;
+    } catch (err) {
+      setError(friendlyError(err));
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (enabled) refreshAll();
   }, [enabled, refreshAll]);
@@ -217,6 +253,7 @@ export function useMastersmon({ enabled = true } = {}) {
     collection,
     pokedexSummary,
     maps,
+    shopItems,
     recentCaptures,
     activeEncounters,
     currentEncounter,
@@ -226,6 +263,8 @@ export function useMastersmon({ enabled = true } = {}) {
     refreshAll,
     findEncounter,
     captureCurrent,
+    loadShopItems,
+    buyItem,
     assignTeamSlot,
     removeTeamSlot,
     autoFormTeam,

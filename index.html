@@ -3107,7 +3107,7 @@
                 <button class="ghost" onclick="setMyCaptureFilter('fav', this)">Favoritos</button>
               </div><div class="mycaptures-grid" id="myCaptureGrid"></div></div></section>
           <section id="trade" class="page"><div class="panel"><div class="title-row"><h2>Trade Center</h2><button class="primary">Crear oferta</button></div><div class="grid2"><div class="panel" style="box-shadow:none"><h3>Tu oferta</h3><br><div class="log"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/58.gif"><div><strong>Growlithe Nv. 22</strong><span>Disponible para intercambio</span></div></div><br><button class="primary">Confirmar oferta</button></div><div class="panel" style="box-shadow:none"><h3>Oferta recibida</h3><br><div class="log"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/7.gif"><div><strong>Squirtle Nv. 18</strong><span>Entrenador Aqua</span></div></div><br><button class="ghost">Aceptar trade</button></div></div></div></section>
-          <section id="shop" class="page"><div class="panel"><div class="title-row"><h2>Tienda</h2><span class="muted">Balls, pociones y boosters</span></div><div class="grid4" id="shopGrid"></div></div></section>
+          <section id="shop" class="page"><div class="panel"><div class="title-row"><h2>Tienda</h2><span class="muted">Balls, pociones y boosters</span></div><div class="grid4" id="shopGrid"></div><div id="shopFeedback" class="team-feedback hidden"></div></div></section>
 
           <section id="inventory" class="page">
             <div class="panel">
@@ -4587,6 +4587,7 @@ V28 future database modules to include from the start:
     inventory: [],
     team: [],
     collection: [],
+    shopItems: [],
     pokedexSummary: null,
     pokedex: [],
     maps: [],
@@ -4600,6 +4601,7 @@ V28 future database modules to include from the start:
     selectedTeamSlot: null,
     pendingTeamMonsterId: null,
     teamSaving: false,
+    shopBuying: null,
   };
 
   function resetApiState(){
@@ -4608,6 +4610,7 @@ V28 future database modules to include from the start:
     state.inventory = [];
     state.team = [];
     state.collection = [];
+    state.shopItems = [];
     state.pokedexSummary = null;
     state.pokedex = [];
     state.maps = [];
@@ -4621,6 +4624,7 @@ V28 future database modules to include from the start:
     state.selectedTeamSlot = null;
     state.pendingTeamMonsterId = null;
     state.teamSaving = false;
+    state.shopBuying = null;
   }
 
   function byId(id){ return document.getElementById(id); }
@@ -4752,11 +4756,12 @@ V28 future database modules to include from the start:
 
   async function refreshApiData(){
     state.loading = true;
-    const [profile, inventory, team, collection, summary, maps, captures, pokedex, activeEncounters] = await Promise.all([
+    const [profile, inventory, team, collection, shopItems, summary, maps, captures, pokedex, activeEncounters] = await Promise.all([
       api("/api/me"),
       api("/api/me/inventory"),
       api("/api/me/team"),
       api("/api/me/collection?limit=240"),
+      api("/api/shop/items"),
       api("/api/me/pokedex-summary"),
       api("/api/maps"),
       api("/api/server/recent-captures?limit=100"),
@@ -4768,6 +4773,7 @@ V28 future database modules to include from the start:
     state.inventory = Array.isArray(inventory) ? inventory : [];
     setTeamRows(team);
     state.collection = Array.isArray(collection) ? collection : [];
+    state.shopItems = Array.isArray(shopItems) ? shopItems : [];
     state.pokedexSummary = summary || null;
     state.maps = Array.isArray(maps) ? maps : [];
     state.recentCaptures = Array.isArray(captures) ? captures : [];
@@ -4934,6 +4940,117 @@ V28 future database modules to include from the start:
         <br><button class="ghost">Usar</button>
       </div>
     `).join("") || `<p class="muted">No hay items en esta categoría.</p>`;
+  };
+
+  function inventoryQuantity(slug){
+    return Number(state.inventory.find(i => i.item_slug === slug)?.quantity || 0);
+  }
+
+  function shopItemPriceHtml(item){
+    const gold = Number(item.cost_gold || 0);
+    const diamonds = Number(item.cost_diamonds || 0);
+    const parts = [];
+    if(gold > 0) parts.push(`<span class="price-coin">🪙 ${fmt(gold)}</span>`);
+    if(diamonds > 0) parts.push(`<span class="price-diamond">💎 ${fmt(diamonds)}</span>`);
+    return parts.join("") || `<span class="price-diamond">No disponible</span>`;
+  }
+
+  function showShopFeedback(message, type="success"){
+    const box = byId("shopFeedback");
+    if(!box) return;
+    box.textContent = message;
+    box.classList.remove("hidden","fail");
+    if(type === "fail") box.classList.add("fail");
+    clearTimeout(window.__shopFeedbackTimer);
+    window.__shopFeedbackTimer = setTimeout(()=>box.classList.add("hidden"), 2800);
+  }
+
+  function shopActionError(error){
+    if(error?.code === "INSUFFICIENT_GOLD") return "No tienes Pokédolares suficientes.";
+    if(error?.code === "INSUFFICIENT_DIAMONDS") return "No tienes diamantes suficientes.";
+    if(error?.code === "INVALID_QUANTITY") return "Cantidad inválida.";
+    if(error?.code === "ITEM_NOT_FOUND") return "No encontramos ese item.";
+    if(error?.code === "ITEM_NOT_PURCHASABLE") return "Ese item no está disponible para compra.";
+    if(error?.code === "NETWORK_ERROR") return "No se pudo conectar con el servidor.";
+    return "No se pudo completar la compra.";
+  }
+
+  function setShopBuying(itemSlug, quantity, loading){
+    state.shopBuying = loading ? `${itemSlug}:${quantity}` : null;
+    renderShop();
+  }
+
+  window.renderShop = function(){
+    const grid = byId("shopGrid");
+    if(!grid) return;
+    const purchasable = state.shopItems.filter(item => item.is_purchasable);
+    const regular = purchasable.filter(item => !item.is_premium);
+    const premium = purchasable.filter(item => item.is_premium);
+    const renderItem = (item) => {
+      const qty = inventoryQuantity(item.slug);
+      const buying = (quantity) => state.shopBuying === `${item.slug}:${quantity}`;
+      return `<div class="shop-card ${item.is_premium ? 'premium':''}">
+        <img src="${asset(item.icon_path || `/img/items/official/${item.slug}.png`)}" onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png'">
+        <h3>${item.display_name || item.name}</h3>
+        <p class="muted">${item.category_name || item.category_slug || "Item"}${qty ? ` · tienes x${qty}` : ""}</p>
+        <div class="shop-price-row">${shopItemPriceHtml(item)}</div>
+        <div class="team-actions">
+          <button class="primary" ${state.shopBuying ? 'disabled' : ''} onclick="buyShopItem('${item.slug}',1,this)">${buying(1) ? 'Comprando...' : 'x1'}</button>
+          <button class="ghost" ${state.shopBuying ? 'disabled' : ''} onclick="buyShopItem('${item.slug}',5,this)">${buying(5) ? 'Comprando...' : 'x5'}</button>
+          <button class="ghost" ${state.shopBuying ? 'disabled' : ''} onclick="buyShopItem('${item.slug}',10,this)">${buying(10) ? 'Comprando...' : 'x10'}</button>
+        </div>
+      </div>`;
+    };
+    const daily = typeof getDailyDonationMons === "function" ? getDailyDonationMons() : [];
+    grid.className = "";
+    grid.innerHTML = `
+      <div class="shop-section-title"><h3>Tienda principal</h3><span class="muted">Items reales conectados a tu inventario</span></div>
+      <div class="shop-shortcuts">
+        <div class="shortcut-card"><span class="vip-badge">Pase</span><h3>Pase de temporada</h3><p>Ruta gratuita y premium con recompensas por capturas, arena, boss y misiones semanales.</p><br><button class="primary" onclick="showPage('season')">Abrir pase</button><img src="${typeof itemIcon === "function" ? itemIcon('ticket') : asset('/img/items/official/ticket.png')}" onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png'"></div>
+        <div class="shortcut-card"><span class="vip-badge">Skins</span><h3>Skins de entrenador</h3><p>Cosméticos para perfil, ranking y mapa. Incluye skins por diamantes, evento y VIP.</p><br><button class="primary" onclick="showPage('skins')">Ver skins</button><img src="${typeof itemIcon === "function" ? itemIcon('star-piece') : asset('/img/items/official/star-piece.png')}" onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png'"></div>
+      </div>
+      <div class="shop-section-title"><h3>Items principales</h3><span class="muted">Balls, curación, evolución y boosters comprables</span></div>
+      <div class="shop-grid-pro">${regular.map(renderItem).join("") || `<p class="muted">No hay items comprables disponibles.</p>`}</div>
+      <div class="shop-section-title"><h3>Zona VIP / Donación</h3><span class="muted">Beneficios opcionales y premium</span></div>
+      <div class="shop-grid-pro">
+        ${premium.map(renderItem).join("")}
+        <div class="roulette-card"><span class="vip-badge">Bonus diario</span><h3>Pokémon disponibles hoy</h3><p>Solo puedes recibir los Pokémon visibles del día: 1 por $10 o los 2 por $20.</p><div class="roulette-preview">${daily.map(m=>`<img src="${donationSprite(m)}" ${safeAnimatedAttr(m.id)}>`).join('')}</div><div class="roulette-price-row"><span class="roulette-mini-price">$10 · elegir 1</span><span class="roulette-mini-price">$20 · obtener 2</span></div><br><button class="primary" onclick="openDonationRoulette(1)">Donar $10</button> <button class="ghost" onclick="openDonationRoulette(2)">Donar $20</button></div>
+      </div>`;
+  };
+
+  window.buyShopItem = async function(itemSlug, quantity=1, btn=null){
+    if(typeof quantity === "object"){
+      btn = quantity;
+      quantity = 1;
+    }
+    const parsedQuantity = Number(quantity || 1);
+    if(!itemSlug || state.shopBuying) return;
+    setShopBuying(itemSlug, parsedQuantity, true);
+    try{
+      const result = await api("/api/shop/buy", {
+        method: "POST",
+        body: JSON.stringify({itemSlug, quantity: parsedQuantity}),
+      });
+      const [profile, inventory, shopItems] = await Promise.all([
+        api("/api/me"),
+        api("/api/me/inventory"),
+        api("/api/shop/items"),
+      ]);
+      state.profile = profile || state.profile;
+      state.inventory = Array.isArray(inventory) ? inventory : state.inventory;
+      state.shopItems = Array.isArray(shopItems) ? shopItems : state.shopItems;
+      renderWallet();
+      renderInventory();
+      renderShop();
+      updateBattleBallCounts();
+      showShopFeedback("Compra realizada");
+      if(typeof showMapToast === "function") showMapToast(`Compra realizada: x${result.quantity} ${result.item?.display_name || itemSlug}.`, "success");
+    }catch(error){
+      showShopFeedback(shopActionError(error), "fail");
+    }finally{
+      state.shopBuying = null;
+      renderShop();
+    }
   };
 
   function teamCard(row){

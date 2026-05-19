@@ -102,6 +102,17 @@ export function getInventory() {
   return request("/api/me/inventory");
 }
 
+export function getShopItems() {
+  return request("/api/shop/items");
+}
+
+export function buyShopItem(itemSlug, quantity = 1) {
+  return request("/api/shop/buy", {
+    method: "POST",
+    body: JSON.stringify({ itemSlug, quantity }),
+  });
+}
+
 export function getTeam() {
   return request("/api/me/team");
 }
