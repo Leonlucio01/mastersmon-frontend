@@ -1098,6 +1098,14 @@
       flex-direction:column;
       align-items:center;
       justify-content:center;
+      cursor:pointer;
+      position:relative;
+      transition:border-color .16s ease, box-shadow .16s ease, transform .16s ease;
+    }
+    .team-slot.selected{
+      border-color:#2563eb!important;
+      box-shadow:0 0 0 3px rgba(37,99,235,.16)!important;
+      transform:translateY(-1px);
     }
     .team-slot img{
       width:62px!important;
@@ -1114,6 +1122,13 @@
       padding:7px 10px!important;
       font-size:12px!important;
       margin-top:6px!important;
+    }
+    .team-actions{
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+      justify-content:center;
+      margin-top:6px;
     }
     .team-summary{
       grid-template-columns:repeat(3,1fr)!important;
@@ -1144,6 +1159,10 @@
       padding:7px 9px!important;
       font-size:12px!important;
       margin-top:6px!important;
+    }
+    .collection-card.selected{
+      border-color:#2563eb!important;
+      box-shadow:0 0 0 3px rgba(37,99,235,.16)!important;
     }
 
     .team-panel-left,
@@ -2778,7 +2797,7 @@
             </div>
             <div class="lower-grid">
               <div class="panel"><div class="title-row"><h2>Últimas 5 capturas</h2><button class="ghost" onclick="openCapturesModal()">Ver más</button></div><div id="hubCaptures" class="fixed-list small"></div></div>
-              <div class="panel"><div class="title-row"><h2>Mi progreso</h2></div><div class="stats"><div class="stat"><span>Equipo</span><strong>4/6</strong></div><div class="stat"><span>Medallas</span><strong>2/8</strong></div><div class="stat"><span>Shinys</span><strong>3</strong></div></div><br><button class="primary" onclick="openNotifications()">Ver pendientes</button></div>
+              <div class="panel"><div class="title-row"><h2>Mi progreso</h2></div><div class="stats"><div class="stat"><span>Equipo</span><strong id="hubTeamCount">0/6</strong></div><div class="stat"><span>Medallas</span><strong>2/8</strong></div><div class="stat"><span>Shinys</span><strong>3</strong></div></div><br><button class="primary" onclick="openNotifications()">Ver pendientes</button></div>
               <div class="panel"><div class="title-row"><h2>Trade destacado</h2></div><div class="log"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/133.gif"><div><strong>Eevee Nv. 18</strong><span>Buscan: criatura tipo fuego</span></div></div><br><button class="primary" onclick="showPage('trade')">Ver trade center</button></div>
             </div>
 
@@ -2877,7 +2896,7 @@
               <div class="hub-live-card"><b>Recompensa diaria</b><strong>Día 3 listo</strong><span>Rare Candy disponible</span></div>
               <div class="hub-live-card"><b>Boss activo</b><strong>Dragón Solar 82%</strong><span>Ranking diario abierto</span></div>
               <div class="hub-live-card"><b>Ranking rápido</b><strong>#248 Arena</strong><span>+12 puestos esta semana</span></div>
-              <div class="hub-live-card"><b>Equipo actual</b><strong>4 / 6 listo</strong><span>Recomendado: tipo eléctrico</span></div>
+              <div class="hub-live-card"><b>Equipo actual</b><strong id="hubLiveTeamCount">0 / 6 listo</strong><span id="hubTeamRecommendation">Recomendado: tipo eléctrico</span></div>
             </div>
 
             <div class="panel" style="margin-top:18px">
@@ -2997,8 +3016,8 @@
                       <div class="summary-pill"><span>Listo para</span><strong>Arena</strong></div>
                     </div>
                     <div style="margin-top:14px">
-                      <button class="primary" onclick="saveTeam()">Guardar equipo</button>
-                      <button class="ghost" onclick="autoFormTeam()">Auto-formar</button>
+                      <button id="teamSaveBtn" class="primary" onclick="saveTeam()">Guardar equipo</button>
+                      <button id="teamAutoBtn" class="ghost" onclick="autoFormTeam()">Auto-formar</button>
                       <div id="teamFeedback" class="team-feedback hidden"></div>
                     </div>
                   </div>
@@ -4578,6 +4597,9 @@ V28 future database modules to include from the start:
     activeEncounters: [],
     encounterLoading: false,
     selectedBall: "poke-ball",
+    selectedTeamSlot: null,
+    pendingTeamMonsterId: null,
+    teamSaving: false,
   };
 
   function resetApiState(){
@@ -4596,6 +4618,9 @@ V28 future database modules to include from the start:
     state.activeEncounters = [];
     state.encounterLoading = false;
     state.selectedBall = "poke-ball";
+    state.selectedTeamSlot = null;
+    state.pendingTeamMonsterId = null;
+    state.teamSaving = false;
   }
 
   function byId(id){ return document.getElementById(id); }
@@ -4713,6 +4738,18 @@ V28 future database modules to include from the start:
     return data;
   }
 
+  function normalizeTeamRows(rows){
+    const bySlot = new Map((Array.isArray(rows) ? rows : []).map(row => [Number(row.slot_number), row]));
+    return [1,2,3,4,5,6].map(slotNumber => bySlot.get(slotNumber) || {
+      slot_number: slotNumber,
+      player_monster_id: null,
+    });
+  }
+
+  function setTeamRows(rows){
+    state.team = normalizeTeamRows(rows);
+  }
+
   async function refreshApiData(){
     state.loading = true;
     const [profile, inventory, team, collection, summary, maps, captures, pokedex, activeEncounters] = await Promise.all([
@@ -4729,7 +4766,7 @@ V28 future database modules to include from the start:
 
     state.profile = profile || null;
     state.inventory = Array.isArray(inventory) ? inventory : [];
-    state.team = Array.isArray(team) ? team : [];
+    setTeamRows(team);
     state.collection = Array.isArray(collection) ? collection : [];
     state.pokedexSummary = summary || null;
     state.maps = Array.isArray(maps) ? maps : [];
@@ -4942,6 +4979,205 @@ V28 future database modules to include from the start:
         <button class="primary" disabled>${activeIds.has(m.player_monster_id) ? 'En equipo' : 'Próximamente'}</button>
       </div>
     `).join("") || `<p class="muted">Sin capturas.</p>`;
+  };
+
+  function getFirstEmptyTeamSlot(){
+    const empty = normalizeTeamRows(state.team).find(row => !row.player_monster_id);
+    return empty?.slot_number || null;
+  }
+
+  function renderTeamCounters(){
+    const rows = normalizeTeamRows(state.team);
+    const count = rows.filter(row => row.player_monster_id).length;
+    const strongType = rows.find(row => row.primary_type)?.primary_type;
+    const countEl = byId("teamCount"); if(countEl) countEl.textContent = `${count} / 6`;
+    const hubCount = byId("hubTeamCount"); if(hubCount) hubCount.textContent = `${count}/6`;
+    const hubLive = byId("hubLiveTeamCount"); if(hubLive) hubLive.textContent = `${count} / 6 listo`;
+    const recommendation = byId("hubTeamRecommendation");
+    if(recommendation) recommendation.textContent = strongType ? `Fuerte: tipo ${typeEs(strongType)}` : "Agrega criaturas a tu equipo";
+  }
+
+  function setTeamLoading(loading, mode="save"){
+    state.teamSaving = loading;
+    const saveBtn = byId("teamSaveBtn");
+    const autoBtn = byId("teamAutoBtn");
+    if(saveBtn){
+      saveBtn.disabled = loading;
+      saveBtn.textContent = loading && mode === "save" ? "Guardando..." : "Guardar equipo";
+    }
+    if(autoBtn){
+      autoBtn.disabled = loading;
+      autoBtn.textContent = loading && mode === "auto" ? "Formando..." : "Auto-formar";
+    }
+  }
+
+  async function refreshTeamCollection(){
+    const [team, collection] = await Promise.all([
+      api("/api/me/team"),
+      api("/api/me/collection?limit=240"),
+    ]);
+    setTeamRows(team);
+    state.collection = Array.isArray(collection) ? collection : [];
+    renderTeam();
+    renderMyCaptures();
+    renderWallet();
+  }
+
+  function teamActionError(error){
+    if(error?.code === "INVALID_SLOT") return "El slot debe estar entre 1 y 6.";
+    if(error?.code === "MONSTER_NOT_FOUND") return "No encontramos esa criatura.";
+    if(error?.code === "MONSTER_NOT_OWNED") return "Esa criatura no pertenece a tu cuenta.";
+    return "No se pudo actualizar el equipo.";
+  }
+
+  function realTeamCard(row){
+    const slotNumber = Number(row?.slot_number || 1);
+    const selected = Number(state.selectedTeamSlot) === slotNumber;
+    if(!row || !row.player_monster_id){
+      return `<div class="team-slot empty ${selected ? 'selected' : ''}" onclick="selectTeamSlot(${slotNumber})">
+        <div>
+          <div class="slot-num">${slotNumber}</div>
+          <strong>Slot vacÃ­o</strong><br>
+          <span>${selected ? 'Elige una criatura' : 'Clic para asignar'}</span>
+          <div class="team-actions"><button class="ghost" type="button" onclick="event.stopPropagation();selectTeamSlot(${slotNumber})">Asignar aquÃ­</button></div>
+        </div>
+      </div>`;
+    }
+    return `<div class="team-slot ${row.is_shiny ? 'is-shiny':'is-normal'} ${selected ? 'selected' : ''}" onclick="selectTeamSlot(${slotNumber})">
+      <div class="slot-num">${slotNumber}</div>
+      <span class="mon-variant-badge ${row.is_shiny ? 'shiny':'normal'}">${row.is_shiny ? 'âœ¨ Shiny':'Normal'}</span>
+      <img src="${asset(row.selected_sprite_path)}" ${imgFallbackAttr()}>
+      <strong>${row.pokemon_name}</strong>
+      <p class="muted">Nv. ${row.level} Â· ${typeEs(row.primary_type)}${row.secondary_type ? `/${typeEs(row.secondary_type)}` : ""}</p>
+      <div class="team-actions">
+        <button class="ghost" type="button" onclick="event.stopPropagation();selectTeamSlot(${slotNumber})">Reemplazar</button>
+        <button class="ghost" type="button" onclick="event.stopPropagation();removeFromTeam(${slotNumber})">Quitar</button>
+      </div>
+    </div>`;
+  }
+
+  window.renderTeam = function(){
+    const rows = normalizeTeamRows(state.team);
+    const count = rows.filter(x=>x.player_monster_id).length;
+    renderTeamCounters();
+    const slots = byId("teamSlots");
+    if(slots) slots.innerHTML = rows.map(realTeamCard).join("");
+
+    const summary = document.querySelectorAll(".team-summary .summary-pill strong");
+    const power = rows.filter(x=>x.player_monster_id).reduce((n,x)=>n + (Number(x.level || 1) * 120) + (x.is_shiny ? 450 : 0), 0);
+    if(summary[0]) summary[0].textContent = fmt(power);
+    if(summary[1]) summary[1].textContent = typeEs(rows.find(x=>x.primary_type)?.primary_type || "-");
+    if(summary[2]) summary[2].textContent = count >= 6 ? "Completo" : count >= 3 ? "Arena" : "Captura";
+
+    const q = (byId("teamSearch")?.value || "").toLowerCase();
+    const type = byId("teamTypeFilter")?.value || "all";
+    const activeSlotById = new Map(rows.filter(x=>x.player_monster_id).map(x => [x.player_monster_id, x.slot_number]));
+    const activeIds = new Set(activeSlotById.keys());
+    const list = state.collection.filter(m => {
+      const nameOk = !q || String(m.pokemon_name).toLowerCase().includes(q);
+      const typeOk = type === "all" || m.primary_type === type || m.secondary_type === type || (type === "shiny" && m.is_shiny);
+      return nameOk && typeOk;
+    });
+    const col = byId("teamCollection");
+    if(col) col.innerHTML = list.map(m => `
+      <div class="collection-card ${m.is_shiny ? 'is-shiny':'is-normal'} ${activeIds.has(m.player_monster_id) ? 'in-team' : ''} ${state.pendingTeamMonsterId === m.player_monster_id ? 'selected' : ''}">
+        <span class="mon-variant-badge ${m.is_shiny ? 'shiny':'normal'}">${m.is_shiny ? 'âœ¨ Shiny':'Normal'}</span>
+        <img src="${asset(m.selected_sprite_path)}" ${imgFallbackAttr()}>
+        <strong>${m.pokemon_name}</strong>
+        <p>Nv. ${m.level} Â· ${typeEs(m.primary_type)}</p>
+        <button class="primary" type="button" ${state.teamSaving ? 'disabled' : ''} onclick="assignTeamMonster('${m.player_monster_id}')">
+          ${state.selectedTeamSlot ? (activeIds.has(m.player_monster_id) ? `Mover a slot ${state.selectedTeamSlot}` : `Asignar al slot ${state.selectedTeamSlot}`) : (activeIds.has(m.player_monster_id) ? `En slot ${activeSlotById.get(m.player_monster_id)} - mover` : 'Agregar')}
+        </button>
+      </div>
+    `).join("") || `<p class="muted">Sin capturas.</p>`;
+  };
+
+  window.selectTeamSlot = function(slotNumber){
+    state.selectedTeamSlot = parseInt(slotNumber, 10);
+    renderTeam();
+    showTeamFeedback(`Selecciona una criatura para el slot ${state.selectedTeamSlot}.`);
+  };
+
+  window.assignTeamMonster = async function(playerMonsterId){
+    if(!playerMonsterId || state.teamSaving) return;
+    state.pendingTeamMonsterId = playerMonsterId;
+    if(!state.selectedTeamSlot){
+      const currentSlot = normalizeTeamRows(state.team).find(row => row.player_monster_id === playerMonsterId)?.slot_number;
+      state.selectedTeamSlot = currentSlot || getFirstEmptyTeamSlot() || 1;
+    }
+    renderTeam();
+    await window.saveTeam();
+  };
+
+  window.saveTeam = async function(){
+    if(state.teamSaving) return;
+    if(!state.pendingTeamMonsterId){
+      showTeamFeedback("Selecciona una criatura para guardar.", "fail");
+      return;
+    }
+    if(!state.selectedTeamSlot) state.selectedTeamSlot = getFirstEmptyTeamSlot() || 1;
+
+    setTeamLoading(true, "save");
+    try{
+      const team = await api("/api/me/team/slots", {
+        method: "POST",
+        body: JSON.stringify({
+          slotNumber: state.selectedTeamSlot,
+          playerMonsterId: state.pendingTeamMonsterId,
+        }),
+      });
+      setTeamRows(team);
+      state.pendingTeamMonsterId = null;
+      state.selectedTeamSlot = null;
+      await refreshTeamCollection();
+      showTeamFeedback("Equipo actualizado");
+    }catch(error){
+      showTeamFeedback(teamActionError(error), "fail");
+    }finally{
+      setTeamLoading(false, "save");
+      renderTeam();
+    }
+  };
+
+  window.removeFromTeam = async function(slotNumber){
+    if(state.teamSaving) return;
+    const slot = parseInt(slotNumber, 10);
+    setTeamLoading(true, "save");
+    try{
+      const team = await api(`/api/me/team/slots/${slot}`, { method: "DELETE" });
+      setTeamRows(team);
+      state.pendingTeamMonsterId = null;
+      if(Number(state.selectedTeamSlot) === slot) state.selectedTeamSlot = null;
+      await refreshTeamCollection();
+      showTeamFeedback("Criatura removida del equipo");
+    }catch(error){
+      showTeamFeedback(teamActionError(error), "fail");
+    }finally{
+      setTeamLoading(false, "save");
+      renderTeam();
+    }
+  };
+
+  window.addToTeam = function(playerMonsterId){
+    return window.assignTeamMonster(playerMonsterId);
+  };
+
+  window.autoFormTeam = async function(){
+    if(state.teamSaving) return;
+    setTeamLoading(true, "auto");
+    try{
+      const team = await api("/api/me/team/auto", { method: "POST" });
+      setTeamRows(team);
+      state.pendingTeamMonsterId = null;
+      state.selectedTeamSlot = null;
+      await refreshTeamCollection();
+      showTeamFeedback("Equipo autoformado");
+    }catch(error){
+      showTeamFeedback(teamActionError(error), "fail");
+    }finally{
+      setTeamLoading(false, "auto");
+      renderTeam();
+    }
   };
 
   window.renderMyCaptures = function(){

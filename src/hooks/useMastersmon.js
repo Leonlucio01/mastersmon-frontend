@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   captureEncounter,
+  autoBuildTeam,
+  clearTeamSlot,
   createEncounter,
   getActiveEncounters,
   getCollection,
@@ -10,6 +12,7 @@ import {
   getProfile,
   getRecentCaptures,
   getTeam,
+  setTeamSlot,
 } from "../api/mastersmonApi";
 
 function friendlyError(error) {
@@ -150,6 +153,57 @@ export function useMastersmon({ enabled = true } = {}) {
     }
   }, [activeEncounters, currentEncounter, refreshAll]);
 
+  const assignTeamSlot = useCallback(async (slotNumber, playerMonsterId) => {
+    setLoading(true);
+    setError("");
+
+    try {
+      const updatedTeam = await setTeamSlot(slotNumber, playerMonsterId);
+      setTeam(updatedTeam);
+      setCollection(await getCollection({ limit: 120 }));
+      return updatedTeam;
+    } catch (err) {
+      setError(friendlyError(err));
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const removeTeamSlot = useCallback(async (slotNumber) => {
+    setLoading(true);
+    setError("");
+
+    try {
+      const updatedTeam = await clearTeamSlot(slotNumber);
+      setTeam(updatedTeam);
+      setCollection(await getCollection({ limit: 120 }));
+      return updatedTeam;
+    } catch (err) {
+      setError(friendlyError(err));
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const autoFormTeam = useCallback(async () => {
+    setLoading(true);
+    setError("");
+
+    try {
+      const updatedTeam = await autoBuildTeam();
+      setTeam(updatedTeam);
+      setCollection(await getCollection({ limit: 120 }));
+      return updatedTeam;
+    } catch (err) {
+      setError(friendlyError(err));
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (enabled) refreshAll();
   }, [enabled, refreshAll]);
@@ -172,6 +226,9 @@ export function useMastersmon({ enabled = true } = {}) {
     refreshAll,
     findEncounter,
     captureCurrent,
+    assignTeamSlot,
+    removeTeamSlot,
+    autoFormTeam,
     resetGameState,
   };
 }

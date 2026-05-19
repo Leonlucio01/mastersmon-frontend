@@ -106,6 +106,25 @@ export function getTeam() {
   return request("/api/me/team");
 }
 
+export function setTeamSlot(slotNumber, playerMonsterId) {
+  return request("/api/me/team/slots", {
+    method: "POST",
+    body: JSON.stringify({ slotNumber, playerMonsterId }),
+  });
+}
+
+export function clearTeamSlot(slotNumber) {
+  return request(`/api/me/team/slots/${encodeURIComponent(slotNumber)}`, {
+    method: "DELETE",
+  });
+}
+
+export function autoBuildTeam() {
+  return request("/api/me/team/auto", {
+    method: "POST",
+  });
+}
+
 export function getCollection({ limit = 100 } = {}) {
   return request(`/api/me/collection?limit=${encodeURIComponent(limit)}`);
 }
