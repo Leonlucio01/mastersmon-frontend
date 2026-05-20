@@ -151,6 +151,17 @@ export function getMonster(playerMonsterId) {
   return request(`/api/me/monsters/${encodeURIComponent(playerMonsterId)}`);
 }
 
+export function getMonsterEvolutions(playerMonsterId) {
+  return request(`/api/me/monsters/${encodeURIComponent(playerMonsterId)}/evolutions`);
+}
+
+export function evolveMonster({ playerMonsterId, ruleId, toSpeciesId, itemSlug } = {}) {
+  return request("/api/evolutions/evolve", {
+    method: "POST",
+    body: JSON.stringify({ playerMonsterId, ruleId, toSpeciesId, itemSlug }),
+  });
+}
+
 export function getPokedexSummary() {
   return request("/api/me/pokedex-summary");
 }

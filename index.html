@@ -3390,6 +3390,7 @@
   <div id="detailModal" class="overlay hidden"><div class="big-modal"><header><strong id="detailTitle">Ficha Pokémon</strong><button onclick="closeDetail()">×</button></header><div class="big-modal-content" id="detailContent"></div></div></div>
   <div id="battleModal" class="overlay hidden"><div class="big-modal"><header><strong>Battle Arena</strong><button onclick="closeBattle()">×</button></header><div class="big-modal-content" id="battleContent"></div></div></div>
   <div id="itemUseModal" class="overlay hidden"><div class="big-modal"><header><strong id="itemUseTitle">Usar item</strong><button onclick="closeItemUseModal()">×</button></header><div class="big-modal-content" id="itemUseContent"></div></div></div>
+  <div id="evolutionModal" class="overlay hidden"><div class="big-modal"><header><strong id="evolutionTitle">Evolucionar</strong><button onclick="closeEvolutionModal()">×</button></header><div class="big-modal-content" id="evolutionContent"></div></div></div>
   <div id="encounterModal" class="overlay hidden"><div class="big-modal" style="width:min(620px,100%)"><header><strong>Encuentro salvaje</strong><button onclick="closeEncounter()">×</button></header><div class="big-modal-content" id="encounterContent"></div></div></div>
   <div id="notificationsModal" class="overlay hidden"><div class="big-modal" style="width:min(560px,100%)"><header><strong>Notificaciones</strong><button onclick="closeNotifications()">×</button></header><div class="big-modal-content">
     <div class="notification-actions"><span class="muted" id="notificationStatus">3 pendientes</span><button class="primary" onclick="markNotificationsRead()">Marcar todo como leído</button></div>
@@ -4605,6 +4606,8 @@ V28 future database modules to include from the start:
     shopBuying: null,
     selectedItem: null,
     itemUseLoading: false,
+    evolutionLoading: false,
+    selectedEvolutionPayload: null,
   };
 
   function resetApiState(){
@@ -4630,6 +4633,8 @@ V28 future database modules to include from the start:
     state.shopBuying = null;
     state.selectedItem = null;
     state.itemUseLoading = false;
+    state.evolutionLoading = false;
+    state.selectedEvolutionPayload = null;
   }
 
   function byId(id){ return document.getElementById(id); }
@@ -4923,6 +4928,12 @@ V28 future database modules to include from the start:
 
   const USABLE_INVENTORY_ITEMS = new Set(["potion","super-potion","hyper-potion","revive","rare-candy"]);
 
+  function isEvolutionInventoryItem(item){
+    const slug = String(item?.item_slug || item?.slug || "");
+    const category = String(item?.category_slug || item?.category_name || "").toLowerCase();
+    return slug.includes("stone") || category.includes("evolution");
+  }
+
   function getMonsterMaxHp(monster){
     return 20 + Number(monster.level || 1) * 3 + Number(monster.iv_hp || 0);
   }
@@ -4960,6 +4971,16 @@ V28 future database modules to include from the start:
     return c || "misc";
   }
 
+  function inventoryActionButton(item){
+    if(USABLE_INVENTORY_ITEMS.has(item.item_slug)){
+      return `<button class="primary" onclick="openUseItemModal('${item.item_slug}')">Usar</button>`;
+    }
+    if(isEvolutionInventoryItem(item)){
+      return `<button class="primary" onclick="openEvolutionItemModal('${item.item_slug}')">Usar</button>`;
+    }
+    return `<button class="ghost" disabled>No usable</button>`;
+  }
+
   window.renderInventory = function(){
     const grid = byId("inventoryGrid");
     if(!grid) return;
@@ -4971,7 +4992,7 @@ V28 future database modules to include from the start:
         <img src="${asset(i.icon_path)}" onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png'">
         <h3>${i.display_name || i.item_name}</h3>
         <p class="muted">${typeEs(i.category_slug)} ${i.capture_bonus ? `· Bonus x${i.capture_bonus}` : ""}</p>
-        <br><button class="${USABLE_INVENTORY_ITEMS.has(i.item_slug) ? 'primary' : 'ghost'}" ${USABLE_INVENTORY_ITEMS.has(i.item_slug) ? `onclick="openUseItemModal('${i.item_slug}')"` : "disabled"}>${USABLE_INVENTORY_ITEMS.has(i.item_slug) ? "Usar" : ((inventoryCategory(i) === "evo" || String(i.item_slug || "").includes("stone")) ? "Próxima fase" : "No usable")}</button>
+        <br>${inventoryActionButton(i)}
       </div>
     `).join("") || `<p class="muted">No hay items en esta categoría.</p>`;
   };
@@ -5100,6 +5121,187 @@ V28 future database modules to include from the start:
         showMapToast(itemUseError(error), "fail");
       }
     }
+  };
+
+  function evolutionError(error){
+    if(error?.code === "INSUFFICIENT_ITEM" || error?.code === "REQUIRED_ITEM_MISSING") return "No tienes el item requerido.";
+    if(error?.code === "LEVEL_TOO_LOW") return "Nivel insuficiente.";
+    if(error?.code === "ALREADY_FINAL_EVOLUTION") return "Esta criatura no puede evolucionar.";
+    if(error?.code === "EVOLUTION_NOT_AVAILABLE") return "La evolución ya no está disponible.";
+    if(error?.code === "EVOLUTION_NOT_FOUND" || error?.code === "INVALID_EVOLUTION_RULE") return "Esta criatura no puede evolucionar.";
+    return "No se pudo evolucionar.";
+  }
+
+  function evolutionRequirementText(evo){
+    if(evo.required_item_slug){
+      return `Requiere ${evo.required_item_name || evo.required_item_slug} · Tienes ${evo.owned_item_quantity || 0}`;
+    }
+    if(evo.required_level){
+      return `Requiere nivel ${evo.required_level}`;
+    }
+    return evo.reason || "Condición especial";
+  }
+
+  function evolutionSprite(evo, isShiny){
+    return asset(isShiny ? (evo.to_animated_shiny_path || evo.to_shiny_sprite_path || evo.to_animated_path || evo.to_sprite_path) : (evo.to_animated_path || evo.to_sprite_path));
+  }
+
+  function renderEvolutionModal(payload, onlyItemSlug=null, feedback=""){
+    const content = byId("evolutionContent");
+    const title = byId("evolutionTitle");
+    if(!content || !title) return;
+    const monster = payload?.monster || {};
+    const options = (payload?.evolutions || []).filter(evo => !onlyItemSlug || evo.required_item_slug === onlyItemSlug);
+    title.textContent = `Evolucionar ${monster.pokemon_name || "criatura"}`;
+
+    if(!options.length){
+      content.innerHTML = `
+        <p class="muted">${onlyItemSlug ? "No tienes criaturas compatibles con esta piedra." : "Esta criatura no puede evolucionar."}</p>
+        <div id="evolutionFeedback" class="auth-error ${feedback ? "" : "hidden"}">${feedback}</div>
+      `;
+      return;
+    }
+
+    content.innerHTML = `
+      <div id="evolutionFeedback" class="auth-error ${feedback ? "" : "hidden"}">${feedback}</div>
+      <div class="collection-grid">
+        ${options.map(evo => `
+          <div class="collection-card ${evo.can_evolve ? "is-shiny" : "is-normal"}">
+            <div class="pro-evo" style="margin:0">
+              <div class="pro-evo-node"><img src="${asset(monster.selected_sprite_path)}" ${imgFallbackAttr()}><strong>${monster.pokemon_name}</strong><small>Nv. ${monster.level}</small></div>
+              <div class="pro-arrow">→</div>
+              <div class="pro-evo-node"><img src="${evolutionSprite(evo, monster.is_shiny)}" ${imgFallbackAttr()}><strong>${evo.to_pokemon_name}</strong><small>${evo.trigger}</small></div>
+            </div>
+            <p class="muted">${evolutionRequirementText(evo)}</p>
+            ${evo.can_evolve ? `<button class="primary" ${state.evolutionLoading ? "disabled" : ""} onclick="evolveMonster('${monster.player_monster_id}','${evo.rule_id}')">${state.evolutionLoading ? "Evolucionando..." : "Evolucionar"}</button>` : `<button class="ghost" disabled>${evo.reason || "No disponible"}</button>`}
+          </div>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  async function refreshAfterEvolution(result){
+    state.inventory = Array.isArray(result.inventory) ? result.inventory : await api("/api/me/inventory");
+    setTeamRows(Array.isArray(result.team) ? result.team : await api("/api/me/team"));
+    const [collection, summary, pokedex, captures] = await Promise.all([
+      api("/api/me/collection?limit=240"),
+      api("/api/me/pokedex-summary"),
+      api("/api/me/pokedex?generation=1"),
+      api("/api/server/recent-captures?limit=100"),
+    ]);
+    state.collection = Array.isArray(collection) ? collection : [];
+    state.pokedexSummary = summary || state.pokedexSummary;
+    state.pokedex = Array.isArray(pokedex) ? pokedex : state.pokedex;
+    state.recentCaptures = Array.isArray(captures) ? captures : state.recentCaptures;
+    renderInventory();
+    renderTeam();
+    renderMyCaptures();
+    renderDex();
+    renderCaptures();
+    renderWallet();
+  }
+
+  window.openMonsterEvolutionModal = async function(playerMonsterId, onlyItemSlug=null){
+    const modal = byId("evolutionModal");
+    const content = byId("evolutionContent");
+    if(!modal || !content) return;
+    modal.classList.remove("hidden");
+    content.innerHTML = `<p class="muted">Buscando evoluciones disponibles...</p>`;
+    try{
+      const payload = await api(`/api/me/monsters/${encodeURIComponent(playerMonsterId)}/evolutions`);
+      state.selectedEvolutionPayload = payload;
+      renderEvolutionModal(payload, onlyItemSlug);
+    }catch(error){
+      content.innerHTML = `<div class="auth-error">${evolutionError(error)}</div>`;
+    }
+  };
+
+  window.openEvolutionItemModal = async function(itemSlug){
+    const modal = byId("evolutionModal");
+    const title = byId("evolutionTitle");
+    const content = byId("evolutionContent");
+    if(!modal || !title || !content) return;
+    modal.classList.remove("hidden");
+    title.textContent = `Usar ${findInventoryItem(itemSlug)?.display_name || itemSlug}`;
+    content.innerHTML = `<p class="muted">Buscando criaturas compatibles...</p>`;
+    try{
+      const payloads = await Promise.all(state.collection.map(monster =>
+        api(`/api/me/monsters/${encodeURIComponent(monster.player_monster_id)}/evolutions`).catch(()=>null)
+      ));
+      const compatible = payloads
+        .filter(Boolean)
+        .map(payload => ({
+          ...payload,
+          evolutions: (payload.evolutions || []).filter(evo => evo.required_item_slug === itemSlug),
+        }))
+        .filter(payload => payload.evolutions.length);
+
+      if(!compatible.length){
+        content.innerHTML = `<p class="muted">No tienes criaturas compatibles con esta piedra.</p>`;
+        return;
+      }
+
+      title.textContent = `Usar ${findInventoryItem(itemSlug)?.display_name || itemSlug}`;
+      content.innerHTML = compatible.map(payload => {
+        const monster = payload.monster || {};
+        return `
+          <section class="pro-panel">
+            <div class="pro-panel-title"><h3>${monster.pokemon_name}</h3><span>Nv. ${monster.level}</span></div>
+            <div class="collection-grid">${(payload.evolutions || []).map(evo => `
+              <div class="collection-card ${evo.can_evolve ? "is-shiny" : "is-normal"}">
+                <div class="pro-evo" style="margin:0">
+                  <div class="pro-evo-node"><img src="${asset(monster.selected_sprite_path)}" ${imgFallbackAttr()}><strong>${monster.pokemon_name}</strong></div>
+                  <div class="pro-arrow">→</div>
+                  <div class="pro-evo-node"><img src="${evolutionSprite(evo, monster.is_shiny)}" ${imgFallbackAttr()}><strong>${evo.to_pokemon_name}</strong></div>
+                </div>
+                <p class="muted">${evolutionRequirementText(evo)}</p>
+                ${evo.can_evolve ? `<button class="primary" ${state.evolutionLoading ? "disabled" : ""} onclick="evolveMonster('${monster.player_monster_id}','${evo.rule_id}')">${state.evolutionLoading ? "Evolucionando..." : "Evolucionar"}</button>` : `<button class="ghost" disabled>${evo.reason || "No disponible"}</button>`}
+              </div>
+            `).join("")}</div>
+          </section>
+        `;
+      }).join("") + `<div id="evolutionFeedback" class="auth-error hidden"></div>`;
+    }catch(error){
+      content.innerHTML = `<div class="auth-error">${evolutionError(error)}</div>`;
+    }
+  };
+
+  window.evolveMonster = async function(playerMonsterId, ruleId){
+    if(state.evolutionLoading) return;
+    state.evolutionLoading = true;
+    const feedback = byId("evolutionFeedback");
+    if(feedback){
+      feedback.textContent = "";
+      feedback.classList.add("hidden");
+    }
+    try{
+      const result = await api("/api/evolutions/evolve", {
+        method: "POST",
+        body: JSON.stringify({playerMonsterId, ruleId}),
+      });
+      await refreshAfterEvolution(result);
+      closeEvolutionModal();
+      closeDetail();
+      if(typeof showMapToast === "function"){
+        showMapToast(`¡${result.evolution?.from_pokemon_name || "Tu criatura"} evolucionó a ${result.evolution?.to_pokemon_name || "su nueva forma"}!`, "success");
+      }
+    }catch(error){
+      const box = byId("evolutionFeedback");
+      if(box){
+        box.textContent = evolutionError(error);
+        box.classList.remove("hidden");
+      }else if(typeof showMapToast === "function"){
+        showMapToast(evolutionError(error), "fail");
+      }
+    }finally{
+      state.evolutionLoading = false;
+    }
+  };
+
+  window.closeEvolutionModal = function(){
+    byId("evolutionModal")?.classList.add("hidden");
+    state.selectedEvolutionPayload = null;
+    state.evolutionLoading = false;
   };
 
   function inventoryQuantity(slug){
@@ -5457,6 +5659,43 @@ V28 future database modules to include from the start:
     }
   };
 
+  window.openApiMonsterDetail = async function(playerMonsterId){
+    const monster = state.collection.find(m => m.player_monster_id === playerMonsterId);
+    const modal = byId("detailModal");
+    const title = byId("detailTitle");
+    const content = byId("detailContent");
+    if(!modal || !title || !content || !monster) return;
+    title.textContent = `#${monster.dex_number || "-"} ${monster.pokemon_name}`;
+    const maxHp = getMonsterMaxHp(monster);
+    const currentHp = getMonsterCurrentHp(monster);
+    content.innerHTML = `
+      <div class="detail-pro">
+        <aside class="detail-pro-card ${monster.is_shiny ? "is-shiny" : "is-normal"}">
+          <div class="detail-pro-art"><div class="detail-pro-badges"><span class="pill">Nv. ${monster.level}</span><span class="pill ${monster.is_shiny ? "gold" : "blue"}">${monster.is_shiny ? "Shiny" : "Normal"}</span></div><img src="${asset(monster.selected_sprite_path)}" ${imgFallbackAttr()}></div>
+          <h2>${monster.pokemon_name}</h2>
+          <div class="detail-pro-sub">${typeEs(monster.primary_type)}${monster.secondary_type ? ` / ${typeEs(monster.secondary_type)}` : ""}</div>
+        </aside>
+        <main class="detail-pro-main">
+          <section class="pro-panel">
+            <div class="pro-panel-title"><div><div class="eyebrow">Perfil del entrenador</div><h2>${monster.pokemon_name}</h2><span>Esta ficha usa tu criatura real de PostgreSQL.</span></div></div>
+            <div class="pro-metrics">
+              ${proMetric("Nivel", monster.level)}
+              ${proMetric("HP", `${currentHp}/${maxHp}`)}
+              ${proMetric("Equipo", state.team.some(row => row.player_monster_id === playerMonsterId) ? "Activo" : "No")}
+              ${proMetric("Captura", monster.captured_at ? new Date(monster.captured_at).toLocaleDateString("es-ES") : "-")}
+            </div>
+          </section>
+          <section class="pro-panel">
+            <div class="pro-panel-title"><h3>Evolución real</h3><span>Nivel o piedra evolutiva</span></div>
+            <p class="muted">Consulta las reglas disponibles y evoluciona sin crear una criatura nueva.</p>
+            <br><button class="primary" onclick="openMonsterEvolutionModal('${playerMonsterId}')">Evolucionar</button>
+          </section>
+        </main>
+      </div>
+    `;
+    modal.classList.remove("hidden");
+  };
+
   window.renderMyCaptures = function(){
     const grid = byId("myCaptureGrid");
     if(!grid) return;
@@ -5472,7 +5711,8 @@ V28 future database modules to include from the start:
         <img src="${asset(m.selected_sprite_path)}" ${imgFallbackAttr()}>
         <strong>${m.pokemon_name}</strong>
         <p>Nv. ${m.level} · ${typeEs(m.primary_type)}${activeIds.has(m.player_monster_id) ? ' · Equipo' : ''}</p>
-        <button class="ghost" style="margin-top:10px" onclick="alert('Ficha real en siguiente paso')">Ver ficha</button>
+        <button class="ghost" style="margin-top:10px" onclick="openApiMonsterDetail('${m.player_monster_id}')">Ver ficha</button>
+        <button class="primary" style="margin-top:10px" onclick="openMonsterEvolutionModal('${m.player_monster_id}')">Evolucionar</button>
       </div>
     `).join("") || `<p class="muted">No tienes capturas todavía.</p>`;
   };

@@ -5,10 +5,12 @@ import {
   autoBuildTeam,
   clearTeamSlot,
   createEncounter,
+  evolveMonster,
   getActiveEncounters,
   getCollection,
   getInventory,
   getMaps,
+  getMonsterEvolutions,
   getPokedexSummary,
   getProfile,
   getRecentCaptures,
@@ -49,6 +51,9 @@ export function useMastersmon({ enabled = true } = {}) {
   const [shopItems, setShopItems] = useState([]);
   const [recentCaptures, setRecentCaptures] = useState([]);
   const [activeEncounters, setActiveEncounters] = useState([]);
+  const [availableEvolutions, setAvailableEvolutions] = useState([]);
+  const [selectedEvolutionMonster, setSelectedEvolutionMonster] = useState(null);
+  const [evolutionModalOpen, setEvolutionModalOpen] = useState(false);
 
   const [currentEncounter, setCurrentEncounter] = useState(null);
   const [lastCaptureResult, setLastCaptureResult] = useState(null);
@@ -66,6 +71,9 @@ export function useMastersmon({ enabled = true } = {}) {
     setShopItems([]);
     setRecentCaptures([]);
     setActiveEncounters([]);
+    setAvailableEvolutions([]);
+    setSelectedEvolutionMonster(null);
+    setEvolutionModalOpen(false);
     setCurrentEncounter(null);
     setLastCaptureResult(null);
     setSelectedMap("bosque-verde");
@@ -266,6 +274,42 @@ export function useMastersmon({ enabled = true } = {}) {
     }
   }, []);
 
+  const loadMonsterEvolutions = useCallback(async (playerMonsterId) => {
+    const payload = await getMonsterEvolutions(playerMonsterId);
+    setSelectedEvolutionMonster(payload?.monster || null);
+    setAvailableEvolutions(payload?.evolutions || []);
+    setEvolutionModalOpen(true);
+    return payload;
+  }, []);
+
+  const evolveSelectedMonster = useCallback(async ({ playerMonsterId, ruleId, toSpeciesId, itemSlug }) => {
+    setLoading(true);
+    setError("");
+
+    try {
+      const result = await evolveMonster({ playerMonsterId, ruleId, toSpeciesId, itemSlug });
+      const [inventoryData, collectionData, teamData, pokedexSummaryData] = await Promise.all([
+        getInventory(),
+        getCollection({ limit: 120 }),
+        getTeam(),
+        getPokedexSummary(),
+      ]);
+      setInventory(inventoryData);
+      setCollection(collectionData);
+      setTeam(teamData);
+      setPokedexSummary(pokedexSummaryData);
+      setAvailableEvolutions([]);
+      setSelectedEvolutionMonster(null);
+      setEvolutionModalOpen(false);
+      return result;
+    } catch (err) {
+      setError(friendlyError(err));
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (enabled) refreshAll();
   }, [enabled, refreshAll]);
@@ -282,6 +326,9 @@ export function useMastersmon({ enabled = true } = {}) {
     shopItems,
     recentCaptures,
     activeEncounters,
+    availableEvolutions,
+    selectedEvolutionMonster,
+    evolutionModalOpen,
     currentEncounter,
     lastCaptureResult,
     selectedMap,
@@ -292,6 +339,8 @@ export function useMastersmon({ enabled = true } = {}) {
     loadShopItems,
     buyItem,
     useInventoryItem,
+    loadMonsterEvolutions,
+    evolveSelectedMonster,
     assignTeamSlot,
     removeTeamSlot,
     autoFormTeam,
