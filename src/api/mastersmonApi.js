@@ -113,6 +113,13 @@ export function buyShopItem(itemSlug, quantity = 1) {
   });
 }
 
+export function useItem({ itemSlug, playerMonsterId, quantity = 1 }) {
+  return request("/api/items/use", {
+    method: "POST",
+    body: JSON.stringify({ itemSlug, playerMonsterId, quantity }),
+  });
+}
+
 export function getTeam() {
   return request("/api/me/team");
 }
@@ -138,6 +145,10 @@ export function autoBuildTeam() {
 
 export function getCollection({ limit = 100 } = {}) {
   return request(`/api/me/collection?limit=${encodeURIComponent(limit)}`);
+}
+
+export function getMonster(playerMonsterId) {
+  return request(`/api/me/monsters/${encodeURIComponent(playerMonsterId)}`);
 }
 
 export function getPokedexSummary() {

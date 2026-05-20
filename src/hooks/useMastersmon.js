@@ -15,6 +15,7 @@ import {
   getShopItems,
   getTeam,
   setTeamSlot,
+  useItem,
 } from "../api/mastersmonApi";
 
 function friendlyError(error) {
@@ -240,6 +241,31 @@ export function useMastersmon({ enabled = true } = {}) {
     }
   }, []);
 
+  const useInventoryItem = useCallback(async (itemSlug, playerMonsterId, quantity = 1) => {
+    setLoading(true);
+    setError("");
+
+    try {
+      const result = await useItem({ itemSlug, playerMonsterId, quantity });
+      const [inventoryData, collectionData, teamData, pokedexSummaryData] = await Promise.all([
+        getInventory(),
+        getCollection({ limit: 120 }),
+        getTeam(),
+        getPokedexSummary(),
+      ]);
+      setInventory(inventoryData);
+      setCollection(collectionData);
+      setTeam(teamData);
+      setPokedexSummary(pokedexSummaryData);
+      return result;
+    } catch (err) {
+      setError(friendlyError(err));
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (enabled) refreshAll();
   }, [enabled, refreshAll]);
@@ -265,6 +291,7 @@ export function useMastersmon({ enabled = true } = {}) {
     captureCurrent,
     loadShopItems,
     buyItem,
+    useInventoryItem,
     assignTeamSlot,
     removeTeamSlot,
     autoFormTeam,

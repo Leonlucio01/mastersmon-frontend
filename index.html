@@ -3389,6 +3389,7 @@
   <div id="capturesModal" class="overlay hidden"><div class="modal-window" style="position:relative;right:auto;bottom:auto;width:min(760px,100%);max-height:86vh"><header><strong>Últimas 100 capturas del servidor</strong><button onclick="closeCapturesModal()">×</button></header><div class="modal-body"><div id="captureModalList" class="fixed-list" style="max-height:70vh"></div></div></div></div>
   <div id="detailModal" class="overlay hidden"><div class="big-modal"><header><strong id="detailTitle">Ficha Pokémon</strong><button onclick="closeDetail()">×</button></header><div class="big-modal-content" id="detailContent"></div></div></div>
   <div id="battleModal" class="overlay hidden"><div class="big-modal"><header><strong>Battle Arena</strong><button onclick="closeBattle()">×</button></header><div class="big-modal-content" id="battleContent"></div></div></div>
+  <div id="itemUseModal" class="overlay hidden"><div class="big-modal"><header><strong id="itemUseTitle">Usar item</strong><button onclick="closeItemUseModal()">×</button></header><div class="big-modal-content" id="itemUseContent"></div></div></div>
   <div id="encounterModal" class="overlay hidden"><div class="big-modal" style="width:min(620px,100%)"><header><strong>Encuentro salvaje</strong><button onclick="closeEncounter()">×</button></header><div class="big-modal-content" id="encounterContent"></div></div></div>
   <div id="notificationsModal" class="overlay hidden"><div class="big-modal" style="width:min(560px,100%)"><header><strong>Notificaciones</strong><button onclick="closeNotifications()">×</button></header><div class="big-modal-content">
     <div class="notification-actions"><span class="muted" id="notificationStatus">3 pendientes</span><button class="primary" onclick="markNotificationsRead()">Marcar todo como leído</button></div>
@@ -4602,6 +4603,8 @@ V28 future database modules to include from the start:
     pendingTeamMonsterId: null,
     teamSaving: false,
     shopBuying: null,
+    selectedItem: null,
+    itemUseLoading: false,
   };
 
   function resetApiState(){
@@ -4625,6 +4628,8 @@ V28 future database modules to include from the start:
     state.pendingTeamMonsterId = null;
     state.teamSaving = false;
     state.shopBuying = null;
+    state.selectedItem = null;
+    state.itemUseLoading = false;
   }
 
   function byId(id){ return document.getElementById(id); }
@@ -4916,30 +4921,185 @@ V28 future database modules to include from the start:
     const modal = byId("captureModalList"); if(modal) modal.innerHTML = html;
   };
 
+  const USABLE_INVENTORY_ITEMS = new Set(["potion","super-potion","hyper-potion","revive","rare-candy"]);
+
+  function getMonsterMaxHp(monster){
+    return 20 + Number(monster.level || 1) * 3 + Number(monster.iv_hp || 0);
+  }
+
+  function getMonsterCurrentHp(monster){
+    const maxHp = getMonsterMaxHp(monster);
+    return monster.current_hp === null || monster.current_hp === undefined ? maxHp : Number(monster.current_hp);
+  }
+
+  function itemUseLabel(slug){
+    if(slug === "rare-candy") return "Rare Candy usado";
+    if(slug === "revive") return "Revive usado";
+    if(slug === "potion" || slug === "super-potion" || slug === "hyper-potion") return "Criatura curada";
+    return "Item usado";
+  }
+
+  function itemUseError(error){
+    if(error?.code === "INSUFFICIENT_ITEM") return "No tienes suficientes items.";
+    if(error?.code === "MONSTER_ALREADY_FULL_HP") return "La criatura ya tiene HP completo.";
+    if(error?.code === "MONSTER_NOT_FAINTED") return "La criatura no está debilitada.";
+    if(error?.code === "MAX_LEVEL_REACHED") return "La criatura ya está en nivel máximo.";
+    if(error?.code === "ITEM_NOT_USABLE") return "Disponible en próxima fase.";
+    if(error?.code === "MONSTER_NOT_FOUND" || error?.code === "MONSTER_NOT_OWNED") return "No se pudo seleccionar esa criatura.";
+    return "No se pudo usar el item.";
+  }
+
+  function inventoryCategory(item){
+    const s = item.item_slug || "";
+    const c = item.category_slug || "";
+    if(s.includes("ball") || c.includes("ball")) return "balls";
+    if(c.includes("heal") || c.includes("revival") || s.includes("potion") || s.includes("revive")) return "heal";
+    if(s.includes("candy")) return "candy";
+    if(s.includes("ticket")) return "ticket";
+    if(s.includes("stone")) return "evo";
+    return c || "misc";
+  }
+
   window.renderInventory = function(){
     const grid = byId("inventoryGrid");
     if(!grid) return;
     const filter = window.inventoryFilter || "all";
-    const mapCat = (item) => {
-      const s = item.item_slug || "";
-      const c = item.category_slug || "";
-      if(s.includes("ball") || c.includes("ball")) return "balls";
-      if(c.includes("heal") || s.includes("potion")) return "heal";
-      if(s.includes("candy")) return "candy";
-      if(s.includes("ticket")) return "ticket";
-      if(s.includes("stone")) return "evo";
-      return c || "misc";
-    };
-    const list = state.inventory.filter(i => filter === "all" || mapCat(i) === filter);
+    const list = state.inventory.filter(i => filter === "all" || inventoryCategory(i) === filter);
     grid.innerHTML = list.map(i => `
       <div class="item-card">
         <span class="item-count">x${i.quantity}</span>
         <img src="${asset(i.icon_path)}" onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png'">
         <h3>${i.display_name || i.item_name}</h3>
         <p class="muted">${typeEs(i.category_slug)} ${i.capture_bonus ? `· Bonus x${i.capture_bonus}` : ""}</p>
-        <br><button class="ghost">Usar</button>
+        <br><button class="${USABLE_INVENTORY_ITEMS.has(i.item_slug) ? 'primary' : 'ghost'}" ${USABLE_INVENTORY_ITEMS.has(i.item_slug) ? `onclick="openUseItemModal('${i.item_slug}')"` : "disabled"}>${USABLE_INVENTORY_ITEMS.has(i.item_slug) ? "Usar" : ((inventoryCategory(i) === "evo" || String(i.item_slug || "").includes("stone")) ? "Próxima fase" : "No usable")}</button>
       </div>
     `).join("") || `<p class="muted">No hay items en esta categoría.</p>`;
+  };
+
+  function findInventoryItem(itemSlug){
+    return state.inventory.find(item => item.item_slug === itemSlug) || null;
+  }
+
+  function getItemUseCandidates(itemSlug){
+    const activeIds = new Set(state.team.map(row => row.player_monster_id).filter(Boolean));
+    return state.collection.filter(monster => {
+      const currentHp = getMonsterCurrentHp(monster);
+      const maxHp = getMonsterMaxHp(monster);
+      if(itemSlug === "revive") return currentHp <= 0;
+      if(itemSlug === "rare-candy") return Number(monster.level || 1) < 100;
+      if(itemSlug === "potion" || itemSlug === "super-potion" || itemSlug === "hyper-potion") return currentHp < maxHp;
+      return false;
+    }).map(monster => ({
+      ...monster,
+      inTeam: activeIds.has(monster.player_monster_id),
+    }));
+  }
+
+  function emptyItemUseMessage(itemSlug){
+    if(itemSlug === "revive") return "No tienes criaturas debilitadas.";
+    if(itemSlug === "rare-candy") return "No tienes criaturas por debajo del nivel máximo.";
+    if(itemSlug === "potion" || itemSlug === "super-potion" || itemSlug === "hyper-potion") return "No hay criaturas que puedan curarse.";
+    return "Disponible en próxima fase.";
+  }
+
+  window.openUseItemModal = function(itemSlug){
+    const modal = byId("itemUseModal");
+    const title = byId("itemUseTitle");
+    const content = byId("itemUseContent");
+    if(!modal || !title || !content) return;
+
+    const item = findInventoryItem(itemSlug);
+    state.selectedItem = item;
+    title.textContent = `Usar ${item?.display_name || item?.item_name || itemSlug}`;
+
+    if(!item || !USABLE_INVENTORY_ITEMS.has(itemSlug)){
+      content.innerHTML = `<p class="muted">Disponible en próxima fase.</p>`;
+      modal.classList.remove("hidden");
+      return;
+    }
+
+    const candidates = getItemUseCandidates(itemSlug);
+    if(!candidates.length){
+      content.innerHTML = `
+        <p class="muted">${emptyItemUseMessage(itemSlug)}</p>
+        <div id="itemUseFeedback" class="auth-error hidden"></div>
+      `;
+      modal.classList.remove("hidden");
+      return;
+    }
+
+    content.innerHTML = `
+      <p class="muted">Elige una criatura de tu colección.</p>
+      <div id="itemUseFeedback" class="auth-error hidden"></div>
+      <div class="collection-grid">
+        ${candidates.map(monster => {
+          const currentHp = getMonsterCurrentHp(monster);
+          const maxHp = getMonsterMaxHp(monster);
+          return `
+            <div class="collection-card ${monster.is_shiny ? 'is-shiny' : 'is-normal'}">
+              <img src="${asset(monster.selected_sprite_path)}" ${imgFallbackAttr()}>
+              <h3>${monster.pokemon_name || "Criatura"}</h3>
+              <p>Nv. ${monster.level} · HP ${currentHp}/${maxHp}${monster.inTeam ? " · Equipo" : ""}</p>
+              <button class="primary" ${state.itemUseLoading ? "disabled" : ""} onclick="useInventoryItem('${itemSlug}','${monster.player_monster_id}')">
+                ${state.itemUseLoading ? "Usando..." : "Usar"}
+              </button>
+            </div>
+          `;
+        }).join("")}
+      </div>
+    `;
+    modal.classList.remove("hidden");
+  };
+
+  window.closeItemUseModal = function(){
+    byId("itemUseModal")?.classList.add("hidden");
+    state.selectedItem = null;
+    state.itemUseLoading = false;
+  };
+
+  window.useInventoryItem = async function(itemSlug, playerMonsterId){
+    if(state.itemUseLoading) return;
+    const feedback = byId("itemUseFeedback");
+    state.itemUseLoading = true;
+    if(feedback){
+      feedback.textContent = "";
+      feedback.classList.add("hidden");
+    }
+    window.openUseItemModal(itemSlug);
+
+    try{
+      const result = await api("/api/items/use", {
+        method: "POST",
+        body: JSON.stringify({itemSlug, playerMonsterId, quantity: 1}),
+      });
+
+      state.inventory = Array.isArray(result.inventory) ? result.inventory : await api("/api/me/inventory");
+      setTeamRows(Array.isArray(result.team) ? result.team : await api("/api/me/team"));
+      const [collection, summary] = await Promise.all([
+        api("/api/me/collection?limit=240"),
+        api("/api/me/pokedex-summary"),
+      ]);
+      state.collection = Array.isArray(collection) ? collection : [];
+      state.pokedexSummary = summary || state.pokedexSummary;
+
+      renderInventory();
+      renderTeam();
+      renderMyCaptures();
+      renderWallet();
+      if(typeof renderDex === "function") renderDex();
+      if(typeof showMapToast === "function") showMapToast(itemUseLabel(itemSlug), "success");
+      window.closeItemUseModal();
+    }catch(error){
+      state.itemUseLoading = false;
+      window.openUseItemModal(itemSlug);
+      const box = byId("itemUseFeedback");
+      if(box){
+        box.textContent = itemUseError(error);
+        box.classList.remove("hidden");
+      }else if(typeof showMapToast === "function"){
+        showMapToast(itemUseError(error), "fail");
+      }
+    }
   };
 
   function inventoryQuantity(slug){
