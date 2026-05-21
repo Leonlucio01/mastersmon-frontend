@@ -9,6 +9,7 @@ import {
   evolveMonster,
   getActiveEncounters,
   getCollection,
+  getGyms,
   getInventory,
   getMaps,
   getMonsterEvolutions,
@@ -19,6 +20,8 @@ import {
   getShopItems,
   getTeam,
   setTeamSlot,
+  startBattle,
+  submitBattleSkill,
   useItem,
 } from "../api/mastersmonApi";
 
@@ -52,11 +55,15 @@ export function useMastersmon({ enabled = true } = {}) {
   const [maps, setMaps] = useState([]);
   const [shopItems, setShopItems] = useState([]);
   const [quests, setQuests] = useState([]);
+  const [gyms, setGyms] = useState([]);
   const [recentCaptures, setRecentCaptures] = useState([]);
   const [activeEncounters, setActiveEncounters] = useState([]);
   const [availableEvolutions, setAvailableEvolutions] = useState([]);
   const [selectedEvolutionMonster, setSelectedEvolutionMonster] = useState(null);
   const [evolutionModalOpen, setEvolutionModalOpen] = useState(false);
+  const [activeBattle, setActiveBattle] = useState(null);
+  const [battleModalOpen, setBattleModalOpen] = useState(false);
+  const [battleLoading, setBattleLoading] = useState(false);
 
   const [currentEncounter, setCurrentEncounter] = useState(null);
   const [lastCaptureResult, setLastCaptureResult] = useState(null);
@@ -73,11 +80,15 @@ export function useMastersmon({ enabled = true } = {}) {
     setMaps([]);
     setShopItems([]);
     setQuests([]);
+    setGyms([]);
     setRecentCaptures([]);
     setActiveEncounters([]);
     setAvailableEvolutions([]);
     setSelectedEvolutionMonster(null);
     setEvolutionModalOpen(false);
+    setActiveBattle(null);
+    setBattleModalOpen(false);
+    setBattleLoading(false);
     setCurrentEncounter(null);
     setLastCaptureResult(null);
     setSelectedMap("bosque-verde");
@@ -97,6 +108,7 @@ export function useMastersmon({ enabled = true } = {}) {
         mapsData,
         shopItemsData,
         questsData,
+        gymsData,
         recentCapturesData,
         activeEncountersData,
       ] = await Promise.all([
@@ -108,6 +120,7 @@ export function useMastersmon({ enabled = true } = {}) {
         getMaps(),
         getShopItems(),
         getQuests(),
+        getGyms(),
         getRecentCaptures({ limit: 20 }),
         getActiveEncounters(),
       ]);
@@ -120,6 +133,7 @@ export function useMastersmon({ enabled = true } = {}) {
       setMaps(mapsData);
       setShopItems(shopItemsData);
       setQuests(questsData);
+      setGyms(gymsData);
       setRecentCaptures(recentCapturesData);
       setActiveEncounters(activeEncountersData);
     } catch (err) {
@@ -367,6 +381,59 @@ export function useMastersmon({ enabled = true } = {}) {
     }
   }, []);
 
+  const loadGyms = useCallback(async () => {
+    const data = await getGyms();
+    setGyms(data);
+    return data;
+  }, []);
+
+  const startGymBattle = useCallback(async (slug) => {
+    setBattleLoading(true);
+    setError("");
+
+    try {
+      const battle = await startBattle({ battleType: "gym", targetSlug: slug });
+      setActiveBattle(battle);
+      setBattleModalOpen(true);
+      return battle;
+    } catch (err) {
+      setError(friendlyError(err));
+      throw err;
+    } finally {
+      setBattleLoading(false);
+    }
+  }, []);
+
+  const useBattleSkill = useCallback(async (skillSlug) => {
+    if (!activeBattle?.battle_id) throw new Error("No hay batalla activa.");
+    setBattleLoading(true);
+    setError("");
+
+    try {
+      const battle = await submitBattleSkill(activeBattle.battle_id, skillSlug);
+      setActiveBattle(battle);
+      if (battle.status !== "active") {
+        const [profileData, questsData] = await Promise.all([
+          getProfile(),
+          getQuests(),
+        ]);
+        setProfile(profileData);
+        setQuests(questsData);
+      }
+      return battle;
+    } catch (err) {
+      setError(friendlyError(err));
+      throw err;
+    } finally {
+      setBattleLoading(false);
+    }
+  }, [activeBattle]);
+
+  const closeBattle = useCallback(() => {
+    setBattleModalOpen(false);
+    setActiveBattle(null);
+  }, []);
+
   useEffect(() => {
     if (enabled) refreshAll();
   }, [enabled, refreshAll]);
@@ -382,11 +449,15 @@ export function useMastersmon({ enabled = true } = {}) {
     maps,
     shopItems,
     quests,
+    gyms,
     recentCaptures,
     activeEncounters,
     availableEvolutions,
     selectedEvolutionMonster,
     evolutionModalOpen,
+    activeBattle,
+    battleModalOpen,
+    battleLoading,
     currentEncounter,
     lastCaptureResult,
     selectedMap,
@@ -397,6 +468,10 @@ export function useMastersmon({ enabled = true } = {}) {
     loadShopItems,
     loadQuests,
     claimQuestReward,
+    loadGyms,
+    startGymBattle,
+    useBattleSkill,
+    closeBattle,
     buyItem,
     useInventoryItem,
     loadMonsterEvolutions,

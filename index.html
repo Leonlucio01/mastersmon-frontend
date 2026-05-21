@@ -4603,6 +4603,7 @@ V28 future database modules to include from the start:
     team: [],
     collection: [],
     quests: [],
+    gyms: [],
     shopItems: [],
     pokedexSummary: null,
     pokedex: [],
@@ -4622,6 +4623,8 @@ V28 future database modules to include from the start:
     selectedItem: null,
     itemUseLoading: false,
     evolutionLoading: false,
+    battleLoading: false,
+    activeBattle: null,
     selectedEvolutionPayload: null,
   };
 
@@ -4632,6 +4635,7 @@ V28 future database modules to include from the start:
     state.team = [];
     state.collection = [];
     state.quests = [];
+    state.gyms = [];
     state.shopItems = [];
     state.pokedexSummary = null;
     state.pokedex = [];
@@ -4651,6 +4655,8 @@ V28 future database modules to include from the start:
     state.selectedItem = null;
     state.itemUseLoading = false;
     state.evolutionLoading = false;
+    state.battleLoading = false;
+    state.activeBattle = null;
     state.selectedEvolutionPayload = null;
   }
 
@@ -4783,13 +4789,14 @@ V28 future database modules to include from the start:
 
   async function refreshApiData(){
     state.loading = true;
-    const [profile, inventory, team, collection, shopItems, quests, summary, maps, captures, pokedex, activeEncounters] = await Promise.all([
+    const [profile, inventory, team, collection, shopItems, quests, gyms, summary, maps, captures, pokedex, activeEncounters] = await Promise.all([
       api("/api/me"),
       api("/api/me/inventory"),
       api("/api/me/team"),
       api("/api/me/collection?limit=240"),
       api("/api/shop/items"),
       api("/api/me/quests"),
+      api("/api/gyms"),
       api("/api/me/pokedex-summary"),
       api("/api/maps"),
       api("/api/server/recent-captures?limit=100"),
@@ -4803,6 +4810,7 @@ V28 future database modules to include from the start:
     state.collection = Array.isArray(collection) ? collection : [];
     state.shopItems = Array.isArray(shopItems) ? shopItems : [];
     state.quests = Array.isArray(quests) ? quests : [];
+    state.gyms = Array.isArray(gyms) ? gyms : [];
     state.pokedexSummary = summary || null;
     state.maps = Array.isArray(maps) ? maps : [];
     state.recentCaptures = Array.isArray(captures) ? captures : [];
@@ -5027,6 +5035,159 @@ V28 future database modules to include from the start:
       state.questClaiming = null;
       renderQuests();
     }
+  };
+
+  function battleErrorText(error){
+    if(error?.code === "TEAM_EMPTY") return "Necesitas al menos una criatura en tu equipo.";
+    if(error?.code === "GYM_NOT_FOUND" || error?.code === "NPC_NOT_FOUND") return "Este gimnasio no está disponible.";
+    if(error?.code === "SKILL_NOT_FOUND" || error?.code === "SKILL_NOT_AVAILABLE") return "Esta skill no está disponible.";
+    if(error?.code === "BATTLE_ALREADY_FINISHED") return "La batalla ya terminó.";
+    if(error?.code === "BATTLE_NOT_OWNED" || error?.code === "BATTLE_NOT_FOUND") return "No se encontró esta batalla.";
+    return "No se pudo ejecutar el turno.";
+  }
+
+  function battleHp(monster){
+    const max = Number(monster?.max_hp || 1);
+    const hp = Math.max(0, Number(monster?.current_hp || 0));
+    return { hp, max, pct: Math.max(0, Math.min(100, Math.round((hp / max) * 100))) };
+  }
+
+  function battleSprite(monster){
+    return asset(monster?.selected_sprite_path);
+  }
+
+  function renderBattleFighter(monster, title){
+    if(!monster) return `<div class="turn-side"><h3>${title}</h3><p class="muted">Sin criatura activa.</p></div>`;
+    const hp = battleHp(monster);
+    return `<div class="turn-side">
+      <div class="turn-side-head"><h3>${title}</h3><span class="battle-mode-pill">${typeEs(monster.primary_type)}</span></div>
+      <div class="turn-fighter">
+        <img src="${battleSprite(monster)}" ${imgFallbackAttr()}>
+        <div>
+          <strong>${monster.is_shiny ? "Shiny " : ""}${monster.pokemon_name}</strong>
+          <p class="muted">Nv. ${monster.level} · ${typeEs(monster.primary_type)}${monster.secondary_type ? `/${typeEs(monster.secondary_type)}` : ""}</p>
+          <div class="hp-line"><span>HP</span><strong>${hp.hp}/${hp.max}</strong></div>
+          <div class="hp-meter ${hp.pct < 25 ? "danger" : ""}"><div style="width:${hp.pct}%"></div></div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  function renderBattleLog(battle){
+    const rows = Array.isArray(battle?.log) ? battle.log.slice(-10) : [];
+    return rows.map(line => `<p>${line}</p>`).join("") || `<p>Elige una skill para iniciar el turno.</p>`;
+  }
+
+  window.renderPveBattle = function(){
+    const battle = state.activeBattle;
+    const content = byId("battleContent");
+    if(!battle || !content) return;
+    const done = battle.status !== "active";
+    const won = battle.winner === "player" || battle.status === "victory";
+    const skills = battle.available_skills || [];
+    document.querySelector("#battleModal header strong").textContent = battle.battle_type === "gym" ? "Batalla de gimnasio" : "Batalla PvE";
+    content.innerHTML = `
+      <div class="turn-battle">
+        <div class="select-banner">${done ? (won ? "Victoria" : "Derrota") : `Turno ${battle.turn || 1}`} · Daño calculado por backend</div>
+        <div class="turn-scoreboard">
+          ${renderBattleFighter(battle.active_player_monster, "Tu Pokémon")}
+          <div class="turn-vs">VS</div>
+          ${renderBattleFighter(battle.active_enemy_monster, "Rival")}
+        </div>
+        <div class="turn-actions">
+          ${skills.map(skill => `<button class="${skill.type_slug === battle.active_player_monster?.primary_type ? "primary" : "ghost"}" ${state.battleLoading || done ? "disabled" : ""} onclick="useBattleSkill('${skill.slug}')">
+            ${state.battleLoading ? "..." : skill.name}<br><small>${typeEs(skill.type_slug)} · Poder ${skill.power} · ${skill.accuracy}%</small>
+          </button>`).join("") || `<button class="ghost" disabled>Sin skills</button>`}
+        </div>
+        <div class="turn-log ${done ? (won ? "turn-final" : "turn-final defeat") : ""}">
+          ${renderBattleLog(battle)}
+        </div>
+        ${done ? `<div class="battle-result-actions">
+          <strong>${won ? "Victoria" : "Derrota"}</strong>
+          ${won && battle.rewards ? `<span class="quest-reward">+${fmt(battle.rewards.gold || 0)} Pokedolares</span>` : ""}
+          <button class="primary" onclick="closeBattle()">Cerrar</button>
+        </div>` : ""}
+      </div>
+    `;
+    byId("battleModal")?.classList.remove("hidden");
+  };
+
+  window.useBattleSkill = async function(skillSlug){
+    if(!state.activeBattle?.battle_id || state.battleLoading) return;
+    state.battleLoading = true;
+    renderPveBattle();
+    try{
+      const battle = await api(`/api/battles/${encodeURIComponent(state.activeBattle.battle_id)}/turn`, {
+        method: "POST",
+        body: JSON.stringify({action:"skill", skillSlug}),
+      });
+      state.activeBattle = battle;
+      if(battle.status !== "active"){
+        const [profile, quests] = await Promise.all([
+          api("/api/me"),
+          api("/api/me/quests"),
+        ]);
+        state.profile = profile || state.profile;
+        state.quests = Array.isArray(quests) ? quests : state.quests;
+        renderWallet();
+        renderQuests();
+        if(battle.winner === "player" && typeof showMapToast === "function") showMapToast("Victoria de gimnasio", "success");
+      }
+      renderPveBattle();
+    }catch(error){
+      if(typeof showMapToast === "function") showMapToast(battleErrorText(error), "fail");
+    }finally{
+      state.battleLoading = false;
+      renderPveBattle();
+    }
+  };
+
+  window.startGymBattle = async function(targetSlug){
+    if(!targetSlug || state.battleLoading) return;
+    state.battleLoading = true;
+    try{
+      const battle = await api("/api/battles/start", {
+        method: "POST",
+        body: JSON.stringify({battleType:"gym", targetSlug}),
+      });
+      state.activeBattle = battle;
+      renderPveBattle();
+    }catch(error){
+      if(typeof showMapToast === "function") showMapToast(battleErrorText(error), "fail");
+      else alert(battleErrorText(error));
+    }finally{
+      state.battleLoading = false;
+      renderPveBattle();
+    }
+  };
+
+  window.closeBattle = function(){
+    state.activeBattle = null;
+    state.battleLoading = false;
+    document.querySelector("#battleModal header strong").textContent = "Battle Arena";
+    byId("battleModal")?.classList.add("hidden");
+  };
+
+  window.renderGyms = function(){
+    const grid = byId("gymTable");
+    if(!grid) return;
+    const region = byId("gymRegion")?.value || "kanto";
+    const rows = state.gyms.filter(g => !region || g.region_slug === region).slice(0, 8);
+    grid.innerHTML = rows.map(g => `
+      <div class="gym-leader-card">
+        <span class="gym-status status-open">Disponible</span>
+        <div class="trainer-frame"><img src="${asset(g.leader_avatar_path || g.badge_icon_path)}" onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/95.png';this.classList.add('fallback-static')"></div>
+        <div>
+          <div class="leader-name">${g.leader_name || g.name}</div>
+          <div class="leader-meta">${g.region_name || "Región"} · ${typeEs(g.type_slug)} · Poder ${fmt(g.recommended_power)}</div>
+          <div class="leader-team"><span class="level-pill">${g.badge_name || "Medalla"}</span><span class="level-pill">${g.team_size || "Auto"} rivales</span></div>
+          <div class="leader-actions">
+            <span class="level-pill">Reward +${fmt(Math.max(500, Number(g.gym_order || 1) * 1000))}</span>
+            <button class="primary" ${state.battleLoading ? "disabled" : ""} onclick="startGymBattle('${g.slug}')">Battle</button>
+          </div>
+        </div>
+      </div>
+    `).join("") || `<p class="muted">No hay gimnasios disponibles para esta región.</p>`;
   };
 
   const USABLE_INVENTORY_ITEMS = new Set(["potion","super-potion","hyper-potion","revive","rare-candy"]);

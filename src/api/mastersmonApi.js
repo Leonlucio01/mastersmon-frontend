@@ -176,6 +176,32 @@ export function claimQuest(questId) {
   });
 }
 
+export function getMonsterSkills(playerMonsterId) {
+  return request(`/api/me/monsters/${encodeURIComponent(playerMonsterId)}/skills`);
+}
+
+export function getGyms() {
+  return request("/api/gyms");
+}
+
+export function startBattle({ battleType = "gym", targetSlug } = {}) {
+  return request("/api/battles/start", {
+    method: "POST",
+    body: JSON.stringify({ battleType, targetSlug }),
+  });
+}
+
+export function getBattle(battleId) {
+  return request(`/api/battles/${encodeURIComponent(battleId)}`);
+}
+
+export function submitBattleSkill(battleId, skillSlug) {
+  return request(`/api/battles/${encodeURIComponent(battleId)}/turn`, {
+    method: "POST",
+    body: JSON.stringify({ action: "skill", skillSlug }),
+  });
+}
+
 export function getPokedex({ generation, caught } = {}) {
   const params = new URLSearchParams();
 
