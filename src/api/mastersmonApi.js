@@ -166,6 +166,16 @@ export function getPokedexSummary() {
   return request("/api/me/pokedex-summary");
 }
 
+export function getQuests() {
+  return request("/api/me/quests");
+}
+
+export function claimQuest(questId) {
+  return request(`/api/me/quests/${encodeURIComponent(questId)}/claim`, {
+    method: "POST",
+  });
+}
+
 export function getPokedex({ generation, caught } = {}) {
   const params = new URLSearchParams();
 

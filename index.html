@@ -2773,6 +2773,7 @@
 
       <div class="app-grid">
         <aside class="menu">
+          <button data-page="quests"><b>Q</b>Misiones</button>
           <button class="active" data-page="hub"><b>🏠</b>Hub</button>
           <button data-page="map"><b>🗺️</b>Mapa</button>
           <button data-page="pokedex"><b>📘</b>Pokédex</button>
@@ -2797,16 +2798,16 @@
             </div>
             <div class="lower-grid">
               <div class="panel"><div class="title-row"><h2>Últimas 5 capturas</h2><button class="ghost" onclick="openCapturesModal()">Ver más</button></div><div id="hubCaptures" class="fixed-list small"></div></div>
-              <div class="panel"><div class="title-row"><h2>Mi progreso</h2></div><div class="stats"><div class="stat"><span>Equipo</span><strong id="hubTeamCount">0/6</strong></div><div class="stat"><span>Medallas</span><strong>2/8</strong></div><div class="stat"><span>Shinys</span><strong>3</strong></div></div><br><button class="primary" onclick="openNotifications()">Ver pendientes</button></div>
+              <div class="panel"><div class="title-row"><h2>Mi progreso</h2></div><div class="stats"><div class="stat"><span>Equipo</span><strong id="hubTeamCount">0/6</strong></div><div class="stat"><span>Medallas</span><strong>2/8</strong></div><div class="stat"><span>Shinys</span><strong>3</strong></div></div><br><button class="primary" onclick="showPage('quests')">Ver pendientes</button></div>
               <div class="panel"><div class="title-row"><h2>Trade destacado</h2></div><div class="log"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/133.gif"><div><strong>Eevee Nv. 18</strong><span>Buscan: criatura tipo fuego</span></div></div><br><button class="primary" onclick="showPage('trade')">Ver trade center</button></div>
             </div>
 
             <div class="panel" style="margin-top:18px">
               <div class="title-row">
                 <h2>Misiones activas</h2>
-                <span class="muted">Principal y diarias</span>
+                <span class="muted">Progreso real</span>
               </div>
-              <div class="quest-grid">
+              <div id="hubQuestGrid" class="quest-grid">
                 <div class="quest-card">
                   <strong>Principal: completa tu equipo 6/6</strong>
                   <p>Captura 2 criaturas más y guarda tu equipo activo.</p>
@@ -2834,6 +2835,18 @@
               </div>
             </div>
 
+          </section>
+
+
+          <section id="quests" class="page">
+            <div class="panel">
+              <div class="title-row">
+                <h2>Misiones</h2>
+                <span class="muted">Progreso y recompensas</span>
+              </div>
+              <div id="questFeedback" class="team-feedback hidden"></div>
+              <div id="questGrid" class="quest-grid"></div>
+            </div>
           </section>
 
 
@@ -4589,6 +4602,7 @@ V28 future database modules to include from the start:
     inventory: [],
     team: [],
     collection: [],
+    quests: [],
     shopItems: [],
     pokedexSummary: null,
     pokedex: [],
@@ -4604,6 +4618,7 @@ V28 future database modules to include from the start:
     pendingTeamMonsterId: null,
     teamSaving: false,
     shopBuying: null,
+    questClaiming: null,
     selectedItem: null,
     itemUseLoading: false,
     evolutionLoading: false,
@@ -4616,6 +4631,7 @@ V28 future database modules to include from the start:
     state.inventory = [];
     state.team = [];
     state.collection = [];
+    state.quests = [];
     state.shopItems = [];
     state.pokedexSummary = null;
     state.pokedex = [];
@@ -4631,6 +4647,7 @@ V28 future database modules to include from the start:
     state.pendingTeamMonsterId = null;
     state.teamSaving = false;
     state.shopBuying = null;
+    state.questClaiming = null;
     state.selectedItem = null;
     state.itemUseLoading = false;
     state.evolutionLoading = false;
@@ -4766,12 +4783,13 @@ V28 future database modules to include from the start:
 
   async function refreshApiData(){
     state.loading = true;
-    const [profile, inventory, team, collection, shopItems, summary, maps, captures, pokedex, activeEncounters] = await Promise.all([
+    const [profile, inventory, team, collection, shopItems, quests, summary, maps, captures, pokedex, activeEncounters] = await Promise.all([
       api("/api/me"),
       api("/api/me/inventory"),
       api("/api/me/team"),
       api("/api/me/collection?limit=240"),
       api("/api/shop/items"),
+      api("/api/me/quests"),
       api("/api/me/pokedex-summary"),
       api("/api/maps"),
       api("/api/server/recent-captures?limit=100"),
@@ -4784,6 +4802,7 @@ V28 future database modules to include from the start:
     setTeamRows(team);
     state.collection = Array.isArray(collection) ? collection : [];
     state.shopItems = Array.isArray(shopItems) ? shopItems : [];
+    state.quests = Array.isArray(quests) ? quests : [];
     state.pokedexSummary = summary || null;
     state.maps = Array.isArray(maps) ? maps : [];
     state.recentCaptures = Array.isArray(captures) ? captures : [];
@@ -4924,6 +4943,90 @@ V28 future database modules to include from the start:
     const hub = byId("hubCaptures"); if(hub) hub.innerHTML = rows.slice(0,5).map(captureRowApi).join("") || html;
     const list = byId("captureList"); if(list) list.innerHTML = rows.slice(0,30).map(captureRowApi).join("") || html;
     const modal = byId("captureModalList"); if(modal) modal.innerHTML = html;
+  };
+
+  function questRewardText(quest){
+    const rewards = quest?.rewards || {};
+    const parts = [];
+    if(Number(rewards.gold || 0) > 0) parts.push(`+${fmt(rewards.gold)} Pokedolares`);
+    if(Number(rewards.diamonds || 0) > 0) parts.push(`+${fmt(rewards.diamonds)} diamantes`);
+    if(rewards.itemSlug && Number(rewards.itemQuantity || 0) > 0) parts.push(`+${rewards.itemQuantity} ${rewards.itemName || rewards.itemSlug}`);
+    return parts.join(" · ") || "Recompensa pendiente";
+  }
+
+  function questStatusText(quest){
+    if(quest.status === "claimed") return "Reclamada";
+    if(quest.can_claim || quest.status === "completed") return "Completada";
+    return "En progreso";
+  }
+
+  function sortedQuests(list){
+    return [...(Array.isArray(list) ? list : [])].sort((a,b) => {
+      const rank = (q) => q.can_claim ? 0 : q.status === "active" ? 1 : 2;
+      return rank(a) - rank(b) || Number(b.percent || 0) - Number(a.percent || 0);
+    });
+  }
+
+  function questCard(quest, compact=false){
+    const pct = Math.max(0, Math.min(100, Number(quest.percent || 0)));
+    const disabled = !quest.can_claim || state.questClaiming === quest.quest_id;
+    return `<div class="quest-card">
+      <strong>${quest.title || "Mision"}</strong>
+      <p>${quest.description || ""}</p>
+      <div class="progress-line"><span style="width:${pct}%"></span></div>
+      <p class="muted">${questStatusText(quest)} · ${fmt(quest.progress)} / ${fmt(quest.target_count)}</p>
+      <span class="quest-reward">${questRewardText(quest)}</span>
+      ${compact ? "" : `<br><button class="primary" ${disabled ? "disabled" : ""} onclick="claimQuestReward('${quest.quest_id}')">${state.questClaiming === quest.quest_id ? "Reclamando..." : quest.can_claim ? "Reclamar" : questStatusText(quest)}</button>`}
+    </div>`;
+  }
+
+  window.renderQuests = function(){
+    const ordered = sortedQuests(state.quests);
+    const hub = byId("hubQuestGrid");
+    if(hub) hub.innerHTML = ordered.slice(0,4).map(q => questCard(q, true)).join("") || `<p class="muted">Cargando misiones...</p>`;
+    const grid = byId("questGrid");
+    if(grid) grid.innerHTML = ordered.map(q => questCard(q)).join("") || `<p class="muted">No hay misiones activas.</p>`;
+  };
+
+  function showQuestFeedback(message, type="success"){
+    const box = byId("questFeedback");
+    if(!box) return;
+    box.textContent = message;
+    box.classList.remove("hidden","fail");
+    if(type === "fail") box.classList.add("fail");
+    clearTimeout(window.__questFeedbackTimer);
+    window.__questFeedbackTimer = setTimeout(()=>box.classList.add("hidden"), 3000);
+  }
+
+  window.claimQuestReward = async function(questId){
+    if(!questId || state.questClaiming) return;
+    state.questClaiming = questId;
+    renderQuests();
+    try{
+      const result = await api(`/api/me/quests/${encodeURIComponent(questId)}/claim`, { method: "POST" });
+      const [profile, inventory, quests] = await Promise.all([
+        api("/api/me"),
+        api("/api/me/inventory"),
+        api("/api/me/quests"),
+      ]);
+      state.profile = profile || state.profile;
+      state.inventory = Array.isArray(inventory) ? inventory : state.inventory;
+      state.quests = Array.isArray(quests) ? quests : state.quests;
+      renderWallet();
+      renderInventory();
+      renderQuests();
+      const rewardText = questRewardText(result.quest || state.quests.find(q => q.quest_id === questId) || {});
+      showQuestFeedback(`Recompensa reclamada: ${rewardText}`);
+      if(typeof showMapToast === "function") showMapToast("Recompensa reclamada", "success");
+    }catch(error){
+      const message = error?.code === "QUEST_ALREADY_CLAIMED" ? "Esta recompensa ya fue reclamada." :
+        error?.code === "QUEST_NOT_COMPLETED" ? "La mision aun no esta completada." :
+        "No se pudo reclamar la recompensa.";
+      showQuestFeedback(message, "fail");
+    }finally{
+      state.questClaiming = null;
+      renderQuests();
+    }
   };
 
   const USABLE_INVENTORY_ITEMS = new Set(["potion","super-potion","hyper-potion","revive","rare-candy"]);
@@ -5096,16 +5199,19 @@ V28 future database modules to include from the start:
 
       state.inventory = Array.isArray(result.inventory) ? result.inventory : await api("/api/me/inventory");
       setTeamRows(Array.isArray(result.team) ? result.team : await api("/api/me/team"));
-      const [collection, summary] = await Promise.all([
+      const [collection, summary, quests] = await Promise.all([
         api("/api/me/collection?limit=240"),
         api("/api/me/pokedex-summary"),
+        api("/api/me/quests"),
       ]);
       state.collection = Array.isArray(collection) ? collection : [];
       state.pokedexSummary = summary || state.pokedexSummary;
+      state.quests = Array.isArray(quests) ? quests : state.quests;
 
       renderInventory();
       renderTeam();
       renderMyCaptures();
+      renderQuests();
       renderWallet();
       if(typeof renderDex === "function") renderDex();
       if(typeof showMapToast === "function") showMapToast(itemUseLabel(itemSlug), "success");
@@ -5183,21 +5289,24 @@ V28 future database modules to include from the start:
   async function refreshAfterEvolution(result){
     state.inventory = Array.isArray(result.inventory) ? result.inventory : await api("/api/me/inventory");
     setTeamRows(Array.isArray(result.team) ? result.team : await api("/api/me/team"));
-    const [collection, summary, pokedex, captures] = await Promise.all([
+    const [collection, summary, pokedex, captures, quests] = await Promise.all([
       api("/api/me/collection?limit=240"),
       api("/api/me/pokedex-summary"),
       api("/api/me/pokedex?generation=1"),
       api("/api/server/recent-captures?limit=100"),
+      api("/api/me/quests"),
     ]);
     state.collection = Array.isArray(collection) ? collection : [];
     state.pokedexSummary = summary || state.pokedexSummary;
     state.pokedex = Array.isArray(pokedex) ? pokedex : state.pokedex;
     state.recentCaptures = Array.isArray(captures) ? captures : state.recentCaptures;
+    state.quests = Array.isArray(quests) ? quests : state.quests;
     renderInventory();
     renderTeam();
     renderMyCaptures();
     renderDex();
     renderCaptures();
+    renderQuests();
     renderWallet();
   }
 
@@ -5393,17 +5502,20 @@ V28 future database modules to include from the start:
         method: "POST",
         body: JSON.stringify({itemSlug, quantity: parsedQuantity}),
       });
-      const [profile, inventory, shopItems] = await Promise.all([
+      const [profile, inventory, shopItems, quests] = await Promise.all([
         api("/api/me"),
         api("/api/me/inventory"),
         api("/api/shop/items"),
+        api("/api/me/quests"),
       ]);
       state.profile = profile || state.profile;
       state.inventory = Array.isArray(inventory) ? inventory : state.inventory;
       state.shopItems = Array.isArray(shopItems) ? shopItems : state.shopItems;
+      state.quests = Array.isArray(quests) ? quests : state.quests;
       renderWallet();
       renderInventory();
       renderShop();
+      renderQuests();
       updateBattleBallCounts();
       showShopFeedback("Compra realizada");
       if(typeof showMapToast === "function") showMapToast(`Compra realizada: x${result.quantity} ${result.item?.display_name || itemSlug}.`, "success");
@@ -5491,14 +5603,17 @@ V28 future database modules to include from the start:
   }
 
   async function refreshTeamCollection(){
-    const [team, collection] = await Promise.all([
+    const [team, collection, quests] = await Promise.all([
       api("/api/me/team"),
       api("/api/me/collection?limit=240"),
+      api("/api/me/quests"),
     ]);
     setTeamRows(team);
     state.collection = Array.isArray(collection) ? collection : [];
+    state.quests = Array.isArray(quests) ? quests : state.quests;
     renderTeam();
     renderMyCaptures();
+    renderQuests();
     renderWallet();
   }
 
@@ -6096,6 +6211,7 @@ V28 future database modules to include from the start:
     renderCaptures();
     renderMaps();
     renderTeam();
+    renderQuests();
     renderDex();
     renderMyCaptures();
     if(typeof renderChat === "function") renderChat();

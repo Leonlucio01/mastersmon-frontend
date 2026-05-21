@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import {
   buyShopItem,
   captureEncounter,
+  claimQuest,
   autoBuildTeam,
   clearTeamSlot,
   createEncounter,
@@ -13,6 +14,7 @@ import {
   getMonsterEvolutions,
   getPokedexSummary,
   getProfile,
+  getQuests,
   getRecentCaptures,
   getShopItems,
   getTeam,
@@ -49,6 +51,7 @@ export function useMastersmon({ enabled = true } = {}) {
   const [pokedexSummary, setPokedexSummary] = useState(null);
   const [maps, setMaps] = useState([]);
   const [shopItems, setShopItems] = useState([]);
+  const [quests, setQuests] = useState([]);
   const [recentCaptures, setRecentCaptures] = useState([]);
   const [activeEncounters, setActiveEncounters] = useState([]);
   const [availableEvolutions, setAvailableEvolutions] = useState([]);
@@ -69,6 +72,7 @@ export function useMastersmon({ enabled = true } = {}) {
     setPokedexSummary(null);
     setMaps([]);
     setShopItems([]);
+    setQuests([]);
     setRecentCaptures([]);
     setActiveEncounters([]);
     setAvailableEvolutions([]);
@@ -92,6 +96,7 @@ export function useMastersmon({ enabled = true } = {}) {
         pokedexSummaryData,
         mapsData,
         shopItemsData,
+        questsData,
         recentCapturesData,
         activeEncountersData,
       ] = await Promise.all([
@@ -102,6 +107,7 @@ export function useMastersmon({ enabled = true } = {}) {
         getPokedexSummary(),
         getMaps(),
         getShopItems(),
+        getQuests(),
         getRecentCaptures({ limit: 20 }),
         getActiveEncounters(),
       ]);
@@ -113,6 +119,7 @@ export function useMastersmon({ enabled = true } = {}) {
       setPokedexSummary(pokedexSummaryData);
       setMaps(mapsData);
       setShopItems(shopItemsData);
+      setQuests(questsData);
       setRecentCaptures(recentCapturesData);
       setActiveEncounters(activeEncountersData);
     } catch (err) {
@@ -176,7 +183,12 @@ export function useMastersmon({ enabled = true } = {}) {
     try {
       const updatedTeam = await setTeamSlot(slotNumber, playerMonsterId);
       setTeam(updatedTeam);
-      setCollection(await getCollection({ limit: 120 }));
+      const [collectionData, questsData] = await Promise.all([
+        getCollection({ limit: 120 }),
+        getQuests(),
+      ]);
+      setCollection(collectionData);
+      setQuests(questsData);
       return updatedTeam;
     } catch (err) {
       setError(friendlyError(err));
@@ -193,7 +205,12 @@ export function useMastersmon({ enabled = true } = {}) {
     try {
       const updatedTeam = await clearTeamSlot(slotNumber);
       setTeam(updatedTeam);
-      setCollection(await getCollection({ limit: 120 }));
+      const [collectionData, questsData] = await Promise.all([
+        getCollection({ limit: 120 }),
+        getQuests(),
+      ]);
+      setCollection(collectionData);
+      setQuests(questsData);
       return updatedTeam;
     } catch (err) {
       setError(friendlyError(err));
@@ -210,7 +227,12 @@ export function useMastersmon({ enabled = true } = {}) {
     try {
       const updatedTeam = await autoBuildTeam();
       setTeam(updatedTeam);
-      setCollection(await getCollection({ limit: 120 }));
+      const [collectionData, questsData] = await Promise.all([
+        getCollection({ limit: 120 }),
+        getQuests(),
+      ]);
+      setCollection(collectionData);
+      setQuests(questsData);
       return updatedTeam;
     } catch (err) {
       setError(friendlyError(err));
@@ -232,14 +254,16 @@ export function useMastersmon({ enabled = true } = {}) {
 
     try {
       const result = await buyShopItem(itemSlug, quantity);
-      const [profileData, inventoryData, shopItemsData] = await Promise.all([
+      const [profileData, inventoryData, shopItemsData, questsData] = await Promise.all([
         getProfile(),
         getInventory(),
         getShopItems(),
+        getQuests(),
       ]);
       setProfile(profileData);
       setInventory(inventoryData);
       setShopItems(shopItemsData);
+      setQuests(questsData);
       return result;
     } catch (err) {
       setError(friendlyError(err));
@@ -255,16 +279,18 @@ export function useMastersmon({ enabled = true } = {}) {
 
     try {
       const result = await useItem({ itemSlug, playerMonsterId, quantity });
-      const [inventoryData, collectionData, teamData, pokedexSummaryData] = await Promise.all([
+      const [inventoryData, collectionData, teamData, pokedexSummaryData, questsData] = await Promise.all([
         getInventory(),
         getCollection({ limit: 120 }),
         getTeam(),
         getPokedexSummary(),
+        getQuests(),
       ]);
       setInventory(inventoryData);
       setCollection(collectionData);
       setTeam(teamData);
       setPokedexSummary(pokedexSummaryData);
+      setQuests(questsData);
       return result;
     } catch (err) {
       setError(friendlyError(err));
@@ -288,19 +314,50 @@ export function useMastersmon({ enabled = true } = {}) {
 
     try {
       const result = await evolveMonster({ playerMonsterId, ruleId, toSpeciesId, itemSlug });
-      const [inventoryData, collectionData, teamData, pokedexSummaryData] = await Promise.all([
+      const [inventoryData, collectionData, teamData, pokedexSummaryData, questsData] = await Promise.all([
         getInventory(),
         getCollection({ limit: 120 }),
         getTeam(),
         getPokedexSummary(),
+        getQuests(),
       ]);
       setInventory(inventoryData);
       setCollection(collectionData);
       setTeam(teamData);
       setPokedexSummary(pokedexSummaryData);
+      setQuests(questsData);
       setAvailableEvolutions([]);
       setSelectedEvolutionMonster(null);
       setEvolutionModalOpen(false);
+      return result;
+    } catch (err) {
+      setError(friendlyError(err));
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const loadQuests = useCallback(async () => {
+    const data = await getQuests();
+    setQuests(data);
+    return data;
+  }, []);
+
+  const claimQuestReward = useCallback(async (questId) => {
+    setLoading(true);
+    setError("");
+
+    try {
+      const result = await claimQuest(questId);
+      const [profileData, inventoryData, questsData] = await Promise.all([
+        getProfile(),
+        getInventory(),
+        getQuests(),
+      ]);
+      setProfile(profileData);
+      setInventory(inventoryData);
+      setQuests(questsData);
       return result;
     } catch (err) {
       setError(friendlyError(err));
@@ -324,6 +381,7 @@ export function useMastersmon({ enabled = true } = {}) {
     pokedexSummary,
     maps,
     shopItems,
+    quests,
     recentCaptures,
     activeEncounters,
     availableEvolutions,
@@ -337,6 +395,8 @@ export function useMastersmon({ enabled = true } = {}) {
     findEncounter,
     captureCurrent,
     loadShopItems,
+    loadQuests,
+    claimQuestReward,
     buyItem,
     useInventoryItem,
     loadMonsterEvolutions,
