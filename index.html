@@ -2798,7 +2798,7 @@
             </div>
             <div class="lower-grid">
               <div class="panel"><div class="title-row"><h2>Últimas 5 capturas</h2><button class="ghost" onclick="openCapturesModal()">Ver más</button></div><div id="hubCaptures" class="fixed-list small"></div></div>
-              <div class="panel"><div class="title-row"><h2>Mi progreso</h2></div><div class="stats"><div class="stat"><span>Equipo</span><strong id="hubTeamCount">0/6</strong></div><div class="stat"><span>Medallas</span><strong>2/8</strong></div><div class="stat"><span>Shinys</span><strong>3</strong></div></div><br><button class="primary" onclick="showPage('quests')">Ver pendientes</button></div>
+              <div class="panel"><div class="title-row"><h2>Mi progreso</h2></div><div class="stats"><div class="stat"><span>Equipo</span><strong id="hubTeamCount">0/6</strong></div><div class="stat"><span>Medallas</span><strong data-gym-badge-count>0/8</strong></div><div class="stat"><span>Siguiente gym</span><strong id="hubNextGym">-</strong></div></div><br><button class="primary" onclick="showPage('quests')">Ver pendientes</button></div>
               <div class="panel"><div class="title-row"><h2>Trade destacado</h2></div><div class="log"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/133.gif"><div><strong>Eevee Nv. 18</strong><span>Buscan: criatura tipo fuego</span></div></div><br><button class="primary" onclick="showPage('trade')">Ver trade center</button></div>
             </div>
 
@@ -4604,6 +4604,8 @@ V28 future database modules to include from the start:
     collection: [],
     quests: [],
     gyms: [],
+    gymProgress: null,
+    badges: [],
     shopItems: [],
     pokedexSummary: null,
     pokedex: [],
@@ -4624,6 +4626,8 @@ V28 future database modules to include from the start:
     itemUseLoading: false,
     evolutionLoading: false,
     battleLoading: false,
+    battleAction: "",
+    selectedBattleItem: null,
     activeBattle: null,
     selectedEvolutionPayload: null,
   };
@@ -4636,6 +4640,8 @@ V28 future database modules to include from the start:
     state.collection = [];
     state.quests = [];
     state.gyms = [];
+    state.gymProgress = null;
+    state.badges = [];
     state.shopItems = [];
     state.pokedexSummary = null;
     state.pokedex = [];
@@ -4656,6 +4662,8 @@ V28 future database modules to include from the start:
     state.itemUseLoading = false;
     state.evolutionLoading = false;
     state.battleLoading = false;
+    state.battleAction = "";
+    state.selectedBattleItem = null;
     state.activeBattle = null;
     state.selectedEvolutionPayload = null;
   }
@@ -4789,7 +4797,7 @@ V28 future database modules to include from the start:
 
   async function refreshApiData(){
     state.loading = true;
-    const [profile, inventory, team, collection, shopItems, quests, gyms, summary, maps, captures, pokedex, activeEncounters] = await Promise.all([
+    const [profile, inventory, team, collection, shopItems, quests, gyms, gymProgress, badges, summary, maps, captures, pokedex, activeEncounters] = await Promise.all([
       api("/api/me"),
       api("/api/me/inventory"),
       api("/api/me/team"),
@@ -4797,6 +4805,8 @@ V28 future database modules to include from the start:
       api("/api/shop/items"),
       api("/api/me/quests"),
       api("/api/gyms"),
+      api("/api/me/gym-progress"),
+      api("/api/me/badges"),
       api("/api/me/pokedex-summary"),
       api("/api/maps"),
       api("/api/server/recent-captures?limit=100"),
@@ -4811,6 +4821,8 @@ V28 future database modules to include from the start:
     state.shopItems = Array.isArray(shopItems) ? shopItems : [];
     state.quests = Array.isArray(quests) ? quests : [];
     state.gyms = Array.isArray(gyms) ? gyms : [];
+    state.gymProgress = gymProgress || null;
+    state.badges = Array.isArray(badges?.badges) ? badges.badges : [];
     state.pokedexSummary = summary || null;
     state.maps = Array.isArray(maps) ? maps : [];
     state.recentCaptures = Array.isArray(captures) ? captures : [];
@@ -4919,6 +4931,37 @@ V28 future database modules to include from the start:
     if(appTopBrand) appTopBrand.textContent = "Servidor Verdantia";
   }
 
+  function renderBadgeProgress(){
+    const total = Number(state.gymProgress?.total_gyms || state.gyms.length || 0);
+    const completed = Number(state.gymProgress?.completed_gyms || state.badges.length || state.gyms.filter(g => g.is_completed).length || 0);
+    const nextGym = state.gymProgress?.next_gym;
+
+    document.querySelectorAll("[data-gym-badge-count]").forEach(el => {
+      el.textContent = `${completed}/${total || 8}`;
+    });
+    const hubNext = byId("hubNextGym");
+    if(hubNext) hubNext.textContent = nextGym ? `${nextGym.name} · ${typeEs(nextGym.type_slug)}` : "Todos completos";
+
+    const badgeRow = document.querySelector("#trainerhq .badge-row");
+    if(badgeRow){
+      const kantoGyms = state.gyms.filter(g => g.region_slug === "kanto").slice(0, 8);
+      const source = kantoGyms.length ? kantoGyms : state.gyms.slice(0, 8);
+      badgeRow.innerHTML = source.map(g => {
+        const earned = state.badges.some(b => b.gym_slug === g.slug) || g.is_completed;
+        return `<span class="badge-medal ${earned ? "" : "locked"}" title="${g.badge_name || g.name}">
+          <img src="${asset(g.badge_icon_path)}" ${imgFallbackAttr()}>
+        </span>`;
+      }).join("");
+    }
+
+    const achievements = document.querySelector("#trainerhq .achievement-list");
+    if(achievements && state.badges.length){
+      achievements.innerHTML = state.badges.slice(0, 5).map(b => `
+        <div class="achievement"><b>🏅</b><div><strong>${b.name}</strong><span class="muted">${b.region_name || "Gimnasio"} · ${b.earned_at ? new Date(b.earned_at).toLocaleDateString() : "Obtenida"}</span></div></div>
+      `).join("");
+    }
+  }
+
   window.renderWallet = function(){
     const p = state.profile || {};
     const set = (id, value) => { const el = byId(id); if(el) el.textContent = value; };
@@ -4935,6 +4978,7 @@ V28 future database modules to include from the start:
     if(economy[0]) economy[0].textContent = fmt(p.gold);
     if(economy[1]) economy[1].textContent = fmt(p.diamonds);
     if(economy[2]) economy[2].textContent = fmt(p.boss_tickets);
+    renderBadgeProgress();
   };
 
   function captureRowApi(c){
@@ -5040,9 +5084,21 @@ V28 future database modules to include from the start:
   function battleErrorText(error){
     if(error?.code === "TEAM_EMPTY") return "Necesitas al menos una criatura en tu equipo.";
     if(error?.code === "GYM_NOT_FOUND" || error?.code === "NPC_NOT_FOUND") return "Este gimnasio no está disponible.";
+    if(error?.code === "GYM_LOCKED") return "Primero completa el gimnasio anterior.";
+    if(error?.code === "BADGE_GRANT_FAILED") return "No se pudo guardar la medalla.";
+    if(error?.code === "BATTLE_REWARD_FAILED" || error?.code === "GYM_PROGRESS_FAILED") return "No se pudo entregar la recompensa.";
     if(error?.code === "SKILL_NOT_FOUND" || error?.code === "SKILL_NOT_AVAILABLE") return "Esta skill no está disponible.";
     if(error?.code === "BATTLE_ALREADY_FINISHED") return "La batalla ya terminó.";
     if(error?.code === "BATTLE_NOT_OWNED" || error?.code === "BATTLE_NOT_FOUND") return "No se encontró esta batalla.";
+    if(error?.code === "MONSTER_NOT_IN_BATTLE") return "Esa criatura no está en esta batalla.";
+    if(error?.code === "MONSTER_FAINTED") return "Esa criatura está debilitada.";
+    if(error?.code === "MONSTER_ALREADY_ACTIVE") return "Esa criatura ya está activa.";
+    if(error?.code === "ITEM_NOT_ALLOWED_IN_BATTLE") return "Ese item no se puede usar en batalla.";
+    if(error?.code === "ITEM_NOT_FOUND" || error?.code === "INSUFFICIENT_ITEM") return "No tienes suficientes items.";
+    if(error?.code === "MONSTER_ALREADY_FULL_HP") return "La criatura ya tiene HP completo.";
+    if(error?.code === "MONSTER_NOT_FAINTED") return "La criatura no está debilitada.";
+    if(error?.code === "SWITCH_FAILED") return "No se pudo cambiar criatura.";
+    if(error?.code === "ITEM_USE_FAILED") return "No se pudo usar el item.";
     return "No se pudo ejecutar el turno.";
   }
 
@@ -5078,6 +5134,75 @@ V28 future database modules to include from the start:
     return rows.map(line => `<p>${line}</p>`).join("") || `<p>Elige una skill para iniciar el turno.</p>`;
   }
 
+  function renderBattleRewards(rewards){
+    if(!rewards) return "";
+    const items = Array.isArray(rewards.items) ? rewards.items : [];
+    const parts = [];
+    if(Number(rewards.gold || 0) > 0) parts.push(`<span class="quest-reward">+${fmt(rewards.gold)} Pokedolares</span>`);
+    if(Number(rewards.diamonds || 0) > 0) parts.push(`<span class="quest-reward">+${fmt(rewards.diamonds)} diamantes</span>`);
+    items.forEach(item => parts.push(`<span class="quest-reward">+${fmt(item.quantity)} ${item.display_name || item.slug}</span>`));
+    if(rewards.badge) parts.push(`<span class="quest-reward">Medalla: ${rewards.badge.name}</span>`);
+    if(rewards.first_clear === false) parts.push(`<span class="muted">Recompensa reducida por repetir gimnasio</span>`);
+    return parts.join("");
+  }
+
+  function canUseBattleItemOn(item, monster){
+    const hp = battleHp(monster);
+    if(!item || !monster) return false;
+    if(item.slug === "revive") return hp.hp <= 0;
+    return hp.hp > 0 && hp.hp < hp.max;
+  }
+
+  function renderBattleTeam(battle, done){
+    const team = Array.isArray(battle.player_team) ? battle.player_team : [];
+    return `<div class="turn-log">
+      <strong>Equipo</strong>
+      ${team.map(monster => {
+        const hp = battleHp(monster);
+        const active = String(monster.player_monster_id) === String(battle.active_player_monster?.player_monster_id);
+        const fainted = hp.hp <= 0;
+        const canSwitch = !active && !fainted && !done && !state.battleLoading;
+        return `<div class="log">
+          <img class="pokemon-img-clean" src="${battleSprite(monster)}" ${imgFallbackAttr()}>
+          <div>
+            <strong>${monster.pokemon_name}</strong>
+            <span>Nv. ${monster.level} · HP ${hp.hp}/${hp.max} · ${active ? "Activo" : fainted ? "Debilitado" : "Disponible"}</span>
+          </div>
+          <button class="${active ? "primary" : "ghost"}" ${canSwitch ? "" : "disabled"} onclick="switchBattleMonster('${monster.player_monster_id}')">${active ? "Activo" : fainted ? "Debilitado" : state.battleAction === "switch" ? "Cambiando..." : "Cambiar"}</button>
+        </div>`;
+      }).join("") || `<p class="muted">Sin equipo.</p>`}
+    </div>`;
+  }
+
+  function renderBattleItems(battle, done){
+    const items = Array.isArray(battle.battle_items) ? battle.battle_items : [];
+    const selected = state.selectedBattleItem || items.find(item => Number(item.quantity || 0) > 0)?.slug || null;
+    const selectedItem = items.find(item => item.slug === selected) || null;
+    const team = Array.isArray(battle.player_team) ? battle.player_team : [];
+    return `<div class="turn-log">
+      <strong>Items</strong>
+      <div class="turn-actions">
+        ${items.map(item => {
+          const disabled = done || state.battleLoading || Number(item.quantity || 0) <= 0;
+          return `<button class="${item.slug === selected ? "primary" : "ghost"}" ${disabled ? "disabled" : ""} onclick="selectBattleItem('${item.slug}')">
+            ${item.display_name || item.slug}<br><small>x${fmt(item.quantity || 0)}</small>
+          </button>`;
+        }).join("") || `<button class="ghost" disabled>Sin items</button>`}
+      </div>
+      ${selectedItem ? `<div class="fixed-list small">
+        ${team.map(monster => {
+          const hp = battleHp(monster);
+          const valid = canUseBattleItemOn(selectedItem, monster);
+          return `<div class="log">
+            <img class="pokemon-img-clean" src="${battleSprite(monster)}" ${imgFallbackAttr()}>
+            <div><strong>${monster.pokemon_name}</strong><span>HP ${hp.hp}/${hp.max}</span></div>
+            <button class="ghost" ${valid && !done && !state.battleLoading ? "" : "disabled"} onclick="useBattleItemOn('${selectedItem.slug}','${monster.player_monster_id}')">${state.battleAction === "item" ? "Usando..." : "Usar"}</button>
+          </div>`;
+        }).join("")}
+      </div>` : `<p class="muted">No tienes items de batalla disponibles.</p>`}
+    </div>`;
+  }
+
   window.renderPveBattle = function(){
     const battle = state.activeBattle;
     const content = byId("battleContent");
@@ -5099,12 +5224,16 @@ V28 future database modules to include from the start:
             ${state.battleLoading ? "..." : skill.name}<br><small>${typeEs(skill.type_slug)} · Poder ${skill.power} · ${skill.accuracy}%</small>
           </button>`).join("") || `<button class="ghost" disabled>Sin skills</button>`}
         </div>
+        <div class="turn-scoreboard">
+          ${renderBattleTeam(battle, done)}
+          ${renderBattleItems(battle, done)}
+        </div>
         <div class="turn-log ${done ? (won ? "turn-final" : "turn-final defeat") : ""}">
           ${renderBattleLog(battle)}
         </div>
         ${done ? `<div class="battle-result-actions">
           <strong>${won ? "Victoria" : "Derrota"}</strong>
-          ${won && battle.rewards ? `<span class="quest-reward">+${fmt(battle.rewards.gold || 0)} Pokedolares</span>` : ""}
+          ${won && battle.rewards ? renderBattleRewards(battle.rewards) : ""}
           <button class="primary" onclick="closeBattle()">Cerrar</button>
         </div>` : ""}
       </div>
@@ -5112,9 +5241,34 @@ V28 future database modules to include from the start:
     byId("battleModal")?.classList.remove("hidden");
   };
 
+  async function refreshAfterBattleAction(battle, refreshInventoryOnly=false){
+    if(battle.status !== "active" || refreshInventoryOnly){
+      const calls = [
+        api("/api/me"),
+        api("/api/me/inventory"),
+        api("/api/me/quests"),
+        api("/api/gyms"),
+        api("/api/me/gym-progress"),
+        api("/api/me/badges"),
+      ];
+      const [profile, inventory, quests, gyms, gymProgress, badges] = await Promise.all(calls);
+      state.profile = profile || state.profile;
+      state.inventory = Array.isArray(inventory) ? inventory : state.inventory;
+      state.quests = Array.isArray(quests) ? quests : state.quests;
+      state.gyms = Array.isArray(gyms) ? gyms : state.gyms;
+      state.gymProgress = gymProgress || state.gymProgress;
+      state.badges = Array.isArray(badges?.badges) ? badges.badges : state.badges;
+      renderWallet();
+      renderInventory();
+      renderQuests();
+      renderGyms();
+    }
+  }
+
   window.useBattleSkill = async function(skillSlug){
     if(!state.activeBattle?.battle_id || state.battleLoading) return;
     state.battleLoading = true;
+    state.battleAction = "skill";
     renderPveBattle();
     try{
       const battle = await api(`/api/battles/${encodeURIComponent(state.activeBattle.battle_id)}/turn`, {
@@ -5123,14 +5277,7 @@ V28 future database modules to include from the start:
       });
       state.activeBattle = battle;
       if(battle.status !== "active"){
-        const [profile, quests] = await Promise.all([
-          api("/api/me"),
-          api("/api/me/quests"),
-        ]);
-        state.profile = profile || state.profile;
-        state.quests = Array.isArray(quests) ? quests : state.quests;
-        renderWallet();
-        renderQuests();
+        await refreshAfterBattleAction(battle);
         if(battle.winner === "player" && typeof showMapToast === "function") showMapToast("Victoria de gimnasio", "success");
       }
       renderPveBattle();
@@ -5138,6 +5285,57 @@ V28 future database modules to include from the start:
       if(typeof showMapToast === "function") showMapToast(battleErrorText(error), "fail");
     }finally{
       state.battleLoading = false;
+      state.battleAction = "";
+      renderPveBattle();
+    }
+  };
+
+  window.selectBattleItem = function(itemSlug){
+    state.selectedBattleItem = itemSlug;
+    renderPveBattle();
+  };
+
+  window.switchBattleMonster = async function(targetPlayerMonsterId){
+    if(!state.activeBattle?.battle_id || state.battleLoading) return;
+    state.battleLoading = true;
+    state.battleAction = "switch";
+    renderPveBattle();
+    try{
+      const battle = await api(`/api/battles/${encodeURIComponent(state.activeBattle.battle_id)}/turn`, {
+        method: "POST",
+        body: JSON.stringify({action:"switch", targetPlayerMonsterId}),
+      });
+      state.activeBattle = battle;
+      if(battle.status !== "active") await refreshAfterBattleAction(battle);
+      renderPveBattle();
+    }catch(error){
+      if(typeof showMapToast === "function") showMapToast(battleErrorText(error), "fail");
+    }finally{
+      state.battleLoading = false;
+      state.battleAction = "";
+      renderPveBattle();
+    }
+  };
+
+  window.useBattleItemOn = async function(itemSlug, targetPlayerMonsterId){
+    if(!state.activeBattle?.battle_id || state.battleLoading) return;
+    state.battleLoading = true;
+    state.battleAction = "item";
+    state.selectedBattleItem = itemSlug;
+    renderPveBattle();
+    try{
+      const battle = await api(`/api/battles/${encodeURIComponent(state.activeBattle.battle_id)}/turn`, {
+        method: "POST",
+        body: JSON.stringify({action:"use_item", itemSlug, targetPlayerMonsterId}),
+      });
+      state.activeBattle = battle;
+      await refreshAfterBattleAction(battle, true);
+      renderPveBattle();
+    }catch(error){
+      if(typeof showMapToast === "function") showMapToast(battleErrorText(error), "fail");
+    }finally{
+      state.battleLoading = false;
+      state.battleAction = "";
       renderPveBattle();
     }
   };
@@ -5151,6 +5349,7 @@ V28 future database modules to include from the start:
         body: JSON.stringify({battleType:"gym", targetSlug}),
       });
       state.activeBattle = battle;
+      state.selectedBattleItem = battle.battle_items?.find(item => Number(item.quantity || 0) > 0)?.slug || null;
       renderPveBattle();
     }catch(error){
       if(typeof showMapToast === "function") showMapToast(battleErrorText(error), "fail");
@@ -5164,6 +5363,8 @@ V28 future database modules to include from the start:
   window.closeBattle = function(){
     state.activeBattle = null;
     state.battleLoading = false;
+    state.battleAction = "";
+    state.selectedBattleItem = null;
     document.querySelector("#battleModal header strong").textContent = "Battle Arena";
     byId("battleModal")?.classList.add("hidden");
   };
@@ -5173,21 +5374,32 @@ V28 future database modules to include from the start:
     if(!grid) return;
     const region = byId("gymRegion")?.value || "kanto";
     const rows = state.gyms.filter(g => !region || g.region_slug === region).slice(0, 8);
-    grid.innerHTML = rows.map(g => `
-      <div class="gym-leader-card">
-        <span class="gym-status status-open">Disponible</span>
+    grid.innerHTML = rows.map(g => {
+      const done = !!g.is_completed;
+      const locked = !g.is_unlocked;
+      const statusClass = done ? "status-done" : locked ? "status-lock" : "status-open";
+      const statusText = done ? "Completado" : locked ? "Bloqueado" : "Disponible";
+      const rewardItems = Array.isArray(g.reward_items) ? g.reward_items : [];
+      const rewardText = [
+        Number(g.reward_gold || 0) > 0 ? `+${fmt(g.reward_gold)} oro` : null,
+        ...rewardItems.map(item => `+${fmt(item.quantity)} ${item.display_name || item.slug}`),
+      ].filter(Boolean).join(" · ") || `+${fmt(g.repeat_reward_gold || 500)} oro`;
+      return `
+      <div class="gym-leader-card ${done ? "done" : locked ? "locked" : ""}">
+        <span class="gym-status ${statusClass}">${statusText}</span>
         <div class="trainer-frame"><img src="${asset(g.leader_avatar_path || g.badge_icon_path)}" onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/95.png';this.classList.add('fallback-static')"></div>
         <div>
           <div class="leader-name">${g.leader_name || g.name}</div>
           <div class="leader-meta">${g.region_name || "Región"} · ${typeEs(g.type_slug)} · Poder ${fmt(g.recommended_power)}</div>
-          <div class="leader-team"><span class="level-pill">${g.badge_name || "Medalla"}</span><span class="level-pill">${g.team_size || "Auto"} rivales</span></div>
+          <div class="leader-team"><span class="level-pill">${done ? "Medalla obtenida" : (g.badge_name || "Medalla")}</span><span class="level-pill">${g.team_size || "Auto"} rivales</span></div>
           <div class="leader-actions">
-            <span class="level-pill">Reward +${fmt(Math.max(500, Number(g.gym_order || 1) * 1000))}</span>
-            <button class="primary" ${state.battleLoading ? "disabled" : ""} onclick="startGymBattle('${g.slug}')">Battle</button>
+            <span class="level-pill">${done ? `Repetir +${fmt(g.repeat_reward_gold || 500)} oro` : rewardText}</span>
+            <button class="${locked ? "ghost" : "primary"}" ${state.battleLoading || locked ? "disabled" : ""} onclick="startGymBattle('${g.slug}')">${locked ? "Bloqueado" : "Battle"}</button>
           </div>
         </div>
       </div>
-    `).join("") || `<p class="muted">No hay gimnasios disponibles para esta región.</p>`;
+    `;
+    }).join("") || `<p class="muted">No hay gimnasios disponibles para esta región.</p>`;
   };
 
   const USABLE_INVENTORY_ITEMS = new Set(["potion","super-potion","hyper-potion","revive","rare-candy"]);

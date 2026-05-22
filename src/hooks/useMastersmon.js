@@ -9,6 +9,8 @@ import {
   evolveMonster,
   getActiveEncounters,
   getCollection,
+  getBadges,
+  getGymProgress,
   getGyms,
   getInventory,
   getMaps,
@@ -22,6 +24,8 @@ import {
   setTeamSlot,
   startBattle,
   submitBattleSkill,
+  switchBattleMonster as submitBattleSwitch,
+  useBattleItem as submitBattleItem,
   useItem,
 } from "../api/mastersmonApi";
 
@@ -56,6 +60,8 @@ export function useMastersmon({ enabled = true } = {}) {
   const [shopItems, setShopItems] = useState([]);
   const [quests, setQuests] = useState([]);
   const [gyms, setGyms] = useState([]);
+  const [gymProgress, setGymProgress] = useState(null);
+  const [badges, setBadges] = useState([]);
   const [recentCaptures, setRecentCaptures] = useState([]);
   const [activeEncounters, setActiveEncounters] = useState([]);
   const [availableEvolutions, setAvailableEvolutions] = useState([]);
@@ -64,6 +70,8 @@ export function useMastersmon({ enabled = true } = {}) {
   const [activeBattle, setActiveBattle] = useState(null);
   const [battleModalOpen, setBattleModalOpen] = useState(false);
   const [battleLoading, setBattleLoading] = useState(false);
+  const [battleActionLoading, setBattleActionLoading] = useState("");
+  const [selectedBattleItem, setSelectedBattleItem] = useState(null);
 
   const [currentEncounter, setCurrentEncounter] = useState(null);
   const [lastCaptureResult, setLastCaptureResult] = useState(null);
@@ -81,6 +89,8 @@ export function useMastersmon({ enabled = true } = {}) {
     setShopItems([]);
     setQuests([]);
     setGyms([]);
+    setGymProgress(null);
+    setBadges([]);
     setRecentCaptures([]);
     setActiveEncounters([]);
     setAvailableEvolutions([]);
@@ -89,6 +99,8 @@ export function useMastersmon({ enabled = true } = {}) {
     setActiveBattle(null);
     setBattleModalOpen(false);
     setBattleLoading(false);
+    setBattleActionLoading("");
+    setSelectedBattleItem(null);
     setCurrentEncounter(null);
     setLastCaptureResult(null);
     setSelectedMap("bosque-verde");
@@ -109,6 +121,8 @@ export function useMastersmon({ enabled = true } = {}) {
         shopItemsData,
         questsData,
         gymsData,
+        gymProgressData,
+        badgesData,
         recentCapturesData,
         activeEncountersData,
       ] = await Promise.all([
@@ -121,6 +135,8 @@ export function useMastersmon({ enabled = true } = {}) {
         getShopItems(),
         getQuests(),
         getGyms(),
+        getGymProgress(),
+        getBadges(),
         getRecentCaptures({ limit: 20 }),
         getActiveEncounters(),
       ]);
@@ -134,6 +150,8 @@ export function useMastersmon({ enabled = true } = {}) {
       setShopItems(shopItemsData);
       setQuests(questsData);
       setGyms(gymsData);
+      setGymProgress(gymProgressData);
+      setBadges(Array.isArray(badgesData?.badges) ? badgesData.badges : []);
       setRecentCaptures(recentCapturesData);
       setActiveEncounters(activeEncountersData);
     } catch (err) {
@@ -387,6 +405,37 @@ export function useMastersmon({ enabled = true } = {}) {
     return data;
   }, []);
 
+  const loadGymProgress = useCallback(async () => {
+    const data = await getGymProgress();
+    setGymProgress(data);
+    return data;
+  }, []);
+
+  const loadBadges = useCallback(async () => {
+    const data = await getBadges();
+    const rows = Array.isArray(data?.badges) ? data.badges : [];
+    setBadges(rows);
+    return rows;
+  }, []);
+
+  const refreshBattleSideEffects = useCallback(async (battle) => {
+    const [profileData, inventoryData, questsData, gymsData, gymProgressData, badgesData] = await Promise.all([
+      getProfile(),
+      getInventory(),
+      getQuests(),
+      getGyms(),
+      getGymProgress(),
+      getBadges(),
+    ]);
+    setProfile(profileData);
+    setInventory(inventoryData);
+    setQuests(questsData);
+    setGyms(gymsData);
+    setGymProgress(gymProgressData);
+    setBadges(Array.isArray(badgesData?.badges) ? badgesData.badges : []);
+    return battle;
+  }, []);
+
   const startGymBattle = useCallback(async (slug) => {
     setBattleLoading(true);
     setError("");
@@ -407,18 +456,14 @@ export function useMastersmon({ enabled = true } = {}) {
   const useBattleSkill = useCallback(async (skillSlug) => {
     if (!activeBattle?.battle_id) throw new Error("No hay batalla activa.");
     setBattleLoading(true);
+    setBattleActionLoading("skill");
     setError("");
 
     try {
       const battle = await submitBattleSkill(activeBattle.battle_id, skillSlug);
       setActiveBattle(battle);
       if (battle.status !== "active") {
-        const [profileData, questsData] = await Promise.all([
-          getProfile(),
-          getQuests(),
-        ]);
-        setProfile(profileData);
-        setQuests(questsData);
+        await refreshBattleSideEffects(battle);
       }
       return battle;
     } catch (err) {
@@ -426,8 +471,53 @@ export function useMastersmon({ enabled = true } = {}) {
       throw err;
     } finally {
       setBattleLoading(false);
+      setBattleActionLoading("");
     }
-  }, [activeBattle]);
+  }, [activeBattle, refreshBattleSideEffects]);
+
+  const switchBattleMonster = useCallback(async (targetPlayerMonsterId) => {
+    if (!activeBattle?.battle_id) throw new Error("No hay batalla activa.");
+    setBattleLoading(true);
+    setBattleActionLoading("switch");
+    setError("");
+
+    try {
+      const battle = await submitBattleSwitch(activeBattle.battle_id, targetPlayerMonsterId);
+      setActiveBattle(battle);
+      if (battle.status !== "active") await refreshBattleSideEffects(battle);
+      return battle;
+    } catch (err) {
+      setError(friendlyError(err));
+      throw err;
+    } finally {
+      setBattleLoading(false);
+      setBattleActionLoading("");
+    }
+  }, [activeBattle, refreshBattleSideEffects]);
+
+  const useBattleItem = useCallback(async (itemSlug, targetPlayerMonsterId) => {
+    if (!activeBattle?.battle_id) throw new Error("No hay batalla activa.");
+    setBattleLoading(true);
+    setBattleActionLoading("item");
+    setSelectedBattleItem(itemSlug);
+    setError("");
+
+    try {
+      const battle = await submitBattleItem(activeBattle.battle_id, itemSlug, targetPlayerMonsterId);
+      setActiveBattle(battle);
+      const inventoryData = await getInventory();
+      setInventory(inventoryData);
+      if (battle.status !== "active") await refreshBattleSideEffects(battle);
+      return battle;
+    } catch (err) {
+      setError(friendlyError(err));
+      throw err;
+    } finally {
+      setBattleLoading(false);
+      setBattleActionLoading("");
+      setSelectedBattleItem(null);
+    }
+  }, [activeBattle, refreshBattleSideEffects]);
 
   const closeBattle = useCallback(() => {
     setBattleModalOpen(false);
@@ -450,6 +540,8 @@ export function useMastersmon({ enabled = true } = {}) {
     shopItems,
     quests,
     gyms,
+    gymProgress,
+    badges,
     recentCaptures,
     activeEncounters,
     availableEvolutions,
@@ -458,6 +550,10 @@ export function useMastersmon({ enabled = true } = {}) {
     activeBattle,
     battleModalOpen,
     battleLoading,
+    battleActionLoading,
+    battleItems: activeBattle?.battle_items || [],
+    battleTeam: activeBattle?.player_team || [],
+    selectedBattleItem,
     currentEncounter,
     lastCaptureResult,
     selectedMap,
@@ -469,8 +565,12 @@ export function useMastersmon({ enabled = true } = {}) {
     loadQuests,
     claimQuestReward,
     loadGyms,
+    loadGymProgress,
+    loadBadges,
     startGymBattle,
     useBattleSkill,
+    switchBattleMonster,
+    useBattleItem,
     closeBattle,
     buyItem,
     useInventoryItem,

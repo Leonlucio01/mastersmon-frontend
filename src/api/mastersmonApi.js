@@ -184,6 +184,14 @@ export function getGyms() {
   return request("/api/gyms");
 }
 
+export function getGymProgress() {
+  return request("/api/me/gym-progress");
+}
+
+export function getBadges() {
+  return request("/api/me/badges");
+}
+
 export function startBattle({ battleType = "gym", targetSlug } = {}) {
   return request("/api/battles/start", {
     method: "POST",
@@ -199,6 +207,20 @@ export function submitBattleSkill(battleId, skillSlug) {
   return request(`/api/battles/${encodeURIComponent(battleId)}/turn`, {
     method: "POST",
     body: JSON.stringify({ action: "skill", skillSlug }),
+  });
+}
+
+export function switchBattleMonster(battleId, targetPlayerMonsterId) {
+  return request(`/api/battles/${encodeURIComponent(battleId)}/turn`, {
+    method: "POST",
+    body: JSON.stringify({ action: "switch", targetPlayerMonsterId }),
+  });
+}
+
+export function useBattleItem(battleId, itemSlug, targetPlayerMonsterId) {
+  return request(`/api/battles/${encodeURIComponent(battleId)}/turn`, {
+    method: "POST",
+    body: JSON.stringify({ action: "use_item", itemSlug, targetPlayerMonsterId }),
   });
 }
 
