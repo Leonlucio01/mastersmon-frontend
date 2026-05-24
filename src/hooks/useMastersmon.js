@@ -14,6 +14,8 @@ import {
   getGyms,
   getInventory,
   getMaps,
+  getMyBattleDetail,
+  getMyBattles,
   getMonsterEvolutions,
   getPokedexSummary,
   getProfile,
@@ -68,6 +70,8 @@ export function useMastersmon({ enabled = true } = {}) {
   const [selectedEvolutionMonster, setSelectedEvolutionMonster] = useState(null);
   const [evolutionModalOpen, setEvolutionModalOpen] = useState(false);
   const [activeBattle, setActiveBattle] = useState(null);
+  const [battleHistory, setBattleHistory] = useState([]);
+  const [selectedBattleDetail, setSelectedBattleDetail] = useState(null);
   const [battleModalOpen, setBattleModalOpen] = useState(false);
   const [battleLoading, setBattleLoading] = useState(false);
   const [battleActionLoading, setBattleActionLoading] = useState("");
@@ -97,6 +101,8 @@ export function useMastersmon({ enabled = true } = {}) {
     setSelectedEvolutionMonster(null);
     setEvolutionModalOpen(false);
     setActiveBattle(null);
+    setBattleHistory([]);
+    setSelectedBattleDetail(null);
     setBattleModalOpen(false);
     setBattleLoading(false);
     setBattleActionLoading("");
@@ -123,6 +129,7 @@ export function useMastersmon({ enabled = true } = {}) {
         gymsData,
         gymProgressData,
         badgesData,
+        battleHistoryData,
         recentCapturesData,
         activeEncountersData,
       ] = await Promise.all([
@@ -137,6 +144,7 @@ export function useMastersmon({ enabled = true } = {}) {
         getGyms(),
         getGymProgress(),
         getBadges(),
+        getMyBattles({ limit: 20 }),
         getRecentCaptures({ limit: 20 }),
         getActiveEncounters(),
       ]);
@@ -152,6 +160,7 @@ export function useMastersmon({ enabled = true } = {}) {
       setGyms(gymsData);
       setGymProgress(gymProgressData);
       setBadges(Array.isArray(badgesData?.badges) ? badgesData.badges : []);
+      setBattleHistory(Array.isArray(battleHistoryData) ? battleHistoryData : []);
       setRecentCaptures(recentCapturesData);
       setActiveEncounters(activeEncountersData);
     } catch (err) {
@@ -418,14 +427,28 @@ export function useMastersmon({ enabled = true } = {}) {
     return rows;
   }, []);
 
+  const loadBattleHistory = useCallback(async (params = { limit: 20 }) => {
+    const data = await getMyBattles(params);
+    const rows = Array.isArray(data) ? data : [];
+    setBattleHistory(rows);
+    return rows;
+  }, []);
+
+  const loadBattleDetail = useCallback(async (battleId) => {
+    const detail = await getMyBattleDetail(battleId);
+    setSelectedBattleDetail(detail);
+    return detail;
+  }, []);
+
   const refreshBattleSideEffects = useCallback(async (battle) => {
-    const [profileData, inventoryData, questsData, gymsData, gymProgressData, badgesData] = await Promise.all([
+    const [profileData, inventoryData, questsData, gymsData, gymProgressData, badgesData, battleHistoryData] = await Promise.all([
       getProfile(),
       getInventory(),
       getQuests(),
       getGyms(),
       getGymProgress(),
       getBadges(),
+      getMyBattles({ limit: 20 }),
     ]);
     setProfile(profileData);
     setInventory(inventoryData);
@@ -433,6 +456,7 @@ export function useMastersmon({ enabled = true } = {}) {
     setGyms(gymsData);
     setGymProgress(gymProgressData);
     setBadges(Array.isArray(badgesData?.badges) ? badgesData.badges : []);
+    setBattleHistory(Array.isArray(battleHistoryData) ? battleHistoryData : []);
     return battle;
   }, []);
 
@@ -548,6 +572,8 @@ export function useMastersmon({ enabled = true } = {}) {
     selectedEvolutionMonster,
     evolutionModalOpen,
     activeBattle,
+    battleHistory,
+    selectedBattleDetail,
     battleModalOpen,
     battleLoading,
     battleActionLoading,
@@ -567,6 +593,8 @@ export function useMastersmon({ enabled = true } = {}) {
     loadGyms,
     loadGymProgress,
     loadBadges,
+    loadBattleHistory,
+    loadBattleDetail,
     startGymBattle,
     useBattleSkill,
     switchBattleMonster,

@@ -192,6 +192,19 @@ export function getBadges() {
   return request("/api/me/badges");
 }
 
+export function getMyBattles(params = {}) {
+  const query = new URLSearchParams();
+  if (params.limit) query.set("limit", String(params.limit));
+  if (params.status) query.set("status", String(params.status));
+  if (params.battleType) query.set("battleType", String(params.battleType));
+  const qs = query.toString();
+  return request(`/api/me/battles${qs ? `?${qs}` : ""}`);
+}
+
+export function getMyBattleDetail(battleId) {
+  return request(`/api/me/battles/${encodeURIComponent(battleId)}`);
+}
+
 export function startBattle({ battleType = "gym", targetSlug } = {}) {
   return request("/api/battles/start", {
     method: "POST",

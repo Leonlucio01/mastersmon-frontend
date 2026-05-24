@@ -2799,7 +2799,7 @@
             <div class="lower-grid">
               <div class="panel"><div class="title-row"><h2>Últimas 5 capturas</h2><button class="ghost" onclick="openCapturesModal()">Ver más</button></div><div id="hubCaptures" class="fixed-list small"></div></div>
               <div class="panel"><div class="title-row"><h2>Mi progreso</h2></div><div class="stats"><div class="stat"><span>Equipo</span><strong id="hubTeamCount">0/6</strong></div><div class="stat"><span>Medallas</span><strong data-gym-badge-count>0/8</strong></div><div class="stat"><span>Siguiente gym</span><strong id="hubNextGym">-</strong></div></div><br><button class="primary" onclick="showPage('quests')">Ver pendientes</button></div>
-              <div class="panel"><div class="title-row"><h2>Trade destacado</h2></div><div class="log"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/133.gif"><div><strong>Eevee Nv. 18</strong><span>Buscan: criatura tipo fuego</span></div></div><br><button class="primary" onclick="showPage('trade')">Ver trade center</button></div>
+              <div class="panel"><div class="title-row"><h2>Última batalla</h2><button class="ghost" onclick="showPage('gyms')">Ver historial</button></div><div id="hubLastBattle" class="fixed-list small"><p class="muted">Sin batallas recientes.</p></div></div>
             </div>
 
             <div class="panel" style="margin-top:18px">
@@ -3391,6 +3391,10 @@
               <div class="gym-tools"><select id="gymRegion" onchange="renderGyms()"><option value="kanto">Gym Leader - Kanto</option><option value="johto">Gym Leader - Johto</option><option value="hoenn">Gym Leader - Hoenn</option><option value="kalos">Gym Leader - Kalos</option></select><input placeholder="Buscar líder..."></div>
               <div class="gym-grid-8" id="gymTable"></div>
             </div>
+            <div class="panel" style="margin-top:18px">
+              <div class="title-row"><h2>Historial de batallas</h2><span class="muted">Resultados reales</span></div>
+              <div id="battleHistoryList" class="fixed-list"></div>
+            </div>
           </section>
         </main>
       </div>
@@ -3402,6 +3406,7 @@
   <div id="capturesModal" class="overlay hidden"><div class="modal-window" style="position:relative;right:auto;bottom:auto;width:min(760px,100%);max-height:86vh"><header><strong>Últimas 100 capturas del servidor</strong><button onclick="closeCapturesModal()">×</button></header><div class="modal-body"><div id="captureModalList" class="fixed-list" style="max-height:70vh"></div></div></div></div>
   <div id="detailModal" class="overlay hidden"><div class="big-modal"><header><strong id="detailTitle">Ficha Pokémon</strong><button onclick="closeDetail()">×</button></header><div class="big-modal-content" id="detailContent"></div></div></div>
   <div id="battleModal" class="overlay hidden"><div class="big-modal"><header><strong>Battle Arena</strong><button onclick="closeBattle()">×</button></header><div class="big-modal-content" id="battleContent"></div></div></div>
+  <div id="battleDetailModal" class="overlay hidden"><div class="big-modal"><header><strong>Resumen de batalla</strong><button onclick="closeBattleDetail()">×</button></header><div class="big-modal-content" id="battleDetailContent"></div></div></div>
   <div id="itemUseModal" class="overlay hidden"><div class="big-modal"><header><strong id="itemUseTitle">Usar item</strong><button onclick="closeItemUseModal()">×</button></header><div class="big-modal-content" id="itemUseContent"></div></div></div>
   <div id="evolutionModal" class="overlay hidden"><div class="big-modal"><header><strong id="evolutionTitle">Evolucionar</strong><button onclick="closeEvolutionModal()">×</button></header><div class="big-modal-content" id="evolutionContent"></div></div></div>
   <div id="encounterModal" class="overlay hidden"><div class="big-modal" style="width:min(620px,100%)"><header><strong>Encuentro salvaje</strong><button onclick="closeEncounter()">×</button></header><div class="big-modal-content" id="encounterContent"></div></div></div>
@@ -4569,7 +4574,7 @@ function buyShopItem(name,btn){moduleFeedback(btn,'Comprado');showResult('Compra
 function activateVipPlan(btn){moduleFeedback(btn,'Plan visto');showResult('Trainer VIP','👑',[[ '+20%','EXP',itemIcon('lucky-egg')],['+1','Ticket diario',itemIcon('ticket')],['Chat','Color especial',itemIcon('star-piece')]],'Plan mensual preparado para conectarse con pagos reales.');}
 function buyPremiumPack(btn){moduleFeedback(btn,'Comprado');showResult('Pack Captura comprado','🎁',[[ '+10','Ultra Ball',itemIcon('ultra-ball')],['+3','Rare Candy',itemIcon('rare-candy')],['+1','Lucky Egg',itemIcon('lucky-egg')]],'Pack premium agregado a tu mochila.');}
 
-function renderAll(){renderWallet();renderDonationBanner();renderCaptures();renderMaps();renderTeam();renderDex();renderMyCaptures();renderChat();renderShop();renderInventory();renderArena();renderGyms();renderBossRanking();renderRanking();goToMap(0);showPage('hub')}
+  function renderAll(){renderWallet();renderDonationBanner();renderCaptures();renderMaps();renderTeam();renderDex();renderMyCaptures();renderChat();renderShop();renderInventory();renderArena();renderGyms();renderBattleHistory();renderBossRanking();renderRanking();goToMap(0);showPage('hub')}
 window.onload=()=>openAuth('login');
 
 /*
@@ -4606,6 +4611,8 @@ V28 future database modules to include from the start:
     gyms: [],
     gymProgress: null,
     badges: [],
+    battleHistory: [],
+    selectedBattleDetail: null,
     shopItems: [],
     pokedexSummary: null,
     pokedex: [],
@@ -4642,6 +4649,8 @@ V28 future database modules to include from the start:
     state.gyms = [];
     state.gymProgress = null;
     state.badges = [];
+    state.battleHistory = [];
+    state.selectedBattleDetail = null;
     state.shopItems = [];
     state.pokedexSummary = null;
     state.pokedex = [];
@@ -4797,7 +4806,7 @@ V28 future database modules to include from the start:
 
   async function refreshApiData(){
     state.loading = true;
-    const [profile, inventory, team, collection, shopItems, quests, gyms, gymProgress, badges, summary, maps, captures, pokedex, activeEncounters] = await Promise.all([
+    const [profile, inventory, team, collection, shopItems, quests, gyms, gymProgress, badges, battleHistory, summary, maps, captures, pokedex, activeEncounters] = await Promise.all([
       api("/api/me"),
       api("/api/me/inventory"),
       api("/api/me/team"),
@@ -4807,6 +4816,7 @@ V28 future database modules to include from the start:
       api("/api/gyms"),
       api("/api/me/gym-progress"),
       api("/api/me/badges"),
+      api("/api/me/battles?limit=20"),
       api("/api/me/pokedex-summary"),
       api("/api/maps"),
       api("/api/server/recent-captures?limit=100"),
@@ -4823,6 +4833,7 @@ V28 future database modules to include from the start:
     state.gyms = Array.isArray(gyms) ? gyms : [];
     state.gymProgress = gymProgress || null;
     state.badges = Array.isArray(badges?.badges) ? badges.badges : [];
+    state.battleHistory = Array.isArray(battleHistory) ? battleHistory : [];
     state.pokedexSummary = summary || null;
     state.maps = Array.isArray(maps) ? maps : [];
     state.recentCaptures = Array.isArray(captures) ? captures : [];
@@ -5146,6 +5157,94 @@ V28 future database modules to include from the start:
     return parts.join("");
   }
 
+  function battleResultText(battle){
+    const winner = battle?.winner;
+    if(winner === "player") return "Victoria";
+    if(winner === "enemy") return "Derrota";
+    if(battle?.status === "active") return "En curso";
+    return battle?.status || "Batalla";
+  }
+
+  function battleRewardLine(rewards){
+    if(!rewards) return "-";
+    const parts = [];
+    if(Number(rewards.gold || 0) > 0) parts.push(`+${fmt(rewards.gold)} oro`);
+    if(Number(rewards.diamonds || 0) > 0) parts.push(`+${fmt(rewards.diamonds)} diamantes`);
+    (rewards.items || []).forEach(item => parts.push(`+${fmt(item.quantity)} ${item.display_name || item.slug}`));
+    if(rewards.badge) parts.push(`Medalla ${rewards.badge.name}`);
+    return parts.join(" · ") || "-";
+  }
+
+  function renderFinalBattlePanel(battle, won){
+    const target = battle.target_name || battle.rewards?.gym_name || battle.target_slug || "Rival";
+    return `<div class="battle-result-actions">
+      <strong>${won ? "Victoria" : "Derrota"}</strong>
+      <span class="muted">${won ? `${target} derrotado` : `${target} resistió el combate`}</span>
+      ${won && battle.rewards ? renderBattleRewards(battle.rewards) : ""}
+      <span class="quest-reward">Turnos: ${fmt(Math.max(0, Number(battle.turn || 1) - 1))}</span>
+      <button class="ghost" onclick="openBattleDetail('${battle.battle_id}')">Ver resumen</button>
+      <button class="primary" onclick="closeBattle()">Cerrar</button>
+    </div>`;
+  }
+
+  function renderHubLastBattle(){
+    const box = byId("hubLastBattle");
+    if(!box) return;
+    const battle = state.battleHistory?.[0];
+    if(!battle){
+      box.innerHTML = `<p class="muted">Sin batallas recientes.</p>`;
+      return;
+    }
+    box.innerHTML = `<div class="log">
+      <div><strong>${battleResultText(battle)} · ${battle.target_name || battle.target_slug || "Rival"}</strong><span>${battle.battle_type || "PvE"} · ${battleRewardLine(battle.rewards)} · ${battle.completed_at ? new Date(battle.completed_at).toLocaleString() : "En curso"}</span></div>
+      <button class="ghost" onclick="openBattleDetail('${battle.battle_id}')">Ver detalle</button>
+    </div>`;
+  }
+
+  function renderBattleHistory(){
+    const list = byId("battleHistoryList");
+    if(!list) return;
+    const rows = state.battleHistory || [];
+    list.innerHTML = rows.map(battle => `<div class="log">
+      <div>
+        <strong>${battleResultText(battle)} · ${battle.target_name || battle.target_slug || "Rival"}</strong>
+        <span>${battle.battle_type || "PvE"} · ${battle.total_turns || 0} turnos · ${battle.completed_at ? new Date(battle.completed_at).toLocaleString() : "En curso"}</span>
+        <span class="quest-reward">${battleRewardLine(battle.rewards)}</span>
+      </div>
+      <button class="ghost" onclick="openBattleDetail('${battle.battle_id}')">Ver detalle</button>
+    </div>`).join("") || `<p class="muted">Aún no hay batallas registradas.</p>`;
+    renderHubLastBattle();
+  }
+
+  function renderBattleDetail(detail){
+    const content = byId("battleDetailContent");
+    if(!content || !detail) return;
+    const session = detail.battle_session || {};
+    const summary = detail.summary || {};
+    const turns = detail.battle_turns || [];
+    content.innerHTML = `<div class="detail-pro">
+      <aside class="detail-pro-card">
+        <h2>${battleResultText(session)}</h2>
+        <div class="detail-pro-sub">${session.target_name || session.target_slug || "Rival"} · ${session.total_turns || summary.duration_turns || 0} turnos</div>
+        <div class="pro-metrics">
+          ${proMetric("Daño causado", fmt(summary.total_damage_dealt || 0), "gold")}
+          ${proMetric("Daño recibido", fmt(summary.total_damage_received || 0))}
+          ${proMetric("Resultado", battleResultText(session))}
+          ${proMetric("Recompensa", battleRewardLine(detail.rewards))}
+        </div>
+      </aside>
+      <main class="detail-pro-main">
+        <section class="pro-panel"><div class="pro-panel-title"><h3>Skills usadas</h3></div>
+          <div class="fixed-list small">${(summary.skills_used || []).map(skill => `<div class="log"><div><strong>${skill.skill_name || skill.skill_slug}</strong><span>${skill.uses} usos</span></div></div>`).join("") || `<p class="muted">Sin skills registradas.</p>`}</div>
+        </section>
+        <section class="pro-panel"><div class="pro-panel-title"><h3>Turnos</h3></div>
+          <div class="fixed-list">${turns.map(turn => `<div class="log"><div><strong>#${turn.turn_number} · ${turn.actor_monster_name || turn.actor_side}</strong><span>${turn.log_text || turn.action_type}</span></div><span class="level-pill">${turn.action_type}${turn.damage ? ` · ${turn.damage} dmg` : ""}</span></div>`).join("") || `<p class="muted">Sin turnos registrados.</p>`}</div>
+        </section>
+      </main>
+    </div>`;
+    byId("battleDetailModal")?.classList.remove("hidden");
+  }
+
   function canUseBattleItemOn(item, monster){
     const hp = battleHp(monster);
     if(!item || !monster) return false;
@@ -5231,11 +5330,7 @@ V28 future database modules to include from the start:
         <div class="turn-log ${done ? (won ? "turn-final" : "turn-final defeat") : ""}">
           ${renderBattleLog(battle)}
         </div>
-        ${done ? `<div class="battle-result-actions">
-          <strong>${won ? "Victoria" : "Derrota"}</strong>
-          ${won && battle.rewards ? renderBattleRewards(battle.rewards) : ""}
-          <button class="primary" onclick="closeBattle()">Cerrar</button>
-        </div>` : ""}
+        ${done ? renderFinalBattlePanel(battle, won) : ""}
       </div>
     `;
     byId("battleModal")?.classList.remove("hidden");
@@ -5250,18 +5345,21 @@ V28 future database modules to include from the start:
         api("/api/gyms"),
         api("/api/me/gym-progress"),
         api("/api/me/badges"),
+        api("/api/me/battles?limit=20"),
       ];
-      const [profile, inventory, quests, gyms, gymProgress, badges] = await Promise.all(calls);
+      const [profile, inventory, quests, gyms, gymProgress, badges, battleHistory] = await Promise.all(calls);
       state.profile = profile || state.profile;
       state.inventory = Array.isArray(inventory) ? inventory : state.inventory;
       state.quests = Array.isArray(quests) ? quests : state.quests;
       state.gyms = Array.isArray(gyms) ? gyms : state.gyms;
       state.gymProgress = gymProgress || state.gymProgress;
       state.badges = Array.isArray(badges?.badges) ? badges.badges : state.badges;
+      state.battleHistory = Array.isArray(battleHistory) ? battleHistory : state.battleHistory;
       renderWallet();
       renderInventory();
       renderQuests();
       renderGyms();
+      renderBattleHistory();
     }
   }
 
@@ -5369,6 +5467,26 @@ V28 future database modules to include from the start:
     byId("battleModal")?.classList.add("hidden");
   };
 
+  window.openBattleDetail = async function(battleId){
+    if(!battleId) return;
+    const content = byId("battleDetailContent");
+    byId("battleDetailModal")?.classList.remove("hidden");
+    if(content) content.innerHTML = `<p class="muted">Cargando resumen...</p>`;
+    try{
+      const detail = await api(`/api/me/battles/${encodeURIComponent(battleId)}`);
+      state.selectedBattleDetail = detail;
+      renderBattleDetail(detail);
+    }catch(error){
+      if(content) content.innerHTML = `<p class="muted">${battleErrorText(error)}</p>`;
+      if(typeof showMapToast === "function") showMapToast("No se pudo cargar el resumen de batalla", "fail");
+    }
+  };
+
+  window.closeBattleDetail = function(){
+    state.selectedBattleDetail = null;
+    byId("battleDetailModal")?.classList.add("hidden");
+  };
+
   window.renderGyms = function(){
     const grid = byId("gymTable");
     if(!grid) return;
@@ -5400,6 +5518,7 @@ V28 future database modules to include from the start:
       </div>
     `;
     }).join("") || `<p class="muted">No hay gimnasios disponibles para esta región.</p>`;
+    renderBattleHistory();
   };
 
   const USABLE_INVENTORY_ITEMS = new Set(["potion","super-potion","hyper-potion","revive","rare-candy"]);
