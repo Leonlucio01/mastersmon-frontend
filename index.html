@@ -2798,7 +2798,7 @@
             </div>
             <div class="lower-grid">
               <div class="panel"><div class="title-row"><h2>Últimas 5 capturas</h2><button class="ghost" onclick="openCapturesModal()">Ver más</button></div><div id="hubCaptures" class="fixed-list small"></div></div>
-              <div class="panel"><div class="title-row"><h2>Mi progreso</h2></div><div class="stats"><div class="stat"><span>Equipo</span><strong id="hubTeamCount">0/6</strong></div><div class="stat"><span>Medallas</span><strong data-gym-badge-count>0/8</strong></div><div class="stat"><span>Siguiente gym</span><strong id="hubNextGym">-</strong></div></div><br><button class="primary" onclick="showPage('quests')">Ver pendientes</button></div>
+              <div class="panel"><div class="title-row"><h2>Mi progreso</h2></div><div class="stats"><div class="stat"><span>Equipo</span><strong id="hubTeamCount">0/6</strong></div><div class="stat"><span>Medallas</span><strong data-gym-badge-count>0/8</strong></div><div class="stat"><span>Siguiente gym</span><strong id="hubNextGym">-</strong></div><div class="stat"><span>Arena</span><strong id="hubArenaRank">Bronce I</strong></div></div><br><button class="primary" onclick="showPage('quests')">Ver pendientes</button></div>
               <div class="panel"><div class="title-row"><h2>Última batalla</h2><button class="ghost" onclick="showPage('gyms')">Ver historial</button></div><div id="hubLastBattle" class="fixed-list small"><p class="muted">Sin batallas recientes.</p></div></div>
             </div>
 
@@ -3787,6 +3787,41 @@ function renderShop(){
  </div>`;
 }
 function renderArena(){
+ const liveState=window.mastersmonState;
+ const arena=liveState?.arena;
+ const rivals=Array.isArray(arena?.rivals)?arena.rivals:[];
+ if(rivals.length){
+   const esc=(v)=>String(v??'').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+   const progress=arena.progress||{};
+   const difficultyText=(label)=>label==='easy'?'Fácil':label==='hard'?'Difícil':'Normal';
+   const progressHtml=`<div class="arena-card" style="align-items:stretch">
+     <div style="flex:1">
+       <h3>Rango ${esc(progress.current_rank||'Bronce I')} <span class="rank">${Number(progress.arena_points||0).toLocaleString('es-ES')} pts</span></h3>
+       <p>Victorias ${Number(progress.wins||0)} · Derrotas ${Number(progress.losses||0)} · Racha ${Number(progress.win_streak||0)} · Mejor ${Number(progress.best_streak||0)}</p>
+       ${progress.next_rank?`<p class="muted">Siguiente rango: ${esc(progress.next_rank.name)} · faltan ${Number(progress.next_rank.points_to_next||0).toLocaleString('es-ES')} pts</p>`:''}
+     </div>
+   </div>`;
+   const cards=rivals.map(r=>{
+     const team=Array.isArray(r.team_preview)?r.team_preview:[];
+     const main=team[0]||{};
+     const sprite=main.selected_sprite_path||animated(main.dex_number||25);
+     const hard=r.difficulty_label==='hard';
+     return `<div class="arena-card">
+       <img src="${sprite}" ${safeAnimatedAttr(main.dex_number||25)}>
+       <div>
+         <h3>${esc(r.name)} <span class="rank">${esc(r.rank)}</span></h3>
+         <p>Nivel recomendado ${Number(r.recommended_level||1)} · ${difficultyText(r.difficulty_label)} · +${Number(r.reward_gold||0).toLocaleString('es-ES')} oro · +${Number(r.reward_points||0)} pts</p>
+         ${hard?`<p class="muted">Tu equipo puede estar por debajo del nivel recomendado.</p>`:''}
+         <div class="leader-team">${team.map(m=>`<img src="${m.selected_sprite_path||animated(m.dex_number||25)}" ${safeAnimatedAttr(m.dex_number||25)} title="${esc(m.pokemon_name||'Rival')} Nv. ${Number(m.level||1)}">`).join('')}</div>
+       </div>
+       <button class="primary" ${liveState?.battleLoading?'disabled':''} onclick="startArenaBattle('${esc(r.slug)}')">Battle</button>
+     </div>`;
+   }).join('');
+   const ranking=Array.isArray(arena.ranking)?arena.ranking.slice(0,5):[];
+   const rankingHtml=ranking.length?`<div class="arena-card" style="align-items:stretch"><div style="flex:1"><h3>Top Arena</h3>${ranking.map(row=>`<p><b>#${row.position}</b> ${esc(row.trainer_name)} · ${esc(row.current_rank)} · ${Number(row.arena_points||0).toLocaleString('es-ES')} pts</p>`).join('')}</div></div>`:'';
+   document.getElementById('arenaList').innerHTML=progressHtml+cards+rankingHtml;
+   return;
+ }
  document.getElementById('arenaList').innerHTML=players.map((p,idx)=>`<div class="arena-card"><img src="${p[2].includes('shiny')?shinySprite(p[3]):animated(p[3])}" ${safeAnimatedAttr(p[3])}><div><h3>${p[0]} <span class="rank">${p[1]}</span></h3><p>Líder: ${p[2]} · ${p[4]} · ${p[5]}</p></div><button class="primary" onclick="openBattle(${idx})">Battle</button></div>`).join('');
 }
 function renderGyms(){
@@ -4328,6 +4363,12 @@ function setRankingTab(tab, btn){
  renderRanking();
 }
 function renderRanking(){
+ const liveState=window.mastersmonState;
+ if(rankingTab==='arena' && Array.isArray(liveState?.arenaRanking?.ranking) && liveState.arenaRanking.ranking.length){
+   const rows=liveState.arenaRanking.ranking;
+   document.getElementById('rankingList').innerHTML=rows.map((r,i)=>`<div class="ranking-row pro"><div class="rank-medal">${r.position||i+1}</div><div class="rank-left"><img src="${animated(25)}" ${safeAnimatedAttr(25)}><div><strong>${r.trainer_name}${r.is_current_user?' · Tú':''}</strong><span class="muted" style="display:block">${r.current_rank}${r.is_system?' · Rival Arena':''}</span></div></div><div class="rank-value">${Number(r.arena_points||0).toLocaleString('es-ES')} pts</div></div>`).join('');
+   return;
+ }
  const rows=rankingData[rankingTab]||rankingData.arena;
  document.getElementById('rankingList').innerHTML=rows.map((r,i)=>{
    const sprite = rankingTab==='shiny' ? shinySprite(r[1]) : animated(r[1]);
@@ -4611,6 +4652,8 @@ V28 future database modules to include from the start:
     gyms: [],
     gymProgress: null,
     badges: [],
+    arena: null,
+    arenaRanking: null,
     battleHistory: [],
     selectedBattleDetail: null,
     shopItems: [],
@@ -4638,6 +4681,7 @@ V28 future database modules to include from the start:
     activeBattle: null,
     selectedEvolutionPayload: null,
   };
+  window.mastersmonState = state;
 
   function resetApiState(){
     state.loading = false;
@@ -4649,6 +4693,8 @@ V28 future database modules to include from the start:
     state.gyms = [];
     state.gymProgress = null;
     state.badges = [];
+    state.arena = null;
+    state.arenaRanking = null;
     state.battleHistory = [];
     state.selectedBattleDetail = null;
     state.shopItems = [];
@@ -4806,7 +4852,7 @@ V28 future database modules to include from the start:
 
   async function refreshApiData(){
     state.loading = true;
-    const [profile, inventory, team, collection, shopItems, quests, gyms, gymProgress, badges, battleHistory, summary, maps, captures, pokedex, activeEncounters] = await Promise.all([
+    const [profile, inventory, team, collection, shopItems, quests, gyms, gymProgress, badges, arena, arenaRanking, battleHistory, summary, maps, captures, pokedex, activeEncounters] = await Promise.all([
       api("/api/me"),
       api("/api/me/inventory"),
       api("/api/me/team"),
@@ -4816,6 +4862,8 @@ V28 future database modules to include from the start:
       api("/api/gyms"),
       api("/api/me/gym-progress"),
       api("/api/me/badges"),
+      api("/api/arena"),
+      api("/api/arena/ranking"),
       api("/api/me/battles?limit=20"),
       api("/api/me/pokedex-summary"),
       api("/api/maps"),
@@ -4833,6 +4881,8 @@ V28 future database modules to include from the start:
     state.gyms = Array.isArray(gyms) ? gyms : [];
     state.gymProgress = gymProgress || null;
     state.badges = Array.isArray(badges?.badges) ? badges.badges : [];
+    state.arena = arena || null;
+    state.arenaRanking = arenaRanking || null;
     state.battleHistory = Array.isArray(battleHistory) ? battleHistory : [];
     state.pokedexSummary = summary || null;
     state.maps = Array.isArray(maps) ? maps : [];
@@ -4843,6 +4893,18 @@ V28 future database modules to include from the start:
     state.loading = false;
     return state;
   }
+
+  window.loadArena = async function(){
+    state.arena = await api("/api/arena");
+    renderArena();
+    return state.arena;
+  };
+
+  window.loadArenaRanking = async function(){
+    state.arenaRanking = await api("/api/arena/ranking");
+    renderRanking();
+    return state.arenaRanking;
+  };
 
   function getBallQty(slug){
     return state.inventory.find(i => i.item_slug === slug)?.quantity || 0;
@@ -4952,6 +5014,12 @@ V28 future database modules to include from the start:
     });
     const hubNext = byId("hubNextGym");
     if(hubNext) hubNext.textContent = nextGym ? `${nextGym.name} · ${typeEs(nextGym.type_slug)}` : "Todos completos";
+
+    const hubArena = byId("hubArenaRank");
+    if(hubArena){
+      const progress = state.arena?.progress || {};
+      hubArena.textContent = `${progress.current_rank || "Bronce I"} · ${fmt(progress.win_streak || 0)} racha`;
+    }
 
     const badgeRow = document.querySelector("#trainerhq .badge-row");
     if(badgeRow){
@@ -5195,6 +5263,9 @@ V28 future database modules to include from the start:
     const parts = [];
     if(Number(rewards.gold || 0) > 0) parts.push(`<span class="quest-reward">+${fmt(rewards.gold)} Pokedolares</span>`);
     if(Number(rewards.diamonds || 0) > 0) parts.push(`<span class="quest-reward">+${fmt(rewards.diamonds)} diamantes</span>`);
+    if(Number(rewards.arena_points || 0) > 0) parts.push(`<span class="quest-reward">+${fmt(rewards.arena_points)} pts Arena</span>`);
+    if(rewards.rank_up) parts.push(`<span class="quest-reward">Nuevo rango: ${rewards.current_rank}</span>`);
+    if(Number(rewards.win_streak || 0) > 0) parts.push(`<span class="quest-reward">Racha ${fmt(rewards.win_streak)}</span>`);
     items.forEach(item => parts.push(`<span class="quest-reward">+${fmt(item.quantity)} ${item.display_name || item.slug}</span>`));
     if(rewards.badge) parts.push(`<span class="quest-reward">Medalla: ${rewards.badge.name}</span>`);
     if(rewards.first_clear === false) parts.push(`<span class="muted">Recompensa reducida por repetir gimnasio</span>`);
@@ -5214,6 +5285,8 @@ V28 future database modules to include from the start:
     const parts = [];
     if(Number(rewards.gold || 0) > 0) parts.push(`+${fmt(rewards.gold)} oro`);
     if(Number(rewards.diamonds || 0) > 0) parts.push(`+${fmt(rewards.diamonds)} diamantes`);
+    if(Number(rewards.arena_points || 0) > 0) parts.push(`+${fmt(rewards.arena_points)} pts Arena`);
+    if(rewards.rank_up) parts.push(`Nuevo rango ${rewards.current_rank}`);
     (rewards.items || []).forEach(item => parts.push(`+${fmt(item.quantity)} ${item.display_name || item.slug}`));
     if(rewards.badge) parts.push(`Medalla ${rewards.badge.name}`);
     return parts.join(" · ") || "-";
@@ -5426,20 +5499,26 @@ V28 future database modules to include from the start:
         api("/api/gyms"),
         api("/api/me/gym-progress"),
         api("/api/me/badges"),
+        api("/api/arena"),
+        api("/api/arena/ranking"),
         api("/api/me/battles?limit=20"),
       ];
-      const [profile, inventory, quests, gyms, gymProgress, badges, battleHistory] = await Promise.all(calls);
+      const [profile, inventory, quests, gyms, gymProgress, badges, arena, arenaRanking, battleHistory] = await Promise.all(calls);
       state.profile = profile || state.profile;
       state.inventory = Array.isArray(inventory) ? inventory : state.inventory;
       state.quests = Array.isArray(quests) ? quests : state.quests;
       state.gyms = Array.isArray(gyms) ? gyms : state.gyms;
       state.gymProgress = gymProgress || state.gymProgress;
       state.badges = Array.isArray(badges?.badges) ? badges.badges : state.badges;
+      state.arena = arena || state.arena;
+      state.arenaRanking = arenaRanking || state.arenaRanking;
       state.battleHistory = Array.isArray(battleHistory) ? battleHistory : state.battleHistory;
       renderWallet();
       renderInventory();
       renderQuests();
       renderGyms();
+      renderArena();
+      renderRanking();
       renderBattleHistory();
     }
   }
@@ -5457,7 +5536,7 @@ V28 future database modules to include from the start:
       state.activeBattle = battle;
       if(battle.status !== "active"){
         await refreshAfterBattleAction(battle);
-        if(battle.winner === "player" && typeof showMapToast === "function") showMapToast("Victoria de gimnasio", "success");
+        if(battle.winner === "player" && typeof showMapToast === "function") showMapToast(battle.battle_type === "arena" ? "Victoria de Arena" : "Victoria de gimnasio", "success");
       }
       renderPveBattle();
     }catch(error){
@@ -5535,6 +5614,29 @@ V28 future database modules to include from the start:
       else alert(battleErrorText(error));
     }finally{
       state.battleLoading = false;
+      renderPveBattle();
+    }
+  };
+
+  window.startArenaBattle = async function(targetSlug){
+    if(!targetSlug || state.battleLoading) return;
+    state.battleLoading = true;
+    renderArena();
+    try{
+      const battle = await api("/api/arena/battles/start", {
+        method: "POST",
+        body: JSON.stringify({targetSlug}),
+      });
+      state.activeBattle = battle;
+      document.querySelector("#battleModal header strong").textContent = "Arena PvE";
+      state.selectedBattleItem = battle.battle_items?.find(item => Number(item.quantity || 0) > 0)?.slug || null;
+      renderPveBattle();
+    }catch(error){
+      if(typeof showMapToast === "function") showMapToast(battleErrorText(error), "fail");
+      else alert(battleErrorText(error));
+    }finally{
+      state.battleLoading = false;
+      renderArena();
       renderPveBattle();
     }
   };
