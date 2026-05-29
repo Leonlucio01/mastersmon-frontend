@@ -3119,7 +3119,7 @@
                 <button class="ghost" onclick="setMyCaptureFilter('team', this)">Equipo</button>
                 <button class="ghost" onclick="setMyCaptureFilter('fav', this)">Favoritos</button>
               </div><div class="mycaptures-grid" id="myCaptureGrid"></div></div></section>
-          <section id="trade" class="page"><div class="panel"><div class="title-row"><h2>Trade Center</h2><button class="primary">Crear oferta</button></div><div class="grid2"><div class="panel" style="box-shadow:none"><h3>Tu oferta</h3><br><div class="log"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/58.gif"><div><strong>Growlithe Nv. 22</strong><span>Disponible para intercambio</span></div></div><br><button class="primary">Confirmar oferta</button></div><div class="panel" style="box-shadow:none"><h3>Oferta recibida</h3><br><div class="log"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/7.gif"><div><strong>Squirtle Nv. 18</strong><span>Entrenador Aqua</span></div></div><br><button class="ghost">Aceptar trade</button></div></div></div></section>
+          <section id="trade" class="page"><div class="panel"><div class="title-row"><h2>Trade Center</h2><button class="primary" onclick="openCreateTradeModal()">Crear oferta</button></div><div class="grid2"><div class="panel" style="box-shadow:none"><div class="title-row"><h3>Ofertas abiertas</h3><button class="ghost" onclick="loadTrades()">Actualizar</button></div><div id="tradeOffersList" class="fixed-list"></div></div><div class="panel" style="box-shadow:none"><div class="title-row"><h3>Mis ofertas</h3><span class="muted">Publicadas y aceptadas</span></div><div id="myTradesList" class="fixed-list"></div></div></div><div class="panel" style="box-shadow:none;margin-top:16px"><div class="title-row"><h3>Historial</h3><span class="muted">Intercambios completados</span></div><div id="tradeHistoryList" class="fixed-list small"></div></div></div></section>
           <section id="shop" class="page"><div class="panel"><div class="title-row"><h2>Tienda</h2><span class="muted">Balls, pociones y boosters</span></div><div class="grid4" id="shopGrid"></div><div id="shopFeedback" class="team-feedback hidden"></div></div></section>
 
           <section id="inventory" class="page">
@@ -3409,6 +3409,7 @@
   <div id="battleDetailModal" class="overlay hidden"><div class="big-modal"><header><strong>Resumen de batalla</strong><button onclick="closeBattleDetail()">×</button></header><div class="big-modal-content" id="battleDetailContent"></div></div></div>
   <div id="itemUseModal" class="overlay hidden"><div class="big-modal"><header><strong id="itemUseTitle">Usar item</strong><button onclick="closeItemUseModal()">×</button></header><div class="big-modal-content" id="itemUseContent"></div></div></div>
   <div id="evolutionModal" class="overlay hidden"><div class="big-modal"><header><strong id="evolutionTitle">Evolucionar</strong><button onclick="closeEvolutionModal()">×</button></header><div class="big-modal-content" id="evolutionContent"></div></div></div>
+  <div id="tradeModal" class="overlay hidden"><div class="big-modal"><header><strong id="tradeModalTitle">Trade Center</strong><button onclick="closeTradeModal()">×</button></header><div class="big-modal-content" id="tradeModalContent"></div></div></div>
   <div id="encounterModal" class="overlay hidden"><div class="big-modal" style="width:min(620px,100%)"><header><strong>Encuentro salvaje</strong><button onclick="closeEncounter()">×</button></header><div class="big-modal-content" id="encounterContent"></div></div></div>
   <div id="notificationsModal" class="overlay hidden"><div class="big-modal" style="width:min(560px,100%)"><header><strong>Notificaciones</strong><button onclick="closeNotifications()">×</button></header><div class="big-modal-content">
     <div class="notification-actions"><span class="muted" id="notificationStatus">3 pendientes</span><button class="primary" onclick="markNotificationsRead()">Marcar todo como leído</button></div>
@@ -4654,6 +4655,11 @@ V28 future database modules to include from the start:
     badges: [],
     arena: null,
     arenaRanking: null,
+    trades: [],
+    myTrades: null,
+    tradeHistory: [],
+    tradeLoading: false,
+    selectedTradeOffer: null,
     battleHistory: [],
     selectedBattleDetail: null,
     shopItems: [],
@@ -4695,6 +4701,11 @@ V28 future database modules to include from the start:
     state.badges = [];
     state.arena = null;
     state.arenaRanking = null;
+    state.trades = [];
+    state.myTrades = null;
+    state.tradeHistory = [];
+    state.tradeLoading = false;
+    state.selectedTradeOffer = null;
     state.battleHistory = [];
     state.selectedBattleDetail = null;
     state.shopItems = [];
@@ -4852,7 +4863,7 @@ V28 future database modules to include from the start:
 
   async function refreshApiData(){
     state.loading = true;
-    const [profile, inventory, team, collection, shopItems, quests, gyms, gymProgress, badges, arena, arenaRanking, battleHistory, summary, maps, captures, pokedex, activeEncounters] = await Promise.all([
+    const [profile, inventory, team, collection, shopItems, quests, gyms, gymProgress, badges, arena, arenaRanking, trades, myTrades, tradeHistory, battleHistory, summary, maps, captures, pokedex, activeEncounters] = await Promise.all([
       api("/api/me"),
       api("/api/me/inventory"),
       api("/api/me/team"),
@@ -4864,6 +4875,9 @@ V28 future database modules to include from the start:
       api("/api/me/badges"),
       api("/api/arena"),
       api("/api/arena/ranking"),
+      api("/api/trades?limit=30"),
+      api("/api/trades/mine"),
+      api("/api/trades/history?limit=20"),
       api("/api/me/battles?limit=20"),
       api("/api/me/pokedex-summary"),
       api("/api/maps"),
@@ -4883,6 +4897,9 @@ V28 future database modules to include from the start:
     state.badges = Array.isArray(badges?.badges) ? badges.badges : [];
     state.arena = arena || null;
     state.arenaRanking = arenaRanking || null;
+    state.trades = Array.isArray(trades) ? trades : [];
+    state.myTrades = myTrades || null;
+    state.tradeHistory = Array.isArray(tradeHistory) ? tradeHistory : [];
     state.battleHistory = Array.isArray(battleHistory) ? battleHistory : [];
     state.pokedexSummary = summary || null;
     state.maps = Array.isArray(maps) ? maps : [];
@@ -4904,6 +4921,19 @@ V28 future database modules to include from the start:
     state.arenaRanking = await api("/api/arena/ranking");
     renderRanking();
     return state.arenaRanking;
+  };
+
+  window.loadTrades = async function(){
+    const [trades, myTrades, tradeHistory] = await Promise.all([
+      api("/api/trades?limit=30"),
+      api("/api/trades/mine"),
+      api("/api/trades/history?limit=20"),
+    ]);
+    state.trades = Array.isArray(trades) ? trades : [];
+    state.myTrades = myTrades || null;
+    state.tradeHistory = Array.isArray(tradeHistory) ? tradeHistory : [];
+    renderTradeCenter();
+    return state.trades;
   };
 
   function getBallQty(slug){
@@ -5256,6 +5286,211 @@ V28 future database modules to include from the start:
     const rows = Array.isArray(battle?.log) ? battle.log.slice(-10) : [];
     return rows.map(line => `<p>${line}</p>`).join("") || `<p>Elige una skill para iniciar el turno.</p>`;
   }
+
+  function isMonsterInTeam(playerMonsterId){
+    return normalizeTeamRows(state.team).some(row => row.player_monster_id && String(row.player_monster_id) === String(playerMonsterId));
+  }
+
+  function tradeMonsterLine(monster){
+    if(!monster) return `<div class="log"><div><strong>-</strong><span>Sin criatura</span></div></div>`;
+    return `<div class="log"><img src="${asset(monster.selected_sprite_path || monster.sprite)}" ${imgFallbackAttr()}><div><strong>${monster.is_shiny ? "Shiny " : ""}${monster.pokemon_name} Nv. ${monster.level}</strong><span>${typeEs(monster.primary_type)}${monster.secondary_type ? "/" + typeEs(monster.secondary_type) : ""} · ${monster.rarity || "common"}</span></div></div>`;
+  }
+
+  function tradeRequestText(req){
+    if(!req) return "Cualquier criatura";
+    const parts = [];
+    if(req.requested_type === "species") parts.push(req.requested_species_name || "Especie específica");
+    else if(req.requested_type === "type") parts.push(`Tipo ${typeEs(req.requested_type_slug)}`);
+    else if(req.requested_type === "rarity") parts.push(`Rareza ${req.requested_rarity}`);
+    else if(req.requested_type === "specific") parts.push("Condición específica");
+    else parts.push("Cualquier criatura");
+    if(req.requested_min_level) parts.push(`Nv. mínimo ${req.requested_min_level}`);
+    if(req.requested_notes) parts.push(req.requested_notes);
+    return parts.join(" · ");
+  }
+
+  function tradeErrorText(error){
+    const msg = String(error?.message || "");
+    if(msg.includes("MONSTER_IN_TEAM") || msg.includes("ACCEPT_MONSTER_IN_TEAM")) return "Esta criatura está en tu equipo.";
+    if(msg.includes("MONSTER_LOCKED") || msg.includes("ACCEPT_MONSTER_LOCKED")) return "Esta criatura está bloqueada.";
+    if(msg.includes("CANNOT_ACCEPT_OWN_TRADE")) return "No puedes aceptar tu propia oferta.";
+    if(msg.includes("TRADE_NOT_OPEN")) return "La oferta ya no está disponible.";
+    if(msg.includes("TRADE_REQUIREMENT_NOT_MET")) return "La criatura seleccionada no cumple los requisitos.";
+    if(msg.includes("MONSTER_ALREADY_LISTED") || msg.includes("ACCEPT_MONSTER_ALREADY_LISTED")) return "Este monstruo ya está publicado en otra oferta.";
+    return "No se pudo completar el trade.";
+  }
+
+  function renderTradeCenter(){
+    const offersEl = byId("tradeOffersList");
+    const mineEl = byId("myTradesList");
+    const historyEl = byId("tradeHistoryList");
+    if(!offersEl || !mineEl || !historyEl) return;
+    const offers = Array.isArray(state.trades) ? state.trades : [];
+    offersEl.innerHTML = offers.length ? offers.map(offer => `
+      <div class="log">
+        <img src="${asset(offer.offered_monster?.selected_sprite_path)}" ${imgFallbackAttr()}>
+        <div>
+          <strong>${offer.offered_monster?.is_shiny ? "Shiny " : ""}${offer.offered_monster?.pokemon_name || "Criatura"} Nv. ${offer.offered_monster?.level || "-"}</strong>
+          <span>${offer.owner?.trainer_name || "Entrenador"} busca: ${tradeRequestText(offer.requested)}</span>
+        </div>
+        ${offer.can_cancel ? `<button class="ghost" onclick="cancelTradeOffer('${offer.trade_offer_id}')">Cancelar</button>` : offer.can_accept ? `<button class="primary" onclick="openAcceptTradeModal('${offer.trade_offer_id}')">Aceptar</button>` : `<span class="muted">Tu oferta</span>`}
+      </div>
+    `).join("") : `<p class="muted">No hay ofertas abiertas.</p>`;
+
+    const myRows = Array.isArray(state.myTrades?.all) ? state.myTrades.all : [];
+    mineEl.innerHTML = myRows.length ? myRows.slice(0, 8).map(offer => `
+      <div class="log">
+        <img src="${asset(offer.offered_monster?.selected_sprite_path)}" ${imgFallbackAttr()}>
+        <div><strong>${offer.offered_monster?.pokemon_name || "Criatura"} Nv. ${offer.offered_monster?.level || "-"}</strong><span>${offer.status} · ${tradeRequestText(offer.requested)}</span></div>
+        ${offer.can_cancel ? `<button class="ghost" onclick="cancelTradeOffer('${offer.trade_offer_id}')">Cancelar</button>` : ""}
+      </div>
+    `).join("") : `<p class="muted">Aún no tienes ofertas.</p>`;
+
+    historyEl.innerHTML = state.tradeHistory.length ? state.tradeHistory.map(row => `
+      <div class="log">
+        <img src="${asset(row.received_monster?.selected_sprite_path)}" ${imgFallbackAttr()}>
+        <div><strong>Recibiste ${row.received_monster?.pokemon_name || "-"}</strong><span>Enviaste ${row.sent_monster?.pokemon_name || "-"} · ${row.other_trainer_name || "Entrenador"} · ${new Date(row.created_at).toLocaleString()}</span></div>
+      </div>
+    `).join("") : `<p class="muted">Sin trades completados todavía.</p>`;
+  }
+
+  function validTradeCollection(){
+    return state.collection.filter(monster => !monster.is_locked);
+  }
+
+  window.openCreateTradeModal = function(){
+    const modal = byId("tradeModal");
+    const title = byId("tradeModalTitle");
+    const content = byId("tradeModalContent");
+    if(!modal || !title || !content) return;
+    title.textContent = "Crear oferta";
+    const valid = validTradeCollection();
+    content.innerHTML = `
+      <div class="grid2">
+        <div><h3>Elige criatura</h3><div class="fixed-list">${valid.map(monster => {
+          const inTeam = isMonsterInTeam(monster.player_monster_id);
+          const disabled = inTeam || monster.is_locked;
+          return `<button class="${disabled ? "ghost" : "primary"}" style="width:100%;margin-bottom:8px;text-align:left" ${disabled ? "disabled" : ""} onclick="selectTradeMonster('${monster.player_monster_id}')">${monster.pokemon_name} Nv. ${monster.level}${monster.is_favorite ? " · Favorita" : ""}${inTeam ? " · En equipo" : ""}</button>`;
+        }).join("") || `<p class="muted">No tienes criaturas disponibles para trade.</p>`}</div></div>
+        <div><h3>Busco</h3>
+          <input id="tradeOfferMonsterId" type="hidden">
+          <label>Tipo de solicitud</label>
+          <select id="tradeRequestedType"><option value="any">Cualquier criatura</option><option value="type">Tipo</option><option value="rarity">Rareza</option><option value="specific">Específica flexible</option></select>
+          <label>Tipo requerido</label><input id="tradeRequestedTypeSlug" placeholder="water, fire, grass...">
+          <label>Rareza requerida</label><input id="tradeRequestedRarity" placeholder="common, rare, epic...">
+          <label>Nivel mínimo</label><input id="tradeRequestedMinLevel" type="number" min="1" placeholder="Opcional">
+          <label>Notas</label><input id="tradeRequestedNotes" placeholder="Busco criatura de agua">
+          <div id="tradeSelectedHint" class="team-feedback hidden"></div>
+          <br><button class="primary" onclick="createTradeOffer()">Publicar oferta</button>
+        </div>
+      </div>`;
+    modal.classList.remove("hidden");
+  };
+
+  window.selectTradeMonster = function(playerMonsterId){
+    const monster = state.collection.find(m => String(m.player_monster_id) === String(playerMonsterId));
+    const input = byId("tradeOfferMonsterId");
+    const hint = byId("tradeSelectedHint");
+    if(input) input.value = playerMonsterId;
+    if(hint){
+      hint.classList.remove("hidden");
+      hint.textContent = monster ? `Seleccionado: ${monster.pokemon_name} Nv. ${monster.level}${monster.is_favorite ? " · Favorita" : ""}` : "Criatura seleccionada";
+    }
+  };
+
+  window.createTradeOffer = async function(){
+    if(state.tradeLoading) return;
+    const offeredPlayerMonsterId = byId("tradeOfferMonsterId")?.value;
+    if(!offeredPlayerMonsterId){ if(typeof showMapToast === "function") showMapToast("Elige una criatura para publicar.", "fail"); return; }
+    state.tradeLoading = true;
+    try{
+      await api("/api/trades", { method:"POST", body: JSON.stringify({
+        offeredPlayerMonsterId,
+        requestedType: byId("tradeRequestedType")?.value || "any",
+        requestedTypeSlug: byId("tradeRequestedTypeSlug")?.value || null,
+        requestedRarity: byId("tradeRequestedRarity")?.value || null,
+        requestedMinLevel: byId("tradeRequestedMinLevel")?.value || null,
+        requestedNotes: byId("tradeRequestedNotes")?.value || null,
+      })});
+      await Promise.all([loadTrades(), refreshApiData()]);
+      closeTradeModal();
+      if(typeof showMapToast === "function") showMapToast("Oferta publicada", "success");
+    }catch(error){
+      if(typeof showMapToast === "function") showMapToast(tradeErrorText(error), "fail");
+    }finally{
+      state.tradeLoading = false;
+    }
+  };
+
+  function tradeCandidateReason(monster, offer){
+    if(isMonsterInTeam(monster.player_monster_id)) return "En equipo";
+    if(monster.is_locked) return "Bloqueada";
+    const req = offer.requested || {};
+    if(req.requested_min_level && Number(monster.level || 0) < Number(req.requested_min_level)) return "Nivel insuficiente";
+    if(req.requested_type === "type" && monster.primary_type !== req.requested_type_slug && monster.secondary_type !== req.requested_type_slug) return "No cumple tipo";
+    if(req.requested_type === "species" && Number(monster.species_id) !== Number(req.requested_species_id)) return "No cumple especie";
+    if(req.requested_type === "rarity" && String(monster.rarity || "").toLowerCase() !== String(req.requested_rarity || "").toLowerCase()) return "No cumple rareza";
+    if(req.requested_type === "specific"){
+      if(req.requested_species_id && Number(monster.species_id) !== Number(req.requested_species_id)) return "No cumple especie";
+      if(req.requested_type_slug && monster.primary_type !== req.requested_type_slug && monster.secondary_type !== req.requested_type_slug) return "No cumple tipo";
+      if(req.requested_rarity && String(monster.rarity || "").toLowerCase() !== String(req.requested_rarity || "").toLowerCase()) return "No cumple rareza";
+    }
+    return "";
+  }
+
+  window.openAcceptTradeModal = function(tradeOfferId){
+    const offer = state.trades.find(t => String(t.trade_offer_id) === String(tradeOfferId));
+    if(!offer) return;
+    state.selectedTradeOffer = offer;
+    const modal = byId("tradeModal");
+    const title = byId("tradeModalTitle");
+    const content = byId("tradeModalContent");
+    title.textContent = "Aceptar trade";
+    content.innerHTML = `
+      <div class="grid2">
+        <div><h3>Recibirás</h3>${tradeMonsterLine(offer.offered_monster)}<p class="muted">Solicita: ${tradeRequestText(offer.requested)}</p></div>
+        <div><h3>Entrega una criatura</h3><div class="fixed-list">${state.collection.map(monster => {
+          const reason = tradeCandidateReason(monster, offer);
+          return `<button class="${reason ? "ghost" : "primary"}" style="width:100%;margin-bottom:8px;text-align:left" ${reason ? "disabled" : ""} onclick="acceptTradeOffer('${offer.trade_offer_id}','${monster.player_monster_id}')">${monster.pokemon_name} Nv. ${monster.level}${reason ? " · " + reason : ""}</button>`;
+        }).join("")}</div></div>
+      </div>`;
+    modal.classList.remove("hidden");
+  };
+
+  window.acceptTradeOffer = async function(tradeOfferId, acceptedPlayerMonsterId){
+    if(state.tradeLoading) return;
+    state.tradeLoading = true;
+    try{
+      await api(`/api/trades/${encodeURIComponent(tradeOfferId)}/accept`, { method:"POST", body: JSON.stringify({ acceptedPlayerMonsterId }) });
+      await refreshApiData();
+      closeTradeModal();
+      renderAll();
+      if(typeof showMapToast === "function") showMapToast("Trade completado", "success");
+    }catch(error){
+      if(typeof showMapToast === "function") showMapToast(tradeErrorText(error), "fail");
+    }finally{
+      state.tradeLoading = false;
+    }
+  };
+
+  window.cancelTradeOffer = async function(tradeOfferId){
+    if(state.tradeLoading) return;
+    state.tradeLoading = true;
+    try{
+      await api(`/api/trades/${encodeURIComponent(tradeOfferId)}/cancel`, { method:"POST" });
+      await loadTrades();
+      if(typeof showMapToast === "function") showMapToast("Oferta cancelada", "success");
+    }catch(error){
+      if(typeof showMapToast === "function") showMapToast(tradeErrorText(error), "fail");
+    }finally{
+      state.tradeLoading = false;
+    }
+  };
+
+  window.closeTradeModal = function(){
+    state.selectedTradeOffer = null;
+    byId("tradeModal")?.classList.add("hidden");
+  };
 
   function renderBattleRewards(rewards){
     if(!rewards) return "";
@@ -6903,6 +7138,7 @@ V28 future database modules to include from the start:
     if(typeof renderShop === "function") renderShop();
     renderInventory();
     if(typeof renderArena === "function") renderArena();
+    if(typeof renderTradeCenter === "function") renderTradeCenter();
     if(typeof renderGyms === "function") renderGyms();
     if(typeof renderBossRanking === "function") renderBossRanking();
     if(typeof renderRanking === "function") renderRanking();
