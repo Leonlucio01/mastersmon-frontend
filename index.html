@@ -3250,16 +3250,21 @@
             <div class="panel">
               <div class="title-row">
                 <h2>Mercado global y subastas</h2>
-                <span class="muted">Compra, vende y puja con otros entrenadores</span>
+                <div class="leader-actions">
+                  <button class="primary" onclick="openCreateMarketListingModal()">Crear venta</button>
+                  <button class="ghost" onclick="openCreateMarketAuctionModal()">Crear subasta</button>
+                </div>
               </div>
 
               <div class="feature-tabs">
-                <button class="primary">Mercado global</button>
-                <button class="ghost">Subastas</button>
-                <button class="ghost">Mis ventas</button>
-                <button class="ghost">Historial</button>
+                <button id="marketTabListings" class="primary" onclick="setMarketTab('listings')">Mercado global</button>
+                <button id="marketTabAuctions" class="ghost" onclick="setMarketTab('auctions')">Subastas</button>
+                <button id="marketTabMine" class="ghost" onclick="setMarketTab('mine')">Mis ventas</button>
+                <button id="marketTabHistory" class="ghost" onclick="setMarketTab('history')">Historial</button>
               </div>
 
+              <div id="marketContent"></div>
+              <div class="hidden">
               <div class="feature-grid">
                 <div class="feature-card gold">
                   <span class="tag-premium">Subasta destacada</span>
@@ -3292,6 +3297,7 @@
                   <div class="feature-row"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/95.png"><div><strong>Onix Nv. 31</strong><span>Kiro · quedan 3 h · precio mínimo cumplido</span></div><button class="ghost" onclick="openAuctionLot(this)">Ver lote</button></div>
                   <div class="feature-row"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/58.png"><div><strong>Growlithe raro</strong><span>Ragnar · compra directa disponible</span></div><button class="primary" onclick="buyMarketListing(this)">Comprar</button></div>
                 </div>
+              </div>
               </div>
             </div>
           </section>
@@ -3410,6 +3416,7 @@
   <div id="itemUseModal" class="overlay hidden"><div class="big-modal"><header><strong id="itemUseTitle">Usar item</strong><button onclick="closeItemUseModal()">×</button></header><div class="big-modal-content" id="itemUseContent"></div></div></div>
   <div id="evolutionModal" class="overlay hidden"><div class="big-modal"><header><strong id="evolutionTitle">Evolucionar</strong><button onclick="closeEvolutionModal()">×</button></header><div class="big-modal-content" id="evolutionContent"></div></div></div>
   <div id="tradeModal" class="overlay hidden"><div class="big-modal"><header><strong id="tradeModalTitle">Trade Center</strong><button onclick="closeTradeModal()">×</button></header><div class="big-modal-content" id="tradeModalContent"></div></div></div>
+  <div id="marketModal" class="overlay hidden"><div class="big-modal"><header><strong id="marketModalTitle">Mercado</strong><button onclick="closeMarketModal()">×</button></header><div class="big-modal-content" id="marketModalContent"></div></div></div>
   <div id="encounterModal" class="overlay hidden"><div class="big-modal" style="width:min(620px,100%)"><header><strong>Encuentro salvaje</strong><button onclick="closeEncounter()">×</button></header><div class="big-modal-content" id="encounterContent"></div></div></div>
   <div id="notificationsModal" class="overlay hidden"><div class="big-modal" style="width:min(560px,100%)"><header><strong>Notificaciones</strong><button onclick="closeNotifications()">×</button></header><div class="big-modal-content">
     <div class="notification-actions"><span class="muted" id="notificationStatus">3 pendientes</span><button class="primary" onclick="markNotificationsRead()">Marcar todo como leído</button></div>
@@ -4660,6 +4667,13 @@ V28 future database modules to include from the start:
     tradeHistory: [],
     tradeLoading: false,
     selectedTradeOffer: null,
+    marketListings: [],
+    myMarketListings: [],
+    marketAuctions: [],
+    myMarketAuctions: [],
+    marketHistory: [],
+    marketLoading: false,
+    marketTab: "listings",
     battleHistory: [],
     selectedBattleDetail: null,
     shopItems: [],
@@ -4706,6 +4720,13 @@ V28 future database modules to include from the start:
     state.tradeHistory = [];
     state.tradeLoading = false;
     state.selectedTradeOffer = null;
+    state.marketListings = [];
+    state.myMarketListings = [];
+    state.marketAuctions = [];
+    state.myMarketAuctions = [];
+    state.marketHistory = [];
+    state.marketLoading = false;
+    state.marketTab = "listings";
     state.battleHistory = [];
     state.selectedBattleDetail = null;
     state.shopItems = [];
@@ -4863,7 +4884,7 @@ V28 future database modules to include from the start:
 
   async function refreshApiData(){
     state.loading = true;
-    const [profile, inventory, team, collection, shopItems, quests, gyms, gymProgress, badges, arena, arenaRanking, trades, myTrades, tradeHistory, battleHistory, summary, maps, captures, pokedex, activeEncounters] = await Promise.all([
+    const [profile, inventory, team, collection, shopItems, quests, gyms, gymProgress, badges, arena, arenaRanking, trades, myTrades, tradeHistory, marketListings, myMarketListings, marketAuctions, myMarketAuctions, marketHistory, battleHistory, summary, maps, captures, pokedex, activeEncounters] = await Promise.all([
       api("/api/me"),
       api("/api/me/inventory"),
       api("/api/me/team"),
@@ -4878,6 +4899,11 @@ V28 future database modules to include from the start:
       api("/api/trades?limit=30"),
       api("/api/trades/mine"),
       api("/api/trades/history?limit=20"),
+      api("/api/market/listings?limit=30"),
+      api("/api/market/listings?mine=true&limit=50"),
+      api("/api/market/auctions?limit=30"),
+      api("/api/market/auctions?mine=true&limit=50"),
+      api("/api/market/history?limit=30"),
       api("/api/me/battles?limit=20"),
       api("/api/me/pokedex-summary"),
       api("/api/maps"),
@@ -4900,6 +4926,11 @@ V28 future database modules to include from the start:
     state.trades = Array.isArray(trades) ? trades : [];
     state.myTrades = myTrades || null;
     state.tradeHistory = Array.isArray(tradeHistory) ? tradeHistory : [];
+    state.marketListings = Array.isArray(marketListings) ? marketListings : [];
+    state.myMarketListings = Array.isArray(myMarketListings) ? myMarketListings : [];
+    state.marketAuctions = Array.isArray(marketAuctions) ? marketAuctions : [];
+    state.myMarketAuctions = Array.isArray(myMarketAuctions) ? myMarketAuctions : [];
+    state.marketHistory = Array.isArray(marketHistory) ? marketHistory : [];
     state.battleHistory = Array.isArray(battleHistory) ? battleHistory : [];
     state.pokedexSummary = summary || null;
     state.maps = Array.isArray(maps) ? maps : [];
@@ -4934,6 +4965,23 @@ V28 future database modules to include from the start:
     state.tradeHistory = Array.isArray(tradeHistory) ? tradeHistory : [];
     renderTradeCenter();
     return state.trades;
+  };
+
+  window.loadMarket = async function(){
+    const [listings, mineListings, auctions, mineAuctions, history] = await Promise.all([
+      api("/api/market/listings?limit=30"),
+      api("/api/market/listings?mine=true&limit=50"),
+      api("/api/market/auctions?limit=30"),
+      api("/api/market/auctions?mine=true&limit=50"),
+      api("/api/market/history?limit=30"),
+    ]);
+    state.marketListings = Array.isArray(listings) ? listings : [];
+    state.myMarketListings = Array.isArray(mineListings) ? mineListings : [];
+    state.marketAuctions = Array.isArray(auctions) ? auctions : [];
+    state.myMarketAuctions = Array.isArray(mineAuctions) ? mineAuctions : [];
+    state.marketHistory = Array.isArray(history) ? history : [];
+    renderMarket();
+    return state.marketListings;
   };
 
   function getBallQty(slug){
@@ -5490,6 +5538,295 @@ V28 future database modules to include from the start:
   window.closeTradeModal = function(){
     state.selectedTradeOffer = null;
     byId("tradeModal")?.classList.add("hidden");
+  };
+
+  function marketErrorText(error){
+    const code = error?.code || "";
+    if(code.includes("CANNOT_BUY_OWN") || code.includes("CANNOT_BID_OWN")) return "No puedes comprar o pujar tu propia publicacion.";
+    if(code.includes("INSUFFICIENT_FUNDS")) return "Fondos insuficientes.";
+    if(code.includes("NOT_OPEN") || code.includes("NOT_FOUND")) return "La venta ya no esta disponible.";
+    if(code.includes("IN_TEAM")) return "La criatura esta en tu equipo.";
+    if(code.includes("LOCKED")) return "La criatura esta bloqueada.";
+    if(code.includes("ITEM_INSUFFICIENT")) return "Este item no tiene cantidad suficiente.";
+    if(code.includes("BID_TOO_LOW")) return "La puja debe ser mayor a la actual.";
+    if(code.includes("ALREADY_LISTED")) return "Este monstruo ya esta publicado.";
+    if(code.includes("INVALID_PRICE")) return "Ingresa un precio valido.";
+    return "No se pudo completar la operacion del mercado.";
+  }
+
+  function marketPriceText(row){
+    const parts = [];
+    if(Number(row?.price_gold || row?.current_price_gold || 0) > 0) parts.push(`${fmt(row.price_gold || row.current_price_gold)} Pokedolares`);
+    if(Number(row?.price_diamonds || 0) > 0) parts.push(`${fmt(row.price_diamonds)} diamantes`);
+    return parts.join(" + ") || "Sin precio";
+  }
+
+  function marketSubject(row){
+    const monster = row?.monster;
+    const item = row?.item;
+    if(monster){
+      return {
+        name: `${monster.is_shiny ? "Shiny " : ""}${monster.pokemon_name || "Criatura"} Nv. ${monster.level || "-"}`,
+        meta: `${typeEs(monster.primary_type)}${monster.secondary_type ? " / " + typeEs(monster.secondary_type) : ""} · ${monster.rarity || "rareza"}`,
+        image: asset(monster.selected_sprite_path),
+      };
+    }
+    return {
+      name: `${item?.display_name || item?.item_slug || "Item"} x${row?.quantity || item?.quantity || 1}`,
+      meta: "Item comerciable",
+      image: asset(item?.icon_path || "/img/items/official/poke-ball.png"),
+    };
+  }
+
+  function currentUserId(){
+    return state.profile?.user_id || state.profile?.id || state.profile?.trainer_id || null;
+  }
+
+  function marketListingCard(listing){
+    const subject = marketSubject(listing);
+    return `<div class="feature-card">
+      <img src="${subject.image}" ${imgFallbackAttr()} style="width:72px;height:72px;object-fit:contain;float:right">
+      <h3>${subject.name}</h3>
+      <p>${listing.seller?.trainer_name || "Entrenador"} · ${subject.meta}</p>
+      <span class="market-price">${marketPriceText(listing)}</span>
+      ${listing.can_cancel ? `<button class="ghost" onclick="cancelMarketListingReal('${listing.listing_id}')">Cancelar</button>` : listing.can_buy ? `<button class="primary" onclick="openMarketBuyModal('${listing.listing_id}')">Comprar</button>` : `<button class="ghost" disabled>Tu venta</button>`}
+    </div>`;
+  }
+
+  function auctionTimeLeft(auction){
+    const ms = new Date(auction.ends_at).getTime() - Date.now();
+    if(ms <= 0) return "Finalizada";
+    const hours = Math.floor(ms / 3600000);
+    const minutes = Math.floor((ms % 3600000) / 60000);
+    return `${hours}h ${minutes}m`;
+  }
+
+  function marketAuctionCard(auction){
+    const subject = marketSubject(auction);
+    return `<div class="feature-card ${auction.status === "open" ? "gold" : ""}">
+      <span class="tag-premium">${auction.status === "open" ? `Quedan ${auctionTimeLeft(auction)}` : auction.status}</span>
+      <img src="${subject.image}" ${imgFallbackAttr()} style="width:72px;height:72px;object-fit:contain;float:right">
+      <h3>${subject.name}</h3>
+      <p>${auction.seller?.trainer_name || "Entrenador"} · ${subject.meta}</p>
+      <span class="market-price">Puja actual: ${fmt(auction.current_price_gold || auction.starting_price_gold)} Pokedolares</span>
+      ${auction.highest_bidder ? `<p class="muted">Mayor puja: ${auction.highest_bidder.trainer_name}</p>` : ""}
+      <div class="leader-actions">
+        ${auction.can_bid ? `<button class="primary" onclick="openAuctionBidModal('${auction.auction_id}')">Pujar</button>` : ""}
+        ${auction.can_buyout ? `<button class="ghost" onclick="buyoutAuctionReal('${auction.auction_id}')">Comprar ahora ${fmt(auction.buyout_price_gold)}</button>` : ""}
+        ${auction.can_cancel ? `<button class="ghost" onclick="cancelAuctionReal('${auction.auction_id}')">Cancelar</button>` : ""}
+        ${auction.status === "open" && new Date(auction.ends_at) <= new Date() ? `<button class="primary" onclick="claimAuctionReal('${auction.auction_id}')">Reclamar</button>` : ""}
+      </div>
+    </div>`;
+  }
+
+  window.setMarketTab = function(tab){
+    state.marketTab = tab;
+    renderMarket();
+  };
+
+  function setMarketTabs(){
+    const ids = {listings:"marketTabListings", auctions:"marketTabAuctions", mine:"marketTabMine", history:"marketTabHistory"};
+    Object.entries(ids).forEach(([tab,id]) => {
+      const btn = byId(id);
+      if(!btn) return;
+      btn.className = state.marketTab === tab ? "primary" : "ghost";
+    });
+  }
+
+  function renderMarketHistory(){
+    return state.marketHistory.length ? `<div class="feature-list">${state.marketHistory.map(row => {
+      const title = row.event_type === "auction_bid" ? "Pujaste" : String(row.buyer_user_id) === String(currentUserId()) ? "Compraste" : "Vendiste";
+      const price = `${fmt(row.price_gold || 0)} Pokedolares${Number(row.price_diamonds || 0) ? " + " + fmt(row.price_diamonds) + " diamantes" : ""}`;
+      return `<div class="feature-row"><img src="${asset(row.snapshot?.selected_sprite_path || row.snapshot?.icon_path)}" ${imgFallbackAttr()}><div><strong>${title} ${row.snapshot?.pokemon_name || row.snapshot?.item_slug || row.item_slug || "lote"}</strong><span>${price} · ${new Date(row.created_at).toLocaleString()}</span></div></div>`;
+    }).join("")}</div>` : `<p class="muted">Sin historial de mercado todavia.</p>`;
+  }
+
+  function renderMarket(){
+    const root = byId("marketContent");
+    if(!root) return;
+    setMarketTabs();
+    if(state.marketLoading){
+      root.innerHTML = `<p class="muted">Cargando mercado...</p>`;
+      return;
+    }
+    if(state.marketTab === "auctions"){
+      root.innerHTML = `<div class="feature-grid">${state.marketAuctions.map(marketAuctionCard).join("") || `<p class="muted">No hay subastas activas.</p>`}</div>`;
+    } else if(state.marketTab === "mine"){
+      const listings = state.myMarketListings.filter(row => row.can_cancel || String(row.seller_user_id) === String(currentUserId()));
+      const auctions = state.myMarketAuctions.filter(row => row.can_cancel || String(row.seller_user_id) === String(currentUserId()));
+      root.innerHTML = `<div class="title-row"><h3>Ventas directas</h3><span class="muted">${listings.length} registros</span></div><div class="feature-grid">${listings.map(marketListingCard).join("") || `<p class="muted">No tienes ventas publicadas.</p>`}</div><div class="title-row" style="margin-top:16px"><h3>Subastas</h3><span class="muted">${auctions.length} registros</span></div><div class="feature-grid">${auctions.map(marketAuctionCard).join("") || `<p class="muted">No tienes subastas publicadas.</p>`}</div>`;
+    } else if(state.marketTab === "history"){
+      root.innerHTML = renderMarketHistory();
+    } else {
+      root.innerHTML = `<div class="feature-grid">${state.marketListings.map(marketListingCard).join("") || `<p class="muted">No hay ventas abiertas.</p>`}</div>`;
+    }
+  }
+
+  window.renderMarket = renderMarket;
+
+  function validMarketMonsters(){
+    return state.collection.filter(monster => !monster.is_locked);
+  }
+
+  function marketMonsterOption(monster){
+    const inTeam = isMonsterInTeam(monster.player_monster_id);
+    const disabled = inTeam || monster.is_locked;
+    return `<option value="${monster.player_monster_id}" ${disabled ? "disabled" : ""}>${monster.pokemon_name} Nv. ${monster.level}${inTeam ? " - En equipo" : ""}${monster.is_locked ? " - Bloqueada" : ""}</option>`;
+  }
+
+  function marketItemOption(item){
+    return `<option value="${item.item_slug}">${item.display_name || item.item_name || item.item_slug} x${item.quantity}</option>`;
+  }
+
+  window.openCreateMarketListingModal = function(){
+    const modal = byId("marketModal");
+    const title = byId("marketModalTitle");
+    const content = byId("marketModalContent");
+    if(!modal || !title || !content) return;
+    title.textContent = "Crear venta";
+    content.innerHTML = `<div class="grid2">
+      <div><label>Tipo de venta</label><select id="marketListingType"><option value="monster">Criatura</option><option value="item">Item</option></select><label>Criatura</label><select id="marketListingMonster">${validMarketMonsters().map(marketMonsterOption).join("")}</select><label>Item</label><select id="marketListingItem">${state.inventory.filter(i => Number(i.quantity || 0) > 0).map(marketItemOption).join("")}</select><label>Cantidad item</label><input id="marketListingQuantity" type="number" min="1" value="1"></div>
+      <div><label>Precio en Pokedolares</label><input id="marketListingGold" type="number" min="0" value="1000"><label>Precio en diamantes</label><input id="marketListingDiamonds" type="number" min="0" value="0"><p class="muted">El backend valida ownership, equipo, bloqueos, trades y stock.</p><button class="primary" onclick="createMarketListingReal()">Publicar venta</button></div>
+    </div>`;
+    modal.classList.remove("hidden");
+  };
+
+  window.createMarketListingReal = async function(){
+    if(state.marketLoading) return;
+    const listingType = byId("marketListingType")?.value || "monster";
+    const payload = { listingType, priceGold: Number(byId("marketListingGold")?.value || 0), priceDiamonds: Number(byId("marketListingDiamonds")?.value || 0) };
+    if(listingType === "monster") payload.playerMonsterId = byId("marketListingMonster")?.value;
+    else { payload.itemSlug = byId("marketListingItem")?.value; payload.quantity = Number(byId("marketListingQuantity")?.value || 1); }
+    state.marketLoading = true;
+    try{
+      await api("/api/market/listings", {method:"POST", body: JSON.stringify(payload)});
+      await Promise.all([loadMarket(), refreshApiData()]);
+      closeMarketModal();
+      if(typeof showMapToast === "function") showMapToast("Venta publicada", "success");
+    }catch(error){ if(typeof showMapToast === "function") showMapToast(marketErrorText(error), "fail"); }
+    finally{ state.marketLoading = false; renderMarket(); }
+  };
+
+  window.openMarketBuyModal = function(listingId){
+    const listing = state.marketListings.find(row => String(row.listing_id) === String(listingId)) || state.myMarketListings.find(row => String(row.listing_id) === String(listingId));
+    if(!listing) return;
+    const subject = marketSubject(listing);
+    byId("marketModalTitle").textContent = "Comprar";
+    byId("marketModalContent").innerHTML = `<div class="feature-card"><img src="${subject.image}" ${imgFallbackAttr()} style="width:72px;height:72px;object-fit:contain;float:right"><h3>${subject.name}</h3><p>${subject.meta}</p><span class="market-price">${marketPriceText(listing)}</span><br><button class="primary" onclick="buyMarketListingReal('${listing.listing_id}')">Confirmar compra</button></div>`;
+    byId("marketModal").classList.remove("hidden");
+  };
+
+  window.buyMarketListingReal = async function(listingId){
+    if(state.marketLoading) return;
+    state.marketLoading = true;
+    try{
+      await api(`/api/market/listings/${encodeURIComponent(listingId)}/buy`, {method:"POST"});
+      await refreshApiData();
+      closeMarketModal();
+      renderAll();
+      if(typeof showMapToast === "function") showMapToast("Compra realizada", "success");
+    }catch(error){ if(typeof showMapToast === "function") showMapToast(marketErrorText(error), "fail"); }
+    finally{ state.marketLoading = false; renderMarket(); }
+  };
+
+  window.cancelMarketListingReal = async function(listingId){
+    if(state.marketLoading) return;
+    state.marketLoading = true;
+    try{
+      await api(`/api/market/listings/${encodeURIComponent(listingId)}/cancel`, {method:"POST"});
+      await loadMarket();
+      if(typeof showMapToast === "function") showMapToast("Venta cancelada", "success");
+    }catch(error){ if(typeof showMapToast === "function") showMapToast(marketErrorText(error), "fail"); }
+    finally{ state.marketLoading = false; renderMarket(); }
+  };
+
+  window.openCreateMarketAuctionModal = function(){
+    const modal = byId("marketModal");
+    const title = byId("marketModalTitle");
+    const content = byId("marketModalContent");
+    if(!modal || !title || !content) return;
+    title.textContent = "Crear subasta";
+    content.innerHTML = `<div class="grid2">
+      <div><label>Tipo de subasta</label><select id="marketAuctionType"><option value="monster">Criatura</option><option value="item">Item</option></select><label>Criatura</label><select id="marketAuctionMonster">${validMarketMonsters().map(marketMonsterOption).join("")}</select><label>Item</label><select id="marketAuctionItem">${state.inventory.filter(i => Number(i.quantity || 0) > 0).map(marketItemOption).join("")}</select><label>Cantidad item</label><input id="marketAuctionQuantity" type="number" min="1" value="1"></div>
+      <div><label>Precio inicial</label><input id="marketAuctionStart" type="number" min="1" value="1000"><label>Compra directa</label><input id="marketAuctionBuyout" type="number" min="0" value="0"><label>Duracion</label><select id="marketAuctionHours"><option value="6">6h</option><option value="12">12h</option><option value="24" selected>24h</option><option value="48">48h</option></select><br><button class="primary" onclick="createMarketAuctionReal()">Publicar subasta</button></div>
+    </div>`;
+    modal.classList.remove("hidden");
+  };
+
+  window.createMarketAuctionReal = async function(){
+    if(state.marketLoading) return;
+    const auctionType = byId("marketAuctionType")?.value || "monster";
+    const payload = { auctionType, startingPriceGold: Number(byId("marketAuctionStart")?.value || 0), buyoutPriceGold: Number(byId("marketAuctionBuyout")?.value || 0) || null, durationHours: Number(byId("marketAuctionHours")?.value || 24) };
+    if(auctionType === "monster") payload.playerMonsterId = byId("marketAuctionMonster")?.value;
+    else { payload.itemSlug = byId("marketAuctionItem")?.value; payload.quantity = Number(byId("marketAuctionQuantity")?.value || 1); }
+    state.marketLoading = true;
+    try{
+      await api("/api/market/auctions", {method:"POST", body: JSON.stringify(payload)});
+      await Promise.all([loadMarket(), refreshApiData()]);
+      closeMarketModal();
+      if(typeof showMapToast === "function") showMapToast("Subasta publicada", "success");
+    }catch(error){ if(typeof showMapToast === "function") showMapToast(marketErrorText(error), "fail"); }
+    finally{ state.marketLoading = false; renderMarket(); }
+  };
+
+  window.openAuctionBidModal = function(auctionId){
+    const auction = state.marketAuctions.find(row => String(row.auction_id) === String(auctionId));
+    if(!auction) return;
+    byId("marketModalTitle").textContent = "Pujar";
+    byId("marketModalContent").innerHTML = `<label>Puja actual</label><p class="market-price">${fmt(auction.current_price_gold)} Pokedolares</p><label>Nueva puja</label><input id="auctionBidGold" type="number" min="${Number(auction.current_price_gold || 0) + 1}" value="${Number(auction.current_price_gold || 0) + 100}"><br><button class="primary" onclick="bidAuctionReal('${auction.auction_id}')">Confirmar puja</button>`;
+    byId("marketModal").classList.remove("hidden");
+  };
+
+  window.bidAuctionReal = async function(auctionId){
+    if(state.marketLoading) return;
+    state.marketLoading = true;
+    try{
+      await api(`/api/market/auctions/${encodeURIComponent(auctionId)}/bid`, {method:"POST", body: JSON.stringify({bidGold: Number(byId("auctionBidGold")?.value || 0)})});
+      await refreshApiData();
+      closeMarketModal();
+      renderAll();
+      if(typeof showMapToast === "function") showMapToast("Puja registrada", "success");
+    }catch(error){ if(typeof showMapToast === "function") showMapToast(marketErrorText(error), "fail"); }
+    finally{ state.marketLoading = false; renderMarket(); }
+  };
+
+  window.buyoutAuctionReal = async function(auctionId){
+    if(state.marketLoading) return;
+    state.marketLoading = true;
+    try{
+      await api(`/api/market/auctions/${encodeURIComponent(auctionId)}/buyout`, {method:"POST"});
+      await refreshApiData();
+      renderAll();
+      if(typeof showMapToast === "function") showMapToast("Subasta comprada", "success");
+    }catch(error){ if(typeof showMapToast === "function") showMapToast(marketErrorText(error), "fail"); }
+    finally{ state.marketLoading = false; renderMarket(); }
+  };
+
+  window.claimAuctionReal = async function(auctionId){
+    if(state.marketLoading) return;
+    state.marketLoading = true;
+    try{
+      await api(`/api/market/auctions/${encodeURIComponent(auctionId)}/claim`, {method:"POST"});
+      await refreshApiData();
+      renderAll();
+      if(typeof showMapToast === "function") showMapToast("Subasta reclamada", "success");
+    }catch(error){ if(typeof showMapToast === "function") showMapToast(marketErrorText(error), "fail"); }
+    finally{ state.marketLoading = false; renderMarket(); }
+  };
+
+  window.cancelAuctionReal = async function(auctionId){
+    if(state.marketLoading) return;
+    state.marketLoading = true;
+    try{
+      await api(`/api/market/auctions/${encodeURIComponent(auctionId)}/cancel`, {method:"POST"});
+      await loadMarket();
+      if(typeof showMapToast === "function") showMapToast("Subasta cancelada", "success");
+    }catch(error){ if(typeof showMapToast === "function") showMapToast(marketErrorText(error), "fail"); }
+    finally{ state.marketLoading = false; renderMarket(); }
+  };
+
+  window.closeMarketModal = function(){
+    byId("marketModal")?.classList.add("hidden");
   };
 
   function renderBattleRewards(rewards){
@@ -7139,6 +7476,7 @@ V28 future database modules to include from the start:
     renderInventory();
     if(typeof renderArena === "function") renderArena();
     if(typeof renderTradeCenter === "function") renderTradeCenter();
+    if(typeof renderMarket === "function") renderMarket();
     if(typeof renderGyms === "function") renderGyms();
     if(typeof renderBossRanking === "function") renderBossRanking();
     if(typeof renderRanking === "function") renderRanking();
