@@ -3564,6 +3564,23 @@
       background:linear-gradient(180deg,#ffe0a0,#e4ab4f)!important;
       color:#1d1308!important;
     }
+    .region-tabs .region-tab{
+      appearance:none;
+      border:0!important;
+      background:transparent!important;
+      cursor:pointer;
+      font:inherit;
+    }
+    .region-tabs .region-tab.active{
+      background:linear-gradient(180deg,rgba(255,224,160,.2),rgba(228,171,79,.12))!important;
+      border:1px solid rgba(234,191,104,.34)!important;
+      color:#fff4d4!important;
+    }
+    .region-tabs .region-tab.active .region-icon{
+      border-color:#eabf68!important;
+      background:rgba(255,224,160,.2)!important;
+      color:#ffe0a0!important;
+    }
 
     .hub-main,.cover{
       min-height:340px!important;
@@ -4215,17 +4232,17 @@
             <div class="panel pogo-shell">
               <div class="pogo-head"><h2>POKÉDEX</h2><div class="pogo-counts">CAUGHT: <span id="caughtCount">0</span> &nbsp; SEEN: <span id="seenCount">0</span></div></div>
               <div class="region-tabs gen9">
-                <div class="region-tab"><div class="region-icon">Ⅰ</div><small>149</small>Kanto</div>
-                <div class="region-tab"><div class="region-icon">Ⅱ</div><small>94</small>Johto</div>
-                <div class="region-tab"><div class="region-icon">Ⅲ</div><small>115</small>Hoenn</div>
-                <div class="region-tab"><div class="region-icon">Ⅳ</div><small>107</small>Sinnoh</div>
-                <div class="region-tab"><div class="region-icon">Ⅴ</div><small>156</small>Unova</div>
-                <div class="region-tab"><div class="region-icon">Ⅵ</div><small>72</small>Kalos</div>
-                <div class="region-tab"><div class="region-icon">Ⅶ</div><small>88</small>Alola</div>
-                <div class="region-tab"><div class="region-icon">Ⅷ</div><small>96</small>Galar</div>
-                <div class="region-tab"><div class="region-icon">Ⅸ</div><small>120</small>Paldea</div>
+                <button type="button" class="region-tab active" data-generation="1" onclick="setDexGeneration(1)"><div class="region-icon">I</div><small>149</small>Kanto</button>
+                <button type="button" class="region-tab" data-generation="2" onclick="setDexGeneration(2)"><div class="region-icon">II</div><small>94</small>Johto</button>
+                <button type="button" class="region-tab" data-generation="3" onclick="setDexGeneration(3)"><div class="region-icon">III</div><small>115</small>Hoenn</button>
+                <button type="button" class="region-tab" data-generation="4" onclick="setDexGeneration(4)"><div class="region-icon">IV</div><small>107</small>Sinnoh</button>
+                <button type="button" class="region-tab" data-generation="5" onclick="setDexGeneration(5)"><div class="region-icon">V</div><small>156</small>Unova</button>
+                <button type="button" class="region-tab" data-generation="6" onclick="setDexGeneration(6)"><div class="region-icon">VI</div><small>72</small>Kalos</button>
+                <button type="button" class="region-tab" data-generation="7" onclick="setDexGeneration(7)"><div class="region-icon">VII</div><small>88</small>Alola</button>
+                <button type="button" class="region-tab" data-generation="8" onclick="setDexGeneration(8)"><div class="region-icon">VIII</div><small>96</small>Galar</button>
+                <button type="button" class="region-tab" data-generation="9" onclick="setDexGeneration(9)"><div class="region-icon">IX</div><small>120</small>Paldea</button>
               </div>
-              <div class="pogo-section-title"><span>Kanto</span></div>
+              <div class="pogo-section-title"><span id="dexRegionTitle">Kanto</span></div>
               <div class="pogo-controls">
                 <div class="filter" style="margin:0"><input id="dexSearch" placeholder="Buscar criatura..." oninput="renderDex()"><select id="dexType" onchange="renderDex()">
                     <option value="all">Todos</option>
@@ -4642,6 +4659,8 @@ let wildPos={x:68,y:38};
 let selectedPlayerMon=null;
 let currentBattleContext=null;
 let dexMode='normal';
+window.dexMode = dexMode;
+window.selectedDexGeneration = 1;
 let myCaptureFilter='all';
 let selectedEncounter=133;
 let selectedEncounterShiny=false;
@@ -4895,7 +4914,7 @@ function showPage(id){document.querySelectorAll('.menu button').forEach(b=>b.cla
 document.querySelectorAll('.menu button').forEach(btn=>btn.onclick=()=>showPage(btn.dataset.page));
 function captureRow(c){return `<div class="log"><img class="pokemon-img-clean" src="${c.shiny?shinySprite(c.id):animated(c.id)}" ${safeAnimatedAttr(c.id)}><div><strong>${c.trainer} capturó ${c.mon} ${c.shiny?'<span class="shiny-star">★</span>':''}</strong><span>${c.zone} · hace unos minutos</span></div></div>`}
 function renderCaptures(){document.getElementById('hubCaptures').innerHTML=captures.slice(0,5).map(captureRow).join('');document.getElementById('captureList').innerHTML=captures.slice(0,30).map(captureRow).join('');document.getElementById('captureModalList').innerHTML=captures.map(captureRow).join('')}
-function setDexMode(mode){dexMode=mode;document.getElementById('normalModeBtn').classList.toggle('active',mode==='normal');document.getElementById('shinyModeBtn').classList.toggle('active',mode==='shiny');renderDex()}
+function setDexMode(mode){dexMode=mode;window.dexMode=mode;document.getElementById('normalModeBtn').classList.toggle('active',mode==='normal');document.getElementById('shinyModeBtn').classList.toggle('active',mode==='shiny');renderDex()}
 function renderDex(){
   const q=(document.getElementById('dexSearch')?.value||'').toLowerCase();
   const type=document.getElementById('dexType')?.value||'all';
@@ -5822,6 +5841,8 @@ V28 future database modules to include from the start:
     shopItems: [],
     pokedexSummary: null,
     pokedex: [],
+    pokedexByGeneration: {},
+    selectedPokedexGeneration: 1,
     maps: [],
     recentCaptures: [],
     currentMap: null,
@@ -5875,6 +5896,8 @@ V28 future database modules to include from the start:
     state.shopItems = [];
     state.pokedexSummary = null;
     state.pokedex = [];
+    state.pokedexByGeneration = {};
+    state.selectedPokedexGeneration = 1;
     state.maps = [];
     state.recentCaptures = [];
     state.currentMap = null;
@@ -6079,6 +6102,8 @@ V28 future database modules to include from the start:
     state.maps = Array.isArray(maps) ? maps : [];
     state.recentCaptures = Array.isArray(captures) ? captures : [];
     state.pokedex = Array.isArray(pokedex) ? pokedex : [];
+    state.selectedPokedexGeneration = 1;
+    state.pokedexByGeneration = { ...(state.pokedexByGeneration || {}), 1: state.pokedex };
     state.activeEncounters = Array.isArray(activeEncounters) ? activeEncounters : [];
     if(!state.currentMap && state.maps.length) state.currentMap = state.maps.find(m=>m.slug==="bosque-verde") || state.maps[0];
     state.loading = false;
@@ -7206,36 +7231,50 @@ V28 future database modules to include from the start:
   };
 
   async function refreshAfterBattleAction(battle, refreshInventoryOnly=false){
-    if(battle.status !== "active" || refreshInventoryOnly){
-      const calls = [
-        api("/api/me"),
-        api("/api/me/inventory"),
-        api("/api/me/quests"),
-        api("/api/gyms"),
-        api("/api/me/gym-progress"),
-        api("/api/me/badges"),
-        api("/api/arena"),
-        api("/api/arena/ranking"),
-        api("/api/me/battles?limit=20"),
-      ];
-      const [profile, inventory, quests, gyms, gymProgress, badges, arena, arenaRanking, battleHistory] = await Promise.all(calls);
-      state.profile = profile || state.profile;
-      state.inventory = Array.isArray(inventory) ? inventory : state.inventory;
-      state.quests = Array.isArray(quests) ? quests : state.quests;
-      state.gyms = Array.isArray(gyms) ? gyms : state.gyms;
-      state.gymProgress = gymProgress || state.gymProgress;
-      state.badges = Array.isArray(badges?.badges) ? badges.badges : state.badges;
-      state.arena = arena || state.arena;
-      state.arenaRanking = arenaRanking || state.arenaRanking;
-      state.battleHistory = Array.isArray(battleHistory) ? battleHistory : state.battleHistory;
-      renderWallet();
-      renderInventory();
-      renderQuests();
-      renderGyms();
-      renderArena();
-      renderRanking();
-      renderBattleHistory();
-    }
+    if(battle?.status === "active" && !refreshInventoryOnly) return;
+    const settled = await Promise.allSettled([
+      api("/api/me"),
+      api("/api/me/inventory"),
+      api("/api/me/quests"),
+      api("/api/gyms"),
+      api("/api/me/gym-progress"),
+      api("/api/me/badges"),
+      api("/api/arena"),
+      api("/api/arena/ranking"),
+      api("/api/me/battles?limit=20"),
+    ]);
+    const valueAt = index => settled[index].status === "fulfilled" ? settled[index].value : null;
+    const profile = valueAt(0);
+    const inventory = valueAt(1);
+    const quests = valueAt(2);
+    const gyms = valueAt(3);
+    const gymProgress = valueAt(4);
+    const badges = valueAt(5);
+    const arena = valueAt(6);
+    const arenaRanking = valueAt(7);
+    const battleHistory = valueAt(8);
+    state.profile = profile || state.profile;
+    state.inventory = Array.isArray(inventory) ? inventory : state.inventory;
+    state.quests = Array.isArray(quests) ? quests : state.quests;
+    state.gyms = Array.isArray(gyms) ? gyms : state.gyms;
+    state.gymProgress = gymProgress || state.gymProgress;
+    state.badges = Array.isArray(badges?.badges) ? badges.badges : Array.isArray(badges) ? badges : state.badges;
+    state.arena = arena || state.arena;
+    state.arenaRanking = arenaRanking || state.arenaRanking;
+    state.battleHistory = Array.isArray(battleHistory) ? battleHistory : state.battleHistory;
+    renderWallet();
+    renderInventory();
+    renderQuests();
+    renderGyms();
+    renderArena();
+    renderRanking();
+    renderBattleHistory();
+    renderBadgeProgress();
+    renderCaptures();
+    renderTeam();
+    renderMyCaptures();
+    if(typeof renderMarket === "function") renderMarket();
+    if(typeof renderBossRanking === "function") renderBossRanking();
   }
 
   window.useBattleSkill = async function(skillSlug){
@@ -8257,6 +8296,88 @@ V28 future database modules to include from the start:
         ${has ? `<label>#${m.dex_number} ${m.pokemon_name}</label>` : ""}
       </div>`;
     }).join("");
+  };
+
+  const dexGenerationNames = {
+    1: "Kanto",
+    2: "Johto",
+    3: "Hoenn",
+    4: "Sinnoh",
+    5: "Unova",
+    6: "Kalos",
+    7: "Alola",
+    8: "Galar",
+    9: "Paldea",
+  };
+
+  function dexGeneration(){
+    return Number(state.selectedPokedexGeneration || window.selectedDexGeneration || 1);
+  }
+
+  function dexRowVisible(row){
+    return !!(row?.caught || row?.seen || row?.shiny_caught || row?.is_caught || row?.is_seen);
+  }
+
+  function dexRowSprite(row, mode){
+    const normal = row?.animated_path || row?.selected_sprite_path || row?.sprite_path || row?.sprite || row?.icon_path;
+    const shiny = row?.animated_shiny_path || row?.selected_shiny_sprite_path || row?.shiny_sprite_path || row?.shiny_path;
+    return mode === "shiny" ? (shiny || normal) : normal;
+  }
+
+  function renderDexGenerationChrome(){
+    const gen = dexGeneration();
+    if(byId("dexRegionTitle")) byId("dexRegionTitle").textContent = dexGenerationNames[gen] || `Generacion ${gen}`;
+    document.querySelectorAll(".region-tab[data-generation]").forEach(tab => {
+      const active = Number(tab.dataset.generation) === gen;
+      tab.classList.toggle("active", active);
+      tab.setAttribute("aria-pressed", active ? "true" : "false");
+    });
+  }
+
+  window.setDexGeneration = async function(generation){
+    const gen = Number(generation || 1);
+    state.selectedPokedexGeneration = gen;
+    window.selectedDexGeneration = gen;
+    renderDexGenerationChrome();
+    try{
+      if(!Array.isArray(state.pokedexByGeneration?.[gen])){
+        const rows = await api(`/api/me/pokedex?generation=${encodeURIComponent(gen)}`);
+        state.pokedexByGeneration = { ...(state.pokedexByGeneration || {}), [gen]: Array.isArray(rows) ? rows : [] };
+      }
+      state.pokedex = state.pokedexByGeneration[gen] || [];
+      renderDex();
+    }catch(error){
+      if(typeof showMapToast === "function") showMapToast("No se pudo cargar esta generacion.", "fail");
+    }
+  };
+
+  window.renderDex = function(){
+    const q = (byId("dexSearch")?.value || "").toLowerCase();
+    const type = byId("dexType")?.value || "all";
+    const mode = window.dexMode || dexMode || "normal";
+    const gen = dexGeneration();
+    renderDexGenerationChrome();
+    const source = Array.isArray(state.pokedexByGeneration?.[gen]) ? state.pokedexByGeneration[gen] : state.pokedex;
+    const rows = source.filter(m => {
+      const nameOk = !q || String(m.pokemon_name || "").toLowerCase().includes(q);
+      const typeOk = type === "all" || m.primary_type === type || m.secondary_type === type || (type === "unknown" && !dexRowVisible(m));
+      return nameOk && typeOk;
+    });
+    if(byId("caughtCount")) byId("caughtCount").textContent = rows.filter(m=>m.caught || m.is_caught || m.shiny_caught).length;
+    if(byId("seenCount")) byId("seenCount").textContent = rows.filter(m=>m.seen || m.is_seen || m.caught || m.is_caught || m.shiny_caught).length;
+
+    const grid = byId("dexGrid");
+    if(!grid) return;
+    grid.innerHTML = rows.map(m => {
+      const has = dexRowVisible(m);
+      const sprite = dexRowSprite(m, mode);
+      const shinyKnown = !!(m.shiny_caught || m.is_shiny || m.has_shiny || m.animated_shiny_path || m.shiny_sprite_path || m.selected_shiny_sprite_path);
+      return `<div class="pogo-mon ${has ? "" : "unknown"}">
+        ${mode === "shiny" && has && shinyKnown ? '<span class="pogo-shiny-pill">Shiny</span>' : ""}
+        <img src="${asset(sprite)}" ${imgFallbackAttr()}>
+        ${has ? `<label>#${m.dex_number} ${m.pokemon_name}</label>` : ""}
+      </div>`;
+    }).join("") || `<p class="muted">No hay especies para este filtro.</p>`;
   };
 
   window.renderMaps = function(){
