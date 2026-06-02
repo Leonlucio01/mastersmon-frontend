@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MastersMon Online</title>
+  <link rel="icon" href="data:," />
   <style>
     :root{
       --bg:#151824;
@@ -4147,6 +4148,320 @@
       }
     }
 
+    /* V32.1 premium density polish */
+    .app.active .app-top .brand{
+      min-width:300px;
+      padding-right:20px;
+      border-right:1px solid rgba(180,207,236,.14);
+    }
+    .app.active .app-top .brand .logo{
+      box-shadow:0 0 0 1px rgba(255,255,255,.18),0 16px 34px rgba(234,191,104,.22)!important;
+    }
+    .top-actions{
+      flex:1;
+      justify-content:flex-end;
+      min-width:0;
+    }
+    .wallet-strip{
+      gap:8px!important;
+      min-width:0;
+    }
+    .currency-pill{
+      min-height:50px!important;
+      padding:8px 12px!important;
+      border-radius:999px!important;
+      background:linear-gradient(180deg,rgba(255,255,255,.105),rgba(255,255,255,.035))!important;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 12px 24px rgba(0,0,0,.18)!important;
+    }
+    .currency-pill small{
+      letter-spacing:.07em;
+      text-transform:uppercase;
+      opacity:.84;
+    }
+    .profile-btn{
+      min-height:58px!important;
+      border-radius:18px!important;
+      background:linear-gradient(180deg,rgba(45,71,105,.92),rgba(23,43,68,.92))!important;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.10),0 14px 28px rgba(0,0,0,.20)!important;
+    }
+    .app.active .menu{
+      border-radius:0 24px 24px 0!important;
+      border-left:0!important;
+    }
+    .app.active .menu:after{
+      content:"Verdantia Season";
+      display:block;
+      margin-top:18px;
+      padding:13px 11px;
+      border:1px solid rgba(125,220,255,.16);
+      border-radius:16px;
+      color:#a9bed7;
+      font-size:12px;
+      font-weight:900;
+      background:linear-gradient(135deg,rgba(125,220,255,.08),rgba(234,191,104,.06));
+    }
+    .app.active .menu b{
+      flex:0 0 34px;
+      color:#7ddcff!important;
+      background:linear-gradient(180deg,rgba(125,220,255,.16),rgba(125,220,255,.06))!important;
+    }
+    .app.active .menu button.active b{
+      color:#1f1609!important;
+      background:linear-gradient(180deg,#ffe2a4,#eabf68)!important;
+    }
+    #hub .hub-main{
+      min-height:clamp(350px,24vw,420px)!important;
+      background:
+        linear-gradient(90deg,rgba(5,10,18,.88) 0%,rgba(10,20,34,.70) 46%,rgba(13,23,38,.28) 100%),
+        radial-gradient(circle at 75% 70%,rgba(125,220,255,.22),transparent 30%),
+        url('https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1400&q=80') center/cover!important;
+      border-color:rgba(234,191,104,.30)!important;
+      box-shadow:0 28px 72px rgba(0,0,0,.36),inset 0 1px 0 rgba(255,255,255,.06)!important;
+    }
+    #hub .hub-main:before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(180deg,rgba(255,255,255,.08),transparent 28%,rgba(0,0,0,.28));
+      pointer-events:none;
+    }
+    #hub .hub-main:after{
+      content:"";
+      position:absolute;
+      right:-80px;
+      bottom:-120px;
+      width:460px;
+      height:320px;
+      background:radial-gradient(circle,rgba(234,191,104,.20),transparent 64%);
+      pointer-events:none;
+    }
+    .hub-hero-copy{
+      position:relative;
+      z-index:2;
+      max-width:860px;
+      align-self:center;
+    }
+    .hub-hero-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:20px;
+    }
+    .hub-hero-actions .primary,
+    .hub-hero-actions .ghost{
+      min-height:48px;
+      padding:12px 18px!important;
+      border-radius:14px!important;
+    }
+    #hub .hub-mons{
+      z-index:2;
+      right:24px!important;
+      bottom:6px!important;
+      filter:drop-shadow(0 24px 28px rgba(0,0,0,.54));
+    }
+    #hub .hub-mons img{
+      width:clamp(102px,8vw,146px)!important;
+      height:clamp(102px,8vw,146px)!important;
+      margin-left:-28px!important;
+    }
+    .hub-status-panel,
+    .hub-progress-panel,
+    .hub-battle-panel,
+    .hub-captures-panel,
+    .hub-quests-panel{
+      background:
+        linear-gradient(180deg,rgba(41,65,96,.88),rgba(20,38,62,.90)),
+        rgba(28,48,76,.92)!important;
+      border-color:rgba(180,207,236,.18)!important;
+    }
+    .hub-status-panel{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      min-height:0!important;
+    }
+    .hub-status-panel .stats{
+      grid-template-columns:1fr!important;
+      gap:10px!important;
+      margin-top:0!important;
+    }
+    .hub-status-panel .stat,
+    .hub-progress-panel .stat{
+      min-height:74px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      border-radius:16px!important;
+      background:linear-gradient(180deg,rgba(255,255,255,.085),rgba(255,255,255,.035))!important;
+    }
+    .hub-status-panel .stat strong,
+    .hub-progress-panel .stat strong{
+      font-size:clamp(20px,1.8vw,28px)!important;
+      line-height:1.05;
+    }
+    .hub-progress-panel .stats{
+      grid-template-columns:repeat(2,minmax(0,1fr))!important;
+      gap:10px!important;
+    }
+    .hub-progress-panel .primary{
+      width:100%;
+      margin-top:2px;
+    }
+    .hub-captures-panel .fixed-list,
+    .hub-battle-panel .fixed-list{
+      max-height:236px!important;
+    }
+    #hubCaptures .log,
+    #hubLastBattle .log,
+    .hub-battle-summary{
+      margin-bottom:8px!important;
+      border-radius:16px!important;
+      background:linear-gradient(90deg,rgba(255,255,255,.075),rgba(255,255,255,.035))!important;
+      border-color:rgba(180,207,236,.14)!important;
+    }
+    #hubCaptures .log{
+      padding:8px 10px!important;
+    }
+    #hubCaptures .log img{
+      width:42px!important;
+      height:42px!important;
+    }
+    #hubLastBattle .log{
+      display:grid!important;
+      grid-template-columns:minmax(0,1fr) auto;
+      gap:12px;
+      align-items:center;
+      padding:14px!important;
+    }
+    #hubLastBattle .log strong:before{
+      content:"";
+      display:inline-block;
+      width:8px;
+      height:8px;
+      margin-right:8px;
+      border-radius:50%;
+      background:#68dfa5;
+      box-shadow:0 0 16px rgba(104,223,165,.55);
+    }
+    .premium-empty-state{
+      min-height:96px;
+      display:grid;
+      place-items:center;
+      text-align:center;
+      color:#aebfd5;
+      border:1px dashed rgba(180,207,236,.20);
+      border-radius:16px;
+      background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.018));
+      font-weight:800;
+    }
+    .hub-quests-panel{
+      margin-top:22px!important;
+    }
+    .hub-quests-panel .quest-grid{
+      gap:14px!important;
+    }
+    .hub-quests-panel .quest-card{
+      min-height:150px!important;
+      padding:15px!important;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      background:linear-gradient(180deg,rgba(255,255,255,.072),rgba(255,255,255,.032))!important;
+    }
+    .hub-quests-panel .quest-card p{
+      line-height:1.38!important;
+    }
+    .feature-tabs{
+      padding:8px!important;
+      gap:8px!important;
+    }
+    .feature-tabs button{
+      min-height:38px!important;
+    }
+    @media(min-width:1500px){
+      .hub-status-panel .stats{
+        grid-template-columns:1fr!important;
+      }
+      #hub .hub-grid{
+        grid-template-columns:minmax(0,2.1fr) minmax(320px,.72fr)!important;
+      }
+    }
+    @media(max-width:1180px){
+      .app.active .app-top .brand{
+        min-width:0;
+        border-right:0;
+        padding-right:0;
+      }
+      .app.active .menu:after{
+        display:none;
+      }
+      .hub-status-panel .stats,
+      .hub-progress-panel .stats{
+        grid-template-columns:repeat(auto-fit,minmax(160px,1fr))!important;
+      }
+    }
+    @media(max-width:720px){
+      .app.active .app-top{
+        position:sticky;
+        align-items:flex-start!important;
+      }
+      .app.active .app-top .brand{
+        order:1;
+        width:calc(100% - 58px);
+        flex:0 0 calc(100% - 58px)!important;
+        min-width:0;
+      }
+      .app.active .app-top .brand .logo{
+        width:44px!important;
+        height:44px!important;
+      }
+      .app.active .app-top .brand span{
+        font-size:11px!important;
+      }
+      .notify{
+        position:absolute!important;
+        top:12px;
+        right:10px;
+        width:44px!important;
+        height:44px!important;
+      }
+      .hub-hero-copy{
+        align-self:flex-start;
+      }
+      #hub .hub-mons{
+        position:relative!important;
+        right:auto!important;
+        bottom:auto!important;
+        margin-top:18px;
+      }
+      #hub .hub-main{
+        display:block!important;
+      }
+      .hub-status-panel .stats,
+      .hub-progress-panel .stats{
+        grid-template-columns:1fr!important;
+      }
+      .top-actions{
+        order:2;
+        flex:0 0 100%!important;
+        width:100%!important;
+        max-width:100%;
+        display:grid!important;
+        grid-template-columns:1fr!important;
+        gap:8px!important;
+        padding-top:10px;
+      }
+      .profile-wrap{
+        order:1;
+      }
+      .wallet-strip{
+        order:2;
+      }
+      #hubLastBattle .log{
+        grid-template-columns:1fr!important;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -4257,18 +4572,18 @@
           <section id="hub" class="page active">
             <div class="hub-grid">
               <div class="hub-main">
-                <div><div class="eyebrow">Misión recomendada</div><h2>Captura 2 criaturas y reta la Arena</h2><p>Recompensa: 5 Super Ball + 3,000 Pokedólares. Completa tu equipo, gana EXP y desbloquea el tercer gimnasio de Verdantia.</p><div style="margin-top:20px"><button class="primary" onclick="showPage('map')">Ir a capturar</button><button class="ghost" onclick="showPage('arena')">Entrar arena</button></div></div>
+                <div class="hub-hero-copy"><div class="eyebrow">Misión recomendada</div><h2>Captura 2 criaturas y reta la Arena</h2><p>Recompensa: 5 Super Ball + 3,000 Pokedólares. Completa tu equipo, gana EXP y desbloquea el tercer gimnasio de Verdantia.</p><div class="hub-hero-actions"><button class="primary" onclick="showPage('map')">Ir a capturar</button><button class="ghost" onclick="showPage('arena')">Entrar arena</button></div></div>
                 <div class="hub-mons"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/7.png"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/4.png"></div>
               </div>
-              <div class="panel"><h2>Estado del servidor</h2><div class="stats" style="grid-template-columns:1fr;margin-top:13px"><div class="stat"><span>Capturas hoy</span><strong>9,421</strong></div><div class="stat"><span>Entrenadores online</span><strong>238</strong></div><div class="stat"><span>Trades abiertos</span><strong>74</strong></div></div></div>
+              <div class="panel hub-status-panel"><h2>Estado del servidor</h2><div class="stats" style="grid-template-columns:1fr;margin-top:13px"><div class="stat"><span>Capturas hoy</span><strong>9,421</strong></div><div class="stat"><span>Entrenadores online</span><strong>238</strong></div><div class="stat"><span>Trades abiertos</span><strong>74</strong></div></div></div>
             </div>
             <div class="lower-grid">
-              <div class="panel"><div class="title-row"><h2>Últimas 5 capturas</h2><button class="ghost" onclick="openCapturesModal()">Ver más</button></div><div id="hubCaptures" class="fixed-list small"></div></div>
-              <div class="panel"><div class="title-row"><h2>Mi progreso</h2></div><div class="stats"><div class="stat"><span>Equipo</span><strong id="hubTeamCount">0/6</strong></div><div class="stat"><span>Medallas</span><strong data-gym-badge-count>0/8</strong></div><div class="stat"><span>Siguiente gym</span><strong id="hubNextGym">-</strong></div><div class="stat"><span>Arena</span><strong id="hubArenaRank">Bronce I</strong></div></div><br><button class="primary" onclick="showPage('quests')">Ver pendientes</button></div>
-              <div class="panel"><div class="title-row"><h2>Última batalla</h2><button class="ghost" onclick="showPage('gyms')">Ver historial</button></div><div id="hubLastBattle" class="fixed-list small"><p class="muted">Sin batallas recientes.</p></div></div>
+              <div class="panel hub-captures-panel"><div class="title-row"><h2>Últimas 5 capturas</h2><button class="ghost" onclick="openCapturesModal()">Ver más</button></div><div id="hubCaptures" class="fixed-list small"></div></div>
+              <div class="panel hub-progress-panel"><div class="title-row"><h2>Mi progreso</h2></div><div class="stats"><div class="stat"><span>Equipo</span><strong id="hubTeamCount">0/6</strong></div><div class="stat"><span>Medallas</span><strong data-gym-badge-count>0/8</strong></div><div class="stat"><span>Siguiente gym</span><strong id="hubNextGym">-</strong></div><div class="stat"><span>Arena</span><strong id="hubArenaRank">Bronce I</strong></div></div><br><button class="primary" onclick="showPage('quests')">Ver pendientes</button></div>
+              <div class="panel hub-battle-panel"><div class="title-row"><h2>Última batalla</h2><button class="ghost" onclick="showPage('gyms')">Ver historial</button></div><div id="hubLastBattle" class="fixed-list small"><p class="muted">Sin batallas recientes.</p></div></div>
             </div>
 
-            <div class="panel" style="margin-top:18px">
+            <div class="panel hub-quests-panel" style="margin-top:18px">
               <div class="title-row">
                 <h2>Misiones activas</h2>
                 <span class="muted">Progreso real</span>
@@ -4330,14 +4645,14 @@
                   <h2>Entrenador León</h2>
                   <p class="muted">Rango Bronce II · Servidor Verdantia</p>
                   <div class="badge-row">
-                    <span class="badge-medal"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/boulder-badge.png" onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/hard-stone.png'"></span>
-                    <span class="badge-medal"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/cascade-badge.png" onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/mystic-water.png'"></span>
-                    <span class="badge-medal locked"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/thunder-badge.png" onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/thunder-stone.png'"></span>
-                    <span class="badge-medal locked"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/rainbow-badge.png" onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/leaf-stone.png'"></span>
-                    <span class="badge-medal locked"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/soul-badge.png" onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poison-barb.png'"></span>
-                    <span class="badge-medal locked"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/marsh-badge.png" onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/twisted-spoon.png'"></span>
-                    <span class="badge-medal locked"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/volcano-badge.png" onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fire-stone.png'"></span>
-                    <span class="badge-medal locked"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/earth-badge.png" onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/soft-sand.png'"></span>
+                    <span class="badge-medal"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/hard-stone.png" onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png'"></span>
+                    <span class="badge-medal"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/mystic-water.png" onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png'"></span>
+                    <span class="badge-medal locked"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/thunder-stone.png" onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png'"></span>
+                    <span class="badge-medal locked"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/leaf-stone.png" onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png'"></span>
+                    <span class="badge-medal locked"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poison-barb.png" onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png'"></span>
+                    <span class="badge-medal locked"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/twisted-spoon.png" onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png'"></span>
+                    <span class="badge-medal locked"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fire-stone.png" onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png'"></span>
+                    <span class="badge-medal locked"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/soft-sand.png" onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png'"></span>
                   </div>
                   <br>
                   <button class="primary">Editar avatar</button>
@@ -4832,8 +5147,8 @@
               <div class="skin-grid">
                 <div class="skin-card equipped"><span class="tag-premium">Equipado</span><img src="https://play.pokemonshowdown.com/sprites/trainers/red.png" onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png'"><h3>Clásico</h3><p class="muted">Skin inicial</p><button class="ghost" onclick="equipSkin(this)">Equipado</button></div>
                 <div class="skin-card"><span class="tag-premium">Diamantes</span><img src="https://play.pokemonshowdown.com/sprites/trainers/ash.png" onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png'"><h3>Aventura</h3><p class="muted">120 💎</p><button class="primary" onclick="buyMarketListing(this)">Comprar</button></div>
-                <div class="skin-card"><span class="tag-premium">Evento</span><img src="https://play.pokemonshowdown.com/sprites/trainers/hexmaniac.png" onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/92.png'"><h3>Sombras</h3><p class="muted">Evento temporal</p><button class="primary" onclick="unlockSkin(this)">Desbloquear</button></div>
-                <div class="skin-card"><span class="tag-premium">VIP</span><img src="https://play.pokemonshowdown.com/sprites/trainers/dragon-tamer.png" onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/147.png'"><h3>Domador Dragón</h3><p class="muted">Incluido VIP</p><button class="primary" onclick="activateVipSkin(this)">Activar VIP</button></div>
+                <div class="skin-card"><span class="tag-premium">Evento</span><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/92.png" onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png'"><h3>Sombras</h3><p class="muted">Evento temporal</p><button class="primary" onclick="unlockSkin(this)">Desbloquear</button></div>
+                <div class="skin-card"><span class="tag-premium">VIP</span><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/147.png" onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png'"><h3>Domador Dragón</h3><p class="muted">Incluido VIP</p><button class="primary" onclick="activateVipSkin(this)">Activar VIP</button></div>
               </div>
             </div>
           </section>
@@ -5206,7 +5521,7 @@ const chats=['Luna: alguien vio un Eevee shiny?','Ragnar: tradeo Growlithe nv 22
 const trainerNames=['Luna','Ragnar','Mika','Ashen','Nova','Kiro','Selene','Brocky','Aqua','Orion','Nami','Volt','Flora','Nero','Kai','Yuki'];
 function animated(id){return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/${id}.gif`}
 function shinySprite(id){return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/animated/shiny/${id}.gif`}
-function itemIcon(slug){return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${slug}.png`}
+function itemIcon(slug){const safeSlug=slug==='ticket'?'poke-ball':slug;return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${safeSlug}.png`}
 function trainerSprite(name){return `https://play.pokemonshowdown.com/sprites/trainers/${name}.png`}
 function staticPokemon(id){return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`}
 function safeAnimatedAttr(id){return `onerror="this.onerror=null;this.src='${staticPokemon(id)}';this.classList.add('fallback-static')"`}
@@ -6667,9 +6982,9 @@ V28 future database modules to include from the start:
   window.renderQuests = function(){
     const ordered = sortedQuests(state.quests);
     const hub = byId("hubQuestGrid");
-    if(hub) hub.innerHTML = ordered.slice(0,4).map(q => questCard(q, true)).join("") || `<p class="muted">Cargando misiones...</p>`;
+    if(hub) hub.innerHTML = ordered.slice(0,4).map(q => questCard(q, true)).join("") || `<div class="premium-empty-state">Cargando misiones...</div>`;
     const grid = byId("questGrid");
-    if(grid) grid.innerHTML = ordered.map(q => questCard(q)).join("") || `<p class="muted">No hay misiones activas.</p>`;
+    if(grid) grid.innerHTML = ordered.map(q => questCard(q)).join("") || `<div class="premium-empty-state">No hay misiones activas.</div>`;
   };
 
   function showQuestFeedback(message, type="success"){
@@ -7356,7 +7671,7 @@ V28 future database modules to include from the start:
     if(!box) return;
     const battle = state.battleHistory?.[0];
     if(!battle){
-      box.innerHTML = `<p class="muted">Sin batallas recientes.</p>`;
+      box.innerHTML = `<div class="premium-empty-state">Sin batallas recientes.</div>`;
       return;
     }
     box.innerHTML = `<div class="log">
