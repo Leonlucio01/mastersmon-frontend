@@ -3842,6 +3842,311 @@
       }
     }
 
+    /* V32 layout pass: full-width MMO dashboard shell */
+    :root{
+      --mm-sidebar-width:260px;
+      --mm-content-max:1800px;
+      --mm-shell-pad:24px;
+    }
+    html,body,#app.app.active{
+      width:100%;
+      min-width:0;
+    }
+    .app.active{
+      background:
+        radial-gradient(circle at 20% 0%,rgba(234,191,104,.13),transparent 30%),
+        radial-gradient(circle at 88% 8%,rgba(125,220,255,.12),transparent 32%),
+        linear-gradient(180deg,rgba(12,23,39,.88),rgba(8,15,27,.96));
+    }
+    .app.active .app-shell{
+      width:100%!important;
+      max-width:none!important;
+      margin:0!important;
+      padding:0 var(--mm-shell-pad) var(--mm-shell-pad)!important;
+    }
+    .app.active .app-top{
+      position:sticky;
+      top:0;
+      z-index:38;
+      min-height:78px;
+      margin:0 calc(var(--mm-shell-pad) * -1) 0!important;
+      padding:12px var(--mm-shell-pad)!important;
+      border-radius:0!important;
+      border-width:0 0 1px!important;
+      border-color:rgba(180,207,236,.16)!important;
+      background:
+        linear-gradient(90deg,rgba(15,30,49,.96),rgba(18,35,56,.92)),
+        rgba(15,29,48,.96)!important;
+      box-shadow:0 18px 48px rgba(0,0,0,.28)!important;
+      backdrop-filter:blur(18px) saturate(122%);
+    }
+    .hud-page-title{
+      min-width:180px;
+      border-left:1px solid rgba(180,207,236,.14);
+      padding-left:18px;
+      margin-left:4px;
+    }
+    .hud-page-title span{
+      display:block;
+      color:#9fb3c8;
+      font-size:11px;
+      font-weight:900;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+    .hud-page-title strong{
+      display:block;
+      color:#fff8e8;
+      font-size:22px;
+      line-height:1.05;
+      margin-top:3px;
+    }
+    .app.active .app-grid{
+      width:100%!important;
+      max-width:calc(var(--mm-content-max) + var(--mm-sidebar-width) + 32px)!important;
+      margin:24px auto 0!important;
+      display:grid!important;
+      grid-template-columns:var(--mm-sidebar-width) minmax(0,1fr)!important;
+      gap:24px!important;
+      align-items:start;
+    }
+    .app.active .app-grid > main{
+      width:100%!important;
+      max-width:var(--mm-content-max)!important;
+      min-width:0!important;
+    }
+    .app.active .menu{
+      position:sticky!important;
+      top:102px!important;
+      height:calc(100vh - 126px)!important;
+      min-height:620px;
+      border-radius:24px!important;
+      padding:14px!important;
+      background:
+        linear-gradient(180deg,rgba(18,35,56,.96),rgba(10,21,36,.94)),
+        rgba(13,27,45,.94)!important;
+      border-color:rgba(234,191,104,.24)!important;
+      box-shadow:0 22px 56px rgba(0,0,0,.30),inset 1px 0 0 rgba(255,255,255,.04)!important;
+      overflow:auto;
+    }
+    .app.active .menu:before{
+      content:"Main Command";
+      display:block;
+      color:#eabf68;
+      font-size:11px;
+      font-weight:1000;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      padding:8px 10px 12px;
+    }
+    .app.active .menu button{
+      min-width:0!important;
+      flex-basis:auto!important;
+      width:100%!important;
+      min-height:46px;
+      border-radius:14px!important;
+      margin-bottom:7px!important;
+      padding:11px 12px!important;
+      transition:background .18s ease,border-color .18s ease,transform .18s ease;
+    }
+    .app.active .menu button:hover{
+      transform:translateX(3px);
+      background:rgba(125,220,255,.08)!important;
+    }
+    .app.active .menu button.active{
+      background:
+        linear-gradient(90deg,rgba(234,191,104,.26),rgba(125,220,255,.08))!important;
+      border-color:rgba(234,191,104,.42)!important;
+      box-shadow:inset 3px 0 0 #eabf68,0 10px 24px rgba(234,191,104,.10)!important;
+    }
+    .donation-bonus-bar{
+      max-width:calc(var(--mm-content-max) + var(--mm-sidebar-width) + 32px)!important;
+      margin:16px auto 0!important;
+    }
+    .page > .panel,
+    .page > .pogo-shell{
+      width:100%!important;
+    }
+    #hub .hub-grid{
+      grid-template-columns:minmax(0,2fr) minmax(320px,.82fr)!important;
+      gap:22px!important;
+    }
+    #hub .hub-main{
+      min-height:420px!important;
+      padding:34px!important;
+      display:flex;
+      align-items:flex-start;
+    }
+    #hub .hub-main h2{
+      max-width:780px!important;
+      font-size:clamp(46px,4.4vw,76px)!important;
+    }
+    #hub .hub-main p{
+      max-width:760px!important;
+      font-size:16px!important;
+    }
+    #hub .lower-grid{
+      grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) minmax(0,.95fr)!important;
+      gap:22px!important;
+      margin-top:22px!important;
+    }
+    #hub .quest-grid{
+      grid-template-columns:repeat(auto-fit,minmax(260px,1fr))!important;
+    }
+    .grid2{
+      grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    }
+    .grid3{
+      grid-template-columns:repeat(auto-fit,minmax(280px,1fr))!important;
+    }
+    .grid4,.shop-grid-pro,.feature-grid{
+      grid-template-columns:repeat(auto-fit,minmax(245px,1fr))!important;
+    }
+    .grid5{
+      grid-template-columns:repeat(auto-fit,minmax(180px,1fr))!important;
+    }
+    .stats{
+      grid-template-columns:repeat(auto-fit,minmax(150px,1fr))!important;
+    }
+    .map-region-grid{
+      grid-template-columns:repeat(auto-fit,minmax(280px,1fr))!important;
+    }
+    .collection-grid,.mycaptures-grid,.inventory-grid{
+      grid-template-columns:repeat(auto-fill,minmax(190px,1fr))!important;
+      gap:16px!important;
+    }
+    .team-builder{
+      grid-template-columns:minmax(300px,.82fr) minmax(0,1.38fr)!important;
+      gap:22px!important;
+    }
+    .team-slots{
+      grid-template-columns:repeat(auto-fill,minmax(180px,1fr))!important;
+    }
+    .gym-grid-8{
+      grid-template-columns:repeat(auto-fit,minmax(260px,1fr))!important;
+      gap:18px!important;
+    }
+    .pogo-shell{
+      max-width:none!important;
+    }
+    .pogo-grid{
+      grid-template-columns:repeat(auto-fill,minmax(118px,1fr))!important;
+      gap:26px 18px!important;
+      min-height:620px!important;
+    }
+    .region-tabs.gen9{
+      grid-template-columns:repeat(auto-fit,minmax(108px,1fr))!important;
+    }
+    .fixed-list{
+      max-height:420px;
+    }
+    #battleModal .big-modal{
+      width:min(1320px,calc(100vw - 32px))!important;
+    }
+    #battleModal .turn-battle{
+      width:100%;
+    }
+    #battleModal .turn-scoreboard{
+      grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)!important;
+      gap:18px!important;
+    }
+    #battleModal .turn-actions{
+      grid-template-columns:repeat(auto-fit,minmax(190px,1fr))!important;
+    }
+    @media(min-width:1680px){
+      :root{--mm-sidebar-width:280px;--mm-shell-pad:32px;}
+      #hub .lower-grid{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr) minmax(0,1fr)!important;}
+      .collection-grid,.mycaptures-grid,.inventory-grid{grid-template-columns:repeat(auto-fill,minmax(205px,1fr))!important;}
+      .pogo-grid{grid-template-columns:repeat(auto-fill,minmax(128px,1fr))!important;}
+    }
+    @media(max-width:1180px){
+      .app.active .app-shell{padding:0 14px 18px!important;}
+      .app.active .app-top{
+        margin:0 -14px!important;
+        padding:12px 14px!important;
+        flex-wrap:wrap;
+        gap:12px;
+      }
+      .hud-page-title{
+        order:3;
+        width:100%;
+        min-width:0;
+        border-left:0;
+        border-top:1px solid rgba(180,207,236,.12);
+        padding:10px 0 0;
+        margin:0;
+      }
+      .app.active .app-grid{
+        grid-template-columns:1fr!important;
+        gap:14px!important;
+        margin-top:14px!important;
+      }
+      .app.active .menu{
+        position:sticky!important;
+        top:0!important;
+        z-index:35;
+        min-height:0;
+        height:auto!important;
+        display:flex!important;
+        gap:8px;
+        overflow-x:auto!important;
+        overflow-y:hidden!important;
+        padding:10px!important;
+      }
+      .app.active .menu:before{display:none;}
+      .app.active .menu button{
+        width:auto!important;
+        min-width:132px!important;
+        flex:0 0 auto!important;
+        margin:0!important;
+      }
+      #hub .hub-grid,#hub .lower-grid,.grid2,.team-builder{
+        grid-template-columns:1fr!important;
+      }
+    }
+    @media(max-width:720px){
+      :root{--mm-shell-pad:12px;}
+      .app.active .app-shell{padding:0 10px 16px!important;}
+      .app.active .app-top{margin:0 -10px!important;padding:12px 10px!important;}
+      .app.active .app-top .brand h1{font-size:20px!important;}
+      .hud-page-title strong{font-size:19px;}
+      .wallet-strip{
+        width:100%;
+        grid-template-columns:1fr!important;
+      }
+      .top-actions{
+        width:100%;
+        align-items:stretch!important;
+      }
+      .profile-wrap,.profile-btn{
+        width:100%;
+      }
+      #hub .hub-main{
+        min-height:340px!important;
+        padding:24px!important;
+      }
+      #hub .hub-main h2{font-size:34px!important;}
+      .panel{padding:15px!important;}
+      .collection-grid,.mycaptures-grid,.inventory-grid,.map-region-grid,.gym-grid-8,.pogo-grid{
+        grid-template-columns:1fr!important;
+      }
+      .pogo-grid{
+        min-height:0!important;
+      }
+      .big-modal,.modal-window,.auth-modal,#battleModal .big-modal{
+        width:calc(100vw - 18px)!important;
+      }
+      .chat-fab{
+        right:10px!important;
+        bottom:10px!important;
+        padding:10px 12px!important;
+        font-size:13px!important;
+      }
+      #battleModal .turn-scoreboard{
+        grid-template-columns:1fr!important;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -3887,6 +4192,7 @@
     <div class="app-shell">
       <header class="app-top">
         <div class="brand"><div class="logo">M</div><div><h1>MastersMon</h1><span>Servidor Verdantia</span></div></div>
+        <div class="hud-page-title"><span>Seccion actual</span><strong id="currentPageTitle">Hub</strong></div>
         <div class="top-actions">
           <div class="wallet-strip" id="walletStrip">
             <span class="currency-pill gold"><span>🪙</span><span><small>Pokedólares</small><strong id="walletGold">125,400</strong></span></span>
@@ -4910,7 +5216,8 @@ function openAuth(mode='login'){document.getElementById('authOverlay').classList
 function closeAuth(){document.getElementById('authOverlay').classList.add('hidden')}
 function setAuthMode(mode){const m=document.getElementById('authModal');m.classList.toggle('register-mode',mode==='register');document.getElementById('authLabel').textContent=mode==='register'?'Crear cuenta':'Entrar';document.getElementById('authError')?.classList.add('hidden')}
 function enterGame(){document.getElementById('authOverlay').classList.add('hidden');document.getElementById('landing').style.display='none';document.getElementById('app').classList.add('active');document.getElementById('chatFab').classList.remove('hidden');renderAll()}
-function showPage(id){document.querySelectorAll('.menu button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active')}
+const pageTitles={quests:"Misiones",hub:"Hub",map:"Mapa",pokedex:"Pokedex",mycaptures:"Mis capturas",trade:"Trade Center",shop:"Tienda",arena:"Arena",gyms:"Gimnasios",boss:"Boss",ranking:"Ranking",social:"Social",market:"Mercado",trainerhq:"Trainer HQ",inventory:"Mochila",team:"Armar equipo",events:"Eventos",achievements:"Logros",season:"Temporada",skins:"Skins"};
+function showPage(id){document.querySelectorAll('.menu button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');document.body.dataset.page=id;if(document.getElementById('currentPageTitle'))document.getElementById('currentPageTitle').textContent=pageTitles[id]||id}
 document.querySelectorAll('.menu button').forEach(btn=>btn.onclick=()=>showPage(btn.dataset.page));
 function captureRow(c){return `<div class="log"><img class="pokemon-img-clean" src="${c.shiny?shinySprite(c.id):animated(c.id)}" ${safeAnimatedAttr(c.id)}><div><strong>${c.trainer} capturó ${c.mon} ${c.shiny?'<span class="shiny-star">★</span>':''}</strong><span>${c.zone} · hace unos minutos</span></div></div>`}
 function renderCaptures(){document.getElementById('hubCaptures').innerHTML=captures.slice(0,5).map(captureRow).join('');document.getElementById('captureList').innerHTML=captures.slice(0,30).map(captureRow).join('');document.getElementById('captureModalList').innerHTML=captures.map(captureRow).join('')}
