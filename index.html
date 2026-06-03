@@ -4764,6 +4764,201 @@
       background:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.03))!important;
       border-color:rgba(180,207,236,.18)!important;
     }
+    .nav .nav-link{
+      border:0;
+      background:transparent;
+      color:rgba(239,246,255,.88);
+      font-weight:800;
+      cursor:pointer;
+      padding:9px 10px;
+      border-radius:999px;
+      transition:background .18s ease,color .18s ease,transform .18s ease;
+    }
+    .nav .nav-link:hover,.nav .nav-link:focus-visible{
+      color:#fff8e8;
+      background:rgba(234,191,104,.14);
+      outline:1px solid rgba(234,191,104,.32);
+      transform:translateY(-1px);
+    }
+    .landing-panel-hero{
+      display:grid;
+      grid-template-columns:minmax(0,1.1fr) 160px;
+      gap:18px;
+      align-items:center;
+      padding:18px;
+      border-radius:20px;
+      border:1px solid rgba(234,191,104,.24);
+      background:linear-gradient(135deg,rgba(234,191,104,.14),rgba(30,196,255,.08) 50%,rgba(255,255,255,.04));
+      margin-bottom:16px;
+    }
+    .landing-panel-hero img{
+      width:140px;
+      height:140px;
+      object-fit:contain;
+      margin:auto;
+      filter:drop-shadow(0 18px 22px rgba(0,0,0,.35));
+    }
+    .landing-info-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+      gap:12px;
+    }
+    .landing-info-card,.modal-preview-card{
+      border:1px solid rgba(180,207,236,.14);
+      background:rgba(255,255,255,.045);
+      border-radius:18px;
+      padding:14px;
+    }
+    .landing-info-card strong,.modal-preview-card strong{color:#fff8e8}
+    .legal-disclaimer{
+      margin-top:16px;
+      padding:12px 14px;
+      border-radius:14px;
+      border:1px solid rgba(180,207,236,.12);
+      background:rgba(7,15,28,.42);
+      color:var(--mm-text-muted);
+      font-size:12px;
+      line-height:1.45;
+    }
+    .neutral-sprite{
+      width:72px;
+      height:72px;
+      object-fit:contain;
+      padding:10px;
+      opacity:.86;
+      filter:drop-shadow(0 10px 18px rgba(0,0,0,.28));
+    }
+    #battleModal .ball-option{
+      color:#fff8e8!important;
+      text-align:left;
+      overflow:hidden;
+    }
+    #battleModal .ball-option img{
+      flex:0 0 34px;
+      width:34px!important;
+      height:34px!important;
+      object-fit:contain;
+    }
+    #battleModal .ball-option strong{
+      color:inherit;
+      font-size:14px;
+    }
+    #battleModal .ball-option span{
+      color:#ffe3a1!important;
+      letter-spacing:0;
+    }
+    #battleModal .ball-option.active span{
+      color:#2d2114!important;
+    }
+    #battleModal .ball-option:disabled,#battleModal .ball-option.is-disabled{
+      color:rgba(221,232,246,.64)!important;
+      background:rgba(36,51,74,.52)!important;
+      border-color:rgba(180,207,236,.10)!important;
+      opacity:.72!important;
+    }
+    #battleModal .ball-option:disabled span,#battleModal .ball-option.is-disabled span{
+      color:rgba(221,232,246,.58)!important;
+    }
+    .trade-choice-list,.market-choice-list{
+      display:grid;
+      gap:10px;
+      max-height:420px;
+      overflow:auto;
+      padding-right:4px;
+    }
+    .trade-choice,.market-choice{
+      display:grid;
+      grid-template-columns:54px minmax(0,1fr) auto;
+      align-items:center;
+      gap:12px;
+      width:100%;
+      text-align:left;
+      min-height:72px;
+      border-radius:16px!important;
+      padding:10px!important;
+    }
+    .trade-choice img,.market-choice img{
+      width:52px;
+      height:52px;
+      object-fit:contain;
+    }
+    .trade-choice small,.market-choice small{
+      display:block;
+      color:var(--mm-text-muted);
+      margin-top:3px;
+      line-height:1.3;
+    }
+    .trade-choice .reason,.market-choice .reason{
+      color:#ffd3da;
+      font-size:12px;
+      font-weight:900;
+    }
+    .modal-form-grid{
+      display:grid;
+      grid-template-columns:minmax(0,1.05fr) minmax(280px,.95fr);
+      gap:18px;
+      align-items:start;
+    }
+    .modal-field-row{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+    .modal-preview-card img{
+      width:88px;
+      height:88px;
+      object-fit:contain;
+      float:right;
+      margin-left:12px;
+    }
+    .market-actions-row,.modal-actions-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+      margin-top:14px;
+    }
+    .arena-progress-card{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) auto;
+      gap:18px;
+      align-items:center;
+      padding:18px;
+      margin-bottom:14px;
+      border-radius:22px;
+      border:1px solid rgba(234,191,104,.24);
+      background:linear-gradient(135deg,rgba(234,191,104,.15),rgba(30,196,255,.08),rgba(255,255,255,.04));
+    }
+    .arena-stat-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:10px;
+    }
+    .arena-stat-row .level-pill{background:rgba(255,255,255,.08)}
+    .gym-reward-row{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin:10px 0;
+    }
+    .boss-daily-card{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 170px;
+      gap:16px;
+      align-items:center;
+      margin-top:16px;
+      padding:16px;
+      border-radius:20px;
+      border:1px solid rgba(234,191,104,.20);
+      background:rgba(255,255,255,.045);
+    }
+    .boss-daily-card img{
+      width:150px;
+      height:150px;
+      object-fit:contain;
+      filter:drop-shadow(0 20px 24px rgba(0,0,0,.36));
+    }
     @media(max-width:720px){
       .title-row:after{
         opacity:.28;
@@ -4775,6 +4970,20 @@
         background:
           linear-gradient(180deg,rgba(5,10,18,.78),rgba(9,19,32,.78)),
           var(--ui-world) center/cover no-repeat!important;
+      }
+      .landing-panel-hero,.modal-form-grid,.arena-progress-card,.boss-daily-card{
+        grid-template-columns:1fr;
+      }
+      .landing-panel-hero img,.boss-daily-card img{
+        width:112px;
+        height:112px;
+      }
+      .modal-field-row{grid-template-columns:1fr}
+      .trade-choice,.market-choice{
+        grid-template-columns:46px minmax(0,1fr);
+      }
+      .trade-choice .reason,.market-choice .reason{
+        grid-column:2;
       }
     }
 
@@ -4826,7 +5035,7 @@
   <section id="landing" class="landing">
     <header class="topbar">
       <div class="brand"><div class="logo">M</div><div><h1>MastersMon</h1><span>Monster capture online RPG</span></div></div>
-      <nav class="nav"><span>Noticias</span><span>Ranking</span><span>Eventos</span><button onclick="openAuth('login')">Iniciar</button><button class="signup" onclick="openAuth('register')">Registrarse</button></nav>
+      <nav class="nav"><button class="nav-link" onclick="openLandingPanel('news')">Noticias</button><button class="nav-link" onclick="openLandingPanel('ranking')">Ranking</button><button class="nav-link" onclick="openLandingPanel('events')">Eventos</button><button onclick="openAuth('login')">Iniciar</button><button class="signup" onclick="openAuth('register')">Registrarse</button></nav>
     </header>
     <main class="landing-main">
       <section class="cover">
@@ -5547,6 +5756,7 @@
   </section>
 
   <button id="chatFab" class="chat-fab hidden" onclick="toggleChat()">💬 Chat global</button>
+  <div id="landingInfoModal" class="overlay hidden"><div class="big-modal" style="width:min(760px,100%)"><header><strong id="landingInfoTitle">MastersMon</strong><button onclick="closeLandingPanel()">×</button></header><div class="big-modal-content" id="landingInfoContent"></div></div></div>
   <div id="chatModal" class="modal-window hidden"><header><strong>Chat Global</strong><button onclick="toggleChat()">×</button></header><div class="modal-body"><div id="chatBox" class="chat-scroll"></div><div class="chat-input"><input placeholder="Escribe mensaje..."><button class="primary">Enviar</button></div></div></div>
   <div id="capturesModal" class="overlay hidden"><div class="modal-window" style="position:relative;right:auto;bottom:auto;width:min(760px,100%);max-height:86vh"><header><strong>Últimas 100 capturas del servidor</strong><button onclick="closeCapturesModal()">×</button></header><div class="modal-body"><div id="captureModalList" class="fixed-list" style="max-height:70vh"></div></div></div></div>
   <div id="detailModal" class="overlay hidden"><div class="big-modal"><header><strong id="detailTitle">Ficha Pokémon</strong><button onclick="closeDetail()">×</button></header><div class="big-modal-content" id="detailContent"></div></div></div>
@@ -5882,16 +6092,59 @@ function shinySprite(id){return `https://raw.githubusercontent.com/PokeAPI/sprit
 function itemIcon(slug){const safeSlug=slug==='ticket'?'poke-ball':slug;return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${safeSlug}.png`}
 function trainerSprite(name){return `https://play.pokemonshowdown.com/sprites/trainers/${name}.png`}
 function staticPokemon(id){return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`}
-function safeAnimatedAttr(id){return `onerror="this.onerror=null;this.src='${staticPokemon(id)}';this.classList.add('fallback-static')"`}
+const neutralMonsterSprite='data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96"%3E%3Cdefs%3E%3CradialGradient id="g" cx="50%25" cy="35%25" r="70%25"%3E%3Cstop offset="0" stop-color="%23f3d98a"/%3E%3Cstop offset=".55" stop-color="%23295073"/%3E%3Cstop offset="1" stop-color="%2309162a"/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width="96" height="96" rx="22" fill="url(%23g)"/%3E%3Cpath d="M24 59c8-25 15-37 24-37s16 12 24 37c-9 8-39 8-48 0Z" fill="%23dbeafe" opacity=".88"/%3E%3Ccircle cx="38" cy="48" r="4" fill="%2309162a"/%3E%3Ccircle cx="58" cy="48" r="4" fill="%2309162a"/%3E%3Cpath d="M39 62c7 5 11 5 18 0" stroke="%2309162a" stroke-width="4" stroke-linecap="round" fill="none"/%3E%3C/svg%3E';
+function officialPokemonSprite(id, shiny=false){const n=Number(id);return Number.isFinite(n)&&n>0?`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${shiny?'shiny/':''}${n}.png`:neutralMonsterSprite}
+function safeAnimatedAttr(id, shiny=false){return `onerror="this.onerror=null;this.src='${officialPokemonSprite(id,shiny)}';this.classList.add('fallback-static')"`}
+function htmlEscape(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+const dailyBossPool=[
+ {id:149,name:'Dragon Solar',type:'Dragon',window:'20:00 - 00:00',reward:'+1 ticket boss · materiales raros',rank:'Dano global'},
+ {id:6,name:'Charizard Carmesi',type:'Fuego',window:'19:00 - 23:00',reward:'+5 Ultra Ball · oro',rank:'Top fuego'},
+ {id:130,name:'Gyarados Abisal',type:'Agua',window:'18:00 - 22:00',reward:'+1 Water Stone · oro',rank:'Marea semanal'},
+ {id:95,name:'Onix Titan',type:'Roca',window:'20:00 - 00:00',reward:'+5 Great Ball · mineral',rank:'Muralla'},
+ {id:94,name:'Gengar Umbrio',type:'Fantasma',window:'21:00 - 01:00',reward:'+1 Rare Candy · esencia',rank:'Noche'},
+ {id:123,name:'Scyther Esmeralda',type:'Bicho',window:'18:00 - 22:00',reward:'+1 Leaf Stone · oro',rank:'Corte'},
+ {id:150,name:'Mewtwo Arcano',type:'Psiquico',window:'22:00 - 02:00',reward:'+diamantes · reliquia',rank:'Legendario'}
+];
+function getDailyBoss(){return dailyBossPool[Math.floor(Date.now()/86400000)%dailyBossPool.length]}
+function dailyBossSprite(boss=getDailyBoss()){return animated(boss.id)}
 function makeCaptures(count=100){const arr=[];for(let i=0;i<count;i++){const m=monsters[i%monsters.length], tr=trainerNames[i%trainerNames.length];const shiny=(i%13===0)||m.shinyCaught;arr.push({trainer:tr, mon:m.n+(shiny?' shiny':''), zone:['Bosque Verde','Costa Azul','Ruinas','Volcán Carmesí','Pradera Rayo'][i%5], id:m.id, shiny});}return arr;}
 const captures=makeCaptures(100);
 function openAuth(mode='login'){document.getElementById('authOverlay').classList.remove('hidden');setAuthMode(mode)}
 function closeAuth(){document.getElementById('authOverlay').classList.add('hidden')}
 function setAuthMode(mode){const m=document.getElementById('authModal');m.classList.toggle('register-mode',mode==='register');document.getElementById('authLabel').textContent=mode==='register'?'Crear cuenta':'Entrar';document.getElementById('authError')?.classList.add('hidden')}
 function enterGame(){document.getElementById('authOverlay').classList.add('hidden');document.getElementById('landing').style.display='none';document.getElementById('app').classList.add('active');document.getElementById('chatFab').classList.remove('hidden');renderAll()}
-const pageTitles={quests:"Misiones",hub:"Hub",map:"Mapa",pokedex:"Pokedex",mycaptures:"Mis capturas",trade:"Trade Center",shop:"Tienda",arena:"Arena",gyms:"Gimnasios",boss:"Boss",ranking:"Ranking",social:"Social",market:"Mercado",trainerhq:"Trainer HQ",inventory:"Mochila",team:"Armar equipo",events:"Eventos",achievements:"Logros",season:"Temporada",skins:"Skins"};
+const pageTitles={quests:"Misiones",hub:"Hub",map:"Mapa",mapAdventure:"Mapa",pokedex:"Pokedex",mycaptures:"Mis capturas",trade:"Trade Center",shop:"Tienda",arena:"Arena",gyms:"Gimnasios",boss:"Boss",ranking:"Ranking",social:"Social",market:"Mercado",trainerhq:"Trainer HQ",inventory:"Mochila",team:"Armar equipo",events:"Eventos",achievements:"Logros",season:"Temporada",skins:"Skins"};
 function showPage(id){document.querySelectorAll('.menu button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');document.body.dataset.page=id;if(document.getElementById('currentPageTitle'))document.getElementById('currentPageTitle').textContent=pageTitles[id]||id}
 document.querySelectorAll('.menu button').forEach(btn=>btn.onclick=()=>showPage(btn.dataset.page));
+function legalDisclaimerHtml(){return `<div class="legal-disclaimer">Pokémon, ¡A por todos! y Game Boy son marcas registradas de Nintendo. Este sitio web no está afiliado a Nintendo, Creatures ni Game Freak. Es un juego creado por fans.</div>`}
+function openLandingPanel(type){
+ const boss=getDailyBoss();
+ const modal=document.getElementById('landingInfoModal');
+ const title=document.getElementById('landingInfoTitle');
+ const content=document.getElementById('landingInfoContent');
+ if(!modal||!title||!content) return;
+ const panels={
+   news:{title:'Noticias de Verdantia',hero:'Actualizaciones del servidor',copy:'Capturas reales, tienda, mercado, trade, arena y gimnasios ya conviven en el servidor Verdantia.',cards:[['Bosque Esmeralda','Apariciones especiales tipo planta y bonus de exploración.'],['Trade Center','Publica ofertas y revisa historial de intercambios.'],['Mercado global','Ventas directas, subastas y pujas con moneda del juego.']]},
+   ranking:{title:'Ranking público',hero:'Competencia semanal',copy:'La clasificación muestra progreso de Arena, capturas, shinies, boss y trades para entrenadores activos.',cards:[['Top Arena','Rango, puntos, rachas y últimas batallas.'],['Top Boss',`${boss.name}: ${boss.rank} activo hoy.`],['Top Trade','Historial y actividad de comerciantes del servidor.']]},
+   events:{title:'Eventos activos',hero:`Boss diario: ${boss.name}`,copy:`Tipo ${boss.type}. Disponible ${boss.window}. Recompensa: ${boss.reward}.`,cards:[['Boss diario','Ataca durante la ventana activa y compite por daño.'],['Torneo semanal','Arena por rangos con premios para los mejores.'],['Misiones semanales','Objetivos de captura, trade, mercado y combate.']]}
+ };
+ const data=panels[type]||panels.news;
+ title.textContent=data.title;
+ content.innerHTML=`<div class="landing-panel-hero"><div><div class="eyebrow">Servidor Verdantia</div><h2>${htmlEscape(data.hero)}</h2><p class="muted">${htmlEscape(data.copy)}</p></div><img src="${dailyBossSprite(boss)}" ${safeAnimatedAttr(boss.id)}></div><div class="landing-info-grid">${data.cards.map(card=>`<div class="landing-info-card"><strong>${htmlEscape(card[0])}</strong><p class="muted">${htmlEscape(card[1])}</p></div>`).join('')}</div>${legalDisclaimerHtml()}`;
+ modal.classList.remove('hidden');
+}
+function closeLandingPanel(){document.getElementById('landingInfoModal')?.classList.add('hidden')}
+function updateLandingDailyBoss(){
+ const boss=getDailyBoss();
+ const card=document.querySelector('.news-card.wide');
+ if(card){
+   const title=card.querySelector('h3');
+   const copy=card.querySelector('p');
+   if(title) title.textContent=`${boss.name} aparece hoy`;
+   if(copy) copy.textContent=`Disponible ${boss.window}. ${boss.reward}.`;
+ }
+}
+document.addEventListener('DOMContentLoaded',updateLandingDailyBoss);
 function captureRow(c){return `<div class="log"><img class="pokemon-img-clean" src="${c.shiny?shinySprite(c.id):animated(c.id)}" ${safeAnimatedAttr(c.id)}><div><strong>${c.trainer} capturó ${c.mon} ${c.shiny?'<span class="shiny-star">★</span>':''}</strong><span>${c.zone} · hace unos minutos</span></div></div>`}
 function renderCaptures(){document.getElementById('hubCaptures').innerHTML=captures.slice(0,5).map(captureRow).join('');document.getElementById('captureList').innerHTML=captures.slice(0,30).map(captureRow).join('');document.getElementById('captureModalList').innerHTML=captures.map(captureRow).join('')}
 function setDexMode(mode){dexMode=mode;window.dexMode=mode;document.getElementById('normalModeBtn').classList.toggle('active',mode==='normal');document.getElementById('shinyModeBtn').classList.toggle('active',mode==='shiny');renderDex()}
@@ -5944,12 +6197,13 @@ function renderArena(){
    const esc=(v)=>String(v??'').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
    const progress=arena.progress||{};
    const difficultyText=(label)=>label==='easy'?'Fácil':label==='hard'?'Difícil':'Normal';
-   const progressHtml=`<div class="arena-card" style="align-items:stretch">
+   const progressHtml=`<div class="arena-progress-card">
      <div style="flex:1">
        <h3>Rango ${esc(progress.current_rank||'Bronce I')} <span class="rank">${Number(progress.arena_points||0).toLocaleString('es-ES')} pts</span></h3>
-       <p>Victorias ${Number(progress.wins||0)} · Derrotas ${Number(progress.losses||0)} · Racha ${Number(progress.win_streak||0)} · Mejor ${Number(progress.best_streak||0)}</p>
+       <div class="arena-stat-row"><span class="level-pill">Victorias ${Number(progress.wins||0)}</span><span class="level-pill">Derrotas ${Number(progress.losses||0)}</span><span class="level-pill">Racha ${Number(progress.win_streak||0)}</span><span class="level-pill">Mejor ${Number(progress.best_streak||0)}</span></div>
        ${progress.next_rank?`<p class="muted">Siguiente rango: ${esc(progress.next_rank.name)} · faltan ${Number(progress.next_rank.points_to_next||0).toLocaleString('es-ES')} pts</p>`:''}
      </div>
+     <button class="ghost" onclick="loadArena()">Actualizar</button>
    </div>`;
    const cards=rivals.map(r=>{
      const team=Array.isArray(r.team_preview)?r.team_preview:[];
@@ -6417,6 +6671,25 @@ function showMapToast(msg,type='info'){
  clearTimeout(window.__mapToastTimer);window.__mapToastTimer=setTimeout(()=>toast.classList.add('hidden'), type==='success'?4500:3200);
 }
 document.addEventListener('keydown',e=>{
+ const target=e.target;
+ const tag=String(target?.tagName||'').toLowerCase();
+ const typing=tag==='input'||tag==='textarea'||tag==='select'||target?.isContentEditable;
+ if(typing) return;
+ const modalOpen=Array.from(document.querySelectorAll('.overlay:not(.hidden),.modal-window:not(.hidden)')).some(el=>!el.closest('.overlay.hidden') && (el.offsetParent!==null || getComputedStyle(el).display!=='none'));
+ if((e.key===' '||e.code==='Space') && !modalOpen){
+   const active=document.querySelector('#mapAdventure.active');
+   const liveState=window.mastersmonState;
+   const hasRealEncounter=!!liveState?.currentEncounter;
+   const hasLocalEncounter=!!(mapEncounterActive && activeMapEncounter && activeMapEncounter.id);
+   const btn=document.getElementById('adventureBattleBtn');
+   const hasVisibleEncounterBtn=!!(btn && !btn.disabled && !/sin encuentro/i.test(btn.textContent||''));
+   if(active && (hasRealEncounter || hasLocalEncounter || hasVisibleEncounterBtn)){
+     e.preventDefault();
+     if(btn && !btn.disabled && !/sin encuentro/i.test(btn.textContent||'')) btn.click();
+     else if(typeof openEncounterBattle==='function') openEncounterBattle();
+     return;
+   }
+ }
  const active=document.querySelector('#mapAdventure.active');
  if(!active) return;
  const key=e.key.toLowerCase();
@@ -6437,10 +6710,29 @@ function renderInventory(){
  document.getElementById('inventoryGrid').innerHTML=list.map(i=>`<div class="item-card"><span class="item-count">x${i.count}</span><img src="${itemIcon(i.icon)}" onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png'"><h3>${i.name}</h3><p class="muted">${i.desc}</p><br><button class="ghost">Usar</button></div>`).join('');
 }
 function renderBossRanking(){
- document.getElementById('bossRanking').innerHTML=bossRank.map((r,i)=>`<div class="ranking-row"><div class="rank-num">${i+1}</div><div><strong>${r[0]}</strong><span class="muted" style="display:block">${r[2]}</span></div><strong>${r[1].toLocaleString()} dmg</strong></div>`).join('');
+ const boss=getDailyBoss();
+ const hero=document.querySelector('#boss .boss-hero');
+ if(hero){
+   hero.querySelector('.eyebrow').textContent=`Boss diario · ${boss.window}`;
+   hero.querySelector('h2').textContent=boss.name;
+   const copy=hero.querySelector('p.muted');
+   if(copy) copy.textContent=`Tipo ${boss.type}. Participa con tu equipo activo, acumula daño y sube en el ranking para ganar ${boss.reward}.`;
+   const img=hero.querySelector('img');
+   if(img){img.src=dailyBossSprite(boss);img.setAttribute('onerror',`this.onerror=null;this.src='${officialPokemonSprite(boss.id)}';this.classList.add('fallback-static')`);}
+   const hp=82-(Math.floor(Date.now()/3600000)%18);
+   const hpText=hero.querySelector('.boss-hp + p');
+   if(hpText) hpText.textContent=`HP restante: ${hp}%`;
+   const hpBar=hero.querySelector('.boss-hp span');
+   if(hpBar) hpBar.style.width=`${hp}%`;
+   if(!hero.querySelector('.boss-daily-card')){
+     hero.insertAdjacentHTML('beforeend',`<div class="boss-daily-card"><div><strong>Rotación semanal</strong><p class="muted">Un boss diferente aparece cada día. El ranking, recompensas y ventana se actualizan visualmente para que la pantalla no se sienta estática.</p><div class="gym-reward-row"><span class="level-pill">${boss.type}</span><span class="level-pill">${boss.window}</span><span class="level-pill">${boss.rank}</span></div></div><img src="${dailyBossSprite(boss)}" ${safeAnimatedAttr(boss.id)}></div>`);
+   }
+ }
+ document.getElementById('bossRanking').innerHTML=bossRank.map((r,i)=>`<div class="ranking-row"><div class="rank-num">${i+1}</div><div><strong>${r[0]}</strong><span class="muted" style="display:block">${boss.name} · ${r[2]}</span></div><strong>${r[1].toLocaleString()} dmg</strong></div>`).join('');
 }
 function openBossBattle(){
- currentBattleContext={type:'boss',title:'Boss diario: Dragón Solar',mode:'Boss diario',trainer:'Dragón Solar',enemyId:149,enemyShiny:false,enemyName:'Dragón Solar',level:'Boss Nv. 50',hp:1000,reward:'+48K daño · +1 ticket boss · +materiales',rivalTeam:[149]};
+ const boss=getDailyBoss();
+ currentBattleContext={type:'boss',title:`Boss diario: ${boss.name}`,mode:'Boss diario',trainer:boss.name,enemyId:boss.id,enemyShiny:false,enemyName:boss.name,level:'Boss Nv. 50',hp:1000,reward:`+48K daño · ${boss.reward}`,rivalTeam:[boss.id]};
  renderBattleSelection(currentBattleContext);
 }
 
@@ -6909,30 +7201,37 @@ V28 future database modules to include from the start:
   function fmt(n){ return Number(n || 0).toLocaleString("es-ES"); }
   function safeText(v, fallback="-"){ return (v === null || v === undefined || v === "") ? fallback : String(v); }
   function asset(path){
-    if(!path) return "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png";
+    if(!path) return neutralMonsterSprite;
     const rawPath = String(path);
     if(rawPath.startsWith("http")) return rawPath;
     const itemMatch = rawPath.match(/\/img\/items\/official\/([^/?#]+)\.png$/);
-    if(itemMatch && !/^\d{4}_/.test(itemMatch[1])){
-      const safeSlug = itemMatch[1] === "ticket" ? "poke-ball" : itemMatch[1];
+    if(itemMatch){
+      const normalizedSlug = itemMatch[1].replace(/^\d+_/, "");
+      const itemFallbacks = {ticket:"poke-ball","link-cable":"poke-ball",itemfinder:"poke-ball"};
+      const safeSlug = itemFallbacks[normalizedSlug] || normalizedSlug;
       return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${safeSlug}.png`;
     }
     const animatedMatch = rawPath.match(/\/img\/pokemon-png\/animated_(normal|shiny)\/0*(\d+)\.gif$/);
-    if(animatedMatch && Number(animatedMatch[2]) > 649){
+    if(animatedMatch){
       const shinySegment = animatedMatch[1] === "shiny" ? "shiny/" : "";
       return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${shinySegment}${Number(animatedMatch[2])}.png`;
     }
     return rawPath;
   }
+  function spriteIdFromPath(path){
+    const match = String(path || "").match(/(?:\/|pokemon\/)(?:shiny\/)?0*(\d+)\.(?:png|gif)$/i);
+    return match ? Number(match[1]) : null;
+  }
   function typeEs(t){
     const map = {normal:"Normal",fire:"Fuego",water:"Agua",grass:"Planta",electric:"Eléctrico",ice:"Hielo",fighting:"Lucha",poison:"Veneno",ground:"Tierra",flying:"Volador",psychic:"Psíquico",bug:"Bicho",rock:"Roca",ghost:"Fantasma",dragon:"Dragón",dark:"Siniestro",steel:"Acero",fairy:"Hada"};
     return map[t] || t || "-";
   }
-  function imgFallbackAttr(){
-    return `onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png';this.classList.add('fallback-static')"`;
+  function imgFallbackAttr(speciesId=null, shiny=false){
+    const preset = Number(speciesId) || 0;
+    return `onerror="this.onerror=null;var m=String(this.dataset.speciesId||this.src).match(/0*(\\d+)\\.(?:png|gif)$/i);var n=${preset}||m&&Number(m[1]);this.src=n?'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${shiny?'shiny/':''}'+n+'.png':'${neutralMonsterSprite}';this.classList.add('fallback-static');if(!n)this.classList.add('neutral-sprite')"`;
   }
-  function imgFallbackCode(){
-    return "this.onerror=null;this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png';this.classList.add('fallback-static')";
+  function imgFallbackCode(speciesId=null, shiny=false){
+    return `this.onerror=null;this.src='${officialPokemonSprite(speciesId,shiny)}';this.classList.add('fallback-static');`;
   }
   function getErrorMessage(error){
     const message = error?.message || "Error de conexion";
@@ -7165,7 +7464,8 @@ V28 future database modules to include from the start:
   function updateBattleBallCounts(){
     document.querySelectorAll("[data-ball-count]").forEach(el => {
       const slug = el.getAttribute("data-ball-count");
-      el.textContent = `x${getBallQty(slug)}`;
+      const qty = getBallQty(slug);
+      el.textContent = qty > 0 ? `Cantidad x${qty}` : "Sin stock";
     });
   }
 
@@ -7573,13 +7873,16 @@ V28 future database modules to include from the start:
     title.textContent = "Crear oferta";
     const valid = validTradeCollection();
     content.innerHTML = `
-      <div class="grid2">
-        <div><h3>Elige criatura</h3><div class="fixed-list">${valid.map(monster => {
+      <div class="modal-form-grid">
+        <div><h3>Elige criatura</h3><p class="muted">Las criaturas en equipo o bloqueadas no se pueden publicar.</p><div class="trade-choice-list">${valid.map(monster => {
           const inTeam = isMonsterInTeam(monster.player_monster_id);
           const disabled = inTeam || monster.is_locked;
-          return `<button class="${disabled ? "ghost" : "primary"}" style="width:100%;margin-bottom:8px;text-align:left" ${disabled ? "disabled" : ""} onclick="selectTradeMonster('${monster.player_monster_id}')">${monster.pokemon_name} Nv. ${monster.level}${monster.is_favorite ? " · Favorita" : ""}${inTeam ? " · En equipo" : ""}</button>`;
+          const sprite = asset(monster.selected_sprite_path);
+          const fallbackId = monster.dex_number || spriteIdFromPath(monster.selected_sprite_path);
+          const reason = disabled ? (inTeam ? "En equipo" : "Bloqueada") : "Disponible";
+          return `<button class="trade-choice ${disabled ? "ghost" : "primary"}" ${disabled ? "disabled" : ""} onclick="selectTradeMonster('${monster.player_monster_id}')"><img src="${sprite}" ${imgFallbackAttr(fallbackId, monster.is_shiny)}><span><strong>${monster.is_shiny ? "Shiny " : ""}${monster.pokemon_name}</strong><small>Nv. ${monster.level} · ${typeEs(monster.primary_type)}${monster.is_favorite ? " · Favorita" : ""}</small></span><span class="reason">${reason}</span></button>`;
         }).join("") || `<p class="muted">No tienes criaturas disponibles para trade.</p>`}</div></div>
-        <div><h3>Busco</h3>
+        <div><div id="tradePreviewCard" class="modal-preview-card"><strong>Sin criatura seleccionada</strong><p class="muted">Elige una criatura para previsualizar tu oferta.</p></div><h3>Busco</h3>
           <input id="tradeOfferMonsterId" type="hidden">
           <label>Tipo de solicitud</label>
           <select id="tradeRequestedType"><option value="any">Cualquier criatura</option><option value="type">Tipo</option><option value="rarity">Rareza</option><option value="specific">Específica flexible</option></select>
@@ -7588,7 +7891,7 @@ V28 future database modules to include from the start:
           <label>Nivel mínimo</label><input id="tradeRequestedMinLevel" type="number" min="1" placeholder="Opcional">
           <label>Notas</label><input id="tradeRequestedNotes" placeholder="Busco criatura de agua">
           <div id="tradeSelectedHint" class="team-feedback hidden"></div>
-          <br><button class="primary" onclick="createTradeOffer()">Publicar oferta</button>
+          <div class="modal-actions-row"><button class="primary" ${state.tradeLoading ? "disabled" : ""} onclick="createTradeOffer()">${state.tradeLoading ? "Publicando..." : "Publicar oferta"}</button><button class="ghost" onclick="closeTradeModal()">Cancelar</button></div>
         </div>
       </div>`;
     modal.classList.remove("hidden");
@@ -7602,6 +7905,12 @@ V28 future database modules to include from the start:
     if(hint){
       hint.classList.remove("hidden");
       hint.textContent = monster ? `Seleccionado: ${monster.pokemon_name} Nv. ${monster.level}${monster.is_favorite ? " · Favorita" : ""}` : "Criatura seleccionada";
+    }
+    const preview = byId("tradePreviewCard");
+    if(preview && monster){
+      const sprite = asset(monster.selected_sprite_path);
+      const fallbackId = monster.dex_number || spriteIdFromPath(monster.selected_sprite_path);
+      preview.innerHTML = `<img src="${sprite}" ${imgFallbackAttr(fallbackId, monster.is_shiny)}><strong>${monster.is_shiny ? "Shiny " : ""}${monster.pokemon_name}</strong><p class="muted">Nv. ${monster.level} · ${typeEs(monster.primary_type)}${monster.secondary_type ? " / " + typeEs(monster.secondary_type) : ""}${monster.is_favorite ? " · Favorita" : ""}</p>`;
     }
   };
 
@@ -7654,11 +7963,13 @@ V28 future database modules to include from the start:
     const content = byId("tradeModalContent");
     title.textContent = "Aceptar trade";
     content.innerHTML = `
-      <div class="grid2">
+      <div class="modal-form-grid">
         <div><h3>Recibirás</h3>${tradeMonsterLine(offer.offered_monster)}<p class="muted">Solicita: ${tradeRequestText(offer.requested)}</p></div>
-        <div><h3>Entrega una criatura</h3><div class="fixed-list">${state.collection.map(monster => {
+        <div><h3>Entrega una criatura</h3><p class="muted">Solo aparecen activas las criaturas que cumplen la solicitud.</p><div class="trade-choice-list">${state.collection.map(monster => {
           const reason = tradeCandidateReason(monster, offer);
-          return `<button class="${reason ? "ghost" : "primary"}" style="width:100%;margin-bottom:8px;text-align:left" ${reason ? "disabled" : ""} onclick="acceptTradeOffer('${offer.trade_offer_id}','${monster.player_monster_id}')">${monster.pokemon_name} Nv. ${monster.level}${reason ? " · " + reason : ""}</button>`;
+          const sprite = asset(monster.selected_sprite_path);
+          const fallbackId = monster.dex_number || spriteIdFromPath(monster.selected_sprite_path);
+          return `<button class="trade-choice ${reason ? "ghost" : "primary"}" ${reason ? "disabled" : ""} onclick="acceptTradeOffer('${offer.trade_offer_id}','${monster.player_monster_id}')"><img src="${sprite}" ${imgFallbackAttr(fallbackId, monster.is_shiny)}><span><strong>${monster.is_shiny ? "Shiny " : ""}${monster.pokemon_name}</strong><small>Nv. ${monster.level} · ${typeEs(monster.primary_type)}</small></span><span class="reason">${reason || "Elegir"}</span></button>`;
         }).join("")}</div></div>
       </div>`;
     modal.classList.remove("hidden");
@@ -7843,11 +8154,33 @@ V28 future database modules to include from the start:
     const content = byId("marketModalContent");
     if(!modal || !title || !content) return;
     title.textContent = "Crear venta";
-    content.innerHTML = `<div class="grid2">
-      <div><label>Tipo de venta</label><select id="marketListingType"><option value="monster">Criatura</option><option value="item">Item</option></select><label>Criatura</label><select id="marketListingMonster">${validMarketMonsters().map(marketMonsterOption).join("")}</select><label>Item</label><select id="marketListingItem">${state.inventory.filter(i => Number(i.quantity || 0) > 0).map(marketItemOption).join("")}</select><label>Cantidad item</label><input id="marketListingQuantity" type="number" min="1" value="1"></div>
-      <div><label>Precio en Pokedolares</label><input id="marketListingGold" type="number" min="0" value="1000"><label>Precio en diamantes</label><input id="marketListingDiamonds" type="number" min="0" value="0"><p class="muted">El backend valida ownership, equipo, bloqueos, trades y stock.</p><button class="primary" onclick="createMarketListingReal()">Publicar venta</button></div>
+    content.innerHTML = `<div class="modal-form-grid">
+      <div><div id="marketListingPreview" class="modal-preview-card"><strong>Previsualiza tu venta</strong><p class="muted">Selecciona criatura o item y define precio.</p></div><label>Tipo de venta</label><select id="marketListingType" onchange="updateMarketListingPreview()"><option value="monster">Criatura</option><option value="item">Item</option></select><label>Criatura</label><select id="marketListingMonster" onchange="updateMarketListingPreview()">${validMarketMonsters().map(marketMonsterOption).join("")}</select><label>Item</label><select id="marketListingItem" onchange="updateMarketListingPreview()">${state.inventory.filter(i => Number(i.quantity || 0) > 0).map(marketItemOption).join("")}</select><label>Cantidad item</label><input id="marketListingQuantity" type="number" min="1" value="1" oninput="updateMarketListingPreview()"></div>
+      <div><div class="modal-field-row"><div><label>Precio en Pokedolares</label><input id="marketListingGold" type="number" min="0" value="1000" oninput="updateMarketListingPreview()"></div><div><label>Precio en diamantes</label><input id="marketListingDiamonds" type="number" min="0" value="0" oninput="updateMarketListingPreview()"></div></div><p class="muted">El backend valida ownership, equipo, bloqueos, trades y stock.</p><div class="modal-actions-row"><button class="primary" ${state.marketLoading ? "disabled" : ""} onclick="createMarketListingReal()">${state.marketLoading ? "Publicando..." : "Publicar venta"}</button><button class="ghost" onclick="closeMarketModal()">Cancelar</button></div></div>
     </div>`;
     modal.classList.remove("hidden");
+    updateMarketListingPreview();
+  };
+
+  window.updateMarketListingPreview = function(){
+    const box = byId("marketListingPreview");
+    if(!box) return;
+    const listingType = byId("marketListingType")?.value || "monster";
+    const gold = fmt(byId("marketListingGold")?.value || 0);
+    const diamonds = fmt(byId("marketListingDiamonds")?.value || 0);
+    if(listingType === "monster"){
+      const id = byId("marketListingMonster")?.value;
+      const monster = state.collection.find(m => String(m.player_monster_id) === String(id));
+      if(!monster){ box.innerHTML = `<strong>Sin criatura disponible</strong><p class="muted">Captura o libera una criatura fuera del equipo.</p>`; return; }
+      const sprite = asset(monster.selected_sprite_path);
+      const fallbackId = monster.dex_number || spriteIdFromPath(monster.selected_sprite_path);
+      box.innerHTML = `<img src="${sprite}" ${imgFallbackAttr(fallbackId, monster.is_shiny)}><strong>${monster.is_shiny ? "Shiny " : ""}${monster.pokemon_name}</strong><p class="muted">Nv. ${monster.level} · ${typeEs(monster.primary_type)} · ${gold} oro${Number(byId("marketListingDiamonds")?.value || 0) ? " + " + diamonds + " diamantes" : ""}</p>`;
+      return;
+    }
+    const slug = byId("marketListingItem")?.value;
+    const item = state.inventory.find(i => i.item_slug === slug);
+    const qty = Number(byId("marketListingQuantity")?.value || 1);
+    box.innerHTML = `<img src="${asset(item?.icon_path || `/img/items/official/${slug || "poke-ball"}.png`)}" ${imgFallbackAttr()}><strong>${item?.display_name || item?.item_name || slug || "Item"}</strong><p class="muted">Cantidad x${qty} · ${gold} oro${Number(byId("marketListingDiamonds")?.value || 0) ? " + " + diamonds + " diamantes" : ""}</p>`;
   };
 
   window.createMarketListingReal = async function(){
@@ -7871,7 +8204,7 @@ V28 future database modules to include from the start:
     if(!listing) return;
     const subject = marketSubject(listing);
     byId("marketModalTitle").textContent = "Comprar";
-    byId("marketModalContent").innerHTML = `<div class="feature-card"><img src="${subject.image}" ${imgFallbackAttr()} style="width:72px;height:72px;object-fit:contain;float:right"><h3>${subject.name}</h3><p>${subject.meta}</p><span class="market-price">${marketPriceText(listing)}</span><br><button class="primary" onclick="buyMarketListingReal('${listing.listing_id}')">Confirmar compra</button></div>`;
+    byId("marketModalContent").innerHTML = `<div class="modal-preview-card"><img src="${subject.image}" ${imgFallbackAttr()}><strong>${subject.name}</strong><p class="muted">${subject.meta}</p><span class="market-price">${marketPriceText(listing)}</span><div class="modal-actions-row"><button class="primary" ${state.marketLoading ? "disabled" : ""} onclick="buyMarketListingReal('${listing.listing_id}')">${state.marketLoading ? "Comprando..." : "Confirmar compra"}</button><button class="ghost" onclick="closeMarketModal()">Cancelar</button></div></div>`;
     byId("marketModal").classList.remove("hidden");
   };
 
@@ -8445,11 +8778,11 @@ V28 future database modules to include from the start:
         <div class="trainer-frame"><img src="${asset(g.leader_avatar_path || g.badge_icon_path)}" onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/95.png';this.classList.add('fallback-static')"></div>
         <div>
           <div class="leader-name">${g.leader_name || g.name}</div>
-          <div class="leader-meta">${g.region_name || "Región"} · ${typeEs(g.type_slug)} · Nv. recomendado ${recommended || "-"} · ${gymDifficultyText(difficulty)}</div>
-          <div class="leader-team"><span class="level-pill">${done ? "Medalla obtenida" : (g.badge_name || "Medalla")}</span><span class="level-pill">${g.team_size || "Auto"} rivales</span><span class="level-pill">Tu media Nv. ${playerAverage || "-"}</span></div>
+          <div class="leader-meta">${g.region_name || "Región"} · ${typeEs(g.type_slug)}</div>
+          <div class="leader-team"><span class="level-pill">${done ? "Medalla obtenida" : (g.badge_name || "Medalla")}</span><span class="level-pill">Nv. recomendado ${recommended || "-"}</span><span class="level-pill">${gymDifficultyText(difficulty)}</span><span class="level-pill">${g.team_size || "Auto"} rivales</span><span class="level-pill">Tu media Nv. ${playerAverage || "-"}</span></div>
           ${difficulty === "hard" && !done ? `<p class="muted">Tu equipo puede estar por debajo del nivel recomendado.</p>` : ""}
+          <div class="gym-reward-row"><span class="quest-reward">${done ? `Repetición +${fmt(g.repeat_reward_gold || 500)} oro` : rewardText}</span>${locked ? `<span class="level-pill">Primero completa el gimnasio anterior</span>` : ""}</div>
           <div class="leader-actions">
-            <span class="level-pill">${done ? `Repetir +${fmt(g.repeat_reward_gold || 500)} oro` : rewardText}</span>
             <button class="${locked ? "ghost" : "primary"}" ${state.battleLoading || locked ? "disabled" : ""} onclick="startGymBattle('${g.slug}')">${locked ? "Bloqueado" : "Battle"}</button>
           </div>
         </div>
@@ -8947,8 +9280,13 @@ V28 future database modules to include from the start:
       renderShop();
       renderQuests();
       updateBattleBallCounts();
-      showShopFeedback("Compra realizada");
-      if(typeof showMapToast === "function") showMapToast(`Compra realizada: x${result.quantity} ${result.item?.display_name || itemSlug}.`, "success");
+      const ownedQty = inventoryQuantity(itemSlug);
+      const gold = fmt(state.profile?.gold);
+      const diamonds = fmt(state.profile?.diamonds);
+      const boughtName = result.item?.display_name || result.item?.name || itemSlug;
+      const message = `Compra realizada: x${result.quantity || parsedQuantity} ${boughtName}. Stock x${ownedQty}. Oro ${gold} · Diamantes ${diamonds}.`;
+      showShopFeedback(message);
+      if(typeof showMapToast === "function") showMapToast(message, "success");
     }catch(error){
       showShopFeedback(shopActionError(error), "fail");
     }finally{
@@ -9456,8 +9794,10 @@ V28 future database modules to include from the start:
     const battleBtn = byId("adventureBattleBtn");
 
     if(e){
-      if(wildMap){ wildMap.src = asset(e.selected_sprite_path); wildMap.setAttribute("onerror", imgFallbackCode()); wildMap.classList.remove("is-hidden"); }
-      if(panelSprite){ panelSprite.src = asset(e.selected_sprite_path); panelSprite.setAttribute("onerror", imgFallbackCode()); }
+      const fallbackId = e.dex_number || e.pokedex_number || e.pokemon_id || e.species_number || spriteIdFromPath(e.selected_sprite_path);
+      const encounterSprite = e.selected_sprite_path ? asset(e.selected_sprite_path) : officialPokemonSprite(fallbackId, e.is_shiny);
+      if(wildMap){ wildMap.src = encounterSprite; wildMap.dataset.speciesId = fallbackId || ""; wildMap.setAttribute("onerror", imgFallbackCode(fallbackId, e.is_shiny)); wildMap.classList.remove("is-hidden","neutral-sprite"); }
+      if(panelSprite){ panelSprite.src = encounterSprite; panelSprite.dataset.speciesId = fallbackId || ""; panelSprite.setAttribute("onerror", imgFallbackCode(fallbackId, e.is_shiny)); panelSprite.classList.remove("neutral-sprite"); }
       if(name) name.textContent = `${e.is_shiny ? "✨ Shiny " : ""}${e.pokemon_name} apareció`;
       if(text) text.innerHTML = `Mapa: ${map.name}<br>Nivel ${e.level} · ${typeEs(e.primary_type)}${e.secondary_type ? `/${typeEs(e.secondary_type)}` : ""}<br>ID encuentro: ${e.encounter_id}`;
       if(battleBtn){ battleBtn.disabled = false; battleBtn.textContent = "Click aquí para batalla"; }
@@ -9538,6 +9878,8 @@ V28 future database modules to include from the start:
     const teamHtml = teamRows.map(t => `<div class="lineup-card ${t.player_monster_id === first?.player_monster_id ? "selected":""}">
       <img src="${asset(t.selected_sprite_path)}" ${imgFallbackAttr()}><div><strong>${t.pokemon_name}</strong><small>Nivel ${t.level} · ${typeEs(t.primary_type)}<br>HP ${t.current_hp || 35}/${t.current_hp || 35}</small></div><button class="blue-btn" disabled>${t.player_monster_id === first?.player_monster_id ? "Pick":"En team"}</button></div>`).join("");
 
+    const fallbackId = e.dex_number || e.pokedex_number || e.pokemon_id || e.species_number || spriteIdFromPath(e.selected_sprite_path);
+    const encounterSprite = e.selected_sprite_path ? asset(e.selected_sprite_path) : officialPokemonSprite(fallbackId, e.is_shiny);
     const availableBalls = ["poke-ball","great-ball","ultra-ball","master-ball"];
     if(!state.selectedBall || getBallQty(state.selectedBall) <= 0){
       state.selectedBall = availableBalls.find(b => getBallQty(b) > 0) || "";
@@ -9545,7 +9887,7 @@ V28 future database modules to include from the start:
     const balls = availableBalls.map(b => {
       const qty = getBallQty(b);
       return `<button type="button" class="ball-option ${state.selectedBall === b ? "active":""} ${qty <= 0 ? "is-disabled":""}" ${qty <= 0 ? "disabled" : ""} onclick="selectBattleBall('${b}',this)">
-        <img src="${ballIcon(b)}" alt=""><div><strong>${ballLabel(b)}</strong><span data-ball-count="${b}">x${qty}</span></div></button>`;
+        <img src="${ballIcon(b)}" alt=""><div><strong>${ballLabel(b)}</strong><span data-ball-count="${b}">${qty > 0 ? `Cantidad x${qty}` : "Sin stock"}</span></div></button>`;
     }).join("");
 
     document.querySelector("#battleModal header strong").textContent = "Encuentro salvaje";
@@ -9557,7 +9899,7 @@ V28 future database modules to include from the start:
         <div class="battle-column wild-card">
           <h3>Pokémon salvaje</h3>
           <span class="mon-variant-badge ${e.is_shiny ? "shiny":"normal"}">${e.is_shiny ? "✨ Shiny":"Normal"}</span>
-          <img src="${asset(e.selected_sprite_path)}" ${imgFallbackAttr()}>
+          <img src="${encounterSprite}" data-species-id="${fallbackId || ""}" ${imgFallbackAttr(fallbackId, e.is_shiny)}>
           <strong>${e.pokemon_name}</strong>
           ${e.secondary_type ? `<small>Tipo secundario: ${typeEs(e.secondary_type)}</small>` : ""}
           <small>Nivel ${e.level} · ${typeEs(e.primary_type)}</small>
