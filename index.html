@@ -6766,8 +6766,19 @@ V28 future database modules to include from the start:
   function safeText(v, fallback="-"){ return (v === null || v === undefined || v === "") ? fallback : String(v); }
   function asset(path){
     if(!path) return "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png";
-    if(String(path).startsWith("http")) return path;
-    return path;
+    const rawPath = String(path);
+    if(rawPath.startsWith("http")) return rawPath;
+    const itemMatch = rawPath.match(/\/img\/items\/official\/([^/?#]+)\.png$/);
+    if(itemMatch && !/^\d{4}_/.test(itemMatch[1])){
+      const safeSlug = itemMatch[1] === "ticket" ? "poke-ball" : itemMatch[1];
+      return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${safeSlug}.png`;
+    }
+    const animatedMatch = rawPath.match(/\/img\/pokemon-png\/animated_(normal|shiny)\/0*(\d+)\.gif$/);
+    if(animatedMatch && Number(animatedMatch[2]) > 649){
+      const shinySegment = animatedMatch[1] === "shiny" ? "shiny/" : "";
+      return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${shinySegment}${Number(animatedMatch[2])}.png`;
+    }
+    return rawPath;
   }
   function typeEs(t){
     const map = {normal:"Normal",fire:"Fuego",water:"Agua",grass:"Planta",electric:"Eléctrico",ice:"Hielo",fighting:"Lucha",poison:"Veneno",ground:"Tierra",flying:"Volador",psychic:"Psíquico",bug:"Bicho",rock:"Roca",ghost:"Fantasma",dragon:"Dragón",dark:"Siniestro",steel:"Acero",fairy:"Hada"};
