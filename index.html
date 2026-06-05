@@ -5032,6 +5032,347 @@
       }
     }
 
+    /* QA visual polish: captures, battle results, gyms, modals and ranking. */
+    #mycaptures .captures-toolbar{
+      padding:8px!important;
+      border:1px solid rgba(180,207,236,.12);
+      background:rgba(255,255,255,.045);
+      border-radius:16px;
+      margin-bottom:18px!important;
+    }
+    #mycaptures .captures-toolbar button{
+      min-height:38px!important;
+      border-radius:12px!important;
+      font-weight:900!important;
+    }
+    #mycaptures .mycaptures-grid{
+      grid-template-columns:repeat(auto-fill,minmax(210px,1fr))!important;
+      gap:14px!important;
+      max-height:680px!important;
+      padding:2px 8px 2px 2px!important;
+    }
+    #mycaptures .capture-pro-card{
+      min-height:286px!important;
+      padding:14px!important;
+      display:flex!important;
+      flex-direction:column!important;
+      justify-content:space-between!important;
+      gap:10px!important;
+      text-align:left!important;
+      overflow:hidden;
+    }
+    #mycaptures .capture-pro-card.in-team{
+      border-color:rgba(30,196,255,.36)!important;
+      box-shadow:0 18px 38px rgba(30,196,255,.08),inset 0 0 0 1px rgba(30,196,255,.12)!important;
+    }
+    .capture-card-badges{
+      min-height:28px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      align-items:center;
+    }
+    .capture-card-badges .level-pill{
+      font-size:11px;
+      padding:5px 8px;
+      background:rgba(125,220,255,.10);
+      border-color:rgba(125,220,255,.22);
+    }
+    .capture-art-shell{
+      display:grid;
+      place-items:center;
+      min-height:116px;
+      border-radius:18px;
+      background:radial-gradient(circle at 50% 38%,rgba(234,191,104,.18),rgba(125,220,255,.08) 44%,rgba(255,255,255,.025) 70%);
+      border:1px solid rgba(180,207,236,.10);
+    }
+    #mycaptures .capture-art-shell img{
+      width:112px!important;
+      height:112px!important;
+      margin:0!important;
+      filter:drop-shadow(0 18px 18px rgba(0,0,0,.35))!important;
+      transform:translateY(-2px);
+    }
+    .capture-card-main strong{
+      display:block;
+      color:#fff8e8;
+      font-size:17px!important;
+      line-height:1.15!important;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .capture-card-main p{
+      min-height:0!important;
+      font-size:12px!important;
+      line-height:1.35!important;
+      color:var(--mm-text-muted)!important;
+      margin-top:5px!important;
+    }
+    .capture-card-actions{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+      margin-top:2px;
+    }
+    #mycaptures .capture-card-actions button{
+      margin:0!important;
+      width:100%;
+      min-height:38px;
+      padding:9px 8px!important;
+      font-size:12px!important;
+      border-radius:12px!important;
+    }
+    .battle-final-card{
+      border:1px solid rgba(180,207,236,.15);
+      border-radius:22px;
+      padding:18px;
+      background:linear-gradient(135deg,rgba(10,20,36,.92),rgba(255,255,255,.045));
+      box-shadow:0 24px 70px rgba(0,0,0,.28);
+    }
+    .battle-final-card.victory{border-color:rgba(104,223,165,.38);background:linear-gradient(135deg,rgba(24,76,55,.40),rgba(10,20,36,.92));}
+    .battle-final-card.defeat{border-color:rgba(255,104,120,.38);background:linear-gradient(135deg,rgba(89,33,43,.36),rgba(10,20,36,.92));}
+    .battle-final-head{
+      display:flex;
+      justify-content:space-between;
+      gap:16px;
+      align-items:center;
+      margin-bottom:14px;
+    }
+    .battle-final-head h2{
+      margin:3px 0 2px;
+      color:#fff8e8;
+      font-size:30px;
+    }
+    .battle-final-emblem{
+      width:74px;
+      height:74px;
+      border-radius:20px;
+      display:grid;
+      place-items:center;
+      font-weight:1000;
+      color:#20160b;
+      background:linear-gradient(135deg,#ffe5a3,#d7a842);
+      box-shadow:0 18px 38px rgba(234,191,104,.26);
+      letter-spacing:.04em;
+    }
+    .battle-final-rewards{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin:12px 0;
+    }
+    .arena-rank-progress{
+      padding:12px;
+      border-radius:16px;
+      border:1px solid rgba(125,220,255,.18);
+      background:rgba(125,220,255,.055);
+      margin-top:12px;
+    }
+    .battle-final-meta{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:12px;
+    }
+    .gym-card-pro{
+      display:grid!important;
+      grid-template-columns:118px minmax(0,1fr)!important;
+      gap:16px!important;
+      align-items:stretch!important;
+      min-height:260px!important;
+      padding:16px!important;
+    }
+    .gym-card-top{
+      display:grid;
+      gap:10px;
+      align-content:start;
+      justify-items:center;
+    }
+    .gym-card-pro .trainer-frame{
+      width:104px;
+      height:120px;
+      border-radius:18px;
+      background:linear-gradient(180deg,rgba(234,191,104,.18),rgba(125,220,255,.06));
+    }
+    .gym-card-pro .trainer-frame img{
+      max-width:96px;
+      max-height:112px;
+    }
+    .gym-medal-chip{
+      width:100%;
+      display:grid;
+      grid-template-columns:34px minmax(0,1fr);
+      gap:8px;
+      align-items:center;
+      padding:8px;
+      border-radius:14px;
+      border:1px solid rgba(234,191,104,.18);
+      background:rgba(234,191,104,.07);
+      color:#ffe7ad;
+      font-size:12px;
+      font-weight:900;
+    }
+    .gym-medal-chip img{
+      width:30px;
+      height:30px;
+      object-fit:contain;
+    }
+    .gym-medal-chip.locked{filter:saturate(.55);opacity:.72}
+    .gym-card-body{
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .gym-card-title .leader-name{
+      margin-top:8px;
+      font-size:22px;
+      color:#fff8e8;
+    }
+    .gym-meta-row{
+      justify-content:flex-start;
+      gap:8px;
+    }
+    .gym-warning{
+      padding:9px 11px;
+      border-radius:12px;
+      border:1px solid rgba(255,208,90,.18);
+      background:rgba(255,208,90,.075);
+      margin:0!important;
+    }
+    #boss .boss-daily-card{
+      grid-template-columns:1fr!important;
+      max-width:620px;
+    }
+    #boss .boss-daily-card img{display:none!important;}
+    .ranking-row.pro.self{
+      border-color:rgba(234,191,104,.35)!important;
+      background:linear-gradient(135deg,rgba(234,191,104,.12),rgba(125,220,255,.06))!important;
+    }
+    #rankingPersonalCard .ranking-row.pro{
+      margin-bottom:14px;
+    }
+    #rankingPersonalCard .rank-left img{
+      width:64px!important;
+      height:64px!important;
+      border-radius:18px;
+      background:rgba(255,255,255,.06);
+      padding:4px;
+    }
+    .modal-form-grid.trade-create-modal,
+    .modal-form-grid.market-create-modal{
+      grid-template-columns:minmax(300px,1.05fr) minmax(320px,.95fr);
+      gap:20px;
+    }
+    .modal-pick-column,.modal-config-column{
+      min-width:0;
+      border:1px solid rgba(180,207,236,.12);
+      background:rgba(255,255,255,.035);
+      border-radius:20px;
+      padding:14px;
+    }
+    .modal-preview-card.premium-preview{
+      min-height:154px;
+      margin-bottom:14px;
+      background:linear-gradient(135deg,rgba(234,191,104,.12),rgba(125,220,255,.07),rgba(255,255,255,.035));
+    }
+    .modal-preview-card.premium-preview img{
+      width:116px!important;
+      height:116px!important;
+      float:right;
+      margin-left:14px;
+      filter:drop-shadow(0 18px 22px rgba(0,0,0,.35));
+    }
+    .modal-info-card{
+      margin-top:12px;
+      padding:12px;
+      border-radius:16px;
+      border:1px solid rgba(180,207,236,.12);
+      background:rgba(8,18,32,.34);
+    }
+    .form-note{
+      margin:7px 0 0!important;
+      font-size:12px;
+    }
+    .preview-price-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:10px;
+    }
+    .preview-empty{
+      min-height:92px;
+      display:grid;
+      place-content:center;
+      text-align:center;
+    }
+    [data-market-field].hidden{display:none!important;}
+    .trade-choice-list,.market-choice-list{
+      max-height:min(470px,58vh)!important;
+      padding:2px 6px 2px 2px!important;
+    }
+    .trade-choice,.market-choice{
+      background:rgba(255,255,255,.045)!important;
+      border:1px solid rgba(180,207,236,.12)!important;
+    }
+    .trade-choice.primary,.market-choice.primary{
+      color:#fff8e8!important;
+      box-shadow:none!important;
+    }
+    .trade-choice:disabled,.market-choice:disabled{
+      opacity:.62;
+      filter:saturate(.65);
+    }
+    @media(max-width:980px){
+      .gym-card-pro,
+      .modal-form-grid.trade-create-modal,
+      .modal-form-grid.market-create-modal{
+        grid-template-columns:1fr!important;
+      }
+      .gym-card-top{
+        grid-template-columns:104px minmax(0,1fr);
+        justify-items:start;
+      }
+      .gym-medal-chip{align-self:center}
+    }
+    @media(max-width:520px){
+      #mycaptures .mycaptures-grid{
+        grid-template-columns:1fr!important;
+        max-height:none!important;
+        overflow:visible!important;
+      }
+      .capture-card-actions{
+        grid-template-columns:1fr;
+      }
+      .battle-final-head{
+        align-items:flex-start;
+      }
+      .battle-final-emblem{
+        width:56px;
+        height:56px;
+        border-radius:16px;
+      }
+      .battle-final-head h2{
+        font-size:24px;
+      }
+      .gym-card-top{
+        grid-template-columns:1fr;
+        justify-items:center;
+      }
+      .trade-choice,.market-choice{
+        grid-template-columns:46px minmax(0,1fr)!important;
+      }
+      .trade-choice .reason,.market-choice .reason{
+        grid-column:2!important;
+      }
+      .modal-preview-card.premium-preview img{
+        float:none;
+        display:block;
+        margin:0 auto 10px;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -5573,7 +5914,7 @@
                 <div>
                   <div id="rankingList" class="ranking-list"></div>
                 </div>
-                <div class="panel" style="box-shadow:none">
+                <div id="rankingPersonalCard" class="panel" style="box-shadow:none">
                   <h2>Tu posición</h2>
                   <br>
                   <div class="ranking-row pro">
@@ -6769,9 +7110,11 @@ function renderBossRanking(){
    if(hpText) hpText.textContent=`HP restante: ${hp}%`;
    const hpBar=hero.querySelector('.boss-hp span');
    if(hpBar) hpBar.style.width=`${hp}%`;
+   const removeDuplicateDailyBoss=()=>{const duplicate=hero.querySelector('.boss-daily-card img');if(duplicate)duplicate.remove();};
    if(!hero.querySelector('.boss-daily-card')){
      hero.insertAdjacentHTML('beforeend',`<div class="boss-daily-card"><div><strong>Rotación semanal</strong><p class="muted">Un boss diferente aparece cada día. El ranking, recompensas y ventana se actualizan visualmente para que la pantalla no se sienta estática.</p><div class="gym-reward-row"><span class="level-pill">${boss.type}</span><span class="level-pill">${boss.window}</span><span class="level-pill">${boss.rank}</span></div></div><img src="${dailyBossSprite(boss)}" ${safeAnimatedAttr(boss.id)}></div>`);
    }
+   removeDuplicateDailyBoss();
  }
  document.getElementById('bossRanking').innerHTML=bossRank.map((r,i)=>`<div class="ranking-row"><div class="rank-num">${i+1}</div><div><strong>${r[0]}</strong><span class="muted" style="display:block">${boss.name} · ${r[2]}</span></div><strong>${r[1].toLocaleString()} dmg</strong></div>`).join('');
 }
@@ -6854,6 +7197,47 @@ function renderRanking(){
  if(rankingTab==='arena' && Array.isArray(liveState?.arenaRanking?.ranking) && liveState.arenaRanking.ranking.length){
    const rows=liveState.arenaRanking.ranking;
    document.getElementById('rankingList').innerHTML=rows.map((r,i)=>`<div class="ranking-row pro"><div class="rank-medal">${r.position||i+1}</div><div class="rank-left"><img src="${animated(25)}" ${safeAnimatedAttr(25)}><div><strong>${r.trainer_name}${r.is_current_user?' · Tú':''}</strong><span class="muted" style="display:block">${r.current_rank}${r.is_system?' · Rival Arena':''}</span></div></div><div class="rank-value">${Number(r.arena_points||0).toLocaleString('es-ES')} pts</div></div>`).join('');
+   return;
+ }
+ const rows=rankingData[rankingTab]||rankingData.arena;
+ document.getElementById('rankingList').innerHTML=rows.map((r,i)=>{
+   const sprite = rankingTab==='shiny' ? shinySprite(r[1]) : animated(r[1]);
+   return `<div class="ranking-row pro"><div class="rank-medal">${i+1}</div><div class="rank-left"><img src="${sprite}" ${safeAnimatedAttr(r[1])}><div><strong>${r[0]}</strong><span class="muted" style="display:block">${r[2]}</span></div></div><div class="rank-value">${r[3]}</div></div>`;
+ }).join('');
+}
+
+function renderRanking(){
+ const liveState=window.mastersmonState;
+ const esc=(v)=>String(v??'').replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+ const profile=liveState?.profile||{};
+ const trainerAvatar=profile.avatar_path||"/img/avatars/leon.png";
+ const personal=document.getElementById('rankingPersonalCard');
+ if(personal){
+   const arenaProgress=liveState?.arena?.progress||{};
+   const rows=Array.isArray(liveState?.arenaRanking?.ranking)?liveState.arenaRanking.ranking:[];
+   const currentRow=rows.find(r=>r.is_current_user)||null;
+   const position=currentRow?.position||arenaProgress.position||248;
+   const points=currentRow?.arena_points??arenaProgress.arena_points??12450;
+   const rank=currentRow?.current_rank||arenaProgress.current_rank||'Bronce II';
+   personal.innerHTML=`<h2>Tu posiciÃ³n</h2><br>
+    <div class="ranking-row pro self">
+      <div class="rank-medal">${esc(position)}</div>
+      <div class="rank-left"><img src="${trainerAvatar}" onerror="this.onerror=null;this.src='${animated(25)}';this.classList.add('fallback-static')"><div><strong>${esc(profile.trainer_name||'Entrenador LeÃ³n')}</strong><span class="muted" style="display:block">${esc(rank)} Â· perfil actual</span></div></div>
+      <div class="rank-value">${Number(points||0).toLocaleString('es-ES')} pts</div>
+    </div>
+    <div class="battle-summary">
+      <div class="detail-box"><span>Victorias</span><strong>${Number(arenaProgress.wins||0).toLocaleString('es-ES')}</strong></div>
+      <div class="detail-box"><span>Racha</span><strong>${Number(arenaProgress.win_streak||0).toLocaleString('es-ES')}</strong></div>
+      <div class="detail-box"><span>Mejor racha</span><strong>${Number(arenaProgress.best_streak||0).toLocaleString('es-ES')}</strong></div>
+      <div class="detail-box"><span>Medallas</span><strong>${Number(liveState?.gymProgress?.completed_gyms||liveState?.badges?.length||0).toLocaleString('es-ES')}</strong></div>
+    </div>`;
+ }
+ if(rankingTab==='arena' && Array.isArray(liveState?.arenaRanking?.ranking) && liveState.arenaRanking.ranking.length){
+   const rows=liveState.arenaRanking.ranking;
+   document.getElementById('rankingList').innerHTML=rows.map((r,i)=>{
+     const avatar=r.is_current_user?trainerAvatar:animated(25+(i%9));
+     return `<div class="ranking-row pro ${r.is_current_user?'self':''}"><div class="rank-medal">${r.position||i+1}</div><div class="rank-left"><img src="${avatar}" ${r.is_current_user?`onerror="this.onerror=null;this.src='${animated(25)}';this.classList.add('fallback-static')"`:safeAnimatedAttr(25+(i%9))}><div><strong>${esc(r.trainer_name)}${r.is_current_user?' Â· TÃº':''}</strong><span class="muted" style="display:block">${esc(r.current_rank)}${r.is_system?' Â· Rival Arena':''}</span></div></div><div class="rank-value">${Number(r.arena_points||0).toLocaleString('es-ES')} pts</div></div>`;
+   }).join('');
    return;
  }
  const rows=rankingData[rankingTab]||rankingData.arena;
@@ -7582,6 +7966,8 @@ V28 future database modules to include from the start:
     if(trainerHqName) trainerHqName.textContent = name;
     const trainerHqAvatar = document.querySelector("#trainerhq .trainer-avatar-big img");
     if(trainerHqAvatar) trainerHqAvatar.src = avatar;
+    const mapTrainer = document.getElementById("mapTrainer");
+    if(mapTrainer) mapTrainer.src = avatar;
     const appTopBrand = document.querySelector(".app-top .brand span");
     if(appTopBrand) appTopBrand.textContent = "Servidor Verdantia";
   }
@@ -7959,6 +8345,55 @@ V28 future database modules to include from the start:
     }
   };
 
+  window.openCreateTradeModal = function(){
+    const modal = byId("tradeModal");
+    const title = byId("tradeModalTitle");
+    const content = byId("tradeModalContent");
+    if(!modal || !title || !content) return;
+    title.textContent = "Crear oferta";
+    const valid = validTradeCollection();
+    content.innerHTML = `
+      <div class="modal-form-grid trade-create-modal">
+        <div class="modal-pick-column"><h3>Elige criatura</h3><p class="muted">Las criaturas en equipo o bloqueadas aparecen deshabilitadas.</p><div class="trade-choice-list">${valid.map(monster => {
+          const inTeam = isMonsterInTeam(monster.player_monster_id);
+          const disabled = inTeam || monster.is_locked;
+          const sprite = asset(monster.selected_sprite_path);
+          const fallbackId = monster.dex_number || spriteIdFromPath(monster.selected_sprite_path);
+          const reason = disabled ? (inTeam ? "En equipo" : "Bloqueada") : "Disponible";
+          return `<button class="trade-choice ${disabled ? "ghost" : "primary"}" ${disabled ? "disabled" : ""} onclick="selectTradeMonster('${monster.player_monster_id}')"><img src="${sprite}" ${imgFallbackAttr(fallbackId, monster.is_shiny)}><span><strong>${monster.is_shiny ? "Shiny " : ""}${monster.pokemon_name}</strong><small>Nv. ${monster.level} Â· ${typeEs(monster.primary_type)}${monster.secondary_type ? " / " + typeEs(monster.secondary_type) : ""}${monster.is_favorite ? " Â· Favorita" : ""}</small></span><span class="reason">${reason}</span></button>`;
+        }).join("") || `<div class="premium-empty-state">No tienes criaturas disponibles para trade.</div>`}</div></div>
+        <div class="modal-config-column">
+          <div id="tradePreviewCard" class="modal-preview-card premium-preview"><div class="preview-empty"><strong>Sin criatura seleccionada</strong><p class="muted">Elige una criatura para previsualizar tu oferta.</p></div></div>
+          <h3>Busco</h3>
+          <input id="tradeOfferMonsterId" type="hidden">
+          <label>Tipo de solicitud</label>
+          <select id="tradeRequestedType"><option value="any">Cualquier criatura</option><option value="type">Tipo</option><option value="rarity">Rareza</option><option value="specific">EspecÃ­fica flexible</option></select>
+          <div class="modal-field-row"><div><label>Tipo requerido</label><input id="tradeRequestedTypeSlug" placeholder="water, fire, grass..."></div><div><label>Rareza requerida</label><input id="tradeRequestedRarity" placeholder="common, rare, epic..."></div></div>
+          <div class="modal-field-row"><div><label>Nivel mÃ­nimo</label><input id="tradeRequestedMinLevel" type="number" min="1" placeholder="Opcional"></div><div><label>Notas</label><input id="tradeRequestedNotes" placeholder="Busco criatura de agua"></div></div>
+          <div id="tradeSelectedHint" class="team-feedback hidden"></div>
+          <div class="modal-actions-row"><button class="primary" ${state.tradeLoading ? "disabled" : ""} onclick="createTradeOffer()">${state.tradeLoading ? "Publicando..." : "Publicar oferta"}</button><button class="ghost" onclick="closeTradeModal()">Cancelar</button></div>
+        </div>
+      </div>`;
+    modal.classList.remove("hidden");
+  };
+
+  window.selectTradeMonster = function(playerMonsterId){
+    const monster = state.collection.find(m => String(m.player_monster_id) === String(playerMonsterId));
+    const input = byId("tradeOfferMonsterId");
+    const hint = byId("tradeSelectedHint");
+    if(input) input.value = playerMonsterId;
+    if(hint){
+      hint.classList.remove("hidden");
+      hint.textContent = monster ? `Seleccionado: ${monster.pokemon_name} Nv. ${monster.level}${monster.is_favorite ? " Â· Favorita" : ""}` : "Criatura seleccionada";
+    }
+    const preview = byId("tradePreviewCard");
+    if(preview && monster){
+      const sprite = asset(monster.selected_sprite_path);
+      const fallbackId = monster.dex_number || spriteIdFromPath(monster.selected_sprite_path);
+      preview.innerHTML = `<img src="${sprite}" ${imgFallbackAttr(fallbackId, monster.is_shiny)}><strong>${monster.is_shiny ? "Shiny " : ""}${monster.pokemon_name}</strong><p class="muted">Nv. ${monster.level} Â· ${typeEs(monster.primary_type)}${monster.secondary_type ? " / " + typeEs(monster.secondary_type) : ""}${monster.is_favorite ? " Â· Favorita" : ""}</p><div class="preview-price-row"><span class="level-pill">Oferta</span><span class="level-pill">Backend valida ownership</span></div>`;
+    }
+  };
+
   window.createTradeOffer = async function(){
     if(state.tradeLoading) return;
     const offeredPlayerMonsterId = byId("tradeOfferMonsterId")?.value;
@@ -8228,6 +8663,64 @@ V28 future database modules to include from the start:
     box.innerHTML = `<img src="${asset(item?.icon_path || `/img/items/official/${slug || "poke-ball"}.png`)}" ${imgFallbackAttr()}><strong>${item?.display_name || item?.item_name || slug || "Item"}</strong><p class="muted">Cantidad x${qty} · ${gold} oro${Number(byId("marketListingDiamonds")?.value || 0) ? " + " + diamonds + " diamantes" : ""}</p>`;
   };
 
+  window.syncMarketListingFields = function(){
+    const listingType = byId("marketListingType")?.value || "monster";
+    document.querySelectorAll("[data-market-field]").forEach(node => {
+      const visible = node.getAttribute("data-market-field") === listingType;
+      node.classList.toggle("hidden", !visible);
+    });
+  };
+
+  window.openCreateMarketListingModal = function(){
+    const modal = byId("marketModal");
+    const title = byId("marketModalTitle");
+    const content = byId("marketModalContent");
+    if(!modal || !title || !content) return;
+    title.textContent = "Crear venta";
+    content.innerHTML = `<div class="modal-form-grid market-create-modal">
+      <div class="modal-pick-column">
+        <div id="marketListingPreview" class="modal-preview-card premium-preview"><strong>Previsualiza tu venta</strong><p class="muted">Selecciona criatura o item y define precio.</p></div>
+        <label>Tipo de venta</label>
+        <select id="marketListingType" onchange="syncMarketListingFields();updateMarketListingPreview()"><option value="monster">Criatura</option><option value="item">Item</option></select>
+        <div data-market-field="monster"><label>Criatura</label><select id="marketListingMonster" onchange="updateMarketListingPreview()">${validMarketMonsters().map(marketMonsterOption).join("")}</select><p class="muted form-note">No se puede vender una criatura bloqueada, en equipo o publicada.</p></div>
+        <div data-market-field="item"><label>Item</label><select id="marketListingItem" onchange="updateMarketListingPreview()">${state.inventory.filter(i => Number(i.quantity || 0) > 0).map(marketItemOption).join("")}</select><label>Cantidad item</label><input id="marketListingQuantity" type="number" min="1" value="1" oninput="updateMarketListingPreview()"><p class="muted form-note">El stock se valida en backend antes de publicar.</p></div>
+      </div>
+      <div class="modal-config-column">
+        <h3>Precio</h3>
+        <div class="modal-field-row"><div><label>Pokedolares</label><input id="marketListingGold" type="number" min="0" value="1000" oninput="updateMarketListingPreview()"></div><div><label>Diamantes</label><input id="marketListingDiamonds" type="number" min="0" value="0" oninput="updateMarketListingPreview()"></div></div>
+        <div class="modal-info-card"><strong>Validacion segura</strong><p class="muted">El backend confirma ownership, equipo, bloqueos, trades, publicaciones abiertas y stock antes de crear la venta.</p></div>
+        <div class="modal-actions-row"><button class="primary" ${state.marketLoading ? "disabled" : ""} onclick="createMarketListingReal()">${state.marketLoading ? "Publicando..." : "Publicar venta"}</button><button class="ghost" onclick="closeMarketModal()">Cancelar</button></div>
+      </div>
+    </div>`;
+    modal.classList.remove("hidden");
+    syncMarketListingFields();
+    updateMarketListingPreview();
+  };
+
+  window.updateMarketListingPreview = function(){
+    const box = byId("marketListingPreview");
+    if(!box) return;
+    const listingType = byId("marketListingType")?.value || "monster";
+    const goldRaw = Number(byId("marketListingGold")?.value || 0);
+    const diamondsRaw = Number(byId("marketListingDiamonds")?.value || 0);
+    const gold = fmt(goldRaw);
+    const diamonds = fmt(diamondsRaw);
+    syncMarketListingFields();
+    if(listingType === "monster"){
+      const id = byId("marketListingMonster")?.value;
+      const monster = state.collection.find(m => String(m.player_monster_id) === String(id));
+      if(!monster){ box.innerHTML = `<div class="preview-empty"><strong>Sin criatura disponible</strong><p class="muted">Captura una criatura o retira una fuera del equipo para publicarla.</p></div>`; return; }
+      const sprite = asset(monster.selected_sprite_path);
+      const fallbackId = monster.dex_number || spriteIdFromPath(monster.selected_sprite_path);
+      box.innerHTML = `<img src="${sprite}" ${imgFallbackAttr(fallbackId, monster.is_shiny)}><strong>${monster.is_shiny ? "Shiny " : ""}${monster.pokemon_name}</strong><p class="muted">Nv. ${monster.level} Â· ${typeEs(monster.primary_type)}${monster.secondary_type ? " / " + typeEs(monster.secondary_type) : ""}</p><div class="preview-price-row"><span class="market-price">${gold} oro</span>${diamondsRaw ? `<span class="market-price">${diamonds} diamantes</span>` : ""}</div>`;
+      return;
+    }
+    const slug = byId("marketListingItem")?.value;
+    const item = state.inventory.find(i => i.item_slug === slug);
+    const qty = Number(byId("marketListingQuantity")?.value || 1);
+    box.innerHTML = `<img src="${asset(item?.icon_path || `/img/items/official/${slug || "poke-ball"}.png`)}" ${imgFallbackAttr()}><strong>${item?.display_name || item?.item_name || slug || "Item"}</strong><p class="muted">Cantidad x${qty} Â· stock ${fmt(item?.quantity || 0)}</p><div class="preview-price-row"><span class="market-price">${gold} oro</span>${diamondsRaw ? `<span class="market-price">${diamonds} diamantes</span>` : ""}</div>`;
+  };
+
   window.createMarketListingReal = async function(){
     if(state.marketLoading) return;
     const listingType = byId("marketListingType")?.value || "monster";
@@ -8410,6 +8903,37 @@ V28 future database modules to include from the start:
       <span class="quest-reward">Turnos: ${fmt(Math.max(0, Number(battle.turn || 1) - 1))}</span>
       <button class="ghost" onclick="openBattleDetail('${battle.battle_id}')">Ver resumen</button>
       <button class="primary" onclick="closeBattle()">Cerrar</button>
+    </div>`;
+  }
+
+  function renderFinalBattlePanel(battle, won){
+    const target = battle.target_name || battle.rewards?.gym_name || battle.target_slug || "Rival";
+    const progress = state.arena?.progress || {};
+    const nextRank = progress.next_rank || {};
+    const points = Number(progress.arena_points || battle.rewards?.arena_points || 0);
+    const threshold = Number(nextRank.required_points || nextRank.points || 0);
+    const pct = threshold > 0 ? Math.min(100, Math.max(8, Math.round(points / threshold * 100))) : (won ? 100 : 24);
+    const rankLabel = battle.rewards?.current_rank || progress.current_rank || "Rango actual";
+    const rewardHtml = won && battle.rewards ? renderBattleRewards(battle.rewards) : `<span class="muted">Sin recompensa por derrota</span>`;
+    return `<div class="battle-final-card ${won ? 'victory' : 'defeat'}">
+      <div class="battle-final-head">
+        <div><span class="eyebrow">${battle.battle_type === 'arena' ? 'Arena PvE' : battle.battle_type === 'gym' ? 'Gimnasio' : 'Batalla PvE'}</span><h2>${won ? 'Victoria' : 'Derrota'}</h2><p class="muted">${won ? `${target} derrotado` : `${target} resistiÃ³ el combate`}</p></div>
+        <div class="battle-final-emblem">${won ? 'WIN' : 'K.O.'}</div>
+      </div>
+      <div class="battle-final-rewards">${rewardHtml}</div>
+      <div class="arena-rank-progress">
+        <div class="hp-line"><span>${rankLabel}</span><strong>${fmt(points)} pts</strong></div>
+        <div class="hp-meter energy-meter"><div style="width:${pct}%"></div></div>
+        <p class="muted">${nextRank.name ? `Siguiente rango: ${nextRank.name}` : 'Progreso de rango actualizado desde backend.'}</p>
+      </div>
+      <div class="battle-final-meta">
+        <span class="level-pill">Turnos ${fmt(Math.max(0, Number(battle.turn || 1) - 1))}</span>
+        <span class="level-pill">${battle.winner === 'player' ? 'Ganador: jugador' : 'Ganador: rival'}</span>
+      </div>
+      <div class="battle-result-actions">
+        <button class="ghost" onclick="openBattleDetail('${battle.battle_id}')">Ver resumen</button>
+        <button class="primary" onclick="closeBattle()">Cerrar</button>
+      </div>
     </div>`;
   }
 
@@ -8834,6 +9358,44 @@ V28 future database modules to include from the start:
       </div>
     `;
     }).join("") || `<p class="muted">No hay gimnasios disponibles para esta región.</p>`;
+    renderBattleHistory();
+  };
+
+  window.renderGyms = function(){
+    const grid = byId("gymTable");
+    if(!grid) return;
+    const region = byId("gymRegion")?.value || "kanto";
+    const rows = state.gyms.filter(g => !region || g.region_slug === region).slice(0, 8);
+    grid.innerHTML = rows.map(g => {
+      const done = !!g.is_completed;
+      const locked = !g.is_unlocked;
+      const statusClass = done ? "status-done" : locked ? "status-lock" : "status-open";
+      const statusText = done ? "Completado" : locked ? "Bloqueado" : "Disponible";
+      const rewardItems = Array.isArray(g.reward_items) ? g.reward_items : [];
+      const rewardText = [
+        Number(g.reward_gold || 0) > 0 ? `+${fmt(g.reward_gold)} oro` : null,
+        ...rewardItems.map(item => `+${fmt(item.quantity)} ${item.display_name || item.slug}`),
+      ].filter(Boolean).join(" Â· ") || `+${fmt(g.repeat_reward_gold || 500)} oro`;
+      const difficulty = g.difficulty_label || "normal";
+      const recommended = Number(g.recommended_level || 0);
+      const playerAverage = Number(g.player_average_level || 0);
+      return `
+      <div class="gym-leader-card gym-card-pro ${done ? "done" : locked ? "locked" : ""}">
+        <div class="gym-card-top">
+          <div class="trainer-frame"><img src="${asset(g.leader_avatar_path || g.badge_icon_path)}" onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/95.png';this.classList.add('fallback-static')"></div>
+          <div class="gym-medal-chip ${done ? "earned" : locked ? "locked" : ""}"><img src="${asset(g.badge_icon_path)}" ${imgFallbackAttr()}><span>${g.badge_name || "Medalla"}</span></div>
+        </div>
+        <div class="gym-card-body">
+          <div class="gym-card-title"><div><span class="gym-status ${statusClass}">${statusText}</span><div class="leader-name">${g.name || g.leader_name}</div><div class="leader-meta">LÃ­der: ${g.leader_name || g.name} Â· ${g.region_name || "RegiÃ³n"}</div></div></div>
+          <div class="leader-team gym-meta-row"><span class="level-pill">${typeEs(g.type_slug)}</span><span class="level-pill">Nv. recomendado ${recommended || "-"}</span><span class="level-pill">${gymDifficultyText(difficulty)}</span><span class="level-pill">Tu media Nv. ${playerAverage || "-"}</span></div>
+          ${difficulty === "hard" && !done ? `<p class="muted gym-warning">Tu equipo puede estar por debajo del nivel recomendado.</p>` : ""}
+          <div class="gym-reward-row"><span class="quest-reward">${done ? `RepeticiÃ³n +${fmt(g.repeat_reward_gold || 500)} oro` : rewardText}</span>${locked ? `<span class="level-pill">Completa el gimnasio anterior</span>` : ""}</div>
+          <div class="leader-actions">
+            <button class="${locked ? "ghost" : "primary"}" ${state.battleLoading || locked ? "disabled" : ""} onclick="startGymBattle('${g.slug}')">${locked ? "Bloqueado" : "Battle"}</button>
+          </div>
+        </div>
+      </div>`;
+    }).join("") || `<p class="muted">No hay gimnasios disponibles para esta regiÃ³n.</p>`;
     renderBattleHistory();
   };
 
@@ -9643,6 +10205,37 @@ V28 future database modules to include from the start:
         <button class="primary" style="margin-top:10px" onclick="openMonsterEvolutionModal('${m.player_monster_id}')">Evolucionar</button>
       </div>
     `).join("") || `<p class="muted">No tienes capturas todavía.</p>`;
+  };
+
+  window.renderMyCaptures = function(){
+    const grid = byId("myCaptureGrid");
+    if(!grid) return;
+    const filter = window.myCaptureFilter || "all";
+    const activeIds = new Set(state.team.map(x=>x.player_monster_id).filter(Boolean));
+    let list = state.collection;
+    if(filter === "shiny") list = list.filter(m => m.is_shiny);
+    if(filter === "team") list = list.filter(m => activeIds.has(m.player_monster_id));
+    if(filter === "fav") list = list.filter(m => m.is_favorite || m.is_locked || m.is_shiny);
+    grid.innerHTML = list.map(m => {
+      const inTeam = activeIds.has(m.player_monster_id);
+      return `
+      <div class="dex-card capture-pro-card ${m.is_shiny ? 'is-shiny':'is-normal'} ${inTeam ? 'in-team' : ''}">
+        <div class="capture-card-badges">
+          <span class="mon-variant-badge ${m.is_shiny ? 'shiny':'normal'}">${m.is_shiny ? 'Shiny':'Normal'}</span>
+          ${inTeam ? '<span class="level-pill">Equipo</span>' : ''}
+          ${m.is_favorite ? '<span class="level-pill">Favorita</span>' : ''}
+        </div>
+        <div class="capture-art-shell"><img src="${asset(m.selected_sprite_path)}" ${imgFallbackAttr()}></div>
+        <div class="capture-card-main">
+          <strong>${m.pokemon_name}</strong>
+          <p>Nv. ${m.level} Â· ${typeEs(m.primary_type)}${m.secondary_type ? ' / ' + typeEs(m.secondary_type) : ''}</p>
+        </div>
+        <div class="capture-card-actions">
+          <button class="ghost" onclick="openApiMonsterDetail('${m.player_monster_id}')">Ver ficha</button>
+          <button class="primary" onclick="openMonsterEvolutionModal('${m.player_monster_id}')">Evolucionar</button>
+        </div>
+      </div>`;
+    }).join("") || `<p class="muted">No tienes capturas todavÃ­a.</p>`;
   };
 
   window.renderDex = function(){
