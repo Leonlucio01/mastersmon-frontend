@@ -1,0 +1,1201 @@
+/* =========================================================
+   RANKING.CSS
+   ---------------------------------------------------------
+   Estructura general del archivo:
+   1. Contenedor principal y hero
+   2. Estado de carga / error
+   3. Highlights superiores
+   4. Secciones y encabezados
+   5. Cards de capturas únicas
+   6. Listas de ranking
+   7. Utilidades visuales
+   8. Responsive tablet
+   9. Responsive mobile
+========================================================= */
+
+
+/* =========================================================
+   1. CONTENEDOR PRINCIPAL Y HERO
+========================================================= */
+
+.ranking-page{
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 36px 24px 64px;
+}
+
+.ranking-hero{
+    position: relative;
+    overflow: hidden;
+    border-radius: 32px;
+    padding: 36px 30px;
+    text-align: center;
+    background:
+        radial-gradient(circle at 12% 18%, rgba(56,189,248,0.20), transparent 26%),
+        radial-gradient(circle at 86% 20%, rgba(16,185,129,0.18), transparent 24%),
+        radial-gradient(circle at 50% 110%, rgba(255,255,255,0.08), transparent 34%),
+        linear-gradient(135deg, #0b1220 0%, #172554 38%, #1d4ed8 72%, #2563eb 100%);
+    box-shadow:
+        0 28px 60px rgba(15, 23, 42, 0.26),
+        inset 0 1px 0 rgba(255,255,255,0.08);
+    color: #fff;
+    margin-bottom: 26px;
+    isolation: isolate;
+}
+
+.ranking-hero::before{
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size: 26px 26px;
+    mask-image: linear-gradient(to bottom, rgba(0,0,0,0.65), transparent 85%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.ranking-hero::after{
+    content: "";
+    position: absolute;
+    right: -54px;
+    bottom: -86px;
+    width: 240px;
+    height: 240px;
+    border-radius: 999px;
+    background: radial-gradient(circle, rgba(255,255,255,0.16), rgba(255,255,255,0.04), transparent 72%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.ranking-hero > *{
+    position: relative;
+    z-index: 1;
+}
+
+.ranking-hero-badge{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 9px 16px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.18);
+    backdrop-filter: blur(10px);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.12);
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: .03em;
+    margin-bottom: 14px;
+}
+
+.ranking-title{
+    margin: 0;
+    font-size: 56px;
+    font-weight: 900;
+    letter-spacing: .04em;
+    text-shadow: 0 4px 14px rgba(0,0,0,0.18);
+}
+
+.ranking-subtitle{
+    max-width: 860px;
+    margin: 14px auto 0;
+    font-size: 18px;
+    line-height: 1.55;
+    color: rgba(255,255,255,0.88);
+}
+
+.ranking-content.oculto{
+    display: none;
+}
+
+
+/* =========================================================
+   2. ESTADO DE CARGA / ERROR
+========================================================= */
+
+.ranking-status-card{
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    border-radius: 24px;
+    padding: 26px 22px;
+    text-align: center;
+    box-shadow: 0 16px 36px rgba(15, 23, 42, 0.10);
+    border: 1px solid rgba(226,232,240,0.9);
+}
+
+.ranking-status-card.error{
+    background: linear-gradient(180deg, #fff1f2 0%, #ffe4e6 100%);
+    border-color: #fecdd3;
+}
+
+.ranking-status-card h3{
+    margin: 0 0 8px;
+    font-size: 28px;
+    color: #0f172a;
+    font-weight: 900;
+}
+
+.ranking-status-card p{
+    margin: 0;
+    color: #64748b;
+    font-size: 15px;
+    line-height: 1.45;
+}
+
+.ranking-status-card.error h3{
+    color: #be123c;
+}
+
+.ranking-status-card.error p{
+    color: #9f1239;
+}
+
+.ranking-retry-btn{
+    margin-top: 18px;
+    border: none;
+    border-radius: 14px;
+    padding: 12px 18px;
+    background: #2563eb;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 12px 24px rgba(37,99,235,0.22);
+    transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+}
+
+.ranking-retry-btn:hover{
+    background: #1d4ed8;
+    transform: translateY(-1px);
+    box-shadow: 0 16px 28px rgba(37,99,235,0.28);
+}
+
+/* =========================================================
+   3. HIGHLIGHTS SUPERIORES
+   - Los 3 cards de arriba representan el TOP 1
+   - Mismo tamaño visual
+   - Sin texto repetido
+   - Dorado premium suave y más pro
+========================================================= */
+
+.ranking-highlight-grid{
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    margin-bottom: 24px;
+}
+
+.ranking-highlight-card{
+    position: relative;
+    overflow: hidden;
+    border-radius: 30px;
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    min-height: 228px;
+    background:
+        radial-gradient(circle at top right, rgba(255,215,0,0.12), transparent 30%),
+        radial-gradient(circle at bottom left, rgba(245,158,11,0.08), transparent 34%),
+        linear-gradient(180deg, #fffdfa 0%, #fff7e8 54%, #fffdf8 100%);
+    border: 1px solid rgba(245, 158, 11, 0.24);
+    box-shadow:
+        0 18px 34px rgba(180, 83, 9, 0.08),
+        inset 0 1px 0 rgba(255,255,255,0.92);
+    transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+}
+
+.ranking-highlight-card:hover{
+    transform: translateY(-4px);
+    box-shadow:
+        0 24px 40px rgba(180, 83, 9, 0.12),
+        inset 0 1px 0 rgba(255,255,255,0.95);
+    border-color: rgba(245, 158, 11, 0.38);
+}
+
+.ranking-highlight-card::before{
+    content: "";
+    position: absolute;
+    inset: auto -26px -36px auto;
+    width: 138px;
+    height: 138px;
+    border-radius: 999px;
+    background: radial-gradient(circle, rgba(251,191,36,0.18), transparent 72%);
+    pointer-events: none;
+}
+
+.ranking-highlight-label{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    width: fit-content;
+    padding: 7px 12px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #fff8df 0%, #fde68a 100%);
+    color: #92400e;
+    font-size: 12px;
+    font-weight: 900;
+    margin-bottom: 16px;
+    border: 1px solid rgba(245, 158, 11, 0.26);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.9),
+        0 8px 18px rgba(245,158,11,0.08);
+}
+
+.ranking-highlight-top{
+    flex: 1;
+}
+
+.ranking-highlight-top-split{
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 92px;
+    gap: 18px;
+    align-items: start;
+}
+
+.ranking-highlight-copy{
+    min-width: 0;
+}
+
+.ranking-highlight-title{
+    margin: 0;
+    font-size: 17px;
+    color: #0f172a;
+    font-weight: 900;
+    line-height: 1.2;
+}
+
+.ranking-highlight-name{
+    margin: 10px 0 0;
+    color: #0f172a;
+    font-size: 18px;
+    font-weight: 900;
+    line-height: 1.28;
+    word-break: break-word;
+    letter-spacing: -0.01em;
+}
+
+.ranking-highlight-name-strong{
+    color: #0f172a;
+    font-size: 18px;
+    font-weight: 900;
+    line-height: 1.28;
+    word-break: break-word;
+    letter-spacing: -0.01em;
+}
+
+.ranking-highlight-trainer-line{
+    margin: 10px 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #64748b;
+}
+
+.ranking-highlight-trainer-line span{
+    color: #7c5a10;
+    font-weight: 700;
+}
+
+.ranking-highlight-trainer-line strong{
+    color: #b45309;
+    font-weight: 900;
+    font-size: 15px;
+}
+
+.ranking-highlight-side{
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    min-width: 0;
+}
+
+.ranking-highlight-avatar,
+.ranking-highlight-pokemon{
+    width: 72px;
+    height: 72px;
+    border-radius: 22px;
+    background: linear-gradient(180deg, #fff8e2 0%, #fef3c7 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.96),
+        0 10px 22px rgba(245,158,11,0.12);
+}
+
+.ranking-highlight-avatar img,
+.ranking-highlight-pokemon img{
+    max-width: 56px;
+    max-height: 56px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    image-rendering: pixelated;
+    display: block;
+}
+
+.ranking-highlight-meta{
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.ranking-mini-stat{
+    background: linear-gradient(180deg, rgba(255,255,255,0.94) 0%, rgba(255,248,230,0.98) 100%);
+    border: 1px solid rgba(245, 158, 11, 0.16);
+    border-radius: 16px;
+    padding: 12px 10px;
+    box-shadow: 0 6px 14px rgba(180, 83, 9, 0.04);
+}
+
+.ranking-mini-stat span{
+    display: block;
+    font-size: 11px;
+    color: #9a6b11;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.ranking-mini-stat strong{
+    display: block;
+    font-size: 16px;
+    color: #0f172a;
+    font-weight: 900;
+}
+
+/* =========================================================
+   4. SECCIONES Y ENCABEZADOS
+========================================================= */
+
+.ranking-section{
+    background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
+    border-radius: 30px;
+    padding: 24px;
+    box-shadow:
+        0 18px 34px rgba(15, 23, 42, 0.10),
+        inset 0 1px 0 rgba(255,255,255,0.9);
+    border: 1px solid rgba(226,232,240,0.9);
+    margin-bottom: 24px;
+}
+
+.ranking-section-split{
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    background: transparent;
+    border: none;
+    padding: 0;
+    box-shadow: none;
+}
+
+.ranking-half{
+    background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
+    border-radius: 30px;
+    padding: 24px;
+    box-shadow:
+        0 18px 34px rgba(15, 23, 42, 0.10),
+        inset 0 1px 0 rgba(255,255,255,0.9);
+    border: 1px solid rgba(226,232,240,0.9);
+}
+
+.ranking-section-head{
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.ranking-section-head.compact{
+    margin-bottom: 16px;
+}
+
+.ranking-section-kicker{
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: #2563eb;
+    margin-bottom: 8px;
+}
+
+.ranking-section-head h2{
+    margin: 0;
+    font-size: 30px;
+    color: #0f172a;
+    font-weight: 900;
+    line-height: 1.2;
+}
+
+.ranking-section-head p{
+    margin: 8px 0 0;
+    color: #64748b;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+/* =========================================================
+   5. CARDS DE CAPTURAS ÚNICAS
+   - Top 1 dorado
+   - Top 2 plateado más visible
+   - Top 3 bronce elegante
+========================================================= */
+
+.ranking-grid-cards{
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.ranking-collector-card{
+    position: relative;
+    overflow: hidden;
+    border-radius: 26px;
+    padding: 18px;
+    background:
+        radial-gradient(circle at top right, rgba(59,130,246,0.08), transparent 34%),
+        linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+    border: 1px solid #dbeafe;
+    box-shadow:
+        0 12px 24px rgba(37,99,235,0.10),
+        inset 0 1px 0 rgba(255,255,255,0.8);
+    transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+}
+
+.ranking-collector-card:hover{
+    transform: translateY(-4px);
+    box-shadow:
+        0 20px 34px rgba(37,99,235,0.14),
+        inset 0 1px 0 rgba(255,255,255,0.85);
+}
+
+.ranking-collector-card.top-1{
+    border-color: rgba(245, 158, 11, 0.40);
+    background:
+        radial-gradient(circle at top right, rgba(250,204,21,0.16), transparent 34%),
+        linear-gradient(180deg, #fffdf4 0%, #fff7e6 100%);
+    box-shadow:
+        0 18px 34px rgba(245,158,11,0.16),
+        inset 0 1px 0 rgba(255,255,255,0.90);
+}
+
+.ranking-collector-card.top-2{
+    border-color: rgba(148, 163, 184, 0.45);
+    background:
+        radial-gradient(circle at top right, rgba(203,213,225,0.24), transparent 34%),
+        linear-gradient(180deg, #f8fbff 0%, #eef3f9 100%);
+    box-shadow:
+        0 16px 30px rgba(100,116,139,0.14),
+        inset 0 1px 0 rgba(255,255,255,0.90);
+}
+
+.ranking-collector-card.top-3{
+    border-color: rgba(251, 146, 60, 0.38);
+    background:
+        radial-gradient(circle at top right, rgba(251,146,60,0.16), transparent 34%),
+        linear-gradient(180deg, #fff8f3 0%, #fff1e8 100%);
+    box-shadow:
+        0 16px 30px rgba(194, 101, 32, 0.14),
+        inset 0 1px 0 rgba(255,255,255,0.88);
+}
+
+.ranking-rank-chip{
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    padding: 7px 10px;
+    border-radius: 999px;
+    background: #0f172a;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 900;
+    box-shadow: 0 8px 18px rgba(15,23,42,0.18);
+}
+
+.ranking-user-head{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    min-width: 0;
+}
+
+.ranking-avatar-wrap{
+    width: 64px;
+    height: 64px;
+    border-radius: 20px;
+    background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.9),
+        0 10px 20px rgba(37,99,235,0.12);
+}
+
+.ranking-avatar-wrap img{
+    max-width: 54px;
+    max-height: 54px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    image-rendering: pixelated;
+    display: block;
+}
+
+.ranking-user-text{
+    min-width: 0;
+    flex: 1;
+}
+
+.ranking-user-text h3{
+    margin: 0;
+    font-size: 20px;
+    color: #0f172a;
+    font-weight: 900;
+    line-height: 1.2;
+    word-break: break-word;
+}
+
+.ranking-user-sub{
+    margin-top: 4px;
+    font-size: 13px;
+    color: #64748b;
+    font-weight: 700;
+}
+
+.ranking-progress-outer{
+    width: 100%;
+    height: 14px;
+    border-radius: 999px;
+    background: #dbe3ee;
+    overflow: hidden;
+    margin: 14px 0 10px;
+    box-shadow: inset 0 1px 2px rgba(15,23,42,0.08);
+}
+
+.ranking-progress-inner{
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #22c55e 0%, #16a34a 45%, #2563eb 100%);
+    box-shadow: 0 0 16px rgba(34,197,94,0.22);
+}
+
+.ranking-collector-main{
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 6px;
+}
+
+.ranking-collector-value{
+    font-size: 34px;
+    font-weight: 900;
+    color: #0f172a;
+    line-height: 1;
+}
+
+.ranking-collector-total{
+    color: #475569;
+    font-size: 13px;
+    font-weight: 900;
+    text-align: right;
+}
+
+.ranking-collector-stats{
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.ranking-collector-stat{
+    background: linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.98) 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 10px 8px;
+    text-align: center;
+    box-shadow: 0 6px 12px rgba(15,23,42,0.04);
+}
+
+.ranking-collector-stat span{
+    display: block;
+    font-size: 10px;
+    color: #64748b;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.ranking-collector-stat strong{
+    display: block;
+    font-size: 15px;
+    color: #0f172a;
+    font-weight: 900;
+}
+
+/* =========================================================
+   6. LISTAS DE RANKING
+   - Cards generales
+   - Variante visual para Top Pokémon por EXP
+   - Variante visual para Top trainers
+   - Top 1 / Top 2 / Top 3 con color consistente
+========================================================= */
+
+.ranking-list{
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.ranking-list-card{
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 14px;
+    align-items: center;
+    border-radius: 24px;
+    padding: 16px;
+    background:
+        radial-gradient(circle at top right, rgba(59,130,246,0.06), transparent 34%),
+        linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    border: 1px solid #e2e8f0;
+    box-shadow:
+        0 8px 18px rgba(15, 23, 42, 0.06),
+        inset 0 1px 0 rgba(255,255,255,0.8);
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+
+.ranking-list-card:hover{
+    transform: translateY(-2px);
+    border-color: #cbd5e1;
+    box-shadow:
+        0 14px 24px rgba(15, 23, 42, 0.09),
+        inset 0 1px 0 rgba(255,255,255,0.84);
+}
+
+.ranking-list-card.top-1{
+    border-color: rgba(245, 158, 11, 0.40);
+    background:
+        radial-gradient(circle at top right, rgba(250,204,21,0.14), transparent 34%),
+        linear-gradient(180deg, #fffdf4 0%, #fff7e6 100%);
+    box-shadow:
+        0 16px 30px rgba(245,158,11,0.14),
+        inset 0 1px 0 rgba(255,255,255,0.90);
+}
+
+.ranking-list-card.top-2{
+    border-color: rgba(148, 163, 184, 0.45);
+    background:
+        radial-gradient(circle at top right, rgba(203,213,225,0.22), transparent 34%),
+        linear-gradient(180deg, #f8fbff 0%, #eef3f9 100%);
+    box-shadow:
+        0 16px 28px rgba(100,116,139,0.14),
+        inset 0 1px 0 rgba(255,255,255,0.90);
+}
+
+.ranking-list-card.top-3{
+    border-color: rgba(251, 146, 60, 0.38);
+    background:
+        radial-gradient(circle at top right, rgba(251,146,60,0.14), transparent 34%),
+        linear-gradient(180deg, #fff8f3 0%, #fff1e8 100%);
+    box-shadow:
+        0 16px 28px rgba(194,101,32,0.13),
+        inset 0 1px 0 rgba(255,255,255,0.88);
+}
+
+.ranking-list-rank{
+    width: 54px;
+    height: 54px;
+    border-radius: 18px;
+    background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%);
+    color: #1d4ed8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 900;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.9),
+        0 8px 16px rgba(37,99,235,0.10);
+}
+
+.ranking-list-main{
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ranking-list-icon{
+    width: 66px;
+    height: 66px;
+    border-radius: 18px;
+    background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.9),
+        0 8px 16px rgba(37,99,235,0.10);
+}
+
+.ranking-list-icon img{
+    max-width: 54px;
+    max-height: 54px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    image-rendering: pixelated;
+    display: block;
+}
+
+.ranking-list-text{
+    min-width: 0;
+    flex: 1;
+}
+
+.ranking-list-text h3{
+    margin: 0;
+    font-size: 20px;
+    color: #0f172a;
+    font-weight: 900;
+    line-height: 1.2;
+    word-break: break-word;
+}
+
+.ranking-list-subline{
+    margin-top: 6px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.ranking-list-subline-main{
+    margin-top: 8px;
+}
+
+.ranking-pill{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: #f1f5f9;
+    color: #334155;
+    font-size: 12px;
+    font-weight: 800;
+    border: 1px solid rgba(226,232,240,0.9);
+}
+
+.ranking-pill.shiny{
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    color: #92400e;
+    border-color: #fcd34d;
+}
+
+.ranking-pill-trainer{
+    background: linear-gradient(180deg, #eef2ff 0%, #e0e7ff 100%);
+    color: #1e3a8a;
+    border-color: #c7d2fe;
+    font-weight: 900;
+}
+
+.ranking-pill-type{
+    color: #ffffff;
+    font-weight: 900;
+    border: none;
+    box-shadow: 0 6px 12px rgba(15,23,42,0.10);
+}
+
+/* =========================================================
+   6.1 COLORES DE CHIP TIPO
+========================================================= */
+
+.ranking-pill-type-planta{ background: #4CAF50; }
+.ranking-pill-type-fuego{ background: #f97316; }
+.ranking-pill-type-agua{ background: #3b82f6; }
+.ranking-pill-type-electrico{ background: #eab308; color: #111827; }
+.ranking-pill-type-hielo{ background: #06b6d4; }
+.ranking-pill-type-lucha{ background: #dc2626; }
+.ranking-pill-type-veneno{ background: #a855f7; }
+.ranking-pill-type-tierra{ background: #ca8a04; }
+.ranking-pill-type-volador{ background: #60a5fa; }
+.ranking-pill-type-psiquico{ background: #ec4899; }
+.ranking-pill-type-bicho{ background: #65a30d; }
+.ranking-pill-type-roca{ background: #78716c; }
+.ranking-pill-type-fantasma{ background: #7c3aed; }
+.ranking-pill-type-dragon{ background: #4f46e5; }
+.ranking-pill-type-acero{ background: #64748b; }
+.ranking-pill-type-hada{ background: #f472b6; }
+.ranking-pill-type-normal{ background: #6b7280; }
+
+/* =========================================================
+   6.2 LADO DERECHO
+========================================================= */
+
+.ranking-list-side{
+    text-align: right;
+    min-width: 110px;
+}
+
+.ranking-list-side span{
+    display: block;
+    font-size: 11px;
+    color: #64748b;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.ranking-list-side strong{
+    display: block;
+    font-size: 22px;
+    font-weight: 900;
+    color: #0f172a;
+    line-height: 1.1;
+}
+
+.ranking-list-side-exp strong{
+    font-size: 20px;
+}
+
+.ranking-empty{
+    border-radius: 20px;
+    padding: 18px;
+    text-align: center;
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    color: #64748b;
+    font-weight: 700;
+}
+
+/* =========================================================
+   6.3 VARIANTE VISUAL - TOP POKÉMON EXP
+========================================================= */
+
+.ranking-list-card-pokemon{
+    border-radius: 26px;
+    padding: 18px 18px;
+    box-shadow:
+        0 12px 24px rgba(15, 23, 42, 0.08),
+        inset 0 1px 0 rgba(255,255,255,0.82);
+}
+
+.ranking-list-card-pokemon .ranking-list-rank{
+    width: 46px;
+    height: 46px;
+    border-radius: 16px;
+    font-size: 22px;
+}
+
+.ranking-list-card-pokemon .ranking-list-icon-pokemon{
+    width: 58px;
+    height: 58px;
+    border-radius: 18px;
+}
+
+.ranking-list-card-pokemon .ranking-list-icon-pokemon img{
+    max-width: 46px;
+    max-height: 46px;
+}
+
+.ranking-list-card-pokemon .ranking-list-text h3{
+    font-size: 18px;
+    margin-bottom: 2px;
+}
+
+.ranking-list-card-pokemon .ranking-list-side{
+    min-width: 120px;
+}
+
+/* =========================================================
+   6.4 FONDOS SUAVES POR TIPO PRINCIPAL
+========================================================= */
+
+.ranking-list-card-pokemon[data-tipo-principal^="Planta"]{
+    background: linear-gradient(180deg, #f2fff3 0%, #ebf9ee 100%);
+    border-color: rgba(74, 222, 128, 0.35);
+}
+
+.ranking-list-card-pokemon[data-tipo-principal^="Fuego"]{
+    background: linear-gradient(180deg, #fff5ef 0%, #ffede3 100%);
+    border-color: rgba(249, 115, 22, 0.28);
+}
+
+.ranking-list-card-pokemon[data-tipo-principal^="Agua"]{
+    background: linear-gradient(180deg, #f1f7ff 0%, #e7f0ff 100%);
+    border-color: rgba(59, 130, 246, 0.28);
+}
+
+.ranking-list-card-pokemon[data-tipo-principal^="Electrico"],
+.ranking-list-card-pokemon[data-tipo-principal^="Eléctrico"]{
+    background: linear-gradient(180deg, #fffde9 0%, #fff8d6 100%);
+    border-color: rgba(234, 179, 8, 0.30);
+}
+
+.ranking-list-card-pokemon[data-tipo-principal^="Hielo"]{
+    background: linear-gradient(180deg, #eefcff 0%, #e0f8ff 100%);
+    border-color: rgba(6, 182, 212, 0.26);
+}
+
+.ranking-list-card-pokemon[data-tipo-principal^="Lucha"]{
+    background: linear-gradient(180deg, #fff3f3 0%, #ffe7e7 100%);
+    border-color: rgba(220, 38, 38, 0.26);
+}
+
+.ranking-list-card-pokemon[data-tipo-principal^="Veneno"]{
+    background: linear-gradient(180deg, #fcf4ff 0%, #f4e7ff 100%);
+    border-color: rgba(168, 85, 247, 0.26);
+}
+
+.ranking-list-card-pokemon[data-tipo-principal^="Tierra"]{
+    background: linear-gradient(180deg, #fff9ec 0%, #f7eed7 100%);
+    border-color: rgba(202, 138, 4, 0.28);
+}
+
+.ranking-list-card-pokemon[data-tipo-principal^="Volador"]{
+    background: linear-gradient(180deg, #f8fbff 0%, #edf4ff 100%);
+    border-color: rgba(96, 165, 250, 0.26);
+}
+
+.ranking-list-card-pokemon[data-tipo-principal^="Psiquico"],
+.ranking-list-card-pokemon[data-tipo-principal^="Psíquico"]{
+    background: linear-gradient(180deg, #fff1f7 0%, #ffe5f0 100%);
+    border-color: rgba(236, 72, 153, 0.24);
+}
+
+.ranking-list-card-pokemon[data-tipo-principal^="Bicho"]{
+    background: linear-gradient(180deg, #f8ffe8 0%, #eef8d8 100%);
+    border-color: rgba(101, 163, 13, 0.25);
+}
+
+.ranking-list-card-pokemon[data-tipo-principal^="Roca"]{
+    background: linear-gradient(180deg, #fafaf9 0%, #f0ece6 100%);
+    border-color: rgba(120, 113, 108, 0.25);
+}
+
+.ranking-list-card-pokemon[data-tipo-principal^="Fantasma"]{
+    background: linear-gradient(180deg, #f7f4ff 0%, #ede7ff 100%);
+    border-color: rgba(124, 58, 237, 0.24);
+}
+
+.ranking-list-card-pokemon[data-tipo-principal^="Dragon"],
+.ranking-list-card-pokemon[data-tipo-principal^="Dragón"]{
+    background: linear-gradient(180deg, #f1f3ff 0%, #e3e8ff 100%);
+    border-color: rgba(79, 70, 229, 0.24);
+}
+
+.ranking-list-card-pokemon[data-tipo-principal^="Acero"]{
+    background: linear-gradient(180deg, #f6f9fc 0%, #ebf1f6 100%);
+    border-color: rgba(100, 116, 139, 0.24);
+}
+
+.ranking-list-card-pokemon[data-tipo-principal^="Hada"]{
+    background: linear-gradient(180deg, #fff2f8 0%, #ffe7f2 100%);
+    border-color: rgba(244, 114, 182, 0.24);
+}
+
+.ranking-list-card-pokemon[data-tipo-principal^="Normal"]{
+    background: linear-gradient(180deg, #fafafa 0%, #f1f1f1 100%);
+    border-color: rgba(107, 114, 128, 0.22);
+}
+
+/* =========================================================
+   7. UTILIDADES VISUALES
+========================================================= */
+
+.oculto{
+    display: none !important;
+}
+
+
+/* =========================================================
+   8. RESPONSIVE TABLET
+========================================================= */
+
+@media (max-width: 1180px){
+    .ranking-highlight-grid,
+    .ranking-grid-cards{
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .ranking-section-split{
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 980px){
+    .ranking-title{
+        font-size: 46px;
+    }
+
+    .ranking-highlight-grid{
+        grid-template-columns: 1fr;
+    }
+
+    .ranking-section-head{
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+
+/* =========================================================
+   9. RESPONSIVE MOBILE
+========================================================= */
+@media (max-width: 768px){
+    .ranking-page{
+        padding: 24px 14px 42px;
+    }
+
+    .ranking-hero{
+        padding: 26px 18px;
+        border-radius: 24px;
+    }
+
+    .ranking-title{
+        font-size: 34px;
+    }
+
+    .ranking-subtitle{
+        font-size: 15px;
+        line-height: 1.5;
+    }
+
+    .ranking-status-card,
+    .ranking-section,
+    .ranking-half{
+        border-radius: 22px;
+        padding: 18px 16px;
+    }
+
+    .ranking-status-card h3{
+        font-size: 24px;
+    }
+
+    .ranking-section-head h2{
+        font-size: 24px;
+    }
+
+    .ranking-grid-cards{
+        grid-template-columns: 1fr;
+    }
+
+    .ranking-highlight-top-split,
+    .ranking-collector-main{
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .ranking-highlight-avatar,
+    .ranking-highlight-pokemon{
+        width: 64px;
+        height: 64px;
+    }
+
+    .ranking-highlight-avatar img,
+    .ranking-highlight-pokemon img{
+        max-width: 50px;
+        max-height: 50px;
+    }
+
+    .ranking-highlight-meta,
+    .ranking-collector-stats{
+        grid-template-columns: 1fr;
+    }
+
+    .ranking-list-card{
+        grid-template-columns: 1fr;
+        text-align: left;
+    }
+
+    .ranking-list-rank{
+        width: 46px;
+        height: 46px;
+        border-radius: 16px;
+    }
+
+    .ranking-list-main{
+        align-items: flex-start;
+    }
+
+    .ranking-list-side{
+        text-align: left;
+        min-width: 0;
+    }
+}
+
+@media (max-width: 480px){
+    .ranking-title{
+        font-size: 28px;
+    }
+
+    .ranking-subtitle{
+        font-size: 14px;
+    }
+
+    .ranking-highlight-card,
+    .ranking-collector-card{
+        border-radius: 22px;
+    }
+
+    .ranking-user-head{
+        align-items: flex-start;
+    }
+
+    .ranking-avatar-wrap{
+        width: 58px;
+        height: 58px;
+        border-radius: 18px;
+    }
+
+    .ranking-avatar-wrap img{
+        max-width: 48px;
+        max-height: 48px;
+    }
+
+    .ranking-list-icon{
+        width: 58px;
+        height: 58px;
+        border-radius: 16px;
+    }
+
+    .ranking-list-icon img{
+        max-width: 46px;
+        max-height: 46px;
+    }
+
+    .ranking-highlight-title,
+    .ranking-user-text h3,
+    .ranking-list-text h3{
+        font-size: 18px;
+    }
+
+    .ranking-highlight-name,
+    .ranking-highlight-name-strong{
+        font-size: 16px;
+    }
+
+    .ranking-highlight-trainer-line{
+        font-size: 13px;
+    }
+
+    .ranking-highlight-trainer-line strong{
+        font-size: 14px;
+    }
+
+    .ranking-collector-value{
+        font-size: 28px;
+    }
+}
