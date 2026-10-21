@@ -1,55 +1,56 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="es">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="Mastersmon: explora regiones, descubre Pokémon, lucha en gimnasios y comienza tu aventura.">
-  <title>Mastersmon | Comienza tu aventura</title>
-  <link rel="stylesheet" href="css/visitor.css">
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script defer src="js/api.js"></script>
-  <script defer src="js/visitor.js"></script>
-  <script defer src="js/visitor-auth.js"></script>
+<meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="Mastersmon: explora regiones, descubre Pokémon, lucha en gimnasios y comienza tu aventura." name="description"/>
+<title>Mastersmon | Welcome / Bienvenido</title>
+<link href="css/visitor.css" rel="stylesheet"/>
+<script async="" defer="" src="https://accounts.google.com/gsi/client"></script>
+<script defer="" src="js/i18n-v2.js"></script><script defer="" src="js/api.js"></script>
+<script defer="" src="js/visitor.js"></script>
+<script defer="" src="js/visitor-auth.js"></script>
 </head>
 <body>
-<a href="#main" class="skip">Saltar al contenido</a>
+<a class="skip" data-i18n="visitor.1" href="#main">Saltar al contenido</a>
 <header class="site-header"><div class="nav-wrap">
-  <a class="brand" href="visitor.html" aria-label="Mastersmon inicio"><span class="brand-emblem">M</span><span>Mastersmon</span></a>
-  <button class="menu-toggle" id="menuToggle" aria-controls="navLinks" aria-expanded="false">☰ <span>Menú</span></button>
-  <nav class="nav-links" id="navLinks" aria-label="Navegación principal">
-    <a class="active" href="visitor.html">⌂ Inicio</a><a href="index.html">◉ Pokédex</a><a href="maps.html">◈ Mapas</a><a href="battle.html">⚔ Batallas</a><a href="gyms.html">♜ Gimnasios</a><a href="pokemart.html">▣ Tienda</a>
-  </nav>
-  <a class="login top-login" href="#login" data-login-trigger title="Iniciar sesión con Google">Iniciar sesión con Google <span aria-hidden="true">↗</span></a>
-</div></header>
+<a aria-label="Mastersmon inicio" class="brand" href="visitor.html"><span class="brand-emblem">M</span><span>Mastersmon</span></a>
+<button aria-controls="navLinks" aria-expanded="false" class="menu-toggle" id="menuToggle">☰ <span data-i18n="visitor.2">Menú</span></button>
+<nav aria-label="Navegación principal" class="nav-links" data-i18n-aria-label="visitor.attr52" id="navLinks">
+<a class="active" data-i18n="visitor.3" href="visitor.html">⌂ Inicio</a><a data-i18n="visitor.4" href="index.html">◉ Pokédex</a><a data-i18n="visitor.5" href="maps.html">◈ Mapas</a><a data-i18n="visitor.6" href="battle.html">⚔ Batallas</a><a data-i18n="visitor.7" href="gyms.html">♜ Gimnasios</a><a data-i18n="visitor.8" href="pokemart.html">▣ Tienda</a>
+</nav>
+<a class="login top-login" data-i18n-title="visitor.attr53" data-login-trigger="" href="#login" title="Iniciar sesión con Google"><span data-i18n="visitor.9">Iniciar sesión con Google</span><span aria-hidden="true">↗</span></a>
+<div aria-label="Language / Idioma" class="language-switch" role="group"><button aria-pressed="true" class="language-option" data-language="es" type="button">ES</button><button aria-pressed="false" class="language-option" data-language="en" type="button">EN</button></div></div></header>
 <main id="main">
-  <section class="hero" aria-labelledby="hero-title"><div class="hero-bg"></div><div class="hero-overlay"></div>
-    <div class="hero-content wrap"><div class="hero-copy"><p class="eyebrow">Bienvenido a un mundo de aventuras</p><h1 id="hero-title">MASTERS<span>MON</span></h1><p class="hero-sub">EXPLORA · COLECCIONA · ENTRENA · COMBATE</p><p class="hero-body">Descubre nuevas regiones, completa tu Pokédex, desafía gimnasios y vive una aventura inolvidable.</p><div class="hero-actions"><a class="btn gold" href="#login" data-login-trigger>Iniciar sesión con Google <span>→</span></a><a class="btn outline" href="maps.html">Explorar el mundo</a></div><p class="hint">¿Ya tienes una cuenta? Conserva todo tu progreso al iniciar sesión.</p></div>
-    <div class="hero-art" role="img" aria-label="Ilustración conceptual de regiones fantásticas de Mastersmon"></div></div>
-  </section>
-  <div class="wrap content">
-    <nav class="mobile-discover" aria-label="Secciones de Mastersmon">
-      <button class="mobile-tab is-active" type="button" data-target="pokedex" aria-pressed="true">◉ Pokédex</button>
-      <button class="mobile-tab" type="button" data-target="explore" aria-pressed="false">◈ Mapas</button>
-      <button class="mobile-tab" type="button" data-target="battles" aria-pressed="false">⚔ Batallas</button>
-      <button class="mobile-tab" type="button" data-target="shop" aria-pressed="false">▣ Tienda</button>
-    </nav>
-    <section class="feature-grid" aria-label="Descubre Mastersmon">
-      <article class="panel pokedex-panel" data-mobile-section="pokedex"><div class="panel-head"><div><p class="section-kicker">Descubre las criaturas</p><h2>◉ Pokédex destacada</h2><p>Una aventura llena de Pokémon te espera.</p></div><a class="inline-link" href="index.html">Ver Pokédex →</a></div><div class="creature-grid" id="creatures"></div><p class="micro-note">Vista previa ilustrativa. La Pokédex real se encuentra en la página actual.</p></article>
-      <article class="panel explore-panel" data-mobile-section="explore"><div class="panel-head"><div><p class="section-kicker">Tu próxima aventura</p><h2>◈ Explora el mundo</h2><p>Rutas, encuentros y lugares por descubrir.</p></div></div><div class="feature-image explore-img"><span class="image-label">Un mundo por descubrir</span></div><a class="btn blue" href="maps.html">Ver mapas <span>→</span></a></article>
-      <article class="panel battles-panel" data-mobile-section="battles"><div class="panel-head"><div><p class="section-kicker">Pon a prueba tu estrategia</p><h2>⚔ Batallas y gimnasios</h2><p>Prepara tu equipo y desafía a tus rivales.</p></div></div><div class="feature-image battle-img"><span class="image-label">Desafía a los líderes</span></div><a class="btn blue" href="gyms.html">Ver gimnasios <span>→</span></a></article>
-    </section>
-    <section class="shop-panel panel" data-mobile-section="shop"><div class="shop-heading"><div><p class="section-kicker">Prepara tu viaje</p><h2>▣ Tienda de Mastersmon</h2><p>Encuentra objetos y ventajas en la tienda del juego.</p></div><a class="btn outline" href="pokemart.html">Visitar tienda →</a></div><div class="shop-items"><div>🎒 <strong>Accesorios</strong></div><div>✨ <strong>Beneficios</strong></div><div>🎁 <strong>Objetos</strong></div><div>⚡ <strong>Potenciadores</strong></div></div></section>
-    <section class="final-cta"><p class="eyebrow">Tu historia comienza aquí</p><h2>¿Listo para convertirte en entrenador?</h2><p>Inicia sesión con Google y continúa tu aventura en Mastersmon.</p><a class="btn gold" href="#login" data-login-trigger>Comenzar mi aventura →</a></section>
-  </div>
+<section aria-labelledby="hero-title" class="hero"><div class="hero-bg"></div><div class="hero-overlay"></div>
+<div class="hero-content wrap"><div class="hero-copy"><p class="eyebrow" data-i18n="visitor.10">Bienvenido a un mundo de aventuras</p><h1 id="hero-title">MASTERS<span>MON</span></h1><p class="hero-sub" data-i18n="visitor.11">EXPLORA · COLECCIONA · ENTRENA · COMBATE</p><p class="hero-body" data-i18n="visitor.12">Descubre nuevas regiones, completa tu Pokédex, desafía gimnasios y vive una aventura inolvidable.</p><div class="hero-actions"><a class="btn gold" data-login-trigger="" href="#login"><span data-i18n="visitor.13">Iniciar sesión con Google</span><span>→</span></a><a class="btn outline" data-i18n="visitor.14" href="maps.html">Explorar el mundo</a></div><p class="hint" data-i18n="visitor.15">¿Ya tienes una cuenta? Conserva todo tu progreso al iniciar sesión.</p></div>
+<div aria-label="Ilustración conceptual de regiones fantásticas de Mastersmon" class="hero-art" data-i18n-aria-label="visitor.attr54" role="img"></div></div>
+</section>
+<div class="wrap content">
+<nav aria-label="Secciones de Mastersmon" class="mobile-discover" data-i18n-aria-label="visitor.attr55">
+<button aria-pressed="true" class="mobile-tab is-active" data-i18n="visitor.16" data-target="pokedex" type="button">◉ Pokédex</button>
+<button aria-pressed="false" class="mobile-tab" data-i18n="visitor.17" data-target="explore" type="button">◈ Mapas</button>
+<button aria-pressed="false" class="mobile-tab" data-i18n="visitor.18" data-target="battles" type="button">⚔ Batallas</button>
+<button aria-pressed="false" class="mobile-tab" data-i18n="visitor.19" data-target="shop" type="button">▣ Tienda</button>
+</nav>
+<section aria-label="Descubre Mastersmon" class="feature-grid" data-i18n-aria-label="visitor.attr56">
+<article class="panel pokedex-panel" data-mobile-section="pokedex"><div class="panel-head"><div><p class="section-kicker" data-i18n="visitor.20">Descubre las criaturas</p><h2 data-i18n="visitor.21">◉ Pokédex destacada</h2><p data-i18n="visitor.22">Una aventura llena de Pokémon te espera.</p></div><a class="inline-link" data-i18n="visitor.23" href="index.html">Ver Pokédex →</a></div><div class="creature-grid" id="creatures"></div><p class="micro-note" data-i18n="visitor.24">Vista previa ilustrativa. La Pokédex real se encuentra en la página actual.</p></article>
+<article class="panel explore-panel" data-mobile-section="explore"><div class="panel-head"><div><p class="section-kicker" data-i18n="visitor.25">Tu próxima aventura</p><h2 data-i18n="visitor.26">◈ Explora el mundo</h2><p data-i18n="visitor.27">Rutas, encuentros y lugares por descubrir.</p></div></div><div class="feature-image explore-img"><span class="image-label" data-i18n="visitor.28">Un mundo por descubrir</span></div><a class="btn blue" href="maps.html"><span data-i18n="visitor.29">Ver mapas</span><span>→</span></a></article>
+<article class="panel battles-panel" data-mobile-section="battles"><div class="panel-head"><div><p class="section-kicker" data-i18n="visitor.30">Pon a prueba tu estrategia</p><h2 data-i18n="visitor.31">⚔ Batallas y gimnasios</h2><p data-i18n="visitor.32">Prepara tu equipo y desafía a tus rivales.</p></div></div><div class="feature-image battle-img"><span class="image-label" data-i18n="visitor.33">Desafía a los líderes</span></div><a class="btn blue" href="gyms.html"><span data-i18n="visitor.34">Ver gimnasios</span><span>→</span></a></article>
+</section>
+<section class="shop-panel panel" data-mobile-section="shop"><div class="shop-heading"><div><p class="section-kicker" data-i18n="visitor.35">Prepara tu viaje</p><h2 data-i18n="visitor.36">▣ Tienda de Mastersmon</h2><p data-i18n="visitor.37">Encuentra objetos y ventajas en la tienda del juego.</p></div><a class="btn outline" data-i18n="visitor.38" href="pokemart.html">Visitar tienda →</a></div><div class="shop-items"><div>🎒 <strong data-i18n="visitor.39">Accesorios</strong></div><div>✨ <strong data-i18n="visitor.40">Beneficios</strong></div><div>🎁 <strong data-i18n="visitor.41">Objetos</strong></div><div>⚡ <strong data-i18n="visitor.42">Potenciadores</strong></div></div></section>
+<section class="final-cta"><p class="eyebrow" data-i18n="visitor.43">Tu historia comienza aquí</p><h2 data-i18n="visitor.44">¿Listo para convertirte en entrenador?</h2><p data-i18n="visitor.45">Inicia sesión con Google y continúa tu aventura en Mastersmon.</p><a class="btn gold" data-i18n="visitor.46" data-login-trigger="" href="#login">Comenzar mi aventura →</a></section>
+</div>
 </main>
-<footer class="footer"><div class="wrap"><strong>MASTERSMON</strong><span>Landing responsive · V1.3</span><a href="index.html">Ir al sitio actual ↗</a></div></footer>
-<div class="auth-backdrop" id="authDialog" hidden role="dialog" aria-modal="true" aria-labelledby="authTitle">
- <div class="auth-dialog panel">
-  <button type="button" id="closeAuth" class="auth-close" aria-label="Cerrar">×</button>
-  <h2 id="authTitle">Entra a Mastersmon</h2>
-  <p>Utiliza tu cuenta de Google para recuperar o comenzar tu aventura.</p>
-  <div id="googleSignInButton" class="google-button"></div>
-  <p class="auth-message" id="authMessage" role="status" aria-live="polite"></p>
-  <p class="micro-note">Tus datos se validan con el backend de Mastersmon. No se crea una sesión local ficticia.</p>
- </div>
+<footer class="footer"><div class="wrap"><strong>MASTERSMON</strong><span data-i18n="visitor.47">Landing responsive · V1.3</span><a data-i18n="visitor.48" href="index.html">Ir al sitio actual ↗</a></div></footer>
+<div aria-labelledby="authTitle" aria-modal="true" class="auth-backdrop" hidden="" id="authDialog" role="dialog">
+<div class="auth-dialog panel">
+<button aria-label="Cerrar" class="auth-close" data-i18n-aria-label="visitor.attr57" id="closeAuth" type="button">×</button>
+<h2 data-i18n="visitor.49" id="authTitle">Entra a Mastersmon</h2>
+<p data-i18n="visitor.50">Utiliza tu cuenta de Google para recuperar o comenzar tu aventura.</p>
+<div class="google-button" id="googleSignInButton"></div>
+<p aria-live="polite" class="auth-message" id="authMessage" role="status"></p>
+<p class="micro-note" data-i18n="visitor.51">Tus datos se validan con el backend de Mastersmon. No se crea una sesión local ficticia.</p>
+</div>
 </div>
 </body></html>

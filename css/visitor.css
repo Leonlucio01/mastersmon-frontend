@@ -62,3 +62,12 @@
 
 /* V1.3 Google dialog */
 .auth-backdrop[hidden]{display:none!important}.auth-backdrop{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:20px;background:#020b1bcd;backdrop-filter:blur(7px)}.auth-dialog{width:min(420px,100%);text-align:center;position:relative;padding:30px 22px}.auth-dialog h2{font:700 28px Georgia,serif;color:#ffe1a0;margin:6px 0}.auth-dialog>p{color:#b5d3e9;line-height:1.5}.auth-close{position:absolute;top:8px;right:12px;background:transparent;color:#fff;font-size:28px;border:0;cursor:pointer}.google-button{display:flex;justify-content:center;min-height:42px;margin:22px auto}.auth-message{min-height:20px;font-size:13px}.auth-open{overflow:hidden}
+
+/* Mastersmon V2 - shared language picker for desktop and mobile. */
+.language-switch{display:inline-flex;gap:3px;align-items:center;flex-shrink:0;background:#071a2e;border:1px solid #2d7091;border-radius:10px;padding:3px;margin-left:4px}
+.language-option{background:transparent;border:0;color:#b1cde0;border-radius:7px;font-size:12px;font-weight:800;padding:8px 9px;cursor:pointer}
+.language-option.is-current{background:#efbb58;color:#132234}
+.language-option:focus-visible{outline:2px solid #87ddff;outline-offset:2px}
+@media(min-width:801px) and (max-width:1190px){.nav-wrap{gap:5px}.language-option{padding:6px;font-size:11px}.brand{font-size:19px}}
+@media(max-width:800px){.language-switch{order:0;margin-left:0}.language-option{font-size:10px;padding:7px 5px}.top-login{margin-left:auto}.nav-wrap{gap:5px}}
+@media(max-width:420px){.language-option{padding:6px 4px}.brand{font-size:15px}.top-login{max-width:110px}}

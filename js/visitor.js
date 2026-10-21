@@ -12,7 +12,7 @@ const pokemon=[
   {name:'Gengar',number:94,type:'FANTASMA',color:'#8d70d0',wash:'#43356e'}
 ];
 const grid=document.getElementById('creatures');
-if(grid){pokemon.forEach(p=>{const card=document.createElement('div');card.className='creature';card.style.setProperty('--type',p.color);card.style.setProperty('--wash',p.wash);const img=document.createElement('img');img.loading='lazy';img.alt='Ilustración de '+p.name;img.referrerPolicy='no-referrer';img.src=`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${p.number}.png`;img.onerror=()=>{img.hidden=true;};const name=document.createElement('strong');name.textContent=p.name;const type=document.createElement('span');type.className='type';type.textContent=p.type;card.append(img,name,type);grid.appendChild(card);});}
+if(grid){pokemon.forEach(p=>{const card=document.createElement('div');card.className='creature';card.style.setProperty('--type',p.color);card.style.setProperty('--wash',p.wash);const img=document.createElement('img');img.loading='lazy';img.alt=(window.MastersmonI18n?.t('Ilustración de ') || 'Ilustración de ')+p.name;img.referrerPolicy='no-referrer';img.src=`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${p.number}.png`;img.onerror=()=>{img.hidden=true;};const name=document.createElement('strong');name.textContent=p.name;const type=document.createElement('span');type.className='type';type.textContent=window.MastersmonI18n?.t(p.type) || p.type;card.append(img,name,type);grid.appendChild(card);});}
 
 // Mobile discovery uses tabs so visitors need not scroll through four long sections.
 const mobileTabs=[...document.querySelectorAll('.mobile-tab')];
@@ -23,3 +23,6 @@ function selectMobileSection(section){
 }
 mobileTabs.forEach(tab=>tab.addEventListener('click',()=>selectMobileSection(tab.dataset.target)));
 selectMobileSection('pokedex');
+
+// Keep dynamically rendered type badges in sync with the selected language.
+document.addEventListener("mastersmon:languagechange", () => {document.querySelectorAll(".creature .type").forEach((node,i)=>{if(pokemon[i])node.textContent=window.MastersmonI18n.t(pokemon[i].type)});});

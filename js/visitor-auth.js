@@ -7,7 +7,9 @@
   const message = document.getElementById('authMessage');
   const close = document.getElementById('closeAuth');
   let initialized = false;
-  const say = text => { if (message) message.textContent = text; };
+  let lastMessage='';
+  document.addEventListener('mastersmon:languagechange',()=>{if(message)message.textContent=window.MastersmonI18n.t(lastMessage);});
+  const say = text => { lastMessage=text; if (message) message.textContent = window.MastersmonI18n?.t(text) ?? text; };
   const open = () => { dialog.hidden = false; document.body.classList.add('auth-open'); renderGoogle(); close.focus(); };
   const dismiss = () => { dialog.hidden = true; document.body.classList.remove('auth-open'); };
   document.querySelectorAll('[data-login-trigger]').forEach(link => link.addEventListener('click', event => {event.preventDefault();open();}));
