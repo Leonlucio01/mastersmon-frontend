@@ -259,3 +259,9 @@ body{font-size:14px;background:#031327}
 .shop-exclusive .exclusive-notice{color:#e5c8fa;font-size:clamp(7px,.48vw,9px);line-height:1.08;text-align:center;display:block;max-width:100%;overflow:hidden;min-height:15px}
 .shop-exclusive:hover{box-shadow:inset 0 0 22px #f3c26a55,0 0 15px #d79d5c55}
 @media(max-width:760px){.shop-exclusive .exclusive-notice{font-size:9px}}
+
+/* Legendario Shiny diario */
+.shop-exclusive .exclusive-ribbon{color:#ffdc85;letter-spacing:.035em}
+.shop-exclusive .exclusive-notice{color:#d6e8ff;white-space:normal;font-variant-numeric:tabular-nums}
+.shop-exclusive[aria-disabled="true"]{cursor:default}
+.shop-exclusive[aria-disabled="true"] .shop-price{color:#ffdd95}

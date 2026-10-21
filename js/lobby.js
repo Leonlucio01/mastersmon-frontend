@@ -124,23 +124,41 @@ function productIcon(p){
  if(/pack|inicio|starter|bundle|cofre|chest|booster/.test(hint))return 'pack-aventurero.webp';
  return null;
 }
+let dailyShinyOffer=null;
 function renderPremium(){const box=$('premiumProducts');if(!box)return;box.replaceChildren();const list=Array.isArray(premiumData)?premiumData.slice(0,4):[];if(!list.length){const a=document.createElement('a');a.className='shop-message';a.href='pokemart.html';a.textContent=premiumData===null?tr('premiumLoading'):tr('premiumEmpty');box.append(a);return;}
 list.forEach((p,i)=>{const a=document.createElement('a');a.href='pokemart.html';a.className='shop-card '+(['purple','gold','turquoise','violet'][i]);const hint=String([p.codigo,p.nombre,p.tipo].filter(Boolean).join(' ')).toLowerCase();const isRate=/rate|aumento.*map|map.*aumento/.test(hint);const isExclusive=p.tipo==='pokemon_exclusivo'||/pok[eé]mon exclusivo|exclusive pok[eé]mon/.test(hint);if(isRate){a.removeAttribute('href');a.classList.add('shop-coming-soon');a.setAttribute('aria-disabled','true');a.tabIndex=-1;}if(isExclusive)a.classList.add('shop-exclusive');const title=document.createElement('strong');title.className='shop-name';title.textContent=String(p.nombre||p.codigo||'Producto');const img=document.createElement('img');{const artwork=productIcon(p);img.src=artwork?'assets/lobby/shop/'+artwork:'assets/lobby/shop-items.svg';}if(isExclusive){
-  // Imagen ilustrativa, NO una promesa de recibir Mewtwo.
-  img.src='img/pokemon-png/sprites_shiny/0150_s.png';
-  img.onerror=()=>{img.onerror=null;img.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/150.png';};
-  img.alt=lang==='es'?'Mewtwo Shiny, imagen ilustrativa':'Shiny Mewtwo, illustrative artwork';
+  const dailyPokemon=dailyShinyOffer?.pokemon;
+  const pokemonId=Number(dailyPokemon?.id||0);
+  if(pokemonId>0){
+   const code=String(pokemonId).padStart(4,'0');
+   img.src=`img/pokemon-png/sprites_shiny/${code}_s.png`;
+   img.onerror=()=>{img.onerror=null;img.src=`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/${pokemonId}.png`;};
+   img.alt=String(dailyPokemon.nombre||'')+' Shiny';
+  }else{
+   img.src='assets/lobby/shop-items.svg';img.alt='';
+  }
  }img.loading='lazy';const price=document.createElement('b');price.className='shop-price';price.textContent=formatPrice(p);const tag=document.createElement('small');tag.textContent=isRate?tr('comingSoon'):(tr('premiumView')+' →');if(isExclusive){
-   a.title=String(p.nombre||p.codigo||'')+' · '+tr('exclusiveShiny');
-   a.href='pokemart.html';
-   title.textContent=lang==='es'?'Pokémon exclusivo':'Exclusive Pokémon';
-   tag.textContent=lang==='es'?'Ver detalles →':'View details →';
+   const dailyPokemon=dailyShinyOffer?.pokemon;
+   a.removeAttribute('href'); a.setAttribute('aria-disabled','true'); a.tabIndex=-1;
+   a.title=lang==='es'?'Canje seguro pendiente de activación':'Secure redemption not enabled yet';
+   title.textContent=dailyPokemon
+      ? `${dailyPokemon.nombre} Shiny`
+      : (lang==='es'?'Legendario Shiny diario':'Daily Shiny Legendary');
+   tag.textContent=tr('comingSoon');
    const ribbon=document.createElement('span');ribbon.className='exclusive-ribbon';
-   ribbon.textContent=lang==='es'?'LEGENDARIO SHINY':'SHINY LEGENDARY';
+   ribbon.textContent=lang==='es'?'LEGENDARIO SHINY DEL DÍA':'DAILY SHINY LEGENDARY';
    const notice=document.createElement('span');notice.className='exclusive-notice';
-   notice.textContent=lang==='es'?'Imagen ilustrativa · Entrega pendiente de habilitación':'Illustration · Delivery not enabled yet';
+   if(dailyShinyOffer?.cambia_en){
+     const next=new Date(dailyShinyOffer.cambia_en);
+     const remain=()=>Math.max(0,Math.floor((next.getTime()-Date.now())/1000));
+     const secs=remain();
+     notice.textContent=(lang==='es'?'Cambia en ':'Changes in ')+secondsText(secs);
+     notice.dataset.dailyTimer='1';
+   }else{
+     notice.textContent=lang==='es'?'Cargando oferta diaria...':'Loading daily offer...';
+   }
    a.append(ribbon,title,img,price,notice,tag);
-   a.setAttribute('aria-label',title.textContent+' '+price.textContent+' - '+notice.textContent);
+   a.setAttribute('aria-label',title.textContent+' '+price.textContent+' - '+tag.textContent);
  }else{a.title=String(p.nombre||p.codigo||'');a.append(title,img,price,tag);}
  box.append(a);});}
 function secondsText(seconds){const v=Math.max(0,Math.floor(seconds));return String(Math.floor(v/3600)).padStart(2,'0')+':'+String(Math.floor(v%3600/60)).padStart(2,'0')+':'+String(v%60).padStart(2,'0');}
@@ -187,6 +205,29 @@ if(gymRes?.ok===true&&Number.isFinite(Number(gymRes.completados))){badgeValue=Nu
 questData=onboardingRes;bossData=bossRes;recentError=!(recentRes?.ok===true&&Array.isArray(recentRes.capturas));recentCaptures=recentError?[]:recentRes.capturas;premiumData=premiumRes?.ok===true&&Array.isArray(premiumRes.productos)?premiumRes.productos:null;profile();renderPokemon();renderQuests();renderBoss();renderPremium();
 }catch(e){console.error('Lobby startup',e);status('loadFail');}}
 init();
+// La selección diaria pertenece al servidor; no se calcula con la hora del navegador.
+async function refreshDailyShiny(){
+ try{
+  const res=await fetch(API+'/payments/legendario-del-dia',{cache:'no-store'});
+  if(!res.ok)throw new Error('Daily offer HTTP '+res.status);
+  const offer=await res.json();
+  if(offer?.ok!==true||!offer?.pokemon?.id)throw new Error('Daily offer invalid');
+  const previous=dailyShinyOffer?.fecha;
+  dailyShinyOffer=offer;
+  if(previous!==offer.fecha || document.querySelector('.shop-exclusive .exclusive-notice:not([data-daily-timer])'))renderPremium();
+ }catch(err){console.info('Legendario diario no disponible',err);}
+}
+refreshDailyShiny();
+setInterval(()=>{
+ if(document.hidden)return;
+ refreshDailyShiny();
+ if(dailyShinyOffer?.cambia_en){
+  const next=Date.parse(dailyShinyOffer.cambia_en);
+  const remaining=Math.max(0,Math.floor((next-Date.now())/1000));
+  const notice=document.querySelector('.shop-exclusive .exclusive-notice');
+  if(notice)notice.textContent=(lang==='es'?'Cambia en ':'Changes in ')+secondsText(remaining);
+ }
+},60000);
 // Actualiza el feed global sin recargar el lobby. Solo se consulta si hay sesión.
 setInterval(async()=>{if(!authToken||document.hidden)return;try{const r=await optional('/pokemon/capturas-recientes?limit=5');if(r?.ok===true&&Array.isArray(r.capturas)){recentError=false;recentCaptures=r.capturas;renderPokemon();}}catch(e){console.info('Recent captures refresh',e);}},60000);
 })();
