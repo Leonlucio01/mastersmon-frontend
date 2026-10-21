@@ -1,4 +1,4 @@
-/* Mastersmon V2.15.1 - Onboarding: catalogo fiable, seleccion persistente y entrega unica */
+/* Mastersmon V2.15.3 - Onboarding inicial para cuentas nuevas y antiguas sin configuracion */
 (() => { 'use strict';
  const api='https://mastersmon-api.onrender.com';
  const grid=document.getElementById('starterGrid'), avatars=document.getElementById('avatarGrid');
@@ -11,7 +11,7 @@
  const teamText={red:['Rojo','Red','Coraje','Courage'],blue:['Azul','Blue','Estrategia','Strategy'],green:['Verde','Green','Armonía','Harmony']};
  const elements={1:'grass',4:'fire',7:'water',152:'grass',155:'fire',158:'water',252:'grass',255:'fire',258:'water',387:'grass',390:'fire',393:'water',495:'grass',498:'fire',501:'water',650:'grass',653:'fire',656:'water',722:'grass',725:'fire',728:'water',810:'grass',813:'fire',816:'water',906:'grass',909:'fire',912:'water'};
  const descriptions={grass:['PLANTA','GRASS','Una aventura natural','A nature adventure'],fire:['FUEGO','FIRE','Energía y valentía','Energy and bravery'],water:['AGUA','WATER','Calma y lealtad','Calm and loyalty'],other:['INICIAL','STARTER','Tu primer compañero','Your first companion']};
- let catalog={},busy=false,lastMessage='',catalogReady=false,verified=false,alreadySetup=false,hasPokemon=false,sessionName='';
+ let catalog={},busy=false,lastMessage='',catalogReady=false,verified=false,alreadySetup=false,sessionName='';
  const lang=()=>window.MastersmonI18n?.getLanguage?.()==='en'?'en':'es';
  function say(text){lastMessage=String(text||'');msg.textContent=window.MastersmonI18n?.t?.(lastMessage)??lastMessage;}
  function token(){try{return typeof getAccessToken==='function'?getAccessToken():null;}catch(_){return null;}}
@@ -39,7 +39,7 @@
  }}
  function available(gen){return (catalog[String(gen)]||[]).filter(p=>p&&p.available===true&&Number.isInteger(Number(p.id))&&Number(p.id)>0);}
  function updateRegionTitle(){const regionTitle=document.getElementById('regionTitle');if(regionTitle)regionTitle.textContent=select.selectedOptions[0]?.textContent?.trim()||'';}
- function updateConfirm(){confirm.disabled=busy||!verified||alreadySetup||hasPokemon||!catalogReady||!Number.isInteger(state.pokemon_id)||!available(state.generation).some(p=>Number(p.id)===state.pokemon_id);}
+ function updateConfirm(){confirm.disabled=busy||!verified||alreadySetup||!catalogReady||!Number.isInteger(state.pokemon_id)||!available(state.generation).some(p=>Number(p.id)===state.pokemon_id);}
  function renderStarters(preserve=true){
   state.generation=Number(select.value);updateRegionTitle();grid.replaceChildren();
   if(!preserve||!available(state.generation).some(p=>Number(p.id)===state.pokemon_id))state.pokemon_id=null;
@@ -66,7 +66,6 @@
   const data=await response.json();if(data?.ok!==true||!data.generations||typeof data.generations!=='object')throw new Error('La API devolvió un catálogo de iniciales inválido.');
   catalog=data.generations;catalogReady=true;updateAvailableGenerations();renderStarters(true);
  }
- function ownedRows(data){if(Array.isArray(data))return data;for(const key of ['pokemon','pokemones','items','data','usuario_pokemon','results'])if(Array.isArray(data?.[key]))return data[key];return null;}
  async function initialize(){
   confirm.disabled=true;say('Cargando Pokémon iniciales...');
   const catalogPromise=loadCatalog().then(()=>true).catch(error=>{console.error('Trainer starter catalog',error);say(error.message||'No se pudieron cargar los Pokémon iniciales.');return false;});
@@ -75,17 +74,16 @@
    sessionName=user.nombre||'';const display=document.getElementById('sessionName');if(display){display.textContent=sessionName||(lang()==='en'?'Trainer':'Entrenador');display.dataset.playerName=sessionName;}
    const setup=await request('/usuario/me/trainer-setup');alreadySetup=setup.setup_completed===true;
    if(alreadySetup){say('Esta cuenta ya tiene entrenador configurado.');await catalogPromise.catch(()=>{});updateConfirm();return;}
-   const owned=await request('/usuario/me/pokemon');const rows=ownedRows(owned);
-   if(!rows)throw Error('No se pudo verificar la colección de esta cuenta.');
-   hasPokemon=rows.length>0;
-   if(hasPokemon){say('Tu cuenta ya contiene Pokémon. Continúa en el juego actual.');await catalogPromise.catch(()=>{});updateConfirm();return;}
+   // JL - Los entrenadores antiguos que ya tienen colección pero no completaron
+   // el nuevo onboarding sí pueden escoger su inicial. El backend decide si
+   // equiparlo (solo cuando equipo_usuario esté vacío).
    verified=true;await catalogPromise;if(!catalogReady)throw Error('No se pudo cargar el catálogo de Pokémon iniciales.');updateConfirm();
    if(!state.pokemon_id)say(lang()==='en'?'Choose a starter Pokémon to continue.':'Selecciona tu Pokémon inicial para continuar.');
   }catch(error){console.error('Trainer setup initialization',error);verified=false;updateConfirm();say(error?.message||'No se pudo validar el estado de la cuenta');}
  }
  select.addEventListener('change',()=>renderStarters(false));
  confirm.addEventListener('click',async()=>{
-  if(busy||!verified||!catalogReady||alreadySetup||hasPokemon)return;
+  if(busy||!verified||!catalogReady||alreadySetup)return;
   if(!available(state.generation).some(p=>Number(p.id)===state.pokemon_id)){say('Selecciona primero tu Pokémon inicial.');return;}
   busy=true;updateConfirm();say('Guardando entrenador y entregando Pokémon...');
   try{const result=await request('/trainer-onboarding/complete',{method:'POST',body:JSON.stringify(state)});
