@@ -13,11 +13,42 @@ async function read(path){const t=authToken||token();if(!t)throw Error('NO_TOKEN
 async function optional(path){try{return await read(path);}catch(e){console.info('Unavailable '+path,e.message);return null;}}
 function rows(data,keys){if(Array.isArray(data))return data;if(!data||typeof data!=='object')return [];for(const k of keys){if(Array.isArray(data[k]))return data[k];if(data[k]&&typeof data[k]==='object'){for(const q of keys)if(Array.isArray(data[k][q]))return data[k][q];}}return [];}
 function numeric(v){const n=Number(v);return Number.isFinite(n)?n:null;}
-function adapt(p){const nested=p?.pokemon&&typeof p.pokemon==='object'?p.pokemon:{};const id=numeric(p.pokemon_id??nested.id??p.id_pokemon??(typeof p.pokemon==='number'?p.pokemon:null));const linkId=numeric(p.usuario_pokemon_id??p.id??p.registro_id);const name=String(p.nombre??nested.nombre??p.pokemon_nombre??p.name??(id?'Pokémon #'+id:'Pokémon'));const level=p.nivel??p.level??null;return {id,linkId,name,level,slot:numeric(p.slot_equipo??p.equipo_slot??p.posicion_equipo??p.slot??p.posicion),isEquipped:[p.en_equipo,p.equipado,p.es_equipo,p.in_team,p.is_equipped].some(v=>v===true||v===1||v==='t'),tipo:String(p.tipo_principal??nested.tipo1??p.tipo??nested.tipo??'').toLowerCase()};}
-function sprite(id){return Number.isInteger(id)&&id>0&&id<10000?'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/'+id+'.png':'';}
+function adapt(p){const nested=p?.pokemon&&typeof p.pokemon==='object'?p.pokemon:{};const id=numeric(p.pokemon_id??nested.id??p.id_pokemon??(typeof p.pokemon==='number'?p.pokemon:null));const linkId=numeric(p.usuario_pokemon_id??p.id??p.registro_id);const name=String(p.nombre??nested.nombre??p.pokemon_nombre??p.name??(id?'Pokémon #'+id:'Pokémon'));const level=p.nivel??p.level??null;return {id,linkId,name,level,slot:numeric(p.slot_equipo??p.equipo_slot??p.posicion_equipo??p.slot??p.posicion),isEquipped:[p.en_equipo,p.equipado,p.es_equipo,p.in_team,p.is_equipped].some(v=>v===true||v===1||v==='t'),tipo:String(p.tipo_principal??nested.tipo1??p.tipo??nested.tipo??'').toLowerCase(),es_shiny:isShiny(p.es_shiny??nested.es_shiny),species_id:p.species_id??nested.species_id,variant_suffix:p.variant_suffix??p.forma_suffix??nested.variant_suffix,pokemon_name_api:p.pokemon_name_api??p.api_name??nested.pokemon_name_api};}
+// Misma convencion de carpetas que Maps: sprites_normal/0000.png y sprites_shiny/0000_s.png.
+// Usa los resolvedores globales de Maps cuando esten disponibles, sin cargar maps.js.
+function isShiny(value){return value===true||value===1||['true','t','1'].includes(String(value??'').trim().toLowerCase());}
+function spritePokemon(p){
+ const id=Number(p?.pokemon_id??p?.id??0);
+ if(!Number.isInteger(id)||id<=0)return '';
+ const shiny=isShiny(p?.es_shiny??p?.shiny);
+ const variant=String(p?.variant_suffix??p?.forma_suffix??'');
+ const data={...p,pokemon_id:id,es_shiny:shiny,species_id:p?.species_id??p?.pokemon_species_id??p?.id_base??id,variant_suffix:variant,pokemon_name_api:p?.pokemon_name_api??p?.api_name??p?.pokeapi_name??p?.nombre_api??''};
+ try{if(typeof obtenerRutaSpriteDesdePokemon==='function'){
+   const url=obtenerRutaSpriteDesdePokemon(data);if(url)return url;
+ }}catch(e){console.warn('Lobby sprite resolver',e);}
+ try{if(typeof obtenerRutaSpriteLocal==='function'){
+   const url=obtenerRutaSpriteLocal(id,shiny,variant);if(url)return url;
+ }}catch(e){console.warn('Lobby local sprite resolver',e);}
+ const code=String(id).padStart(4,'0');
+ return shiny?`img/pokemon-png/sprites_shiny/${code}_s.png`:`img/pokemon-png/sprites_normal/${code}.png`;
+}
+function attachPokemonSprite(img,p){
+ const id=Number(p?.pokemon_id??p?.id??0),shiny=isShiny(p?.es_shiny??p?.shiny);
+ img.src=spritePokemon(p);
+ // Mantiene la variante Shiny tambien al fallar un recurso local.
+ img.onerror=()=>{
+   if(!Number.isInteger(id)||id<=0){img.style.visibility='hidden';return;}
+   const fallback=shiny
+    ?`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/shiny/${id}.png`
+    :`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
+   if(img.src!==fallback){img.onerror=()=>{img.style.visibility='hidden';};img.src=fallback;}
+   else img.style.visibility='hidden';
+ };
+}
+
 function applyLanguage(next){lang=next;localStorage.setItem('mastersmon_lang',lang);localStorage.setItem('mastersmon_language',lang);document.documentElement.lang=lang;document.querySelectorAll('[data-i18n]').forEach(n=>n.textContent=tr(n.dataset.i18n));document.querySelectorAll('[data-lang]').forEach(n=>n.setAttribute('aria-pressed',String(n.dataset.lang===lang)));profile();renderPokemon();renderQuests();renderBoss();renderPremium();}
 function profile(){if(!player)return;const name=String(player.nombre||player.name||tr('trainer'));safeText('navName',name);safeText('heroName',name);const avatar=String(player.avatar_id||'batman').toLowerCase();const allowed=['batman','bryan','goku','hades','jean','jhonny','leon','nathaly'];const path='assets/lobby/'+(allowed.includes(avatar)?avatar:'batman')+'.webp';$('navAvatar').src=path;$('heroAvatar').src=path;const team=String(player.trainer_team_color||player.team_color||'').toLowerCase();safeText('teamLabel',I[lang][team]||'—');$('teamLabel').dataset.team=team;safeText('collectionCount',String(owned.length));safeText('teamCount',String(party.length));safeText('badgeCount',badgeValue==null?tr('noBadge'):String(badgeValue));}
-function pokemonTile(p){const e=document.createElement('div');e.className='pokemon-tile';if(p.tipo)e.dataset.type=p.tipo;const img=document.createElement('img');img.loading='lazy';img.alt=p.name;img.src=sprite(p.id);img.onerror=()=>{img.style.visibility='hidden';};const name=document.createElement('strong');name.textContent=p.name;const lv=document.createElement('small');lv.textContent=p.level==null?'#'+(p.id||'?'):tr('level')+' '+p.level;e.append(img,name,lv);return e;}
+function pokemonTile(p){const e=document.createElement('div');e.className='pokemon-tile';if(p.tipo)e.dataset.type=p.tipo;const img=document.createElement('img');img.loading='lazy';img.alt=p.name;attachPokemonSprite(img,p);const name=document.createElement('strong');name.textContent=p.name;const lv=document.createElement('small');lv.textContent=p.level==null?'#'+(p.id||'?'):tr('level')+' '+p.level;e.append(img,name,lv);return e;}
 function timeAgo(value){
  if(value==null)return '';
  const ms=typeof value==='number'?(value>1e12?value*1:value*1000):Date.parse(String(value));
@@ -38,17 +69,17 @@ function renderPokemon(){
  const note=$('popularNote');if(note)note.textContent=recent.length?'':(recentError?tr('recentError'):tr('recentNone'));
  if(recent.length){recent.slice(0,5).forEach(c=>{
    const id=Number(c.pokemon_id)||0;if(id<=0)return;
-   const tile=pokemonTile({id,name:String(c.pokemon_nombre||'Pokémon'),level:null,tipo:String(c.tipo||'').toLowerCase()});
+   const tile=pokemonTile({id,name:String(c.pokemon_nombre||'Pokémon'),level:null,tipo:String(c.tipo||'').toLowerCase(),es_shiny:c.es_shiny,species_id:c.species_id,variant_suffix:c.variant_suffix,pokemon_name_api:c.pokemon_name_api});
    tile.classList.add('capture-tile');tile.classList.remove('popular-tile');const chip=typeChip(c.tipo);if(chip)tile.append(chip);
    const old=tile.querySelector('small');if(old)old.remove();
-   if(c.es_shiny===true){tile.classList.add('is-shiny');const sparkle=document.createElement('span');sparkle.className='shiny-chip';sparkle.textContent='✦ '+tr('shiny');tile.append(sparkle);}
+   if(isShiny(c.es_shiny)){tile.classList.add('is-shiny');const sparkle=document.createElement('span');sparkle.className='shiny-chip';sparkle.textContent='✦ '+tr('shiny');tile.append(sparkle);}
    const author=document.createElement('span');author.className='capture-trainer';
    const lead=document.createElement('small');lead.textContent=tr('recentBy');
    const trainer=document.createElement('strong');trainer.textContent=String(c.entrenador_nombre||'Entrenador').slice(0,60);
    author.append(lead,trainer);tile.append(author);const when=timeAgo(c.capturado_en??c.fecha_captura??c.created_at??c.fecha??c.registrado_en);if(when){const t=document.createElement('span');t.className='capture-time';t.textContent=when;tile.append(t);}col.append(tile);
  });}
  else{const empty=document.createElement('p');empty.className='recent-empty';empty.textContent=recentError?tr('recentError'):tr('recentNone');col.append(empty);}
- for(let i=0;i<6;i++){const p=party[i];if(p){const e=document.createElement('div');e.className='party-tile';const img=document.createElement('img');img.src=sprite(p.id);img.alt=p.name;img.loading='lazy';img.onerror=()=>img.style.visibility='hidden';const name=document.createElement('strong');name.textContent=p.name;const lv=document.createElement('small');lv.textContent=p.level==null?'':tr('level')+' '+p.level;e.append(img,name,lv);team.append(e);}else{const a=document.createElement('a');a.className='party-empty';a.href='mypokemon.html';const plus=document.createElement('b');plus.textContent='+';const label=document.createElement('span');label.textContent=tr('noParty');a.append(plus,label);team.append(a);}}
+ for(let i=0;i<6;i++){const p=party[i];if(p){const e=document.createElement('div');e.className='party-tile';const img=document.createElement('img');attachPokemonSprite(img,p);img.alt=p.name;img.loading='lazy';const name=document.createElement('strong');name.textContent=p.name;const lv=document.createElement('small');lv.textContent=p.level==null?'':tr('level')+' '+p.level;e.append(img,name,lv);team.append(e);}else{const a=document.createElement('a');a.className='party-empty';a.href='mypokemon.html';const plus=document.createElement('b');plus.textContent='+';const label=document.createElement('span');label.textContent=tr('noParty');a.append(plus,label);team.append(a);}}
 }
 function questRow(symbol,label,url,detail){const a=document.createElement('a');a.href=url;a.className='quest-row';const i=document.createElement('span');i.className='quest-symbol';i.textContent=symbol;const s=document.createElement('strong');s.textContent=tr(label);a.append(i,s);if(detail!==undefined&&detail!==null){const x=document.createElement('small');x.textContent=String(detail);a.append(x);}return a;}
 let questData=null,bossData=null;
