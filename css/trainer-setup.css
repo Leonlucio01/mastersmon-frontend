@@ -204,3 +204,17 @@ body:has(.setup-wrap){overflow-x:hidden;}
  .avatar-opt{height:75px;}.region-preview{height:60px;}
  .starter-opt{min-height:155px;}.starter-opt img{height:83px;}
 }
+
+/* Mastersmon V2.4 - premium polish; visual-only, ES/EN and API preserved */
+.trainer-welcome{display:flex;align-items:center;gap:9px;padding:5px 11px 5px 5px;border:1px solid #2c648a;border-radius:999px;background:linear-gradient(110deg,#0b2f50ef,#05162ae8);box-shadow:inset 0 1px 0 #95d8ff20,0 4px 20px #0004;min-width:0;margin-left:auto}
+.trainer-welcome img{height:37px;width:37px;flex:none;border-radius:50%;object-fit:cover;object-position:center 17%;border:2px solid #e9be67;background:#143e62}
+.trainer-welcome .welcome-copy{display:flex;flex-direction:column;min-width:0;line-height:1.1;gap:3px}.welcome-copy small{font-size:10px;color:#a9d8f4;letter-spacing:.02em}.trainer-welcome .setup-state{font-size:13px;color:#fff;white-space:nowrap;max-width:190px;overflow:hidden;text-overflow:ellipsis;margin:0;font-weight:750}
+.team-opt{position:relative;isolation:isolate;border-width:1px;box-shadow:inset 0 1px 0 #fff2,0 5px 12px #0003;gap:4px!important}
+.team-opt .team-crest{display:grid;place-items:center;line-height:1;margin:0;height:35px}.team-opt .team-crest img{width:34px;height:35px;object-fit:contain;filter:drop-shadow(0 1px 4px #0009)}
+.team-opt.chosen{border-color:#ffe39b!important;box-shadow:inset 0 0 0 1px #ffdf8f,0 0 14px #e9b44c77,0 4px 16px #0006}
+.setup-grid>.panel{border-color:#2679a5;box-shadow:inset 0 1px 0 #9ae4ff23,0 7px 22px #0003}
+.starter-opt{box-shadow:inset 0 1px 0 #fff2,0 4px 16px #0003}.starter-opt.chosen{box-shadow:inset 0 0 0 1px #ffd67b,0 0 20px #e4ad5080,0 5px 18px #0008}.avatar-opt.chosen{box-shadow:inset 0 0 0 1px #ffd67b,0 0 14px #ffbf4573}
+#confirmSetup.btn.gold{font-weight:800;box-shadow:0 0 18px #e6af4b65,0 5px 15px #0004;min-width:180px}#confirmSetup.btn.gold:focus-visible{outline:3px solid #fff2b5;outline-offset:3px}
+@media(min-width:801px) and (max-height:900px){.trainer-welcome{padding:2px 9px 2px 3px;gap:7px}.trainer-welcome img{height:31px;width:31px}.welcome-copy small{font-size:9px}.trainer-welcome .setup-state{font-size:11px}.team-opt .team-crest{height:24px}.team-opt .team-crest img{height:26px;width:28px}}
+@media(max-width:800px){.trainer-welcome{margin-left:auto;padding:2px 6px 2px 2px;gap:4px;border-radius:20px}.trainer-welcome img{width:27px;height:27px}.welcome-copy small{font-size:8px}.trainer-welcome .setup-state{font-size:10px;max-width:100px}.team-opt .team-crest img{width:30px;height:31px}}
+@media(max-width:440px){.trainer-welcome{gap:3px}.trainer-welcome img{height:24px;width:24px}.trainer-welcome .setup-state{max-width:72px;font-size:9px}.welcome-copy small{font-size:7px;max-width:85px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
