@@ -98,3 +98,10 @@ body{font-size:14px;background:#031327}
 @media(max-width:1100px){.capture-tile img{height:75px}.pokemon-cards{gap:5px}.capture-tile>strong{font-size:11px}}
 @media(max-width:680px){.pokemon-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.pokemon-tile.capture-tile{min-height:150px}.capture-tile img{height:78px}}
 @media(max-width:370px){.pokemon-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* V2.11 finishing: real missions, readable premium/event cards, mobile */
+.mission-progress{height:6px;max-width:135px;min-width:64px;flex:1;border-radius:20px;background:#03192e;overflow:hidden;border:1px solid #1a5a81;display:block}.mission-progress-fill{display:block;height:100%;background:linear-gradient(90deg,#2875c9,#57dfff);border-radius:20px}
+.capture-tile .capture-trainer{margin-top:auto;max-width:100%;text-align:center}.capture-tile .capture-trainer strong{font-size:11px;overflow-wrap:anywhere}
+.shop-card .shop-name{font-size:11px;line-height:1.2;text-wrap:balance}.shop-card img{object-fit:contain;background:radial-gradient(ellipse at center,#3a4c6c55,transparent 70%)}
+.event-art:not(.boss-known-art){background-image:linear-gradient(105deg,#061b37eb,#073c66c9 65%,#091b35aa),url('../assets/lobby/event-default.svg');background-size:cover}
+@media(max-width:760px){.shop-card .shop-name{font-size:10px}.mission-progress{max-width:88px}.pokemon-cards{display:flex;overflow-x:auto;scroll-snap-type:x proximity}.capture-tile{flex:0 0 140px;scroll-snap-align:start}}
