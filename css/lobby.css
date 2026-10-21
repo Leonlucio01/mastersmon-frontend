@@ -29,3 +29,53 @@
 .event-art small{max-width:62%;text-shadow:0 1px 4px #000}
 @media(min-width:760px) and (max-height:850px){.shop-card img{height:72px}.shop-card .shop-name{min-height:23px}.event-art strong{font-size:15px}}
 @media(max-width:759px){.shop-card img{height:84px;max-height:94px}.event-art{background-position:center,65% center}}
+
+/* V2.9.2 — prototype-oriented desktop proportions and readable cards. */
+:root{--stroke:#1681bd}
+body{font-size:14px;background:#031327}
+.topbar{position:relative;z-index:5;background:linear-gradient(90deg,#051426,#03152d 70%,#051b34)}
+.top-inner{max-width:1760px;min-height:62px}
+.brand{filter:drop-shadow(0 0 6px #e3a12d44)}
+.workspace{max-width:1760px;padding:5px 12px 6px}
+.hero{min-height:300px;border-radius:7px;background-position:center 46%;grid-template-columns:minmax(0,1fr) 310px;box-shadow:inset 0 -28px 36px #00162888}
+.hero-scrim{background:linear-gradient(90deg,#01172bee,#041a3388 36%,transparent 67%,#061a32a6 100%)}
+.hero-intro>p{font-size:14px;max-width:375px;line-height:1.55}
+.hero h1{font-size:clamp(36px,4.3vw,72px)}
+.hero-profile{background:linear-gradient(145deg,#081b36ee,#03152ddd);box-shadow:0 9px 25px #0007}
+.profile-stats strong{color:#ffd883;font-size:21px}
+.dashboard-grid{grid-template-columns:minmax(0,1.66fr) minmax(0,1.03fr) minmax(0,1.11fr);gap:9px;margin-top:9px}
+.panel{border-radius:9px;padding:10px;box-shadow:inset 0 1px 0 #7ee1ff20,0 3px 12px #00122366}
+.panel-title{min-height:49px}
+.panel-title h2{font-size:17px;letter-spacing:.05px}
+.panel-title p{font-size:11px}
+.panel-title>a{font-size:11px}
+.pokemon-cards{min-height:202px;gap:7px}
+.pokemon-tile{min-height:200px;justify-content:flex-end;padding:8px 4px;background:radial-gradient(ellipse at 50% 15%,#165077,#09213d 65%,#07172e);border-color:#3a8ab3;box-shadow:inset 0 0 18px #11bafa15}
+.pokemon-tile[data-type*=fire],.pokemon-tile[data-type*=fuego]{background:radial-gradient(ellipse at 52% 24%,#8a392d,#40182c 65%,#110f2a);border-color:#d26b46}
+.pokemon-tile[data-type*=water],.pokemon-tile[data-type*=agua]{background:radial-gradient(ellipse at 52% 24%,#176397,#0b2d5f 65%,#101735);border-color:#319fff}
+.pokemon-tile[data-type*=grass],.pokemon-tile[data-type*=planta]{background:radial-gradient(ellipse at 52% 24%,#1f8051,#0c473c 65%,#092634);border-color:#37b67d}
+.pokemon-tile img{height:145px;object-fit:contain;filter:drop-shadow(0 7px 9px #000b)}
+.pokemon-tile strong{font-size:13px;color:#fff;text-shadow:0 2px 3px #000}
+.pokemon-tile small{font-size:11px}
+.used-count{font-size:9px;color:#a7dfff;text-align:center}
+.party-grid{grid-template-rows:repeat(2,minmax(97px,1fr));min-height:202px;gap:7px}
+.party-tile,.party-empty{border-radius:8px;background:linear-gradient(145deg,#113456,#061c34)}
+.party-tile img{height:64px}.party-empty b{font-size:28px;color:#6ca5d2}
+.visual{height:203px;border-radius:8px;background-position:center center}
+.visual::before{background:linear-gradient(transparent 43%,#03152deb)}
+.quest-list{gap:8px}.quest-row{min-height:57px;padding:11px;font-size:12px;box-shadow:inset 0 0 10px #3ebaff15}
+.quest-symbol{font-size:26px;min-width:26px;text-align:center}
+.shop-cards{min-height:214px;gap:7px}
+.shop-card{min-height:213px;padding:8px 4px 6px;position:relative;overflow:hidden;box-shadow:inset 0 0 14px #a9aaff20;justify-content:space-between}
+.shop-card .shop-name{font-size:11px;line-height:1.22;min-height:31px;display:block;z-index:2;position:relative}
+.shop-card img{height:125px;max-height:none;object-fit:cover;object-position:center;mask-image:linear-gradient(180deg,transparent,black 9%,black 90%,transparent);border-radius:5px;filter:saturate(1.18) contrast(1.05)}
+.shop-card .shop-price{font-size:12px;padding:4px 2px;border-radius:5px;border:1px solid #b68e5360;position:relative;z-index:2}
+.shop-card small{font-size:9px;position:relative;z-index:2}
+.event-art{height:214px;background-image:linear-gradient(90deg,#061832fa 0%,#071b3fe0 30%,#0b255549 68%,#06214b08 100%),url('../assets/lobby/shop/alpha-boss-event.webp');background-position:center,right center;background-size:cover,auto 100%;background-repeat:no-repeat;background-color:#061b37}
+.event-art:before{background:transparent}
+.event-art strong{font-size:23px;max-width:64%}.event-art small{font-size:12px;max-width:64%}
+.event-cta{border-color:#54d7ff;box-shadow:0 0 10px #2fbaff55}
+@media(min-width:900px) and (max-height:900px){.hero{min-height:255px}.pokemon-cards,.party-grid{min-height:185px}.pokemon-tile{min-height:185px}.pokemon-tile img{height:120px}.party-grid{grid-template-rows:repeat(2,minmax(87px,1fr))}.visual{height:187px}.shop-cards{min-height:195px}.shop-card{min-height:195px}.shop-card img{height:105px}.event-art{height:195px}.quest-row{min-height:49px}}
+@media(min-width:900px) and (max-height:770px){.hero{min-height:217px}.dashboard-grid{gap:6px;margin-top:6px}.panel{padding:7px}.panel-title{min-height:40px}.pokemon-cards,.party-grid{min-height:155px}.pokemon-tile{min-height:155px}.pokemon-tile img{height:94px}.party-grid{grid-template-rows:repeat(2,73px)}.visual{height:155px}.shop-cards{min-height:160px}.shop-card{min-height:160px}.shop-card img{height:75px}.event-art{height:160px}.quest-row{min-height:39px}}
+@media(max-width:899px){.hero{min-height:220px}.dashboard-grid{grid-template-columns:1fr 1fr}.pokemon-cards{min-height:170px}.pokemon-tile{min-height:170px}.pokemon-tile img{height:112px}.shop-card img{height:110px}.shop-card{min-height:180px}.event-art{height:190px}}
+@media(max-width:759px){.dashboard-grid{grid-template-columns:1fr}.hero{min-height:260px}.pokemon-cards{display:flex;overflow-x:auto;min-height:190px}.pokemon-tile{min-width:128px;min-height:190px}.pokemon-tile img{height:128px}.shop-cards{grid-template-columns:repeat(2,minmax(0,1fr))}.shop-card{min-height:185px}.shop-card img{height:110px}.event-art{height:208px}.event-art strong{font-size:20px}}
