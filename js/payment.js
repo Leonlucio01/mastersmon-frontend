@@ -21,7 +21,8 @@
       deliveredText: "Tu compra ya está disponible en esta cuenta.",
       deliveredBenefitText: "Beneficio activado: {benefit}. Expira en: {expires}.",
       deliveredItemsText: "Items entregados: {items}.",
-      pendingSelectionText: "La compra quedó pagada, pero todavía falta completar una selección manual."
+      pendingSelectionText: "Pago confirmado. La entrega del Pokémon sigue pendiente de revisión."
+      ,pokemonDeliveredText: "¡{pokemon} Shiny se agregó a tu colección!"
     },
     en: {
       loadingTitle: "Validating your payment…",
@@ -44,7 +45,8 @@
       deliveredText: "Your purchase is already available in this account.",
       deliveredBenefitText: "Activated benefit: {benefit}. Expires at: {expires}.",
       deliveredItemsText: "Delivered items: {items}.",
-      pendingSelectionText: "The purchase was paid, but a manual selection is still required."
+      pendingSelectionText: "Payment confirmed. Pokémon delivery is still pending review."
+      ,pokemonDeliveredText: "{pokemon} Shiny has been added to your collection!"
     }
   };
 
@@ -125,9 +127,14 @@
       return;
     }
 
-    title.textContent = ui("deliveredTitle");
+    const delivered = grantStatus === "entregado";
+    title.textContent = delivered ? ui("deliveredTitle") : (getLang() === "es" ? "Entrega pendiente" : "Delivery pending");
 
-    if (grantPayload.beneficio_codigo) {
+    if (!delivered) {
+      text.textContent = ui("pendingSelectionText");
+    } else if (grantPayload.es_shiny === true && grantPayload.pokemon_id) {
+      text.textContent = ui("pokemonDeliveredText", { pokemon: grantPayload.nombre || `Pokémon #${grantPayload.pokemon_id}` });
+    } else if (grantPayload.beneficio_codigo) {
       text.textContent = ui("deliveredBenefitText", {
         benefit: grantPayload.beneficio_codigo,
         expires: formatDate(grantPayload.expira_en)
@@ -291,11 +298,12 @@
       });
 
       if (captureData?.ok) {
+        const isDelivered = captureData?.grant_status === "entregado";
         setStatus({
-          icon: "✅",
+          icon: isDelivered ? "✅" : "⚠️",
           title: ui("successTitle"),
-          text: ui("successText"),
-          mode: "success"
+          text: isDelivered ? ui("successText") : ui("pendingSelectionText"),
+          mode: isDelivered ? "success" : "warning"
         });
         renderBenefitFromPayload(captureData?.grant_payload || {}, captureData?.grant_status || "");
       } else {

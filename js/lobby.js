@@ -246,7 +246,7 @@ async function payQuickCheckout(){
   }
   const response=await fetch(API+'/payments/paypal/order/create',{method:'POST',headers:{Authorization:'Bearer '+(authToken||token()),'Content-Type':'application/json'},body:JSON.stringify(body)});
   const data=await response.json().catch(()=>({}));
-  if(!response.ok||!data.approval_url)throw Error(typeof data.detail==='string'?data.detail:quickCopy('No se pudo abrir PayPal.','Could not start PayPal checkout.'));
+  if(!response.ok||!data.approval_url)throw Error(typeof data.detail==='string'?data.detail:quickCopy('No se pudo abrir PayPal. Revisa la respuesta de la API.','Could not start PayPal checkout. Check the API response.'));
   window.location.assign(data.approval_url);
  }catch(e){quickError(e?.message||quickCopy('No se pudo iniciar el pago.','Could not start payment.'));button.disabled=false;}
 }
