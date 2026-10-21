@@ -15,3 +15,17 @@
 .shop-cards{align-items:stretch}.shop-card{justify-content:flex-start;gap:2px}.shop-card .shop-name{font-size:10px;min-height:26px;display:grid;place-items:center;line-height:1.15;overflow-wrap:anywhere}.shop-card .shop-price{display:block;width:100%;border:1px solid #d4a8506e;color:#ffe2a2;background:#132539;border-radius:6px;font-size:12px;padding:3px 2px;margin-top:auto}.shop-card small{font-size:8px;color:#8bddff}.shop-message{grid-column:1/-1;display:grid;place-content:center;text-align:center;color:#bfe1f4;background:#0b2b48;border:1px dashed #318db4;border-radius:7px;min-height:110px;padding:12px}
 .boss-countdown{font-weight:800;color:#ffdf8a;background:#123657b9;padding:3px 6px;border:1px solid #557eae;border-radius:5px;font-size:10px}
 @media(max-width:759px){.shop-card .shop-name{font-size:9px}.shop-card img{height:60px}.shop-card .shop-price{font-size:10px}.shop-cards{height:auto;min-height:145px}.shop-card{min-height:145px}}
+
+/* V2.9.1: reference-matched local visual assets; live names and prices stay HTML, not baked in. */
+.shop-card{position:relative;isolation:isolate;overflow:hidden;background:linear-gradient(155deg,#152748,#050f23);box-shadow:inset 0 0 16px #64b8ff22,0 0 9px #071322}
+.shop-card .shop-name{position:relative;z-index:2;text-shadow:0 2px 5px #000}
+.shop-card img{width:100%;height:clamp(72px,8.7vw,129px);max-height:calc(100% - 47px);object-fit:cover;border-radius:6px;filter:saturate(1.1) drop-shadow(0 6px 12px #000b);mask-image:linear-gradient(90deg,transparent 0%,black 11%,black 89%,transparent 100%)}
+.shop-card:after{content:'';pointer-events:none;position:absolute;inset:34px 0 35px;background:linear-gradient(180deg,#03172a50,transparent 26%,#06162b4f);z-index:1}
+.shop-card .shop-price{position:relative;z-index:2;background:linear-gradient(90deg,#241a36,#142b44);font-size:12px;text-shadow:0 1px 6px #000}
+.shop-card:hover{transform:translateY(-2px);filter:brightness(1.1)}
+.event-art{background-image:linear-gradient(90deg,#07142ad9 0%,#0c2247cb 40%,#0d255433 100%),url('../assets/lobby/shop/alpha-boss-event.webp');background-position:center,right center;background-size:cover,cover}
+.event-art:before{background:linear-gradient(90deg,#061632e5,#09284d72 52%,transparent 90%)}
+.event-art strong{max-width:65%;text-shadow:0 2px 5px #000}
+.event-art small{max-width:62%;text-shadow:0 1px 4px #000}
+@media(min-width:760px) and (max-height:850px){.shop-card img{height:72px}.shop-card .shop-name{min-height:23px}.event-art strong{font-size:15px}}
+@media(max-width:759px){.shop-card img{height:84px;max-height:94px}.event-art{background-position:center,65% center}}
