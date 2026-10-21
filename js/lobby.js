@@ -13,7 +13,7 @@ async function read(path){const t=authToken||token();if(!t)throw Error('NO_TOKEN
 async function optional(path){try{return await read(path);}catch(e){console.info('Unavailable '+path,e.message);return null;}}
 function rows(data,keys){if(Array.isArray(data))return data;if(!data||typeof data!=='object')return [];for(const k of keys){if(Array.isArray(data[k]))return data[k];if(data[k]&&typeof data[k]==='object'){for(const q of keys)if(Array.isArray(data[k][q]))return data[k][q];}}return [];}
 function numeric(v){const n=Number(v);return Number.isFinite(n)?n:null;}
-function adapt(p){const nested=p?.pokemon&&typeof p.pokemon==='object'?p.pokemon:{};const id=numeric(p.pokemon_id??nested.id??p.id_pokemon??(typeof p.pokemon==='number'?p.pokemon:null));const linkId=numeric(p.usuario_pokemon_id??p.id??p.registro_id);const name=String(p.nombre??nested.nombre??p.pokemon_nombre??p.name??(id?'Pokémon #'+id:'Pokémon'));const level=p.nivel??p.level??null;return {id,linkId,name,level,slot:numeric(p.slot_equipo??p.equipo_slot??p.posicion_equipo??p.slot??p.posicion),isEquipped:[p.en_equipo,p.equipado,p.es_equipo,p.in_team,p.is_equipped].some(v=>v===true||v===1||v==='t'),tipo:String(p.tipo_principal??nested.tipo1??p.tipo??nested.tipo??'').toLowerCase(),es_shiny:isShiny(p.es_shiny??nested.es_shiny),species_id:p.species_id??nested.species_id,variant_suffix:p.variant_suffix??p.forma_suffix??nested.variant_suffix,pokemon_name_api:p.pokemon_name_api??p.api_name??nested.pokemon_name_api};}
+function adapt(p){const nested=p?.pokemon&&typeof p.pokemon==='object'?p.pokemon:{};const id=numeric(p.pokemon_id??nested.id??p.id_pokemon??(typeof p.pokemon==='number'?p.pokemon:null));const linkId=numeric(p.usuario_pokemon_id??p.id??p.registro_id);const candidate=[p.nombre,p.pokemon_nombre,nested.nombre,p.name].find(v=>typeof v==='string'&&v.trim()&&v.trim()!=='--');const name=String(candidate||(id?'Pokémon #'+id:'Pokémon'));const level=p.nivel??p.level??null;return {id,linkId,name,level,slot:numeric(p.slot_equipo??p.equipo_slot??p.posicion_equipo??p.slot??p.posicion),isEquipped:[p.en_equipo,p.equipado,p.es_equipo,p.in_team,p.is_equipped].some(v=>v===true||v===1||v==='t'),tipo:String(p.tipo_principal??nested.tipo1??p.tipo??nested.tipo??'').toLowerCase(),es_shiny:isShiny(p.es_shiny??nested.es_shiny),species_id:p.species_id??nested.species_id,variant_suffix:p.variant_suffix??p.forma_suffix??nested.variant_suffix,pokemon_name_api:p.pokemon_name_api??p.api_name??nested.pokemon_name_api};}
 // Misma convencion de carpetas que Maps: sprites_normal/0000.png y sprites_shiny/0000_s.png.
 // Usa los resolvedores globales de Maps cuando esten disponibles, sin cargar maps.js.
 function isShiny(value){return value===true||value===1||['true','t','1'].includes(String(value??'').trim().toLowerCase());}
@@ -86,23 +86,34 @@ let questData=null,bossData=null;
 function renderQuests(){
  const root=$('questList');if(!root)return;root.replaceChildren();
  const fallbacks=[['◉','questCapture','maps.html'],['☷','questParty','mypokemon.html'],['⚔','questFinish','battle.html']];
- const q=questData?.progreso??questData?.progress??questData?.misiones??questData?.missions??null;
- if(Array.isArray(q))for(const item of q.slice(0,3)){
-   const name=String(item.titulo??item.title??item.nombre??'').trim();if(!name)continue;
-   const href=String(item.url||'index.html');const row=questRow('◈','questWelcome',href);row.querySelector('strong').textContent=name;row.title=name;
-   const current=Number(item.actual??item.current??item.progreso_actual);
-   const total=Number(item.objetivo??item.target??item.meta);
+ const missions=Array.isArray(questData?.misiones)?questData.misiones:[];
+ const labels={capturas:'questCapture',equipo:'questParty',batalla:'questFinish'};
+ const urls={capturas:'maps.html',equipo:'mypokemon.html',batalla:'battle.html'};
+ const icons={capturas:'◉',equipo:'☷',batalla:'⚔'};
+ if(questData?.ok===true&&questData?.habilitado!==false){
+ for(const item of missions.slice(0,3)){
+   const code=String(item.codigo||'').toLowerCase();
+   if(!Object.prototype.hasOwnProperty.call(labels,code))continue;
+   const row=questRow(icons[code],labels[code],urls[code]);
+   const current=Number(item.actual),total=Number(item.objetivo);
    if(Number.isFinite(current)&&Number.isFinite(total)&&total>0){
-      const progress=document.createElement('span');progress.className='mission-progress';
-      const bar=document.createElement('span');bar.className='mission-progress-fill';bar.style.width=(Math.max(0,Math.min(1,current/total))*100)+'%';
-      progress.setAttribute('role','progressbar');progress.setAttribute('aria-valuemin','0');progress.setAttribute('aria-valuemax',String(total));progress.setAttribute('aria-valuenow',String(Math.max(0,Math.min(total,current))));progress.append(bar);row.append(progress);
-      const count=document.createElement('small');count.textContent=current+' / '+total;row.append(count);if(current>=total)row.classList.add('is-complete');
-   } else {const done=item.completado??item.completed;if(typeof done==='boolean'){
-      const state=document.createElement('small');state.textContent=done?'✓':'○';row.append(state);
-   }}
+     const wrap=document.createElement('span');wrap.className='mission-bar-wrap';
+     const bar=document.createElement('span');bar.className='mission-progress';
+     const fill=document.createElement('span');fill.className='mission-progress-fill';fill.style.width=(Math.max(0,Math.min(1,current/total))*100)+'%';
+     bar.setAttribute('role','progressbar');bar.setAttribute('aria-valuemin','0');bar.setAttribute('aria-valuemax',String(total));bar.setAttribute('aria-valuenow',String(Math.min(total,Math.max(0,current))));bar.append(fill);
+     const count=document.createElement('small');count.className='mission-counter';count.textContent=`${Math.min(total,Math.max(0,current))}/${total}`;
+     wrap.append(bar,count);row.append(wrap);
+   }
+   const reward=item.recompensa;
+   if(reward&&Number.isFinite(Number(reward.pokedolares))&&Number(reward.pokedolares)>0){
+     const label=document.createElement('small');label.className='mission-reward';label.textContent='+'+Number(reward.pokedolares).toLocaleString(lang==='es'?'es-PE':'en-US')+' PD';
+     label.title=lang==='es'?'Pokédólares de recompensa':'Reward Pokédollars';row.append(label);
+   }
+   if(item.completada===true)row.classList.add('is-complete');
    root.append(row);
  }
- if(!root.children.length)fallbacks.forEach(a=>root.append(questRow(...a)));
+ }
+ if(!root.children.length)fallbacks.forEach(args=>root.append(questRow(...args)));
 }
 function formatPrice(product){const n=Number(product.precio_usd);return Number.isFinite(n)?new Intl.NumberFormat(lang==='es'?'es-PE':'en-US',{style:'currency',currency:'USD'}).format(n):'';}
 function productIcon(p){
@@ -138,10 +149,22 @@ async function init(){applyLanguage(lang);mobile();$('logoutBtn').addEventListen
 try{let me;try{me=typeof obtenerAuthMe==='function'?await obtenerAuthMe():await read('/auth/me');}catch(_){me=await read('/auth/me');}player=me?.usuario??me?.user??me;if(!player||(!player.id&&!player.nombre&&!player.name))throw Error('INVALID_USER');const setup=await optional('/usuario/me/trainer-setup');if(setup?.setup_completed===false&&player.trainer_setup_completed===false){status('setup');setTimeout(()=>location.assign('crear-entrenador.html'),1400);return;}profile();$('status').hidden=true;
 const [pokemonRes,teamRes,onboardingRes,gymRes,bossRes,premiumRes,recentRes]=await Promise.all([optional('/usuario/me/pokemon'),optional('/usuario/me/equipo'),optional('/onboarding/me'),optional('/battle/gyms/progreso'),optional('/battle/boss/estado'),optional('/payments/catalogo'),optional('/pokemon/capturas-recientes?limit=5')]);
 owned=rows(pokemonRes,['pokemon','pokemones','data','results','usuario_pokemon']).map(adapt).filter(x=>x.id>0);
-const rawTeam=rows(teamRes,['equipo','pokemon','pokemones','data','results','usuario_pokemon_ids','ids']);const mapById=new Map(owned.map(x=>[x.linkId,x]));party=rawTeam.map((x,i)=>{if(typeof x==='number')return mapById.get(x)||null;if(!x||typeof x!=='object')return null;const p=adapt(x);return (p.id?owned.find(o=>o.linkId===p.linkId||o.id===p.id):mapById.get(x.usuario_pokemon_id??x.id))||null;}).filter(Boolean).slice(0,6);
-// Only use equipped flags if the distinct team endpoint returns no list and no ambiguous shape.
+const rawTeam=rows(teamRes,['equipo','pokemon','pokemones','data','results','usuario_pokemon_ids','ids']);
+// Mirrors Battle: match the exact owned Pokemon record (usuario_pokemon.id), not the species.
+const mapByOwnedId=new Map(owned.filter(p=>p.linkId>0).map(p=>[p.linkId,p]));
+party=rawTeam.map(entry=>{
+ const ownedId=typeof entry==='number'||typeof entry==='string'?Number(entry):Number(entry?.usuario_pokemon_id??entry?.id??entry?.registro_id??0);
+ const full=mapByOwnedId.get(ownedId);
+ if(full)return full;
+ // The team API may return a full snapshot even if the collection response is temporarily unavailable.
+ if(entry&&typeof entry==='object'){
+   const snapshot=adapt(entry);
+   return snapshot.id>0?snapshot:null;
+ }
+ return null;
+}).filter(Boolean).slice(0,6);
 if(!party.length&&teamRes==null)party=owned.filter(p=>p.isEquipped).sort((a,b)=>(a.slot??99)-(b.slot??99)).slice(0,6);
-if(gymRes){const n=gymRes.medallas_obtenidas??gymRes.total_medallas??gymRes.medallas??gymRes.badges;if(typeof n==='number')badgeValue=n;else if(Array.isArray(n))badgeValue=n.length;}
+if(gymRes?.ok===true&&Number.isFinite(Number(gymRes.completados))){badgeValue=Number(gymRes.completados);}
 questData=onboardingRes;bossData=bossRes;recentError=!(recentRes?.ok===true&&Array.isArray(recentRes.capturas));recentCaptures=recentError?[]:recentRes.capturas;premiumData=premiumRes?.ok===true&&Array.isArray(premiumRes.productos)?premiumRes.productos:null;profile();renderPokemon();renderQuests();renderBoss();renderPremium();
 }catch(e){console.error('Lobby startup',e);status('loadFail');}}
 init();

@@ -227,3 +227,14 @@ body{font-size:14px;background:#031327}
  .event-art{min-height:160px}.hero-profile{display:none}
 }
 @media(prefers-reduced-motion:reduce){.capture-tile,.shop-card,.quest-row{transition:none}.capture-tile:hover,.shop-card:hover{transform:none}}
+
+/* V2.13 - compact real-data missions and trainer names */
+.quest-row{flex-wrap:wrap;column-gap:8px;row-gap:3px}
+.quest-row>strong{flex:1 1 145px;min-width:0}
+.mission-bar-wrap{display:flex;align-items:center;gap:6px;flex:0 1 125px;min-width:75px}
+.mission-bar-wrap .mission-progress{flex:1;min-width:35px;max-width:none;width:auto}
+.mission-counter{min-width:30px;text-align:right;white-space:nowrap;font-size:10px}
+.mission-reward{white-space:nowrap;color:#ffda82!important;font-weight:750;font-size:10px}
+.party-tile strong{display:block;max-width:100%;width:100%;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;text-align:center}
+@media(min-width:761px) and (max-height:800px){.quest-row{padding:5px 7px;min-height:37px}.mission-bar-wrap{flex-basis:105px}.mission-reward{font-size:9px}}
+@media(max-width:760px){.mission-bar-wrap{flex-basis:105px}.mission-reward{margin-left:auto}}
