@@ -105,3 +105,90 @@ body{font-size:14px;background:#031327}
 .shop-card .shop-name{font-size:11px;line-height:1.2;text-wrap:balance}.shop-card img{object-fit:contain;background:radial-gradient(ellipse at center,#3a4c6c55,transparent 70%)}
 .event-art:not(.boss-known-art){background-image:linear-gradient(105deg,#061b37eb,#073c66c9 65%,#091b35aa),url('../assets/lobby/event-default.svg');background-size:cover}
 @media(max-width:760px){.shop-card .shop-name{font-size:10px}.mission-progress{max-width:88px}.pokemon-cards{display:flex;overflow-x:auto;scroll-snap-type:x proximity}.capture-tile{flex:0 0 140px;scroll-snap-align:start}}
+
+
+/* Mastersmon - compact viewport layout, append-only override. Desktop first. */
+@media (min-width: 1100px) {
+  .workspace{max-width:1660px;padding:6px 12px 4px}
+  .dashboard-grid{gap:7px;margin-top:7px;grid-template-columns:minmax(0,1.63fr) minmax(0,1.03fr) minmax(0,1.09fr)}
+  .panel{padding:7px}
+  .panel-title{min-height:36px}
+  .panel-title h2{font-size:clamp(12px,1vw,16px)}
+  .panel-title p,.panel-title>a{font-size:clamp(9px,.72vw,11px)}
+  .quest-list{gap:5px}
+  .quest-row{padding:5px 8px;min-height:39px;font-size:11px}
+  .quest-symbol{font-size:18px;min-width:20px}
+  .shop-cards{gap:5px}
+  .shop-card{padding:4px 3px;min-height:0}
+  .shop-card .shop-name{font-size:clamp(9px,.68vw,11px);min-height:26px}
+  .shop-card img{height:clamp(56px,9.3vh,102px);object-fit:contain}
+  .shop-card .shop-price{font-size:11px}
+  .capture-trainer{padding-top:3px}
+  .capture-tile img{height:clamp(62px,9vh,110px)}
+}
+@media(min-width:1100px) and (max-height:950px){
+  .top-inner{min-height:51px}.brand-emblem{font-size:32px}
+  .hero{min-height:0;height:clamp(185px,26vh,235px);padding:10px}
+  .hero-mark{font-size:clamp(44px,7vh,68px)}
+  .hero h1{font-size:clamp(34px,4vw,58px)}
+  .hero-intro>p{margin:6px 0 12px;font-size:12px}
+  .gold-btn{padding:8px 20px;font-size:13px}
+  .profile-cover{min-height:0;padding:9px}.profile-cover img{width:65px;height:67px}
+  .profile-cover h2{font-size:17px}.hero-profile{max-width:285px}
+  .profile-stats strong{font-size:16px}
+  .pokemon-cards,.party-grid{min-height:0}
+  .pokemon-tile.capture-tile{min-height:0;height:clamp(130px,19.8vh,177px);padding:5px 3px}
+  .party-grid{grid-template-rows:repeat(2,minmax(0,1fr));height:clamp(130px,19.8vh,177px);gap:5px}
+  .party-tile img{height:clamp(32px,7.5vh,58px)}
+  .visual{height:clamp(130px,19.8vh,177px)}
+  .shop-cards,.shop-card{min-height:0;height:clamp(137px,20.4vh,185px)}
+  .event-art{height:clamp(137px,20.4vh,185px);padding:8px}
+  .event-art strong{font-size:18px}
+  .quest-row{min-height:clamp(34px,5.4vh,47px)}
+  footer{padding:3px 12px}
+}
+@media(min-width:1100px) and (max-height:750px){
+  .hero{height:170px}
+  .hero-intro>p{margin:3px 0 8px}
+  .panel-title{min-height:30px}
+  .pokemon-tile.capture-tile,.party-grid,.visual{height:122px}
+  .shop-cards,.shop-card,.event-art{height:128px}
+  .capture-tile img{height:55px}
+  .shop-card img{height:49px}
+  .quest-row{min-height:34px}
+}
+/* Tablet: two columns, keep content readable rather than forcing no-scroll. */
+@media(min-width:760px) and (max-width:1099px){
+  .workspace{padding:8px}
+  .hero{min-height:225px}
+  .dashboard-grid{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:8px}
+  .panel{padding:8px}
+  .visual{height:170px}
+  .shop-cards{min-height:175px}
+  .shop-card{min-height:175px}
+  .event-art{height:175px}
+}
+/* Mobile: one active section at a time; horizontal scroll is local, no clipped controls. */
+@media(max-width:759px){
+  html,body{max-width:100%;overflow-x:hidden}
+  .workspace{width:100%;padding:6px 8px 74px}
+  .top-inner{padding:0 8px;gap:6px;min-height:52px}
+  .hero{min-height:0;height:auto;min-height:180px;padding:10px;grid-template-columns:minmax(0,1fr)}
+  .hero h1{font-size:clamp(30px,9vw,45px)}
+  .hero-mark{font-size:44px}
+  .hero-intro>p{font-size:11px;margin:5px 0 10px}
+  .gold-btn{font-size:11px;padding:8px 15px}
+  .hero-profile{display:none}
+  .dashboard-grid{grid-template-columns:minmax(0,1fr);gap:7px;margin-top:7px}
+  .panel{min-width:0;padding:8px}
+  .panel-title{min-height:38px}
+  .pokemon-cards{display:flex;gap:7px;overflow-x:auto;overscroll-behavior-inline:contain;scroll-snap-type:x mandatory;min-height:0;padding-bottom:3px}
+  .pokemon-tile.capture-tile{min-width:132px;flex:0 0 132px;min-height:175px;scroll-snap-align:start}
+  .party-grid{height:174px;min-height:0;grid-template-rows:repeat(2,minmax(0,1fr))}
+  .shop-cards{grid-template-columns:repeat(4,minmax(0,1fr));min-height:0;overflow-x:auto;scroll-snap-type:x proximity}
+  .shop-card{min-width:115px;min-height:184px}
+  .shop-card img{height:91px}
+  .event-art{height:190px}
+  .quest-row{min-height:44px}
+}
+@media(max-width:380px){.mini-profile{min-width:0}.mini-profile strong{max-width:64px}.brand{font-size:17px}}
