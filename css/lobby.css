@@ -286,3 +286,26 @@ body{font-size:14px;background:#031327}
 .premium-quick-pay:disabled{opacity:.55;cursor:not-allowed}
 .premium-quick-note{font-size:11px;color:#9fc5da;text-align:center;margin:10px 0 0}
 @media(max-width:759px){.premium-quick-panel{padding:18px}.shop-card.shop-buyable .shop-action{font-size:8px}}
+
+/* V2.14.3: reserve height for the daily Shiny countdown in compact view */
+.shop-card.shop-exclusive{justify-content:flex-start;gap:2px;overflow:visible;padding-bottom:5px}
+.shop-card.shop-exclusive .exclusive-ribbon{font-size:clamp(7px,.5vw,9px);line-height:1.07;min-height:13px;flex-shrink:0}
+.shop-card.shop-exclusive .shop-name{min-height:22px!important;font-size:clamp(8px,.61vw,10px)!important;line-height:1.07}
+.shop-card.shop-exclusive img{height:clamp(34px,4.1vw,56px)!important;min-height:30px;flex-shrink:1}
+.shop-card.shop-exclusive .shop-price{margin:0;flex-shrink:0;padding:1px!important;font-size:10px!important}
+.shop-card.shop-exclusive .exclusive-notice{display:block;flex-shrink:0;min-height:14px;line-height:1.15;font-size:9px!important;white-space:nowrap;overflow:visible}
+.shop-card.shop-exclusive .shop-action{flex-shrink:0;margin-top:0!important;font-size:9px;line-height:1.1;padding:2px}
+.shop-card.shop-exclusive .exclusive-notice .timer-remaining{font-variant-numeric:tabular-nums;color:#ffe7ab}
+@media(min-width:760px) and (max-height:850px){.shop-card.shop-exclusive img{height:clamp(33px,3vw,43px)!important}.shop-card.shop-exclusive{gap:1px;padding-top:3px}}
+@media(max-width:760px){.shop-cards{min-height:166px;height:auto}.shop-card.shop-exclusive img{height:44px!important}}
+/* Daily missions: separate from non-resetting onboarding */
+.quest-row.daily-quest{position:relative;gap:7px}
+.quest-row.daily-quest .daily-claim-btn{border:1px solid #ffd17a;background:#a4772e;color:#fffbe8;font-size:10px;font-weight:900;border-radius:6px;padding:4px 7px;white-space:nowrap}
+.quest-row.daily-quest .daily-claim-btn:disabled{opacity:.6;cursor:default}
+.daily-quest .mission-reward{margin-left:auto}
+.daily-quest .daily-claimed{color:#85e6bc;font-size:10px;font-weight:800}
+.daily-missions-banner{font-size:10px;color:#adddf4;display:flex;justify-content:space-between;align-items:center;gap:4px;margin:0 0 4px}
+.daily-missions-message{font-size:10px;color:#ffd992;min-height:12px}
+@media(max-width:760px){.daily-quest{flex-wrap:wrap}.daily-quest .mission-bar-wrap{flex-basis:85px}}
+/* Reserve the full bottom line on short laptop screens instead of clipping it. */
+@media(min-width:760px) and (max-height:850px){.shop-cards{height:auto;min-height:148px}.shop-card.shop-exclusive{min-height:148px}}
