@@ -4,17 +4,29 @@
  const grid = document.getElementById('starterGrid'), avatars = document.getElementById('avatarGrid');
  const teams = document.getElementById('teamGrid'), select = document.getElementById('generation');
  const msg = document.getElementById('setupMessage'), confirm = document.getElementById('confirmSetup');
- const state = {avatar_id:'steven', team_color:'red', generation:1, pokemon_id:null};
- const avatarList=['steven','red','leaf','brendan','may','dawn','lucas','rosa'];
+ const state = {avatar_id:'batman', team_color:'red', generation:1, pokemon_id:null};
+ const avatarList=['batman','bryan','goku','hades','jean','jhonny','leon','nathaly'];
  let catalog={}, busy=false; let lastMessage='';
- document.addEventListener('mastersmon:languagechange',()=>{say(lastMessage);choices(teams,[['red','Rojo'],['blue','Azul'],['green','Verde']],'team_color','team-opt',x=>(window.MastersmonI18n.t('Equipo ') + window.MastersmonI18n.t(x)));});
+ document.addEventListener('mastersmon:languagechange',()=>{const regionTitle=document.getElementById('regionTitle');if(regionTitle)regionTitle.textContent=select.selectedOptions[0]?.textContent?.trim()||'';say(lastMessage);choices(teams,[['red','Rojo'],['blue','Azul'],['green','Verde']],'team_color','team-opt',x=>(window.MastersmonI18n.t('Equipo ') + window.MastersmonI18n.t(x)));});
  function say(t){lastMessage=t||'';msg.textContent=window.MastersmonI18n?.t(lastMessage)??lastMessage;}
  function token(){return typeof getAccessToken==='function' ? getAccessToken() : null;}
  async function request(url, opts={}) {const t=token();if(!t) throw new Error('Debes iniciar sesión');const r=await fetch(api+url,{...opts,headers:{'Authorization':'Bearer '+t,'Content-Type':'application/json',...(opts.headers||{})}});let data={};try{data=await r.json();}catch(_){ }if(!r.ok)throw new Error(data.detail||'HTTP error '+r.status);return data;}
  function choices(root, data, selectedKey, cls, label){root.replaceChildren();for(const [value,title] of data){const b=document.createElement('button');b.type='button';b.className=cls+(state[selectedKey]===value?' chosen':'');b.textContent=label?label(title):title;b.addEventListener('click',()=>{state[selectedKey]=value;choices(root,data,selectedKey,cls,label)});root.append(b);}}
- choices(avatars,avatarList.map(x=>[x,x[0].toUpperCase()+x.slice(1)]),'avatar_id','avatar-opt');
+ function renderAvatars(){
+   avatars.replaceChildren();
+   for(const value of avatarList){
+     const b=document.createElement('button');b.type='button';
+     b.className='avatar-opt'+(state.avatar_id===value?' chosen':'');
+     b.setAttribute('aria-label', value.charAt(0).toUpperCase()+value.slice(1));
+     b.setAttribute('aria-pressed',String(state.avatar_id===value));
+     const pic=document.createElement('img');pic.src='assets/onboarding/'+value+'.webp';pic.alt='';pic.loading='eager';
+     const label=document.createElement('strong');label.textContent=value.charAt(0).toUpperCase()+value.slice(1);
+     b.append(pic,label);b.addEventListener('click',()=>{state.avatar_id=value;renderAvatars()});avatars.append(b);
+   }
+ }
+ renderAvatars();
  choices(teams,[['red','Rojo'],['blue','Azul'],['green','Verde']],'team_color','team-opt',x=>window.MastersmonI18n.t('Equipo ')+window.MastersmonI18n.t(x));
- function renderStarters(){grid.replaceChildren();state.generation=Number(select.value);state.pokemon_id=null;let list=(catalog[String(state.generation)]||[]).filter(x=>x.available);for(const p of list){const b=document.createElement('button');b.type='button';b.className='starter-opt';const img=document.createElement('img');img.alt=p.nombre;img.loading='lazy';img.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/'+p.id+'.png';const s=document.createElement('strong');s.textContent=p.nombre;b.append(img,s);b.addEventListener('click',()=>{state.pokemon_id=p.id;grid.querySelectorAll('button').forEach(x=>x.classList.remove('chosen'));b.classList.add('chosen')});grid.append(b)}
+ function renderStarters(){const regionName=select.selectedOptions[0]?.textContent?.trim()||'';const regionTitle=document.getElementById('regionTitle');if(regionTitle)regionTitle.textContent=regionName;grid.replaceChildren();state.generation=Number(select.value);state.pokemon_id=null;let list=(catalog[String(state.generation)]||[]).filter(x=>x.available);for(const p of list){const b=document.createElement('button');b.type='button';b.className='starter-opt';const img=document.createElement('img');img.alt=p.nombre;img.loading='lazy';img.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/'+p.id+'.png';const s=document.createElement('strong');s.textContent=p.nombre;b.append(img,s);b.addEventListener('click',()=>{state.pokemon_id=p.id;grid.querySelectorAll('button').forEach(x=>x.classList.remove('chosen'));b.classList.add('chosen')});grid.append(b)}
  if(!list.length) say('Los Pokémon iniciales de esta generación todavía no están disponibles en el catálogo.');else say('Selecciona tu Pokémon inicial para continuar.');
  }
  select.addEventListener('change',renderStarters);

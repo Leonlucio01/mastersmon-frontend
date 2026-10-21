@@ -1,2 +1,36 @@
 .setup-wrap{padding-top:22px;padding-bottom:30px}.setup-intro{padding:20px 0;background:linear-gradient(95deg,#02172ce8,#02172c2a),url('../assets/hero-world.jpg') center/cover;border-radius:12px;margin:12px 0}.setup-intro>*{max-width:660px;margin-left:20px}.setup-intro h1{color:#ffe4a1;font:700 clamp(27px,4vw,48px) Georgia,serif;margin-top:8px;margin-bottom:8px}.setup-intro>p{color:#dceaf9}.setup-notice{font-size:12px;line-height:1.5;color:#ffe5ad;background:#031b2fdf;border:1px solid #a27b35;padding:9px;border-radius:8px}.setup-state{margin-left:auto;color:#cfecff}.setup-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}.avatar-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.avatar-opt,.team-opt,.starter-opt{cursor:pointer;background:#0a304d;border:1px solid #287a9c;border-radius:10px;color:#eaf7ff;padding:12px 6px;font-size:12px;min-height:70px}.chosen{border-color:#ffd376!important;box-shadow:inset 0 0 0 1px #ffd376,0 0 12px #d6a03688}.team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.team-opt.rojo{background:#512237}.team-opt.azul{background:#123e66}.team-opt.verde{background:#124835}.setup-select{width:100%;padding:12px;color:#fff;background:#0b3050;border:1px solid #317da5;border-radius:9px}.gap-top{margin-top:25px!important}.starter-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.starter-opt{min-height:165px;display:flex;flex-direction:column;justify-content:center;align-items:center}.starter-opt img{width:100%;height:106px;object-fit:contain}.starter-opt strong{font-size:11px}.setup-actions{display:flex;justify-content:space-between;gap:12px;margin-top:15px}@media(max-width:900px){.setup-grid{grid-template-columns:1fr}.starter-opt{min-height:110px}.avatar-grid{grid-template-columns:repeat(4,1fr)}}@media(max-width:450px){.setup-actions{flex-direction:column}.setup-actions .btn{width:100%}.setup-intro>*{margin-left:10px;margin-right:10px}.setup-wrap{width:calc(100% - 20px)}}
 .setup-confirm {display:flex;align-items:center;flex-wrap:wrap;gap:12px;justify-content:flex-end}.setup-confirm p {max-width:450px;color:#f9dd93;font-size:13px}.setup-confirm button:disabled {opacity:.55;cursor:not-allowed}
+
+
+/* Mastersmon V2.1: new original avatar mini-portraits and cinematic onboarding */
+.setup-wrap{padding-top:12px;padding-bottom:22px}
+.setup-intro{min-height:225px;display:flex;flex-direction:column;justify-content:center;margin:10px 0 12px;padding:18px 0;background:linear-gradient(90deg,#03152bf2 0%,#03152ba9 38%,#03152b10 79%),url('../assets/onboarding/hero-trainer.webp') center 48%/cover no-repeat;border:1px solid #1d709a;overflow:hidden}
+.setup-intro h1{font-size:clamp(30px,3vw,45px);text-shadow:0 3px 13px #000}
+.setup-grid{grid-template-columns:1.12fr 1fr 1fr;gap:11px;align-items:stretch}
+.setup-grid .panel{min-width:0;padding:13px}
+.avatar-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:11px}
+.avatar-opt{height:125px;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:0 3px 7px;position:relative;overflow:hidden;background:linear-gradient(160deg,#164768,#07162c);border:1px solid #3c87b3;border-radius:9px}
+.avatar-opt img{display:block;width:100%;height:98px;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 4px 5px #0007);transition:transform .2s}
+.avatar-opt:hover img{transform:scale(1.06)}
+.avatar-opt strong{font-size:11px;line-height:1.25;position:relative;color:#fff;text-shadow:0 2px 5px #000b}
+.avatar-opt.chosen{background:linear-gradient(145deg,#544027,#092c49)}
+.team-grid{margin-top:12px;gap:7px}
+.team-opt{min-height:68px;font-weight:700;border-radius:9px}
+.team-opt[data-team="red"]{background:linear-gradient(180deg,#64293d,#241b34)}
+.region-preview{margin-top:10px;height:95px;border:1px solid #328ab1;border-radius:10px;background:linear-gradient(0deg,#041c35c7,transparent 68%),url('../assets/onboarding/region-fantasy.webp') center 55%/cover;position:relative;overflow:hidden}
+.region-preview-title{position:absolute;bottom:7px;left:10px;font-size:15px;font-weight:800;color:#fff;text-shadow:0 2px 6px #000}
+.gap-top{margin-top:12px!important}
+.setup-select{padding:10px;margin-top:6px}
+.starter-grid{margin-top:12px;gap:8px}
+.starter-opt{min-height:195px;padding:10px 4px;position:relative;background:linear-gradient(165deg,#15466b,#081a31);overflow:hidden}
+.starter-opt:nth-child(3n+1){background:linear-gradient(165deg,#234b3d,#092a3b)}
+.starter-opt:nth-child(3n+2){background:linear-gradient(165deg,#633d29,#18263b)}
+.starter-opt:nth-child(3n){background:linear-gradient(165deg,#18507b,#0a253a)}
+.starter-opt img{height:145px;object-fit:contain;filter:drop-shadow(0 6px 7px #0007)}
+.starter-opt strong{font-size:12px;margin-top:6px}
+.setup-notice{max-width:620px;font-size:11px}
+.setup-actions{margin-top:11px}
+.avatar-opt:focus-visible,.starter-opt:focus-visible,.team-opt:focus-visible{outline:3px solid #ffdc89;outline-offset:2px}
+@media(max-width:1050px){.setup-grid{grid-template-columns:1fr 1fr}.setup-grid>.panel:last-child{grid-column:1/-1}.starter-opt{min-height:160px}.starter-opt img{height:112px}}
+@media(max-width:700px){.setup-grid{grid-template-columns:1fr}.setup-grid>.panel:last-child{grid-column:auto}.setup-intro{min-height:225px;background-position:68% center}.avatar-opt{height:112px}.avatar-opt img{height:88px}.setup-wrap{padding-top:9px}.setup-grid .panel{padding:12px}}
+@media(max-width:450px){.avatar-grid{gap:5px}.avatar-opt{height:99px}.avatar-opt img{height:74px}.avatar-opt strong{font-size:10px}.setup-intro h1{font-size:30px}.starter-opt{min-height:138px}.starter-opt img{height:95px}.starter-opt strong{font-size:11px}.setup-intro{background-position:72% center}}
