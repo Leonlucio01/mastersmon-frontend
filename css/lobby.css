@@ -250,3 +250,12 @@ body{font-size:14px;background:#031327}
 .party-tile small{flex-shrink:0;font-size:10px}
 @media (min-width:761px) and (max-height:800px){.party-grid{grid-template-rows:repeat(2,minmax(79px,1fr))}.party-tile img{height:clamp(27px,3vw,39px)}.party-tile .party-pokemon-name{font-size:10px!important}}
 @media(max-width:760px){.party-tile img{height:47px}.party-tile .party-pokemon-name{font-size:11px!important}}
+
+/* Exclusive Shiny featured item; keeps current compact grid intact */
+.shop-card.shop-exclusive{position:relative;overflow:hidden;border-color:#dda95b;box-shadow:inset 0 0 20px #d59f452e,0 0 11px #f0aa5030;background:radial-gradient(circle at 50% 38%,#48305b,#071d34 75%)}
+.shop-exclusive .exclusive-ribbon{display:block;color:#ffdc7e;font-size:clamp(8px,.58vw,10px);font-weight:900;letter-spacing:.04em;line-height:1.1;text-align:center}
+.shop-exclusive img{filter:drop-shadow(0 0 12px #ffe38c80);object-fit:contain}
+.shop-exclusive .shop-name{font-size:clamp(9px,.72vw,12px);-webkit-line-clamp:2}
+.shop-exclusive .exclusive-notice{color:#e5c8fa;font-size:clamp(7px,.48vw,9px);line-height:1.08;text-align:center;display:block;max-width:100%;overflow:hidden;min-height:15px}
+.shop-exclusive:hover{box-shadow:inset 0 0 22px #f3c26a55,0 0 15px #d79d5c55}
+@media(max-width:760px){.shop-exclusive .exclusive-notice{font-size:9px}}
