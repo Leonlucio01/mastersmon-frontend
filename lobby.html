@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#041a30"><meta name="description" content="Lobby de Mastersmon">
+<title>Mastersmon | Lobby</title>
+<link rel="stylesheet" href="css/lobby.css?v=26">
+<script defer src="js/api.js"></script>
+<script defer src="js/lobby.js?v=26"></script>
+</head>
+<body>
+<a class="skip" href="#main">Saltar al contenido</a>
+<header class="topbar"><div class="top-inner">
+<a href="lobby.html" class="brand"><span class="mark">M</span><span>MASTERSMON</span></a>
+<nav class="global-nav" aria-label="Navegación"><a class="selected" href="lobby.html" data-i18n="play">Jugar</a><a href="mypokemon.html" data-i18n="collection">Colección</a><a href="pokemart.html" data-i18n="shop">Tienda</a><a href="battle.html" data-i18n="battles">Batallas</a><a href="gyms.html" data-i18n="gyms">Gimnasios</a><a href="index.html" data-i18n="pokedex">Pokédex</a></nav>
+<div class="top-actions"><div class="lang-switch" aria-label="Idioma"><button type="button" data-lang="es" aria-pressed="true">ES</button><button type="button" data-lang="en" aria-pressed="false">EN</button></div><div class="mini-profile"><img id="navAvatar" src="assets/lobby/batman.webp" alt=""><span><small data-i18n="trainer">Entrenador</small><strong id="navName">...</strong></span></div></div>
+</div></header>
+<main id="main" class="workspace">
+<div id="status" class="status" role="status" aria-live="polite" data-i18n="loading">Cargando datos del entrenador...</div>
+<section class="hero" aria-label="Mastersmon"><div class="hero-shade"></div><div class="hero-intro"><p class="eyebrow" data-i18n="welcome">BIENVENIDO A</p><h1>MASTERSMON</h1><p class="subhead" data-i18n="tagline">EXPLORA · COLECCIONA · ENTRENA · COMBATE</p><p class="intro-text" data-i18n="intro">Un mundo de criaturas, regiones y desafíos te espera.</p><a class="gold-btn" href="maps.html" data-i18n="playNow">JUGAR AHORA →</a></div><div class="hero-profile"><div class="profile-top"><img id="heroAvatar" src="assets/lobby/batman.webp" alt=""><div><small data-i18n="trainer">Entrenador</small><h2 id="heroName">...</h2><div id="teamLabel" class="team-tag">—</div></div></div><div class="profile-stats"><div><strong id="collectionCount">—</strong><small data-i18n="owned">Pokémon</small></div><div><strong id="teamCount">—</strong><small data-i18n="activeTeam">En equipo</small></div><div><strong>3</strong><small data-i18n="factions">Equipos</small></div></div></div></section>
+<nav class="mobile-tabs" aria-label="Secciones"><button class="is-active" data-panel="collection" data-i18n="collection">Colección</button><button data-panel="explore" data-i18n="explore">Explorar</button><button data-panel="activity" data-i18n="activity">Actividad</button></nav>
+<div class="dashboard-grid">
+<section class="panel collection-panel" data-mobile="collection"><div class="panel-title"><div><p class="kicker" data-i18n="yourCollection">TUS CRIATURAS</p><h2 data-i18n="featured">Pokémon destacados</h2><p data-i18n="yourPokemon">Pokémon registrados en tu colección</p></div><a href="mypokemon.html" data-i18n="seeCollection">Ver colección ↗</a></div><div id="pokemonCards" class="pokemon-cards"><div class="empty" data-i18n="loading">Cargando...</div></div></section>
+<section class="panel party-panel" data-mobile="collection"><div class="panel-title"><div><p class="kicker" data-i18n="party">COMPAÑEROS</p><h2 data-i18n="yourParty">Mi equipo actual</h2></div><a href="mypokemon.html" data-i18n="manage">Gestionar ↗</a></div><div class="party-grid" id="partyGrid"></div></section>
+<section class="panel explore-panel" data-mobile="explore"><div class="panel-title"><div><p class="kicker" data-i18n="world">AVENTURA</p><h2 data-i18n="exploreWorld">Explora el mundo</h2></div></div><div class="visual visual-world"><span data-i18n="worldHint">Regiones y rutas por descubrir</span></div><a class="outline-btn" href="maps.html" data-i18n="openMaps">EXPLORAR MAPA →</a></section>
+<section class="panel quests-panel" data-mobile="activity"><div class="panel-title"><div><p class="kicker" data-i18n="progress">PROGRESO</p><h2 data-i18n="starterJourney">Tu aventura inicial</h2><p data-i18n="questNote">Consulta tus objetivos y recompensas reales</p></div></div><div class="quick-list"><a href="index.html" data-i18n="onboarding">Ver misión de bienvenida →</a><a href="battle.html" data-i18n="goBattles">Ir a batallas →</a><a href="gyms.html" data-i18n="goGyms">Ir a gimnasios →</a></div></section>
+<section class="panel shop-panel" data-mobile="activity"><div class="panel-title"><div><p class="kicker" data-i18n="discover">DESCUBRE</p><h2 data-i18n="storeHighlights">Tienda Mastersmon</h2><p data-i18n="storeNote">Objetos y ventajas disponibles en la tienda real</p></div><a href="pokemart.html" data-i18n="seeShop">Ver tienda ↗</a></div><div class="shop-tiles"><a href="pokemart.html"><span>🎒</span><strong data-i18n="items">Objetos</strong></a><a href="pokemart.html"><span>✨</span><strong data-i18n="bonuses">Beneficios</strong></a><a href="pokemart.html"><span>⚡</span><strong data-i18n="boosts">Potenciadores</strong></a></div></section>
+<section class="panel events-panel" data-mobile="activity"><div class="panel-title"><div><p class="kicker" data-i18n="challenge">DESAFÍOS</p><h2 data-i18n="battleArena">Batallas y eventos</h2></div></div><div class="visual visual-battle"><span data-i18n="battleIntro">Entrena y demuestra tu estrategia</span></div><a class="outline-btn" href="battle.html" data-i18n="battleAction">IR A BATALLAS →</a></section>
+</div>
+</main>
+<footer><span>MASTERSMON · LOBBY V2.6</span><a href="index.html" data-i18n="originalGame">Juego actual ↗</a></footer>
+</body></html>
