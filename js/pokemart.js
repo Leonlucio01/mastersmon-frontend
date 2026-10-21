@@ -1125,8 +1125,19 @@ function renderPurchaseCard(compra = {}) {
     const productoCodigo = escapeHtmlPokeMart(compra?.producto_codigo || "");
     const statusClass = escapeHtmlPokeMart(status.cls);
     const statusText = escapeHtmlPokeMart(status.text);
-    const grantText = escapeHtmlPokeMart(grant ? grant.text : (compra?.grant_status || "â€”"));
-    const paypalOrderId = escapeHtmlPokeMart(compra?.paypal_order_id || "â€”");
+    const grantText = escapeHtmlPokeMart(grant ? grant.text : (compra?.grant_status || "—"));
+    const paypalOrderId = escapeHtmlPokeMart(compra?.paypal_order_id || "—");
+    // JL - Inicio - Autoreclamo PokeMart
+    const pendienteEntrega = String(compra?.estado || '').toLowerCase() === 'pagado'
+        && String(compra?.grant_status || '').toLowerCase() !== 'entregado';
+    const botonReclamar = pendienteEntrega
+        ? `<div style="margin-top:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+             <button class="premium-history-claim" type="button" data-claim-purchase="${Number(compra.id)}"
+               style="background:#2458d8;color:white;border:0;border-radius:8px;padding:9px 15px;font-weight:800;cursor:pointer">
+               ${(document.documentElement.lang || 'es').toLowerCase().startsWith('es') ? 'RECLAMAR COMPRA' : 'CLAIM PURCHASE'}
+             </button><small style="color:#586d85">${(document.documentElement.lang || 'es').toLowerCase().startsWith('es') ? 'Sin pagar nuevamente' : 'No additional payment'}</small>
+           </div>` : '';
+    // JL - Fin - Autoreclamo PokeMart
     return `
         <article class="premium-history-card">
             <div class="premium-history-card-top">
@@ -1142,6 +1153,7 @@ function renderPurchaseCard(compra = {}) {
                 <div class="premium-history-meta-box"><span>${pmUi("delivery")}</span><strong>${grant ? grant.text : (compra?.grant_status || "—")}</strong></div>
                 <div class="premium-history-meta-box"><span>PayPal</span><strong>${compra?.paypal_order_id || "—"}</strong></div>
             </div>
+            ${botonReclamar}
         </article>`;
 }
 
@@ -1169,6 +1181,37 @@ function renderBenefitCard(beneficio = {}) {
             </div>
         </article>`;
 }
+
+// JL - Inicio - Autoreclamo PokeMart: únicamente el dueño puede solicitarlo.
+let reclamacionPremiumEnCurso = false;
+async function reclamarCompraHistorial(compraId, button) {
+    if (reclamacionPremiumEnCurso) return;
+    if (!Number.isSafeInteger(compraId) || compraId <= 0) return;
+    const es = (document.documentElement.lang || 'es').toLowerCase().startsWith('es');
+    if (!confirm(es ? '¿Reclamar esta compra ya pagada, sin otro cargo?' : 'Claim this paid purchase without additional charge?')) return;
+    reclamacionPremiumEnCurso = true;
+    if (button) { button.disabled = true; button.textContent = es ? 'VERIFICANDO...' : 'VERIFYING...'; }
+    softHistoryMessage('');
+    try {
+        const resultado = await fetchAuth(`${API_BASE}/payments/compras/${compraId}/reclamar`, {method:'POST'});
+        if (!resultado?.ok || resultado?.grant_status !== 'entregado') throw new Error(es ? 'La entrega no se confirmó.' : 'Delivery was not confirmed.');
+        await cargarHistorialPremium();
+        softHistoryMessage(es ? '¡Compra entregada correctamente! Revisa tu colección o inventario.' : 'Purchase delivered! Check your collection or inventory.', 'ok');
+    } catch(err) {
+        const detail = err?.detail || err?.message || String(err);
+        softHistoryMessage(detail, 'error');
+    } finally {
+        reclamacionPremiumEnCurso = false;
+        if (button) button.disabled = false;
+    }
+}
+document.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-claim-purchase]');
+    if (!button) return;
+    event.preventDefault();
+    reclamarCompraHistorial(Number(button.dataset.claimPurchase), button);
+});
+// JL - Fin - Autoreclamo PokeMart
 
 function renderizarHistorialPremium() {
     const list = document.getElementById("premiumHistoryList");
