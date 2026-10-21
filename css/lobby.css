@@ -192,3 +192,38 @@ body{font-size:14px;background:#031327}
   .quest-row{min-height:44px}
 }
 @media(max-width:380px){.mini-profile{min-width:0}.mini-profile strong{max-width:64px}.brand{font-size:17px}}
+
+/* V2.12 / Premium polish: append-only overrides, no API or state changes. */
+.capture-tile{position:relative;transition:transform .16s ease,box-shadow .16s ease;}
+.capture-tile:hover{transform:translateY(-3px);box-shadow:0 5px 17px #0008,inset 0 0 20px #5ddcff22}
+.capture-tile img{flex:1;min-height:0;max-width:96%;filter:drop-shadow(0 5px 10px #0009)}
+.capture-type{display:inline-flex;align-items:center;justify-content:center;min-height:16px;max-width:100%;padding:1px 7px;border-radius:12px;background:#2b78ad;color:#fff;font-size:9px;font-weight:800;letter-spacing:.025em}
+.capture-tile[data-type*=fire] .capture-type,.capture-tile[data-type*=fuego] .capture-type{background:#c64b33}
+.capture-tile[data-type*=water] .capture-type,.capture-tile[data-type*=agua] .capture-type{background:#2279cf}
+.capture-tile[data-type*=grass] .capture-type,.capture-tile[data-type*=planta] .capture-type{background:#239755}
+.capture-tile[data-type*=electric] .capture-type,.capture-tile[data-type*=eléctrico] .capture-type{background:#e0b52e;color:#171b26}
+.capture-trainer{padding-top:4px;gap:0}.capture-time{color:#a8d5ef;font-size:9px;line-height:1.2;margin-top:2px}
+.capture-tile.is-shiny:before{content:'✦';position:absolute;right:5px;top:3px;color:#ffe889;font-size:17px;text-shadow:0 0 7px #ffe784}
+.quest-row.is-complete{border-color:#5fc9a5;background:linear-gradient(90deg,#11403d,#103756)}
+.quest-row{transition:background .15s ease,border-color .15s ease}.quest-row:hover{background:#164a70;border-color:#61cfff}
+.mission-progress{width:80px;min-width:58px}.mission-progress-fill{box-shadow:0 0 8px #42c8ff88}
+.shop-card{transition:transform .18s ease,filter .18s ease;min-width:0}.shop-card:hover{transform:translateY(-3px);filter:brightness(1.13)}
+.shop-card .shop-name{overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.shop-card img{max-width:100%;width:100%;object-fit:contain;mask-image:none}
+.shop-price{white-space:nowrap}.event-art{overflow:hidden}.event-art:after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,#051b3488,transparent 70%)}
+.event-art>*{position:relative;z-index:1}.event-pill,.boss-countdown{width:max-content;max-width:100%}
+.profile-stats>div{min-width:0}.profile-stats small{white-space:normal}
+@media (min-width:1100px) and (max-height:820px){
+ .workspace{padding-bottom:4px}.hero{height:clamp(170px,26vh,210px)}
+ .panel-title{min-height:34px}.dashboard-grid{gap:6px;margin-top:6px}.panel{padding:7px}
+ .pokemon-tile.capture-tile,.party-grid,.visual{height:clamp(130px,21vh,166px)}
+ .shop-cards,.shop-card,.event-art{height:clamp(130px,21vh,170px)}
+ .shop-card img{height:clamp(55px,9vh,88px)}.quest-row{min-height:clamp(34px,5.4vh,43px)}
+ .capture-tile img{height:clamp(45px,7.8vh,75px)}
+}
+@media(max-width:759px){
+ .capture-tile{flex:0 0 140px}.capture-trainer strong{max-width:100%}
+ .shop-card .shop-name{font-size:11px}.shop-card img{height:90px}
+ .event-art{min-height:160px}.hero-profile{display:none}
+}
+@media(prefers-reduced-motion:reduce){.capture-tile,.shop-card,.quest-row{transition:none}.capture-tile:hover,.shop-card:hover{transform:none}}
