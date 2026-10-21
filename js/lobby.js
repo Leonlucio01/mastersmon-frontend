@@ -1,4 +1,4 @@
-/* Mastersmon V2.8. GET-only lobby; purchases, rewards and team changes are never triggered here. */
+/* Mastersmon V2.14.2. Checkout via PayPal con validacion y entrega en backend. */
 (()=>{'use strict';
 const API='https://mastersmon-api.onrender.com', $=id=>document.getElementById(id);
 const I={
@@ -126,7 +126,11 @@ function productIcon(p){
 }
 let dailyShinyOffer=null;
 function renderPremium(){const box=$('premiumProducts');if(!box)return;box.replaceChildren();const list=Array.isArray(premiumData)?premiumData.slice(0,4):[];if(!list.length){const a=document.createElement('a');a.className='shop-message';a.href='pokemart.html';a.textContent=premiumData===null?tr('premiumLoading'):tr('premiumEmpty');box.append(a);return;}
-list.forEach((p,i)=>{const a=document.createElement('a');a.href='pokemart.html';a.className='shop-card '+(['purple','gold','turquoise','violet'][i]);const hint=String([p.codigo,p.nombre,p.tipo].filter(Boolean).join(' ')).toLowerCase();const isRate=/rate|aumento.*map|map.*aumento/.test(hint);const isExclusive=p.tipo==='pokemon_exclusivo'||/pok[eé]mon exclusivo|exclusive pok[eé]mon/.test(hint);if(isRate){a.removeAttribute('href');a.classList.add('shop-coming-soon');a.setAttribute('aria-disabled','true');a.tabIndex=-1;}if(isExclusive)a.classList.add('shop-exclusive');const title=document.createElement('strong');title.className='shop-name';title.textContent=String(p.nombre||p.codigo||'Producto');const img=document.createElement('img');{const artwork=productIcon(p);img.src=artwork?'assets/lobby/shop/'+artwork:'assets/lobby/shop-items.svg';}if(isExclusive){
+list.forEach((p,i)=>{const a=document.createElement('a');a.href='pokemart.html';a.className='shop-card '+(['purple','gold','turquoise','violet'][i]);const hint=String([p.codigo,p.nombre,p.tipo].filter(Boolean).join(' ')).toLowerCase();const isRate=/rate|aumento.*map|map.*aumento/.test(hint);const isExclusive=p.tipo==='pokemon_exclusivo'||/pok[eé]mon exclusivo|exclusive pok[eé]mon/.test(hint);if(isRate){a.removeAttribute('href');a.classList.add('shop-coming-soon');a.setAttribute('aria-disabled','true');a.tabIndex=-1;}if(isExclusive)a.classList.add('shop-exclusive');
+const buyableCodes=['exclusive_pokemon_single','battle_exp_x2_pack5','battle_gold_x2_pack5'];
+const buyable=buyableCodes.includes(String(p.codigo))&&(!isExclusive||dailyShinyOffer?.compra_habilitada===true);
+if(buyable){a.removeAttribute('href');a.classList.add('shop-buyable');a.dataset.premiumCode=String(p.codigo);a.setAttribute('role','button');a.tabIndex=0;}
+const title=document.createElement('strong');title.className='shop-name';title.textContent=String(p.nombre||p.codigo||'Producto');const img=document.createElement('img');{const artwork=productIcon(p);img.src=artwork?'assets/lobby/shop/'+artwork:'assets/lobby/shop-items.svg';}if(isExclusive){
   const dailyPokemon=dailyShinyOffer?.pokemon;
   const pokemonId=Number(dailyPokemon?.id||0);
   if(pokemonId>0){
@@ -139,12 +143,12 @@ list.forEach((p,i)=>{const a=document.createElement('a');a.href='pokemart.html';
   }
  }img.loading='lazy';const price=document.createElement('b');price.className='shop-price';price.textContent=formatPrice(p);const tag=document.createElement('small');tag.textContent=isRate?tr('comingSoon'):(tr('premiumView')+' →');if(isExclusive){
    const dailyPokemon=dailyShinyOffer?.pokemon;
-   a.removeAttribute('href'); a.setAttribute('aria-disabled','true'); a.tabIndex=-1;
-   a.title=lang==='es'?'Canje seguro pendiente de activación':'Secure redemption not enabled yet';
+   if(!buyable){a.removeAttribute('href');a.setAttribute('aria-disabled','true');a.tabIndex=-1;}
+    a.title=buyable?(lang==='es'?'Comprar el legendario Shiny del dia':'Buy today Shiny legendary'):(lang==='es'?'Canje seguro pendiente de activación':'Secure redemption not enabled yet');
    title.textContent=dailyPokemon
       ? `${dailyPokemon.nombre} Shiny`
       : (lang==='es'?'Legendario Shiny diario':'Daily Shiny Legendary');
-   tag.textContent=tr('comingSoon');
+   tag.textContent=buyable?(lang==='es'?'COMPRAR →':'BUY NOW →'):tr('comingSoon');
    const ribbon=document.createElement('span');ribbon.className='exclusive-ribbon';
    ribbon.textContent=lang==='es'?'LEGENDARIO SHINY DEL DÍA':'DAILY SHINY LEGENDARY';
    const notice=document.createElement('span');notice.className='exclusive-notice';
@@ -159,7 +163,7 @@ list.forEach((p,i)=>{const a=document.createElement('a');a.href='pokemart.html';
    }
    a.append(ribbon,title,img,price,notice,tag);
    a.setAttribute('aria-label',title.textContent+' '+price.textContent+' - '+tag.textContent);
- }else{a.title=String(p.nombre||p.codigo||'');a.append(title,img,price,tag);}
+ }else{a.title=String(p.nombre||p.codigo||'');if(buyable){tag.classList.add('shop-action');tag.textContent=lang==='es'?'COMPRAR →':'BUY NOW →';}a.append(title,img,price,tag);}
  box.append(a);});}
 function secondsText(seconds){const v=Math.max(0,Math.floor(seconds));return String(Math.floor(v/3600)).padStart(2,'0')+':'+String(Math.floor(v%3600/60)).padStart(2,'0')+':'+String(v%60).padStart(2,'0');}
 function renderBoss(){const card=$('eventCard'),timer=$('bossCountdown');let title=tr('boss'),desc=tr('bossUnknown');if(bossClock){clearInterval(bossClock);bossClock=null;}if(!bossData||typeof bossData!=='object'){safeText('eventTitle',title);safeText('eventDetail',desc);if(timer)timer.textContent='';return;}
@@ -205,6 +209,63 @@ if(gymRes?.ok===true&&Number.isFinite(Number(gymRes.completados))){badgeValue=Nu
 questData=onboardingRes;bossData=bossRes;recentError=!(recentRes?.ok===true&&Array.isArray(recentRes.capturas));recentCaptures=recentError?[]:recentRes.capturas;premiumData=premiumRes?.ok===true&&Array.isArray(premiumRes.productos)?premiumRes.productos:null;profile();renderPokemon();renderQuests();renderBoss();renderPremium();
 }catch(e){console.error('Lobby startup',e);status('loadFail');}}
 init();
+
+// V2.14.2 - Compra directa del lobby: PayPal sigue siendo el unico checkout.
+let quickProduct=null;let lastQuickFocus=null;
+function quickCopy(es,en){return lang==='es'?es:en;}
+function quickError(message){const box=$('premiumQuickError');if(box){box.textContent=message;box.hidden=!message;}}
+function closeQuickCheckout(){const modal=$('premiumQuickModal');if(!modal)return;modal.hidden=true;quickProduct=null;document.body.style.overflow='';lastQuickFocus?.focus?.();}
+function openQuickCheckout(code){
+ if(!authToken){status('needLogin');return;}
+ const product=Array.isArray(premiumData)?premiumData.find(p=>String(p.codigo)===code):null;
+ if(!product || !['exclusive_pokemon_single','battle_exp_x2_pack5','battle_gold_x2_pack5'].includes(code))return;
+ if(code==='exclusive_pokemon_single'&&dailyShinyOffer?.compra_habilitada!==true){quickError(quickCopy('La entrega del legendario aun no esta habilitada.','Legendary delivery is not enabled.'));return;}
+ quickProduct=product;lastQuickFocus=document.activeElement;
+ const legendary=code==='exclusive_pokemon_single';
+ const pokemon=dailyShinyOffer?.pokemon;
+ const title=legendary?`${pokemon?.nombre||'Pokémon'} Shiny`:code==='battle_exp_x2_pack5'?'Pack 5 boosters EXP x2':'Pack 5 boosters GOLD x2';
+ safeText('premiumQuickKicker',quickCopy('MASTERSMON PREMIUM','MASTERSMON PREMIUM'));
+ safeText('premiumQuickTitle',quickCopy('Confirmar compra','Confirm purchase'));
+ safeText('premiumQuickProduct',title);
+ safeText('premiumQuickPrice',`${String(product.moneda||'USD').toUpperCase()} ${Number(product.precio_usd).toFixed(2)}`);
+ safeText('premiumQuickDescription',legendary?quickCopy('Recibirás exactamente el legendario Shiny mostrado hoy. La especie queda reservada al crear la orden, incluso si cambia el día.','You receive todays featured Shiny legendary. Species is locked when the order is created.'):quickCopy('Recibirás 5 boosters en tu inventario. Podrás activarlos cuando quieras; cada uno dura 24 horas.','You receive 5 boosters in your inventory. Activate each when needed; each lasts 24 hours.'));
+ safeText('premiumQuickConsentText',quickCopy('Confirmo el producto y el precio indicado.','I confirm this product and the displayed price.'));
+ safeText('premiumQuickTermsText',quickCopy('Acepto las condiciones de compra y entrega de Mastersmon.','I accept Mastersmon purchase and delivery terms.'));
+ safeText('premiumQuickNote',quickCopy('PayPal debe confirmar la captura antes de la entrega.','PayPal must confirm capture before delivery.'));
+ safeText('premiumQuickPay',quickCopy('Continuar a PayPal','Continue to PayPal'));
+ $('premiumQuickConsent').checked=false;$('premiumQuickTerms').checked=false;quickError('');
+ $('premiumQuickModal').hidden=false;document.body.style.overflow='hidden';$('premiumQuickClose').focus();
+}
+async function payQuickCheckout(){
+ const product=quickProduct;if(!product)return;
+ if(!$('premiumQuickConsent').checked||!$('premiumQuickTerms').checked){quickError(quickCopy('Debes confirmar ambas condiciones.','Please confirm both conditions.'));return;}
+ const button=$('premiumQuickPay');button.disabled=true;quickError('');
+ try{
+  const body={product_code:product.codigo,quantity:1,confirmacion_aceptada:true,version_terminos:'v1'};
+  if(product.codigo==='exclusive_pokemon_single'){
+   const offerRes=await fetch(API+'/payments/legendario-del-dia',{cache:'no-store'});
+   if(!offerRes.ok)throw Error(quickCopy('No se pudo validar la oferta diaria.','Daily offer unavailable.'));
+   const offer=await offerRes.json();
+   if(offer.compra_habilitada!==true||offer.pokemon?.id!==dailyShinyOffer?.pokemon?.id||offer.fecha!==dailyShinyOffer?.fecha){
+    dailyShinyOffer=offer;renderPremium();throw Error(quickCopy('El legendario cambió. Revisa la nueva oferta y vuelve a confirmar.','Daily Pokémon has changed. Review the new offer and confirm again.'));
+   }
+   body.daily_pokemon_id=Number(offer.pokemon.id);body.daily_offer_date=String(offer.fecha);
+  }
+  const response=await fetch(API+'/payments/paypal/order/create',{method:'POST',headers:{Authorization:'Bearer '+(authToken||token()),'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok||!data.approval_url)throw Error(typeof data.detail==='string'?data.detail:quickCopy('No se pudo abrir PayPal.','Could not start PayPal checkout.'));
+  window.location.assign(data.approval_url);
+ }catch(e){quickError(e?.message||quickCopy('No se pudo iniciar el pago.','Could not start payment.'));button.disabled=false;}
+}
+function registerQuickCheckout(){
+ document.addEventListener('click',e=>{const card=e.target.closest('.shop-card.shop-buyable[data-premium-code]');if(card){e.preventDefault();openQuickCheckout(card.dataset.premiumCode);}});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('premiumQuickModal').hidden)closeQuickCheckout();const card=e.target.closest('.shop-card.shop-buyable[data-premium-code]');if(card&&(e.key==='Enter'||e.key===' ')){e.preventDefault();openQuickCheckout(card.dataset.premiumCode);}});
+ $('premiumQuickClose').addEventListener('click',closeQuickCheckout);
+ $('premiumQuickModal').addEventListener('click',e=>{if(e.target===$('premiumQuickModal'))closeQuickCheckout();});
+ $('premiumQuickPay').addEventListener('click',payQuickCheckout);
+}
+registerQuickCheckout();
+
 // La selección diaria pertenece al servidor; no se calcula con la hora del navegador.
 async function refreshDailyShiny(){
  try{
