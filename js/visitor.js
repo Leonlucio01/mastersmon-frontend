@@ -30,3 +30,15 @@ document.addEventListener('mastersmon:languagechange',syncLanguage);
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', tidyNavLabels);
   else tidyNavLabels();
 })();
+
+/* V2.16.0: translated labels sometimes include legacy unicode icons. Keep SVG assets as the only icon. */
+(function(){
+  function cleanTranslatedLabels(){
+    document.querySelectorAll('.nav-links a [data-i18n], .mobile-tab .tab-label').forEach(function(node){
+      node.textContent=node.textContent.replace(/^[\s⌂◉◈⚔♜▣🛒]+/u,'').trim();
+    });
+  }
+  document.addEventListener('mastersmon:languagechange',function(){requestAnimationFrame(cleanTranslatedLabels)});
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',cleanTranslatedLabels);
+  else cleanTranslatedLabels();
+})();
