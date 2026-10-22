@@ -1259,3 +1259,20 @@ body > .footer {flex:none!important;margin-top:8px;}
 .google-button {width:100%!important;max-width:100%!important;overflow:visible!important;min-height:44px!important}
 .google-button>div,.google-button iframe {max-width:100%!important;overflow:visible!important}
 @media(max-width:560px){.auth-login-zone{padding-inline:8px!important}}
+
+/* V2.16.13: Allow the whole official Google pill to fit, without clipping. */
+.auth-login-zone {overflow:visible!important;}
+.google-button {
+  width:100%!important;
+  min-height:44px!important;
+  display:flex!important;
+  justify-content:center!important;
+  align-items:center!important;
+  margin:0 auto!important;
+  overflow:visible!important;
+}
+/* Do not force a narrower iframe than the size Google was asked to render. */
+.google-button>div,.google-button iframe {
+  max-width:none!important;
+  overflow:visible!important;
+}
