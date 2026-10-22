@@ -1181,3 +1181,75 @@ body > .footer {flex:none!important;margin-top:8px;}
   .auth-trust{gap:8px;margin-top:13px}
 }
 @media (prefers-reduced-motion:reduce){.auth-close{transition:none}}
+
+/* V2.16.8 | Compact, fully contained Google sign-in dialog. */
+.auth-backdrop{padding:clamp(10px,2.5vw,24px)!important;overflow:hidden!important;overscroll-behavior:contain}
+.auth-dialog.panel{
+  box-sizing:border-box!important;
+  width:min(430px,calc(100vw - 28px))!important;
+  max-width:100%!important;
+  max-height:calc(100dvh - 28px)!important;
+  padding:0 23px 20px!important;
+  margin:0!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  overscroll-behavior:contain;
+  scrollbar-width:thin;
+  scrollbar-color:#2f6384 transparent;
+  border-radius:20px!important;
+  background:radial-gradient(ellipse 115% 190px at 50% -20px,rgba(39,141,196,.36),transparent 70%),linear-gradient(160deg,#0c3457,#07233e 46%,#04182c)!important;
+}
+.auth-dialog.panel *{box-sizing:border-box!important;min-width:0}
+.auth-top-art{
+  margin:0 -23px 0!important;
+  height:103px!important;
+  flex-shrink:0;
+  background:radial-gradient(ellipse 130px 90px at 50% 50%,rgba(64,173,226,.21),transparent 100%);
+}
+.auth-emblem{
+  width:60px!important;height:65px!important;
+  font-size:43px!important;
+}
+.auth-eyebrow{margin:0 0 7px!important;letter-spacing:2.6px!important;font-size:10px!important}
+.auth-dialog.panel h2{
+  max-width:100%!important;
+  font:700 clamp(26px,3.5vw,31px)/1.14 Georgia,serif!important;
+  margin:0!important;
+  overflow-wrap:break-word;
+}
+.auth-dialog.panel .auth-description{
+  max-width:325px!important;margin:12px auto 0!important;
+  font-size:13px!important;line-height:1.5!important;color:#d1e5f5!important;
+}
+.auth-login-zone{
+  width:100%!important;min-width:0!important;
+  margin:19px 0 0!important;padding:14px 10px!important;
+  border-radius:12px!important;
+  display:flex!important;flex-direction:column;align-items:center;justify-content:center;
+}
+.google-button{
+  width:100%!important;max-width:100%!important;min-width:0!important;
+  min-height:44px!important;display:flex!important;align-items:center;justify-content:center!important;
+  overflow:hidden!important;margin:0 auto!important;
+}
+.google-button>div,.google-button iframe{
+  max-width:100%!important;
+}
+.auth-trust{max-width:340px!important;margin:17px auto 0!important;align-items:center!important;gap:10px!important}
+.auth-dialog.panel .auth-trust .micro-note{font-size:10px!important;line-height:1.45!important;overflow-wrap:anywhere}
+.auth-message{width:100%;overflow-wrap:anywhere}
+@media(max-width:560px){
+  .auth-dialog.panel{width:min(410px,calc(100vw - 22px))!important;max-height:calc(100dvh - 20px)!important;padding:0 17px 18px!important;border-radius:16px!important}
+  .auth-top-art{height:87px!important;margin:0 -17px 0!important}
+  .auth-emblem{width:52px!important;height:57px!important;font-size:37px!important}
+  .auth-dialog.panel h2{font-size:clamp(24px,7vw,28px)!important}
+  .auth-dialog.panel .auth-description{font-size:12px!important}
+  .auth-login-zone{margin-top:15px!important;padding:12px 6px!important}
+  .auth-trust{margin-top:14px!important}
+}
+@media(max-height:580px) and (min-width:561px){
+  .auth-top-art{height:67px!important}
+  .auth-emblem{width:43px!important;height:47px!important;font-size:30px!important}
+  .auth-login-zone{margin-top:12px!important;padding:9px!important}
+  .auth-trust{margin-top:9px!important}
+}
