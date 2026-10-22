@@ -1012,3 +1012,74 @@ body > .footer {flex:none!important;margin-top:8px;}
   .final-cta{display:flex!important;flex-direction:column!important;}
   .footer{background:#031326!important;}
 }
+
+
+/* ==========================================================
+   MASTERSMON V2.16.6 - Visual finishing only
+   Unified scenic hero gutters and comfortable lower labels.
+   All auth, links, i18n and card ordering remain untouched.
+   ========================================================== */
+/* The page background next to the scenic frame must be the
+   SAME hue on both sides, including larger monitor widths. */
+.hero {background:#041526!important;}
+.hero .hero-bg {background:#041526!important;}
+@media(min-width:769px){
+  .hero {background:#041526!important;}
+  .hero .hero-content.wrap {background:#041526!important;}
+  /* Keep the artwork bounded by the same container as the cards. */
+  .hero .hero-content.wrap::before {border-radius:0!important;}
+}
+/* Shop heading: reserve explicit room for its icon, and avoid
+   merging the SVG visually with the heading's first letter. */
+.shop-panel .shop-heading {min-width:0!important;}
+.shop-panel .shop-heading h2 {
+  display:flex!important;
+  align-items:center!important;
+  gap:13px!important;
+  padding-left:9px!important;
+  line-height:1.16!important;
+}
+.shop-panel .shop-heading h2 .heading-symbol {
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  flex:0 0 27px!important;
+  width:27px!important;
+  margin-right:1px!important;
+}
+.shop-panel .shop-heading h2 .heading-symbol .ui-icon {
+  width:25px!important;
+  height:25px!important;
+  object-fit:contain!important;
+}
+.shop-panel .shop-heading .section-kicker,
+.shop-panel .shop-heading p:not(.section-kicker) {padding-left:9px!important;}
+/* Distinguish the eyebrow from its decorative star and title. */
+.final-cta {padding-left:27px!important;padding-right:17px!important;}
+.final-cta>.eyebrow {
+  position:relative!important;
+  padding-left:12px!important;
+  margin-right:4px!important;
+  line-height:1.3!important;
+  white-space:nowrap!important;
+}
+.final-cta::before {left:10px!important;bottom:8px!important;}
+.final-cta h2 {padding-left:4px!important;}
+/* Keep text and icons balanced at narrower laptop widths. */
+@media(min-width:769px) and (max-width:1440px){
+  .shop-panel .shop-heading h2 {gap:10px!important;padding-left:6px!important;}
+  .shop-panel .shop-heading .section-kicker,
+  .shop-panel .shop-heading p:not(.section-kicker){padding-left:6px!important;}
+  .final-cta{padding-left:20px!important;}
+  .final-cta>.eyebrow{padding-left:10px!important;}
+}
+/* Mobile: don't force a fixed grid or horizontal overflow. */
+@media(max-width:768px){
+  .hero,.hero .hero-bg{background:#041526!important;}
+  .shop-panel .shop-heading h2 {gap:12px!important;padding-left:4px!important;}
+  .shop-panel .shop-heading .section-kicker,
+  .shop-panel .shop-heading p:not(.section-kicker){padding-left:4px!important;}
+  .final-cta{padding:18px 16px!important;}
+  .final-cta>.eyebrow{padding-left:0!important;margin-right:0!important;white-space:normal!important;}
+  .final-cta h2{padding-left:0!important;}
+}
