@@ -469,3 +469,103 @@ img{max-width:100%;display:block}
   .hero-actions .btn { min-height: 46px; }
   .shop-items { gap: 7px; }
 }
+
+
+/* Mastersmon V2.15.9: final visual refinements and isolated mobile layout. */
+@media (min-width: 769px) {
+  .hero-overlay {
+    background:linear-gradient(90deg,rgba(2,15,31,.99) 0%,rgba(3,20,39,.95) 16%,rgba(3,22,45,.83) 28%,rgba(4,27,52,.38) 46%,rgba(5,27,51,.04) 75%);
+  }
+  .hero-copy { isolation:isolate; }
+  .hero h1 { text-shadow:0 3px 18px #00101ef2,0 0 22px #c7933888; }
+  .nav-links a .nav-icon { filter:drop-shadow(0 0 4px #59ccff55); }
+  .feature-image { isolation:isolate; }
+}
+@media (min-width: 1101px) {
+  .panel .micro-note { font-size:10px!important; }
+  .panel p,.shop-heading p { font-size:12px; }
+  .creature strong { font-size:12px; }
+  .type { font-size:10px; }
+  .inline-link { font-size:11px; }
+  .final-cta p:not(.eyebrow) { font-size:11px; }
+  .footer .wrap>span { display:none; }
+}
+
+/* Mobile renders one section at a time, no inherited tablet grid areas. */
+@media (max-width: 768px) {
+  html,body { max-width:100%;overflow-x:clip; }
+  body { min-width:320px; }
+  .site-header { position:relative;top:auto;height:auto; }
+  .nav-wrap { width:calc(100% - 24px);padding:9px 0 10px;grid-template-columns:minmax(0,1fr) auto auto;grid-template-areas:'brand lang menu' 'login login login' 'nav nav nav';gap:8px; }
+  .brand { min-width:0;gap:7px;font-size:clamp(18px,5.9vw,25px);letter-spacing:-.5px; }
+  .brand-emblem { width:30px;height:33px;font-size:21px;flex:0 0 auto; }
+  .language-switch { padding:2px;gap:1px; }
+  .language-switch button { padding:7px 8px; }
+  .menu-toggle { padding:8px 10px;min-height:38px;font-size:14px; }
+  .top-login { grid-area:login;height:42px;width:100%;padding:0 10px;font-size:12px; }
+  .top-login .google-mark { font-size:18px; }
+  .nav-links { position:static;min-width:0;max-width:100%;z-index:40; }
+  .nav-links.open { display:flex; }
+  .nav-links a { min-height:44px; }
+
+  .hero,.hero-content { min-height:0;height:auto; }
+  .hero-content { padding:0 0 16px; }
+  .hero-art { background-position:68% center;opacity:.83;mask-image:none; }
+  .hero-overlay { background:linear-gradient(90deg,rgba(2,15,31,.93),rgba(3,21,41,.75) 75%,rgba(3,23,43,.6)),linear-gradient(180deg,rgba(2,17,35,.18),rgba(2,15,32,.48)); }
+  .hero-copy { position:relative;z-index:5;width:100%;max-width:100%;padding:20px 0 0; }
+  .hero .eyebrow { font-size:10px;letter-spacing:1.35px;margin:0 0 7px; }
+  .hero h1 { font-size:clamp(36px,10.8vw,52px);line-height:1.04;letter-spacing:-1.3px;max-width:100%;margin:5px 0 10px;text-shadow:0 3px 12px #001120,0 0 22px #001120; }
+  .hero-sub { font-size:10px;letter-spacing:1.1px;line-height:1.5; }
+  .hero-body { margin:11px 0 0;font-size:13px;line-height:1.4;max-width:96%;text-shadow:0 2px 8px #001120; }
+  .hero-actions { display:grid;grid-template-columns:minmax(0,1fr);margin-top:13px;gap:8px;width:100%; }
+  .hero-actions .btn,.hero-login,.hero-explore { min-width:0!important;width:100%;height:43px;min-height:43px;font-size:12px;gap:8px;white-space:normal; }
+  .hero-actions .google-mark { font-size:20px; }
+  .hero-actions .action-icon { font-size:18px; }
+  .hint { margin:9px 0 0;font-size:10px;line-height:1.4; }
+
+  .content { padding:10px 0 8px; }
+  .mobile-discover { display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:0 0 10px; }
+  .mobile-tab { padding:9px 3px;min-width:0;min-height:39px;border-radius:9px;font-size:clamp(10px,2.7vw,12px);white-space:nowrap; }
+  .feature-grid { display:block!important;grid-template-columns:none!important;grid-template-rows:none!important;grid-template-areas:none!important;position:static!important;min-height:0!important;height:auto!important;overflow:visible!important; }
+  .feature-grid > .panel { grid-area:auto!important;position:relative!important;inset:auto!important;transform:none!important;width:100%!important;min-width:0!important;height:auto!important;margin:0!important; }
+  .feature-grid > .panel:not(.is-mobile-visible) { display:none!important; }
+  .feature-grid > .panel.is-mobile-visible { display:block!important; }
+  .panel { border-radius:10px;padding:12px; }
+  .panel-head { min-height:0!important;margin-bottom:9px;align-items:flex-start; }
+  .panel h2,.shop-panel h2 { font-size:clamp(19px,5.4vw,24px);margin:3px 0 4px;line-height:1.18; }
+  .heading-symbol { font-size:20px; }
+  .panel .section-kicker,.section-kicker { font-size:9px;letter-spacing:1.3px; }
+  .panel p,.shop-heading p { font-size:11px;line-height:1.45; }
+  .inline-link { font-size:10px;padding:6px 7px;white-space:nowrap; }
+  .creature-grid { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px; }
+  .creature { height:156px;padding:6px 5px 9px;border-radius:9px; }
+  .creature img { top:8px;height:103px; }
+  .creature strong { font-size:12px; }
+  .type { font-size:10px;padding:4px 7px;margin-top:4px; }
+  .micro-note { margin-top:9px!important;font-size:10px!important; }
+  .feature-image { height:190px!important;margin:6px 0 10px;overflow:hidden;position:relative; }
+  .image-label { font-size:11px; }
+  .image-features { min-width:48%;padding:6px; }
+  .image-features>span { font-size:10px;line-height:1.2; }
+  .wide-btn { min-height:44px;height:44px;font-size:13px; }
+  .shop-panel { display:none!important;margin:0!important;position:relative!important; }
+  .shop-panel.is-mobile-visible { display:flex!important;flex-direction:column;align-items:stretch;gap:12px; }
+  .shop-heading { flex-direction:column;align-items:stretch;gap:9px; }
+  .shop-go { width:100%;min-height:42px;justify-content:center;font-size:12px; }
+  .shop-items { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px; }
+  .shop-items div { min-height:66px; }
+  .final-cta { margin:10px 0 8px;display:flex;flex-direction:column;gap:10px;padding:15px 12px;text-align:center; }
+  .final-cta .eyebrow { font-size:9px; }
+  .final-cta h2 { width:100%;font-size:clamp(20px,6vw,27px);line-height:1.15; }
+  .final-cta p:not(.eyebrow) { font-size:11px; }
+  .final-cta .btn { width:100%;min-height:44px;height:44px;font-size:12px; }
+  .footer .wrap { padding:10px 0 14px;gap:6px; }
+  .footer .wrap>span { display:none; }
+}
+@media (max-width: 360px) {
+  .brand { font-size:18px; }
+  .brand-emblem { width:27px;height:30px; }
+  .hero h1 { font-size:35px; }
+  .mobile-tab { font-size:9.5px; }
+  .image-features>span { font-size:9px; }
+}
