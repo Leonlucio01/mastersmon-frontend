@@ -607,3 +607,96 @@ img{max-width:100%;display:block}
   .shop-svg{width:28px;height:28px}
 }
 @media(max-width:360px){.tab-svg{width:13px;height:13px}.mobile-tab{gap:2px}}
+
+/* ================================================================
+   Mastersmon V2.16.1 | Hero split composition & accessibility polish
+   Keep existing navigation, login, i18n, cards and mobile tabs.
+   ================================================================ */
+.hero { background: #04172b; isolation: isolate; }
+.hero-bg { background:linear-gradient(100deg,#031326 0%,#061b35 40%,#082d4c 100%); }
+/* On desktop the illustration occupies the right side only, so map
+   labels cannot appear under the hero heading or supporting copy. */
+@media (min-width: 769px) {
+  .hero-art {
+    inset: 0 0 0 auto;
+    width: 100%;
+    background-position: center 51% !important;
+    background-size: cover;
+    opacity: 1;
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+    clip-path: polygon(37% 0,100% 0,100% 100%,37% 100%);
+  }
+  .hero-overlay {
+    z-index: 2;
+    background:linear-gradient(90deg,#031326 0%,#031326 31%,rgba(3,19,38,.95) 36%,rgba(3,19,38,.45) 43%,transparent 52%) !important;
+  }
+  .hero-content { position:relative; }
+  .hero-copy {
+    width: min(40%, 560px);
+    max-width: 560px;
+    padding-right: 12px;
+    text-shadow: none;
+  }
+  .hero-copy::before { display:none; }
+  .hero h1 { white-space:nowrap;font-size:clamp(39px,4vw,63px);letter-spacing:-1.6px; }
+  .hero .eyebrow {font-size:clamp(9px,.8vw,12px);letter-spacing:2px;}
+  .hero-sub {font-size:clamp(9px,.82vw,12px);letter-spacing:1.8px;}
+  .hero-body {max-width:480px;font-size:clamp(13px,1.02vw,17px);line-height:1.48;}
+  .hero-actions {gap:10px;flex-wrap:nowrap;align-items:stretch;}
+  .hero-actions .btn {min-width:0 !important;height:44px;padding:9px 12px;flex:1 1 0;white-space:nowrap;font-size:clamp(10px,.78vw,13px);gap:8px;}
+  .hero-actions .hero-login {flex:1.17 1 0;}
+  .hero-actions .hero-explore {flex:1 1 0;}
+  .hero-actions .google-mark {font-size:22px;}
+  .hero-actions .action-svg {width:21px;height:21px;}
+  .hint {font-size:clamp(10px,.75vw,12px);line-height:1.4;}
+}
+/* Laptop: give copy enough width without growing the compact hero. */
+@media (min-width:769px) and (max-width:1399px) {
+  .hero-art {clip-path:polygon(42% 0,100% 0,100% 100%,42% 100%);}
+  .hero-overlay {background:linear-gradient(90deg,#031326 0%,#031326 34%,rgba(3,19,38,.91) 41%,rgba(3,19,38,.36) 49%,transparent 59%) !important;}
+  .hero-copy {width:43%;max-width:510px;}
+  .hero h1 {font-size:clamp(38px,4.1vw,55px);}
+  .hero-actions .btn {font-size:11px;padding:8px 9px;}
+}
+/* Tablet/phone: landscape art becomes its own row, not a background
+   crossing the text. No overlap with the mobile section selector. */
+@media (max-width:768px) {
+  .hero,.hero-content {min-height:0!important;height:auto!important;}
+  .hero-content {display:flex!important;flex-direction:column-reverse;align-items:stretch;padding:0 0 14px!important;}
+  .hero-art {
+    position:relative!important;
+    inset:auto!important;
+    width:100%!important;
+    height:clamp(125px,43vw,205px);
+    flex:0 0 auto;
+    background-position:66% center!important;
+    background-size:cover;
+    opacity:1!important;
+    -webkit-mask-image:none!important;
+    mask-image:none!important;
+    clip-path:none!important;
+    border-bottom:1px solid rgba(64,176,225,.45);
+  }
+  .hero-overlay {display:none!important;}
+  .hero-copy {
+    width:100%!important;max-width:none!important;
+    padding:16px 0 2px!important;
+    background:transparent;
+    isolation:isolate;
+  }
+  .hero-copy::before {display:none!important;}
+  .hero .eyebrow {color:#80e5ff!important;letter-spacing:1.35px;font-size:10px;}
+  .hero h1 {color:#ffe3a0;font-size:clamp(36px,10.3vw,51px)!important;margin:6px 0 9px!important;}
+  .hero-sub {color:#d9edff!important;letter-spacing:1.5px;font-size:10px;}
+  .hero-body {color:#f1f6fd!important;font-size:13px;line-height:1.5;max-width:100%;margin-top:11px;}
+  .hero-actions {display:grid!important;grid-template-columns:1fr;gap:9px;}
+  .hero-actions .btn {min-height:46px!important;white-space:normal;}
+  .hint {font-size:11px;}
+}
+/* Fine details consistent with the character creation/lobby UI. */
+.hero .eyebrow,.hero-sub {font-weight:800;}
+.hero-body {font-weight:450;}
+.hero h1 {text-shadow:0 2px 9px rgba(0,0,0,.65),0 0 16px rgba(228,178,83,.25);}
+.btn.blue:hover,.shop-go:hover {box-shadow:inset 0 -2px rgba(85,225,255,.85),0 0 0 1px rgba(55,202,255,.35),0 0 19px rgba(20,168,242,.68);}
+.btn.gold:hover,.top-login:hover {box-shadow:inset 0 1px 5px rgba(255,255,255,.8),0 0 0 1px rgba(255,219,130,.42),0 0 19px rgba(243,176,63,.72);}
