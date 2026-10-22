@@ -936,3 +936,79 @@ body > .footer {flex:none!important;margin-top:8px;}
   .hero .hint {font-size:11px!important;}
   .footer {margin-top:8px!important;}
 }
+
+
+/* ======================================================
+   MASTERSMON V2.16.5 | Unified panels & clean composition
+   Preserves sign-in logic, visitor links and mobile tabs.
+   ====================================================== */
+@media(min-width:1101px){
+  /* Header, hero, cards and footer share a single alignment grid. */
+  .nav-wrap,.wrap,.hero .hero-content.wrap{
+    width:min(1400px,calc(100% - 44px))!important;
+    max-width:1400px!important;
+  }
+  .hero .hero-content.wrap{min-height:clamp(255px,19.7vw,316px)!important;}
+  .hero .hero-copy{padding-left:4px!important;}
+  .content{padding-top:10px!important;}
+  .feature-grid{grid-template-columns:minmax(0,1.57fr) minmax(0,1fr) minmax(0,1fr)!important;gap:10px!important;}
+  .panel{padding:12px 12px 11px!important;min-width:0;}
+  .panel-head{min-height:64px!important;}
+  .creature{height:clamp(146px,10.1vw,166px)!important;}
+  .creature img{height:67%!important;}
+  .feature-image{height:clamp(146px,10.4vw,166px)!important;min-height:0!important;flex:none!important;}
+  .shop-panel{margin-top:10px!important;padding:11px 13px!important;gap:13px!important;}
+  .final-cta{margin:10px 0 6px!important;min-height:65px!important;}
+}
+@media(min-width:769px){
+  /* Make the cards feel like one coordinated dashboard rather than unrelated tiles. */
+  .feature-grid>.panel{display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:flex-start!important;}
+  .pokedex-panel .creature-grid{margin-top:2px;}
+  .pokedex-panel .micro-note{margin-top:auto!important;padding-top:8px;}
+  .explore-panel .feature-image,.battles-panel .feature-image{margin:3px 0 0!important;}
+  .panel-head{flex:none!important;}
+  .panel h2{min-height:27px;}
+  .feature-image{border:1px solid #3a95c5;box-shadow:0 0 0 1px rgba(59,192,244,.08),inset 0 -24px 30px rgba(0,8,20,.3)!important;}
+  .image-features{background:linear-gradient(90deg,rgba(4,25,47,.8),rgba(3,21,42,.94))!important;}
+  .shop-heading{min-width:0;}
+  .shop-items{min-width:0;}
+  .final-cta{display:grid!important;grid-template-columns:auto minmax(0,1.4fr) minmax(0,1fr) auto!important;gap:16px!important;align-items:center!important;}
+  .final-cta h2{white-space:normal;text-wrap:balance;}
+  .final-cta p:not(.eyebrow){text-align:left!important;}
+  .footer{background:#031326!important;}
+  .footer .wrap{min-height:29px;}
+}
+/* Laptop: preserve the same rhythm with slightly smaller gaps. */
+@media(min-width:1101px) and (max-width:1440px){
+  .feature-grid{gap:8px!important;}
+  .panel{padding:9px 10px!important;}
+  .panel-head{min-height:58px!important;}
+  .creature{height:clamp(139px,11vw,154px)!important;}
+  .feature-image{height:clamp(140px,11vw,154px)!important;}
+  .shop-panel{padding:8px 10px!important;}
+  .final-cta{gap:9px!important;min-height:58px!important;}
+}
+/* Tablet: cards stay independent, no fixed placement or overlap. */
+@media(min-width:769px) and (max-width:1100px){
+ .feature-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-template-areas:'pokedex pokedex' 'explore battles'!important;}
+ .pokedex-panel{grid-area:pokedex!important;}
+ .explore-panel{grid-area:explore!important;}
+ .battles-panel{grid-area:battles!important;}
+ .creature-grid{gap:10px;}
+ .creature{height:170px;}
+ .feature-image{height:185px!important;}
+ .final-cta{grid-template-columns:1fr 1.5fr!important;}
+ .final-cta p:not(.eyebrow){text-align:right!important;}
+}
+/* Mobile: tab panels are mutually exclusive and flow in normal document order. */
+@media(max-width:768px){
+  .feature-grid{display:block!important;}
+  .feature-grid>.panel{display:none!important;position:relative!important;grid-area:auto!important;}
+  .feature-grid>.panel.is-mobile-visible{display:block!important;}
+  .shop-panel{display:none!important;}
+  .shop-panel.is-mobile-visible{display:flex!important;flex-direction:column!important;}
+  .panel{margin:0!important;}
+  .panel-head{margin-bottom:9px!important;}
+  .final-cta{display:flex!important;flex-direction:column!important;}
+  .footer{background:#031326!important;}
+}
