@@ -1253,3 +1253,9 @@ body > .footer {flex:none!important;margin-top:8px;}
   .auth-login-zone{margin-top:12px!important;padding:9px!important}
   .auth-trust{margin-top:9px!important}
 }
+
+/* V2.16.12: clean official white Google button; no iframe cropping */
+.auth-login-zone {padding-inline:12px!important;overflow:visible!important}
+.google-button {width:100%!important;max-width:100%!important;overflow:visible!important;min-height:44px!important}
+.google-button>div,.google-button iframe {max-width:100%!important;overflow:visible!important}
+@media(max-width:560px){.auth-login-zone{padding-inline:8px!important}}
