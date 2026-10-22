@@ -837,3 +837,102 @@ body > .footer { flex:0 0 auto; }
   .hero .hero-overlay {display:none!important;}
   .hero .hero-copy { background:transparent; }
 }
+
+
+/* ===============================================
+   MASTERSMON V2.16.4 - Framed scenic hero / clean flow
+   This final override fixes the unexpected edge gap,
+   restores map readability, and avoids forced-footer voids.
+   =============================================== */
+html {min-height:100%;}
+body {display:block!important;min-height:100vh!important;}
+body > main {flex:none!important;}
+body > .footer {flex:none!important;margin-top:8px;}
+
+/* The hero uses precisely the same centered bounds as the cards. */
+@media (min-width:769px) {
+  .hero {position:relative!important;isolation:isolate!important;overflow:hidden!important;
+    background:linear-gradient(90deg,#04172c,#071c34)!important;
+    min-height:0!important;height:auto!important;padding:0!important;}
+  .hero .hero-content.wrap {position:relative!important;isolation:isolate!important;
+    min-height:clamp(258px,20.2vw,342px)!important;height:auto!important;
+    width:min(1600px,calc(100% - 40px))!important;
+    margin:0 auto!important;display:flex!important;align-items:center!important;
+    overflow:hidden!important;padding:0 0 0 0!important;}
+  .hero .hero-art {position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+    background-image:url('../assets/hero-world.jpg')!important;
+    background-position:center center!important;background-size:100% 100%!important;
+    background-repeat:no-repeat!important;
+    opacity:1!important;filter:saturate(1.07) contrast(1.04)!important;
+    clip-path:none!important;mask-image:none!important;-webkit-mask-image:none!important;
+    z-index:0!important;transform:none!important;}
+  .hero .hero-overlay {display:none!important;}
+  /* Instead of a hard split, a left-hand scenic scrim follows the artwork. */
+  .hero .hero-content.wrap::before {content:''!important;position:absolute!important;inset:0!important;
+    z-index:1!important;pointer-events:none!important;display:block!important;
+    background:linear-gradient(90deg,
+      rgba(2,15,33,.99) 0%,rgba(2,17,35,.98) 9%,
+      rgba(2,18,38,.94) 22%,rgba(2,19,38,.82) 31%,
+      rgba(2,21,42,.60) 39%,rgba(2,21,42,.19) 53%,
+      rgba(2,21,42,0) 68%)!important;}
+  .hero .hero-copy {z-index:2!important;position:relative!important;
+    width:min(48%,560px)!important;max-width:560px!important;
+    padding:22px 16px 21px 18px!important;
+    min-height:0!important;overflow:visible!important;}
+  .hero .hero-copy::before {display:none!important;}
+  .hero .hero-copy .eyebrow {color:#8beaff!important;font-size:11px!important;
+    letter-spacing:1.5px!important;text-shadow:0 1px 4px #031426!important;}
+  .hero .hero-copy h1 {font-size:clamp(47px,4.1vw,67px)!important;line-height:1.06!important;
+    white-space:nowrap!important;margin:10px 0 10px!important;letter-spacing:-1.8px!important;
+    text-shadow:0 3px 9px #021125,0 0 15px rgba(240,176,64,.28)!important;}
+  .hero .hero-sub {font-size:11px!important;letter-spacing:1.5px!important;color:#eef7ff!important;}
+  .hero .hero-body {font-size:14px!important;line-height:1.42!important;max-width:430px!important;
+    margin:12px 0 0!important;color:#e4f1ff!important;text-shadow:0 1px 5px #000!important;}
+  .hero .hero-actions {margin-top:13px!important;gap:12px!important;}
+  .hero .hero-actions .hero-login {height:42px!important;min-height:42px!important;
+    padding:8px 17px!important;min-width:227px!important;max-width:280px!important;
+    font-size:12px!important;}
+  .hero .hint {margin:9px 0 0!important;color:#d8eaff!important;font-size:10px!important;}
+  .wrap.content {padding-top:9px!important;}
+  .footer .wrap {padding:7px 0 10px!important;}
+}
+@media (min-width:1600px) {
+  .hero .hero-content.wrap {width:min(1680px,calc(100% - 46px))!important;}
+  .hero .hero-copy {padding-left:20px!important;}
+}
+@media (min-width:769px) and (max-width:1365px) {
+  .hero .hero-content.wrap {width:calc(100% - 28px)!important;
+    min-height:clamp(240px,21.6vw,293px)!important;}
+  .hero .hero-copy {width:min(49%,505px)!important;padding:13px 12px 13px 14px!important;}
+  .hero .hero-copy h1 {font-size:clamp(40px,4.2vw,55px)!important;}
+  .hero .hero-copy .eyebrow {font-size:10px!important;}
+  .hero .hero-body {font-size:12px!important;max-width:380px!important;margin-top:9px!important;}
+  .hero .hero-sub {font-size:10px!important;}
+  .hero .hero-actions {margin-top:11px!important;}
+  .hero .hero-actions .hero-login {height:39px!important;min-height:39px!important;}
+  .hero .hint {font-size:9px!important;margin-top:7px!important;}
+}
+/* Mobile: preserve the successful tab layout, and dedicate a bright image
+   strip followed by a completely legible dark text panel. */
+@media (max-width:768px) {
+  .hero {background:#04172d!important;}
+  .hero .hero-content.wrap {display:flex!important;flex-direction:column-reverse!important;
+    align-items:stretch!important;min-height:0!important;height:auto!important;
+    overflow:visible!important;padding:0 0 15px!important;}
+  .hero .hero-art {position:relative!important;inset:auto!important;
+    width:100%!important;height:clamp(122px,44vw,210px)!important;
+    background-image:url('../assets/hero-world.jpg')!important;
+    background-position:center!important;background-size:100% 100%!important;
+    clip-path:none!important;mask-image:none!important;-webkit-mask-image:none!important;
+    opacity:1!important;filter:none!important;transform:none!important;
+    border:1px solid #2a8ab7;border-radius:8px;}
+  .hero .hero-overlay {display:none!important;}
+  .hero .hero-copy {width:100%!important;max-width:none!important;
+    padding:16px 4px 0!important;background:none!important;}
+  .hero .hero-copy::before {display:none!important;}
+  .hero .hero-copy h1 {font-size:clamp(36px,10vw,54px)!important;white-space:normal!important;line-height:1.04!important;}
+  .hero .hero-body {max-width:100%!important;font-size:14px!important;}
+  .hero .hero-actions .hero-login {width:100%!important;max-width:none!important;}
+  .hero .hint {font-size:11px!important;}
+  .footer {margin-top:8px!important;}
+}
