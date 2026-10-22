@@ -4,3 +4,92 @@
 @media(max-width:800px){.site-header{height:60px}.nav-wrap{gap:7px}.brand{font-size:20px;margin-right:auto}.brand-emblem{width:34px;height:36px;font-size:23px}.menu-toggle{display:block;order:3}.nav-links{position:absolute;right:9px;top:60px;left:9px;height:auto;display:none;flex-direction:column;gap:0;border:1px solid #297ca6;border-radius:10px;background:#041d34;padding:5px}.nav-links.open{display:flex}.nav-links a{min-height:43px;font-size:14px;padding:0 12px}.top-login{padding:7px 10px;font-size:10px}.language-switch button{padding:6px 7px}.hero,.hero-content{min-height:360px}.hero-art{width:100%;right:0;mask-image:none;opacity:.73}.hero-overlay{background:linear-gradient(90deg,#031429f7,#031429c9 65%,#03142940)}.hero-copy{max-width:510px}.hero h1{font-size:clamp(37px,7vw,59px)}.hero-body{font-size:14px}.hero-login{min-width:auto}.hero-explore{min-width:auto}.feature-grid{grid-template-columns:1fr 1fr}.pokedex-panel{grid-column:1/-1}.image-features{min-width:39%}.shop-items{flex:1 1 100%}}
 @media(max-width:560px){.wrap{width:calc(100% - 22px)}.brand{font-size:17px}.top-login{font-size:0;gap:3px;padding:8px}.top-login .google-mark{font-size:20px}.top-login>span:last-child{font-size:12px}.hero,.hero-content{min-height:365px}.hero-copy{padding:36px 0 20px}.hero h1{font-size:clamp(31px,8vw,44px);letter-spacing:-1px}.hero-sub{font-size:9px;letter-spacing:1px}.hero-body{font-size:12px;max-width:360px}.hero-actions{gap:8px}.hero-actions .btn{padding:10px 12px;font-size:11px;min-width:0}.hero-login .google-mark{font-size:20px}.eyebrow{font-size:9px}.hero-art{opacity:.6;background-position:65% center}.content{padding-top:10px}.mobile-discover{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin-bottom:9px}.mobile-tab{border:1px solid #246f96;background:#0b3455;color:#d2efff;border-radius:7px;padding:9px 1px;font-size:11px}.mobile-tab.is-active{background:#0c6493;box-shadow:inset 0 -2px #54d1fd;color:white}.feature-grid{display:block}.feature-grid>.panel,.shop-panel{display:none;margin-bottom:9px}.feature-grid>.panel.is-mobile-visible,.shop-panel.is-mobile-visible{display:block}.panel{padding:11px}.panel-head{min-height:0;margin-bottom:9px}.panel h2{font-size:18px}.creature-grid{gap:5px}.creature{height:120px;padding:5px}.creature img{height:78px;top:1px}.creature strong{font-size:9px}.type{font-size:8px;padding:3px 4px;margin-top:3px}.feature-image{height:210px}.shop-panel{display:none}.shop-panel.is-mobile-visible{display:flex;flex-direction:column}.shop-heading{flex-direction:column;align-items:stretch;gap:10px}.shop-items{grid-template-columns:repeat(2,1fr);width:100%}.final-cta{flex-direction:column;text-align:center;gap:9px;padding:13px}.final-cta h2{font-size:19px}.final-cta .eyebrow{font-size:10px}.final-cta p:not(.eyebrow){font-size:11px}.footer .wrap{padding:9px 0}.footer span{display:none}}
 @media(max-width:370px){.brand{font-size:15px}.language-switch button{padding:5px}.hero-actions .btn{font-size:10px;padding:9px}.hero-body{font-size:11px}.creature strong{font-size:8px}}
+
+
+/* Mastersmon V2.15.5 - Desktop compact polish, preserves V2.15.4 design & mobile. */
+@media (min-width: 1101px) {
+  .site-header{height:55px}
+  .nav-wrap{width:min(1520px,calc(100% - 26px));gap:12px}
+  .brand{font-size:clamp(22px,2.05vw,30px);gap:9px}
+  .brand-emblem{height:37px;width:38px;font-size:26px}
+  .nav-links{gap:1px}
+  .nav-links a{font-size:12px;padding:0 10px}
+  .nav-links a .nav-icon{display:none}
+  .top-login{padding:8px 13px;line-height:1.1}
+  .language-switch button{padding:6px 9px}
+  .wrap{width:min(1480px,calc(100% - 32px))}
+  .hero,.hero-content{min-height:302px}
+  .hero-copy{max-width:670px;padding:18px 0 17px}
+  .hero h1{font-size:clamp(49px,4.55vw,69px);line-height:1.05;margin:7px 0 10px;letter-spacing:-1.7px}
+  .hero-sub{font-size:11px;letter-spacing:1.7px}
+  .hero-body{font-size:14px;max-width:485px;line-height:1.4;margin:12px 0 0}
+  .hero-actions{flex-wrap:nowrap;gap:10px;margin-top:14px;width:max-content;max-width:100%}
+  .hero-actions .btn{padding:10px 15px;height:46px;font-size:12px;min-width:0;white-space:nowrap;gap:9px}
+  .hero-login{width:261px}
+  .hero-explore{width:202px}
+  .hero-actions .google-mark{font-size:22px}
+  .hero-actions .action-icon{font-size:20px}
+  .hint{font-size:10px;margin:9px 0 0}
+  .hero-art{width:95%;background-position:60% 52%}
+  .content{padding-top:8px}
+  .feature-grid{gap:9px;grid-template-columns:1.77fr 1fr 1fr}
+  .panel{padding:10px 12px}
+  .panel-head{min-height:63px}
+  .panel h2,.shop-panel h2{font-size:19px;margin:2px 0}
+  .panel .section-kicker,.section-kicker{font-size:9px}
+  .panel p{font-size:11px;margin:3px 0}
+  .creature-grid{gap:7px}
+  .creature{height:152px;padding:7px}
+  .creature img{height:98px;top:5px}
+  .creature strong{font-size:11px}
+  .type{font-size:9px;padding:3px 7px;margin-top:4px}
+  .micro-note{font-size:9px!important;margin-top:6px!important}
+  .feature-image{height:145px;margin:3px 0 8px}
+  .wide-btn{height:38px;font-size:12px;padding:7px}
+  .image-features{padding:7px 5px;min-width:43%}
+  .image-features>span{font-size:9px}
+  .inline-link{padding:5px 7px;font-size:10px}
+  .shop-panel{margin-top:9px;padding:8px 12px;gap:9px;min-height:72px}
+  .shop-heading{gap:9px;flex:1.05}
+  .shop-heading .panel h2,.shop-heading h2{font-size:17px}
+  .shop-heading p{font-size:10px}
+  .shop-go{padding:8px 11px;font-size:11px}
+  .shop-go .action-icon{font-size:17px}
+  .shop-items{gap:6px;flex:1.2}
+  .shop-items div{min-height:54px;padding:6px 4px}
+  .shop-item-icon{font-size:19px}
+  .shop-items strong{font-size:10px}
+  .final-cta{margin:8px 0;padding:9px 13px;gap:10px;min-height:60px}
+  .final-cta .eyebrow{font-size:9px;letter-spacing:1.1px}
+  .final-cta h2{font-size:clamp(16px,1.45vw,20px)}
+  .final-cta p:not(.eyebrow){font-size:10px}
+  .final-cta .btn{padding:9px 12px;font-size:11px}
+  .footer .wrap{padding:6px 0}
+}
+/* Laptop 801-1100: prevent overflow/stacked hero buttons. */
+@media (min-width:801px) and (max-width:1100px){
+  .site-header{height:57px}
+  .nav-wrap{gap:7px}
+  .hero,.hero-content{min-height:320px}
+  .hero-copy{max-width:610px;padding:20px 0}
+  .hero h1{font-size:clamp(43px,5.3vw,60px);line-height:1.05}
+  .hero-body{font-size:13px;max-width:440px;margin-top:10px}
+  .hero-actions{flex-wrap:nowrap;gap:9px;margin-top:12px}
+  .hero-actions .btn{min-width:0;padding:10px 12px;font-size:11px;white-space:nowrap}
+  .hero-login{width:245px}.hero-explore{width:185px}
+  .feature-image{height:148px}
+}
+/* Medium & small phones keep clear tap targets; hero buttons can wrap when needed. */
+@media (max-width:800px){
+  .hero-actions{flex-wrap:wrap;gap:8px}
+  .hero-actions .btn{min-height:44px}
+  .hero h1{line-height:1.07}
+}
+@media (max-width:560px){
+  .hero,.hero-content{min-height:335px}
+  .hero-copy{padding:30px 0 17px}
+  .hero-actions{margin-top:12px}
+  .hero-actions .btn{min-height:43px}
+  .hero-body{margin:10px 0 0}
+}
+@media (prefers-reduced-motion: reduce){.login,.btn,.creature{transition:none!important;transform:none!important}}
