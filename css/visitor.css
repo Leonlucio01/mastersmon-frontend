@@ -351,3 +351,121 @@ img{max-width:100%;display:block}
   html{scroll-behavior:auto}
   .login,.btn,.creature,.shop-items div,.nav-links a{transition:none!important;transform:none!important}
 }
+
+/* =============================================================
+   Mastersmon V2.15.8 | compact visitor, same proportions as lobby
+   Desktop is centered, readable and compact; mobile remains fluid.
+   ============================================================= */
+:root { --radius: 10px; }
+@media (min-width: 1101px) {
+  .wrap { width: min(1510px, calc(100% - 56px)); }
+  .nav-wrap { width: min(1510px, calc(100% - 48px)); gap: 10px; }
+  .site-header { height: 56px; }
+  .brand { font-size: clamp(23px, 1.65vw, 29px); gap: 9px; }
+  .brand-emblem { width: 36px; height: 38px; font-size: 25px; }
+  .nav-links { gap: 0; }
+  .nav-links a { padding: 0 clamp(7px, .72vw, 12px); font-size: 12px; gap: 6px; }
+  .nav-links a .nav-icon { font-size: 17px; min-width: 17px; }
+  .top-login { height: 38px; padding: 0 12px; font-size: 11px; }
+  .top-login .google-mark { font-size: 19px; }
+  .language-switch { padding: 3px; }
+  .language-switch button { padding: 6px 9px; font-size: 11px; }
+  .hero, .hero-content { min-height: clamp(255px, 19vw, 306px); }
+  .hero-copy { max-width: 530px; padding: 16px 0 14px; }
+  .eyebrow { font-size: 10px; letter-spacing: 1.8px; }
+  .hero h1 { font-size: clamp(46px, 3.9vw, 65px); line-height: 1.02; margin: 5px 0 9px; }
+  .hero-sub { font-size: 10px; letter-spacing: 1.8px; }
+  .hero-body { font-size: clamp(13px, .85vw, 15px); line-height: 1.36; max-width: 460px; margin-top: 10px; }
+  .hero-actions { margin-top: 14px; gap: 10px; flex-wrap: nowrap; }
+  .hero-actions .btn { height: 42px; font-size: 12px; padding: 8px 13px; white-space: nowrap; gap: 9px; }
+  .hero-login { min-width: 242px; }
+  .hero-explore { min-width: 191px; }
+  .hero-actions .google-mark { font-size: 20px; }
+  .hint { margin-top: 9px; font-size: 10px; }
+  .hero-overlay { background: linear-gradient(90deg, rgba(2,18,37,.97) 0%, rgba(4,24,46,.89) 18%, rgba(4,28,54,.61) 37%, rgba(6,28,51,.12) 62%, transparent 87%); }
+  .content { padding-top: 8px; padding-bottom: 6px; }
+  .feature-grid { grid-template-columns: 1.6fr 1fr 1fr; gap: 9px; }
+  .panel { border-radius: 9px; padding: 10px 11px; }
+  .panel-head { min-height: 62px; }
+  .panel h2, .shop-panel h2 { font-size: clamp(18px, 1.22vw, 22px); margin: 2px 0 3px; gap: 7px; }
+  .heading-symbol { font-size: 21px; }
+  .panel .section-kicker, .section-kicker { font-size: 9px; letter-spacing: 1.5px; }
+  .panel p, .shop-heading p { font-size: 11px; line-height: 1.32; }
+  .inline-link { font-size: 10px; padding: 6px 8px; border-radius: 6px; }
+  .creature-grid { gap: 7px; }
+  .creature { height: clamp(143px, 10.15vw, 165px); border-radius: 8px; padding: 7px 5px 9px; }
+  .creature img { top: 5px; height: 67%; }
+  .creature strong { font-size: 11px; }
+  .type { font-size: 9px; margin-top: 5px; padding: 3px 7px; border-radius: 6px; }
+  .micro-note { font-size: 9px!important; margin-top: 6px!important; }
+  .feature-image { height: clamp(141px, 10.5vw, 169px); margin: 3px 0 8px; border-radius: 7px; }
+  .image-label { font-size: 11px; left: 7px; bottom: 6px; }
+  .image-features { padding: 6px; min-width: 43%; }
+  .image-features > span { font-size: 9px; gap: 4px; }
+  .wide-btn { height: 37px; font-size: 12px; }
+  .shop-panel { margin-top: 8px; padding: 8px 12px; gap: 10px; }
+  .shop-heading { gap: 10px; flex: 1.08; }
+  .shop-heading h2 { font-size: 17px; }
+  .shop-go { padding: 8px 10px; font-size: 11px; }
+  .shop-go .action-icon { font-size: 16px; }
+  .shop-items { gap: 7px; flex: 1.22; }
+  .shop-items div { min-height: 52px; padding: 5px 4px; border-radius: 8px; gap: 2px; }
+  .shop-item-icon { font-size: 19px; }
+  .shop-items strong { font-size: 10px; }
+  .final-cta { margin: 8px 0 6px; padding: 9px 15px; gap: 10px; min-height: 57px; border-radius: 9px; }
+  .final-cta .eyebrow { font-size: 9px; letter-spacing: 1px; }
+  .final-cta h2 { font-size: clamp(17px, 1.3vw, 22px); }
+  .final-cta p:not(.eyebrow) { font-size: 10px; }
+  .final-cta .btn { min-height: 38px; padding: 7px 11px; font-size: 11px; }
+  .final-cta .google-mark { font-size: 18px; }
+  .footer .wrap { padding: 5px 0 7px; }
+}
+@media (min-width: 1101px) and (max-width: 1365px) {
+  .wrap { width: calc(100% - 40px); }
+  .nav-wrap { width: calc(100% - 34px); gap: 6px; }
+  .brand { font-size: 22px; }
+  .nav-links a { padding: 0 6px; font-size: 11px; gap: 4px; }
+  .nav-links a .nav-icon { font-size: 15px; min-width: 15px; }
+  .hero, .hero-content { min-height: 270px; }
+  .hero-copy { max-width: 510px; }
+  .hero h1 { font-size: 49px; }
+  .hero-actions .btn { height: 40px; font-size: 11px; }
+  .hero-login { min-width: 226px; }
+  .hero-explore { min-width: 180px; }
+  .feature-grid { grid-template-columns: 1.65fr 1fr 1fr; gap: 8px; }
+  .panel { padding: 9px; }
+  .panel-head { min-height: 57px; }
+  .panel h2 { font-size: 17px; }
+  .creature { height: 139px; }
+  .feature-image { height: 137px; }
+  .wide-btn { height: 35px; }
+  .image-features > span { font-size: 8.5px; }
+}
+/* Tablet: show the same structure as before, but avoid large gaps. */
+@media (min-width: 769px) and (max-width: 1100px) {
+  .wrap, .nav-wrap { width: calc(100% - 30px); }
+  .hero, .hero-content { min-height: 288px; }
+  .hero h1 { font-size: clamp(42px, 5.5vw, 55px); }
+  .hero-copy { max-width: 550px; }
+  .hero-actions { flex-wrap: nowrap; gap: 8px; }
+  .hero-login { min-width: 205px; }
+  .hero-explore { min-width: 173px; }
+  .hero-actions .btn { font-size: 11px; padding: 9px; }
+  .content { padding-top: 10px; }
+  .feature-grid { gap: 10px; }
+  .creature { height: 165px; }
+  .panel h2 { font-size: 22px; }
+  .shop-items div { min-height: 59px; }
+}
+/* Phone: retain clear touch targets; no horizontal overflow. */
+@media (max-width: 768px) {
+  .wrap,.nav-wrap { width: calc(100% - 22px); }
+  .hero-content { padding: 15px 0 18px; }
+  .hero h1 { font-size: clamp(36px, 12vw, 55px); }
+  .panel { padding: 12px; border-radius: 10px; }
+  .panel h2,.shop-panel h2 { font-size: clamp(22px, 5.7vw, 28px); }
+  .creature-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .creature { height: 166px; }
+  .hero-actions .btn { min-height: 46px; }
+  .shop-items { gap: 7px; }
+}
