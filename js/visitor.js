@@ -31,14 +31,6 @@ document.addEventListener('mastersmon:languagechange',syncLanguage);
   else tidyNavLabels();
 })();
 
-/* V2.16.0: translated labels sometimes include legacy unicode icons. Keep SVG assets as the only icon. */
-(function(){
-  function cleanTranslatedLabels(){
-    document.querySelectorAll('.nav-links a [data-i18n], .mobile-tab .tab-label').forEach(function(node){
-      node.textContent=node.textContent.replace(/^[\s⌂◉◈⚔♜▣🛒]+/u,'').trim();
-    });
-  }
-  document.addEventListener('mastersmon:languagechange',function(){requestAnimationFrame(cleanTranslatedLabels)});
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',cleanTranslatedLabels);
-  else cleanTranslatedLabels();
-})();
+/* V2.16.9: initialize plain bilingual copy after i18n restored preferred language. */
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', syncLanguage);
+else syncLanguage();
