@@ -700,3 +700,59 @@ img{max-width:100%;display:block}
 .hero h1 {text-shadow:0 2px 9px rgba(0,0,0,.65),0 0 16px rgba(228,178,83,.25);}
 .btn.blue:hover,.shop-go:hover {box-shadow:inset 0 -2px rgba(85,225,255,.85),0 0 0 1px rgba(55,202,255,.35),0 0 19px rgba(20,168,242,.68);}
 .btn.gold:hover,.top-login:hover {box-shadow:inset 0 1px 5px rgba(255,255,255,.8),0 0 0 1px rgba(255,219,130,.42),0 0 19px rgba(243,176,63,.72);}
+
+/* ============================================================
+   Mastersmon V2.16.2 - Visitor preview / soft split hero
+   Public landing: only Google entry is actionable.
+   ============================================================ */
+/* Replace the abrupt edge with a spacious readable blue-black area. */
+.hero { background: #04152b; overflow: hidden; }
+.hero-bg { background: linear-gradient(90deg,#031326,#051b34 48%,#08253f 100%); }
+.hero .hero-art { pointer-events:none; }
+@media (min-width:769px) {
+  .hero .hero-art {
+    inset:0 0 0 auto!important;width:100%!important;
+    clip-path:none!important;
+    background-position:center 48%!important;
+    -webkit-mask-image:linear-gradient(90deg,transparent 0%,transparent 32%,rgba(0,0,0,.14) 40%,rgba(0,0,0,.86) 53%,#000 65%)!important;
+    mask-image:linear-gradient(90deg,transparent 0%,transparent 32%,rgba(0,0,0,.14) 40%,rgba(0,0,0,.86) 53%,#000 65%)!important;
+  }
+  .hero .hero-overlay {
+    background:linear-gradient(90deg,#031326 0%,rgba(3,19,38,.99) 24%,rgba(3,19,38,.82) 34%,rgba(3,19,38,.2) 53%,transparent 68%)!important;
+  }
+  .hero .hero-copy{ width:min(44%,570px)!important;max-width:570px!important; padding-right:16px!important; }
+  .hero .hero-actions{justify-content:flex-start!important;}
+  .hero .hero-actions .hero-login{flex:0 1 auto!important;min-width:244px!important;padding:10px 19px!important;}
+}
+@media (min-width:769px) and (max-width:1399px){
+  .hero .hero-copy{width:min(47%,520px)!important;}
+  .hero .hero-art{
+    -webkit-mask-image:linear-gradient(90deg,transparent 0%,transparent 36%,rgba(0,0,0,.17) 44%,#000 64%)!important;
+    mask-image:linear-gradient(90deg,transparent 0%,transparent 36%,rgba(0,0,0,.17) 44%,#000 64%)!important;
+  }
+  .hero .hero-actions .hero-login{min-width:230px!important;}
+}
+/* Make showcase informational rather than looking like inactive controls. */
+.panel-head:has(.inline-link){gap:10px}
+.explore-panel .feature-image,.battles-panel .feature-image{margin-bottom:0!important;}
+.explore-panel,.battles-panel{display:flex;flex-direction:column;}
+.explore-panel .feature-image,.battles-panel .feature-image{flex:1;min-height:150px;}
+.shop-heading{min-width:0;}
+.shop-items{flex:1.35;}
+.site-header .nav-links a[href="#"]{cursor:default;}
+/* A single, deliberately prominent sign-in action in the hero. */
+.hero-actions .hero-login {box-shadow:0 0 18px rgba(255,202,79,.55),inset 0 1px 6px rgba(255,255,255,.78);}
+.hero h1 {text-shadow:0 3px 15px rgba(0,0,0,.65),0 0 20px rgba(241,184,66,.26);}
+.hero .eyebrow,.hero-sub {letter-spacing:1.7px;}
+.hero-body {max-width:460px;}
+@media(max-width:768px){
+  .hero .hero-art {mask-image:none!important;-webkit-mask-image:none!important;clip-path:none!important;}
+  .hero .hero-actions {display:flex!important;flex-direction:column!important;}
+  .hero .hero-actions .hero-login{width:100%!important;min-width:0!important;}
+  .explore-panel,.battles-panel{display:none!important;}
+  .explore-panel.is-mobile-visible,.battles-panel.is-mobile-visible{display:flex!important;}
+  .shop-panel.is-mobile-visible{display:flex!important;}
+  .explore-panel .feature-image,.battles-panel .feature-image{flex:none;min-height:0;height:185px!important;}
+  .shop-items{width:100%;}
+  .hero-body{max-width:100%;}
+}
