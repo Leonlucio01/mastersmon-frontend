@@ -17,3 +17,16 @@ function selectMobileSection(section){tabs.forEach(t=>{const yes=t.dataset.targe
 tabs.forEach(t=>t.addEventListener('click',()=>selectMobileSection(t.dataset.target)));selectMobileSection('pokedex');
 function syncLanguage(){const i18n=window.MastersmonI18n;document.querySelectorAll('.nav-links a [data-i18n], .panel h2 [data-i18n], .shop-panel h2 [data-i18n]').forEach(node=>{node.textContent=node.textContent.replace(/^[◉◈⌂⚔♜▣]+\s*/u,'')});document.querySelectorAll('.creature .type').forEach((node,i)=>{if(pokemon[i])node.textContent=i18n?.t(pokemon[i].type)||pokemon[i].type});const en=i18n?.getLanguage()==='en';document.querySelectorAll('[data-plain-es]').forEach(node=>{node.textContent=node.dataset[en?'plainEn':'plainEs']})}
 document.addEventListener('mastersmon:languagechange',syncLanguage);
+
+
+/* V2.15.6: visually separate nav symbols from localized text. */
+(function () {
+  function tidyNavLabels() {
+    document.querySelectorAll('.nav-links a [data-i18n]').forEach(function(node) {
+      node.textContent = node.textContent.replace(/^[⌂◉◈⚔♜▣]\s*/, '');
+    });
+  }
+  document.addEventListener('mastersmon:languagechange', tidyNavLabels);
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', tidyNavLabels);
+  else tidyNavLabels();
+})();

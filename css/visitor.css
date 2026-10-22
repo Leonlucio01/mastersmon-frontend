@@ -93,3 +93,90 @@
   .hero-body{margin:10px 0 0}
 }
 @media (prefers-reduced-motion: reduce){.login,.btn,.creature{transition:none!important;transform:none!important}}
+
+
+/* MASTERSMON V2.15.6 - Full width, visual fidelity, compact desktop. */
+:root{--gold-glow:#ffd779;--electric:#55d9ff}
+@media(min-width:1101px){
+  .wrap{width:calc(100% - 40px);max-width:1840px}
+  .nav-wrap{width:calc(100% - 48px);max-width:1840px;gap:14px}
+  .site-header{height:61px;border-bottom-color:#2e86bc}
+  .brand{font-size:clamp(23px,2vw,34px);letter-spacing:.1px}
+  .brand-emblem{height:43px;width:42px;font-size:30px;filter:drop-shadow(0 0 7px #f6c75977)}
+  .nav-links{gap:2px}
+  .nav-links a{font-size:clamp(12px,.9vw,15px);padding:0 clamp(7px,.8vw,14px);height:100%;border-radius:0;gap:8px}
+  .nav-links a .nav-icon{display:inline-grid!important;place-items:center;font-size:clamp(17px,1.3vw,23px);line-height:1;min-width:20px;color:#d5eeff;text-shadow:0 0 12px #40bfff55}
+  .nav-links a.active{background:linear-gradient(180deg,#072941,#0a5b8d);border-bottom:3px solid #55dcff;box-shadow:0 5px 17px #32bcf777}
+  .top-login{font-size:12px;height:43px;padding:0 15px;box-shadow:0 0 15px #ffc45c8c}
+  .language-switch{min-width:68px}
+  .hero,.hero-content{min-height:322px}
+  .hero-copy{padding:20px 0;max-width:610px}
+  .hero h1{font-size:clamp(51px,4.9vw,76px);margin:5px 0 9px;line-height:1.06}
+  .hero-art{right:0;top:0;bottom:0;width:100%;border-radius:0;mask-image:none;background-position:center 49%}
+  .hero-overlay{background:linear-gradient(90deg,#021328 0%,#031a32eb 21%,#0829478c 35%,#06203b1a 61%,transparent 90%)}
+  .hero-body{font-size:clamp(13px,1.05vw,16px);max-width:485px;margin-top:8px}
+  .hero-actions{margin-top:13px}
+  .hero-actions .btn{height:47px;font-size:clamp(12px,.97vw,15px)}
+  .hero-login{width:clamp(262px,20vw,350px)}
+  .hero-explore{width:clamp(200px,16vw,260px)}
+  .hint{font-size:11px}
+  .content{padding-top:7px}
+  .feature-grid{grid-template-columns:1.65fr 1.02fr 1.02fr;gap:10px}
+  .panel{padding:10px 13px}
+  .panel-head{min-height:65px}
+  .panel h2{font-size:clamp(18px,1.4vw,23px)}
+  .panel p{font-size:clamp(11px,.85vw,13px)}
+  .panel .section-kicker{font-size:10px}
+  .creature{height:clamp(157px,12.1vw,191px)}
+  .creature img{height:72%;top:2px}
+  .creature strong{font-size:clamp(11px,.94vw,14px)}
+  .type{font-size:clamp(9px,.75vw,11px)}
+  .creature-grid{gap:8px}
+  .feature-image{height:clamp(153px,12.5vw,195px)}
+  .wide-btn{height:42px;font-size:clamp(12px,1vw,15px)}
+  .image-features{min-width:44%}
+  .image-features>span{font-size:clamp(9px,.76vw,12px)}
+  .shop-panel{min-height:75px;margin-top:9px;padding:9px 14px}
+  .shop-heading h2{font-size:clamp(17px,1.33vw,22px)}
+  .shop-items div{min-height:57px}
+  .shop-items strong{font-size:clamp(10px,.8vw,12px)}
+  .final-cta{margin:8px 0 7px;min-height:67px;padding:9px 20px}
+  .final-cta h2{font-size:clamp(18px,1.5vw,25px)}
+  .final-cta .btn{font-size:clamp(11px,.9vw,14px);padding:10px 16px}
+  .footer{padding:0}
+}
+@media(min-width:1101px) and (max-width:1365px){
+  .nav-wrap{gap:7px}.nav-links a{padding:0 6px;font-size:11px;gap:4px}.nav-links a .nav-icon{font-size:16px;min-width:16px}
+  .brand{font-size:21px}.hero h1{font-size:54px}.hero,.hero-content{min-height:315px}
+  .panel{padding:9px}.feature-grid{grid-template-columns:1.7fr 1fr 1fr}.image-features>span{font-size:9px}
+}
+/* The screenshot is a visually rich prototype; use CSS rather than missing imagery. */
+.site-header{background:linear-gradient(180deg,#06172a,#031528 87%)}
+.nav-links a{display:flex;align-items:center;justify-content:center;transition:background .2s,box-shadow .2s}
+.nav-links a:hover{background:#15517b;box-shadow:inset 0 -2px #48c8ff}
+.nav-links a .nav-icon{color:#d7eaff}
+.google-cta{position:relative;isolation:isolate;overflow:visible}
+.google-cta::after{content:'';position:absolute;inset:-3px;z-index:-1;border:1px solid #ffdc8a88;border-radius:11px;box-shadow:0 0 16px #ffd06144;pointer-events:none}
+.btn.gold,.top-login{background:linear-gradient(180deg,#fff2bf 0%,#ffd36b 53%,#edac36 100%);color:#211f18;border:1px solid #fff4c3;text-shadow:none;box-shadow:0 0 18px #fbc35788,inset 0 1px 8px #ffffff44}
+.btn.blue{background:linear-gradient(180deg,#0a4f83,#07345c 55%,#03203d);border:1px solid #30caff;box-shadow:0 0 12px #2cbefe99,inset 0 0 7px #20bffe66}
+.btn.blue:hover{box-shadow:0 0 20px #50d9ffbc,inset 0 0 13px #17aaff88}
+.btn:focus-visible,.login:focus-visible,.inline-link:focus-visible{outline:3px solid #fff0ac;outline-offset:4px}
+.panel{background:linear-gradient(165deg,#0b2b48f4,#051a32f4);box-shadow:inset 0 1px #2088b23a,0 6px 20px #0004}
+.pokedex-panel{background:radial-gradient(ellipse at 20% 80%,#0c3754,#08223e 60%,#06182e)}
+.creature{border-width:1.5px;background:radial-gradient(ellipse at 50% 12%,color-mix(in srgb,var(--type) 21%,#142f4a),transparent 85%),linear-gradient(160deg,var(--wash),#05182d 86%);box-shadow:0 0 7px color-mix(in srgb,var(--type) 30%,transparent),inset 0 0 15px #0b233b;transition:transform .18s,box-shadow .18s}
+.creature::after{content:'✦';position:absolute;right:8px;top:4px;color:color-mix(in srgb,var(--type) 72%,#ffffff);font-size:12px;text-shadow:0 0 8px currentColor;opacity:.9}
+.creature:hover{transform:translateY(-3px);box-shadow:0 0 15px color-mix(in srgb,var(--type) 55%,transparent)}
+.creature img{filter:drop-shadow(0 6px 5px #0008) drop-shadow(0 0 7px color-mix(in srgb,var(--type) 25%,transparent))}
+.type{box-shadow:0 0 8px color-mix(in srgb,var(--type) 45%,transparent)}
+.feature-image{border:1px solid #3c9cca;box-shadow:inset 0 0 10px #62d5f322}
+.image-features{background:linear-gradient(90deg,#041c35dd,#031529ee);border-left:1px solid #2f8abc}
+.shop-panel{background:linear-gradient(100deg,#071b31,#0b2947 42%,#061a33 100%)}
+.shop-items div{background:linear-gradient(155deg,#13476b,#08223e);border-color:#318fc0;transition:transform .15s,box-shadow .15s}
+.shop-items div:hover{transform:translateY(-2px);box-shadow:0 0 11px #1fbaff77}
+.shop-item-icon{filter:drop-shadow(0 0 5px #29b9ff55)}
+.final-cta{background:radial-gradient(ellipse at 50% 0%,#123959,#05192e 72%);position:relative;overflow:hidden}
+.final-cta::before,.final-cta::after{content:'✦';position:absolute;color:#ffd373;text-shadow:0 0 15px #ffca59;opacity:.7;font-size:19px}
+.final-cta::before{left:13px;bottom:8px}.final-cta::after{right:18px;top:6px}
+@media(max-width:1100px){.hero-art{background-position:62% center}}
+@media(max-width:800px){.nav-links a .nav-icon{display:none}.hero-copy{padding:24px 0}.hero-overlay{background:linear-gradient(90deg,#04172cef,#071f37b8 65%,#081b2c66)}.final-cta::before,.final-cta::after{display:none}}
+@media(prefers-reduced-motion:reduce){.creature,.nav-links a,.shop-items div{transition:none!important}}
