@@ -756,3 +756,84 @@ img{max-width:100%;display:block}
   .shop-items{width:100%;}
   .hero-body{max-width:100%;}
 }
+
+/* =============================================================
+   Mastersmon V2.16.3 - Full world illustration and clean footer
+   IMPORTANT: retain visitor-only links and real Google sign-in.
+   ============================================================= */
+/* Allow footer to sit at the bottom rather than leaving a dark
+   empty block after the end of the page on taller displays. */
+html { min-height:100%; }
+body { min-height:100vh; min-height:100svh; display:flex; flex-direction:column; }
+body > main { flex:1 0 auto; }
+body > .footer { flex:0 0 auto; }
+
+/* Desktop/laptop: preserve ALL of the original illustrated map.
+   The image includes baked-in landscape labels; do not enlarge it
+   using background-size:cover or hide part via clip-path/mask. */
+@media (min-width:769px) {
+  .hero { position:relative; isolation:isolate; background:#06182b; }
+  .hero .hero-art {
+    position:absolute!important;
+    inset:0!important;
+    width:100%!important;
+    height:100%!important;
+    opacity:1!important;
+    background-image:url('../assets/hero-world.jpg')!important;
+    background-size:100% 100%!important;
+    background-position:center center!important;
+    background-repeat:no-repeat!important;
+    clip-path:none!important;
+    -webkit-mask-image:none!important;
+    mask-image:none!important;
+    filter:saturate(1.05) contrast(1.02)!important;
+  }
+  /* Fade the left edge without altering the world illustration or
+     introducing a hard vertical dividing line. */
+  .hero .hero-overlay {
+    position:absolute!important;
+    inset:0!important;
+    z-index:2!important;
+    display:block!important;
+    background:linear-gradient(90deg,
+      #031326 0%,
+      rgba(3,19,38,.995) 11%,
+      rgba(3,19,38,.97) 24%,
+      rgba(3,19,38,.81) 32%,
+      rgba(3,19,38,.45) 40%,
+      rgba(3,19,38,.10) 53%,
+      transparent 67%)!important;
+  }
+  .hero .hero-copy {
+    position:relative;
+    z-index:4;
+    width:min(44%,580px)!important;
+    max-width:580px!important;
+  }
+  .hero .hero-copy::before {display:none!important;}
+  .hero .eyebrow,.hero .hero-sub,.hero .hero-body,.hero .hint {
+    text-shadow:0 2px 7px rgba(0,0,0,.85);
+  }
+}
+@media (min-width:769px) and (max-width:1399px){
+  .hero .hero-copy {width:min(47%,520px)!important;}
+  .hero .hero-overlay {
+    background:linear-gradient(90deg,
+      #031326 0%,rgba(3,19,38,.98) 15%,
+      rgba(3,19,38,.93) 27%,rgba(3,19,38,.75) 35%,
+      rgba(3,19,38,.23) 51%,transparent 68%)!important;
+  }
+}
+/* Mobile retains a dedicated image row and no overlapping panels. */
+@media (max-width:768px){
+  .hero .hero-art {
+    background-image:url('../assets/hero-world.jpg')!important;
+    background-position:center!important;
+    background-size:100% 100%!important;
+    -webkit-mask-image:none!important;
+    mask-image:none!important;
+    clip-path:none!important;
+  }
+  .hero .hero-overlay {display:none!important;}
+  .hero .hero-copy { background:transparent; }
+}
