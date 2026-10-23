@@ -187,7 +187,37 @@ function showEvoToast(msg){let n=$('collectionEvoToast');if(!n){n=document.creat
 
 function renderRecent(){const el=$('recentList');el.replaceChildren();const recent=state.list.slice().sort((a,b)=>b.id-a.id).slice(0,10);recent.forEach(p=>{const b=document.createElement('button');b.type='button';b.className='recent-item';b.innerHTML=`${pic(p)}<span>${esc(p.nombre)}</span>${p.es_shiny?'<span class="gold-star">✦</span>':''}`;b.onclick=()=>{const match=state.filtered.findIndex(x=>x.id===p.id);if(match<0){$('search').value='';state.type='';$('genFilter').value='';$('favoritesOnly').checked=false;$('shinyOnly').checked=false;buildTypes();applyFilters()}const idx=state.filtered.findIndex(x=>x.id===p.id);state.page=Math.max(0,Math.floor(idx/pageSize()));choose(p);$('pokemonGrid').scrollTop=0};bindImages(b);el.append(b)})}
 async function loadTeam(){try{const data=await fetchAuth(`${API_BASE}/usuario/me/equipo`);const arr=Array.isArray(data)?data:Array.isArray(data?.equipo)?data.equipo:Array.isArray(data?.pokemons)?data.pokemons:null;state.team=arr?arr.filter(Boolean).length:null;render()}catch(_){state.team=null}}
-async function load(){try{if(typeof getAccessToken!=='function'||!getAccessToken()){showNotice(tr('Abre la colección desde la pestaña donde tienes iniciada la sesión.','Open the collection from your signed-in tab.'));return}const [user,collection,catalog]=await Promise.all([obtenerUsuarioActual(),obtenerPokemonUsuarioActual(),typeof obtenerPokemon==='function'?obtenerPokemon().catch(()=>[]):Promise.resolve([])]);if(!user?.id||!Array.isArray(collection))throw Error('Invalid collection response');state.user=user;$('trainerName').textContent=user.nombre||tr('Entrenador','Trainer');const catalogMap=new Map((Array.isArray(catalog)?catalog:[]).map(x=>[num(x.id),x]));state.list=collection.map(p=>normalize(p,catalogMap.get(num(p.pokemon_id??p.pokemon?.id))||{})).filter(p=>p.id&&p.pokemon_id);try{state.favorites=new Set(JSON.parse(localStorage.getItem(favKey())||'[]').map(num))}catch(_){state.favorites=new Set()}const gs=[...new Set(state.list.map(p=>generation(p.pokemon_id)))].sort((a,b)=>a-b);gs.forEach(g=>{const o=document.createElement('option');o.value=g;o.textContent=tr('Generación ','Generation ')+g;$('genFilter').append(o)});state.selectedId=state.list.slice().sort((a,b)=>b.id-a.id)[0]?.id||null;state.loading=false;render();if(selected()){getEvolution(selected());getEvolutionChain(selected())}loadTeam()}catch(error){console.error('[Mastersmon collection]',error);showNotice(tr('No fue posible cargar tu colección. Comprueba tu sesión.','Could not load your collection. Check your session.'))}}
+async function load(){
+ try{
+  if(typeof getAccessToken!=='function'||!getAccessToken()){
+   showNotice(tr('Abre la colección desde la pestaña donde tienes iniciada la sesión.','Open the collection from your signed-in tab.'));return;
+  }
+  // La colección y el perfil se consultan juntos; el catálogo auxiliar NO bloquea las tarjetas.
+  const userPromise=obtenerUsuarioActual();
+  const collectionPromise=obtenerPokemonUsuarioActual();
+  const catalogPromise=typeof obtenerPokemon==='function'?obtenerPokemon().catch(error=>{console.warn('[Mastersmon catalog]',error);return []}):Promise.resolve([]);
+  const [user,collection]=await Promise.all([userPromise,collectionPromise]);
+  if(!user?.id||!Array.isArray(collection))throw Error('Invalid collection response');
+  state.user=user;
+  $('trainerName').textContent=user.nombre||tr('Entrenador','Trainer');
+  const raw=collection;
+  state.list=raw.map(p=>normalize(p)).filter(p=>p.id&&p.pokemon_id);
+  try{state.favorites=new Set(JSON.parse(localStorage.getItem(favKey())||'[]').map(num))}catch(_){state.favorites=new Set()}
+  const gs=[...new Set(state.list.map(p=>generation(p.pokemon_id)))].sort((a,b)=>a-b);
+  gs.forEach(g=>{const o=document.createElement('option');o.value=g;o.textContent=tr('Generación ','Generation ')+g;$('genFilter').append(o)});
+  state.selectedId=state.list.reduce((best,p)=>p.id>(best||0)?p.id:best,0)||null;
+  state.loading=false;render();
+  if(selected()){getEvolution(selected());getEvolutionChain(selected())}
+  // Consultas complementarias independientes: el usuario ya puede navegar por la colección.
+  void loadTeam();
+  void catalogPromise.then(catalog=>{
+   if(!Array.isArray(catalog)||!catalog.length)return;
+   const catalogMap=new Map(catalog.map(x=>[num(x.id),x]));
+   state.list=raw.map(p=>normalize(p,catalogMap.get(num(p.pokemon_id??p.pokemon?.id))||{})).filter(p=>p.id&&p.pokemon_id);
+   render();
+  }).catch(error=>console.warn('[Mastersmon catalog hydration]',error));
+ }catch(error){console.error('[Mastersmon collection]',error);showNotice(tr('No fue posible cargar tu colección. Comprueba tu sesión.','Could not load your collection. Check your session.'))}
+}
 function showNotice(s){$('notice').hidden=false;$('notice').textContent=s}
 function jump(delta){state.page+=delta;render();$('pokemonGrid').scrollTop=0}
 ['search','genFilter','order','shinyOnly','favoritesOnly'].forEach(id=>$(id).addEventListener('input',()=>{state.page=0;render()}));
