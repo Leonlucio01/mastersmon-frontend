@@ -1,0 +1,46 @@
+/* Mastersmon V2.20.2 | Visual redesign - styles only; avatar and login JS untouched */
+:root{--game-cyan:#4bd8ff;--game-gold:#ffce72;--game-border:#197cae}
+body{background:radial-gradient(ellipse at 50% 0%,#092c46 0%,#031526 65%) fixed}
+.main{max-width:1460px;padding:8px 12px 10px}
+/* Use exactly the same landscape asset as lobby */
+.hero.hero-game{height:178px;min-height:0;border-radius:11px;padding:16px 22px;background:linear-gradient(90deg,#03192df5 0%,#041b35d4 27%,#06223a40 63%,#041629aa 100%),url('../assets/lobby/hero-premium.webp') center 48%/cover no-repeat!important;box-shadow:inset 0 0 30px #01101e7a}
+.hero-game .hero-overlay{max-width:720px}.hero-game h1{font-size:clamp(31px,3.4vw,49px);color:var(--game-gold);letter-spacing:-.015em}
+.hero-game .hero-identity{background:#041b31e8;min-width:315px;border-color:#2f8fbd;max-width:390px}
+.hero-game .hero-identity>img{height:68px;width:68px;object-fit:cover}
+.hero-game .hero-mini-stats{border-top-color:#2f678a}
+.columns{grid-template-columns:minmax(0,1.12fr) minmax(355px,1fr);gap:10px;align-items:stretch}
+.columns>.panel{background:linear-gradient(160deg,#082c49 0%,#041a2e 65%,#03192d);border:1px solid #267da9;border-radius:11px;padding:13px}
+.columns .panel-title{align-items:center;justify-content:flex-start;gap:10px;margin-bottom:12px}
+.columns .panel-title>div{flex:1;min-width:0}.columns .panel-title .eyebrow{font-size:10px;letter-spacing:.14em}
+.columns .panel-title h2{font:750 20px/1.15 system-ui,-apple-system,'Segoe UI',sans-serif;color:#fff}
+.columns .panel-title p:not(.eyebrow){font-size:11px;line-height:1.35;color:#a7cce2}
+.profile-title-icon{height:30px;width:30px;object-fit:contain;padding:7px;border:1px solid #226f9b;background:#0a3d5b;border-radius:8px;filter:drop-shadow(0 0 5px #33c7ff75)}
+/* Avatars: portraits fill cards, keep all nine selectable, no forced internal scrolling */
+.avatar-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.avatar-card{position:relative;display:flex;gap:0;padding:0!important;overflow:hidden;isolation:isolate;border:1px solid #317fa9;background:linear-gradient(160deg,#164667,#071c34);border-radius:10px;min-height:148px;justify-content:flex-end;transition:transform .16s,box-shadow .16s,border-color .16s}
+.avatar-card img{display:block!important;width:100%!important;height:125px!important;min-height:0!important;max-height:none!important;object-fit:contain!important;object-position:center bottom;filter:drop-shadow(0 3px 7px #0007)}
+.avatar-card strong{display:block;width:100%;padding:7px 3px 8px;position:relative;z-index:1;text-align:center;font-size:12px;color:#fff;background:linear-gradient(90deg,#062341,#07365a,#062341);border-top:1px solid #26668f}
+.avatar-card small{display:none!important}
+.avatar-card.selected{border:2px solid #ffd165;background:linear-gradient(160deg,#365776,#0d3650);box-shadow:0 0 0 1px #d9a842,0 0 14px #e4b94e72}
+.avatar-card.selected::after{content:'✓';position:absolute;top:6px;right:6px;display:grid;place-items:center;z-index:2;width:22px;height:22px;color:#09233b;font-size:13px;font-weight:900;background:#ffce63;border-radius:50%;box-shadow:0 1px 5px #0008}
+.avatar-card:hover{transform:translateY(-2px);border-color:#7ce3ff}
+.columns>.left>.muted{border:1px solid #245979;border-radius:7px;background:#06253c;padding:9px 10px;margin:12px 0 0;color:#b0d2e7;font-size:10px}
+.columns>.left>.muted::before{content:'ⓘ';color:#5ad9ff;font-weight:900;font-size:14px;margin-right:8px}
+/* Trainer data: information first, controls second */
+.trainer-spot{padding:10px;min-height:90px;background:linear-gradient(110deg,#0b3f60,#061d35);border-radius:10px;border-color:#2f8ba9;margin-bottom:10px}
+.trainer-spot img{width:76px;height:76px;object-fit:cover}
+.trainer-spot strong{font-size:19px}.trainer-spot p{font-size:11px}
+.details{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.details>div{min-height:69px;padding:10px 9px 9px 44px;position:relative;border-color:#2c7599;background:linear-gradient(100deg,#0a3551,#06253e)}
+.details .detail-icon{position:absolute;top:50%;left:10px;transform:translateY(-50%);height:24px;width:24px;object-fit:contain;filter:drop-shadow(0 0 4px #27b9fa5c)}
+.details span{font-size:10px}.details strong{margin-top:3px;font-size:14px}
+.shortcuts{margin-top:11px}.shortcuts .profile-collection-cta{width:100%;padding:11px 13px;border-radius:8px;font-size:13px}
+.profile-cta-icon{height:19px;width:19px;filter:brightness(.12)}
+.right>.muted.small{font-size:10px!important;margin-top:10px!important;color:#91b6cc}
+/* Profile dropdown fully owns logout, but keep hidden original button as click target for shared JS */
+.masters-header .logout{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:0!important;opacity:0!important;pointer-events:none!important;overflow:hidden!important;clip-path:inset(50%)}
+footer{margin-top:10px}
+@media(max-width:1100px){.avatar-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.avatar-card img{height:112px!important}.avatar-card{min-height:136px}.columns{grid-template-columns:minmax(0,1fr) minmax(330px,1fr)}}
+@media(max-width:850px){.columns{grid-template-columns:1fr}.avatar-grid{grid-template-columns:repeat(5,minmax(0,1fr))}.hero.hero-game{height:170px}.right>.muted.small{margin-bottom:2px}}
+@media(max-width:600px){.main{padding:7px}.hero.hero-game{height:auto;min-height:220px;padding:14px;background-position:63% center!important}.hero-game .hero-identity{min-width:0;max-width:100%;margin-top:12px}.hero-game h1{font-size:31px}.avatar-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.avatar-card img{height:115px!important}.avatar-card{min-height:139px}.columns>.panel{padding:11px}.details>div{padding-left:38px}.details .detail-icon{left:7px;height:22px;width:22px}.columns .panel-title h2{font-size:18px}}
+@media(max-width:360px){.avatar-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.avatar-card img{height:120px!important}.details{grid-template-columns:1fr}}
