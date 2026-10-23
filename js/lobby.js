@@ -34,6 +34,7 @@ function spritePokemon(p){
 }
 function attachPokemonSprite(img,p){
  const id=Number(p?.pokemon_id??p?.id??0),shiny=isShiny(p?.es_shiny??p?.shiny);
+ img.decoding='async';
  img.src=spritePokemon(p);
  // Mantiene la variante Shiny tambien al fallar un recurso local.
  img.onerror=()=>{
@@ -46,7 +47,7 @@ function attachPokemonSprite(img,p){
  };
 }
 
-function applyLanguage(next){lang=next;localStorage.setItem('mastersmon_lang',lang);localStorage.setItem('mastersmon_language',lang);document.documentElement.lang=lang;document.querySelectorAll('[data-i18n]').forEach(n=>n.textContent=tr(n.dataset.i18n));document.querySelectorAll('[data-lang]').forEach(n=>n.setAttribute('aria-pressed',String(n.dataset.lang===lang)));profile();renderPokemon();renderQuests();renderBoss();renderPremium();loadDailyMissions();}
+function applyLanguage(next){lang=next;localStorage.setItem('mastersmon_lang',lang);localStorage.setItem('mastersmon_language',lang);document.documentElement.lang=lang;document.querySelectorAll('[data-i18n]').forEach(n=>n.textContent=tr(n.dataset.i18n));document.querySelectorAll('[data-lang]').forEach(n=>n.setAttribute('aria-pressed',String(n.dataset.lang===lang)));profile();renderPokemon();renderQuests();renderBoss();renderPremium();}
 function profile(){if(!player)return;const name=String(player.nombre||player.name||tr('trainer'));safeText('navName',name);safeText('heroName',name);const avatar=String(player.avatar_id||'batman').toLowerCase();const allowed=['batman','bryan','goku','hades','jean','jhonny','leon','nathaly'];const path='assets/lobby/'+(allowed.includes(avatar)?avatar:'batman')+'.webp';$('navAvatar').src=path;$('heroAvatar').src=path;const team=String(player.trainer_team_color||player.team_color||'').toLowerCase();safeText('teamLabel',I[lang][team]||'—');$('teamLabel').dataset.team=team;safeText('collectionCount',String(owned.length));safeText('teamCount',String(new Set(owned.map(p=>Number(p.id)).filter(id=>Number.isInteger(id)&&id>0)).size));safeText('badgeCount',badgeValue==null?tr('noBadge'):String(badgeValue));}
 function pokemonTile(p){const e=document.createElement('div');e.className='pokemon-tile';if(p.tipo)e.dataset.type=p.tipo;const img=document.createElement('img');img.loading='lazy';img.alt=p.name;attachPokemonSprite(img,p);const name=document.createElement('strong');name.className='party-pokemon-name';const matched=owned.find(x=>Number(x.linkId)===Number(p.linkId));const resolved=String(matched?.name||p.name||catalogNames.get(Number(p.id))||'').trim();name.textContent=(!resolved||/^Pokémon #\d+$/i.test(resolved))?(catalogNames.get(Number(p.id))||resolved||'Pokémon'):resolved;name.title=name.textContent;const lv=document.createElement('small');lv.textContent=p.level==null?'#'+(p.id||'?'):tr('level')+' '+p.level;e.append(img,name,lv);return e;}
 function timeAgo(value){
@@ -79,7 +80,7 @@ function renderPokemon(){
    author.append(lead,trainer);tile.append(author);const when=timeAgo(c.capturado_en??c.fecha_captura??c.created_at??c.fecha??c.registrado_en);if(when){const t=document.createElement('span');t.className='capture-time';t.textContent=when;tile.append(t);}col.append(tile);
  });}
  else{const empty=document.createElement('p');empty.className='recent-empty';empty.textContent=recentError?tr('recentError'):tr('recentNone');col.append(empty);}
- for(let i=0;i<6;i++){const p=party[i];if(p){const e=document.createElement('div');e.className='party-tile';const img=document.createElement('img');attachPokemonSprite(img,p);img.alt=p.name;img.loading='lazy';const name=document.createElement('strong');name.className='party-pokemon-name';const matched=owned.find(x=>Number(x.linkId)===Number(p.linkId));const resolved=String(matched?.name||p.name||catalogNames.get(Number(p.id))||'').trim();name.textContent=(!resolved||/^Pokémon #\d+$/i.test(resolved))?(catalogNames.get(Number(p.id))||resolved||'Pokémon'):resolved;name.title=name.textContent;const lv=document.createElement('small');lv.textContent=p.level==null?'':tr('level')+' '+p.level;e.append(img,name,lv);team.append(e);}else{const a=document.createElement('a');a.className='party-empty';a.href='mypokemon.html';const plus=document.createElement('b');plus.textContent='+';const label=document.createElement('span');label.textContent=tr('noParty');a.append(plus,label);team.append(a);}}
+ for(let i=0;i<6;i++){const p=party[i];if(p){const e=document.createElement('div');e.className='party-tile';const img=document.createElement('img');attachPokemonSprite(img,p);img.alt=p.name;img.loading='lazy';img.decoding='async';const name=document.createElement('strong');name.className='party-pokemon-name';const matched=owned.find(x=>Number(x.linkId)===Number(p.linkId));const resolved=String(matched?.name||p.name||catalogNames.get(Number(p.id))||'').trim();name.textContent=(!resolved||/^Pokémon #\d+$/i.test(resolved))?(catalogNames.get(Number(p.id))||resolved||'Pokémon'):resolved;name.title=name.textContent;const lv=document.createElement('small');lv.textContent=p.level==null?'':tr('level')+' '+p.level;e.append(img,name,lv);team.append(e);}else{const a=document.createElement('a');a.className='party-empty';a.href='mypokemon.html';const plus=document.createElement('b');plus.textContent='+';const label=document.createElement('span');label.textContent=tr('noParty');a.append(plus,label);team.append(a);}}
 }
 function questRow(symbol,label,url,detail){const a=document.createElement('a');a.href=url;a.className='quest-row';const i=document.createElement('span');i.className='quest-symbol';i.textContent=symbol;const s=document.createElement('strong');s.textContent=tr(label);a.append(i,s);if(detail!==undefined&&detail!==null){const x=document.createElement('small');x.textContent=String(detail);a.append(x);}return a;}
 let questData=null,bossData=null;
@@ -177,30 +178,64 @@ update();if(end!==null)bossClock=setInterval(update,1000);
 function logout(){if(!confirm(lang==='es'?'¿Quieres cerrar sesión?':'Do you want to log out?'))return;try{if(typeof limpiarSesion==='function')limpiarSesion();else{for(const store of [localStorage,sessionStorage])for(const key of ['access_token','usuario','usuario_id','google_logged_in'])store.removeItem(key);}}catch(e){console.warn('Logout cleanup',e);}try{window.google?.accounts?.id?.disableAutoSelect?.();}catch(_){}location.replace('visitor.html');}
 function mobile(){const buttons=[...document.querySelectorAll('.mobile-tabs button')];buttons.forEach(b=>b.addEventListener('click',()=>{buttons.forEach(a=>a.classList.toggle('is-active',a===b));document.querySelectorAll('[data-mobile]').forEach(p=>p.classList.toggle('mobile-visible',p.dataset.mobile===b.dataset.panel));}));document.querySelectorAll('[data-mobile]').forEach(p=>p.classList.toggle('mobile-visible',p.dataset.mobile==='collection'));}
 function status(key){$('status').textContent=tr(key);$('status').hidden=false;}
-async function init(){applyLanguage(lang);mobile();$('logoutBtn').addEventListener('click',logout);document.querySelectorAll('[data-lang]').forEach(b=>b.addEventListener('click',()=>applyLanguage(b.dataset.lang)));renderPokemon();authToken=token();if(!authToken){status('needLogin');return;}
-try{let me;try{me=typeof obtenerAuthMe==='function'?await obtenerAuthMe():await read('/auth/me');}catch(_){me=await read('/auth/me');}player=me?.usuario??me?.user??me;if(!player||(!player.id&&!player.nombre&&!player.name))throw Error('INVALID_USER');const setup=await optional('/usuario/me/trainer-setup');if(setup?.setup_completed===false&&player.trainer_setup_completed===false){status('setup');setTimeout(()=>location.assign('crear-entrenador.html'),1400);return;}profile();$('status').hidden=true;
-const [pokemonRes,teamRes,onboardingRes,gymRes,bossRes,premiumRes,recentRes]=await Promise.all([optional('/usuario/me/pokemon'),optional('/usuario/me/equipo'),optional('/onboarding/me'),optional('/battle/gyms/progreso'),optional('/battle/boss/estado'),optional('/payments/catalogo'),optional('/pokemon/capturas-recientes?limit=5')]);
-// Catalog is used only for display names; an unavailable catalog never blocks the lobby.
-try {const namesRes=await optional('/pokemon');const names=rows(namesRes,['pokemon','pokemones','data','results']);catalogNames=new Map(names.map(x=>[Number(x.id??x.pokemon_id),String(x.nombre??x.name??'')]).filter(([id,name])=>Number.isInteger(id)&&id>0&&name));}catch(e){console.info('Pokemon catalog names unavailable',e);}
-owned=rows(pokemonRes,['pokemon','pokemones','data','results','usuario_pokemon']).map(adapt).filter(x=>x.id>0);
-const rawTeam=rows(teamRes,['equipo','pokemon','pokemones','data','results','usuario_pokemon_ids','ids']);
-// Mirrors Battle: match the exact owned Pokemon record (usuario_pokemon.id), not the species.
-const mapByOwnedId=new Map(owned.filter(p=>p.linkId>0).map(p=>[p.linkId,p]));
-party=rawTeam.map(entry=>{
- const ownedId=typeof entry==='number'||typeof entry==='string'?Number(entry):Number(entry?.usuario_pokemon_id??entry?.id??entry?.registro_id??0);
- const full=mapByOwnedId.get(ownedId);
- if(full)return full;
- // The team API may return a full snapshot even if the collection response is temporarily unavailable.
- if(entry&&typeof entry==='object'){
-   const snapshot=adapt(entry);
-   return snapshot.id>0?snapshot:null;
- }
- return null;
-}).filter(Boolean).slice(0,6);
-if(!party.length&&teamRes==null)party=owned.filter(p=>p.isEquipped).sort((a,b)=>(a.slot??99)-(b.slot??99)).slice(0,6);
-if(gymRes?.ok===true&&Number.isFinite(Number(gymRes.completados))){badgeValue=Number(gymRes.completados);}
-questData=onboardingRes;bossData=bossRes;recentError=!(recentRes?.ok===true&&Array.isArray(recentRes.capturas));recentCaptures=recentError?[]:recentRes.capturas;premiumData=premiumRes?.ok===true&&Array.isArray(premiumRes.productos)?premiumRes.productos:null;profile();renderPokemon();renderQuests();renderBoss();renderPremium();loadDailyMissions();
-}catch(e){console.error('Lobby startup',e);status('loadFail');}}
+const lobbyState={pokemonDone:false,teamDone:false,pokemonResponse:null,teamResponse:null};
+function updateTeamFromResponses(){
+ const pokemonRes=lobbyState.pokemonResponse,teamRes=lobbyState.teamResponse;
+ owned=rows(pokemonRes,['pokemon','pokemones','data','results','usuario_pokemon']).map(adapt).filter(x=>x.id>0);
+ const rawTeam=rows(teamRes,['equipo','pokemon','pokemones','data','results','usuario_pokemon_ids','ids']);
+ const byOwnedId=new Map(owned.filter(p=>p.linkId>0).map(p=>[p.linkId,p]));
+ party=rawTeam.map(entry=>{
+   const ownedId=typeof entry==='number'||typeof entry==='string'?Number(entry):Number(entry?.usuario_pokemon_id??entry?.id??entry?.registro_id??0);
+   const full=byOwnedId.get(ownedId);if(full)return full;
+   if(entry&&typeof entry==='object'){const snapshot=adapt(entry);return snapshot.id>0?snapshot:null;}
+   return null;
+ }).filter(Boolean).slice(0,6);
+ if(!party.length&&teamRes==null&&lobbyState.teamDone)party=owned.filter(p=>p.isEquipped).sort((a,b)=>(a.slot??99)-(b.slot??99)).slice(0,6);
+ profile();renderPokemon();
+}
+function loadLobbyModule(path,handler){
+ return optional(path).then(data=>{try{handler(data);}catch(error){console.error('Lobby module '+path,error);}});
+}
+
+async function init(){
+ applyLanguage(lang);mobile();$('logoutBtn').addEventListener('click',logout);
+ document.querySelectorAll('[data-lang]').forEach(b=>b.addEventListener('click',()=>applyLanguage(b.dataset.lang)));
+ renderPokemon();authToken=token();
+ if(!authToken){status('needLogin');return;}
+ try{
+  // /auth/me is authoritative; there is no retry that doubles failed requests.
+  const me=typeof obtenerAuthMe==='function'?await obtenerAuthMe():await read('/auth/me');
+  player=me?.usuario??me?.user??me;
+  if(!player||(!player.id&&!player.nombre&&!player.name))throw Error('INVALID_USER');
+  profile();$('status').hidden=true;
+  // Trainer setup is a guard only; independent panels do not wait for it.
+  void loadLobbyModule('/usuario/me/trainer-setup',setup=>{
+   if(setup?.setup_completed===false&&player?.trainer_setup_completed===false){
+    status('setup');setTimeout(()=>location.assign('crear-entrenador.html'),1400);
+   }
+  });
+  // All widgets settle independently: one slow endpoint never blocks the others.
+  void loadLobbyModule('/usuario/me/pokemon',data=>{
+   lobbyState.pokemonDone=true;lobbyState.pokemonResponse=data;updateTeamFromResponses();
+  });
+  void loadLobbyModule('/usuario/me/equipo',data=>{
+   lobbyState.teamDone=true;lobbyState.teamResponse=data;updateTeamFromResponses();
+  });
+  void loadLobbyModule('/battle/gyms/progreso',data=>{
+   if(data?.ok===true&&Number.isFinite(Number(data.completados))){badgeValue=Number(data.completados);profile();}
+  });
+  void loadLobbyModule('/battle/boss/estado',data=>{bossData=data;renderBoss();});
+  void loadLobbyModule('/payments/catalogo',data=>{
+   premiumData=data?.ok===true&&Array.isArray(data.productos)?data.productos:[];renderPremium();
+  });
+  void loadLobbyModule('/pokemon/capturas-recientes?limit=5',data=>{
+   recentError=!(data?.ok===true&&Array.isArray(data.capturas));
+   recentCaptures=recentError?[]:data.capturas;renderPokemon();
+  });
+  // Daily missions are not coupled to onboarding or to the other panels.
+  void loadDailyMissions();
+ }catch(e){console.error('Lobby startup',e);status(e?.code==='UNAUTHORIZED'?'needLogin':'loadFail');}
+}
 init();
 
 // V2.14.2 - Compra directa del lobby: PayPal sigue siendo el unico checkout.
