@@ -1,17 +1,104 @@
-/* Mastersmon V2.20.9 - Clean detail cards and always-visible expandable region design. */
-/* Restore room for icon: earlier compact CSS erased the 44px left padding. */
-.panel.right .details>div{position:relative!important;display:flex!important;flex-direction:column!important;justify-content:center!important;min-height:58px!important;padding:9px 10px 9px 44px!important;overflow:hidden!important}
-.panel.right .details>div .detail-icon{position:absolute!important;left:11px!important;top:50%!important;transform:translateY(-50%)!important;width:23px!important;height:23px!important;object-fit:contain!important;max-width:23px!important;max-height:23px!important;margin:0!important;pointer-events:none!important}
-.panel.right .details>div>span,.panel.right .details>div>strong{position:relative;z-index:1;display:block!important;line-height:1.28!important;min-width:0;overflow-wrap:anywhere}
+/* Mastersmon V2.21.0: final profile layout refinement.
+   Replaces the previous 2209 override; does not change JS or API. */
+
+/* Detail cards: icons must not overlap captions or values. */
+.panel.right .details>div{
+  position:relative!important;display:flex!important;flex-direction:column!important;
+  justify-content:center!important;min-height:58px!important;
+  padding:9px 10px 9px 44px!important;overflow:hidden!important;
+}
+.panel.right .details>div .detail-icon{
+  position:absolute!important;left:11px!important;top:50%!important;
+  transform:translateY(-50%)!important;width:23px!important;
+  height:23px!important;object-fit:contain!important;max-width:23px!important;
+  max-height:23px!important;margin:0!important;pointer-events:none!important;
+}
+.panel.right .details>div>span,.panel.right .details>div>strong{
+  position:relative;z-index:1;display:block!important;line-height:1.28!important;
+  min-width:0;overflow-wrap:anywhere;
+}
 .panel.right .details>div>span{font-size:10px!important;opacity:.95}
 .panel.right .details>div>strong{margin-top:3px!important;font-size:14px!important}
-/* Region tabs remain directly visible; can wrap to extra generations when added. */
-.profile-medals .medal-details,.profile-medals .medal-details[hidden]{display:block!important;margin-top:9px!important}
+.member-since{display:block;position:relative;clear:both;margin:6px 0 9px!important;line-height:1.45!important}
+
+/* The earned-badge tile + sentence repeats the earned count and wastes height.
+   Retain the small count in the section header and the region tabs + grid. */
+.profile-medals .medal-summary{display:none!important}
 .profile-medals .medal-toggle-row{display:none!important}
+.profile-medals .medal-details,.profile-medals .medal-details[hidden]{display:block!important;margin-top:8px!important}
 .profile-medals .medal-regions{display:flex!important;flex-wrap:wrap!important;gap:6px!important;margin-bottom:9px!important}
 .profile-medals .medal-regions button{flex:1 1 100px;min-width:0;min-height:34px;padding:7px 9px!important}
 .profile-medals .medal-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
 .profile-medals .medal-tile{min-width:0}
-.member-since{display:block;position:relative;clear:both;margin:6px 0 9px!important;line-height:1.45!important}
-@media(max-width:620px){.panel.right .details>div{padding-left:38px!important;min-height:59px!important}.panel.right .details>div .detail-icon{left:8px!important;width:21px!important;height:21px!important}.profile-medals .medal-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
-@media(max-width:390px){.profile-medals .medal-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* Trainer summary: real room for the avatar, identity and three clear stats.
+   Avoid transform:scale() because it shrinks and compresses the contents. */
+.hero.hero-game{height:170px!important;min-height:170px!important;padding:14px 20px!important;gap:16px!important}
+.hero-game .hero-identity{
+  transform:none!important;transform-origin:initial!important;
+  width:345px!important;min-width:315px!important;max-width:345px!important;
+  min-height:140px!important;padding:10px 13px!important;
+  display:grid!important;grid-template-columns:61px minmax(0,1fr)!important;
+  grid-template-rows:auto auto!important;align-content:center!important;
+  align-items:center!important;column-gap:12px!important;row-gap:9px!important;
+  background:#041b31e9!important;
+}
+.hero-game .hero-identity>img{
+  grid-column:1!important;grid-row:1!important;
+  width:61px!important;height:61px!important;object-fit:cover!important;
+  border-radius:10px!important;margin:0!important;
+}
+.hero-game .hero-identity>div:not(.hero-mini-stats){
+  grid-column:2!important;grid-row:1!important;min-width:0!important;
+  align-self:center!important;display:flex!important;flex-direction:column!important;
+  align-items:flex-start!important;justify-content:center!important;gap:3px!important;
+}
+.hero-game .hero-identity>div:not(.hero-mini-stats)>span{
+  font-size:10px!important;line-height:1.15!important;
+}
+.hero-game .hero-identity>div:not(.hero-mini-stats)>strong{
+  font-size:16px!important;line-height:1.18!important;
+  max-width:100%!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.hero-game .hero-identity #hero-team{
+  margin:1px 0 0!important;padding:2px 8px!important;
+  font-size:10px!important;line-height:1.45!important;
+}
+.hero-game .hero-mini-stats{
+  grid-column:1/-1!important;grid-row:2!important;
+  display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  width:100%!important;min-width:0!important;max-width:none!important;
+  margin:0!important;padding:9px 0 0!important;gap:0!important;
+  border-top:1px solid #245e82!important;
+}
+.hero-game .hero-mini-stats>div{
+  display:flex!important;flex-direction:column!important;align-items:center!important;
+  justify-content:center!important;gap:3px!important;
+  min-width:0!important;padding:0 5px!important;line-height:1.1!important;
+}
+.hero-game .hero-mini-stats>div>span{font-size:15px!important;line-height:1!important}
+.hero-game .hero-mini-stats>div>b{font-size:17px!important;line-height:1.05!important}
+.hero-game .hero-mini-stats>div>small{
+  padding:0!important;margin:0!important;white-space:normal!important;
+  background:transparent!important;border:0!important;
+  font-size:10px!important;line-height:1.2!important;text-align:center!important;
+}
+
+/* Keep desktop compact without forcing unequal panel heights. */
+.columns{align-items:start!important}
+.columns>.panel{height:auto!important;min-height:0!important;align-self:start}
+@media(max-width:1050px){
+ .hero.hero-game{height:auto!important;min-height:165px!important}
+ .hero-game .hero-identity{width:345px!important;max-width:100%!important;min-width:0!important}
+}
+@media(max-width:620px){
+ .hero.hero-game{min-height:245px!important;padding:13px!important}
+ .hero-game .hero-identity{width:100%!important;min-height:130px!important;margin-top:12px!important}
+ .panel.right .details>div{padding-left:38px!important;min-height:59px!important}
+ .panel.right .details>div .detail-icon{left:8px!important;width:21px!important;height:21px!important}
+ .profile-medals .medal-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media(max-width:390px){
+ .hero-game .hero-identity>div:not(.hero-mini-stats)>strong{font-size:14px!important}
+ .profile-medals .medal-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
