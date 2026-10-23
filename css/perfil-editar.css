@@ -1,0 +1,25 @@
+/* Mastersmon V2.20.3 - Scoped editor, retains existing game design. */
+.panel.right>.panel-title{align-items:center}
+.profile-edit-button{margin-left:auto;align-self:flex-start;border:1px solid #399ed0;background:#0b3b5e;color:#e9f8ff;padding:9px 13px;border-radius:8px;font-weight:800;white-space:nowrap;cursor:pointer}
+.profile-edit-button:hover{border-color:#ffd574;color:#ffe1a0}
+.profile-edit-backdrop:not([hidden]){position:fixed;inset:0;z-index:110;display:grid;place-items:center;background:#020c1edb;backdrop-filter:blur(5px);padding:15px}
+.profile-edit-dialog{width:min(430px,100%);display:grid;gap:10px;padding:24px;background:linear-gradient(150deg,#104263,#051c33);border:1px solid #f0c05f;border-radius:14px;box-shadow:0 18px 65px #000b}
+.profile-edit-dialog h2{margin:0 0 5px;color:#ffe19b;font:700 26px Georgia,serif}
+.profile-edit-dialog label{font-weight:750;color:#c8eaff}
+.profile-edit-dialog input,.profile-edit-dialog select{width:100%;box-sizing:border-box;padding:11px 12px;border:1px solid #428eb8;background:#06243c;color:#f7fbff;border-radius:8px;font:inherit}
+.profile-edit-hint{color:#91cae3;margin:0;font-size:12px}.profile-edit-error{color:#ff9ba6;margin:0}
+.profile-edit-actions{display:flex;gap:9px;margin-top:7px}.profile-edit-actions button{flex:1;padding:10px;border-radius:8px;border:1px solid #378db8;background:#0c3553;color:white;cursor:pointer;font-weight:800}.profile-edit-actions .profile-edit-save{background:linear-gradient(#fff0b5,#eeb443);border-color:#e7b34b;color:#132c3d}.profile-edit-actions button:disabled{opacity:.55;cursor:wait}
+@media(max-width:600px){.profile-edit-button{font-size:11px;padding:7px}.profile-edit-dialog{padding:17px}}
+/* Additional visual polish: four expressive portraits, clear selection and game-style panels. */
+@media(min-width:1051px){
+ .panel.left .avatar-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+ .panel.left .avatar-card{overflow:hidden;padding:0;gap:0;position:relative;border-radius:11px;justify-content:end;background:linear-gradient(#154461,#03192c)}
+ .panel.left .avatar-card img{height:clamp(98px,13.3vh,151px);min-height:98px;max-height:none;width:100%;object-fit:contain;object-position:center bottom}
+ .panel.left .avatar-card strong{width:100%;text-align:center;background:#02192cd9;padding:7px 3px;font-size:12px}
+ .panel.left .avatar-card small{display:none}
+ .panel.left .avatar-card.selected::after{content:'✓';position:absolute;right:6px;top:6px;display:grid;place-items:center;width:23px;height:23px;border-radius:50%;background:#ffce65;color:#0b2843;font-weight:900}
+ .panel.right .details>div{min-height:57px}
+}
+.panel.right .details strong{font-weight:850}
+.panel.left .panel-title,.panel.right>.panel-title{margin-bottom:11px}
+.panel.left>.muted{border:1px solid #276c90;border-radius:8px;padding:8px 10px;background:#07345086}
