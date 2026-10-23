@@ -1,0 +1,18 @@
+/* Mastersmon V2.20.5 - Medallas reales y colores de equipo. */
+:root{--trainer-accent:#ed6875;--trainer-accent-soft:rgba(237,104,117,.14);--trainer-accent-border:rgba(237,104,117,.55)}
+body[data-trainer-team="blue"]{--trainer-accent:#60b6ff;--trainer-accent-soft:rgba(74,151,255,.14);--trainer-accent-border:rgba(74,151,255,.55)}
+body[data-trainer-team="green"]{--trainer-accent:#56dba0;--trainer-accent-soft:rgba(41,196,123,.14);--trainer-accent-border:rgba(41,196,123,.55)}
+body[data-trainer-team] #team-value,body[data-trainer-team] #hero-team{color:var(--trainer-accent)!important}
+body[data-trainer-team] #hero-team{background:var(--trainer-accent-soft)!important;border-color:var(--trainer-accent-border)!important}
+body[data-trainer-team] .details>div:first-child{border-color:var(--trainer-accent-border);background:linear-gradient(115deg,var(--trainer-accent-soft),#07283f 65%)}
+body[data-trainer-team] .details>div:first-child .detail-icon{filter:drop-shadow(0 0 5px var(--trainer-accent))}
+.profile-medals{margin-top:14px;border-top:1px solid #255977;padding-top:13px;min-width:0}
+.profile-medals-head{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:10px}.profile-medals-head h3{font-size:18px;margin:0;color:#fff}.profile-medals-head .eyebrow{font-size:9px;margin-bottom:3px}.medal-desc{font-size:11px;color:#9ccfe8;margin:2px 0 0}.medal-progress{min-width:67px;display:grid;justify-items:center;padding:4px 9px;border:1px solid #347da0;border-radius:8px;background:#092f4c}.medal-progress strong{font-size:19px;color:#ffdc8f}.medal-progress span{font-size:10px;color:#c6deec}
+.medal-regions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin-bottom:10px}.medal-regions button{padding:7px 5px;background:#082b46;border:1px solid #31749a;border-radius:7px;color:#d9f1ff;font-weight:800;cursor:pointer}.medal-regions button[aria-pressed=true]{background:linear-gradient(#0c4f74,#082d4f);border-color:var(--trainer-accent);color:#fff;box-shadow:inset 0 -2px var(--trainer-accent)}
+.medal-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.medal-tile{display:flex;align-items:center;flex-direction:column;justify-content:center;gap:4px;border:1px solid #245778;border-radius:8px;background:#062239;padding:7px 3px;min-width:0;min-height:96px}.medal-tile.earned{border-color:#ccad65;background:linear-gradient(#0c3550,#072438);box-shadow:inset 0 1px #f2d68230}.medal-tile.locked img{filter:grayscale(1) brightness(.32);opacity:.65}.medal-tile img{object-fit:contain;width:47px;height:47px;max-width:100%;image-rendering:auto}.medal-tile strong{font-size:10px;line-height:1.1;text-align:center;max-width:100%;overflow-wrap:anywhere;color:#bdd4e5}.medal-tile.earned strong{color:#ffe1a0}.medal-tile small{font-size:9px;color:#80a8bc}.medal-message{grid-column:1/-1;color:#abcddd;font-size:12px;padding:12px;text-align:center;margin:0}.medal-foot{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:8px;color:#a4c4d8;font-size:11px}.medal-foot a{color:#82ddff;font-weight:750}
+/* Nine avatars fit in two rows on wide screens without shrinking thumbnails on phones. */
+@media(min-width:1180px){.panel.left .avatar-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:7px}.panel.left .avatar-card img{height:110px!important}}
+@media(max-width:560px){.profile-medals-head h3{font-size:16px}.medal-grid{gap:5px}.medal-tile{min-height:82px;padding:5px 2px}.medal-tile img{width:36px;height:36px}.medal-tile strong{font-size:9px}}
+/* Hide obsolete note saying teams cannot change; V2.20.3 allows it. */
+.panel.right>.muted.small{display:none}
+.member-since{color:#a7c8db;font-size:11px;margin:-3px 1px 9px;padding-left:3px}
