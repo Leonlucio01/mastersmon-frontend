@@ -21,3 +21,27 @@
 @media(max-width:1180px){.unified-header .top-inner{gap:7px!important}.unified-header .brand{font-size:21px!important}.unified-header .unified-nav a{padding:0 6px!important;font-size:11px!important}.unified-header .unified-nav .icon{width:15px!important;height:15px!important}.unified-header .nav-profile span{max-width:85px}}
 @media(max-width:900px){.unified-header{height:auto!important;min-height:52px!important;position:sticky}.unified-header .top-inner{height:auto;min-height:52px!important;flex-wrap:wrap!important;gap:0 8px!important;padding:6px 9px!important}.unified-header .brand{font-size:21px!important}.unified-header .unified-nav{order:5;width:100%!important;flex:0 0 100%;overflow-x:auto!important;overflow-y:hidden;justify-content:flex-start;scrollbar-width:thin;overscroll-behavior-x:contain}.unified-header .unified-nav a{height:39px;flex:0 0 auto;padding:0 10px!important}.unified-header .right,.unified-header .nav-right{margin-left:auto}.unified-header .nav-profile span{display:none}}
 @media(max-width:420px){.unified-header .brand{font-size:18px!important;gap:4px}.unified-header .emblem{width:26px;height:31px;font-size:23px}.unified-header .right,.unified-header .nav-right{gap:3px}.unified-header .logout{padding:7px!important;font-size:11px!important}.unified-header .unified-nav a{padding:0 8px!important;font-size:11px!important}}
+/* V2.20.1: header and trainer dropdown, responsive and scoped. */
+.masters-header .trainer-menu-root{position:relative;flex:none}
+.masters-header .trainer-menu-toggle{font:inherit;cursor:pointer;color:inherit;border:1px solid transparent!important;display:flex!important;align-items:center;gap:8px;background:transparent;padding:3px 6px!important}
+.masters-header .trainer-menu-toggle[aria-expanded="true"]{border-color:#267fae!important;background:#0a2c46!important}
+.masters-header .trainer-menu-identity{display:flex;flex-direction:column;gap:1px;text-align:left;min-width:0;max-width:126px}
+.masters-header .trainer-menu-identity small{color:#b0dafa;font:500 9px system-ui,sans-serif}
+.masters-header .trainer-menu-identity strong{color:#fff;font:750 11px system-ui,sans-serif;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.masters-header .trainer-chevron{font-size:17px;color:#7ee2ff}
+.masters-header .trainer-dropdown{position:absolute;z-index:300;right:0;top:calc(100% + 10px);width:min(310px,calc(100vw - 24px));padding:10px;border:1px solid #35a5d4;background:linear-gradient(170deg,#103552,#04182c 74%);border-radius:13px;box-shadow:0 18px 40px #000a,0 0 22px #04b5ff25;color:#fff;font-family:system-ui,sans-serif}
+.masters-header .trainer-dropdown[hidden]{display:none!important}
+.masters-header .trainer-dropdown-heading{display:flex;gap:11px;align-items:center;padding:7px 8px 13px;border-bottom:1px solid #2b6b90;margin-bottom:6px}
+.masters-header .trainer-dropdown-heading img{width:46px;height:46px;border:1px solid #f2bb58;object-fit:cover;border-radius:9px}
+.masters-header .trainer-dropdown-heading div{display:flex;flex-direction:column;gap:4px;min-width:0}
+.masters-header .trainer-dropdown-heading small{color:#6be9ff;letter-spacing:.14em;font-size:9px;font-weight:800}
+.masters-header .trainer-dropdown-heading strong{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.masters-header .trainer-option{appearance:none;display:flex;align-items:center;gap:11px;width:100%;border:0;background:transparent;color:#e5f5ff;min-height:43px;padding:8px 10px;border-radius:8px;text-decoration:none;font:650 12px system-ui,sans-serif;text-align:left;cursor:pointer}
+.masters-header .trainer-option:hover,.masters-header .trainer-option:focus-visible{background:#104569;outline:1px solid #36baf2}
+.masters-header .trainer-option-icon{display:grid;place-items:center;color:#78d9ff;background:#0b3450;border:1px solid #23678e;border-radius:7px;width:27px;height:27px;font-size:17px}
+.masters-header .trainer-option b{margin-left:auto;font-size:19px;color:#86d5ec}
+.masters-header .trainer-option-logout{border-top:1px solid #255573;margin-top:6px;border-radius:0;color:#ffacb8}
+.masters-header .nav-right{gap:7px}
+.masters-header .unified-nav a.selected,.masters-header .unified-nav a[aria-current="page"]{background:linear-gradient(180deg,#073453,#12658c)!important;border-bottom:3px solid #54d8ff!important}
+@media(max-width:900px){.masters-header .trainer-menu-identity{display:none}.masters-header .trainer-chevron{display:none}.masters-header .trainer-dropdown{right:-45px}}
+@media(max-width:420px){.masters-header .trainer-dropdown{right:-59px}}
