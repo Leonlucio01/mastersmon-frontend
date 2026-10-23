@@ -1,0 +1,21 @@
+/* Mastersmon V2.20.1 | Perfil compacto, respetando estructura y funciones originales */
+.main{max-width:1460px;padding:8px 12px 8px}
+.hero{height:160px;padding:14px 22px;background-image:linear-gradient(90deg,#03182cf0 0%,#061a32cc 24%,#001e385a 58%,#071b3350 100%),url('../assets/onboarding/hero-world.webp');background-size:cover;background-position:center 52%}
+.hero h1{font-size:clamp(27px,3.2vw,45px);margin-bottom:7px}.hero .eyebrow{margin-bottom:4px}
+.hero-identity{min-width:305px;max-width:410px;padding:9px 12px;gap:10px}.hero-identity>img{width:61px;height:61px}.hero-identity strong{font-size:17px}.hero-mini-stats{padding-top:5px}.hero-mini-stats span{font-size:14px}.hero-mini-stats b{font-size:14px}
+.columns{grid-template-columns:minmax(0,1.12fr) minmax(360px,1fr);gap:10px;margin-top:9px;align-items:start}
+.columns>.panel{padding:11px 12px}.panel-title{margin-bottom:8px;gap:10px}.panel-title h2{font-size:20px}.panel-title p:not(.eyebrow){margin-top:2px;font-size:11px}.panel-title .eyebrow{font-size:9px;margin-bottom:3px}
+.avatar-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:7px}.avatar-card{padding:4px 3px 5px;gap:2px;overflow:hidden}.avatar-card img{height:92px!important;min-height:0!important;max-height:none!important;width:100%;object-fit:contain}.avatar-card strong{font-size:11px}.avatar-card small{font-size:9px;line-height:1.15}.avatar-card:hover{transform:translateY(-1px)}
+.panel>.muted{margin-top:9px;font-size:10px}.decor{font-size:22px}.trainer-spot{padding:7px;margin-bottom:7px;gap:10px}.trainer-spot img{width:62px;height:62px}.trainer-spot strong{font-size:18px}.trainer-spot p{font-size:11px}
+.details{gap:6px}.details>div{padding:7px 9px}.details strong{font-size:13px;margin-top:1px}.shortcuts{margin-top:9px;gap:7px}.shortcuts .primary,.shortcuts .secondary{padding:8px}.profile-inventory-link{padding:6px;font-size:11px}.profile-addons{gap:7px;margin-top:8px}.profile-addon{padding:8px}.profile-addon h3{font-size:12px}.profile-addon .panel-title p{font-size:9px}.progress-triple>div{padding:5px 2px}.progress-triple strong{font-size:16px}.addon-buttons{gap:4px}.addon-buttons a{padding:5px}.right>.muted.small{margin:7px 0 0;font-size:9px!important}
+footer{margin-top:9px;padding:8px 0 3px}
+/* Compatibilidad del menú desplegable compartido con lobby.html */
+.masters-header .trainer-menu-toggle{width:auto;text-align:left}
+.masters-header .trainer-menu-identity{display:flex!important;flex-direction:column;align-items:flex-start;gap:0;min-width:0}
+.masters-header .trainer-menu-identity small{display:block;color:#94d6ef;font-size:9px;font-weight:700}
+.masters-header .trainer-menu-identity strong{font-size:11px;max-width:120px;overflow:hidden;text-overflow:ellipsis}
+.masters-header .trainer-chevron{display:block!important;color:#a6dff9;font-size:15px}
+@media(max-width:1100px){.columns{grid-template-columns:minmax(0,1fr) minmax(330px,1fr)}.avatar-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.avatar-card img{height:83px!important}}
+@media(max-width:800px){.columns{grid-template-columns:1fr}.hero{height:155px}.avatar-grid{grid-template-columns:repeat(5,minmax(0,1fr))}.avatar-card img{height:84px!important}.profile-addons{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.main{padding:7px}.hero{height:auto;min-height:215px;padding:14px;background-position:60% center}.hero h1{font-size:31px}.hero-identity{min-width:0;max-width:100%;margin-top:12px}.columns>.panel{padding:10px}.avatar-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.avatar-card img{height:94px!important}.profile-addons{grid-template-columns:1fr}.trainer-spot img{height:62px;width:62px}.shortcuts{flex-direction:row}.shortcuts>*{font-size:10px}.masters-header .trainer-menu-identity{display:none!important}}
+@media(max-width:360px){.avatar-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
