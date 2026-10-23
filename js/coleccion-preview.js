@@ -1,4 +1,4 @@
-/* Mastersmon V2.17.6 - Premium cards and secure in-place evolution with confirmation. */
+/* Mastersmon V2.17.7 - Compact premium cards and verified evolution celebration. */
 (()=>{'use strict';
 const $=id=>document.getElementById(id), GRID_PAGE=12, LIST_PAGE=24;
 let evolutionBusy=false;
@@ -91,7 +91,7 @@ function ensureEvoDialog(){
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!modal.hidden&&!evolutionBusy)closeEvoDialog()});
   return modal;
 }
-function closeEvoDialog(){const modal=$('collectionEvoDialog');if(modal)modal.hidden=true;pendingEvolution=null}
+function closeEvoDialog(){const modal=$('collectionEvoDialog');if(modal){modal.hidden=true;modal.classList.remove('evo-success-overlay')}pendingEvolution=null}
 function evoChoice(data){
  if(!data||data.puede_evolucionar!==true)return null;
  const opts=Array.isArray(data.opciones)?data.opciones:[];
@@ -106,6 +106,7 @@ async function prepareEvolution(id){
  const p=state.list.find(x=>x.id===id);
  if(!p||!state.user?.id||!getAccessToken())return;
  const modal=ensureEvoDialog();
+ modal.classList.remove('evo-success-overlay');modal.querySelector('.collection-evo-close').onclick=()=>{if(!evolutionBusy)closeEvoDialog()};
  modal.hidden=false;modal.querySelector('#collectionEvoContent').innerHTML=`<p class="evo-loading">${tr('Comprobando requisitos…','Checking requirements…')}</p>`;
  modal.querySelector('#collectionEvoFeedback').textContent='';
  modal.querySelector('.collection-evo-dialog').focus();
@@ -142,6 +143,7 @@ async function confirmEvolution(){
   feedback.textContent=tr('Evolucionando Pokémon…','Evolving Pokémon…');
   const endpoint=fresh.tipo==='nivel'?'evolucionar-nivel':'evolucionar-item';
   const payload={usuario_pokemon_id:request.id};if(fresh.tipo==='item')payload.item_id=request.itemId;
+  const before=state.list.find(x=>x.id===request.id);
   const result=await fetchAuth(`${API_BASE}/pokemon/${endpoint}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
   // Older backend versions may return an HTTP 200 with a failure message.
   const message=String(result?.mensaje||result?.message||'');
@@ -152,14 +154,34 @@ async function confirmEvolution(){
   const bySpecies=new Map(state.list.map(x=>[x.pokemon_id,x]));
   state.list=latest.map(p=>normalize(p,bySpecies.get(num(p.pokemon_id??p.pokemon?.id))||{})).filter(p=>p.id&&p.pokemon_id);
   state.lookups.clear();state.chains.clear();state.evo=null;state.chain=null;
+  const evolved=state.list.find(x=>x.id===request.id);
+  const confirmed=!!evolved&&evolved.pokemon_id===request.target&&before?.pokemon_id!==evolved.pokemon_id;
   state.selectedId=state.list.some(x=>x.id===request.id)?request.id:state.list[0]?.id||null;
   pendingEvolution=null;modal.hidden=true;state.page=0;render();
   if(selected()){getEvolution(selected());getEvolutionChain(selected())}
-  showEvoToast(message||tr('¡Tu Pokémon evolucionó correctamente!','Pokémon evolved successfully!'));
+  if(confirmed){showEvolutionSuccess(before,evolved)}
+  else {showEvoToast(tr('Se procesó la solicitud. Revisa el Pokémon actualizado antes de intentarlo de nuevo.','Request processed. Review the updated Pokémon before trying again.'))}
+
  }catch(error){feedback.textContent=error?.message||tr('No se pudo completar la evolución.','Evolution could not be completed.');feedback.classList.add('error');
   // Do not repeat a potentially executed POST from this dialog.
   pendingEvolution=null;
  }finally{evolutionBusy=false}
+}
+let collectionSuccessTimeout=0;
+function showEvolutionSuccess(before, after){
+ const modal=ensureEvoDialog();
+ const old=before||after;
+ const wasShiny=!!after.es_shiny;
+ modal.hidden=false;
+ modal.classList.add('evo-success-overlay');
+ modal.querySelector('#collectionEvoFeedback').textContent='';
+ const content=modal.querySelector('#collectionEvoContent');
+ content.innerHTML=`<div class="evo-success-header"><span class="evo-success-sparkle" aria-hidden="true">✦</span><span class="evo-success-kicker">${tr('¡Evolución completada!','Evolution complete!')}</span><h2 id="collectionEvoTitle">${esc(after.nombre)}</h2><p>${tr('Tu compañero ha evolucionado correctamente.','Your companion has evolved successfully.')}</p></div><div class="evo-success-pair"><div class="evo-success-mon">${pic(old,'evo-modal-sprite')}<strong>${esc(old.nombre)}</strong></div><span class="evo-success-arrow" aria-hidden="true">➜</span><div class="evo-success-mon evolved">${pic(after,'evo-modal-sprite')}<strong>${esc(after.nombre)}</strong>${wasShiny?'<span class="evo-shiny-tag">✦ Shiny</span>':''}</div></div><div class="evo-success-stats"><span>${tr('Nivel','Level')} <b>${after.nivel}</b></span><span>HP <b>${esc(after.hp_actual??'—')}/${esc(after.hp_max??'—')}</b></span><span>${tr('Ataque','Attack')} <b>${esc(after.ataque??'—')}</b></span></div><button type="button" class="evo-success-done">${tr('Continuar mi aventura','Continue adventure')} →</button>`;
+ bindImages(modal);
+ const close=()=>{modal.classList.remove('evo-success-overlay');closeEvoDialog()};
+ modal.querySelector('.evo-success-done').onclick=close;
+ modal.querySelector('.collection-evo-close').onclick=close;
+ modal.querySelector('.collection-evo-dialog').focus();
 }
 function showEvoToast(msg){let n=$('collectionEvoToast');if(!n){n=document.createElement('div');n.id='collectionEvoToast';n.className='collection-evo-toast';n.setAttribute('role','status');document.body.append(n)}n.textContent=msg;n.hidden=false;}
 
