@@ -161,3 +161,122 @@ footer{margin-top:5px;padding:4px 0;font-size:10px}
 @media(max-width:940px){.workspace{grid-template-columns:210px minmax(0,1fr)}.detail{grid-column:1/-1}.filters .type-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.pokemon-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.detail{min-height:0}}
 @media(max-width:650px){body{height:auto;overflow-x:hidden;overflow-y:auto}.top{height:auto}.top-inner{flex-wrap:wrap}.top .nav{order:5;width:100%}.top .nav a{padding:8px 6px}.hero{min-height:168px;flex-direction:column;align-items:stretch}.hero-metrics{width:100%;min-width:0}.workspace{display:flex;flex-direction:column}.workspace>.panel{width:100%}.filters{max-height:none}.filters .type-grid{grid-template-columns:repeat(6,minmax(0,1fr))}.pokemon-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.pokemon-grid.list-mode{grid-template-columns:1fr 1fr}.recent-list{grid-template-columns:repeat(5,minmax(0,1fr))}}
 @media(max-width:420px){.pokemon-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.pokemon-grid.list-mode{grid-template-columns:1fr}.filters .type-grid{grid-template-columns:repeat(5,minmax(0,1fr))}.brand{font-size:19px}}
+
+
+/* ============================================================
+   Mastersmon V2.17.4 | Game-quality UI polish (isolated preview)
+   Cards no longer repeat the hero map. Keep actual Pokemon sprites.
+   ============================================================ */
+:root{--ui-edge:#167dad;--ui-highlight:#6ce4ff;--ui-gold:#ffd979}
+body{background:radial-gradient(ellipse at 50% 5%,#0a3350 0%,#03162a 54%,#021121 100%);letter-spacing:.005em}
+.top{background:linear-gradient(180deg,#061a30 0%,#031529 100%);border-bottom-color:#268abb;box-shadow:0 3px 15px #0006}
+.top .nav a{transition:background .18s,box-shadow .18s;color:#deefff}
+.top .nav .selected{background:linear-gradient(180deg,#074166,#0c5479);color:#fff}
+.top .nav a:hover{color:#fff}
+.shell{max-width:1510px}
+.hero{position:relative;background-image:linear-gradient(90deg,#03182ded 0%,#03182dc7 32%,#05172e2c 65%),url('../assets/hero-world.jpg');background-position:center,center 44%;border-color:#268fba;box-shadow:inset 0 0 32px #00162975}
+.hero h1{letter-spacing:.006em;text-shadow:0 4px 16px #001124}
+.hero-metrics{backdrop-filter:blur(9px);background:#051a34e8;border-color:#2e779b;box-shadow:0 7px 22px #0009}
+.hero-metrics b{font-variant-numeric:tabular-nums}
+.panel{background:linear-gradient(160deg,#082944 0%,#051e37 52%,#031a31 100%);border-color:#1a729e;box-shadow:inset 0 1px #9de5ff0b}
+.panel-heading{border-bottom:1px solid #1b5b82;padding-bottom:6px}
+.panel-heading h2{font-size:15px;display:flex;align-items:center;gap:5px}
+.filters{background:linear-gradient(160deg,#062741 0%,#041b32 100%)}
+.type-control{transition:background .15s,transform .15s,border-color .15s}
+.type-control:hover,.type-control:focus-visible{transform:translateY(-1px);border-color:#6de3ff;background:#104a6c}
+.type-control.is-active{box-shadow:inset 0 0 0 1px #61e6ff,0 0 9px #18c4ff44;background:#0d4568}
+.filter-section{border-color:#1a537a}
+.search-wrap:focus-within{box-shadow:0 0 0 2px #33c7ff55;border-radius:7px}
+.pokemon-grid{padding:3px 2px 5px;scrollbar-color:#176c94 transparent}
+/* Each card has an atmospheric type glow, instead of the distracting map texture. */
+.poke-card,.poke-card.shiny{
+ background:
+   radial-gradient(ellipse at 50% 35%,color-mix(in srgb,var(--type-color),transparent 76%),transparent 73%),
+   linear-gradient(165deg,#12395b 0%,#092a45 47%,#04192f 100%);
+ border:1px solid color-mix(in srgb,var(--type-color),#1b759d 64%);
+ box-shadow:inset 0 1px #e9faff14,inset 0 -16px 24px #00172b53;
+ transition:transform .18s,border-color .18s,box-shadow .18s;
+ overflow:hidden;
+}
+.poke-card.shiny{background:radial-gradient(ellipse at 55% 28%,#e5ad483a,transparent 74%),linear-gradient(160deg,#173653,#0b263d 70%,#081b2b)}
+.poke-card::before{content:'';position:absolute;inset:0 0 auto;height:42%;background:linear-gradient(180deg,#c8edff07,transparent);pointer-events:none}
+.poke-card:hover{transform:translateY(-2px);border-color:#9feaff;box-shadow:0 4px 13px #010d1fd9,inset 0 1px #dcfbff33;z-index:2}
+.poke-card.selected,.poke-card.selected:hover{border:2px solid #ffdc78;box-shadow:0 0 0 1px #ffe5a655,0 0 15px #e9b24b7a,inset 0 0 15px #ffd56b16}
+.poke-card .card-open{position:relative;z-index:1;justify-content:center;gap:2px}
+.poke-card .card-sprite{height:70px!important;transform:scale(1.18);filter:drop-shadow(0 7px 5px #000a) drop-shadow(0 0 9px color-mix(in srgb,var(--type-color),transparent 70%));object-fit:contain}
+.poke-card strong{font-size:12px;line-height:1.15;text-shadow:0 2px 5px #000a}
+.poke-card .chip{font-size:9px;font-weight:800;margin-top:1px;box-shadow:0 1px 6px #0004}
+.poke-card .level{top:5px;left:5px;z-index:3;background:#021a31ea;border-color:#3f89b4;color:#e7f8ff}
+.poke-card .fav-button{z-index:4;filter:drop-shadow(0 0 3px #000)}
+.poke-card.shiny .shiny-corner{color:#ffdc78;text-shadow:0 0 6px #d99637;font-size:9px}
+.poke-card.shiny:not(.selected) .level{border-color:#be9047}
+.pokemon-grid.list-mode{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px 7px}
+.pokemon-grid.list-mode .poke-card{height:43px;min-height:43px;border-radius:7px}
+.pokemon-grid.list-mode .poke-card .card-open{height:41px;grid-template-columns:38px 38px minmax(52px,1fr) auto;gap:5px;justify-content:start}
+.pokemon-grid.list-mode .poke-card .card-sprite{height:35px!important;width:35px;transform:scale(1.12)}
+.pokemon-grid.list-mode .poke-card strong{font-size:10px;text-align:left}
+.pokemon-grid.list-mode .poke-card .chip{font-size:8px;padding:2px 6px}
+.pokemon-grid.list-mode .poke-card .level{position:static;font-size:9px}
+.pokemon-grid.list-mode .fav-button{top:9px}
+.pokemon-grid.list-mode .list-stats{display:none}
+.pokemon-grid.list-mode .poke-card .shiny-corner{display:none}
+.paging{border-top:1px solid #1a557b;padding-top:7px}
+.small-btn{transition:filter .15s;border-color:#278ac0}
+.small-btn:not(:disabled):hover{filter:brightness(1.22)}
+.detail{background:linear-gradient(180deg,#072b49,#041d34)}
+.detail-hero{background:
+ linear-gradient(95deg,#061a32ed 0%,#07233fa8 62%,#082e50aa 100%),
+ radial-gradient(circle at 77% 40%,color-mix(in srgb,var(--detail-accent),transparent 67%),transparent 62%),
+ url('../assets/hero-world.jpg') center/cover;
+ border-bottom:1px solid #2a7099}
+.detail-sprite{height:116px;max-width:128px;filter:drop-shadow(0 9px 8px #000b) drop-shadow(0 0 12px color-mix(in srgb,var(--detail-accent),transparent 63%))}
+.detail-hero h3{color:#ffe0a4;text-shadow:0 2px 8px #0008}
+.detail-tabs{border-bottom:1px solid #2387b1}
+.detail-tab.active{box-shadow:inset 0 -2px #6ae3ff}
+.exp-label{font-size:11px;color:#93e1ff}
+.exp-label b{color:#ffe19a}
+.stats{gap:5px}
+.stat{border-color:#246a90;background:linear-gradient(145deg,#0b3655,#082944)}
+.lab-heading h3{color:#e8f7ff;font-size:13px}
+.chain-step.current{box-shadow:inset 0 0 0 1px #eaca75;background:#0c3654}
+.chain-step img{filter:drop-shadow(0 5px 7px #000a)}
+.evo-status{background:#092e49;color:#daefff}
+.evo-status.ready{border-color:#27bda0;color:#80f5d2}
+.gold-action{background:linear-gradient(180deg,#fff0ae,#f0b648);border:1px solid #ffdf8c;box-shadow:0 0 12px #f2b64a3c;color:#14233a;transition:filter .18s,transform .18s}
+.gold-action:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.recent{background:linear-gradient(165deg,#082a49,#061d36)}
+.recent-item{background:linear-gradient(155deg,#0b3554,#092540);border-color:#257ea8;transition:border-color .15s,background .15s}
+.recent-item:hover{border-color:#ffcf78;background:#114362}
+.recent-item img{filter:drop-shadow(0 3px 5px #0008)}
+footer{border-top-color:#276886}
+/* Compact desktop balances the panel heights without a long document scroll. */
+@media(min-width:1121px) and (min-height:690px){
+ .pokemon-grid{overflow-y:auto;overscroll-behavior:contain}
+ .detail-content{overscroll-behavior:contain}
+ .filters{overscroll-behavior:contain}
+}
+@media(max-width:1370px){
+ .poke-card .card-sprite{height:59px!important}
+ .pokemon-grid.list-mode{grid-template-columns:1fr 1fr}
+}
+@media(max-width:1120px){
+ .pokemon-grid.list-mode{grid-template-columns:1fr}
+ .poke-card .card-sprite{height:70px!important}
+}
+@media(max-width:940px){
+ .filters{max-height:none}
+ .pokemon-grid.list-mode{grid-template-columns:1fr 1fr}
+}
+@media(max-width:650px){
+ .top-inner{padding:5px 9px}
+ .brand{font-size:20px}
+ .hero{background-position:center,70% center}
+ .poke-card{height:143px}
+ .poke-card .card-sprite{height:69px!important}
+ .pokemon-grid.list-mode{grid-template-columns:1fr}
+ .pokemon-grid.list-mode .poke-card{height:45px}
+ .recent-list{gap:5px}
+ .detail-hero{min-height:140px}
+ .detail-sprite{max-width:140px;height:120px}
+}
+@media(max-width:380px){.poke-card .card-sprite{height:64px!important}.hero h1{font-size:30px}}
