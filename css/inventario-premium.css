@@ -8,3 +8,17 @@
 @media(max-width:1100px){.booster{grid-template-columns:82px minmax(0,1fr) 102px!important;gap:9px!important}.booster>img{width:80px!important;height:80px!important}.booster h2{font-size:14px!important}}
 @media(max-width:750px){.inv-hero{min-height:200px;padding:16px;align-items:flex-start;flex-wrap:wrap}.inv-stat-list{width:100%;min-width:0}.boosters{grid-template-columns:1fr!important}.booster{grid-template-columns:80px 1fr 110px!important}.inv-workspace{grid-template-columns:1fr!important}.inv-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
 @media(max-width:430px){.inv-hero h1{font-size:32px}.booster{grid-template-columns:66px 1fr!important;padding:10px!important}.booster>img{width:66px!important;height:66px!important}.booster .control{grid-column:1/-1;display:grid!important;grid-template-columns:1fr 1fr!important;align-items:center}.booster .control button{grid-column:1/-1}.inv-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+
+/* V2.20.8: real Pokedollars balance, compact statistic strip. */
+.inv-stat-list{grid-template-columns:repeat(5,minmax(0,1fr))!important;min-width:min(555px,60%)!important;gap:0!important;padding:8px 5px!important}
+.inv-stat-list>div,.inv-stat-list>.inv-money{min-width:0;padding:0 8px;display:grid;justify-items:center;align-content:center;gap:2px;border-right:1px solid #285c7d}
+.inv-stat-list>div:nth-child(4){border-right:1px solid #285c7d}
+.inv-stat-list>.inv-money{border-right:0;color:#f0f7ff;text-decoration:none;border-radius:7px;transition:background .15s}
+.inv-stat-list>.inv-money:hover{background:#174363}
+.inv-money .inv-coin{width:23px;height:23px;display:grid;place-items:center;border:2px solid #efb849;border-radius:50%;background:radial-gradient(circle at 32% 30%,#fff1b5,#d78b16);color:#392409;font-weight:1000;font-size:18px;line-height:1;box-shadow:0 0 11px #f5a83f5a}
+.inv-money b{font-size:19px!important;white-space:nowrap;font-variant-numeric:tabular-nums;color:#ffdc82}
+.inv-money small{font-size:10px;text-align:center;white-space:nowrap}
+.inv-history>a[data-t=collection]{display:block}
+@media(max-width:1050px){.inv-stat-list{min-width:min(515px,63%)!important}.inv-stat-list>div,.inv-stat-list>.inv-money{padding:0 4px}.inv-money b{font-size:16px!important}}
+@media(max-width:750px){.inv-stat-list{min-width:0!important;width:100%!important}}
+@media(max-width:440px){.inv-stat-list{grid-template-columns:repeat(3,minmax(0,1fr))!important;row-gap:9px!important}.inv-stat-list>div:nth-child(3){border:0}.inv-stat-list>div:nth-child(4){border-right:1px solid #285c7d}.inv-stat-list>.inv-money{grid-column:span 2}.inv-money small{white-space:normal}}
