@@ -280,3 +280,45 @@ footer{border-top-color:#276886}
  .detail-sprite{max-width:140px;height:120px}
 }
 @media(max-width:380px){.poke-card .card-sprite{height:64px!important}.hero h1{font-size:30px}}
+
+
+/* === V2.17.5 overrides: type backgrounds + badge layout fixes === */
+.poke-card,.poke-card.shiny{
+  background:
+    linear-gradient(180deg,rgba(7,23,38,.40),rgba(4,18,31,.88) 78%),
+    var(--type-bg) center/cover no-repeat,
+    radial-gradient(circle at 50% 18%, color-mix(in srgb,var(--type-color), transparent 74%), transparent 52%),
+    linear-gradient(160deg,#143652,#0b2337 72%,#071825);
+}
+.poke-card::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:radial-gradient(circle at 50% 108%, color-mix(in srgb,var(--type-color), transparent 78%), transparent 36%)}
+.poke-card .card-open{
+  position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:3px;padding:8px 8px 10px;width:100%;height:100%;background:transparent;border:0;color:inherit;text-align:center;
+}
+.poke-card .card-info{display:flex;flex-direction:column;align-items:center;gap:1px;min-width:0;max-width:100%}
+.poke-card strong{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.poke-card .type-stack{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:4px;min-height:18px;max-width:100%;padding-inline:4px}
+.poke-card .chip,.detail-hero .chip{
+  position:static;display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;line-height:1;padding:3px 8px;border-radius:999px;background:var(--chip,#146fb8);margin:0;border:1px solid color-mix(in srgb,var(--chip),#fff 18%);box-shadow:0 1px 6px rgba(0,0,0,.24);white-space:nowrap;
+}
+.poke-card .primary-chip{filter:saturate(1.04)}
+.poke-card .secondary-chip{opacity:.97}
+.poke-card .card-number{display:block;line-height:1.05}
+.poke-card .shiny-corner{position:absolute;left:7px;bottom:5px;z-index:3;background:transparent}
+.poke-card:not(.shiny) .shiny-corner{display:none}
+.pokemon-grid.list-mode{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 8px}
+.pokemon-grid.list-mode .poke-card{height:auto;min-height:58px}
+.pokemon-grid.list-mode .poke-card .card-open{
+  display:grid;grid-template-columns:42px 42px minmax(64px,1fr) minmax(100px,auto);align-items:center;justify-items:start;gap:6px;padding:4px 30px 4px 6px;min-height:50px;
+}
+.pokemon-grid.list-mode .poke-card .level{position:static;grid-column:1;font-size:9px;padding:3px 4px;justify-self:start}
+.pokemon-grid.list-mode .poke-card .card-sprite{grid-column:2;height:36px!important;width:36px;transform:none;margin:0}
+.pokemon-grid.list-mode .poke-card .card-info{grid-column:3;align-items:flex-start;text-align:left;gap:1px;min-width:0}
+.pokemon-grid.list-mode .poke-card strong{font-size:10px;max-width:100%}
+.pokemon-grid.list-mode .poke-card .card-number{font-size:9px;opacity:.9}
+.pokemon-grid.list-mode .poke-card .type-stack{grid-column:4;justify-content:flex-end;align-items:center;align-content:center;row-gap:2px;max-width:150px;min-height:0;padding:0}
+.pokemon-grid.list-mode .poke-card .chip{font-size:8px;padding:2px 6px;max-width:100%}
+.pokemon-grid.list-mode .poke-card .fav-button{top:12px;right:5px}
+.pokemon-grid.list-mode .poke-card .shiny-corner{display:none}
+.pokemon-grid.list-mode .list-stats{display:none}
+@media (max-width:1120px){.pokemon-grid.list-mode{grid-template-columns:1fr}}
+@media (max-width:620px){.pokemon-grid.list-mode{grid-template-columns:1fr}}
