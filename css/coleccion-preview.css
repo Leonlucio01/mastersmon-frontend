@@ -322,3 +322,32 @@ footer{border-top-color:#276886}
 .pokemon-grid.list-mode .list-stats{display:none}
 @media (max-width:1120px){.pokemon-grid.list-mode{grid-template-columns:1fr}}
 @media (max-width:620px){.pokemon-grid.list-mode{grid-template-columns:1fr}}
+
+/* === V2.17.6: premium visual rhythm and confirmed evolution === */
+.poke-card .card-sprite{height:86px!important;max-height:86px;filter:drop-shadow(0 6px 10px #000c) drop-shadow(0 0 9px color-mix(in srgb,var(--type-color),transparent 55%))}
+.poke-card .card-info{gap:2px}
+.poke-card .type-stack{gap:5px;flex-wrap:nowrap}
+.poke-card .chip{font-size:9px;font-weight:700;padding:3px 8px}
+.poke-card.selected{border-color:#ffe19a;box-shadow:0 0 0 1px #ffd06a,0 0 17px #ffce7163,inset 0 0 18px #ffd06a20}
+.pokemon-grid.list-mode .poke-card .card-sprite{height:35px!important}
+.gold-action:disabled{cursor:not-allowed;filter:saturate(.45);opacity:.62;box-shadow:none}
+.moves-inline-link{display:block;text-align:center;font-size:11px;color:#7edcfa;margin-top:8px;text-decoration:underline;text-underline-offset:3px}
+.collection-evo-overlay[hidden],.collection-evo-toast[hidden]{display:none!important}
+.collection-evo-overlay{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:14px;background:#010b1cdb;backdrop-filter:blur(6px)}
+.collection-evo-dialog{position:relative;width:min(480px,100%);max-height:calc(100dvh - 28px);overflow-y:auto;color:#edf8ff;background:linear-gradient(155deg,#11466b,#041a31 55%,#051529);border:1px solid #ebc361;border-radius:15px;padding:22px;box-shadow:0 16px 65px #000c,0 0 30px #fabf4a24}
+.collection-evo-dialog h2{font:700 27px Georgia,serif;color:#ffe1a1;margin:0 35px 7px 0}
+.collection-evo-dialog p{font-size:12px;color:#c4e2f4;margin:7px 0}
+.collection-evo-close{position:absolute;right:13px;top:11px;font-size:25px;background:#09283f;color:#fff;border:1px solid #2b7098;border-radius:8px;width:34px;height:34px}
+.evo-modal-pair{display:grid;grid-template-columns:minmax(0,1fr) 32px minmax(0,1fr);align-items:center;gap:8px;margin:14px 0}
+.evo-modal-pair>div{min-width:0;background:#062943;border:1px solid #347fa9;border-radius:10px;padding:10px 5px;display:flex;flex-direction:column;align-items:center;gap:5px}
+.evo-modal-pair strong{font-size:12px;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.evo-modal-sprite{height:80px;width:100%;object-fit:contain}
+.evo-modal-arrow{text-align:center;color:#ffd26f;font-size:23px}
+.evo-modal-requirement{padding:10px;background:#092d49;border:1px solid #225d82;border-radius:7px}
+.evo-modal-warning{color:#ffdc9b!important}
+.evo-modal-actions{display:flex;gap:10px;margin-top:15px}.evo-modal-actions button{flex:1;border-radius:8px;min-height:41px;font-weight:700}
+.evo-cancel{background:#0c3451;border:1px solid #2687b5;color:#e6f7ff}.evo-confirm{background:linear-gradient(#ffe6a4,#e6aa37);color:#061a2e;border:1px solid #ffcc65}
+.evo-confirm:disabled{opacity:.45;cursor:not-allowed}
+#collectionEvoFeedback{margin-top:10px;color:#90e4c3;font-size:12px}#collectionEvoFeedback.error{color:#ffaca7}
+.collection-evo-toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:900;padding:11px 16px;background:#073b39;color:#d2ffeb;border:1px solid #46c896;border-radius:9px;box-shadow:0 8px 25px #0009;font-weight:700;max-width:95vw}
+@media(max-width:620px){.poke-card .type-stack{flex-wrap:wrap}.poke-card .chip{font-size:8px;padding:2px 6px}.collection-evo-dialog{padding:18px}.evo-modal-sprite{height:64px}}

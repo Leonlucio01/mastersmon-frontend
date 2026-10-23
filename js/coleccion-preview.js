@@ -1,6 +1,8 @@
-/* Mastersmon V2.17.5 - Collection type backgrounds and badge layout fixes, authoritative API data, no server mutations. */
+/* Mastersmon V2.17.6 - Premium cards and secure in-place evolution with confirmation. */
 (()=>{'use strict';
 const $=id=>document.getElementById(id), GRID_PAGE=12, LIST_PAGE=24;
+let evolutionBusy=false;
+let pendingEvolution=null;
 const pageSize=()=>state.view==='list'?LIST_PAGE:GRID_PAGE;
 const state={list:[],filtered:[],selectedId:null,page:0,view:'grid',lang:localStorage.getItem('mastersmon_lang')==='en'?'en':'es',tab:'info',type:'',evo:null,chain:null,lookups:new Map(),chains:new Map(),favorites:new Set(),user:null,team:null,loading:true};
 const tr=(es,en)=>state.lang==='en'?en:es;
@@ -74,9 +76,93 @@ async function getEvolutionChain(p){
   }catch(_){if(state.selectedId===id){state.chain={id,steps:[]};renderDetail()}}
 }
 function renderDetail(){const p=selected(),el=$('pokemonDetail');if(!p){el.innerHTML=`<div class="empty-detail">${tr('Selecciona un Pokémon de tu colección.','Select a Pokémon from your collection.')}</div>`;return}const first=splitTypes(p.tipo),content=state.tab==='stats'?`<div class="stats more-stats">${buildStats(p)}</div>`:state.tab==='moves'?`<p class="tab-explain">${tr('Consulta y equipa tus movimientos en la colección actual, usando el sistema existente.','View and equip your moves in the existing collection system.')}</p><a href="mypokemon.html" class="outline-action">${tr('Abrir movimientos →','Open moves →')}</a>`:state.tab==='details'?`<p class="tab-explain">#${p.pokemon_id} · ${tr('Generación','Generation')} ${generation(p.pokemon_id)} · ${p.es_shiny?'Shiny':tr('Normal','Normal')}</p><p class="tab-explain">${tr('Los datos de especie, habilidad y rareza se mostrarán aquí cuando la API los proporcione.','Species, ability, and rarity information will appear when provided by the API.')}</p>`:`<div class="stats">${buildStats(p)}</div>`;
-el.innerHTML=`<div class="detail-hero" style="--detail-accent:${tcolor[slug(first[0])]||'#55d8ff'}"><div class="detail-hero-copy"><div class="dex">#${String(p.pokemon_id).padStart(3,'0')} · ${tr('Nivel','Level')} ${p.nivel}</div><h3>${esc(p.nombre)}</h3><div class="badges">${first.map(t=>`<span class="chip" style="--chip:${tcolor[slug(t)]||'#1c7cbd'}">${esc(t)}</span>`).join('')} ${p.es_shiny?'<span class="chip shiny-label">✦ Shiny</span>':''}</div><div class="exp-label">${tr('EXP acumulada','Total EXP')}: <b>${p.experiencia.toLocaleString()}</b></div></div>${pic(p,'detail-sprite')}</div><div class="detail-tabs">${detailTab(tr('Información','Info'),'info')}${detailTab(tr('Estadísticas','Stats'),'stats')}${detailTab(tr('Movimientos','Moves'),'moves')}${detailTab(tr('Detalles','Details'),'details')}</div><div class="tab-body">${content}</div><div class="evolution-lab"><div class="lab-heading"><h3><img src="assets/ui/icons/bolt.svg" class="icon" alt=""> ${tr('Laboratorio de evolución','Evolution laboratory')}</h3><span class="subdued">${tr('Estado real','Actual status')}</span></div><div id="evoChain" class="evo-chain">${renderEvolutionChain(p)}</div><div id="evoStatus" class="evo-status${state.evo?.data?.listo_ahora?' ready':''}">${esc(evolutionSummary())}</div><a class="gold-action" href="mypokemon.html">${tr('Evolucionar / movimientos →','Evolve / moves →')} <img class="icon" src="assets/ui/icons/arrow-right.svg" alt=""></a></div>`;
-el.querySelectorAll('[data-detail-tab]').forEach(b=>b.onclick=()=>{state.tab=b.dataset.detailTab;renderDetail()});bindImages(el)}
+el.innerHTML=`<div class="detail-hero" style="--detail-accent:${tcolor[slug(first[0])]||'#55d8ff'}"><div class="detail-hero-copy"><div class="dex">#${String(p.pokemon_id).padStart(3,'0')} · ${tr('Nivel','Level')} ${p.nivel}</div><h3>${esc(p.nombre)}</h3><div class="badges">${first.map(t=>`<span class="chip" style="--chip:${tcolor[slug(t)]||'#1c7cbd'}">${esc(t)}</span>`).join('')} ${p.es_shiny?'<span class="chip shiny-label">✦ Shiny</span>':''}</div><div class="exp-label">${tr('EXP acumulada','Total EXP')}: <b>${p.experiencia.toLocaleString()}</b></div></div>${pic(p,'detail-sprite')}</div><div class="detail-tabs">${detailTab(tr('Información','Info'),'info')}${detailTab(tr('Estadísticas','Stats'),'stats')}${detailTab(tr('Movimientos','Moves'),'moves')}${detailTab(tr('Detalles','Details'),'details')}</div><div class="tab-body">${content}</div><div class="evolution-lab"><div class="lab-heading"><h3><img src="assets/ui/icons/bolt.svg" class="icon" alt=""> ${tr('Laboratorio de evolución','Evolution laboratory')}</h3><span class="subdued">${tr('Estado real','Actual status')}</span></div><div id="evoChain" class="evo-chain">${renderEvolutionChain(p)}</div><div id="evoStatus" class="evo-status${state.evo?.data?.listo_ahora?' ready':''}">${esc(evolutionSummary())}</div><button type="button" class="gold-action" id="evolveHere" ${state.evo?.data?.listo_ahora!==true||evolutionBusy?'disabled':''}>${tr('Evolucionar aquí','Evolve here')} <img class="icon" src="assets/ui/icons/arrow-right.svg" alt=""></button><a class="moves-inline-link" href="mypokemon.html">${tr('Gestionar movimientos →','Manage moves →')}</a></div>`;
+el.querySelectorAll('[data-detail-tab]').forEach(b=>b.onclick=()=>{state.tab=b.dataset.detailTab;renderDetail()});const ev=el.querySelector('#evolveHere');if(ev)ev.onclick=()=>prepareEvolution(p.id);bindImages(el)}
 async function getEvolution(p){const key=p.id;if(state.lookups.has(key)){state.evo={id:key,data:state.lookups.get(key)};if(state.selectedId===key)renderDetail();return}try{const data=await fetchAuth(`${API_BASE}/usuario/pokemon/${key}/evolucion`);if(state.selectedId!==key)return;state.lookups.set(key,data);state.evo={id:key,data};if(state.chain?.id===key&&Array.isArray(data?.opciones)){for(const o of data.opciones){const t=num(o.evolucion_id??o.evoluciona_a);if(t&&!state.chain.steps.some(z=>z.id===t))state.chain.steps.push({id:t,nombre:o.evolucion_nombre||'',nivel:num(o.nivel_requerido),item:o.item_nombre||''})}}renderDetail()}catch(error){if(state.selectedId===key){state.evo={id:key,error:true};renderDetail()}}}
+
+/* V2.17.6: confirmed, server-authoritative evolution directly from the preview. */
+function ensureEvoDialog(){
+  let modal=$('collectionEvoDialog');if(modal)return modal;
+  modal=document.createElement('div');modal.id='collectionEvoDialog';modal.className='collection-evo-overlay';modal.hidden=true;
+  modal.innerHTML=`<div class="collection-evo-dialog" role="dialog" aria-modal="true" aria-labelledby="collectionEvoTitle" tabindex="-1"><button type="button" class="collection-evo-close" aria-label="Cerrar">×</button><div id="collectionEvoContent"></div><div id="collectionEvoFeedback" aria-live="polite"></div></div>`;
+  document.body.append(modal);
+  modal.querySelector('.collection-evo-close').onclick=()=>{if(!evolutionBusy)closeEvoDialog()};
+  modal.addEventListener('click',e=>{if(e.target===modal&&!evolutionBusy)closeEvoDialog()});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!modal.hidden&&!evolutionBusy)closeEvoDialog()});
+  return modal;
+}
+function closeEvoDialog(){const modal=$('collectionEvoDialog');if(modal)modal.hidden=true;pendingEvolution=null}
+function evoChoice(data){
+ if(!data||data.puede_evolucionar!==true)return null;
+ const opts=Array.isArray(data.opciones)?data.opciones:[];
+ if(data.tipo==='nivel')return opts.find(o=>o.tipo==='nivel')||null;
+ if(data.tipo==='item')return opts.find(o=>o.tiene_item===true)||opts.find(o=>o.tipo==='item')||null;
+ return null;
+}
+function evoTargetId(choice){return num(choice?.evolucion_id??choice?.evoluciona_a)}
+function evoReady(data,choice){return data?.listo_ahora===true&&!!choice&&(data.tipo==='nivel'?choice.listo===true:data.tipo==='item'?choice.tiene_item===true&&num(choice.item_id)>0:false)}
+async function prepareEvolution(id){
+ if(evolutionBusy)return;
+ const p=state.list.find(x=>x.id===id);
+ if(!p||!state.user?.id||!getAccessToken())return;
+ const modal=ensureEvoDialog();
+ modal.hidden=false;modal.querySelector('#collectionEvoContent').innerHTML=`<p class="evo-loading">${tr('Comprobando requisitos…','Checking requirements…')}</p>`;
+ modal.querySelector('#collectionEvoFeedback').textContent='';
+ modal.querySelector('.collection-evo-dialog').focus();
+ try{
+  const data=await fetchAuth(`${API_BASE}/usuario/pokemon/${p.id}/evolucion`);
+  if(modal.hidden)return;
+  state.lookups.set(p.id,data);if(state.selectedId===p.id)state.evo={id:p.id,data};
+  const choice=evoChoice(data),ready=evoReady(data,choice),target=evoTargetId(choice);
+  const label=String(choice?.evolucion_nombre||'#'+target);
+  const extra=data.tipo==='nivel'?`${tr('Nivel actual','Current level')}: ${num(data.nivel_actual)} · ${tr('Requerido','Required')}: ${num(choice?.nivel_requerido)}`:data.tipo==='item'?`${tr('Objeto','Item')}: ${esc(choice?.item_nombre||'—')} · ${tr('Disponible','Owned')}: ${num(choice?.cantidad)}`:'';
+  pendingEvolution=ready?{id:p.id,tipo:data.tipo,itemId:num(choice.item_id),target}:null;
+  const dest=target?pic({pokemon_id:target,nombre:label,es_shiny:p.es_shiny},'evo-modal-sprite'):'<span>?</span>';
+  modal.querySelector('#collectionEvoContent').innerHTML=`<h2 id="collectionEvoTitle">${tr('Confirmar evolución','Confirm evolution')}</h2><p>${esc(p.nombre)} · ${tr('Nv.','Lv.')} ${p.nivel}${p.es_shiny?' · ✦ Shiny':''}</p><div class="evo-modal-pair"><div>${pic(p,'evo-modal-sprite')}<strong>${esc(p.nombre)}</strong></div><span class="evo-modal-arrow">➜</span><div>${dest}<strong>${esc(label)}</strong></div></div><p class="evo-modal-requirement">${extra||esc(data?.motivo||'')}</p>${ready?'<p class="evo-modal-warning">'+tr('Esta acción modificará tu Pokémon y puede consumir un objeto.','This will change your Pokémon and may consume an item.')+'</p>':'<p class="evo-modal-warning">'+tr('Todavía no cumple los requisitos.','Requirements are not met yet.')+'</p>'}<div class="evo-modal-actions"><button type="button" class="evo-cancel">${tr('Cancelar','Cancel')}</button><button type="button" class="evo-confirm" ${ready?'':'disabled'}>${tr('Confirmar evolución','Confirm evolution')}</button></div>`;
+  modal.querySelector('.evo-cancel').onclick=closeEvoDialog;
+  modal.querySelector('.evo-confirm').onclick=confirmEvolution;
+  bindImages(modal);
+  renderDetail();
+ }catch(error){modal.querySelector('#collectionEvoContent').innerHTML=`<h2 id="collectionEvoTitle">${tr('No se pudo verificar la evolución','Could not verify evolution')}</h2><p>${esc(error?.message||tr('Reintenta más tarde.','Try again later.'))}</p>`}
+}
+async function confirmEvolution(){
+ if(evolutionBusy||!pendingEvolution)return;
+ const request={...pendingEvolution};evolutionBusy=true;
+ const modal=ensureEvoDialog(),feedback=modal.querySelector('#collectionEvoFeedback');
+ modal.querySelector('.evo-confirm').disabled=true;
+ feedback.textContent=tr('Verificando por última vez…','Performing final check…');
+ try{
+  // Revalidate against server immediately before the irreversible POST.
+  if(!getAccessToken()||!state.user?.id)throw Error(tr('La sesión ha caducado.','Session expired.'));
+  const fresh=await fetchAuth(`${API_BASE}/usuario/pokemon/${request.id}/evolucion`);
+  const choice=evoChoice(fresh);
+  if(!evoReady(fresh,choice)||fresh.tipo!==request.tipo||evoTargetId(choice)!==request.target||(fresh.tipo==='item'&&num(choice.item_id)!==request.itemId)){
+   throw Error(tr('Los requisitos cambiaron. Vuelve a comprobarlos.','Requirements changed. Please recheck.'));
+  }
+  feedback.textContent=tr('Evolucionando Pokémon…','Evolving Pokémon…');
+  const endpoint=fresh.tipo==='nivel'?'evolucionar-nivel':'evolucionar-item';
+  const payload={usuario_pokemon_id:request.id};if(fresh.tipo==='item')payload.item_id=request.itemId;
+  const result=await fetchAuth(`${API_BASE}/pokemon/${endpoint}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+  // Older backend versions may return an HTTP 200 with a failure message.
+  const message=String(result?.mensaje||result?.message||'');
+  if(result?.ok===false||result?.success===false||/no tienes|no encontrad|no evoluciona|no puede|aún no puede|insuficiente|error|falló|fallo/i.test(message))throw Error(message||tr('La evolución fue rechazada.','Evolution was rejected.'));
+  feedback.textContent=tr('Actualizando tu colección…','Refreshing collection…');
+  const latest=await obtenerPokemonUsuarioActual();
+  if(!Array.isArray(latest))throw Error(tr('La evolución pudo completarse, pero no se pudo actualizar la colección. Recarga la página.','Evolution may have succeeded but collection refresh failed. Reload the page.'));
+  const bySpecies=new Map(state.list.map(x=>[x.pokemon_id,x]));
+  state.list=latest.map(p=>normalize(p,bySpecies.get(num(p.pokemon_id??p.pokemon?.id))||{})).filter(p=>p.id&&p.pokemon_id);
+  state.lookups.clear();state.chains.clear();state.evo=null;state.chain=null;
+  state.selectedId=state.list.some(x=>x.id===request.id)?request.id:state.list[0]?.id||null;
+  pendingEvolution=null;modal.hidden=true;state.page=0;render();
+  if(selected()){getEvolution(selected());getEvolutionChain(selected())}
+  showEvoToast(message||tr('¡Tu Pokémon evolucionó correctamente!','Pokémon evolved successfully!'));
+ }catch(error){feedback.textContent=error?.message||tr('No se pudo completar la evolución.','Evolution could not be completed.');feedback.classList.add('error');
+  // Do not repeat a potentially executed POST from this dialog.
+  pendingEvolution=null;
+ }finally{evolutionBusy=false}
+}
+function showEvoToast(msg){let n=$('collectionEvoToast');if(!n){n=document.createElement('div');n.id='collectionEvoToast';n.className='collection-evo-toast';n.setAttribute('role','status');document.body.append(n)}n.textContent=msg;n.hidden=false;}
+
 function renderRecent(){const el=$('recentList');el.replaceChildren();const recent=state.list.slice().sort((a,b)=>b.id-a.id).slice(0,10);recent.forEach(p=>{const b=document.createElement('button');b.type='button';b.className='recent-item';b.innerHTML=`${pic(p)}<span>${esc(p.nombre)}</span>${p.es_shiny?'<span class="gold-star">✦</span>':''}`;b.onclick=()=>{const match=state.filtered.findIndex(x=>x.id===p.id);if(match<0){$('search').value='';state.type='';$('genFilter').value='';$('favoritesOnly').checked=false;$('shinyOnly').checked=false;buildTypes();applyFilters()}const idx=state.filtered.findIndex(x=>x.id===p.id);state.page=Math.max(0,Math.floor(idx/pageSize()));choose(p);$('pokemonGrid').scrollTop=0};bindImages(b);el.append(b)})}
 async function loadTeam(){try{const data=await fetchAuth(`${API_BASE}/usuario/me/equipo`);const arr=Array.isArray(data)?data:Array.isArray(data?.equipo)?data.equipo:Array.isArray(data?.pokemons)?data.pokemons:null;state.team=arr?arr.filter(Boolean).length:null;render()}catch(_){state.team=null}}
 async function load(){try{if(typeof getAccessToken!=='function'||!getAccessToken()){showNotice(tr('Abre la colección desde la pestaña donde tienes iniciada la sesión.','Open the collection from your signed-in tab.'));return}const [user,collection,catalog]=await Promise.all([obtenerUsuarioActual(),obtenerPokemonUsuarioActual(),typeof obtenerPokemon==='function'?obtenerPokemon().catch(()=>[]):Promise.resolve([])]);if(!user?.id||!Array.isArray(collection))throw Error('Invalid collection response');state.user=user;$('trainerName').textContent=user.nombre||tr('Entrenador','Trainer');const catalogMap=new Map((Array.isArray(catalog)?catalog:[]).map(x=>[num(x.id),x]));state.list=collection.map(p=>normalize(p,catalogMap.get(num(p.pokemon_id??p.pokemon?.id))||{})).filter(p=>p.id&&p.pokemon_id);try{state.favorites=new Set(JSON.parse(localStorage.getItem(favKey())||'[]').map(num))}catch(_){state.favorites=new Set()}const gs=[...new Set(state.list.map(p=>generation(p.pokemon_id)))].sort((a,b)=>a-b);gs.forEach(g=>{const o=document.createElement('option');o.value=g;o.textContent=tr('Generación ','Generation ')+g;$('genFilter').append(o)});state.selectedId=state.list.slice().sort((a,b)=>b.id-a.id)[0]?.id||null;state.loading=false;render();if(selected()){getEvolution(selected());getEvolutionChain(selected())}loadTeam()}catch(error){console.error('[Mastersmon collection]',error);showNotice(tr('No fue posible cargar tu colección. Comprueba tu sesión.','Could not load your collection. Check your session.'))}}
