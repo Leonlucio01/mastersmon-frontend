@@ -102,3 +102,36 @@
  .hero-game .hero-identity>div:not(.hero-mini-stats)>strong{font-size:14px!important}
  .profile-medals .medal-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
+
+
+/* Mastersmon V2.21.1 - balance the profile without duplicating identity details. */
+/* The badges now occupy one horizontal row below both profile panels. */
+.main>.profile-medals{
+  margin:10px 0 0!important;
+  padding:13px 15px 12px!important;
+  background:linear-gradient(160deg,#082c49 0%,#041a2e 75%);
+  border:1px solid #267da9!important;
+  border-radius:11px;
+  min-width:0;
+}
+.main>.profile-medals .profile-medals-head{margin-bottom:9px!important}
+.main>.profile-medals .medal-regions{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px!important;margin:0 0 10px!important}
+.main>.profile-medals .medal-regions button{min-height:33px!important}
+.main>.profile-medals .medal-grid{display:grid!important;grid-template-columns:repeat(8,minmax(0,1fr))!important;gap:8px!important}
+.main>.profile-medals .medal-tile{min-height:86px!important;padding:7px 4px!important;gap:3px!important}
+.main>.profile-medals .medal-tile img{width:37px!important;height:37px!important;object-fit:contain!important}
+.main>.profile-medals .medal-tile strong{font-size:10px!important;line-height:1.15!important}
+.main>.profile-medals .medal-tile small{font-size:9px!important}
+.main>.profile-medals .medal-foot{margin-top:8px!important}
+/* Both top panels keep natural heights; do not stretch either with blank filler. */
+.columns>.panel.left,.columns>.panel.right{height:auto!important;min-height:0!important}
+@media(max-width:1000px){.main>.profile-medals .medal-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}}
+@media(max-width:550px){
+ .main>.profile-medals{padding:10px!important}
+ .main>.profile-medals .medal-regions{gap:5px!important}
+ .main>.profile-medals .medal-regions button{padding:7px 3px!important}
+ .main>.profile-medals .medal-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:5px!important}
+ .main>.profile-medals .medal-tile{min-height:76px!important;padding:5px 2px!important}
+ .main>.profile-medals .medal-tile img{height:29px!important;width:29px!important}
+ .main>.profile-medals .medal-tile strong{font-size:9px!important}
+}
