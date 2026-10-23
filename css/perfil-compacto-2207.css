@@ -1,0 +1,29 @@
+/* Mastersmon V2.20.7: compact profile and collapsible real badges. */
+.columns{align-items:start!important}
+.columns>.panel{height:auto!important;min-height:0!important;align-self:start}
+.hero{height:142px!important;min-height:142px!important;padding:13px 20px!important}
+.hero h1{font-size:clamp(29px,3.05vw,43px)!important}
+.hero-identity{transform:scale(.93);transform-origin:right center}
+.columns{margin-top:7px!important;gap:9px!important}
+.columns>.panel{padding:11px!important}
+.panel-title{margin-bottom:8px!important}
+.panel-title h2{font-size:19px!important}
+.panel-title p:not(.eyebrow){font-size:10px!important}
+/* Fit all 9 avatars into 2 desktop rows while retaining artwork. */
+@media(min-width:1051px){.panel.left .avatar-grid{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:6px!important}.panel.left .avatar-card img{height:102px!important;max-height:none!important}.panel.left .avatar-card{padding:0!important}}
+.trainer-spot{padding:7px!important;margin-bottom:7px!important}.trainer-spot img{width:61px!important;height:61px!important}.trainer-spot strong{font-size:17px!important}
+.member-since{margin:2px 0 7px!important}
+.details{gap:6px!important}.details>div{min-height:53px!important;padding:8px 9px!important}
+.shortcuts{margin-top:7px!important}.shortcuts .primary{padding:9px!important}
+.profile-medals{margin-top:9px!important;padding-top:9px!important}
+.profile-medals-head{margin-bottom:6px!important}.profile-medals-head h3{font-size:16px!important}.medal-desc{font-size:10px!important}
+.medal-summary{display:flex;align-items:center;gap:12px;min-height:65px;padding:9px 10px;border:1px solid #245777;border-radius:9px;background:#072840}
+.medal-summary-icons{display:flex;flex-shrink:0;align-items:center;gap:4px;max-width:145px}
+.medal-summary-icons img{width:37px;height:37px;object-fit:contain;border:1px solid #b39c65;border-radius:7px;padding:3px;background:#102d44}
+.medal-summary-copy{flex:1;min-width:0}.medal-summary-copy strong{display:block;font-size:12px;color:#ffe1a0}.medal-summary-copy small{display:block;font-size:10px;color:#9fc6d9;margin-top:3px}
+.medal-summary-bar{margin-top:5px;height:5px;border-radius:9px;background:#19465d;overflow:hidden}.medal-summary-bar>span{display:block;height:100%;background:var(--trainer-accent,#58cfac);border-radius:9px;transition:width .2s}
+.medal-toggle-row{text-align:right;margin-top:6px}.medal-toggle{background:#0d3854;color:#e5f7ff;border:1px solid #367e9d;border-radius:7px;padding:6px 12px;font-size:11px;font-weight:800;cursor:pointer}.medal-toggle:hover{background:#155575}
+.medal-details[hidden]{display:none!important}.medal-details{margin-top:8px}.medal-grid{gap:5px}.medal-tile{min-height:78px!important;padding:5px 2px!important}.medal-tile img{height:34px!important;width:34px!important}.medal-tile strong{font-size:9px!important}
+footer{margin-top:8px!important}
+@media(max-width:1050px){.hero{height:auto!important;min-height:146px!important}.hero-identity{transform:none}.columns{grid-template-columns:1fr!important}.panel.left .avatar-grid{grid-template-columns:repeat(5,minmax(0,1fr))!important}.panel.left .avatar-card img{height:110px!important}}
+@media(max-width:620px){.hero{min-height:235px!important}.panel.left .avatar-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}.panel.left .avatar-card img{height:100px!important}.hero-identity{margin-top:12px!important}.medal-summary{gap:7px;padding:8px}.medal-summary-icons img{width:31px;height:31px}.medal-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
