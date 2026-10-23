@@ -135,3 +135,50 @@
  .main>.profile-medals .medal-tile img{height:29px!important;width:29px!important}
  .main>.profile-medals .medal-tile strong{font-size:9px!important}
 }
+
+
+/* ==========================================================
+   Mastersmon V2.21.2 | Compact desktop rhythm (CSS only)
+   Preserve all original ids, JS handlers and server-backed badges.
+   ========================================================== */
+@media (min-width:1051px){
+  /* Shorter scenic banner without scaling or clipping the trainer panel. */
+  .hero.hero-game{height:158px!important;min-height:158px!important;padding:10px 18px!important}
+  .hero-game .hero-identity{min-height:134px!important;padding:8px 12px!important;row-gap:6px!important}
+  .hero-game .hero-identity>img{width:58px!important;height:58px!important}
+  .hero-game .hero-mini-stats{padding-top:7px!important}
+  .hero-game .hero-mini-stats>div{gap:2px!important}
+  /* Prevent the profile details panel growing taller than needed. */
+  .columns{margin-top:7px!important;gap:9px!important;align-items:start!important}
+  .columns>.panel{padding:10px 11px!important}
+  .columns .panel-title{margin-bottom:7px!important}
+  .panel.right .trainer-spot{padding:6px 9px!important;margin-bottom:5px!important}
+  .panel.right .member-since{margin:3px 0 6px!important}
+  .panel.right .details{gap:6px!important}
+  .panel.right .details>div{min-height:54px!important;padding-top:7px!important;padding-bottom:7px!important}
+  .panel.right .shortcuts{margin-top:6px!important}
+  .panel.left .avatar-grid{gap:6px!important}
+  /* Maintain avatar portraits; reduce only surrounding vertical whitespace. */
+  .panel.left .avatar-card img{height:102px!important}
+  .panel.left>.muted{margin-top:8px!important;padding:7px 9px!important}
+  /* Badge images remain readable, eight visible in one row. */
+  .main>.profile-medals{margin-top:8px!important;padding:10px 13px 9px!important}
+  .main>.profile-medals .profile-medals-head{margin-bottom:6px!important}
+  .main>.profile-medals .medal-regions{margin-bottom:7px!important;gap:7px!important}
+  .main>.profile-medals .medal-regions button{min-height:30px!important;padding:5px 8px!important}
+  .main>.profile-medals .medal-grid{gap:6px!important}
+  .main>.profile-medals .medal-tile{min-height:76px!important;padding:5px 4px!important;gap:2px!important}
+  .main>.profile-medals .medal-tile img{width:37px!important;height:37px!important}
+  .main>.profile-medals .medal-foot{margin-top:5px!important}
+  .main footer{margin-top:7px!important}
+}
+/* Region chooser can grow to nine names without losing its desktop readability. */
+@media (min-width:1051px){
+  .main>.profile-medals .medal-regions{display:flex!important;flex-wrap:wrap!important}
+  .main>.profile-medals .medal-regions button{flex:1 1 125px!important;min-width:0!important}
+}
+@media (max-width:620px){
+  .main>.profile-medals .medal-regions{display:flex!important;overflow-x:auto!important;flex-wrap:nowrap!important;scrollbar-width:thin;gap:6px!important}
+  .main>.profile-medals .medal-regions button{flex:0 0 auto!important;min-width:105px!important}
+  /* Keep existing 4-column mobile medals and normal scrolling. */
+}
