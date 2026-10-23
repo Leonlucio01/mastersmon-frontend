@@ -193,6 +193,6 @@ function jump(delta){state.page+=delta;render();$('pokemonGrid').scrollTop=0}
 ['search','genFilter','order','shinyOnly','favoritesOnly'].forEach(id=>$(id).addEventListener('input',()=>{state.page=0;render()}));
 $('clearFilters').onclick=()=>{$('search').value='';$('genFilter').value='';$('order').value='recent';$('shinyOnly').checked=false;$('favoritesOnly').checked=false;state.type='';state.page=0;buildTypes();render()};
 $('viewGrid').onclick=()=>{state.view='grid';state.page=0;render();$('pokemonGrid').scrollTop=0};$('viewList').onclick=()=>{state.view='list';state.page=0;render();$('pokemonGrid').scrollTop=0};$('prevPage').onclick=()=>jump(-1);$('nextPage').onclick=()=>jump(1);
-$('langEs').onclick=()=>setLang('es');$('langEn').onclick=()=>setLang('en');$('mobileMenu').onclick=()=>$('nav').classList.toggle('open');$('logout').onclick=()=>{if(typeof limpiarSesion==='function')limpiarSesion();location.assign('index.html')};
+$('langEs').onclick=()=>setLang('es');$('langEn').onclick=()=>setLang('en');const mobileMenu=$('mobileMenu'),legacyNav=$('nav');if(mobileMenu&&legacyNav){mobileMenu.onclick=()=>legacyNav.classList.toggle('open');}$('logout').onclick=()=>{if(typeof limpiarSesion==='function')limpiarSesion();location.assign('index.html')};
 setLang(state.lang);load();
 })();
