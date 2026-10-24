@@ -1,6 +1,6 @@
 /* Mastersmon V2.17.7 - Compact premium cards and verified evolution celebration. */
 (()=>{'use strict';
-const $=id=>document.getElementById(id), GRID_PAGE=12, LIST_PAGE=24;
+const $=id=>document.getElementById(id), GRID_PAGE=12, LIST_PAGE=16;
 let evolutionBusy=false;
 let pendingEvolution=null;
 const pageSize=()=>state.view==='list'?LIST_PAGE:GRID_PAGE;
