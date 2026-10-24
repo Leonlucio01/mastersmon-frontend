@@ -445,3 +445,12 @@ footer{border-top-color:#276886}
 #pokemonDetail .collection-evolution-ready{border:1px solid #b89747!important;border-radius:9px;box-shadow:inset 0 0 14px #e4b84a10}
 #pokemonDetail .collection-evolution-ready .gold-action:not(:disabled){box-shadow:0 0 12px #ffbf5544}
 @media(max-width:800px){#pokemonDetail{max-height:490px!important}}
+
+/* V2.22.4 - show the complete evolution laboratory; no nested scroll on the right panel. */
+#pokemonDetail{height:auto!important;max-height:none!important;overflow:visible!important;min-height:0!important;overscroll-behavior:auto!important}
+#pokemonDetail .evolution-lab{overflow:visible!important;position:relative!important;margin-bottom:12px!important}
+/* Let the collection row grow to the height of its tallest column. */
+.collection-layout,.collection-main,.collection-panel{height:auto;min-height:0}
+/* Moves remain independently scrollable: only the moves tab needs a bounded list. */
+#pokemonDetail .tab-body:has(.collection-moves){max-height:340px;overflow-y:auto;overflow-x:hidden}
+@media(max-width:800px){#pokemonDetail{max-height:none!important;overflow:visible!important}}
