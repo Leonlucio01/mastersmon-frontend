@@ -16,3 +16,7 @@
 .reserve-card.active{outline:2px solid #ffe08c;outline-offset:-2px}
 .detail-actions{grid-template-columns:1fr}
 .detail-actions button[hidden]{display:none!important}
+
+/* V2.23.3: Match the Collection's elemental pictograms. */
+.type-pill em .type-emoji{font-weight:800;font-size:12px;display:inline-block;min-width:14px;text-align:center;margin-right:2px}
+.filter-grid button .type-emoji{font-weight:800;font-size:11px;line-height:1}
