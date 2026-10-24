@@ -25,3 +25,10 @@
 .combatant{image-rendering:auto}
 .fighter-stat{background:#041c36e8}
 @media(min-width:1180px){.combatant{max-height:75%;width:43%}}
+
+/* V2.34: use repository sprites and enable a local, non-rewarding battle simulation */
+.combatant{image-rendering:pixelated;object-fit:contain;max-height:60%!important;width:36%!important;filter:drop-shadow(0 12px 6px #00182dcc)}
+.player-img{left:10%!important}.enemy-img{right:10%!important}
+.move-grid .attack-option:not(:disabled){cursor:pointer;opacity:1;background:linear-gradient(110deg,color-mix(in srgb,var(--move-color) 36%,#061c3a),#071e3a)}
+.move-grid .attack-option:not(:disabled):hover{border-color:#ffe29a;box-shadow:0 0 12px #ffc85966;transform:translateY(-1px)}
+.arena-hit{animation:arena-hit .3s ease-out}@keyframes arena-hit{0%,100%{opacity:1}40%{opacity:.3;transform:translateX(9px)}}
