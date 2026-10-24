@@ -379,3 +379,41 @@ body{font-size:14px;background:#031327}
  .party-grid .party-tile{gap:1px;padding:3px 2px}
  .party-grid .party-tile img{height:43px}
 }
+
+/* V2.25.2 - selected scope: MY CURRENT TEAM only. Star beside sprite; badges visible. */
+.party-grid .party-tile{overflow:hidden}
+.party-grid .party-sprite-box{
+ position:relative;display:flex;align-items:center;justify-content:center;
+ width:100%;height:clamp(48px,3.9vw,62px);flex:0 0 auto;min-height:0;
+}
+.party-grid .party-sprite-box img{
+ display:block;width:auto;max-width:78%;height:100%;max-height:60px;
+ min-height:0;object-fit:contain;flex:0 1 auto;
+}
+.party-grid .party-shiny-spark{
+ position:absolute;top:0;left:calc(50% + 20px);z-index:2;
+ font-size:15px;line-height:1;color:#ffdf73;font-weight:900;
+ text-shadow:0 0 7px #ffc851aa,0 1px 2px #1b1303;
+ pointer-events:none;
+}
+.party-grid .party-tile .lobby-type-badges{
+ margin-top:3px;margin-bottom:1px;min-height:13px;
+ flex-shrink:0;flex-wrap:nowrap;overflow:visible;
+}
+.party-grid .party-tile .lobby-type-badge{font-size:8px;line-height:1.15}
+.party-grid .party-tile .party-pokemon-name{flex-shrink:0;margin-top:0;line-height:1.13}
+.party-grid .party-tile>small{flex-shrink:0}
+@media(min-width:900px){
+ .party-grid{grid-template-rows:repeat(2,minmax(99px,1fr));min-height:207px}
+ .party-grid .party-tile{padding:3px 3px 6px;justify-content:center;gap:1px}
+}
+@media(min-width:900px) and (max-height:800px){
+ .party-grid{grid-template-rows:repeat(2,minmax(86px,1fr));min-height:179px}
+ .party-grid .party-sprite-box{height:48px}
+ .party-grid .party-sprite-box img{height:48px}
+}
+@media(max-width:899px){
+ .party-grid .party-sprite-box{height:44px}
+ .party-grid .party-sprite-box img{height:44px}
+ .party-grid .party-shiny-spark{left:calc(50% + 16px);font-size:12px}
+}
