@@ -467,3 +467,68 @@ footer{border-top-color:#276886}
 #pokemonDetail .evolution-lab .gold-action{min-height:35px!important;padding:7px 12px!important;margin-top:9px!important;margin-bottom:0!important}
 .recent{position:relative;clear:both;margin-top:14px!important;z-index:0}
 @media(max-width:1050px){#pokemonDetail{max-height:none!important;overflow:visible!important}}
+
+
+/* ============================================================
+   Mastersmon V2.22.6 | Final correction: complete evolution panel
+   Fixes the desktop viewport lock inherited from V2.17.3.
+   All collection, evolution and moves behavior is unchanged.
+   ============================================================ */
+@media (min-width:1121px) and (min-height:690px) {
+  /* The page must grow if a selected Pokémon requires more space. */
+  html, body {
+    height: auto !important;
+    min-height: 100% !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+  .shell {
+    height: auto !important;
+    min-height: calc(100dvh - var(--header-h)) !important;
+    overflow: visible !important;
+    display: block !important;
+  }
+  .workspace {
+    display: grid !important;
+    height: auto !important;
+    flex: none !important;
+    align-items: start !important;
+  }
+  .workspace > .panel {
+    height: auto !important;
+    min-height: 0 !important;
+  }
+  .list.panel {
+    overflow: visible !important;
+  }
+  .pokemon-grid {
+    flex: none !important;
+    overflow: visible !important;
+  }
+  #pokemonDetail,
+  #pokemonDetail .detail-content {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+}
+/* Keep skills independently scrollable when many are available. */
+#pokemonDetail .tab-body:has(.collection-moves) {
+  max-height: 340px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+/* Compact spacing without hiding the evolution action. */
+#pokemonDetail .evolution-lab {
+  padding: 8px 9px 11px !important;
+}
+#pokemonDetail .evolution-lab .evo-chain {
+  margin-bottom: 5px;
+}
+#pokemonDetail .evolution-lab .gold-action {
+  margin-top: 7px !important;
+  margin-bottom: 0 !important;
+}
+.recent {
+  margin-top: 12px !important;
+}
