@@ -435,3 +435,13 @@ footer{border-top-color:#276886}
 /* Preserve card geometry while giving the local sprites a little more presence. */
 .pokemon-grid:not(.list-mode) .poke-card .card-sprite{transform:scale(1.10);transform-origin:center center}
 @media(max-width:650px){#pokemonDetail .collection-move-equipped-grid{grid-template-columns:1fr}}
+
+/* V2.22.3 - keep detail panel self-contained and evolution usable */
+.collection-layout,.collection-main,.collection-panel,#pokemonDetail{min-width:0}
+#pokemonDetail{height:auto!important;min-height:0!important;max-height:536px!important;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#388eac #061c31}
+#pokemonDetail .tab-body:has(.collection-moves){max-height:340px;overflow-y:auto}
+#pokemonDetail .evolution-lab{margin-bottom:12px!important;padding-bottom:11px!important;position:relative!important;bottom:auto!important}
+#pokemonDetail .evolution-lab .gold-action{position:static!important;transform:none!important;max-width:100%;margin:8px 0 0!important;min-height:33px}
+#pokemonDetail .collection-evolution-ready{border:1px solid #b89747!important;border-radius:9px;box-shadow:inset 0 0 14px #e4b84a10}
+#pokemonDetail .collection-evolution-ready .gold-action:not(:disabled){box-shadow:0 0 12px #ffbf5544}
+@media(max-width:800px){#pokemonDetail{max-height:490px!important}}
