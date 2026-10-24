@@ -358,3 +358,24 @@ body{font-size:14px;background:#031327}
 .party-grid .lobby-type-badge{border-radius:9px;padding:1px 4px;font-size:8px;font-weight:800;line-height:1.15;color:#fff;text-shadow:0 1px 2px #0009;white-space:nowrap}
 .pokemon-cards .capture-tile.lobby-themed{position:relative;border-color:color-mix(in srgb,var(--lobby-primary) 65%,#267bb2)!important;background:radial-gradient(ellipse at 50% 16%,color-mix(in srgb,var(--lobby-primary) 23%,#092940),#071c31 83%)!important}
 @media(max-width:700px){.party-grid .party-tile img{height:38px}.party-grid .lobby-type-badge{font-size:8px}}
+
+/* V2.25.1 - bring back spacious team sprites while preserving type themes + shiny */
+@media(min-width:900px){
+ .party-grid{grid-template-rows:repeat(2,minmax(88px,1fr));min-height:185px}
+ .party-grid .party-tile{padding:4px 3px 5px;gap:1px;justify-content:center}
+ .party-grid .party-tile img{height:clamp(43px,3.35vw,53px);min-height:43px;max-width:100%;object-fit:contain;flex:0 0 auto}
+ .party-grid .party-tile .party-pokemon-name{font-size:clamp(10px,.78vw,12px)!important;line-height:1.12!important;min-height:0;margin:1px 0 0}
+ .party-grid .party-tile>small{font-size:9px;line-height:1}
+ .party-grid .lobby-shiny-label{font-size:9px;line-height:1.05}
+ .party-grid .lobby-type-badges{min-height:0;margin-top:1px;gap:3px}
+ .party-grid .lobby-type-badge{font-size:8px;padding:1px 4px}
+}
+@media(min-width:900px) and (max-height:800px){
+ .party-grid{grid-template-rows:repeat(2,minmax(80px,1fr));min-height:167px}
+ .party-grid .party-tile img{height:43px;min-height:36px}
+ .party-grid .party-tile{padding:2px 2px 3px}
+}
+@media(min-width:760px) and (max-width:899px){
+ .party-grid .party-tile{gap:1px;padding:3px 2px}
+ .party-grid .party-tile img{height:43px}
+}
