@@ -7,3 +7,12 @@
 .masters-header .trainer-dropdown{z-index:100}
 .masters-header .unified-nav a{box-sizing:border-box}
 @media(max-width:1000px){.masters-header .top-inner{gap:6px!important}}
+
+/* V2.23.2: drag to arrange, click only previews a Pokémon. */
+.member,.reserve-card{cursor:grab;touch-action:pan-y}
+.member:active,.reserve-card:active{cursor:grabbing}
+.member.dragging,.reserve-card.dragging{opacity:.5}
+.member.drop-target{border-color:#ffe08c!important;box-shadow:0 0 0 2px #ffd36a,0 0 18px #ffc64e55!important;background:#135274!important}
+.reserve-card.active{outline:2px solid #ffe08c;outline-offset:-2px}
+.detail-actions{grid-template-columns:1fr}
+.detail-actions button[hidden]{display:none!important}
