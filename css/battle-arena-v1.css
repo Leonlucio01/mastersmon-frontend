@@ -11,3 +11,17 @@
 .teammate{color:#fff}.teammate:focus-visible{outline:2px solid #ffe49a!important;outline-offset:2px}
 @media(min-width:1180px){.stage{height:clamp(365px,42vh,460px)}.combatant{max-height:68%;width:41%;filter:drop-shadow(0 14px 13px #00122ab3)}.player-img{left:7%}.enemy-img{right:6%}}
 @media(max-height:850px) and (min-width:1180px){.stage{height:355px}}
+
+/* Battle Arena V2.33 - real equipped moves and improved active lineup */
+.teammate.is-active{outline:2px solid #ffe49a;outline-offset:-2px;box-shadow:0 0 12px #ffe49a55}
+.move-grid .switch-option{display:flex;flex-direction:row;align-items:center;gap:9px;text-align:left;min-height:66px;background:#0a3052}
+.switch-option img{width:43px;height:43px;object-fit:contain}
+.switch-option span{flex:1;min-width:0}
+.switch-option small{display:block;margin:4px 0}
+.switch-hp{display:block;background:#29465e;height:4px;border-radius:5px;overflow:hidden}
+.switch-hp i{display:block;height:100%;background:#22daa7}
+.switch-option[aria-current="true"]{border-color:#ffdb87!important}
+.moves-loading{grid-column:1/-1;border:1px solid #287a9e;padding:15px;border-radius:6px;font-size:12px;color:#a3dbf6}
+.combatant{image-rendering:auto}
+.fighter-stat{background:#041c36e8}
+@media(min-width:1180px){.combatant{max-height:75%;width:43%}}
