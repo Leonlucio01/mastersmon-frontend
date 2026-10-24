@@ -17,7 +17,7 @@ function splitTypes(x){return Array.isArray(x)?x.map(String).map(x=>x.trim()).fi
 function allTypes(raw,s){const fields=[raw.tipo,raw.tipo_secundario,raw.tipo2,raw.tipo_2,raw.segundo_tipo,raw.tipos,raw.tipo_principal,s.tipo,s.tipo_secundario,s.tipo2,s.tipos];const r=[];for(const v of fields)for(const t of splitTypes(v)){const k=slug(t);if(k&&!r.some(z=>slug(z)===k))r.push(t)}return r.slice(0,2)}
 function chips(p){return splitTypes(p.tipo).slice(0,2).map((t,i)=>`<span class="chip type-chip ${i===0?'primary-chip':'secondary-chip'}" data-type="${slug(t)}" style="--chip:${tcolor[slug(t)]||'#1c7cbd'}">${esc(t)}</span>`).join('')}
 function generation(i){return i<=151?1:i<=251?2:i<=386?3:i<=493?4:i<=649?5:i<=721?6:i<=809?7:i<=905?8:9}
-function normalize(raw, catalog={}){const s=raw.pokemon&&typeof raw.pokemon==='object'?raw.pokemon:{};return {...raw,id:num(raw.id),pokemon_id:num(raw.pokemon_id??s.id),nombre:String(raw.nombre??raw.pokemon_nombre??s.nombre??'Pokémon'),nivel:num(raw.nivel),tipo:allTypes(raw,{...catalog,...s,tipo:[raw.tipo,s.tipo,catalog.tipo,catalog.tipo_principal,catalog.tipos].filter(Boolean).join('/')}).join('/'),es_shiny:bool(raw.es_shiny),experiencia:num(raw.experiencia),hp_actual:raw.hp_actual,hp_max:raw.hp_max,ataque:raw.ataque,defensa:raw.defensa,velocidad:raw.velocidad}}
+function normalize(raw, catalog={}){const s=raw.pokemon&&typeof raw.pokemon==='object'?raw.pokemon:{};return {...raw,id:num(raw.id),pokemon_id:num(raw.pokemon_id??s.id),nombre:String(raw.nombre??raw.pokemon_nombre??s.nombre??'Pokémon'),nivel:num(raw.nivel),tipo:allTypes(raw,{...catalog,...s,tipo:[raw.tipo,s.tipo,catalog.tipo,catalog.tipo_principal,catalog.tipos].filter(Boolean).join('/')}).join('/'),es_shiny:bool(raw.es_shiny),rareza:raw.rareza??s.rareza??catalog.rareza,habilidad:raw.habilidad??s.habilidad??catalog.habilidad,habilidad_nombre:raw.habilidad_nombre??s.habilidad_nombre??catalog.habilidad_nombre,experiencia:num(raw.experiencia),hp_actual:raw.hp_actual,hp_max:raw.hp_max,ataque:raw.ataque,defensa:raw.defensa,velocidad:raw.velocidad}}
 function sprite(p){const id=String(p.pokemon_id).padStart(4,'0');return `img/pokemon-png/sprites_${p.es_shiny?'shiny':'normal'}/${id}${p.es_shiny?'_s':''}.png`}
 function spriteFallback(p){return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${p.es_shiny?'shiny/':''}${p.pokemon_id}.png`}
 function pic(p,clazz=''){return `<img class="${clazz}" src="${sprite(p)}" alt="${esc(p.nombre)}" loading="lazy" data-fallback="${spriteFallback(p)}">`}
@@ -75,9 +75,48 @@ async function getEvolutionChain(p){
     state.chains.set(p.pokemon_id,steps);if(state.selectedId===id){state.chain={id,steps};renderDetail()}
   }catch(_){if(state.selectedId===id){state.chain={id,steps:[]};renderDetail()}}
 }
-function renderDetail(){const p=selected(),el=$('pokemonDetail');if(!p){el.innerHTML=`<div class="empty-detail">${tr('Selecciona un Pokémon de tu colección.','Select a Pokémon from your collection.')}</div>`;return}const first=splitTypes(p.tipo),content=state.tab==='stats'?`<div class="stats more-stats">${buildStats(p)}</div>`:state.tab==='moves'?`<p class="tab-explain">${tr('Consulta y equipa tus movimientos en la colección actual, usando el sistema existente.','View and equip your moves in the existing collection system.')}</p><a href="mypokemon.html" class="outline-action">${tr('Abrir movimientos →','Open moves →')}</a>`:state.tab==='details'?`<p class="tab-explain">#${p.pokemon_id} · ${tr('Generación','Generation')} ${generation(p.pokemon_id)} · ${p.es_shiny?'Shiny':tr('Normal','Normal')}</p><p class="tab-explain">${tr('Los datos de especie, habilidad y rareza se mostrarán aquí cuando la API los proporcione.','Species, ability, and rarity information will appear when provided by the API.')}</p>`:`<div class="stats">${buildStats(p)}</div>`;
+
+/* V2.22: real move management for the current collection, no duplicate backend calls. */
+const collectionMoveCache=new Map();
+const collectionMoveBusy=new Set();
+function renderCollectionFacts(p){
+ const f=[['Pokédex','#'+String(p.pokemon_id).padStart(3,'0')],[tr('Generación','Generation'),String(generation(p.pokemon_id))],[tr('Nivel','Level'),String(p.nivel)],[tr('Variante','Variant'),p.es_shiny?'Shiny':tr('Normal','Normal')]];
+ if(p.rareza)f.push([tr('Rareza','Rarity'),String(p.rareza)]);
+ if(p.habilidad||p.habilidad_nombre)f.push([tr('Habilidad','Ability'),String(p.habilidad_nombre||p.habilidad)]);
+ return '<div class="collection-facts">'+f.map(([k,v])=>'<div><span>'+esc(k)+'</span><strong>'+esc(v)+'</strong></div>').join('')+'</div>';
+}
+function renderCollectionMoves(p){
+ const d=collectionMoveCache.get(p.id);
+ if(!d)return '<p class="tab-explain">'+tr('Consultando movimientos del Pokémon…','Loading Pokémon moves…')+'</p>';
+ if(d.error)return '<p class="tab-explain">'+tr('No fue posible obtener los movimientos.','Could not load moves.')+'</p><button type="button" id="retryCollectionMoves">'+tr('Reintentar','Retry')+'</button>';
+ const rows=Array.isArray(d.movimientos)?d.movimientos:[];
+ if(!rows.length)return '<p class="tab-explain">'+tr('Este Pokémon todavía no tiene movimientos disponibles.','No moves available for this Pokémon yet.')+'</p>';
+ return '<div class="collection-moves">'+rows.map(m=>{
+ const active=m.equipado||m.slot!=null;
+ return '<div class="collection-move"><div><strong>'+esc(m.nombre||m.codigo||'Movimiento')+'</strong><small>'+esc(m.tipo||'')+' · '+tr('Potencia','Power')+': '+esc(m.potencia??'—')+'</small></div><div class="collection-move-actions">'+(active?'<span class="collection-move-equipped">'+tr('Equipado','Equipped')+' '+esc(m.slot)+'</span>':'<select data-collection-move-slot="'+esc(m.movimiento_id)+'" aria-label="'+tr('Casilla','Slot')+'"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select><button type="button" data-equip-collection-move="'+esc(m.movimiento_id)+'">'+tr('Equipar','Equip')+'</button>')+'</div></div>';
+ }).join('')+'</div>';
+}
+async function loadCollectionMoves(p,force=false){
+ if(collectionMoveBusy.has(p.id)||(!force&&collectionMoveCache.has(p.id)))return;
+ collectionMoveBusy.add(p.id);
+ try{
+  const d=await obtenerMovimientosPokemonUsuario(p.id);
+  collectionMoveCache.set(p.id,d?.ok===false?{error:true}:d);
+ }catch(e){console.warn('Collection moves',e);collectionMoveCache.set(p.id,{error:true})}
+ finally{collectionMoveBusy.delete(p.id);if(state.selectedId===p.id&&state.tab==='moves')renderDetail()}
+}
+async function equipCollectionMove(p,moveId,slot,btn){
+ if(btn)btn.disabled=true;
+ try{
+  await equiparMovimientoPokemonUsuario(p.id,moveId,slot);
+  collectionMoveCache.delete(p.id);
+  await loadCollectionMoves(p,true);
+ }catch(e){console.warn('Equip collection move',e);alert(tr('No se pudo equipar el movimiento.','Could not equip move.'))}
+ finally{if(btn)btn.disabled=false}
+}
+function renderDetail(){const p=selected(),el=$('pokemonDetail');if(!p){el.innerHTML=`<div class="empty-detail">${tr('Selecciona un Pokémon de tu colección.','Select a Pokémon from your collection.')}</div>`;return}const first=splitTypes(p.tipo),content=state.tab==='stats'? `<div class="stats more-stats">${buildStats(p)}</div>`:state.tab==='moves'?renderCollectionMoves(p):state.tab==='details'?renderCollectionFacts(p):`<div class="stats">${buildStats(p)}</div>`;
 el.innerHTML=`<div class="detail-hero" style="--detail-accent:${tcolor[slug(first[0])]||'#55d8ff'}"><div class="detail-hero-copy"><div class="dex">#${String(p.pokemon_id).padStart(3,'0')} · ${tr('Nivel','Level')} ${p.nivel}</div><h3>${esc(p.nombre)}</h3><div class="badges">${first.map(t=>`<span class="chip" style="--chip:${tcolor[slug(t)]||'#1c7cbd'}">${esc(t)}</span>`).join('')} ${p.es_shiny?'<span class="chip shiny-label">✦ Shiny</span>':''}</div><div class="exp-label">${tr('EXP acumulada','Total EXP')}: <b>${p.experiencia.toLocaleString()}</b></div></div>${pic(p,'detail-sprite')}</div><div class="detail-tabs">${detailTab(tr('Información','Info'),'info')}${detailTab(tr('Estadísticas','Stats'),'stats')}${detailTab(tr('Movimientos','Moves'),'moves')}${detailTab(tr('Detalles','Details'),'details')}</div><div class="tab-body">${content}</div><div class="evolution-lab"><div class="lab-heading"><h3><img src="assets/ui/icons/bolt.svg" class="icon" alt=""> ${tr('Laboratorio de evolución','Evolution laboratory')}</h3><span class="subdued">${tr('Estado real','Actual status')}</span></div><div id="evoChain" class="evo-chain">${renderEvolutionChain(p)}</div><div id="evoStatus" class="evo-status${state.evo?.data?.listo_ahora?' ready':''}">${esc(evolutionSummary())}</div><button type="button" class="gold-action" id="evolveHere" ${state.evo?.data?.listo_ahora!==true||evolutionBusy?'disabled':''}>${tr('Evolucionar aquí','Evolve here')} <img class="icon" src="assets/ui/icons/arrow-right.svg" alt=""></button><a class="moves-inline-link" href="mypokemon.html">${tr('Gestionar movimientos →','Manage moves →')}</a></div>`;
-el.querySelectorAll('[data-detail-tab]').forEach(b=>b.onclick=()=>{state.tab=b.dataset.detailTab;renderDetail()});const ev=el.querySelector('#evolveHere');if(ev)ev.onclick=()=>prepareEvolution(p.id);bindImages(el)}
+el.querySelectorAll('[data-detail-tab]').forEach(b=>b.onclick=()=>{state.tab=b.dataset.detailTab;renderDetail()});const ev=el.querySelector('#evolveHere');if(ev)ev.onclick=()=>prepareEvolution(p.id);bindImages(el);if(state.tab==='moves'){void loadCollectionMoves(p);el.querySelector('#retryCollectionMoves')?.addEventListener('click',()=>{collectionMoveCache.delete(p.id);void loadCollectionMoves(p,true)});el.querySelectorAll('[data-equip-collection-move]').forEach(btn=>btn.addEventListener('click',()=>{const select=el.querySelector('[data-collection-move-slot="'+btn.dataset.equipCollectionMove+'"]');void equipCollectionMove(p,Number(btn.dataset.equipCollectionMove),Number(select?.value||1),btn)}))}}
 async function getEvolution(p){const key=p.id;if(state.lookups.has(key)){state.evo={id:key,data:state.lookups.get(key)};if(state.selectedId===key)renderDetail();return}try{const data=await fetchAuth(`${API_BASE}/usuario/pokemon/${key}/evolucion`);if(state.selectedId!==key)return;state.lookups.set(key,data);state.evo={id:key,data};if(state.chain?.id===key&&Array.isArray(data?.opciones)){for(const o of data.opciones){const t=num(o.evolucion_id??o.evoluciona_a);if(t&&!state.chain.steps.some(z=>z.id===t))state.chain.steps.push({id:t,nombre:o.evolucion_nombre||'',nivel:num(o.nivel_requerido),item:o.item_nombre||''})}}renderDetail()}catch(error){if(state.selectedId===key){state.evo={id:key,error:true};renderDetail()}}}
 
 /* V2.17.6: confirmed, server-authoritative evolution directly from the preview. */

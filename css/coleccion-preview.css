@@ -392,3 +392,6 @@ footer{border-top-color:#276886}
 .evo-success-stats b{color:#fff1bd}
 .evo-success-done{width:100%;min-height:43px;border:1px solid #ffe49a;border-radius:9px;background:linear-gradient(#ffedb4,#e5a937);color:#09233b;font-weight:800;cursor:pointer}
 @media(prefers-reduced-motion:reduce){.evo-success-sparkle{animation:none}}
+
+/* V2.22 Collection moves and facts */
+.collection-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:9px}.collection-facts>div{background:#082b47;border:1px solid #296f96;border-radius:7px;padding:8px;display:grid;gap:4px}.collection-facts span,.collection-move small{font-size:11px;color:#96c5dc}.collection-facts strong{font-size:13px;color:#ffdb91}.collection-moves{display:grid;gap:7px;padding:8px}.collection-move{border:1px solid #296b92;border-radius:7px;background:#082b46;padding:8px;display:flex;gap:8px;justify-content:space-between;align-items:center}.collection-move>div:first-child{display:grid;gap:3px}.collection-move-actions{display:flex;align-items:center;gap:5px}.collection-move-actions button,.collection-move-actions select{background:#10466b;color:#fff;border:1px solid #388db8;border-radius:5px;padding:5px}.collection-move-equipped{color:#f2cf79;font-size:11px}@media(max-width:600px){.collection-move{flex-wrap:wrap}}
