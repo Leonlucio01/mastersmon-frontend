@@ -532,3 +532,33 @@ footer{border-top-color:#276886}
 .recent {
   margin-top: 12px !important;
 }
+
+
+/* ============================================================
+   Mastersmon V2.22.7 | Layout reconciliation
+   Diagnostico: the old viewport/flex rules kept the right-hand panel
+   clipped or stretched, while the 2.22.6 fix allowed the page to grow.
+   Use normal document flow. Only the move library needs internal scroll.
+   ============================================================ */
+@media (min-width: 1121px) and (min-height: 690px) {
+  body { height: auto !important; min-height: 100dvh !important; overflow-x: hidden !important; overflow-y: auto !important; }
+  .shell { height: auto !important; min-height: 0 !important; display: block !important; overflow: visible !important; }
+  .workspace { height: auto !important; min-height: 0 !important; display: grid !important; align-items: start !important; }
+  .workspace > .panel { min-height: 0 !important; height: auto !important; }
+  .workspace > .list.panel { display: flex !important; flex-direction: column !important; }
+  .workspace .pokemon-grid { flex: none !important; overflow: visible !important; }
+  .workspace > .detail.panel { display: block !important; align-self: start !important; height: auto !important; overflow: hidden !important; }
+  .workspace > .detail.panel .detail-content { display: block !important; height: auto !important; min-height: 0 !important; max-height: none !important; overflow: visible !important; }
+}
+/* Crucial: on all screen widths, let the selected Pokemon detail define its own height. */
+.workspace > .detail.panel { height: auto !important; min-height: 0 !important; align-self: start !important; overflow: hidden !important; }
+.workspace > .detail.panel #pokemonDetail { height: auto !important; max-height: none !important; min-height: 0 !important; overflow: visible !important; padding-bottom: 0 !important; }
+#pokemonDetail .evolution-lab { margin: 0 !important; padding: 9px 10px 12px !important; }
+#pokemonDetail .evolution-lab .evo-chain { margin-bottom: 6px !important; }
+#pokemonDetail .evolution-lab .evo-status { padding: 6px 8px !important; min-height: 0 !important; }
+#pokemonDetail .evolution-lab .gold-action { position: static !important; min-height: 34px !important; padding: 7px 10px !important; margin: 8px 0 0 !important; transform: none !important; }
+/* Keep the long skills list bounded without constraining the whole panel. */
+#pokemonDetail .tab-body:has(.collection-moves) { max-height: 340px !important; overflow-y: auto !important; overflow-x: hidden !important; }
+/* Captures are a normal block below the tallest workspace panel. */
+.shell > .recent { clear: both; position: relative; margin-top: 11px !important; }
+@media (max-width: 1120px) { .workspace > .detail.panel { grid-column: 1 / -1; } }
