@@ -63,3 +63,24 @@
 .member .shiny-label+.tags,.reserve-card .shiny-label+.tags{margin-top:2px}
 .type-pill .type-emoji{filter:drop-shadow(0 0 2px currentColor)}
 .filter-grid .type-emoji{filter:drop-shadow(0 0 1px currentColor)}
+
+/* V2.23.6: compact RPG-style detail panel, no additional API calls. */
+.detail{overflow:hidden}
+.detail-hero{position:relative;isolation:isolate;text-align:center;padding:7px 7px 10px;margin:0 0 9px;border:1px solid color-mix(in srgb,var(--detail-type) 65%,#237ba9);border-radius:8px;background:radial-gradient(ellipse at 50% 35%,color-mix(in srgb,var(--detail-type) 29%,#0b3451) 0%,#05223b 75%)}
+.detail-hero:before{content:"";z-index:-1;position:absolute;width:152px;height:152px;left:50%;top:18px;transform:translateX(-50%);border:1px solid #c0d9e320;border-radius:50%;box-shadow:0 0 0 22px #a4d2e408,0 0 0 47px #a4d2e405}
+.detail-kicker{font-size:9px;color:#7bdeef;letter-spacing:1.8px;font-weight:800}
+.detail-hero .portrait{height:119px;margin:2px auto 0;filter:drop-shadow(0 6px 7px #0009)}
+.detail-hero .detail-name{font:700 21px Georgia,serif;color:#ffe09a;margin:0}
+.detail-metadata{display:flex;gap:5px;align-items:center;justify-content:center;margin-top:4px}
+.detail-level,.detail-shiny{padding:2px 9px;border:1px solid #377e9c;border-radius:18px;font-size:10px;font-weight:800;color:#88e3fb;background:#092d48}
+.detail-shiny{color:#ffdc7a;border-color:#b18b2d;background:#443519}
+.detail-hero .detail-types{margin:6px 0 0}
+.detail-stats-title{display:flex;align-items:center;justify-content:space-between;gap:6px;font-weight:800;color:#f4faff;margin:0 0 5px;font-size:11px}
+.detail-stats-title span{color:#86bfd9;font-size:9px;font-weight:500}
+.detail-body>.statline{border-radius:4px;margin:2px 0;border:1px solid #1a5575;background:#09314c}
+.detail-body>.statline:first-of-type{background:#0b3c52}
+.detail-body>.hp{margin:3px 3px 6px;height:6px}
+.detail .moves{gap:6px}
+.detail .move-item{border-left:3px solid var(--move-color,#267bad);background:linear-gradient(90deg,color-mix(in srgb,var(--move-color,#267bad) 16%,#0b304a),#0b304a)}
+.detail .move-item b{font-size:11px}
+@media (min-width:1191px) and (min-height:700px){.detail-hero .portrait{height:110px}.detail-hero{padding:6px 7px 8px}.detail-hero:before{width:130px;height:130px}.detail-body>.statline{padding:3px 7px}}
