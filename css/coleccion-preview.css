@@ -416,3 +416,22 @@ footer{border-top-color:#276886}
 #pokemonDetail .battle-stat-track{margin-top:6px;height:7px;border-radius:10px;background:#173952;overflow:hidden}
 #pokemonDetail .battle-stat-track span{display:block;height:100%;border-radius:10px;background:linear-gradient(90deg,#139cce,#6ee0ff)}
 @media(max-width:720px){#pokemonDetail .tab-body:has(.collection-moves){max-height:300px}}
+
+/* V2.22.2: compact evolution when there is no next evolution. */
+#pokemonDetail .collection-evolution-compact .evo-chain,#pokemonDetail .collection-evolution-compact .gold-action{display:none!important}
+#pokemonDetail .collection-evolution-compact{padding:9px!important;margin-top:6px!important}
+#pokemonDetail .collection-evolution-compact .lab-heading{margin:0 0 5px!important}
+#pokemonDetail .collection-evolution-compact .evo-status{margin:0!important;padding:6px 8px!important;min-height:0!important}
+/* Group moves without increasing right-panel height. */
+#pokemonDetail .collection-move-group{display:grid;gap:5px;min-width:0}
+#pokemonDetail .collection-move-group+.collection-move-group{margin-top:9px;padding-top:9px;border-top:1px solid #2b6384}
+#pokemonDetail .collection-move-group-title{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:11px;font-weight:800;color:#aadffd;padding:2px 4px}
+#pokemonDetail .collection-move-group-title span{color:#f5d183}
+#pokemonDetail .collection-move-equipped-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+#pokemonDetail .collection-move-equipped-grid .collection-move{display:grid;gap:4px;padding:7px;min-width:0}
+#pokemonDetail .collection-move-equipped-grid .collection-move-actions{justify-content:flex-start}
+#pokemonDetail .collection-move-equipped-grid .collection-move strong{font-size:11px}
+#pokemonDetail .collection-move-equipped-grid .collection-move small{font-size:10px}
+/* Preserve card geometry while giving the local sprites a little more presence. */
+.pokemon-grid:not(.list-mode) .poke-card .card-sprite{transform:scale(1.10);transform-origin:center center}
+@media(max-width:650px){#pokemonDetail .collection-move-equipped-grid{grid-template-columns:1fr}}
