@@ -52,3 +52,14 @@
  .pages{margin-top:5px}
  footer{padding:6px 0}
 }
+
+/* V2.23.5 - status and type-themed team cards */
+.notice.success{background:#073b36;border-color:#21bf87;color:#bbffe3;box-shadow:inset 3px 0 #37e9a3}
+.notice.success::before{content:"✓";font-weight:900;margin-right:8px;color:#42f4b2}
+.themed-card{background:radial-gradient(ellipse at 50% 0%,color-mix(in srgb,var(--type-primary) 32%,#08283f) 0%,#071d31 78%);border-color:color-mix(in srgb,var(--type-primary) 57%,#2782b4);position:relative}
+.themed-card::after{content:"";position:absolute;inset:auto 2px 1px;height:2px;border-radius:4px;background:linear-gradient(90deg,var(--type-primary),var(--type-secondary));opacity:.85;pointer-events:none}
+.themed-card.is-shiny{box-shadow:inset 0 0 13px #e9bf4c16}
+.shiny-label{display:block;color:#ffd56a;font-size:9px;font-weight:800;line-height:1.25;margin-top:2px;text-shadow:0 1px 5px #000}
+.member .shiny-label+.tags,.reserve-card .shiny-label+.tags{margin-top:2px}
+.type-pill .type-emoji{filter:drop-shadow(0 0 2px currentColor)}
+.filter-grid .type-emoji{filter:drop-shadow(0 0 1px currentColor)}
