@@ -562,3 +562,35 @@ footer{border-top-color:#276886}
 /* Captures are a normal block below the tallest workspace panel. */
 .shell > .recent { clear: both; position: relative; margin-top: 11px !important; }
 @media (max-width: 1120px) { .workspace > .detail.panel { grid-column: 1 / -1; } }
+
+/* ============================================================
+   Mastersmon V2.22.8 | Fit desktop viewport without clipping
+   Keep natural page flow, compact the actual components instead.
+   ============================================================ */
+@media (min-width:1121px) and (min-height:780px) {
+  .shell {height:auto!important;min-height:0!important;overflow:visible!important}
+  .hero {min-height:0!important;padding-top:10px!important;padding-bottom:10px!important}
+  .hero h1 {line-height:1!important}
+  .workspace {margin-top:7px!important;gap:8px!important}
+  .workspace > .panel {min-height:0!important}
+  .poke-card {padding-top:4px!important;padding-bottom:5px!important}
+  .pokemon-grid {row-gap:5px!important}
+  .paging {padding-top:6px!important;margin-top:5px!important}
+  .detail-hero {min-height:0!important;padding-top:9px!important;padding-bottom:8px!important}
+  .detail-sprite {height:110px!important}
+  .detail-hero h3 {margin-top:1px!important;margin-bottom:5px!important}
+  .detail-tab {padding-top:7px!important;padding-bottom:7px!important}
+  #pokemonDetail .tab-body {padding-top:6px!important;padding-bottom:6px!important;min-height:0!important}
+  #pokemonDetail .collection-info,#pokemonDetail .collection-facts {padding-top:5px!important;padding-bottom:5px!important;gap:5px!important}
+  #pokemonDetail .collection-info>div,#pokemonDetail .collection-facts>div {padding:6px 8px!important}
+  #pokemonDetail .collection-battle-stats {padding:6px!important;gap:5px!important}
+  #pokemonDetail .battle-stat-line {padding:6px 8px!important}
+  #pokemonDetail .evolution-lab {padding:6px 9px 8px!important}
+  #pokemonDetail .evolution-lab .evo-chain {margin-bottom:3px!important}
+  #pokemonDetail .evolution-lab .gold-action {margin-top:6px!important;min-height:30px!important}
+  .shell > .recent {margin-top:7px!important}
+  .recent .panel-heading {margin-bottom:2px!important;padding-bottom:2px!important}
+  .recent-item {padding-top:2px!important;padding-bottom:2px!important}
+  .recent-item img {height:28px!important}
+  footer {margin-top:3px!important;padding:3px 0!important}
+}
