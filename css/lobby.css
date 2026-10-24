@@ -337,3 +337,24 @@ body{font-size:14px;background:#031327}
  .shop-card .shop-name,.shop-card.shop-exclusive .shop-name{font-size:9px!important}
  .shop-card.shop-exclusive .exclusive-notice{font-size:8px!important}
 }
+
+/* V2.25 - compact type-aware cards for lobby, with actual backend Shiny values */
+.party-grid .party-tile.lobby-themed{
+ position:relative;overflow:hidden;
+ background:radial-gradient(ellipse at 50% 5%,color-mix(in srgb,var(--lobby-primary) 27%,#082942),#071e34 82%)!important;
+ border-color:color-mix(in srgb,var(--lobby-primary) 52%,#297ca5)!important;
+}
+.party-grid .party-tile.lobby-themed::after,
+.pokemon-cards .capture-tile.lobby-themed::after{
+ content:"";position:absolute;left:3px;right:3px;bottom:1px;height:2px;border-radius:3px;
+ background:linear-gradient(90deg,var(--lobby-primary),var(--lobby-secondary));pointer-events:none;
+}
+.party-grid .party-tile{min-height:0;gap:0;padding:3px 2px 4px}
+.party-grid .party-tile img{height:42px;flex-shrink:1}
+.party-grid .party-tile .party-pokemon-name{font-size:11px;line-height:1.13}
+.party-grid .party-tile>small{font-size:9px;line-height:1.15}
+.party-grid .lobby-shiny-label{color:#ffd56c;font-size:9px;font-weight:900;line-height:1.1;text-shadow:0 1px 3px #000}
+.party-grid .lobby-type-badges{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:3px;min-height:12px;margin-top:2px}
+.party-grid .lobby-type-badge{border-radius:9px;padding:1px 4px;font-size:8px;font-weight:800;line-height:1.15;color:#fff;text-shadow:0 1px 2px #0009;white-space:nowrap}
+.pokemon-cards .capture-tile.lobby-themed{position:relative;border-color:color-mix(in srgb,var(--lobby-primary) 65%,#267bb2)!important;background:radial-gradient(ellipse at 50% 16%,color-mix(in srgb,var(--lobby-primary) 23%,#092940),#071c31 83%)!important}
+@media(max-width:700px){.party-grid .party-tile img{height:38px}.party-grid .lobby-type-badge{font-size:8px}}

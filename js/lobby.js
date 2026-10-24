@@ -13,7 +13,7 @@ async function read(path){const t=authToken||token();if(!t)throw Error('NO_TOKEN
 async function optional(path){try{return await read(path);}catch(e){console.info('Unavailable '+path,e.message);return null;}}
 function rows(data,keys){if(Array.isArray(data))return data;if(!data||typeof data!=='object')return [];for(const k of keys){if(Array.isArray(data[k]))return data[k];if(data[k]&&typeof data[k]==='object'){for(const q of keys)if(Array.isArray(data[k][q]))return data[k][q];}}return [];}
 function numeric(v){const n=Number(v);return Number.isFinite(n)?n:null;}
-function adapt(p){const nested=p?.pokemon&&typeof p.pokemon==='object'?p.pokemon:{};const id=numeric(p.pokemon_id??nested.id??p.id_pokemon??(typeof p.pokemon==='number'?p.pokemon:null));const linkId=numeric(p.usuario_pokemon_id??p.id??p.registro_id);const candidate=[p.nombre,p.pokemon_nombre,p.nombre_pokemon,p.especie_nombre,p.nombre_especie,nested.nombre,nested.pokemon_nombre,p.name].find(v=>typeof v==='string'&&v.trim()&&v.trim()!=='--');const name=String(candidate||catalogNames.get(id)||(id?'Pokémon #'+id:'Pokémon'));const level=p.nivel??p.level??null;return {id,linkId,name,level,slot:numeric(p.slot_equipo??p.equipo_slot??p.posicion_equipo??p.slot??p.posicion),isEquipped:[p.en_equipo,p.equipado,p.es_equipo,p.in_team,p.is_equipped].some(v=>v===true||v===1||v==='t'),tipo:String(p.tipo_principal??nested.tipo1??p.tipo??nested.tipo??'').toLowerCase(),es_shiny:isShiny(p.es_shiny??nested.es_shiny),species_id:p.species_id??nested.species_id,variant_suffix:p.variant_suffix??p.forma_suffix??nested.variant_suffix,pokemon_name_api:p.pokemon_name_api??p.api_name??nested.pokemon_name_api};}
+function adapt(p){const nested=p?.pokemon&&typeof p.pokemon==='object'?p.pokemon:{};const id=numeric(p.pokemon_id??nested.id??p.id_pokemon??(typeof p.pokemon==='number'?p.pokemon:null));const linkId=numeric(p.usuario_pokemon_id??p.id??p.registro_id);const candidate=[p.nombre,p.pokemon_nombre,p.nombre_pokemon,p.especie_nombre,p.nombre_especie,nested.nombre,nested.pokemon_nombre,p.name].find(v=>typeof v==='string'&&v.trim()&&v.trim()!=='--');const name=String(candidate||catalogNames.get(id)||(id?'Pokémon #'+id:'Pokémon'));const level=p.nivel??p.level??null;return {id,linkId,name,level,slot:numeric(p.slot_equipo??p.equipo_slot??p.posicion_equipo??p.slot??p.posicion),isEquipped:[p.en_equipo,p.equipado,p.es_equipo,p.in_team,p.is_equipped].some(v=>v===true||v===1||v==='t'),tipo:String(p.tipo_principal??nested.tipo1??p.tipo??nested.tipo??'').toLowerCase(),tipo_secundario:String(p.tipo_secundario??p.tipo2??nested.tipo2??'').toLowerCase(),es_shiny:isShiny(p.es_shiny??p.shiny??nested.es_shiny??nested.shiny),species_id:p.species_id??nested.species_id,variant_suffix:p.variant_suffix??p.forma_suffix??nested.variant_suffix,pokemon_name_api:p.pokemon_name_api??p.api_name??nested.pokemon_name_api};}
 // Misma convencion de carpetas que Maps: sprites_normal/0000.png y sprites_shiny/0000_s.png.
 // Usa los resolvedores globales de Maps cuando esten disponibles, sin cargar maps.js.
 function isShiny(value){return value===true||value===1||['true','t','1'].includes(String(value??'').trim().toLowerCase());}
@@ -63,6 +63,38 @@ function typeChip(type){
  const t=String(type||'').split(/[\/,;]/)[0].trim();if(!t)return null;
  const el=document.createElement('span');el.className='capture-type';el.textContent=t.toLocaleUpperCase(lang==='es'?'es':'en');return el;
 }
+/* V2.25 - presentation only: team data and sprites continue to come from existing API */
+const LOBBY_TYPES={
+ normal:['#aab6c3','Normal','Normal'],fuego:['#ef6744','Fuego','Fire'],fire:['#ef6744','Fuego','Fire'],
+ agua:['#269ce8','Agua','Water'],water:['#269ce8','Agua','Water'],planta:['#31bf78','Planta','Grass'],grass:['#31bf78','Planta','Grass'],
+ electrico:['#e9b735','Eléctrico','Electric'],electric:['#e9b735','Eléctrico','Electric'],hielo:['#64d4ea','Hielo','Ice'],ice:['#64d4ea','Hielo','Ice'],
+ lucha:['#e0834c','Lucha','Fighting'],fighting:['#e0834c','Lucha','Fighting'],veneno:['#b56acb','Veneno','Poison'],poison:['#b56acb','Veneno','Poison'],
+ tierra:['#bd8a50','Tierra','Ground'],ground:['#bd8a50','Tierra','Ground'],volador:['#7ea6ea','Volador','Flying'],flying:['#7ea6ea','Volador','Flying'],
+ psiquico:['#e55e9f','Psíquico','Psychic'],psíquico:['#e55e9f','Psíquico','Psychic'],psychic:['#e55e9f','Psíquico','Psychic'],
+ bicho:['#8abf35','Bicho','Bug'],bug:['#8abf35','Bicho','Bug'],roca:['#b79b71','Roca','Rock'],rock:['#b79b71','Roca','Rock'],
+ fantasma:['#9162c6','Fantasma','Ghost'],ghost:['#9162c6','Fantasma','Ghost'],dragon:['#6579df','Dragón','Dragon'],dragón:['#6579df','Dragón','Dragon'],
+ siniestro:['#7d8199','Siniestro','Dark'],dark:['#7d8199','Siniestro','Dark'],acero:['#8bb1c5','Acero','Steel'],steel:['#8bb1c5','Acero','Steel'],
+ hada:['#dc87c9','Hada','Fairy'],fairy:['#dc87c9','Hada','Fairy']
+};
+function lobbyTypeNames(p){
+ const raw=[p?.tipo,p?.tipo_secundario,p?.tipo2].filter(v=>typeof v==='string'&&v.trim()).join('/');
+ return [...new Set(raw.split(/[\/,;|]+/).map(t=>t.trim().toLowerCase()).filter(t=>LOBBY_TYPES[t]))].slice(0,2);
+}
+function lobbyTheme(el,p){
+ const types=lobbyTypeNames(p);if(!types.length)return;
+ const a=LOBBY_TYPES[types[0]][0],b=LOBBY_TYPES[types[1]||types[0]][0];
+ el.style.setProperty('--lobby-primary',a);el.style.setProperty('--lobby-secondary',b);
+ el.classList.add('lobby-themed');
+}
+function lobbyTypeBadges(p){
+ const wrap=document.createElement('span');wrap.className='lobby-type-badges';
+ lobbyTypeNames(p).forEach(type=>{const entry=LOBBY_TYPES[type],tag=document.createElement('span');tag.className='lobby-type-badge';tag.style.backgroundColor=entry[0];tag.textContent=entry[lang==='es'?1:2];wrap.append(tag);});
+ return wrap;
+}
+function lobbyShiny(p){
+ if(!isShiny(p?.es_shiny??p?.shiny))return null;
+ const e=document.createElement('span');e.className='lobby-shiny-label';e.textContent='✦ '+tr('shiny');return e;
+}
 function renderPokemon(){
  const col=$('pokemonCards'),team=$('partyGrid');if(!col||!team)return;
  col.replaceChildren();team.replaceChildren();
@@ -71,7 +103,7 @@ function renderPokemon(){
  if(recent.length){recent.slice(0,5).forEach(c=>{
    const id=Number(c.pokemon_id)||0;if(id<=0)return;
    const tile=pokemonTile({id,name:String(c.pokemon_nombre||'Pokémon'),level:null,tipo:String(c.tipo||'').toLowerCase(),es_shiny:c.es_shiny,species_id:c.species_id,variant_suffix:c.variant_suffix,pokemon_name_api:c.pokemon_name_api});
-   tile.classList.add('capture-tile');tile.classList.remove('popular-tile');const chip=typeChip(c.tipo);if(chip)tile.append(chip);
+   tile.classList.add('capture-tile');tile.classList.remove('popular-tile');lobbyTheme(tile,{tipo:c.tipo,tipo_secundario:c.tipo_secundario??c.tipo2});const chip=typeChip(c.tipo);if(chip)tile.append(chip);
    const old=tile.querySelector('small');if(old)old.remove();
    if(isShiny(c.es_shiny)){tile.classList.add('is-shiny');const sparkle=document.createElement('span');sparkle.className='shiny-chip';sparkle.textContent='✦ '+tr('shiny');tile.append(sparkle);}
    const author=document.createElement('span');author.className='capture-trainer';
@@ -80,7 +112,7 @@ function renderPokemon(){
    author.append(lead,trainer);tile.append(author);const when=timeAgo(c.capturado_en??c.fecha_captura??c.created_at??c.fecha??c.registrado_en);if(when){const t=document.createElement('span');t.className='capture-time';t.textContent=when;tile.append(t);}col.append(tile);
  });}
  else{const empty=document.createElement('p');empty.className='recent-empty';empty.textContent=recentError?tr('recentError'):tr('recentNone');col.append(empty);}
- for(let i=0;i<6;i++){const p=party[i];if(p){const e=document.createElement('div');e.className='party-tile';const img=document.createElement('img');attachPokemonSprite(img,p);img.alt=p.name;img.loading='lazy';img.decoding='async';const name=document.createElement('strong');name.className='party-pokemon-name';const matched=owned.find(x=>Number(x.linkId)===Number(p.linkId));const resolved=String(matched?.name||p.name||catalogNames.get(Number(p.id))||'').trim();name.textContent=(!resolved||/^Pokémon #\d+$/i.test(resolved))?(catalogNames.get(Number(p.id))||resolved||'Pokémon'):resolved;name.title=name.textContent;const lv=document.createElement('small');lv.textContent=p.level==null?'':tr('level')+' '+p.level;e.append(img,name,lv);team.append(e);}else{const a=document.createElement('a');a.className='party-empty';a.href='mypokemon.html';const plus=document.createElement('b');plus.textContent='+';const label=document.createElement('span');label.textContent=tr('noParty');a.append(plus,label);team.append(a);}}
+ for(let i=0;i<6;i++){const p=party[i];if(p){const e=document.createElement('div');e.className='party-tile';lobbyTheme(e,p);const img=document.createElement('img');attachPokemonSprite(img,p);img.alt=p.name;img.loading='lazy';img.decoding='async';const name=document.createElement('strong');name.className='party-pokemon-name';const matched=owned.find(x=>Number(x.linkId)===Number(p.linkId));const resolved=String(matched?.name||p.name||catalogNames.get(Number(p.id))||'').trim();name.textContent=(!resolved||/^Pokémon #\d+$/i.test(resolved))?(catalogNames.get(Number(p.id))||resolved||'Pokémon'):resolved;name.title=name.textContent;const lv=document.createElement('small');lv.textContent=p.level==null?'':tr('level')+' '+p.level;e.append(img,name,lv);const shiny=lobbyShiny(p);if(shiny)e.append(shiny);const badges=lobbyTypeBadges(p);if(badges.childElementCount)e.append(badges);team.append(e);}else{const a=document.createElement('a');a.className='party-empty';a.href='mypokemon.html';const plus=document.createElement('b');plus.textContent='+';const label=document.createElement('span');label.textContent=tr('noParty');a.append(plus,label);team.append(a);}}
 }
 function questRow(symbol,label,url,detail){const a=document.createElement('a');a.href=url;a.className='quest-row';const i=document.createElement('span');i.className='quest-symbol';i.textContent=symbol;const s=document.createElement('strong');s.textContent=tr(label);a.append(i,s);if(detail!==undefined&&detail!==null){const x=document.createElement('small');x.textContent=String(detail);a.append(x);}return a;}
 let questData=null,bossData=null;
