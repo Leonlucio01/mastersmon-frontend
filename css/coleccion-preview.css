@@ -624,3 +624,20 @@ footer{border-top-color:#276886}
 .recent-item:after{content:"";position:absolute;left:3px;right:3px;bottom:2px;height:2px;pointer-events:none;background:linear-gradient(90deg,var(--type-color),var(--type-secondary));border-radius:4px}
 .recent-item .recent-shiny-label{position:absolute;top:3px;right:4px;color:#ffdb77;font-size:8px;font-weight:800;line-height:1;text-shadow:0 1px 3px #001}
 .recent-item.recent-shiny img{margin-top:3px}
+
+/* V2.23.8 - collection detail, team position and compact shiny list */
+.poke-card .in-team-badge{display:block;font-size:9px;font-weight:800;color:#8bedcb;text-shadow:0 1px 4px #001;line-height:1.25;text-align:center}
+.poke-card:has(.in-team-badge){outline:1px solid #22bfa955;outline-offset:-2px}
+.pokemon-grid.list-mode .poke-card .in-team-badge{font-size:9px;white-space:nowrap;justify-self:start}
+.pokemon-grid.list-mode .poke-card .shiny-corner{display:block!important;position:absolute;left:auto;right:34px;top:50%;transform:translateY(-50%);font-size:0;line-height:1;pointer-events:none}
+.pokemon-grid.list-mode .poke-card .shiny-corner::before{content:"✦";font-size:17px;font-weight:900;color:#ffd75f;text-shadow:0 0 6px #f4bb3e80}
+.pokemon-grid.list-mode .poke-card .card-open{position:relative}
+.pokemon-grid.list-mode .poke-card:after{height:2px;bottom:0}
+@media (min-width:1121px){
+#pokemonDetail .detail-hero{position:relative;isolation:isolate;min-height:132px!important;background:radial-gradient(ellipse at 74% 36%,color-mix(in srgb,var(--detail-accent) 26%,#0c3557),transparent 50%),linear-gradient(100deg,#061e34,#0b3354)!important}
+#pokemonDetail .detail-hero:after{content:"";pointer-events:none;position:absolute;right:14px;top:16px;width:106px;height:106px;border-radius:50%;border:1px solid #b7d9ee2a;box-shadow:0 0 0 15px #8fc7e50b,0 0 0 31px #8fc7e505;z-index:-1}
+#pokemonDetail .detail-sprite{height:122px!important;max-width:140px}
+#pokemonDetail .detail-hero-copy h3{font-size:24px}
+#pokemonDetail .detail-hero .in-team-badge{display:inline-flex;margin-top:5px;padding:3px 7px;border:1px solid #27bd9b;border-radius:6px;color:#9ef5d2;background:#093d3a;font-size:10px;font-weight:800}
+}
+@media (max-width:1120px){#pokemonDetail .detail-hero .in-team-badge{display:inline-block;color:#8bedcb;margin-top:4px}}
