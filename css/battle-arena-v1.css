@@ -34,3 +34,9 @@
 .stage{position:relative}.damage-float{position:absolute;top:39%;right:22%;font-size:27px;font-weight:900;color:#ffe69f;text-shadow:0 2px 7px #081425;animation:damageFloat .78s ease-out forwards;pointer-events:none;z-index:4}
 @keyframes damageFloat{0%{opacity:0;transform:translateY(12px)}25%{opacity:1}100%{opacity:0;transform:translateY(-38px)}}
 .arena-lunge{animation:arenaLunge .35s ease-out}@keyframes arenaLunge{0%,100%{transform:translateX(0)}45%{transform:translateX(17px)}}
+
+/* Arena V2.36 - correct player facing without rotating on attack */
+@media(min-width:900px){.combatant{width:24%!important;max-height:44%!important}.player-img{left:17%!important}.enemy-img{right:17%!important}}
+.player-img{transform:scaleX(-1);transform-origin:center center}
+.player-img.arena-lunge{animation:arenaLungeFacing .35s ease-out!important}
+@keyframes arenaLungeFacing{0%,100%{transform:translateX(0) scaleX(-1)}45%{transform:translateX(17px) scaleX(-1)}}
