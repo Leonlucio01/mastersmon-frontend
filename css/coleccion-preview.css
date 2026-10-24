@@ -641,3 +641,21 @@ footer{border-top-color:#276886}
 #pokemonDetail .detail-hero .in-team-badge{display:inline-flex;margin-top:5px;padding:3px 7px;border:1px solid #27bd9b;border-radius:6px;color:#9ef5d2;background:#093d3a;font-size:10px;font-weight:800}
 }
 @media (max-width:1120px){#pokemonDetail .detail-hero .in-team-badge{display:inline-block;color:#8bedcb;margin-top:4px}}
+
+/* V2.23.9: reserve independent space for shiny, favorite and team-position controls */
+.poke-card{position:relative}
+.poke-card .team-slot-badge{position:absolute;top:5px;left:48px;z-index:5;display:inline-flex;align-items:center;justify-content:center;min-width:23px;height:17px;padding:0 4px;border-radius:5px;background:#063e36;color:#a6ffe1;border:1px solid #2ec5a3;font-size:9px;font-weight:900;line-height:1;pointer-events:none}
+.pokemon-grid:not(.list-mode) .poke-card .team-slot-badge{top:5px;left:47px}
+.pokemon-grid.list-mode .poke-card .card-open{padding-right:69px!important}
+.pokemon-grid.list-mode .poke-card .team-slot-badge{top:50%;left:auto;right:59px;transform:translateY(-50%);min-width:22px;height:17px}
+.pokemon-grid.list-mode .poke-card .shiny-corner{top:50%;right:31px;transform:translateY(-50%);width:18px;height:22px;display:flex!important;align-items:center;justify-content:center;z-index:4}
+.pokemon-grid.list-mode .poke-card .shiny-corner::before{font-size:15px!important}
+.pokemon-grid.list-mode .poke-card .fav-button{right:4px!important;top:50%!important;transform:translateY(-50%);width:22px;z-index:6}
+.pokemon-grid.list-mode .poke-card .type-stack{max-width:105px!important;overflow:hidden}
+.pokemon-grid.list-mode .poke-card .card-info{overflow:hidden}
+.pokemon-grid.list-mode .poke-card .card-info strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#pokemonDetail .detail-hero .team-slot-badge{position:static;display:inline-flex;transform:none;margin-top:6px;min-width:29px;height:20px;background:#063e36;border:1px solid #2ec5a3;color:#a6ffe1;font-size:11px;padding:0 7px}
+#pokemonDetail .detail-hero{--detail-accent:#25aadd}
+#pokemonDetail .detail-hero .badges{margin-top:6px;gap:5px}
+#pokemonDetail .detail-hero .exp-label{margin-top:7px}
+@media(max-width:620px){.pokemon-grid.list-mode .poke-card .card-open{padding-right:65px!important}.pokemon-grid.list-mode .poke-card .team-slot-badge{right:54px}.pokemon-grid.list-mode .poke-card .shiny-corner{right:27px}}
