@@ -594,3 +594,33 @@ footer{border-top-color:#276886}
   .recent-item img {height:28px!important}
   footer {margin-top:3px!important;padding:3px 0!important}
 }
+
+/* V2.23.7 - Matching collection and team elemental cards. */
+.poke-card {
+  --type-color:#238ac0;
+  --type-secondary:var(--type-color);
+  background:radial-gradient(ellipse at 50% 0%,color-mix(in srgb,var(--type-color) 30%,#082c45) 0%,#061b31 78%);
+  border-color:color-mix(in srgb,var(--type-color) 56%,#2c729e);
+  isolation:isolate;
+}
+.poke-card.shiny {
+  background:radial-gradient(ellipse at 50% 0%,color-mix(in srgb,var(--type-color) 32%,#102c45) 0%,#061b31 79%);
+}
+.poke-card:after {
+  content:"";position:absolute;pointer-events:none;left:3px;right:3px;bottom:2px;height:2px;border-radius:4px;
+  background:linear-gradient(90deg,var(--type-color),var(--type-secondary));opacity:.95
+}
+.poke-card .shiny-corner {
+  color:#ffda75;
+  font-size:9px;
+  font-weight:800;
+  text-shadow:0 1px 4px #000;
+}
+.recent-item{
+  --type-color:#238ac0;--type-secondary:var(--type-color);
+  border-color:color-mix(in srgb,var(--type-color) 60%,#2a789d);
+  background:radial-gradient(ellipse at 50% 0%,color-mix(in srgb,var(--type-color) 29%,#072b46),#061f36 85%);
+}
+.recent-item:after{content:"";position:absolute;left:3px;right:3px;bottom:2px;height:2px;pointer-events:none;background:linear-gradient(90deg,var(--type-color),var(--type-secondary));border-radius:4px}
+.recent-item .recent-shiny-label{position:absolute;top:3px;right:4px;color:#ffdb77;font-size:8px;font-weight:800;line-height:1;text-shadow:0 1px 3px #001}
+.recent-item.recent-shiny img{margin-top:3px}
