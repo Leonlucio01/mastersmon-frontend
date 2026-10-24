@@ -782,3 +782,17 @@ footer{border-top-color:#276886}
 .pokemon-grid.list-mode .poke-card{height:39px!important;min-height:39px!important}
 .pokemon-grid.list-mode .poke-card .card-open{height:37px!important;min-height:37px!important}
 .pokemon-grid.list-mode .poke-card .card-sprite{height:29px!important}
+
+/* V2.24.5 - softer selected outline, matching team; types 3px lower */
+.pokemon-grid:not(.list-mode) .poke-card .type-stack,
+.pokemon-grid:not(.list-mode) .poke-card.shiny .type-stack{
+ bottom:4px!important;
+}
+.pokemon-grid .poke-card.selected,
+.pokemon-grid .poke-card.selected:hover{
+ border:1px solid #dcbf77!important;
+ box-shadow:0 0 0 1px rgba(255,204,103,.20),0 0 7px rgba(255,196,82,.16)!important;
+}
+.pokemon-grid .poke-card.selected .card-open{
+ border-radius:inherit!important;
+}
