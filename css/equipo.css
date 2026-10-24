@@ -20,3 +20,35 @@
 /* V2.23.3: Match the Collection's elemental pictograms. */
 .type-pill em .type-emoji{font-weight:800;font-size:12px;display:inline-block;min-width:14px;text-align:center;margin-right:2px}
 .filter-grid button .type-emoji{font-weight:800;font-size:11px;line-height:1}
+
+/* V2.23.4: tighter vertical rhythm on desktop while keeping readable sprites. */
+@media (min-width:1191px) and (min-height:700px){
+ .main{padding-top:5px}
+ .hero{min-height:116px;padding:12px 22px}
+ .hero h1{font-size:43px}
+ .work{margin-top:7px;gap:8px}
+ .left,.middle{gap:7px}
+ .panel{padding:8px}
+ .panel h2{margin-bottom:5px}
+ .panel h3{margin:7px 0 4px}
+ .count{padding:2px 0 6px}
+ .small-label{margin:6px 0 4px}
+ .member{padding:5px 3px}
+ .member img{height:90px}
+ .member .hp{margin-top:5px}
+ .reserve-card{padding:4px 3px}
+ .reserve-card img{height:55px}
+ .reserve-grid,.team-grid{gap:5px}
+ .reserve-card .tags,.member .tags{margin-top:3px}
+ .types{gap:4px}
+ .type-pill{padding:3px 6px}
+ .hint{margin-top:5px}
+ .portrait{height:126px}
+ .statline{padding:4px 7px}
+ .move-item{padding:6px}
+ .detail-actions{margin-top:7px}
+ .filter-grid button{padding:3px 7px}
+ .filter input,.filter select{padding:7px}
+ .pages{margin-top:5px}
+ footer{padding:6px 0}
+}
