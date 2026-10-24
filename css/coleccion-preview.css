@@ -395,3 +395,24 @@ footer{border-top-color:#276886}
 
 /* V2.22 Collection moves and facts */
 .collection-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:9px}.collection-facts>div{background:#082b47;border:1px solid #296f96;border-radius:7px;padding:8px;display:grid;gap:4px}.collection-facts span,.collection-move small{font-size:11px;color:#96c5dc}.collection-facts strong{font-size:13px;color:#ffdb91}.collection-moves{display:grid;gap:7px;padding:8px}.collection-move{border:1px solid #296b92;border-radius:7px;background:#082b46;padding:8px;display:flex;gap:8px;justify-content:space-between;align-items:center}.collection-move>div:first-child{display:grid;gap:3px}.collection-move-actions{display:flex;align-items:center;gap:5px}.collection-move-actions button,.collection-move-actions select{background:#10466b;color:#fff;border:1px solid #388db8;border-radius:5px;padding:5px}.collection-move-equipped{color:#f2cf79;font-size:11px}@media(max-width:600px){.collection-move{flex-wrap:wrap}}
+
+/* V2.22.1 - distinct tabs and contained move list */
+#pokemonDetail{min-width:0;max-width:100%;overflow:hidden}
+#pokemonDetail .tab-body{min-width:0;max-width:100%;overflow:hidden}
+#pokemonDetail .tab-body:has(.collection-moves){max-height:350px;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:thin}
+#pokemonDetail .collection-moves{padding:7px;gap:6px;min-width:0}
+#pokemonDetail .collection-move{min-width:0;max-width:100%;flex-wrap:wrap;gap:7px;padding:9px}
+#pokemonDetail .collection-move>div:first-child{min-width:0;flex:1 1 135px;overflow-wrap:anywhere}
+#pokemonDetail .collection-move-actions{min-width:0;flex:0 1 auto;flex-wrap:wrap}
+#pokemonDetail .collection-evolution-hidden{display:none!important}
+#pokemonDetail .collection-info{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:9px}
+#pokemonDetail .collection-info>div{display:grid;gap:4px;min-width:0;padding:8px;border:1px solid #296f96;border-radius:7px;background:#082b47}
+#pokemonDetail .collection-info small{color:#9ccbe0;font-size:10px}
+#pokemonDetail .collection-info strong{font-size:13px;color:#f9dda0;overflow-wrap:anywhere}
+#pokemonDetail .collection-battle-stats{display:grid;gap:8px;padding:10px}
+#pokemonDetail .battle-stat-line{padding:8px 9px;border:1px solid #2b6c90;border-radius:7px;background:#082b47}
+#pokemonDetail .battle-stat-line>div:first-child{display:flex;justify-content:space-between;gap:8px;font-size:12px}
+#pokemonDetail .battle-stat-line b{color:#ffdb91}
+#pokemonDetail .battle-stat-track{margin-top:6px;height:7px;border-radius:10px;background:#173952;overflow:hidden}
+#pokemonDetail .battle-stat-track span{display:block;height:100%;border-radius:10px;background:linear-gradient(90deg,#139cce,#6ee0ff)}
+@media(max-width:720px){#pokemonDetail .tab-body:has(.collection-moves){max-height:300px}}
