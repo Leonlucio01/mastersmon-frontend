@@ -454,3 +454,16 @@ footer{border-top-color:#276886}
 /* Moves remain independently scrollable: only the moves tab needs a bounded list. */
 #pokemonDetail .tab-body:has(.collection-moves){max-height:340px;overflow-y:auto;overflow-x:hidden}
 @media(max-width:800px){#pokemonDetail{max-height:none!important;overflow:visible!important}}
+
+/* V2.22.5: final layout polish -- never overlap recent captures. */
+@media(min-width:1051px){
+ .workspace{align-items:start!important;height:auto!important;min-height:0!important}
+ .workspace>#pokemonDetail{height:auto!important;align-self:start!important;max-height:none!important;overflow:visible!important}
+}
+#pokemonDetail{display:block!important;padding-bottom:10px!important}
+#pokemonDetail .evolution-lab{margin-bottom:0!important;padding:9px 10px 13px!important}
+#pokemonDetail .evolution-lab .lab-heading h3{margin-bottom:6px!important}
+#pokemonDetail .evolution-lab .evo-status{min-height:0!important;padding:7px 9px!important}
+#pokemonDetail .evolution-lab .gold-action{min-height:35px!important;padding:7px 12px!important;margin-top:9px!important;margin-bottom:0!important}
+.recent{position:relative;clear:both;margin-top:14px!important;z-index:0}
+@media(max-width:1050px){#pokemonDetail{max-height:none!important;overflow:visible!important}}
