@@ -1370,7 +1370,7 @@ async function iniciarBatallaDemo() {
         sessionStorage.removeItem(BATTLE_BOSS_DATA_KEY);
         sessionStorage.removeItem(BATTLE_BOSS_EVENT_KEY);
 
-        window.location.href = "battle-arena.html?modo=arena";
+        window.location.href = "battle-arena_old.html?modo=arena";
     } catch (error) {
         console.error("No se pudo preparar la arena de combate:", error);
         mostrarModalBattle(error?.message || t("battle_prepare_combat_error"), "error");
@@ -1402,7 +1402,7 @@ async function iniciarModoBossBattle() {
         sessionStorage.setItem(BATTLE_BOSS_EVENT_KEY, JSON.stringify({ boss_evento_id: data.boss_evento_id || null, fecha_evento: data.fecha_evento || null }));
         sessionStorage.setItem(BATTLE_ARENA_PLAYER_TEAM_KEY_SAFE(), JSON.stringify(Array.isArray(data.snapshot_equipo) ? data.snapshot_equipo : battleEquipo));
 
-        window.location.href = "battle-arena.html?modo=boss";
+        window.location.href = "battle-arena_old.html?modo=boss";
     } catch (error) {
         console.error("No se pudo iniciar el Boss:", error);
         mostrarModalBattle(error?.message || tBattleSafe("battle_boss_start_error", "The Alpha Boss could not be started."), "error");

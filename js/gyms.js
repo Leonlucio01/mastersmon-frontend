@@ -1257,14 +1257,14 @@ async function startGymBattle(gym) {
             const session = buildGymBattleSessionFromApi(gym, data);
             sessionStorage.setItem(GYMS_ARENA_MODE_KEY, "gym");
             sessionStorage.setItem(GYMS_BATTLE_SESSION_KEY, JSON.stringify(session));
-            window.location.href = "battle-arena.html?modo=gym";
+            window.location.href = "battle-arena_old.html?modo=gym";
             return;
         }
 
         const session = buildGymBattleSession(gym);
         sessionStorage.setItem(GYMS_ARENA_MODE_KEY, "gym");
         sessionStorage.setItem(GYMS_BATTLE_SESSION_KEY, JSON.stringify(session));
-        window.location.href = "battle-arena.html?modo=gym";
+        window.location.href = "battle-arena_old.html?modo=gym";
     } catch (error) {
         console.error("Could not start the Gym challenge:", error);
         alert(error?.message || "Could not start the Gym challenge. Please try again.");
