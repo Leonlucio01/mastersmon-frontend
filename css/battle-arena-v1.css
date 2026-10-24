@@ -25,3 +25,12 @@
 .combatant{image-rendering:auto}
 .fighter-stat{background:#041c36e8}
 @media(min-width:1180px){.combatant{max-height:75%;width:43%}}
+
+/* Battle Arena V2.35: compact repository sprites, legible effectiveness, restrained effects */
+@media(min-width:900px){.combatant{width:27%!important;max-height:49%!important}.player-img{left:15%!important}.enemy-img{right:15%!important}}
+.move-grid .move-option{position:relative;min-height:75px;padding-bottom:22px}
+.move-effect{display:block;position:absolute;bottom:6px;left:10px;font-size:10px;font-weight:700;color:#aed8ef}
+.move-effect.effective{color:#55efb0}.move-effect.resisted{color:#ffc46b}.move-effect.immune{color:#f990a1}
+.stage{position:relative}.damage-float{position:absolute;top:39%;right:22%;font-size:27px;font-weight:900;color:#ffe69f;text-shadow:0 2px 7px #081425;animation:damageFloat .78s ease-out forwards;pointer-events:none;z-index:4}
+@keyframes damageFloat{0%{opacity:0;transform:translateY(12px)}25%{opacity:1}100%{opacity:0;transform:translateY(-38px)}}
+.arena-lunge{animation:arenaLunge .35s ease-out}@keyframes arenaLunge{0%,100%{transform:translateX(0)}45%{transform:translateX(17px)}}
