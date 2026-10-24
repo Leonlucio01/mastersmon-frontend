@@ -40,3 +40,11 @@
 .player-img{transform:scaleX(-1);transform-origin:center center}
 .player-img.arena-lunge{animation:arenaLungeFacing .35s ease-out!important}
 @keyframes arenaLungeFacing{0%,100%{transform:translateX(0) scaleX(-1)}45%{transform:translateX(17px) scaleX(-1)}}
+
+/* Battle Arena V2.40: server result modal and light hit motion */
+.battle-result-backdrop{position:fixed;inset:0;z-index:9999;background:rgba(0,10,26,.82);display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(7px)}
+.battle-result-card{width:min(460px,100%);border:1px solid #d6b55b;border-radius:15px;background:linear-gradient(150deg,#133b59,#031628 75%);box-shadow:0 0 55px #c6a34f45;text-align:center;padding:28px;color:#fff}
+.battle-result-symbol{font-size:44px}.battle-result-card h2{font:700 32px Georgia,serif;color:#ffe29a;margin:8px 0}.battle-result-card p{line-height:1.5}
+.battle-result-stats{display:flex;justify-content:center;gap:12px;margin:20px 0}.battle-result-stats span{flex:1;padding:12px;border:1px solid #2a6983;border-radius:9px;font-size:12px;color:#9dd7f5}.battle-result-stats strong{display:block;color:#ffdc86;font-size:22px;margin-top:5px}
+.battle-result-warning{font-size:12px;color:#fbd08e}.battle-result-actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:15px}.battle-result-actions button,.battle-result-actions a{border:1px solid #4ca6d4;border-radius:8px;background:#104362;color:white;padding:10px 15px;text-decoration:none;cursor:pointer}.battle-result-actions a{background:linear-gradient(#ffe99d,#dda83d);color:#11263a;font-weight:700}
+.ai-strike{animation:aiStrike .35s ease-out}.enemy-img.ai-strike{animation:aiStrike .35s ease-out!important}@keyframes aiStrike{0%,100%{transform:translateX(0)}45%{transform:translateX(-18px)}}
