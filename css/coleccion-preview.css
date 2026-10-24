@@ -722,3 +722,24 @@ footer{border-top-color:#276886}
  .pokemon-grid.list-mode .poke-card .type-stack{max-width:90px!important}
  .pokemon-grid.list-mode .poke-card .shiny-corner{right:26px!important}
 }
+
+/* V2.24.2 - restore clean vertical grid-card hierarchy, keep compact list unchanged */
+.pokemon-grid:not(.list-mode) .poke-card{height:142px!important;min-height:142px!important}
+.pokemon-grid:not(.list-mode) .poke-card .card-open{display:block!important;position:relative!important;height:100%!important;padding:0!important;overflow:hidden!important}
+.pokemon-grid:not(.list-mode) .poke-card .card-top-meta{position:absolute!important;top:5px!important;left:5px!important;display:flex!important;align-items:center!important;gap:5px!important;z-index:5!important}
+.pokemon-grid:not(.list-mode) .poke-card .card-sprite{
+ position:absolute!important;top:21px!important;left:15%!important;width:70%!important;height:63px!important;max-height:63px!important;object-fit:contain!important;transform:none!important;z-index:1!important;
+}
+.pokemon-grid:not(.list-mode) .poke-card .card-info{
+ position:absolute!important;top:86px!important;bottom:auto!important;left:4px!important;right:4px!important;height:15px!important;min-height:15px!important;
+ display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;margin:0!important;z-index:3!important;
+}
+.pokemon-grid:not(.list-mode) .poke-card .card-info strong{font-size:11px!important;line-height:15px!important;display:block!important;max-width:100%!important;text-overflow:ellipsis!important;overflow:hidden!important;white-space:nowrap!important}
+.pokemon-grid:not(.list-mode) .poke-card .type-stack{
+ position:absolute!important;top:auto!important;bottom:12px!important;left:4px!important;right:4px!important;min-height:18px!important;
+ display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;align-items:center!important;justify-content:center!important;
+ gap:3px!important;margin:0!important;padding:0!important;z-index:2!important;max-width:none!important;
+}
+.pokemon-grid:not(.list-mode) .poke-card .type-stack .chip{font-size:9px!important;line-height:1.05!important;padding:3px 5px!important}
+.pokemon-grid:not(.list-mode) .poke-card .shiny-corner{position:absolute!important;bottom:2px!important;left:5px!important;font-size:8px!important;line-height:1!important;z-index:3!important}
+.pokemon-grid:not(.list-mode) .poke-card.selected{box-shadow:0 0 0 1px rgba(255,213,115,.72),0 0 9px rgba(255,197,80,.15)!important}
