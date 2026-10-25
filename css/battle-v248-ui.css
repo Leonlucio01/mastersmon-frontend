@@ -1,0 +1,18 @@
+/* MastersMon V2.48 additive layout adjustments. Only Battle AI. */
+body:has(.mm248-active) .arena-top .back,body:has(.mm248-active) .actions a.danger{display:none!important}
+#battleResultOverlay .battle-result-card{width:min(94vw,520px);max-height:90vh;overflow:auto;padding:clamp(20px,3vw,34px);border-radius:18px;box-shadow:0 24px 80px #000a,0 0 45px #36b8f322}
+#battleResultOverlay .battle-result-card h2{font-size:clamp(29px,4vw,40px);letter-spacing:.03em;margin:10px auto 4px}
+#battleResultOverlay .battle-result-stats{gap:12px;margin:20px 0}
+#battleResultOverlay .battle-result-stats span{border-radius:12px;padding:16px 12px}
+#battleResultOverlay .battle-result-stats strong{font-size:24px}
+#battleResultOverlay .battle-result-warning{line-height:1.45}
+.mm248-rival{color:#7ee6ff;font-size:13px;font-weight:700;margin-bottom:12px}
+.mm248-rewards{display:flex!important;gap:12px;justify-content:center;flex-wrap:wrap;margin:12px 0}
+.mm248-reward{display:flex;flex-direction:column;min-width:120px;gap:3px;border:1px solid #c6a45d;border-radius:11px;background:linear-gradient(140deg,#133c54,#061b35);padding:11px 22px;color:#ffdd92}
+.mm248-reward small{font-size:11px;color:#9ee7ff}.mm248-reward b{font-size:20px;font-variant-numeric:tabular-nums}
+.mm248-auto,.mm248-items{border:1px solid #287da5;background:#092a45;border-radius:12px;padding:16px;width:100%;max-width:440px}
+.mm248-auto strong,.mm248-items strong{color:#f9d990;font-size:15px}
+.mm248-auto p,.mm248-items p{color:#c3ddea;font-size:12px;line-height:1.5;margin:9px 0 12px}
+.mm248-cta{width:100%;min-height:38px;border:1px solid #dfb958;border-radius:9px;background:linear-gradient(#ffe7a0,#dda83b);color:#09243d;font-weight:700}
+@media(max-width:600px){#battleResultOverlay .battle-result-stats{flex-direction:column}.mm248-rewards{gap:7px}.mm248-reward{min-width:105px;padding:8px 14px}}
+@media(prefers-reduced-motion:reduce){#battleResultOverlay .battle-result-card{scroll-behavior:auto}}
