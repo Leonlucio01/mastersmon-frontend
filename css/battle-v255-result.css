@@ -1,0 +1,34 @@
+/* V2.55: victory result with full roster EXP progression. */
+#battleResultOverlay .battle-result-card.mm255-modal{width:min(96vw,680px);max-height:min(92vh,850px);padding:20px 26px 24px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#3a88a6 transparent}
+#battleResultOverlay .mm255-modal .battle-result-symbol{font-size:29px;margin:0}
+#battleResultOverlay .mm255-modal .mm250-rival-avatar{width:52px;height:52px;margin:4px auto}
+#battleResultOverlay .mm255-modal h2{font-size:clamp(28px,4vw,38px);margin:3px 0}
+#battleResultOverlay .mm255-modal .mm248-result-copy{margin-bottom:9px}
+#battleResultOverlay .mm255-modal .battle-result-stats{margin:10px 0;gap:10px}
+#battleResultOverlay .mm255-modal .battle-result-stats span{padding:9px 12px;gap:3px}
+#battleResultOverlay .mm255-modal .battle-result-stats strong{font-size:24px}
+#battleResultOverlay .mm255-modal .mm248-result-summary{margin:8px auto 12px;gap:5px}
+#battleResultOverlay .mm255-modal .mm248-reward{min-width:120px;padding:7px 14px}
+#battleResultOverlay .mm255-modal .mm248-reward b{font-size:19px}
+.mm255-experience{margin:13px 0 15px;text-align:left;background:rgba(3,22,40,.55);border:1px solid #277292;border-radius:13px;padding:12px}
+.mm255-titleline{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:9px;color:#f5d794;font-size:13px}
+.mm255-titleline span{color:#8adadf;font-size:10px}
+.mm255-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.mm255-unit{min-width:0;display:flex;align-items:center;gap:8px;background:#0a2945;border:1px solid #286581;border-radius:9px;padding:7px;text-align:left}
+.mm255-sprite{width:42px;height:42px;flex:0 0 42px;object-fit:contain;image-rendering:auto}
+.mm255-detail{flex:1;min-width:0}
+.mm255-unit-head{display:flex;justify-content:space-between;gap:5px;align-items:baseline;font-size:11px}
+.mm255-unit-head strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#f6f9ff}
+.mm255-unit-head span{font-size:9px;color:#f9d691;white-space:nowrap}
+.mm255-bar{height:6px;background:#183d50;border-radius:12px;overflow:hidden;margin:5px 0}
+.mm255-bar i{height:100%;display:block;width:var(--exp-width,0);background:linear-gradient(90deg,#16b8b5,#75f9ba);border-radius:12px;animation:mm255Fill .85s ease-out both}
+.mm255-max .mm255-bar i{background:linear-gradient(90deg,#c4953b,#ffde82)}
+.mm255-detail small{display:block;color:#abd3e0;font-size:9px}
+.mm255-gain{font-size:11px;font-weight:800;color:#9bf1cd;white-space:nowrap}
+.mm255-max .mm255-gain{color:#ffdb82}
+.mm255-disclaimer{font-size:10px;color:#91c7dd;line-height:1.4;margin:9px 2px 0}
+#battleResultOverlay .mm255-actions{display:flex;justify-content:center}
+#battleResultOverlay .mm255-actions>a{width:min(100%,280px);min-height:43px;display:inline-flex;align-items:center;justify-content:center}
+@keyframes mm255Fill{from{width:0}to{width:var(--exp-width,0)}}
+@media(max-width:580px){#battleResultOverlay .battle-result-card.mm255-modal{padding:15px 11px;max-height:96vh}.mm255-list{grid-template-columns:1fr}.mm255-unit{padding:6px}.mm255-sprite{width:38px;height:38px;flex-basis:38px}.mm255-titleline{flex-wrap:wrap}}
+@media(prefers-reduced-motion:reduce){.mm255-bar i{animation:none}}
