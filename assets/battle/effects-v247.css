@@ -1,0 +1,19 @@
+/* MastersMon V2.47: procedural elemental effects, entirely local assets */
+.stage{position:relative}
+.mm-vfx{--fx:#d9e9ff;position:absolute;left:50%;top:50%;width:12px;height:12px;z-index:9;pointer-events:none;transform:translate(-50%,-50%);animation:mm-vfx-life .63s ease-out forwards;filter:drop-shadow(0 0 7px var(--fx))}
+.mm-vfx:before,.mm-vfx:after{content:"";position:absolute;inset:-15px;border:3px solid var(--fx);border-radius:50%;opacity:.85;animation:mm-vfx-ring .58s ease-out forwards}
+.mm-vfx:after{inset:-6px;animation-delay:.08s;opacity:.6}
+.mm-vfx-particle{position:absolute;left:0;top:0;width:13px;height:13px;background:var(--fx);border-radius:50%;animation:mm-vfx-particle .48s ease-out var(--delay,0ms) forwards}
+.mm-vfx-fuego{--fx:#ff713c}.mm-vfx-fuego .mm-vfx-particle{border-radius:80% 0 80% 40%;transform:rotate(45deg)}
+.mm-vfx-agua{--fx:#46c9ff}.mm-vfx-agua .mm-vfx-particle{border-radius:75% 0 75% 75%;transform:rotate(-45deg)}
+.mm-vfx-electrico{--fx:#ffe35c}.mm-vfx-electrico .mm-vfx-particle{clip-path:polygon(48% 0,100% 0,60% 44%,90% 44%,24% 100%,42% 52%,14% 52%);border-radius:0}
+.mm-vfx-psiquico{--fx:#fa75da}.mm-vfx-psiquico:before{border-style:dashed}.mm-vfx-psiquico .mm-vfx-particle{box-shadow:0 0 6px #fff;border-radius:50%}
+.mm-vfx-fantasma{--fx:#aa84fa}.mm-vfx-fantasma .mm-vfx-particle{border-radius:60% 65% 10% 10%;opacity:.75}
+.mm-vfx-planta{--fx:#62e68b}.mm-vfx-planta .mm-vfx-particle{border-radius:85% 0 85% 0}
+.mm-vfx-hielo{--fx:#a9f4fa}.mm-vfx-hielo .mm-vfx-particle{clip-path:polygon(50% 0%,62% 34%,100% 50%,62% 66%,50% 100%,38% 66%,0% 50%,38% 34%);border-radius:0}
+.mm-vfx-dragon{--fx:#8c90ff}.mm-vfx-dragon:before{border-width:5px}.mm-vfx-dragon .mm-vfx-particle{border-radius:6px 80% 6px 80%}
+.mm-vfx-veneno{--fx:#c67bdb}.mm-vfx-tierra{--fx:#cca16b}.mm-vfx-roca{--fx:#bba781}.mm-vfx-acero{--fx:#c9d7e4}.mm-vfx-lucha{--fx:#f59a7e}.mm-vfx-volador{--fx:#98c7f9}.mm-vfx-siniestro{--fx:#8d7d9e}.mm-vfx-hada{--fx:#f99be6}.mm-vfx-bicho{--fx:#a2cf6a}
+@keyframes mm-vfx-life{0%{opacity:0}15%{opacity:1}70%{opacity:1}100%{opacity:0}}
+@keyframes mm-vfx-ring{from{transform:scale(.2);opacity:1}to{transform:scale(2);opacity:0}}
+@keyframes mm-vfx-particle{from{opacity:1;translate:0 0;scale:.8}to{opacity:0;translate:calc(cos(var(--angle))*var(--distance)) calc(sin(var(--angle))*var(--distance));scale:.3}}
+@media(prefers-reduced-motion:reduce){.mm-vfx{display:none}}

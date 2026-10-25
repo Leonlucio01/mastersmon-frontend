@@ -15,19 +15,28 @@ function paintServerRival(){if(!serverBattle)return;const d=defs.find(x=>x.lv===
 async function startServerBattle(){if(serverBusy)return;serverBusy=true;try{const data=await battleFetch('/battle/ai/start',{method:'POST',body:JSON.stringify({difficulty:selected})});sessionStorage.setItem('mm_ai_session',data.session_token);applyServerBattle(data);log(t('Batalla iniciada desde el servidor.','Server battle started.'));}catch(e){battleError(e);$('notice').textContent=t('No se pudo iniciar el combate. Comprueba la sesión y los movimientos equipados.','Could not start battle. Check session and equipped moves.')}finally{serverBusy=false;simulation.busy=false;paintPanel()}}
 function showBattleResult(status){let screen=document.getElementById('battleResultOverlay');if(!screen){screen=document.createElement('div');screen.id='battleResultOverlay';screen.className='battle-result-backdrop';document.body.appendChild(screen)}const win=status==='victory';const turns=Math.max(1,n(serverBattle?.turn)-1);const remaining=(serverBattle?.player||[]).filter(p=>n(p.hp)>0).length;screen.innerHTML='<div class="battle-result-card" role="dialog" aria-modal="true" aria-label="'+(win?t('Victoria','Victory'):t('Derrota','Defeat'))+'"><div class="battle-result-symbol">'+(win?'🏆':'⚔')+'</div><h2>'+(win?t('¡VICTORIA!','VICTORY!'):t('DERROTA','DEFEAT'))+'</h2><p>'+(win?t('Has vencido al entrenador IA.','You defeated the AI trainer.'):t('Tu equipo ha caído. ¡Puedes intentarlo nuevamente!','Your team has fallen. Try again!'))+'</p><div class="battle-result-stats"><span>'+t('Turnos','Turns')+'<strong>'+turns+'</strong></span><span>'+t('Pokémon disponibles','Remaining Pokémon')+'<strong>'+remaining+' / 6</strong></span></div><p class="battle-result-warning">'+(win&&serverBattle?.reward_claimed&&serverBattle?.reward?'<strong>+'+n(serverBattle.reward.pokedolares_ganados).toLocaleString()+' PD · +'+n(serverBattle.reward.exp_ganada).toLocaleString()+' EXP</strong><small> · '+t('Recompensa acreditada por el servidor','Reward credited by server')+'</small>':win?t('La recompensa no ha sido confirmada por el servidor.','Server has not confirmed the reward.'):t('La derrota no genera recompensas.','No rewards on defeat.'))+'</p><div class="battle-result-actions"><button id="resultReview" type="button">'+t('Ver arena','View arena')+'</button><a href="battle.html">'+t('Elegir otro rival','Choose another rival')+'</a></div></div>';screen.querySelector('#resultReview').onclick=()=>screen.remove();}
 function elementalImpact(event){
- if(event.event!=='attack' && event.event!=='rival_attack')return;
- const isEnemy=event.event==='rival_attack';
- const stage=document.querySelector('.stage');const target=$(isEnemy?'playerImage':'enemyImage');
+ if(event.event!=='attack'&&event.event!=='rival_attack')return;
+ if(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)return;
+ const stage=document.querySelector('.stage');
+ const target=$(event.event==='rival_attack'?'playerImage':'enemyImage');
  if(!stage||!target)return;
- const kind=typeKey(event.move_type||'normal');
- const tag=document.createElement('span');tag.className='mm-element-hit mm-element-'+kind;
- tag.setAttribute('aria-hidden','true');
- const zone=target.getBoundingClientRect(),arena=stage.getBoundingClientRect();
- tag.style.left=(zone.left-arena.left+zone.width/2)+'px';
- tag.style.top=(zone.top-arena.top+zone.height/2)+'px';
- stage.appendChild(tag);
- tag.addEventListener('animationend',()=>tag.remove(),{once:true});
- setTimeout(()=>tag.remove(),1100);
+ const aliases={fire:'fuego',water:'agua',electric:'electrico',psychic:'psiquico',grass:'planta',ghost:'fantasma',ice:'hielo',dragon:'dragon',poison:'veneno',ground:'tierra',rock:'roca',steel:'acero',fighting:'lucha',flying:'volador',dark:'siniestro',fairy:'hada',bug:'bicho'};
+ const raw=typeKey(event.move_type||'normal');const kind=aliases[raw]||raw;
+ const rect=target.getBoundingClientRect(),arena=stage.getBoundingClientRect();
+ const x=rect.left-arena.left+rect.width/2,y=rect.top-arena.top+rect.height/2;
+ const fx=document.createElement('span');fx.className='mm-vfx mm-vfx-'+kind;
+ fx.style.left=x+'px';fx.style.top=y+'px';fx.setAttribute('aria-hidden','true');
+ const sparkCount={electrico:7,agua:6,fuego:7,hielo:7,planta:6,psiquico:5,fantasma:5,dragon:5}[kind]||5;
+ for(let i=0;i<sparkCount;i++){
+  const particle=document.createElement('i');particle.className='mm-vfx-particle';
+  particle.style.setProperty('--angle',(i*360/sparkCount)+'deg');
+  particle.style.setProperty('--distance',(26+(i%3)*14)+'px');
+  particle.style.setProperty('--delay',(i%3*35)+'ms');
+  fx.appendChild(particle);
+ }
+ stage.appendChild(fx);
+ fx.addEventListener('animationend',e=>{if(e.target===fx)fx.remove()},{once:true});
+ setTimeout(()=>fx.remove(),900);
 }
 function animateCombatEvent(event){const isEnemy=event.event==='rival_attack';if(event.event!=='attack'&&!isEnemy)return;const attacker=$(isEnemy?'enemyImage':'playerImage');const target=$(isEnemy?'playerImage':'enemyImage');attacker?.classList.remove(isEnemy?'ai-strike':'arena-lunge');target?.classList.remove('arena-hit');void attacker?.offsetWidth;attacker?.classList.add(isEnemy?'ai-strike':'arena-lunge');if(target){void target.offsetWidth;target.classList.add('arena-hit')} elementalImpact(event); }
 async function serverAction(kind,move=null,target=null){if(serverBusy||simulation.ended||!serverBattle)return;serverBusy=true;simulation.busy=true;paintPanel();try{const body={session_token:sessionStorage.getItem('mm_ai_session'),action:kind};if(kind==='attack'){body.move_slot=n(move?.slot);if(!body.move_slot)throw Error(t('Movimiento sin ranura válida.','Move missing slot.'))}else{const p=team[target];if(!p)throw Error('Invalid target');body.pokemon_id=p.id}const result=await battleFetch('/battle/ai/action',{method:'POST',body:JSON.stringify(body)});for(const event of result.events||[]){const message={attack:(team[active]?.nombre||'Pokémon')+' '+t('usó ','used ')+(event.move_name||move?.nombre||move?.name||t('un movimiento','a move')),rival_attack:(serverBattle?.rivals?.[n(serverBattle.rival_active)]?.nombre||t('El rival','Opponent'))+' '+t('usó ','used ')+(event.move_name||t('un ataque','an attack')),switch:t('Pokémon cambiado','Pokémon switched'),rival_switch:t('El rival cambió Pokémon','Opponent switched Pokémon'),player_switch:t('Entra otro Pokémon','Another Pokémon enters'),victory:t('¡Victoria!','Victory!'),defeat:t('Derrota','Defeat')}[event.event]||event.event;const eff=Number(event.effectiveness);const effText=event.effectiveness!=null?' · '+effectLabel(eff)+' (×'+eff+')':'';log(message+(event.damage!=null?' · -'+event.damage+' HP':'')+effText);animateCombatEvent(event);if(event.event==='attack')showDamage(event.damage)}applyServerBattle(result);}catch(e){battleError(e)}finally{serverBusy=false;simulation.busy=false;paintPanel()}}
