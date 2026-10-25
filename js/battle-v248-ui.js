@@ -8,7 +8,7 @@ let itemsCache=null,itemsLoad=null,itemsUpdated=0;
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
 function notice(message){ const n=$('#notice'); if(n) n.textContent=message; }
-function stop(reason){ auto=false; clearTimeout(timer); timer=0; requestActive=false; renderAuto(); if(reason) notice(reason); }
+function stop(reason){ const wasAuto=auto; auto=false; clearTimeout(timer); timer=0; requestActive=false; if(wasAuto)renderAuto(); if(reason) notice(reason); }
 function schedule(ms=1100){ clearTimeout(timer); if(auto) timer=setTimeout(turn,ms); }
 function upgradeNavigation(){
   document.body.classList.add('mm248-active');
@@ -36,10 +36,10 @@ function upgradeNavigation(){
 function rewardDisplay(){
   const overlay=$('#battleResultOverlay');
   if(!overlay) return;
-  stop();
   const card=overlay.querySelector('.battle-result-card');
   if(!card || card.dataset.mm250Upgraded==='1') return;
   card.dataset.mm250Upgraded='1';
+  stop();
   const win=/vict/i.test(card.getAttribute('aria-label')||card.querySelector('h2')?.textContent||'');
   const rival=$('#rivalName')?.textContent?.trim()||'';
   const rivalAvatar=$('#rivalAvatar')?.getAttribute('src')||'';
@@ -97,6 +97,7 @@ function rewardDisplay(){
   }
 }
 function renderAuto(){
+  if($('#battleResultOverlay'))return;
   const grid=$('#moveGrid');
   if(!grid || !$('.actions [data-panel="auto"]')?.classList.contains('chosen')) return;
   grid.replaceChildren();
@@ -151,7 +152,8 @@ function turn(){
   steps++;
   chosen.click();
   autoTab.click();
-  setTimeout(()=>{ if(auto && requestActive){ requestActive=false; schedule(1000); } }, 4200);
+  // Fail closed: an unresolved request must never produce another attack.
+  setTimeout(()=>{ if(auto && requestActive) stop(tr('La respuesta del turno está tardando. Auto Attack se detuvo para evitar acciones repetidas.','The turn response is taking too long. Auto Attack stopped to avoid duplicate actions.')); }, 12000);
 }
 const nativeFetch=window.fetch.bind(window);
 window.fetch=function(input,init){
@@ -160,9 +162,11 @@ window.fetch=function(input,init){
   const p=nativeFetch(input,init);
   if(auto && isAction){
     p.then(response=>{
+      if(!auto)return;
       requestActive=false;
       if(!response.ok){ stop(tr('Auto Attack detenido por una respuesta del servidor.','Auto Attack stopped by a server response.')); return; }
-      schedule(1100);
+      // Allow the game's serverAction to finish parsing and applying its state.
+      schedule(1600);
     }).catch(()=> stop(tr('Auto Attack detenido: error de conexión.','Auto Attack stopped: connection error.')));
   }
   return p;
@@ -219,7 +223,11 @@ function renderItems(){
 function refresh(){ upgradeNavigation(); rewardDisplay(); if($('.actions [data-panel="auto"]')?.classList.contains('chosen')) renderAuto(); if($('.actions [data-panel="items"]')?.classList.contains('chosen')) renderItems(); }
 $$('[data-panel]').forEach(el=>el.addEventListener('click',()=>{const grid=$('#moveGrid');if(grid)delete grid.dataset.mm250Items;setTimeout(refresh,50)}));
 $$('[data-lang]').forEach(el=>el.addEventListener('click',()=>{const grid=$('#moveGrid');if(grid)delete grid.dataset.mm250Items;setTimeout(refresh,90)}));
-new MutationObserver(()=>{ if($('#battleResultOverlay')) rewardDisplay(); }).observe(document.body,{childList:true,subtree:true});
+// Only observe new top-level nodes: subtree changes inside results/Auto cannot recurse.
+new MutationObserver(records=>{
+  if(records.some(r=>[...r.addedNodes].some(node=>node.nodeType===1 && (node.id==='battleResultOverlay' || node.querySelector?.('#battleResultOverlay'))))) rewardDisplay();
+}).observe(document.body,{childList:true,subtree:false});
 window.addEventListener('pagehide',()=>stop());
+document.addEventListener('visibilitychange',()=>{if(document.hidden && auto)stop(tr('Auto Attack pausado al salir de la pestaña.','Auto Attack paused when leaving the tab.'));});
 refresh();
 })();
