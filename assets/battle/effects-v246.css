@@ -1,0 +1,11 @@
+/* V2.46 local battle effects and party HP — compact and responsive. */
+.teammate .team-hp{display:block;width:calc(100% - 12px);height:4px;margin:3px 6px 0;background:#092439;border-radius:8px;overflow:hidden;box-shadow:inset 0 0 0 1px #ffffff16}
+.teammate .team-hp i{display:block;height:100%;border-radius:8px;transition:width .25s ease}
+.teammate:has(.team-hp i[style*="width:0%"]){opacity:.58}
+.stage{position:relative}
+.mm-element-hit{position:absolute;z-index:7;width:70px;height:70px;pointer-events:none;transform:translate(-50%,-50%);border-radius:50%;animation:mm-element-burst .56s ease-out forwards;background:radial-gradient(circle,#fff6 0%,var(--hit-color,#84cdff) 18%,transparent 68%);filter:drop-shadow(0 0 12px var(--hit-color,#84cdff))}
+.mm-element-hit:after{content:"";position:absolute;inset:-10px;border:3px solid var(--hit-color,#84cdff);border-radius:50%;animation:mm-ring .56s ease-out forwards}
+.mm-element-fuego{--hit-color:#ff633c}.mm-element-agua{--hit-color:#26bafc}.mm-element-electrico{--hit-color:#ffe259}.mm-element-psiquico{--hit-color:#fb6dd1}.mm-element-fantasma{--hit-color:#ab75ff}.mm-element-veneno{--hit-color:#bc70d9}.mm-element-planta{--hit-color:#43e78a}.mm-element-hielo{--hit-color:#9afff7}.mm-element-dragon{--hit-color:#8c80ff}.mm-element-lucha{--hit-color:#f99964}.mm-element-roca,.mm-element-tierra{--hit-color:#c4ab80}.mm-element-acero{--hit-color:#a6c6da}
+@keyframes mm-element-burst{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}35%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(1.8)}}
+@keyframes mm-ring{from{opacity:1;transform:scale(.25)}to{opacity:0;transform:scale(1.4)}}
+@media(prefers-reduced-motion:reduce){.mm-element-hit,.mm-element-hit:after{animation:none!important;display:none}}
