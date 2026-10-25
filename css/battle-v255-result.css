@@ -32,3 +32,25 @@
 @keyframes mm255Fill{from{width:0}to{width:var(--exp-width,0)}}
 @media(max-width:580px){#battleResultOverlay .battle-result-card.mm255-modal{padding:15px 11px;max-height:96vh}.mm255-list{grid-template-columns:1fr}.mm255-unit{padding:6px}.mm255-sprite{width:38px;height:38px;flex-basis:38px}.mm255-titleline{flex-wrap:wrap}}
 @media(prefers-reduced-motion:reduce){.mm255-bar i{animation:none}}
+
+/* V2.56 - Premium victory progression */
+#battleResultOverlay .mm256-modal .battle-result-warning{margin:9px auto 12px;padding:0}
+#battleResultOverlay .mm256-modal .mm248-rewards{display:none!important}
+#battleResultOverlay .mm256-modal .mm256-awards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));max-width:300px;gap:10px;margin:0 auto 7px}
+#battleResultOverlay .mm256-modal .mm256-award{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0;padding:9px 10px;border:1px solid #c6a45d;border-radius:11px;background:linear-gradient(140deg,#134061,#08233d)}
+#battleResultOverlay .mm256-modal .mm256-award-name{color:#9de6fd;font-size:11px;letter-spacing:.06em;font-weight:800}
+#battleResultOverlay .mm256-modal .mm256-award-number{color:#ffda88;font-size:20px;line-height:1.1;font-variant-numeric:tabular-nums}
+#battleResultOverlay .mm256-modal .mm256-reward-confirm{font-size:10px;color:#9ee4d0}
+#battleResultOverlay .mm256-modal .mm255-unit.mm256-unit{animation:mm256Enter .38s ease-out both;animation-delay:calc(180ms + var(--mm256-index)*95ms)}
+#battleResultOverlay .mm256-modal .mm256-leveled{border-color:#cfa34b;box-shadow:0 0 0 1px rgba(255,208,119,.12) inset}
+#battleResultOverlay .mm256-modal .mm256-level-badge{display:block;color:#ffdf7b;font-size:9px;margin-top:4px;white-space:nowrap}
+#battleResultOverlay .mm256-modal .mm256-level{color:#f5d58d}
+#battleResultOverlay .mm256-modal .mm255-max .mm256-max-note{color:#deb76d;margin-top:6px}
+#battleResultOverlay .mm256-modal .mm255-max .mm255-gain{padding:3px 6px;border:1px solid #907447;border-radius:5px;font-size:10px}
+#battleResultOverlay .mm256-modal .mm255-max .mm255-bar{display:none}
+#battleResultOverlay .mm256-modal .mm255-gain{text-align:right}
+#battleResultOverlay .mm256-modal .mm255-experience{margin-top:12px}
+#battleResultOverlay .mm256-modal .mm255-disclaimer{margin-top:8px}
+@keyframes mm256Enter{from{opacity:.3;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:580px){#battleResultOverlay .mm256-modal .mm256-awards{max-width:100%}#battleResultOverlay .mm256-modal .mm256-level-badge{font-size:8px}}
+@media(prefers-reduced-motion:reduce){#battleResultOverlay .mm256-modal .mm255-unit.mm256-unit{animation:none!important}#battleResultOverlay .mm256-modal .mm255-bar i{animation:none!important}}
