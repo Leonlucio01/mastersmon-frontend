@@ -201,3 +201,21 @@ body.mm248-active .mm251-potion-icon{width:36px;height:36px;flex:0 0 36px;border
 body.mm248-active .mm250-item-list{max-height:172px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#287da5 transparent;padding-right:2px}
 body.mm248-active .mm250-item{min-height:54px}
 @media(max-width:700px){body.mm248-active .actions{flex-wrap:wrap}body.mm248-active .actions #mm253Stop:not([hidden]){order:5;margin-left:0}body.mm248-active .mm250-item-list{max-height:210px}}
+
+/* V2.54: smoother item scroll and clearer auto state. */
+body.mm248-active .mm250-item-list{
+  max-height:156px;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  scroll-behavior:smooth;
+  padding-right:4px;
+}
+body.mm248-active .mm250-item-list::-webkit-scrollbar{width:8px}
+body.mm248-active .mm250-item-list::-webkit-scrollbar-thumb{background:#1d6f98;border-radius:10px}
+body.mm248-active .mm250-item-list::-webkit-scrollbar-track{background:transparent}
+body.mm248-active .mm248-auto.mm251-wide-panel{min-height:68px}
+body.mm248-active .mm251-status.is-running{box-shadow:0 0 0 1px rgba(133,255,224,.18) inset}
+body.mm248-active .actions #mm253Stop.mm253-stop{position:sticky; right:0}
+@media(max-width:700px){
+  body.mm248-active .mm250-item-list{max-height:188px}
+}

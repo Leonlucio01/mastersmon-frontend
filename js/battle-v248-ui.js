@@ -1,15 +1,46 @@
-/* MastersMon V2.50 additive Battle AI controls. Never writes battle state or rewards. */
+/* MastersMon V2.54 additive Battle AI controls. Never writes rewards. */
 (()=>{'use strict';
 if(!document.querySelector('.stage')) return;
 const lang=()=>localStorage.getItem('mastersmon_lang')==='en'?'en':'es';
 const tr=(es,en)=>lang()==='en'?en:es;
 let auto=false,timer=0,requestActive=false,steps=0,lastTurn='',retries=0,surrenderBound=false;
 let itemsCache=null,itemsLoad=null,itemsUpdated=0;
+let progressTimer=0,pendingSnapshot='',lastActionStartedAt=0;
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+
 function notice(message){ const n=$('#notice'); if(n) n.textContent=message; }
-function stop(reason){ const wasAuto=auto; auto=false; clearTimeout(timer); timer=0; requestActive=false; updateStopButton(); if(wasAuto)renderAuto(); if(reason) notice(reason); }
+function clearProgressWatch(){ if(progressTimer){ clearInterval(progressTimer); progressTimer=0; } pendingSnapshot=''; lastActionStartedAt=0; }
+function stop(reason){ const wasAuto=auto; auto=false; clearTimeout(timer); timer=0; requestActive=false; clearProgressWatch(); updateStopButton(); if(wasAuto) renderAuto(); if(reason) notice(reason); }
 function schedule(ms=1100){ clearTimeout(timer); if(auto) timer=setTimeout(turn,ms); }
+function battleSnapshot(){
+  const turn=$('#turnLabel')?.textContent?.trim()||'';
+  const playerHp=$('#playerHp')?.textContent?.trim()||'';
+  const enemyHp=$('#enemyHp')?.textContent?.trim()||'';
+  const logLines=Array.from($('#logLines')?.children||[]).map(el=>(el.textContent||'').trim()).filter(Boolean);
+  const recent=logLines.slice(-3).join(' | ');
+  return [turn,playerHp,enemyHp,recent].join(' || ');
+}
+function releaseRequestAndContinue(delay=950){
+  if(!auto) return;
+  requestActive=false;
+  clearProgressWatch();
+  renderAuto();
+  schedule(delay);
+}
+function startProgressWatch(){
+  clearProgressWatch();
+  pendingSnapshot=battleSnapshot();
+  lastActionStartedAt=Date.now();
+  progressTimer=setInterval(()=>{
+    if(!auto || !requestActive){ clearProgressWatch(); return; }
+    const current=battleSnapshot();
+    if(current && current!==pendingSnapshot){ releaseRequestAndContinue(1100); return; }
+    if(Date.now()-lastActionStartedAt>15000){
+      stop(tr('La respuesta del turno está tardando. Auto Attack se detuvo para evitar acciones repetidas.','The turn response is taking too long. Auto Attack stopped to avoid duplicate actions.'));
+    }
+  },300);
+}
 function upgradeNavigation(){
   document.body.classList.add('mm248-active');
   const topBack=$('.arena-top .back');
@@ -24,7 +55,7 @@ function upgradeNavigation(){
     if(!surrenderBound){
       surrenderBound=true;
       danger.addEventListener('click',ev=>{
-        if($('#battleResultOverlay')) return; // end screen can manage itself
+        if($('#battleResultOverlay')) return;
         ev.preventDefault();
         stop();
         const ok=window.confirm(tr('¿Seguro que deseas rendirte? Perderás el progreso de esta batalla y volverás a Batallas.','Are you sure you want to surrender? You will lose the progress of this battle and return to Battles.'));
@@ -122,14 +153,18 @@ function renderAuto(){
   const copy=document.createElement('div');copy.className='mm251-copy';
   const label=document.createElement('strong');label.textContent=tr('Auto Attack','Auto Attack');
   const status=document.createElement('span');status.className='mm251-status'+(auto?' is-running':'');
-  status.textContent=auto?tr('ACTIVO','RUNNING'):tr('EN ESPERA','READY');
+  status.textContent=auto?(requestActive?tr('EJECUTANDO','RUNNING'):tr('ACTIVO','ACTIVE')):tr('EN ESPERA','READY');
   const desc=document.createElement('p');
-  desc.textContent=auto?tr('Ataque automático en curso. Puedes detenerlo en cualquier momento.','Automatic attacks are running. You can stop them at any time.'):tr('Elige automáticamente entre los movimientos equipados priorizando potencia y efectividad.','Automatically chooses equipped moves, prioritizing power and type effectiveness.');
+  desc.textContent=auto
+    ? (requestActive
+      ? tr('Auto Attack ejecutando el turno actual. Puedes detenerlo desde la barra superior.','Auto Attack is resolving the current turn. You can stop it from the top action bar.')
+      : tr('Ataque automático en curso. Puedes detenerlo en cualquier momento.','Automatic attacks are running. You can stop them at any time.'))
+    : tr('Elige automáticamente entre los movimientos equipados priorizando potencia y efectividad.','Automatically chooses equipped moves, prioritizing power and type effectiveness.');
   copy.append(label,status,desc);main.append(emblem,copy);
   const go=document.createElement('button');go.type='button';go.className='mm248-cta mm251-auto-button';
   go.textContent=auto?tr('■ Detener','■ Stop'):tr('▶ Iniciar Auto','▶ Start Auto');
   go.setAttribute('aria-pressed',String(auto));
-  go.onclick=()=>{if(auto)stop(tr('Auto Attack detenido.','Auto Attack stopped.'));else{auto=true;steps=0;retries=0;requestActive=false;updateStopButton();renderAuto();schedule(320);}};
+  go.onclick=()=>{if(auto)stop(tr('Auto Attack detenido.','Auto Attack stopped.'));else{auto=true;steps=0;retries=0;requestActive=false;clearProgressWatch();updateStopButton();renderAuto();schedule(320);}};
   wrap.append(main,go);grid.append(wrap);
 }
 function scoreMove(button){
@@ -166,8 +201,8 @@ function turn(){
   steps++;
   chosen.click();
   autoTab.click();
-  // Fail closed: an unresolved request must never produce another attack.
-  setTimeout(()=>{ if(auto && requestActive) stop(tr('La respuesta del turno está tardando. Auto Attack se detuvo para evitar acciones repetidas.','The turn response is taking too long. Auto Attack stopped to avoid duplicate actions.')); }, 12000);
+  renderAuto();
+  startProgressWatch();
 }
 const nativeFetch=window.fetch.bind(window);
 window.fetch=function(input,init){
@@ -176,12 +211,9 @@ window.fetch=function(input,init){
   const p=nativeFetch(input,init);
   if(auto && isAction){
     p.then(response=>{
-      if(!auto)return;
-      requestActive=false;
-      if(!response.ok){ stop(tr('Auto Attack detenido por una respuesta del servidor.','Auto Attack stopped by a server response.')); return; }
-      // Allow the game's serverAction to finish parsing and applying its state.
-      schedule(1600);
-    }).catch(()=> stop(tr('Auto Attack detenido: error de conexión.','Auto Attack stopped: connection error.')));
+      if(!auto) return;
+      if(!response.ok){ requestActive=false; clearProgressWatch(); stop(tr('Auto Attack detenido por una respuesta del servidor.','Auto Attack stopped by a server response.')); }
+    }).catch(()=>{ requestActive=false; clearProgressWatch(); stop(tr('Auto Attack detenido: error de conexión.','Auto Attack stopped: connection error.')); });
   }
   return p;
 };
@@ -196,6 +228,29 @@ async function loadItems(force=false){
     itemsCache=Array.isArray(data)?data:[];itemsUpdated=Date.now();return itemsCache;
   }).finally(()=>itemsLoad=null);
   return itemsLoad;
+}
+function slugifyItem(value){
+  return String(value||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+}
+function buildItemCandidates(item){
+  const code=slugifyItem(item.item_codigo||'');
+  const name=slugifyItem(item.nombre||'');
+  const keys=new Set([code,name].filter(Boolean));
+  if(/super/.test(code)||/super/.test(name)) keys.add('super-potion');
+  if(/potion|pocion/.test(code)||/potion|pocion/.test(name)) keys.add('potion');
+  if(/hyper/.test(code)||/hyper/.test(name)) keys.add('hyper-potion');
+  const roots=['img/items/official/','img/items/custom/','assets/battle/'];
+  const exts=['.png','.webp','.svg','.jpg','.jpeg'];
+  const candidates=[];
+  keys.forEach(key=>{ roots.forEach(root=> exts.forEach(ext=> candidates.push(root+key+ext))); });
+  if(keys.has('super-potion')) candidates.push('assets/battle/super-potion.svg');
+  candidates.push('assets/battle/potion.svg');
+  return candidates;
+}
+function attachBestItemImage(img,candidates,index=0){
+  if(index>=candidates.length) return;
+  img.onerror=()=>attachBestItemImage(img,candidates,index+1);
+  img.src=candidates[index];
 }
 function renderItems(){
   const grid=$('#moveGrid');
@@ -213,7 +268,7 @@ function renderItems(){
   const contents=document.createElement('div');contents.className='mm250-item-list';
   contents.textContent=tr('Cargando inventario…','Loading inventory…');
   const foot=document.createElement('p');foot.className='mm251-inventory-foot';
-  foot.textContent=tr('Uso en combate próximamente: el servidor deberá validar la curación y consumir una unidad.','Battle use coming soon: the server must validate healing and consume one item.');
+  foot.textContent=tr('Preparado para backend de uso de objetos. Cuando el endpoint esté activo, aquí se podrá consumir y curar en combate.','Ready for backend item usage. Once the endpoint is enabled, items can be consumed and used here in battle.');
   box.append(head,contents,foot);grid.append(box);
   loadItems().then(items=>{
     if(!box.isConnected)return;
@@ -224,9 +279,7 @@ function renderItems(){
       const row=document.createElement('div');row.className='mm250-item';
       const icon=document.createElement('span');icon.className='mm251-potion-icon';icon.textContent='';
       const illustration=document.createElement('img');illustration.className='mm253-potion-art';
-      const code=String(item.item_codigo||'').toLowerCase();
-      illustration.src=code.includes('super')?'assets/battle/super-potion.svg':'assets/battle/potion.svg';
-      illustration.alt='';illustration.loading='lazy';icon.appendChild(illustration);
+      illustration.alt='';illustration.loading='lazy';attachBestItemImage(illustration,buildItemCandidates(item));icon.appendChild(illustration);
       icon.setAttribute('aria-hidden','true');
       const info=document.createElement('div');info.className='mm251-item-info';
       const name=document.createElement('b');name.textContent=String(item.nombre||item.item_codigo||tr('Objeto','Item'));
@@ -234,7 +287,7 @@ function renderItems(){
       info.append(name,detail);
       const qty=document.createElement('span');qty.className='mm250-qty';qty.textContent='×'+Number(item.cantidad);
       const use=document.createElement('button');use.type='button';use.disabled=true;
-      use.textContent=tr('Próximamente','Coming soon');use.title=tr('Pendiente de validación segura del servidor','Pending secure server validation');
+      use.textContent=tr('Backend pendiente','Backend pending');use.title=tr('Activar cuando /battle/ai/action acepte items','Enable when /battle/ai/action accepts item usage');
       row.append(icon,info,qty,use);contents.append(row);
     }
   }).catch(error=>{if(box.isConnected)contents.textContent=tr('No se pudo cargar el inventario: ','Could not load inventory: ')+error.message;}).finally(()=>{grid.dataset.mm250Items='done';});
@@ -242,7 +295,6 @@ function renderItems(){
 function refresh(){ updateStopButton(); upgradeNavigation(); rewardDisplay(); if($('.actions [data-panel="auto"]')?.classList.contains('chosen')) renderAuto(); if($('.actions [data-panel="items"]')?.classList.contains('chosen')) renderItems(); }
 $$('[data-panel]').forEach(el=>el.addEventListener('click',()=>{const grid=$('#moveGrid');if(grid)delete grid.dataset.mm250Items;setTimeout(refresh,50)}));
 $$('[data-lang]').forEach(el=>el.addEventListener('click',()=>{const grid=$('#moveGrid');if(grid)delete grid.dataset.mm250Items;setTimeout(refresh,90)}));
-// Only observe new top-level nodes: subtree changes inside results/Auto cannot recurse.
 new MutationObserver(records=>{
   if(records.some(r=>[...r.addedNodes].some(node=>node.nodeType===1 && (node.id==='battleResultOverlay' || node.querySelector?.('#battleResultOverlay'))))) rewardDisplay();
 }).observe(document.body,{childList:true,subtree:false});
