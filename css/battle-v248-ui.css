@@ -151,3 +151,14 @@ body.mm248-active .mm248-arena-title{margin-right:auto;letter-spacing:.04em}
   #battleResultOverlay.mm248-result-overlay{backdrop-filter:none}
   #battleResultOverlay .battle-result-card.mm248-result-card{scroll-behavior:auto}
 }
+
+/* V2.50: rival portrait and actual inventory read-only */
+#battleResultOverlay .mm250-rival-avatar{display:block;width:66px;height:66px;object-fit:cover;border-radius:16px;border:1px solid #e5c77f;margin:4px auto 10px;box-shadow:0 0 22px #ffd57e44}
+.mm250-inventory{max-width:none}
+.mm250-item-list{display:grid;gap:8px}
+.mm250-item{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:12px;border:1px solid #347c9a;border-radius:10px;background:#09263d;padding:10px}
+.mm250-item b,.mm250-item small{display:block;overflow-wrap:anywhere}
+.mm250-item small{color:#b7d4e4;margin-top:3px}
+.mm250-qty{color:#ffe4a2;font-weight:700;font-variant-numeric:tabular-nums}
+.mm250-item button{border-radius:8px;padding:8px;background:#25445a;border:1px solid #54758a;color:#b9cada;font-size:11px;cursor:not-allowed}
+@media(max-width:480px){.mm250-item{grid-template-columns:minmax(0,1fr) auto}.mm250-item button{grid-column:1/-1}}

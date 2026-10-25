@@ -1,9 +1,10 @@
-/* MastersMon V2.49 additive Battle AI controls. Never writes battle state or rewards. */
+/* MastersMon V2.50 additive Battle AI controls. Never writes battle state or rewards. */
 (()=>{'use strict';
 if(!document.querySelector('.stage')) return;
 const lang=()=>localStorage.getItem('mastersmon_lang')==='en'?'en':'es';
 const tr=(es,en)=>lang()==='en'?en:es;
 let auto=false,timer=0,requestActive=false,steps=0,lastTurn='',retries=0,surrenderBound=false;
+let itemsCache=null,itemsLoad=null,itemsUpdated=0;
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
 function notice(message){ const n=$('#notice'); if(n) n.textContent=message; }
@@ -37,9 +38,11 @@ function rewardDisplay(){
   if(!overlay) return;
   stop();
   const card=overlay.querySelector('.battle-result-card');
-  if(!card) return;
+  if(!card || card.dataset.mm250Upgraded==='1') return;
+  card.dataset.mm250Upgraded='1';
   const win=/vict/i.test(card.getAttribute('aria-label')||card.querySelector('h2')?.textContent||'');
   const rival=$('#rivalName')?.textContent?.trim()||'';
+  const rivalAvatar=$('#rivalAvatar')?.getAttribute('src')||'';
   const rank=$('#rivalRank')?.textContent?.trim()||'';
   const difficulty=$('#difficultyBadge')?.textContent?.trim()||'';
   const heroP=card.querySelector('p');
@@ -56,6 +59,10 @@ function rewardDisplay(){
     h2?.after(meta);
   }
   meta.textContent = rival ? `${tr('Rival derrotado: ','Defeated rival: ')}${rival}${rank?` · ${rank}`:''}${difficulty?` ${difficulty}`:''}` : '';
+  if(rivalAvatar && !card.querySelector('.mm250-rival-avatar')){
+    const avatar=document.createElement('img'); avatar.className='mm250-rival-avatar'; avatar.alt=''; avatar.src=rivalAvatar; avatar.loading='lazy';
+    const title=card.querySelector('h2'); title?.before(avatar);
+  }
 
   if(heroP) heroP.classList.add('mm248-result-copy');
 
@@ -154,23 +161,49 @@ window.fetch=function(input,init){
   }
   return p;
 };
+async function loadItems(force=false){
+  if(!force && itemsCache && Date.now()-itemsUpdated < 30000) return itemsCache;
+  if(itemsLoad) return itemsLoad;
+  const tk=(typeof getAccessToken==='function'?getAccessToken():null)||sessionStorage.getItem('access_token')||localStorage.getItem('access_token');
+  if(!tk) throw new Error(tr('Inicia sesión para consultar tu inventario.','Sign in to view your inventory.'));
+  itemsLoad=fetch('https://mastersmon-api.onrender.com/usuario/me/items',{headers:{Authorization:'Bearer '+tk}}).then(async response=>{
+    if(!response.ok) throw new Error('HTTP '+response.status);
+    const data=await response.json();
+    itemsCache=Array.isArray(data)?data:[];itemsUpdated=Date.now();return itemsCache;
+  }).finally(()=>itemsLoad=null);
+  return itemsLoad;
+}
 function renderItems(){
   const grid=$('#moveGrid');
   if(!grid || !$('.actions [data-panel="items"]')?.classList.contains('chosen')) return;
-  grid.innerHTML='';
-  const card=document.createElement('div');
-  card.className='mm248-items';
-  card.innerHTML=`<strong>${tr('Objetos de combate','Battle items')}</strong>
-  <p>${tr('Las pociones y otros consumibles siguen pendientes de soporte seguro en el backend. Cuando activemos esa mejora, el servidor descontará inventario y validará la curación antes de reflejarla en la arena.','Potions and other consumables still require secure backend support. Once enabled, the server will consume inventory and validate healing before reflecting it in the arena.')}</p>`;
-  const hint=document.createElement('div');
-  hint.className='mm248-item-note';
-  hint.textContent=tr('Por ahora esta pestaña es informativa para no romper recompensas, HP ni sincronización de turnos.','For now this tab remains informational so rewards, HP, and turn synchronization stay safe.');
-  card.append(hint);
-  grid.append(card);
+  if(grid.dataset.mm250Items==='loading' || grid.dataset.mm250Items==='done') return;
+  grid.dataset.mm250Items='loading';
+  grid.replaceChildren();
+  const box=document.createElement('div'); box.className='mm248-items mm250-inventory';
+  const head=document.createElement('strong');head.textContent=tr('Mi inventario de combate','My battle inventory');
+  const sub=document.createElement('p');sub.textContent=tr('Existencias reales de tu cuenta. El uso de pociones se habilitará cuando el servidor valide la curación y descuente la cantidad en una transacción.','Your real item quantities. Potion use will be enabled after the server validates healing and consumes inventory transactionally.');
+  const contents=document.createElement('div');contents.className='mm250-item-list';contents.textContent=tr('Cargando inventario…','Loading inventory…');
+  box.append(head,sub,contents);grid.append(box);
+  loadItems().then(items=>{
+    if(!box.isConnected)return;
+    contents.replaceChildren();
+    const usable=items.filter(i=>Number(i.cantidad)>0 && Number(i.cura_hp)>0);
+    if(!usable.length){contents.textContent=tr('No tienes pociones disponibles en tu inventario.','No potions available in your inventory.');return;}
+    for(const item of usable){
+      const row=document.createElement('div');row.className='mm250-item';
+      const info=document.createElement('div');
+      const name=document.createElement('b');name.textContent=String(item.nombre||item.item_codigo||tr('Objeto','Item'));
+      const detail=document.createElement('small');detail.textContent=tr('Cura ','Heals ')+Number(item.cura_hp)+' HP';
+      info.append(name,detail);
+      const qty=document.createElement('span');qty.textContent='×'+Number(item.cantidad);qty.className='mm250-qty';
+      const use=document.createElement('button');use.type='button';use.disabled=true;use.textContent=tr('Próximamente','Coming soon');use.title=tr('Pendiente de validación segura del servidor','Pending secure server validation');
+      row.append(info,qty,use);contents.append(row);
+    }
+  }).catch(error=>{if(box.isConnected)contents.textContent=tr('No se pudo cargar el inventario: ','Could not load inventory: ')+error.message}).finally(()=>{grid.dataset.mm250Items='done';});
 }
 function refresh(){ upgradeNavigation(); rewardDisplay(); if($('.actions [data-panel="auto"]')?.classList.contains('chosen')) renderAuto(); if($('.actions [data-panel="items"]')?.classList.contains('chosen')) renderItems(); }
-$$('[data-panel]').forEach(el=>el.addEventListener('click',()=>setTimeout(refresh,50)));
-$$('[data-lang]').forEach(el=>el.addEventListener('click',()=>setTimeout(refresh,90)));
+$$('[data-panel]').forEach(el=>el.addEventListener('click',()=>{const grid=$('#moveGrid');if(grid)delete grid.dataset.mm250Items;setTimeout(refresh,50)}));
+$$('[data-lang]').forEach(el=>el.addEventListener('click',()=>{const grid=$('#moveGrid');if(grid)delete grid.dataset.mm250Items;setTimeout(refresh,90)}));
 new MutationObserver(()=>{ if($('#battleResultOverlay')) rewardDisplay(); }).observe(document.body,{childList:true,subtree:true});
 window.addEventListener('pagehide',()=>stop());
 refresh();
