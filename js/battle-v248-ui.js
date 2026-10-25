@@ -8,7 +8,7 @@ let itemsCache=null,itemsLoad=null,itemsUpdated=0;
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
 function notice(message){ const n=$('#notice'); if(n) n.textContent=message; }
-function stop(reason){ const wasAuto=auto; auto=false; clearTimeout(timer); timer=0; requestActive=false; if(wasAuto)renderAuto(); if(reason) notice(reason); }
+function stop(reason){ const wasAuto=auto; auto=false; clearTimeout(timer); timer=0; requestActive=false; updateStopButton(); if(wasAuto)renderAuto(); if(reason) notice(reason); }
 function schedule(ms=1100){ clearTimeout(timer); if(auto) timer=setTimeout(turn,ms); }
 function upgradeNavigation(){
   document.body.classList.add('mm248-active');
@@ -96,8 +96,22 @@ function rewardDisplay(){
     card.append(foot);
   }
 }
+function updateStopButton(){
+  let b=document.getElementById('mm253Stop');
+  const actions=$('.actions');
+  if(!actions)return;
+  if(!b){
+    b=document.createElement('button');b.id='mm253Stop';b.type='button';b.className='mm253-stop';
+    b.onclick=()=>stop(tr('Auto Attack detenido.','Auto Attack stopped.'));
+    actions.appendChild(b);
+  }
+  b.textContent=tr('■ Detener Auto','■ Stop Auto');
+  b.hidden=!auto;
+  b.disabled=!auto;
+}
 function renderAuto(){
   if($('#battleResultOverlay'))return;
+  updateStopButton();
   const grid=$('#moveGrid');
   if(!grid || !$('.actions [data-panel="auto"]')?.classList.contains('chosen')) return;
   grid.replaceChildren();
@@ -115,7 +129,7 @@ function renderAuto(){
   const go=document.createElement('button');go.type='button';go.className='mm248-cta mm251-auto-button';
   go.textContent=auto?tr('■ Detener','■ Stop'):tr('▶ Iniciar Auto','▶ Start Auto');
   go.setAttribute('aria-pressed',String(auto));
-  go.onclick=()=>{if(auto)stop(tr('Auto Attack detenido.','Auto Attack stopped.'));else{auto=true;steps=0;retries=0;requestActive=false;renderAuto();schedule(320);}};
+  go.onclick=()=>{if(auto)stop(tr('Auto Attack detenido.','Auto Attack stopped.'));else{auto=true;steps=0;retries=0;requestActive=false;updateStopButton();renderAuto();schedule(320);}};
   wrap.append(main,go);grid.append(wrap);
 }
 function scoreMove(button){
@@ -208,7 +222,12 @@ function renderItems(){
     if(!usable.length){contents.textContent=tr('No tienes pociones disponibles.','No potions available.');return;}
     for(const item of usable){
       const row=document.createElement('div');row.className='mm250-item';
-      const icon=document.createElement('span');icon.className='mm251-potion-icon';icon.textContent='✚';icon.setAttribute('aria-hidden','true');
+      const icon=document.createElement('span');icon.className='mm251-potion-icon';icon.textContent='';
+      const illustration=document.createElement('img');illustration.className='mm253-potion-art';
+      const code=String(item.item_codigo||'').toLowerCase();
+      illustration.src=code.includes('super')?'assets/battle/super-potion.svg':'assets/battle/potion.svg';
+      illustration.alt='';illustration.loading='lazy';icon.appendChild(illustration);
+      icon.setAttribute('aria-hidden','true');
       const info=document.createElement('div');info.className='mm251-item-info';
       const name=document.createElement('b');name.textContent=String(item.nombre||item.item_codigo||tr('Objeto','Item'));
       const detail=document.createElement('small');detail.textContent=tr('Restaura ','Restores ')+Number(item.cura_hp)+' HP';
@@ -220,7 +239,7 @@ function renderItems(){
     }
   }).catch(error=>{if(box.isConnected)contents.textContent=tr('No se pudo cargar el inventario: ','Could not load inventory: ')+error.message;}).finally(()=>{grid.dataset.mm250Items='done';});
 }
-function refresh(){ upgradeNavigation(); rewardDisplay(); if($('.actions [data-panel="auto"]')?.classList.contains('chosen')) renderAuto(); if($('.actions [data-panel="items"]')?.classList.contains('chosen')) renderItems(); }
+function refresh(){ updateStopButton(); upgradeNavigation(); rewardDisplay(); if($('.actions [data-panel="auto"]')?.classList.contains('chosen')) renderAuto(); if($('.actions [data-panel="items"]')?.classList.contains('chosen')) renderItems(); }
 $$('[data-panel]').forEach(el=>el.addEventListener('click',()=>{const grid=$('#moveGrid');if(grid)delete grid.dataset.mm250Items;setTimeout(refresh,50)}));
 $$('[data-lang]').forEach(el=>el.addEventListener('click',()=>{const grid=$('#moveGrid');if(grid)delete grid.dataset.mm250Items;setTimeout(refresh,90)}));
 // Only observe new top-level nodes: subtree changes inside results/Auto cannot recurse.
