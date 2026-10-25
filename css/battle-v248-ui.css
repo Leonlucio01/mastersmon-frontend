@@ -1,18 +1,153 @@
-/* MastersMon V2.48 additive layout adjustments. Only Battle AI. */
-body:has(.mm248-active) .arena-top .back,body:has(.mm248-active) .actions a.danger{display:none!important}
-#battleResultOverlay .battle-result-card{width:min(94vw,520px);max-height:90vh;overflow:auto;padding:clamp(20px,3vw,34px);border-radius:18px;box-shadow:0 24px 80px #000a,0 0 45px #36b8f322}
-#battleResultOverlay .battle-result-card h2{font-size:clamp(29px,4vw,40px);letter-spacing:.03em;margin:10px auto 4px}
-#battleResultOverlay .battle-result-stats{gap:12px;margin:20px 0}
-#battleResultOverlay .battle-result-stats span{border-radius:12px;padding:16px 12px}
-#battleResultOverlay .battle-result-stats strong{font-size:24px}
-#battleResultOverlay .battle-result-warning{line-height:1.45}
-.mm248-rival{color:#7ee6ff;font-size:13px;font-weight:700;margin-bottom:12px}
-.mm248-rewards{display:flex!important;gap:12px;justify-content:center;flex-wrap:wrap;margin:12px 0}
-.mm248-reward{display:flex;flex-direction:column;min-width:120px;gap:3px;border:1px solid #c6a45d;border-radius:11px;background:linear-gradient(140deg,#133c54,#061b35);padding:11px 22px;color:#ffdd92}
-.mm248-reward small{font-size:11px;color:#9ee7ff}.mm248-reward b{font-size:20px;font-variant-numeric:tabular-nums}
-.mm248-auto,.mm248-items{border:1px solid #287da5;background:#092a45;border-radius:12px;padding:16px;width:100%;max-width:440px}
+/* MastersMon V2.49 additive layout adjustments. Only Battle AI. */
+body.mm248-active .arena-top .back{display:none!important}
+body.mm248-active .actions a.danger{display:inline-flex!important}
+body.mm248-active .actions .mm248-surrender{
+  background:linear-gradient(180deg,#842540,#56152a);
+  border:1px solid #da698a;
+  color:#fff7d8;
+  box-shadow:0 8px 22px rgba(109,15,39,.25);
+}
+body.mm248-active .actions .mm248-surrender:hover{filter:brightness(1.08)}
+body.mm248-active .arena-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+body.mm248-active .mm248-arena-title{margin-right:auto;letter-spacing:.04em}
+
+#battleResultOverlay.mm248-result-overlay{
+  backdrop-filter:blur(8px);
+}
+#battleResultOverlay .battle-result-card.mm248-result-card{
+  width:min(94vw,580px);
+  max-height:90vh;
+  overflow:auto;
+  padding:clamp(22px,3vw,34px);
+  border-radius:22px;
+  border:1px solid rgba(230,190,96,.7);
+  background:radial-gradient(circle at top,#113b59 0%,#0a2845 42%,#071d34 100%);
+  box-shadow:0 30px 100px rgba(0,0,0,.55),0 0 45px rgba(54,184,243,.14);
+  text-align:center;
+}
+#battleResultOverlay .battle-result-card.mm248-result-card .battle-result-symbol{
+  font-size:40px;
+  line-height:1;
+  margin-bottom:6px;
+}
+#battleResultOverlay .battle-result-card.mm248-result-card h2{
+  font-size:clamp(32px,4vw,46px);
+  letter-spacing:.04em;
+  margin:6px auto 2px;
+  color:#ffde93;
+}
+#battleResultOverlay .battle-result-card .mm248-result-meta{
+  color:#8de5ff;
+  font-size:13px;
+  font-weight:700;
+  margin:0 auto 10px;
+}
+#battleResultOverlay .battle-result-card .mm248-result-copy{
+  color:#e6f7ff;
+  margin:0 auto 18px;
+  max-width:390px;
+}
+#battleResultOverlay .battle-result-card .battle-result-stats{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+  margin:18px 0 16px;
+}
+#battleResultOverlay .battle-result-card .battle-result-stats span{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  padding:18px 14px;
+  border:1px solid rgba(74,183,230,.55);
+  border-radius:14px;
+  background:rgba(7,28,51,.55);
+  color:#c8edff;
+}
+#battleResultOverlay .battle-result-card .battle-result-stats strong{
+  font-size:34px;
+  line-height:1;
+  color:#ffdb87;
+}
+#battleResultOverlay .battle-result-card .mm248-result-summary{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  align-items:center;
+  margin:8px 0 20px;
+  line-height:1.5;
+}
+#battleResultOverlay .battle-result-card .mm248-summary-text{
+  color:#ffe8aa;
+  font-size:12px;
+}
+.mm248-rewards{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;width:100%}
+.mm248-reward{
+  display:flex;
+  flex-direction:column;
+  min-width:140px;
+  gap:4px;
+  border:1px solid #c6a45d;
+  border-radius:13px;
+  background:linear-gradient(140deg,#133c54,#061b35);
+  padding:12px 22px;
+  color:#ffdd92;
+}
+.mm248-reward small{font-size:11px;color:#9ee7ff;text-transform:uppercase;letter-spacing:.08em}
+.mm248-reward b{font-size:24px;font-variant-numeric:tabular-nums}
+#battleResultOverlay .battle-result-card .battle-result-warning strong{display:none}
+#battleResultOverlay .battle-result-card .mm248-result-btn{
+  min-width:142px;
+  min-height:44px;
+  border-radius:12px;
+  font-weight:700;
+  padding:10px 18px;
+}
+#battleResultOverlay .battle-result-card .mm248-result-btn.is-primary{
+  box-shadow:0 0 0 1px rgba(223,185,88,.2),0 10px 24px rgba(223,185,88,.22);
+}
+#battleResultOverlay .battle-result-card .mm248-result-footnote{
+  margin-top:14px;
+  color:#9fdfff;
+  font-size:11px;
+}
+
+.mm248-auto,.mm248-items{
+  border:1px solid #287da5;
+  background:linear-gradient(180deg,#0b2b45,#081f34);
+  border-radius:14px;
+  padding:16px;
+  width:100%;
+  max-width:460px;
+}
 .mm248-auto strong,.mm248-items strong{color:#f9d990;font-size:15px}
-.mm248-auto p,.mm248-items p{color:#c3ddea;font-size:12px;line-height:1.5;margin:9px 0 12px}
-.mm248-cta{width:100%;min-height:38px;border:1px solid #dfb958;border-radius:9px;background:linear-gradient(#ffe7a0,#dda83b);color:#09243d;font-weight:700}
-@media(max-width:600px){#battleResultOverlay .battle-result-stats{flex-direction:column}.mm248-rewards{gap:7px}.mm248-reward{min-width:105px;padding:8px 14px}}
-@media(prefers-reduced-motion:reduce){#battleResultOverlay .battle-result-card{scroll-behavior:auto}}
+.mm248-auto p,.mm248-items p{color:#c3ddea;font-size:12px;line-height:1.55;margin:9px 0 12px}
+.mm248-cta{
+  width:100%;
+  min-height:40px;
+  border:1px solid #dfb958;
+  border-radius:10px;
+  background:linear-gradient(#ffe7a0,#dda83b);
+  color:#09243d;
+  font-weight:700;
+}
+.mm248-item-note{
+  margin-top:8px;
+  padding:10px 12px;
+  border-radius:10px;
+  background:rgba(255,225,153,.08);
+  border:1px dashed rgba(241,196,78,.45);
+  color:#ffeeb9;
+  font-size:12px;
+}
+@media(max-width:600px){
+  #battleResultOverlay .battle-result-card.mm248-result-card{width:min(96vw,520px);padding:20px 16px}
+  #battleResultOverlay .battle-result-card .battle-result-stats{grid-template-columns:1fr}
+  .mm248-rewards{gap:8px}
+  .mm248-reward{min-width:118px;padding:10px 14px}
+  .mm248-reward b{font-size:20px}
+  #battleResultOverlay .battle-result-card .mm248-result-btn{width:100%;margin-top:8px}
+}
+@media(prefers-reduced-motion:reduce){
+  #battleResultOverlay.mm248-result-overlay{backdrop-filter:none}
+  #battleResultOverlay .battle-result-card.mm248-result-card{scroll-behavior:auto}
+}
