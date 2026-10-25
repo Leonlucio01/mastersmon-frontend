@@ -1,0 +1,47 @@
+/* MastersMon Battle V2.47 Premium — local-only, transform/opacity animations. */
+.stage{isolation:isolate}
+.mm-premium-shot{position:absolute;left:0;top:0;width:38px;height:38px;z-index:12;pointer-events:none;transform:translate3d(var(--sx),var(--sy),0) translate(-50%,-50%) scale(.45);opacity:0;animation:mm-shot-flight 640ms cubic-bezier(.22,.6,.2,1) both;will-change:transform,opacity}
+.mm-premium-shot .mm-shot-core{position:absolute;inset:1px;border-radius:50%;background:radial-gradient(circle at 30% 25%,#fff 1%,var(--fx-light) 22%,var(--fx) 56%,transparent 76%);box-shadow:0 0 13px 4px var(--fx-shadow),0 0 29px var(--fx-shadow)}
+.mm-premium-shot .mm-shot-tail{position:absolute;right:62%;top:25%;width:65px;height:50%;border-radius:100% 10% 10% 100%;background:linear-gradient(90deg,transparent,var(--fx-shadow),var(--fx));filter:blur(2px);transform:scaleX(var(--direction));transform-origin:right center;opacity:.85}
+.mm-premium-shot .mm-shot-shell{position:absolute;inset:-10px;border:2px solid var(--fx-light);border-radius:50%;box-shadow:0 0 7px var(--fx);opacity:.7;animation:mm-shot-spin .55s linear infinite}
+.mm-premium-shot.mm-kind-electrico .mm-shot-core{clip-path:polygon(46% 0,90% 0,61% 39%,95% 39%,22% 100%,42% 52%,13% 52%);border-radius:0}
+.mm-premium-shot.mm-kind-hielo .mm-shot-core{clip-path:polygon(50% 0%,62% 37%,100% 50%,62% 63%,50% 100%,38% 63%,0 50%,38% 37%);border-radius:0}
+.mm-premium-shot.mm-kind-planta .mm-shot-core{border-radius:95% 2% 95% 2%;transform:rotate(-35deg)}
+.mm-premium-shot.mm-kind-fuego .mm-shot-core{border-radius:75% 0 75% 55%;transform:rotate(-35deg)}
+.mm-premium-shot.mm-kind-fantasma .mm-shot-core{background:radial-gradient(circle at 35% 30%,#d8aaff,var(--fx),#280f4b 76%)}
+.mm-premium-shot.mm-kind-psiquico .mm-shot-shell{border-style:dashed}
+.mm-premium-shot.mm-kind-dragon .mm-shot-shell{border-width:4px;transform:rotate(25deg)}
+.mm-premium-blast{position:absolute;left:var(--tx);top:var(--ty);z-index:13;width:16px;height:16px;pointer-events:none;transform:translate(-50%,-50%);animation:mm-blast-life 630ms ease-out both}
+.mm-premium-blast:before,.mm-premium-blast:after{content:"";position:absolute;inset:-14px;border:3px solid var(--fx-light);border-radius:50%;box-shadow:0 0 14px var(--fx);animation:mm-premium-ring 630ms ease-out both}
+.mm-premium-blast:after{inset:-4px;border-color:var(--fx);animation-delay:55ms}
+.mm-premium-blast .mm-premium-particle{position:absolute;left:0;top:0;width:12px;height:12px;background:radial-gradient(circle at 25% 25%,#fff,var(--fx) 70%);border-radius:50%;box-shadow:0 0 8px var(--fx-shadow);animation:mm-premium-scatter 540ms ease-out var(--delay) both}
+.mm-kind-fuego .mm-premium-particle{border-radius:80% 0 80% 40%}
+.mm-kind-agua .mm-premium-particle{border-radius:75% 0 75% 75%}
+.mm-kind-electrico .mm-premium-particle{clip-path:polygon(47% 0%,100% 0%,58% 43%,91% 43%,18% 100%,42% 50%,13% 50%);border-radius:0}
+.mm-kind-psiquico .mm-premium-particle{background:radial-gradient(circle,#fff 6%,#ff9bea 45%,var(--fx) 80%)}
+.mm-kind-fantasma .mm-premium-particle{border-radius:50% 55% 8% 8%;opacity:.8}
+.mm-kind-dragon .mm-premium-particle{border-radius:10% 80% 10% 80%}
+.mm-kind-hielo .mm-premium-particle{clip-path:polygon(50% 0,65% 34%,100% 50%,65% 65%,50% 100%,35% 65%,0 50%,35% 34%);border-radius:0}
+.mm-kind-planta .mm-premium-particle{border-radius:90% 0 90% 0}
+.mm-kind-fuego{--fx:#ff6228;--fx-light:#ffe2a1;--fx-shadow:#ff7426bb}
+.mm-kind-agua{--fx:#1faaf9;--fx-light:#c1faff;--fx-shadow:#0dbbffaa}
+.mm-kind-electrico{--fx:#ffd21e;--fx-light:#fff8cb;--fx-shadow:#fff065bb}
+.mm-kind-psiquico{--fx:#e76bf1;--fx-light:#ffc5fa;--fx-shadow:#e362ffbb}
+.mm-kind-fantasma{--fx:#8254df;--fx-light:#d4b3ff;--fx-shadow:#704aeacc}
+.mm-kind-dragon{--fx:#6671f5;--fx-light:#9ed6ff;--fx-shadow:#7268f5cc}
+.mm-kind-hielo{--fx:#7fe5f7;--fx-light:#e9ffff;--fx-shadow:#90eaf9bb}
+.mm-kind-planta{--fx:#31c875;--fx-light:#c7ffc9;--fx-shadow:#4ade80aa}
+.mm-kind-default{--fx:#b3d1ff;--fx-light:#fff;--fx-shadow:#aacbff99}
+@keyframes mm-shot-flight{0%{opacity:0;transform:translate3d(var(--sx),var(--sy),0) translate(-50%,-50%) scale(.4)}12%{opacity:1}85%{opacity:1}100%{opacity:0;transform:translate3d(var(--tx),var(--ty),0) translate(-50%,-50%) scale(1.16)}}
+@keyframes mm-shot-spin{to{rotate:360deg}}
+@keyframes mm-blast-life{0%{opacity:0}12%{opacity:1}65%{opacity:1}100%{opacity:0}}
+@keyframes mm-premium-ring{from{opacity:.95;transform:scale(.2)}to{opacity:0;transform:scale(2.2)}}
+@keyframes mm-premium-scatter{0%{opacity:1;transform:translate3d(0,0,0) scale(.7)}100%{opacity:0;transform:translate3d(var(--dx),var(--dy),0) rotate(var(--rot)) scale(.26)}}
+#playerImage.mm-premium-forward{animation:mm-premium-forward 590ms ease-in-out!important}
+#enemyImage.mm-premium-backward{animation:mm-premium-backward 590ms ease-in-out!important}
+#playerImage.mm-premium-damaged,#enemyImage.mm-premium-damaged{animation:mm-premium-damaged 330ms ease-out!important}
+@keyframes mm-premium-forward{0%,100%{translate:0 0}35%{translate:23px -5px}65%{translate:15px 0}}
+@keyframes mm-premium-backward{0%,100%{translate:0 0}35%{translate:-23px -5px}65%{translate:-15px 0}}
+@keyframes mm-premium-damaged{0%,100%{filter:brightness(1);translate:0 0}30%{filter:brightness(2.15) drop-shadow(0 0 8px #fff);translate:-5px 0}60%{filter:brightness(1.4);translate:5px 0}}
+@media(max-width:650px){.mm-premium-shot{width:29px;height:29px}.mm-premium-shot .mm-shot-tail{width:42px}.mm-premium-blast .mm-premium-particle{width:9px;height:9px}}
+@media(prefers-reduced-motion:reduce){.mm-premium-shot,.mm-premium-blast{display:none!important}#playerImage.mm-premium-forward,#enemyImage.mm-premium-backward,#playerImage.mm-premium-damaged,#enemyImage.mm-premium-damaged{animation:none!important}}
