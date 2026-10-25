@@ -162,3 +162,32 @@ body.mm248-active .mm248-arena-title{margin-right:auto;letter-spacing:.04em}
 .mm250-qty{color:#ffe4a2;font-weight:700;font-variant-numeric:tabular-nums}
 .mm250-item button{border-radius:8px;padding:8px;background:#25445a;border:1px solid #54758a;color:#b9cada;font-size:11px;cursor:not-allowed}
 @media(max-width:480px){.mm250-item{grid-template-columns:minmax(0,1fr) auto}.mm250-item button{grid-column:1/-1}}
+
+/* V2.51 - compact full-width panels integrated with the arena footer. */
+body.mm248-active .arena-bottom>div:first-child{min-width:0}
+body.mm248-active #moveGrid:has(.mm251-wide-panel){display:block;min-width:0;width:100%}
+body.mm248-active .mm251-wide-panel{box-sizing:border-box;max-width:none!important;width:100%;min-width:0;border:1px solid #23678b;border-radius:10px;padding:10px 12px;background:linear-gradient(100deg,rgba(10,50,78,.96),rgba(5,32,56,.96));box-shadow:none}
+body.mm248-active .mm248-auto.mm251-wide-panel{display:flex;gap:12px;align-items:center;justify-content:space-between;min-height:78px}
+.mm251-main{display:flex;align-items:center;gap:11px;min-width:0;flex:1}
+.mm251-emblem{width:38px;height:38px;flex:0 0 38px;display:grid;place-items:center;background:#123e5b;border:1px solid #3793c0;border-radius:9px;color:#ffe095;font-size:22px}
+.mm251-copy{min-width:0;display:flex;align-items:center;flex-wrap:wrap;gap:2px 8px}
+.mm251-copy strong,.mm251-inventory-intro strong{font-size:13px;color:#e3f8ff}
+.mm251-copy p{flex-basis:100%;margin:1px 0 0!important;color:#a5cddd!important;font-size:11px!important;line-height:1.35!important}
+.mm251-status{border:1px solid #487b98;border-radius:20px;color:#afd8ec;background:#0a2d48;padding:2px 7px;font-size:9px;font-weight:800;white-space:nowrap}
+.mm251-status.is-running{color:#85ffe0;border-color:#26a587;background:#08483d}
+body.mm248-active .mm251-auto-button{width:auto;flex:0 0 auto;min-width:126px;min-height:36px;padding:7px 11px;font-size:12px}
+.mm251-inventory-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 8px}
+.mm251-inventory-intro{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.mm251-inventory-intro span{font-size:10px;color:#92c7da}
+.mm251-readonly{font-size:9px;font-weight:800;letter-spacing:.03em;padding:4px 7px;border-radius:6px;color:#eacf8a;border:1px solid #8a713f;background:#3d3224;white-space:nowrap}
+body.mm248-active .mm250-item-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+body.mm248-active .mm250-item{min-width:0;display:flex;align-items:center;gap:8px;padding:8px 9px;border-radius:8px;background:#09263e;border:1px solid #285e80}
+.mm251-potion-icon{width:30px;height:30px;flex:0 0 30px;border:1px solid #47a0ac;background:linear-gradient(#165b71,#0c3554);border-radius:8px;color:#8ffff1;font-size:19px;display:grid;place-items:center}
+.mm251-item-info{flex:1;min-width:0}
+body.mm248-active .mm250-item b{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.mm248-active .mm250-item small{font-size:10px;margin-top:1px}
+body.mm248-active .mm250-qty{font-size:11px;white-space:nowrap}
+body.mm248-active .mm250-item button{font-size:10px;padding:6px;border-radius:7px;white-space:nowrap}
+body.mm248-active .mm251-inventory-foot{font-size:10px!important;color:#91c1d4!important;margin:8px 0 0!important;line-height:1.3!important}
+@media(max-width:800px){body.mm248-active .mm250-item-list{grid-template-columns:1fr}}
+@media(max-width:540px){body.mm248-active .mm248-auto.mm251-wide-panel{align-items:stretch;flex-wrap:wrap}body.mm248-active .mm251-auto-button{width:100%;flex-basis:100%}.mm251-inventory-intro span{display:none}}

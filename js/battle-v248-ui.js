@@ -99,17 +99,23 @@ function rewardDisplay(){
 function renderAuto(){
   const grid=$('#moveGrid');
   if(!grid || !$('.actions [data-panel="auto"]')?.classList.contains('chosen')) return;
-  grid.innerHTML='';
-  const wrap=document.createElement('div');
-  wrap.className='mm248-auto';
-  wrap.innerHTML=`<strong>${auto?tr('Auto Attack activo','Auto Attack running'):tr('Auto Attack','Auto Attack')}</strong>
-  <p>${auto?tr('El siguiente ataque se enviará cuando termine el turno actual.','The next attack will be sent after the current turn ends.'):tr('Usa tus movimientos equipados. El sistema prioriza potencia y efectividad mostrada en la interfaz.','Use your equipped moves. The system prioritizes power and effectiveness shown in the interface.')}</p>`;
-  const go=document.createElement('button');
-  go.type='button'; go.className='mm248-cta';
-  go.textContent=auto?tr('■ Detener Auto Attack','■ Stop Auto Attack'):tr('▶ Iniciar Auto Attack','▶ Start Auto Attack');
-  go.onclick=()=>{ if(auto) stop(tr('Auto Attack detenido.','Auto Attack stopped.')); else {auto=true;steps=0;retries=0;requestActive=false;renderAuto();schedule(320);} };
-  wrap.append(go);
-  grid.append(wrap);
+  grid.replaceChildren();
+  const wrap=document.createElement('section');
+  wrap.className='mm248-auto mm251-wide-panel';
+  const main=document.createElement('div');main.className='mm251-main';
+  const emblem=document.createElement('span');emblem.className='mm251-emblem';emblem.setAttribute('aria-hidden','true');emblem.textContent=auto?'◉':'⚡';
+  const copy=document.createElement('div');copy.className='mm251-copy';
+  const label=document.createElement('strong');label.textContent=tr('Auto Attack','Auto Attack');
+  const status=document.createElement('span');status.className='mm251-status'+(auto?' is-running':'');
+  status.textContent=auto?tr('ACTIVO','RUNNING'):tr('EN ESPERA','READY');
+  const desc=document.createElement('p');
+  desc.textContent=auto?tr('Ataque automático en curso. Puedes detenerlo en cualquier momento.','Automatic attacks are running. You can stop them at any time.'):tr('Elige automáticamente entre los movimientos equipados priorizando potencia y efectividad.','Automatically chooses equipped moves, prioritizing power and type effectiveness.');
+  copy.append(label,status,desc);main.append(emblem,copy);
+  const go=document.createElement('button');go.type='button';go.className='mm248-cta mm251-auto-button';
+  go.textContent=auto?tr('■ Detener','■ Stop'):tr('▶ Iniciar Auto','▶ Start Auto');
+  go.setAttribute('aria-pressed',String(auto));
+  go.onclick=()=>{if(auto)stop(tr('Auto Attack detenido.','Auto Attack stopped.'));else{auto=true;steps=0;retries=0;requestActive=false;renderAuto();schedule(320);}};
+  wrap.append(main,go);grid.append(wrap);
 }
 function scoreMove(button){
   const text=button.textContent||'';
@@ -176,30 +182,39 @@ async function loadItems(force=false){
 function renderItems(){
   const grid=$('#moveGrid');
   if(!grid || !$('.actions [data-panel="items"]')?.classList.contains('chosen')) return;
-  if(grid.dataset.mm250Items==='loading' || grid.dataset.mm250Items==='done') return;
-  grid.dataset.mm250Items='loading';
-  grid.replaceChildren();
-  const box=document.createElement('div'); box.className='mm248-items mm250-inventory';
-  const head=document.createElement('strong');head.textContent=tr('Mi inventario de combate','My battle inventory');
-  const sub=document.createElement('p');sub.textContent=tr('Existencias reales de tu cuenta. El uso de pociones se habilitará cuando el servidor valide la curación y descuente la cantidad en una transacción.','Your real item quantities. Potion use will be enabled after the server validates healing and consumes inventory transactionally.');
-  const contents=document.createElement('div');contents.className='mm250-item-list';contents.textContent=tr('Cargando inventario…','Loading inventory…');
-  box.append(head,sub,contents);grid.append(box);
+  if(grid.dataset.mm250Items==='loading'||grid.dataset.mm250Items==='done')return;
+  grid.dataset.mm250Items='loading';grid.replaceChildren();
+  const box=document.createElement('section');box.className='mm248-items mm250-inventory mm251-wide-panel';
+  const head=document.createElement('div');head.className='mm251-inventory-heading';
+  const info=document.createElement('div');info.className='mm251-inventory-intro';
+  const title=document.createElement('strong');title.textContent=tr('Pociones disponibles','Available potions');
+  const hint=document.createElement('span');hint.textContent=tr('Inventario real','Live inventory');
+  info.append(title,hint);
+  const badge=document.createElement('span');badge.className='mm251-readonly';badge.textContent=tr('SOLO CONSULTA','VIEW ONLY');
+  head.append(info,badge);
+  const contents=document.createElement('div');contents.className='mm250-item-list';
+  contents.textContent=tr('Cargando inventario…','Loading inventory…');
+  const foot=document.createElement('p');foot.className='mm251-inventory-foot';
+  foot.textContent=tr('Uso en combate próximamente: el servidor deberá validar la curación y consumir una unidad.','Battle use coming soon: the server must validate healing and consume one item.');
+  box.append(head,contents,foot);grid.append(box);
   loadItems().then(items=>{
     if(!box.isConnected)return;
     contents.replaceChildren();
-    const usable=items.filter(i=>Number(i.cantidad)>0 && Number(i.cura_hp)>0);
-    if(!usable.length){contents.textContent=tr('No tienes pociones disponibles en tu inventario.','No potions available in your inventory.');return;}
+    const usable=items.filter(i=>Number(i.cantidad)>0&&Number(i.cura_hp)>0);
+    if(!usable.length){contents.textContent=tr('No tienes pociones disponibles.','No potions available.');return;}
     for(const item of usable){
       const row=document.createElement('div');row.className='mm250-item';
-      const info=document.createElement('div');
+      const icon=document.createElement('span');icon.className='mm251-potion-icon';icon.textContent='✚';icon.setAttribute('aria-hidden','true');
+      const info=document.createElement('div');info.className='mm251-item-info';
       const name=document.createElement('b');name.textContent=String(item.nombre||item.item_codigo||tr('Objeto','Item'));
-      const detail=document.createElement('small');detail.textContent=tr('Cura ','Heals ')+Number(item.cura_hp)+' HP';
+      const detail=document.createElement('small');detail.textContent=tr('Restaura ','Restores ')+Number(item.cura_hp)+' HP';
       info.append(name,detail);
-      const qty=document.createElement('span');qty.textContent='×'+Number(item.cantidad);qty.className='mm250-qty';
-      const use=document.createElement('button');use.type='button';use.disabled=true;use.textContent=tr('Próximamente','Coming soon');use.title=tr('Pendiente de validación segura del servidor','Pending secure server validation');
-      row.append(info,qty,use);contents.append(row);
+      const qty=document.createElement('span');qty.className='mm250-qty';qty.textContent='×'+Number(item.cantidad);
+      const use=document.createElement('button');use.type='button';use.disabled=true;
+      use.textContent=tr('Próximamente','Coming soon');use.title=tr('Pendiente de validación segura del servidor','Pending secure server validation');
+      row.append(icon,info,qty,use);contents.append(row);
     }
-  }).catch(error=>{if(box.isConnected)contents.textContent=tr('No se pudo cargar el inventario: ','Could not load inventory: ')+error.message}).finally(()=>{grid.dataset.mm250Items='done';});
+  }).catch(error=>{if(box.isConnected)contents.textContent=tr('No se pudo cargar el inventario: ','Could not load inventory: ')+error.message;}).finally(()=>{grid.dataset.mm250Items='done';});
 }
 function refresh(){ upgradeNavigation(); rewardDisplay(); if($('.actions [data-panel="auto"]')?.classList.contains('chosen')) renderAuto(); if($('.actions [data-panel="items"]')?.classList.contains('chosen')) renderItems(); }
 $$('[data-panel]').forEach(el=>el.addEventListener('click',()=>{const grid=$('#moveGrid');if(grid)delete grid.dataset.mm250Items;setTimeout(refresh,50)}));
