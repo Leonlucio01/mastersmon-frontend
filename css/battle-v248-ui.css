@@ -219,3 +219,25 @@ body.mm248-active .actions #mm253Stop.mm253-stop{position:sticky; right:0}
 @media(max-width:700px){
   body.mm248-active .mm250-item-list{max-height:188px}
 }
+
+/* V2.57: compact switch cards while preserving server-validated switch behavior. */
+@media(min-width:850px){
+ body.mm248-active #moveGrid:has(.switch-option){grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+ body.mm248-active #moveGrid .switch-option{min-height:52px;padding:5px 6px;gap:5px;overflow:hidden}
+ body.mm248-active #moveGrid .switch-option img{width:31px;height:34px;flex:0 0 31px}
+ body.mm248-active #moveGrid .switch-option span{min-width:0;overflow:hidden}
+ body.mm248-active #moveGrid .switch-option strong{display:block;font-size:10px;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
+ body.mm248-active #moveGrid .switch-option small{font-size:9px;white-space:nowrap;margin:2px 0}
+ body.mm248-active #moveGrid .switch-hp{height:3px}
+}
+@media(min-width:601px) and (max-width:849px){
+ body.mm248-active #moveGrid:has(.switch-option){grid-template-columns:repeat(2,minmax(0,1fr))}
+ body.mm248-active #moveGrid .switch-option{min-height:52px;padding:6px}
+}
+@media(max-width:600px){
+ body.mm248-active #moveGrid:has(.switch-option){grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+ body.mm248-active #moveGrid .switch-option{min-height:54px;padding:5px;gap:5px}
+ body.mm248-active #moveGrid .switch-option img{width:33px;height:35px}
+ body.mm248-active #moveGrid .switch-option strong{font-size:10px}
+ body.mm248-active #moveGrid .switch-option small{font-size:9px}
+}

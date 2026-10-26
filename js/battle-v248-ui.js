@@ -233,19 +233,11 @@ function slugifyItem(value){
   return String(value||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
 }
 function buildItemCandidates(item){
-  const code=slugifyItem(item.item_codigo||'');
-  const name=slugifyItem(item.nombre||'');
-  const keys=new Set([code,name].filter(Boolean));
-  if(/super/.test(code)||/super/.test(name)) keys.add('super-potion');
-  if(/potion|pocion/.test(code)||/potion|pocion/.test(name)) keys.add('potion');
-  if(/hyper/.test(code)||/hyper/.test(name)) keys.add('hyper-potion');
-  const roots=['img/items/official/','img/items/custom/','assets/battle/'];
-  const exts=['.png','.webp','.svg','.jpg','.jpeg'];
-  const candidates=[];
-  keys.forEach(key=>{ roots.forEach(root=> exts.forEach(ext=> candidates.push(root+key+ext))); });
-  if(keys.has('super-potion')) candidates.push('assets/battle/super-potion.svg');
-  candidates.push('assets/battle/potion.svg');
-  return candidates;
+  const key=slugifyItem(item.item_codigo||'')+' '+slugifyItem(item.nombre||'');
+  const superPotion=/super/.test(key);
+  return superPotion
+    ? ['img/items/official/0026_super-potion.png','assets/battle/super-potion.svg']
+    : ['img/items/official/0017_potion.png','assets/battle/potion.svg'];
 }
 function attachBestItemImage(img,candidates,index=0){
   if(index>=candidates.length) return;
