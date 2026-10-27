@@ -1593,8 +1593,8 @@ function obtenerRecompensasPorDificultadArena() {
         return {
             codigo: "master",
             nombre: obtenerNombreDificultadArena("master"),
-            exp: 3500,
-            pokedolares: 4000
+            exp: 6500,
+            pokedolares: 7000
         };
     }
 
@@ -1602,8 +1602,8 @@ function obtenerRecompensasPorDificultadArena() {
         return {
             codigo: "expert",
             nombre: obtenerNombreDificultadArena("expert"),
-            exp: 3000,
-            pokedolares: 3500
+            exp: 5500,
+            pokedolares: 6000
         };
     }
 
@@ -1611,16 +1611,16 @@ function obtenerRecompensasPorDificultadArena() {
         return {
             codigo: "challenge",
             nombre: obtenerNombreDificultadArena("challenge"),
-            exp: 2500,
-            pokedolares: 3000
+            exp: 4500,
+            pokedolares: 5000
         };
     }
 
     return {
         codigo: "normal",
         nombre: obtenerNombreDificultadArena("normal"),
-        exp: 2000,
-        pokedolares: 2500
+        exp: 3500,
+        pokedolares: 4000
     };
 }
 
