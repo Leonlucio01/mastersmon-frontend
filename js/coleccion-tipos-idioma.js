@@ -38,9 +38,16 @@ function update(){
   const buttons=filter.querySelectorAll('button.type-control');
   buttons.forEach((button,i)=>{
    const item=entries[i];if(!item)return;
-   const text=button.querySelector('span:last-child');
-   if(text&&text.textContent!==item[lang()])text.textContent=item[lang()];
-   button.title=item[lang()];
+   // The original collection draws an icon in span 1 and a label in span 2.
+   // Always preserve the icon and reconstruct the label if needed.
+   let text=button.children[1];
+   if(!text || text.tagName!=='SPAN'){
+    text=document.createElement('span');button.appendChild(text);
+   }
+   text.classList.add('mm-visible-type-label');
+   const name=item[lang()];
+   if(text.textContent!==name)text.textContent=name;
+   if(button.title!==name)button.title=name;
   });
  }
  for(const id of roots){const root=document.getElementById(id);if(!root)continue;
@@ -50,6 +57,11 @@ function update(){
 }
 function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;update()});}
 function init(){
+ if(!document.getElementById('mm-type-label-fix')){
+  const style=document.createElement('style');style.id='mm-type-label-fix';
+  style.textContent='#typeButtons .type-control .mm-visible-type-label{display:block!important;visibility:visible!important;opacity:1!important;color:#d4e9f8!important;font-size:9px!important;line-height:1.15!important;min-height:10px!important;text-align:center!important;white-space:normal!important;overflow-wrap:normal!important}';
+  document.head.appendChild(style);
+ }
  for(const id of roots){const root=document.getElementById(id);if(!root)continue;
   new MutationObserver(schedule).observe(root,{childList:true,subtree:true,characterData:true});
  }
