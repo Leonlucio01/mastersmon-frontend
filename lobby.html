@@ -59,4 +59,34 @@ if(clock){new MutationObserver(function(){var text=clock.textContent||'';if(text
  window.addEventListener('focus',status);document.addEventListener('visibilitychange',()=>{if(!document.hidden)status()});document.querySelectorAll('[data-lang]').forEach(x=>x.addEventListener('click',()=>{setTimeout(()=>show(knownActive),0)}));
 })();
 </script>
+<script>
+/* MastersMon V3.0 - Capturas recientes: tipos localizados ES/EN.
+   Solo cambia el texto visible; conserva tipos y valores del backend. */
+(()=>{'use strict';
+ const es=['Normal','Fuego','Agua','Planta','Eléctrico','Hielo','Lucha','Veneno','Tierra','Volador','Psíquico','Bicho','Roca','Fantasma','Dragón','Siniestro','Acero','Hada'];
+ const en=['Normal','Fire','Water','Grass','Electric','Ice','Fighting','Poison','Ground','Flying','Psychic','Bug','Rock','Ghost','Dragon','Dark','Steel','Fairy'];
+ const norm=s=>String(s||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+ const typeMap=new Map();es.forEach((name,i)=>{typeMap.set(norm(name),i);typeMap.set(norm(en[i]),i)});
+ const currentLang=()=>localStorage.getItem('mastersmon_lang')==='en'||localStorage.getItem('mastersmon_language')==='en'&&localStorage.getItem('mastersmon_lang')!=='es'?'en':'es';
+ let scheduled=false;
+ function sync(){scheduled=false;const root=document.getElementById('pokemonCards');if(!root)return;
+  const english=currentLang()==='en';
+  root.querySelectorAll('.capture-tile .capture-type').forEach(chip=>{
+   const raw=chip.dataset.mmRawType||(chip.dataset.mmRawType=chip.textContent.trim());
+   const index=typeMap.get(norm(raw));if(index===undefined)return;
+   const translated=(english?en:es)[index].toUpperCase();
+   if(chip.textContent!==translated)chip.textContent=translated;
+   chip.title=(english?en:es)[index];
+  });
+ }
+ function schedule(){if(!scheduled){scheduled=true;requestAnimationFrame(sync)}}
+ function init(){const root=document.getElementById('pokemonCards');if(!root)return;
+  new MutationObserver(schedule).observe(root,{childList:true,subtree:true});
+  document.querySelectorAll('.masters-header [data-lang]').forEach(button=>button.addEventListener('click',()=>{schedule();setTimeout(schedule,30)}));
+  window.addEventListener('pageshow',schedule);
+  schedule();
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+})();
+</script>
 </body></html>
