@@ -6,8 +6,154 @@
 <script>if(!window.MASTERSMON_BOSS_MODE)document.write('<script defer src="js/battle-v248-ui.js?v=2570"><\/script>');</script>
 <link rel="stylesheet" href="css/battle-v255-result.css?v=2560">
 <script>if(!window.MASTERSMON_BOSS_MODE)document.write('<script defer src="js/battle-v255-result.js?v=2560"><\/script>');</script>
-<script defer src="js/boss-mode-bridge.js?v=3001"></script></head><body>
+<script defer src="js/boss-mode-bridge.js?v=3001"></script>
+<style>
+.panel.right .rival-quote,
+.panel.right .rewards,
+.panel.right .behavior,
+.panel.right .notice,
+.panel.right h4[data-t="rewards"],
+.panel.right h4[data-t="behavior"],
+.panel.right h4[data-t="enemyTeam"]{display:none!important;}
+.panel.right .rival{margin-bottom:12px;}
+.panel.right .rival small{display:block;opacity:.8;}
+.panel.right .enemy-team.enemy-team-enhanced{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:8px;}
+.panel.right .enemy-slot{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:4px;padding:10px 8px 8px;min-height:126px;border-radius:12px;border:1px solid rgba(81,202,255,.45);background:linear-gradient(180deg,rgba(16,56,94,.85),rgba(10,35,58,.95));box-shadow:inset 0 1px 0 rgba(255,255,255,.05);overflow:hidden;}
+.panel.right .enemy-slot.active{border-color:#ffd66b;box-shadow:0 0 0 1px rgba(255,214,107,.32), 0 10px 18px rgba(0,0,0,.22);}
+.panel.right .enemy-slot.fainted{opacity:.56;filter:saturate(.5) grayscale(.15);}
+.panel.right .enemy-slot .slot-badge{position:absolute;left:8px;top:8px;min-width:22px;height:22px;padding:0 6px;border-radius:8px;background:#0f6fa7;color:#fff;font-size:12px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;line-height:1;}
+.panel.right .enemy-slot .ko-badge{position:absolute;right:8px;top:8px;padding:4px 8px;border-radius:999px;background:linear-gradient(180deg,#ff6b7d,#b30f33);border:1px solid rgba(255,255,255,.18);color:#fff;font-size:11px;font-weight:900;letter-spacing:.04em;line-height:1;}
+.panel.right .enemy-slot img{width:52px;height:52px;object-fit:contain;image-rendering:auto;filter:drop-shadow(0 4px 6px rgba(0,0,0,.28));margin-top:6px;}
+.panel.right .enemy-slot .name{font-size:14px;font-weight:800;color:#fff;line-height:1.1;text-align:center;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.panel.right .enemy-slot .meta{font-size:12px;color:#c8ecff;font-weight:700;}
+.panel.right .enemy-slot .hp-track{width:100%;height:6px;border-radius:999px;background:rgba(255,255,255,.12);overflow:hidden;border:1px solid rgba(255,255,255,.08);margin-top:2px;}
+.panel.right .enemy-slot .hp-fill{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#2de89a,#47c7ff);}
+.panel.right .enemy-slot .hp-text{font-size:11px;color:#cbe7ff;opacity:.95;}
+.panel.right .rival.compact-rival{align-items:center;}
+.panel.right .rival.compact-rival > div{display:flex;flex-direction:column;gap:2px;}
+.panel.right .rival.compact-rival #rivalRank{display:none;}
+.panel.right .rival.compact-rival .difficulty{align-self:flex-start;}
+@media (max-width: 1100px){
+  .panel.right .enemy-team.enemy-team-enhanced{grid-template-columns:repeat(3,minmax(0,1fr));}
+}
+@media (max-width: 900px){
+  .panel.right .enemy-team.enemy-team-enhanced{grid-template-columns:repeat(2,minmax(0,1fr));}
+}
+</style>
+<script>
+(function(){
+  const realFetch=window.fetch ? window.fetch.bind(window) : null;
+  window.__MM_AI_LAST_STATE=null;
+  window.__MM_AI_LISTENERS=[];
+  window.__mmAiSubscribe=function(fn){ if(typeof fn==='function') window.__MM_AI_LISTENERS.push(fn); };
+  function notifyState(data){
+    if(!data || typeof data!=='object' || !Array.isArray(data.rivals)) return;
+    window.__MM_AI_LAST_STATE=data;
+    try{ window.__MM_AI_LISTENERS.forEach(fn=>{ try{fn(data);}catch(_e){} }); }catch(_e){}
+    try{ window.dispatchEvent(new CustomEvent('mastersmon:ai-state',{detail:data})); }catch(_e){}
+  }
+  if(realFetch){
+    window.fetch=function(){
+      const args=arguments;
+      const input=args[0];
+      const url=String((input && input.url) || input || '');
+      const p=realFetch.apply(window,args);
+      if(/\/battle\/ai\/(start|state|action)(\?|$)/.test(url)){
+        p.then(function(resp){
+          try{ resp.clone().json().then(notifyState).catch(function(){}); }catch(_e){}
+        }).catch(function(){});
+      }
+      return p;
+    };
+  }
+})();
+</script>
+</head><body>
 <header class="topbar unified-header masters-header" id="mastersHeader"><div class="top-inner"><a class="brand" href="lobby.html"><span class="emblem">M</span><span>MASTERSMON</span></a><nav aria-label="Navegación" class="unified-nav"><a href="lobby.html"><img class="icon" src="assets/ui/icons/home.svg" alt=""><span data-menu-es="Jugar" data-menu-en="Play">Jugar</span></a><a href="mypokemon.html"><img class="icon" src="assets/ui/icons/pokedex.svg" alt=""><span data-menu-es="Colección" data-menu-en="Collection">Colección</span></a><a href="pokemart.html"><img class="icon" src="assets/ui/icons/shop.svg" alt=""><span data-menu-es="Tienda" data-menu-en="Shop">Tienda</span></a><a class="selected" href="battle.html"><img class="icon" src="assets/ui/icons/battle.svg" alt=""><span data-menu-es="Batallas" data-menu-en="Battles">Batallas</span></a><a href="gyms.html"><img class="icon" src="assets/ui/icons/gym.svg" alt=""><span data-menu-es="Gimnasios" data-menu-en="Gyms">Gimnasios</span></a><a href="pokedex.html"><img class="icon" src="assets/ui/icons/ball.svg" alt=""><span>Pokédex</span></a><a href="rankings.html"><img class="icon" src="assets/ui/icons/medal.svg" alt=""><span>Rankings</span></a></nav><div class="nav-right"><div class="language"><button data-lang="es" type="button">ES</button><button data-lang="en" type="button">EN</button></div><div class="trainer-menu-root"><button type="button" id="trainerMenuToggle" class="nav-profile trainer-menu-toggle" aria-controls="trainerDropdown" aria-expanded="false"><img id="navAvatar" class="unified-avatar" src="assets/onboarding/batman.webp" alt=""><span class="trainer-menu-identity"><small data-menu-es="Entrenador" data-menu-en="Trainer">Entrenador</small><strong id="navName">Entrenador</strong></span><span class="trainer-chevron">⌄</span></button><div id="trainerDropdown" class="trainer-dropdown" hidden><div><small>MI ENTRENADOR</small><strong id="menuTrainerName">Entrenador</strong></div><a class="trainer-option" href="perfil.html">Mi perfil y avatar</a><a class="trainer-option" href="inventario.html">Mi inventario</a><button class="trainer-option trainer-option-logout" id="trainerMenuLogout">Cerrar sesión</button></div></div><button class="logout" id="logoutBtn" data-menu-es="Salir" data-menu-en="Exit">Salir</button></div></div></header>
 <main class="battle-shell"><section class="hero"><div><h1>BATTLE VS AI</h1><h2 id="heroSubtitle">Arena de combate</h2><p id="heroCopy">Dirige a tu equipo y pon a prueba tu estrategia.</p></div><blockquote id="heroQuote">Cada batalla te hace más fuerte.</blockquote></section><div class="columns"><aside class="panel left"><h3>♟ <span data-t="yourTeam">Tu equipo</span></h3><div class="trainer"><img id="trainerAvatar" src="assets/onboarding/batman.webp" alt=""><div><small data-t="trainer">Entrenador</small><strong id="trainerName">Entrenador</strong><div class="faction" id="trainerFaction"></div></div></div><div class="team-list" id="teamGrid"></div><a class="outline full" href="equipo.html" data-t="manageTeam">Gestionar equipo</a></aside>
 <section class="panel center"><div class="arena-top"><a href="battle.html" class="back">‹</a><strong data-t="aiBattle">COMBATE IA</strong><span class="turn" id="turnLabel">TURNO 1</span><span class="weather">☀ Riverside Arena</span></div><div class="stage"><div class="fighter-stat player"><div><strong id="playerName">Pokémon</strong><span id="playerLevel">Nv. —</span></div><div class="types" id="playerTypes"></div><div class="health"><i id="playerHpBar"></i></div><small id="playerHp">— / —</small></div><div class="fighter-stat enemy"><div><strong id="enemyName">Gengar</strong><span id="enemyLevel">Nv. —</span></div><div class="types" id="enemyTypes"></div><div class="health"><i id="enemyHpBar"></i></div><small id="enemyHp">— / —</small></div><img class="combatant player-img" id="playerImage" alt=""><img class="combatant enemy-img" id="enemyImage" alt=""><span class="stage-mark">⚔</span></div><div class="actions"><button class="chosen" data-panel="moves" data-t="moves">⚔ Movimientos</button><button data-panel="switch" data-t="switch">⇄ Cambiar</button><button data-panel="items" data-t="items">▣ Objetos</button><button data-panel="auto" data-t="auto">▶ Auto</button><a class="danger" href="battle.html" data-t="return">← Volver</a></div><div class="arena-bottom"><div><div class="subheading" id="actionTitle">Movimientos disponibles</div><div class="move-grid" id="moveGrid"></div></div><div class="log"><h4><span data-t="log">Registro de combate</span><span data-t="visual">Vista visual</span></h4><div id="logLines"></div></div></div></section>
-<aside class="panel right"><h3>◎ <span data-t="opponent">Rival IA</span></h3><div class="rival"><img id="rivalAvatar" src="assets/battle-ai/rival-advanced.webp" alt=""><div><small data-t="trainer">Entrenador</small><b id="rivalName">Mira</b><span id="rivalRank">Avanzado</span></div><span class="difficulty" id="difficultyBadge">+2</span></div><div class="rival-quote" id="rivalQuote"></div><h4 data-t="rewards">Recompensas base</h4><div class="rewards"><div><b id="rewardPd">—</b><small>PD</small></div><div><b id="rewardExp">—</b><small>EXP</small></div></div><h4 data-t="enemyTeam">Equipo rival de ejemplo</h4><div class="enemy-team" id="enemyTeam"></div><div class="behavior"><h4 data-t="behavior">Comportamiento IA</h4><strong id="behaviorName">—</strong><p id="behaviorText"></p></div><p class="notice" id="notice"></p></aside></div><footer>MASTERSMON · <span data-t="fan">Proyecto no oficial desarrollado por fans</span></footer></main></body></html>
+<aside class="panel right"><h3>◎ <span data-t="opponent">Rival IA</span></h3><div class="rival"><img id="rivalAvatar" src="assets/battle-ai/rival-advanced.webp" alt=""><div><small data-t="trainer">Entrenador</small><b id="rivalName">Mira</b><span id="rivalRank">Avanzado</span></div><span class="difficulty" id="difficultyBadge">+2</span></div><div class="rival-quote" id="rivalQuote"></div><h4 data-t="rewards">Recompensas base</h4><div class="rewards"><div><b id="rewardPd">—</b><small>PD</small></div><div><b id="rewardExp">—</b><small>EXP</small></div></div><h4 data-t="enemyTeam">Equipo rival de ejemplo</h4><div class="enemy-team" id="enemyTeam"></div><div class="behavior"><h4 data-t="behavior">Comportamiento IA</h4><strong id="behaviorName">—</strong><p id="behaviorText"></p></div><p class="notice" id="notice"></p></aside></div><footer>MASTERSMON · <span data-t="fan">Proyecto no oficial desarrollado por fans</span></footer></main>
+<script>
+(function(){
+  const TYPE_LABELS={
+    es:{opponentTitle:'Rival IA', trainerAI:'Entrenador IA', enemyTeam:'Equipo rival', ko:'K.O.', level:'Nv.'},
+    en:{opponentTitle:'AI opponent', trainerAI:'AI Trainer', enemyTeam:'Rival team', ko:'K.O.', level:'Lv.'}
+  };
+  function lang(){
+    const root=(document.documentElement.getAttribute('lang')||'').toLowerCase();
+    if(root.startsWith('en')) return 'en';
+    const forced=(localStorage.getItem('mastersmon_lang')||localStorage.getItem('lang')||'').toLowerCase();
+    return forced.startsWith('en') ? 'en' : 'es';
+  }
+  function t(key){ const l=lang(); return (TYPE_LABELS[l]&&TYPE_LABELS[l][key]) || TYPE_LABELS.es[key] || key; }
+  function esc(v){ return String(v==null?'':v).replace(/[&<>"]/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+  function rememberSpritesFromExisting(){
+    window.__MM_AI_SPRITES = window.__MM_AI_SPRITES || {};
+    const cards=document.querySelectorAll('#enemyTeam img');
+    cards.forEach(function(img, idx){
+      const card = img.closest('div,article,button') || img.parentElement;
+      const txt = (card && card.textContent) ? card.textContent : '';
+      const m = txt.match(/#?(\d{1,4})/);
+      if(m && img.src) window.__MM_AI_SPRITES[m[1]] = img.getAttribute('src') || img.src;
+      if(img.src) window.__MM_AI_SPRITES['idx_'+idx] = img.getAttribute('src') || img.src;
+    });
+  }
+  function spriteFor(mon, idx){
+    rememberSpritesFromExisting();
+    const pid = String(mon && (mon.pokemon_id||mon.id||''));
+    return (window.__MM_AI_SPRITES && (window.__MM_AI_SPRITES[pid] || window.__MM_AI_SPRITES['idx_'+idx])) || '';
+  }
+  function compactOpponentPanel(){
+    const panel=document.querySelector('.panel.right');
+    if(!panel) return;
+    const head=panel.querySelector('h3 span[data-t="opponent"]');
+    if(head) head.textContent=t('opponentTitle');
+    const rival=panel.querySelector('.rival');
+    if(rival){
+      rival.classList.add('compact-rival');
+      const small=rival.querySelector('small');
+      if(small) small.textContent=t('trainerAI');
+    }
+  }
+  function renderEnemyTeam(){
+    compactOpponentPanel();
+    const container=document.getElementById('enemyTeam');
+    if(!container) return;
+    const state=window.__MM_AI_LAST_STATE;
+    if(!state || !Array.isArray(state.rivals) || !state.rivals.length) return;
+    container.className='enemy-team enemy-team-enhanced';
+    const activeIdx = Number(state.rival_active||0);
+    container.innerHTML = state.rivals.map(function(mon, idx){
+      const hp = Math.max(0, Number(mon && mon.hp || 0));
+      const hpMax = Math.max(1, Number(mon && (mon.hp_max||mon.hpMax||mon.max_hp) || 1));
+      const fainted = hp <= 0;
+      const level = Number(mon && (mon.nivel||mon.level) || 0);
+      const name = esc(mon && (mon.nombre||mon.name) || ('Pokémon '+(idx+1)));
+      const src = spriteFor(mon, idx);
+      const pct = Math.max(0, Math.min(100, (hp/hpMax)*100));
+      const classes = ['enemy-slot'];
+      if(fainted) classes.push('fainted');
+      if(idx===activeIdx && state.status==='active') classes.push('active');
+      return '<div class="'+classes.join(' ')+'">'
+        +'<span class="slot-badge">'+(idx+1)+'</span>'
+        +(fainted?'<span class="ko-badge">'+t('ko')+'</span>':'')
+        +'<img src="'+esc(src)+'" alt="'+name+'" onerror="this.style.visibility='hidden'">'
+        +'<strong class="name">'+name+'</strong>'
+        +'<small class="meta">'+t('level')+' '+(level||'—')+'</small>'
+        +'<span class="hp-track"><i class="hp-fill" style="width:'+pct+'%"></i></span>'
+        +'<small class="hp-text">'+hp+' / '+hpMax+' HP</small>'
+      +'</div>';
+    }).join('');
+  }
+  document.addEventListener('DOMContentLoaded', function(){
+    compactOpponentPanel();
+    setTimeout(rememberSpritesFromExisting, 1200);
+    setTimeout(renderEnemyTeam, 1400);
+    setInterval(function(){ renderEnemyTeam(); }, 900);
+    window.__mmAiSubscribe(renderEnemyTeam);
+    window.addEventListener('mastersmon:ai-state', renderEnemyTeam);
+    document.querySelectorAll('.language button').forEach(function(btn){ btn.addEventListener('click', function(){ setTimeout(renderEnemyTeam, 120); }); });
+  });
+})();
+</script>
+</body></html>
