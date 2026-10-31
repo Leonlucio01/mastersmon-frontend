@@ -32,22 +32,14 @@ function translateText(node){
 let scheduled=false;
 const roots=['typeButtons','pokemonGrid','pokemonDetail','recentList'];
 function update(){
+ // Filter names are rendered using stable localized CSS labels in mypokemon.html.
+ // Do not rewrite filter button content or interfere with their event listeners.
  const filter=document.getElementById('typeButtons');
  if(filter){
-  // Order is fixed by the active collection frontend; no filter values/listeners change.
-  const buttons=filter.querySelectorAll('button.type-control');
-  buttons.forEach((button,i)=>{
-   const item=entries[i];if(!item)return;
-   // The original collection draws an icon in span 1 and a label in span 2.
-   // Always preserve the icon and reconstruct the label if needed.
-   let text=button.children[1];
-   if(!text || text.tagName!=='SPAN'){
-    text=document.createElement('span');button.appendChild(text);
-   }
-   text.classList.add('mm-visible-type-label');
-   const name=item[lang()];
-   if(text.textContent!==name)text.textContent=name;
-   if(button.title!==name)button.title=name;
+  const order=['normal','fire','water','grass','electric','psychic','fighting','rock','ground','flying','bug','ghost','dragon','ice','dark','steel','fairy','poison'];
+  filter.querySelectorAll('button.type-control').forEach((btn,i)=>{
+   const entry=entries.find(e=>e[0]===order[i]);
+   if(entry){const name=entry[lang()];if(btn.title!==name)btn.title=name;}
   });
  }
  for(const id of roots){const root=document.getElementById(id);if(!root)continue;
