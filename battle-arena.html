@@ -6,154 +6,88 @@
 <script>if(!window.MASTERSMON_BOSS_MODE)document.write('<script defer src="js/battle-v248-ui.js?v=2570"><\/script>');</script>
 <link rel="stylesheet" href="css/battle-v255-result.css?v=2560">
 <script>if(!window.MASTERSMON_BOSS_MODE)document.write('<script defer src="js/battle-v255-result.js?v=2560"><\/script>');</script>
-<script defer src="js/boss-mode-bridge.js?v=3001"></script>
-<style>
-.panel.right .rival-quote,
-.panel.right .rewards,
-.panel.right .behavior,
-.panel.right .notice,
-.panel.right h4[data-t="rewards"],
-.panel.right h4[data-t="behavior"],
-.panel.right h4[data-t="enemyTeam"]{display:none!important;}
-.panel.right .rival{margin-bottom:12px;}
-.panel.right .rival small{display:block;opacity:.8;}
-.panel.right .enemy-team.enemy-team-enhanced{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:8px;}
-.panel.right .enemy-slot{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:4px;padding:10px 8px 8px;min-height:126px;border-radius:12px;border:1px solid rgba(81,202,255,.45);background:linear-gradient(180deg,rgba(16,56,94,.85),rgba(10,35,58,.95));box-shadow:inset 0 1px 0 rgba(255,255,255,.05);overflow:hidden;}
-.panel.right .enemy-slot.active{border-color:#ffd66b;box-shadow:0 0 0 1px rgba(255,214,107,.32), 0 10px 18px rgba(0,0,0,.22);}
-.panel.right .enemy-slot.fainted{opacity:.56;filter:saturate(.5) grayscale(.15);}
-.panel.right .enemy-slot .slot-badge{position:absolute;left:8px;top:8px;min-width:22px;height:22px;padding:0 6px;border-radius:8px;background:#0f6fa7;color:#fff;font-size:12px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;line-height:1;}
-.panel.right .enemy-slot .ko-badge{position:absolute;right:8px;top:8px;padding:4px 8px;border-radius:999px;background:linear-gradient(180deg,#ff6b7d,#b30f33);border:1px solid rgba(255,255,255,.18);color:#fff;font-size:11px;font-weight:900;letter-spacing:.04em;line-height:1;}
-.panel.right .enemy-slot img{width:52px;height:52px;object-fit:contain;image-rendering:auto;filter:drop-shadow(0 4px 6px rgba(0,0,0,.28));margin-top:6px;}
-.panel.right .enemy-slot .name{font-size:14px;font-weight:800;color:#fff;line-height:1.1;text-align:center;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.panel.right .enemy-slot .meta{font-size:12px;color:#c8ecff;font-weight:700;}
-.panel.right .enemy-slot .hp-track{width:100%;height:6px;border-radius:999px;background:rgba(255,255,255,.12);overflow:hidden;border:1px solid rgba(255,255,255,.08);margin-top:2px;}
-.panel.right .enemy-slot .hp-fill{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#2de89a,#47c7ff);}
-.panel.right .enemy-slot .hp-text{font-size:11px;color:#cbe7ff;opacity:.95;}
-.panel.right .rival.compact-rival{align-items:center;}
-.panel.right .rival.compact-rival > div{display:flex;flex-direction:column;gap:2px;}
-.panel.right .rival.compact-rival #rivalRank{display:none;}
-.panel.right .rival.compact-rival .difficulty{align-self:flex-start;}
-@media (max-width: 1100px){
-  .panel.right .enemy-team.enemy-team-enhanced{grid-template-columns:repeat(3,minmax(0,1fr));}
-}
-@media (max-width: 900px){
-  .panel.right .enemy-team.enemy-team-enhanced{grid-template-columns:repeat(2,minmax(0,1fr));}
-}
+<script defer src="js/boss-mode-bridge.js?v=3001"></script><style>
+/* MastersMon V3: AI trainer and six enemy cards matching Your team. */
+.panel.right.mm-rival-v3 .rival-quote,.panel.right.mm-rival-v3 h4[data-t="rewards"],.panel.right.mm-rival-v3 .rewards,.panel.right.mm-rival-v3 h4[data-t="enemyTeam"],.panel.right.mm-rival-v3 .behavior,.panel.right.mm-rival-v3 .notice{display:none!important}
+.panel.right.mm-rival-v3 .rival{margin-bottom:8px}
+.panel.right.mm-rival-v3 .enemy-team.mm-rival-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;align-content:start}
+.panel.right.mm-rival-v3 .mm-rival-mon{min-width:0;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:9px 4px 5px;min-height:104px;border:1px solid #3288b5;background:#103450;border-radius:7px;text-align:center}
+.panel.right.mm-rival-v3 .mm-rival-mon.mm-active{border-color:#f0c16e;box-shadow:inset 0 0 0 1px #efc97855;background:#183c58}
+.panel.right.mm-rival-v3 .mm-rival-mon.mm-ko{background:#101e31;opacity:.7}
+.panel.right.mm-rival-v3 .mm-rival-mon.mm-ko img{filter:grayscale(1);opacity:.5}
+.panel.right.mm-rival-v3 .mm-rival-mon img{height:55px;width:75px;max-width:100%;object-fit:contain;margin:0}
+.panel.right.mm-rival-v3 .mm-rival-mon b{font-size:11px;line-height:1.1;color:#fff;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.panel.right.mm-rival-v3 .mm-rival-mon small{font-size:10px;color:#d6ecff}
+.panel.right.mm-rival-v3 .mm-rival-mon .team-hp{display:block;height:5px;width:95%;background:#0a2639;border-radius:5px;margin-top:3px;overflow:hidden}
+.panel.right.mm-rival-v3 .mm-rival-mon .team-hp i{display:block;height:100%;border-radius:5px}
+.panel.right.mm-rival-v3 .mm-slot{position:absolute;left:4px;top:4px;border:1px solid #3d99c9;color:#c9efff;border-radius:5px;padding:0 4px;font-size:9px}
+.panel.right.mm-rival-v3 .mm-ko-label{position:absolute;right:3px;top:4px;background:#bd2748;border:1px solid #f27b8c;border-radius:4px;padding:1px 4px;color:#fff;font-weight:900;font-size:11px;z-index:2}
+
 </style>
 <script>
-(function(){
-  const realFetch=window.fetch ? window.fetch.bind(window) : null;
-  window.__MM_AI_LAST_STATE=null;
-  window.__MM_AI_LISTENERS=[];
-  window.__mmAiSubscribe=function(fn){ if(typeof fn==='function') window.__MM_AI_LISTENERS.push(fn); };
-  function notifyState(data){
-    if(!data || typeof data!=='object' || !Array.isArray(data.rivals)) return;
-    window.__MM_AI_LAST_STATE=data;
-    try{ window.__MM_AI_LISTENERS.forEach(fn=>{ try{fn(data);}catch(_e){} }); }catch(_e){}
-    try{ window.dispatchEvent(new CustomEvent('mastersmon:ai-state',{detail:data})); }catch(_e){}
+/* MastersMon V3 Battle Arena: AI opponent live team + display-only type localization. */
+(()=>{'use strict';
+if(new URLSearchParams(location.search).get('modo')==='boss')return;
+const en=()=>localStorage.getItem('mastersmon_lang')==='en';
+const words={normal:['Normal','Normal'],fire:['Fuego','Fire'],fuego:['Fuego','Fire'],water:['Agua','Water'],agua:['Agua','Water'],grass:['Planta','Grass'],planta:['Planta','Grass'],electric:['Eléctrico','Electric'],electrico:['Eléctrico','Electric'],psychic:['Psíquico','Psychic'],psiquico:['Psíquico','Psychic'],fighting:['Lucha','Fighting'],lucha:['Lucha','Fighting'],rock:['Roca','Rock'],roca:['Roca','Rock'],ground:['Tierra','Ground'],tierra:['Tierra','Ground'],flying:['Volador','Flying'],volador:['Volador','Flying'],bug:['Bicho','Bug'],bicho:['Bicho','Bug'],ghost:['Fantasma','Ghost'],fantasma:['Fantasma','Ghost'],dragon:['Dragón','Dragon'],ice:['Hielo','Ice'],hielo:['Hielo','Ice'],dark:['Siniestro','Dark'],siniestro:['Siniestro','Dark'],steel:['Acero','Steel'],acero:['Acero','Steel'],fairy:['Hada','Fairy'],hada:['Hada','Fairy'],poison:['Veneno','Poison'],veneno:['Veneno','Poison']};
+const fold=x=>String(x||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+const t=(es,eng)=>en()?eng:es;
+function typeName(s){const v=words[fold(s)];return v?v[en()?1:0]:String(s||'');}
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const $=id=>document.getElementById(id);
+let lastState=null,originalEnemyImages=[],renderQueued=false,observing=false;
+const nativeFetch=window.fetch.bind(window);
+window.fetch=function(input,init){const url=typeof input==='string'?input:String(input?.url||'');const promise=nativeFetch(input,init);
+ if(/\/battle\/ai\/(?:start|state|action)(?:\?|$)/.test(url))promise.then(r=>{if(!r.ok)return;r.clone().json().then(data=>{if(data?.ok!==false&&Array.isArray(data?.rivals)){lastState=data;queue();}}).catch(()=>{});}).catch(()=>{});
+ return promise;};
+function displayTypes(){
+ document.querySelectorAll('#playerTypes em,#enemyTypes em').forEach(el=>{const x=el.textContent;const v=typeName(x);if(v!==x)el.textContent=v;});
+ document.querySelectorAll('#moveGrid button:not([data-switch]) small').forEach(el=>{
+  for(const node of [...el.childNodes]){if(node.nodeType!==3)continue;
+   const before=node.nodeValue||'';
+   const updated=before.replace(/^(\s*)([\p{L}]+)(\s*[·•-]\s*(?:Potencia|Power)\b)/u,(_m,a,b,c)=>a+typeName(b)+c);
+   if(updated!==before)node.nodeValue=updated;
   }
-  if(realFetch){
-    window.fetch=function(){
-      const args=arguments;
-      const input=args[0];
-      const url=String((input && input.url) || input || '');
-      const p=realFetch.apply(window,args);
-      if(/\/battle\/ai\/(start|state|action)(\?|$)/.test(url)){
-        p.then(function(resp){
-          try{ resp.clone().json().then(notifyState).catch(function(){}); }catch(_e){}
-        }).catch(function(){});
-      }
-      return p;
-    };
-  }
+ });
+}
+function decorate(){
+ const right=document.querySelector('.panel.right');if(!right)return;
+ right.classList.add('mm-rival-v3');
+ const h=right.querySelector('h3 [data-t="opponent"]');if(h)h.textContent=t('Equipo rival','Rival team');
+ const label=right.querySelector('.rival small[data-t="trainer"]');if(label)label.textContent=t('Entrenador IA','AI Trainer');
+ const rank=$('rivalRank');if(rank)rank.hidden=true;
+}
+function snapshotImages(root){
+ const originals=[...root.querySelectorAll('img[data-enemy]')];
+ if(originals.length===6){originalEnemyImages=originals.map(e=>e.getAttribute('src')||'');}
+}
+function draw(){
+ renderQueued=false;decorate();displayTypes();const root=$('enemyTeam');if(!root||!lastState?.rivals?.length)return;
+ if(!root.classList.contains('mm-rival-list'))snapshotImages(root);
+ const active=Number(lastState.rival_active||0);
+ const signature=JSON.stringify([en(),active,lastState.status,lastState.rivals.map(p=>[p.hp,p.hp_max,p.pokemon_id,p.nombre,p.nivel])]);
+ if(root.dataset.mmSignature===signature&&root.classList.contains('mm-rival-list'))return;
+ root.dataset.mmSignature=signature;
+ const html=lastState.rivals.slice(0,6).map((p,i)=>{
+  const pid=Number(p.pokemon_id)||0;
+  const hp=Math.max(0,Number(p.hp)||0);const max=Math.max(1,Number(p.hp_max)||1);
+  const ratio=Math.min(100,Math.max(0,100*hp/max));const ko=hp<=0;
+  const src=originalEnemyImages[i]||`img/pokemon-png/sprites_normal/${String(pid).padStart(4,'0')}.png`;
+  const bg=ko?'#818b9d':ratio<=20?'#ef6677':ratio<=50?'#e9b54a':'#29dba4';
+  return `<div class="mm-rival-mon${ko?' mm-ko':''}${i===active?' mm-active':''}" aria-label="${esc(p.nombre)} ${ko?'K.O.':hp+' HP'}"><span class="mm-slot">${i+1}</span>${ko?'<span class="mm-ko-label">K.O.</span>':''}<img src="${esc(src)}" alt="${esc(p.nombre)}" loading="lazy"><b>${esc(p.nombre||'Pokémon')}</b><small>${t('Nv.','Lv.')} ${Number(p.nivel)||'—'}</small><span class="team-hp"><i style="width:${ratio}%;background:${bg}"></i></span></div>`;
+ }).join('');
+ root.classList.add('mm-rival-list');root.innerHTML=html;
+}
+function queue(){if(renderQueued)return;renderQueued=true;requestAnimationFrame(draw);}
+function init(){decorate();const root=$('enemyTeam');if(root){snapshotImages(root);new MutationObserver(()=>{if(root.querySelector('img[data-enemy]')){snapshotImages(root);root.classList.remove('mm-rival-list');delete root.dataset.mmSignature;queue();}}).observe(root,{childList:true});}
+ const moves=$('moveGrid');if(moves)new MutationObserver(queue).observe(moves,{childList:true,subtree:true});
+ document.querySelectorAll('.language [data-lang]').forEach(el=>el.addEventListener('click',()=>setTimeout(queue,0)));
+ window.addEventListener('pageshow',queue);queue();}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
-</script>
-</head><body>
+
+</script></head><body>
 <header class="topbar unified-header masters-header" id="mastersHeader"><div class="top-inner"><a class="brand" href="lobby.html"><span class="emblem">M</span><span>MASTERSMON</span></a><nav aria-label="Navegación" class="unified-nav"><a href="lobby.html"><img class="icon" src="assets/ui/icons/home.svg" alt=""><span data-menu-es="Jugar" data-menu-en="Play">Jugar</span></a><a href="mypokemon.html"><img class="icon" src="assets/ui/icons/pokedex.svg" alt=""><span data-menu-es="Colección" data-menu-en="Collection">Colección</span></a><a href="pokemart.html"><img class="icon" src="assets/ui/icons/shop.svg" alt=""><span data-menu-es="Tienda" data-menu-en="Shop">Tienda</span></a><a class="selected" href="battle.html"><img class="icon" src="assets/ui/icons/battle.svg" alt=""><span data-menu-es="Batallas" data-menu-en="Battles">Batallas</span></a><a href="gyms.html"><img class="icon" src="assets/ui/icons/gym.svg" alt=""><span data-menu-es="Gimnasios" data-menu-en="Gyms">Gimnasios</span></a><a href="pokedex.html"><img class="icon" src="assets/ui/icons/ball.svg" alt=""><span>Pokédex</span></a><a href="rankings.html"><img class="icon" src="assets/ui/icons/medal.svg" alt=""><span>Rankings</span></a></nav><div class="nav-right"><div class="language"><button data-lang="es" type="button">ES</button><button data-lang="en" type="button">EN</button></div><div class="trainer-menu-root"><button type="button" id="trainerMenuToggle" class="nav-profile trainer-menu-toggle" aria-controls="trainerDropdown" aria-expanded="false"><img id="navAvatar" class="unified-avatar" src="assets/onboarding/batman.webp" alt=""><span class="trainer-menu-identity"><small data-menu-es="Entrenador" data-menu-en="Trainer">Entrenador</small><strong id="navName">Entrenador</strong></span><span class="trainer-chevron">⌄</span></button><div id="trainerDropdown" class="trainer-dropdown" hidden><div><small>MI ENTRENADOR</small><strong id="menuTrainerName">Entrenador</strong></div><a class="trainer-option" href="perfil.html">Mi perfil y avatar</a><a class="trainer-option" href="inventario.html">Mi inventario</a><button class="trainer-option trainer-option-logout" id="trainerMenuLogout">Cerrar sesión</button></div></div><button class="logout" id="logoutBtn" data-menu-es="Salir" data-menu-en="Exit">Salir</button></div></div></header>
 <main class="battle-shell"><section class="hero"><div><h1>BATTLE VS AI</h1><h2 id="heroSubtitle">Arena de combate</h2><p id="heroCopy">Dirige a tu equipo y pon a prueba tu estrategia.</p></div><blockquote id="heroQuote">Cada batalla te hace más fuerte.</blockquote></section><div class="columns"><aside class="panel left"><h3>♟ <span data-t="yourTeam">Tu equipo</span></h3><div class="trainer"><img id="trainerAvatar" src="assets/onboarding/batman.webp" alt=""><div><small data-t="trainer">Entrenador</small><strong id="trainerName">Entrenador</strong><div class="faction" id="trainerFaction"></div></div></div><div class="team-list" id="teamGrid"></div><a class="outline full" href="equipo.html" data-t="manageTeam">Gestionar equipo</a></aside>
 <section class="panel center"><div class="arena-top"><a href="battle.html" class="back">‹</a><strong data-t="aiBattle">COMBATE IA</strong><span class="turn" id="turnLabel">TURNO 1</span><span class="weather">☀ Riverside Arena</span></div><div class="stage"><div class="fighter-stat player"><div><strong id="playerName">Pokémon</strong><span id="playerLevel">Nv. —</span></div><div class="types" id="playerTypes"></div><div class="health"><i id="playerHpBar"></i></div><small id="playerHp">— / —</small></div><div class="fighter-stat enemy"><div><strong id="enemyName">Gengar</strong><span id="enemyLevel">Nv. —</span></div><div class="types" id="enemyTypes"></div><div class="health"><i id="enemyHpBar"></i></div><small id="enemyHp">— / —</small></div><img class="combatant player-img" id="playerImage" alt=""><img class="combatant enemy-img" id="enemyImage" alt=""><span class="stage-mark">⚔</span></div><div class="actions"><button class="chosen" data-panel="moves" data-t="moves">⚔ Movimientos</button><button data-panel="switch" data-t="switch">⇄ Cambiar</button><button data-panel="items" data-t="items">▣ Objetos</button><button data-panel="auto" data-t="auto">▶ Auto</button><a class="danger" href="battle.html" data-t="return">← Volver</a></div><div class="arena-bottom"><div><div class="subheading" id="actionTitle">Movimientos disponibles</div><div class="move-grid" id="moveGrid"></div></div><div class="log"><h4><span data-t="log">Registro de combate</span><span data-t="visual">Vista visual</span></h4><div id="logLines"></div></div></div></section>
-<aside class="panel right"><h3>◎ <span data-t="opponent">Rival IA</span></h3><div class="rival"><img id="rivalAvatar" src="assets/battle-ai/rival-advanced.webp" alt=""><div><small data-t="trainer">Entrenador</small><b id="rivalName">Mira</b><span id="rivalRank">Avanzado</span></div><span class="difficulty" id="difficultyBadge">+2</span></div><div class="rival-quote" id="rivalQuote"></div><h4 data-t="rewards">Recompensas base</h4><div class="rewards"><div><b id="rewardPd">—</b><small>PD</small></div><div><b id="rewardExp">—</b><small>EXP</small></div></div><h4 data-t="enemyTeam">Equipo rival de ejemplo</h4><div class="enemy-team" id="enemyTeam"></div><div class="behavior"><h4 data-t="behavior">Comportamiento IA</h4><strong id="behaviorName">—</strong><p id="behaviorText"></p></div><p class="notice" id="notice"></p></aside></div><footer>MASTERSMON · <span data-t="fan">Proyecto no oficial desarrollado por fans</span></footer></main>
-<script>
-(function(){
-  const TYPE_LABELS={
-    es:{opponentTitle:'Rival IA', trainerAI:'Entrenador IA', enemyTeam:'Equipo rival', ko:'K.O.', level:'Nv.'},
-    en:{opponentTitle:'AI opponent', trainerAI:'AI Trainer', enemyTeam:'Rival team', ko:'K.O.', level:'Lv.'}
-  };
-  function lang(){
-    const root=(document.documentElement.getAttribute('lang')||'').toLowerCase();
-    if(root.startsWith('en')) return 'en';
-    const forced=(localStorage.getItem('mastersmon_lang')||localStorage.getItem('lang')||'').toLowerCase();
-    return forced.startsWith('en') ? 'en' : 'es';
-  }
-  function t(key){ const l=lang(); return (TYPE_LABELS[l]&&TYPE_LABELS[l][key]) || TYPE_LABELS.es[key] || key; }
-  function esc(v){ return String(v==null?'':v).replace(/[&<>"]/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
-  function rememberSpritesFromExisting(){
-    window.__MM_AI_SPRITES = window.__MM_AI_SPRITES || {};
-    const cards=document.querySelectorAll('#enemyTeam img');
-    cards.forEach(function(img, idx){
-      const card = img.closest('div,article,button') || img.parentElement;
-      const txt = (card && card.textContent) ? card.textContent : '';
-      const m = txt.match(/#?(\d{1,4})/);
-      if(m && img.src) window.__MM_AI_SPRITES[m[1]] = img.getAttribute('src') || img.src;
-      if(img.src) window.__MM_AI_SPRITES['idx_'+idx] = img.getAttribute('src') || img.src;
-    });
-  }
-  function spriteFor(mon, idx){
-    rememberSpritesFromExisting();
-    const pid = String(mon && (mon.pokemon_id||mon.id||''));
-    return (window.__MM_AI_SPRITES && (window.__MM_AI_SPRITES[pid] || window.__MM_AI_SPRITES['idx_'+idx])) || '';
-  }
-  function compactOpponentPanel(){
-    const panel=document.querySelector('.panel.right');
-    if(!panel) return;
-    const head=panel.querySelector('h3 span[data-t="opponent"]');
-    if(head) head.textContent=t('opponentTitle');
-    const rival=panel.querySelector('.rival');
-    if(rival){
-      rival.classList.add('compact-rival');
-      const small=rival.querySelector('small');
-      if(small) small.textContent=t('trainerAI');
-    }
-  }
-  function renderEnemyTeam(){
-    compactOpponentPanel();
-    const container=document.getElementById('enemyTeam');
-    if(!container) return;
-    const state=window.__MM_AI_LAST_STATE;
-    if(!state || !Array.isArray(state.rivals) || !state.rivals.length) return;
-    container.className='enemy-team enemy-team-enhanced';
-    const activeIdx = Number(state.rival_active||0);
-    container.innerHTML = state.rivals.map(function(mon, idx){
-      const hp = Math.max(0, Number(mon && mon.hp || 0));
-      const hpMax = Math.max(1, Number(mon && (mon.hp_max||mon.hpMax||mon.max_hp) || 1));
-      const fainted = hp <= 0;
-      const level = Number(mon && (mon.nivel||mon.level) || 0);
-      const name = esc(mon && (mon.nombre||mon.name) || ('Pokémon '+(idx+1)));
-      const src = spriteFor(mon, idx);
-      const pct = Math.max(0, Math.min(100, (hp/hpMax)*100));
-      const classes = ['enemy-slot'];
-      if(fainted) classes.push('fainted');
-      if(idx===activeIdx && state.status==='active') classes.push('active');
-      return '<div class="'+classes.join(' ')+'">'
-        +'<span class="slot-badge">'+(idx+1)+'</span>'
-        +(fainted?'<span class="ko-badge">'+t('ko')+'</span>':'')
-        +'<img src="'+esc(src)+'" alt="'+name+'" onerror="this.style.visibility='hidden'">'
-        +'<strong class="name">'+name+'</strong>'
-        +'<small class="meta">'+t('level')+' '+(level||'—')+'</small>'
-        +'<span class="hp-track"><i class="hp-fill" style="width:'+pct+'%"></i></span>'
-        +'<small class="hp-text">'+hp+' / '+hpMax+' HP</small>'
-      +'</div>';
-    }).join('');
-  }
-  document.addEventListener('DOMContentLoaded', function(){
-    compactOpponentPanel();
-    setTimeout(rememberSpritesFromExisting, 1200);
-    setTimeout(renderEnemyTeam, 1400);
-    setInterval(function(){ renderEnemyTeam(); }, 900);
-    window.__mmAiSubscribe(renderEnemyTeam);
-    window.addEventListener('mastersmon:ai-state', renderEnemyTeam);
-    document.querySelectorAll('.language button').forEach(function(btn){ btn.addEventListener('click', function(){ setTimeout(renderEnemyTeam, 120); }); });
-  });
-})();
-</script>
-</body></html>
+<aside class="panel right"><h3>◎ <span data-t="opponent">Rival IA</span></h3><div class="rival"><img id="rivalAvatar" src="assets/battle-ai/rival-advanced.webp" alt=""><div><small data-t="trainer">Entrenador</small><b id="rivalName">Mira</b><span id="rivalRank">Avanzado</span></div><span class="difficulty" id="difficultyBadge">+2</span></div><div class="rival-quote" id="rivalQuote"></div><h4 data-t="rewards">Recompensas base</h4><div class="rewards"><div><b id="rewardPd">—</b><small>PD</small></div><div><b id="rewardExp">—</b><small>EXP</small></div></div><h4 data-t="enemyTeam">Equipo rival de ejemplo</h4><div class="enemy-team" id="enemyTeam"></div><div class="behavior"><h4 data-t="behavior">Comportamiento IA</h4><strong id="behaviorName">—</strong><p id="behaviorText"></p></div><p class="notice" id="notice"></p></aside></div><footer>MASTERSMON · <span data-t="fan">Proyecto no oficial desarrollado por fans</span></footer></main></body></html>
