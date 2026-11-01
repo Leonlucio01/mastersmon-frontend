@@ -103,12 +103,12 @@ html.mm-christmas .panel .panel-title h2 .panel-icon::after {
   background-position:center!important;background-size:contain!important;
   background-repeat:no-repeat!important;pointer-events:none!important;
 }
-html.mm-christmas .collection-panel .panel-icon{--mm-xmas-panel-icon:url('../assets/lobby/christmas/icons/recent-captures-icon.webp')}
-html.mm-christmas .party-panel .panel-icon{--mm-xmas-panel-icon:url('../assets/lobby/christmas/icons/current-team-icon.webp')}
-html.mm-christmas .explore-panel .panel-icon{--mm-xmas-panel-icon:url('../assets/lobby/christmas/icons/explore-world-icon.webp')}
-html.mm-christmas .quests-panel .panel-icon{--mm-xmas-panel-icon:url('../assets/lobby/christmas/icons/daily-missions-icon.webp')}
-html.mm-christmas .shop-panel .panel-icon{--mm-xmas-panel-icon:url('../assets/lobby/christmas/icons/featured-shop-icon.webp')}
-html.mm-christmas .events-panel .panel-icon{--mm-xmas-panel-icon:url('../assets/lobby/christmas/icons/events-challenges-icon.webp')}
+html.mm-christmas .collection-panel .panel-icon{--mm-xmas-panel-icon:url('../assets/lobby/christmas/icons/recent-captures-icon.svg')}
+html.mm-christmas .party-panel .panel-icon{--mm-xmas-panel-icon:url('../assets/lobby/christmas/icons/current-team-icon.svg')}
+html.mm-christmas .explore-panel .panel-icon{--mm-xmas-panel-icon:url('../assets/lobby/christmas/icons/explore-world-icon.svg')}
+html.mm-christmas .quests-panel .panel-icon{--mm-xmas-panel-icon:url('../assets/lobby/christmas/icons/daily-missions-icon.svg')}
+html.mm-christmas .shop-panel .panel-icon{--mm-xmas-panel-icon:url('../assets/lobby/christmas/icons/featured-shop-icon.svg')}
+html.mm-christmas .events-panel .panel-icon{--mm-xmas-panel-icon:url('../assets/lobby/christmas/icons/events-challenges-icon.svg')}
 /* Daily missions: show snowy festive village at the top, keep actual progress readable. */
 html.mm-christmas .quests-panel{
   background-image:linear-gradient(180deg,rgba(13,10,37,.42) 0px,rgba(13,10,37,.46) 66px,rgba(15,11,38,.96) 118px),url('../assets/lobby/christmas/daily-missions-banner.webp')!important;
@@ -119,3 +119,8 @@ html.mm-christmas .quests-panel{
 html.mm-christmas .quests-panel .quest-list{position:relative;z-index:1}
 html.mm-christmas .quests-panel .panel-title{background:linear-gradient(90deg,rgba(16,10,43,.65),rgba(16,10,43,.26) 78%,transparent)!important}
 @media(max-width:780px){html.mm-christmas .panel .panel-title h2 .panel-icon{width:25px!important;height:25px!important;min-width:25px!important;flex-basis:25px!important}}
+
+/* V3.2: use original crisp SVG badges rather than the rounded placeholder glyphs. */
+html.mm-christmas .panel .panel-title h2 .panel-icon{width:31px!important;height:31px!important;min-width:31px!important;flex:0 0 31px!important;border:0!important;border-radius:50%!important;background:transparent!important;box-shadow:none!important;color:#ffde9e!important}
+html.mm-christmas .panel .panel-title h2 .panel-icon::after{inset:0!important;background-size:100% 100%!important;filter:drop-shadow(0 0 3px rgba(255,198,101,.34))}
+@media(max-width:780px){html.mm-christmas .panel .panel-title h2 .panel-icon{width:27px!important;height:27px!important;min-width:27px!important;flex-basis:27px!important}}
