@@ -165,3 +165,59 @@ html.mm-visitor-halloween .site-header {
   }
   html.mm-visitor-halloween body {background-attachment:scroll!important;background-size:100% 100%,auto 100%!important;}
 }
+
+
+/* ============================================================
+   V5 - fondo único para toda la página index Halloween.
+   Usa una sola ilustración maestra para todo el background.
+   ============================================================ */
+html.mm-visitor-halloween,
+html.mm-visitor-halloween body {
+  min-height: 100%;
+}
+html.mm-visitor-halloween body {
+  background-color:#120622!important;
+  background-image:
+    linear-gradient(180deg,rgba(13,4,31,.28),rgba(18,6,36,.46)),
+    url('../assets/visitor/halloween/background.webp')!important;
+  background-repeat:no-repeat,no-repeat!important;
+  background-position:center top,center top!important;
+  background-size:cover,cover!important;
+  background-attachment:fixed,fixed!important;
+}
+html.mm-visitor-halloween .hero,
+html.mm-visitor-halloween .shop-panel,
+html.mm-visitor-halloween .final-cta,
+html.mm-visitor-halloween .footer,
+html.mm-visitor-halloween .panel {
+  backdrop-filter: blur(2px);
+}
+html.mm-visitor-halloween .hero {
+  background:linear-gradient(180deg,rgba(18,7,37,.68),rgba(18,7,37,.40))!important;
+}
+html.mm-visitor-halloween .shop-panel {
+  background-image:linear-gradient(90deg,rgba(28,10,49,.78),rgba(22,8,41,.66))!important;
+  background-color:rgba(19,8,38,.78)!important;
+}
+html.mm-visitor-halloween .final-cta {
+  background-image:linear-gradient(90deg,rgba(33,11,55,.74),rgba(19,8,38,.72))!important;
+  background-color:rgba(23,9,43,.72)!important;
+}
+html.mm-visitor-halloween .footer {
+  background:linear-gradient(180deg,rgba(20,8,38,.74),rgba(13,5,27,.86))!important;
+}
+html.mm-visitor-halloween .panel {
+  background:linear-gradient(160deg,rgba(33,12,57,.88),rgba(18,8,37,.84))!important;
+}
+html.mm-visitor-halloween .pokedex-panel,
+html.mm-visitor-halloween .explore-panel,
+html.mm-visitor-halloween .battles-panel {
+  background:linear-gradient(160deg,rgba(34,12,58,.88),rgba(18,8,37,.84))!important;
+}
+@media (max-width: 768px) {
+  html.mm-visitor-halloween body {
+    background-attachment:scroll,scroll!important;
+    background-position:center top,center top!important;
+    background-size:auto 100%,auto 100%!important;
+  }
+}
