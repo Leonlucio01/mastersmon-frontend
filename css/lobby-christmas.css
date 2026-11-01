@@ -81,22 +81,34 @@ html.mm-christmas .panel-title { margin-bottom: 3px; }
 }
 
 
-/* CHRISTMAS LOBBY V3: individually redesigned seasonal title icons. */
+/* CHRISTMAS LOBBY V3.1 — icon recovery. Keep the symbol as fallback if an image is absent. */
 html.mm-christmas .panel .panel-title h2 .panel-icon {
-  width:30px!important;height:30px!important;min-width:30px!important;
-  display:inline-block!important;flex:0 0 30px!important;
-  color:transparent!important;font-size:0!important;line-height:0!important;
-  background-color:transparent!important;background-repeat:no-repeat!important;
-  background-position:center!important;background-size:contain!important;
-  border:0!important;border-radius:0!important;
-  box-shadow:none!important;vertical-align:middle;
+  display:inline-grid!important;place-items:center!important;
+  position:relative!important;overflow:hidden!important;
+  width:27px!important;height:27px!important;min-width:27px!important;
+  flex:0 0 27px!important;padding:0!important;
+  font-size:16px!important;line-height:1!important;
+  color:#ffe4a0!important;
+  background-color:rgba(29,15,56,.8)!important;
+  background-image:none!important;
+  border:1px solid #f3c67c!important;border-radius:50%!important;
+  box-shadow:0 0 7px rgba(245,193,113,.3)!important;
+  text-shadow:0 0 4px #ffc56a70!important;
 }
-html.mm-christmas .collection-panel .panel-icon{background-image:url('../assets/lobby/christmas/icons/recent-captures-icon.webp')!important}
-html.mm-christmas .party-panel .panel-icon{background-image:url('../assets/lobby/christmas/icons/current-team-icon.webp')!important}
-html.mm-christmas .explore-panel .panel-icon{background-image:url('../assets/lobby/christmas/icons/explore-world-icon.webp')!important}
-html.mm-christmas .quests-panel .panel-icon{background-image:url('../assets/lobby/christmas/icons/daily-missions-icon.webp')!important}
-html.mm-christmas .shop-panel .panel-icon{background-image:url('../assets/lobby/christmas/icons/featured-shop-icon.webp')!important}
-html.mm-christmas .events-panel .panel-icon{background-image:url('../assets/lobby/christmas/icons/events-challenges-icon.webp')!important}
+html.mm-christmas .panel .panel-title h2 .panel-icon.cyan {color:#b8f2ff!important}
+/* Images are an overlay; when missing the original HTML glyph remains visible. */
+html.mm-christmas .panel .panel-title h2 .panel-icon::after {
+  content:''!important;position:absolute!important;inset:0!important;
+  background-image:var(--mm-xmas-panel-icon,none)!important;
+  background-position:center!important;background-size:contain!important;
+  background-repeat:no-repeat!important;pointer-events:none!important;
+}
+html.mm-christmas .collection-panel .panel-icon{--mm-xmas-panel-icon:url('../assets/lobby/christmas/icons/recent-captures-icon.webp')}
+html.mm-christmas .party-panel .panel-icon{--mm-xmas-panel-icon:url('../assets/lobby/christmas/icons/current-team-icon.webp')}
+html.mm-christmas .explore-panel .panel-icon{--mm-xmas-panel-icon:url('../assets/lobby/christmas/icons/explore-world-icon.webp')}
+html.mm-christmas .quests-panel .panel-icon{--mm-xmas-panel-icon:url('../assets/lobby/christmas/icons/daily-missions-icon.webp')}
+html.mm-christmas .shop-panel .panel-icon{--mm-xmas-panel-icon:url('../assets/lobby/christmas/icons/featured-shop-icon.webp')}
+html.mm-christmas .events-panel .panel-icon{--mm-xmas-panel-icon:url('../assets/lobby/christmas/icons/events-challenges-icon.webp')}
 /* Daily missions: show snowy festive village at the top, keep actual progress readable. */
 html.mm-christmas .quests-panel{
   background-image:linear-gradient(180deg,rgba(13,10,37,.42) 0px,rgba(13,10,37,.46) 66px,rgba(15,11,38,.96) 118px),url('../assets/lobby/christmas/daily-missions-banner.webp')!important;
@@ -106,4 +118,4 @@ html.mm-christmas .quests-panel{
 }
 html.mm-christmas .quests-panel .quest-list{position:relative;z-index:1}
 html.mm-christmas .quests-panel .panel-title{background:linear-gradient(90deg,rgba(16,10,43,.65),rgba(16,10,43,.26) 78%,transparent)!important}
-@media(max-width:780px){html.mm-christmas .panel .panel-title h2 .panel-icon{width:26px!important;height:26px!important;min-width:26px!important;flex-basis:26px!important}}
+@media(max-width:780px){html.mm-christmas .panel .panel-title h2 .panel-icon{width:25px!important;height:25px!important;min-width:25px!important;flex-basis:25px!important}}
