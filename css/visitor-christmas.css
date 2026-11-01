@@ -152,3 +152,39 @@ html.mm-visitor-christmas .feature-grid {
   }
 }
 /* MASTERSMON CHRISTMAS V4 BACKGROUND END */
+
+/* MastersMon Christmas V5: legible hero text on detailed winter artwork.
+   Scoped to Christmas; no change to login behavior or other themes. */
+html.mm-visitor-christmas .hero .hero-copy {
+  position:relative!important;
+  z-index:8!important;
+  padding:14px 26px 16px 16px!important;
+  margin-left:-16px!important;
+  border-radius:12px!important;
+  background:linear-gradient(90deg,rgba(9,7,35,.88) 0%,rgba(11,8,41,.81) 54%,rgba(13,9,45,.40) 86%,rgba(13,9,45,0) 100%)!important;
+  -webkit-backdrop-filter:blur(1.5px);
+  backdrop-filter:blur(1.5px);
+}
+html.mm-visitor-christmas .hero .hero-copy .eyebrow,
+html.mm-visitor-christmas .hero .hero-copy .hero-sub,
+html.mm-visitor-christmas .hero .hero-copy .hero-body,
+html.mm-visitor-christmas .hero .hero-copy .hint {
+  color:#fffaf2!important;
+  text-shadow:0 2px 5px rgba(1,2,15,.98),0 0 9px rgba(1,2,15,.95)!important;
+}
+html.mm-visitor-christmas .hero .hero-copy .eyebrow {color:#a6f2ff!important;}
+html.mm-visitor-christmas .hero .hero-copy h1,
+html.mm-visitor-christmas .hero .hero-copy h1 span {
+  color:#ffe8b0!important;
+  text-shadow:0 3px 7px #08051d,0 0 16px rgba(5,4,29,.95),0 0 24px rgba(255,183,84,.22)!important;
+}
+html.mm-visitor-christmas .hero .hero-copy .hint {opacity:1!important;}
+@media(max-width:768px) {
+  html.mm-visitor-christmas .hero .hero-copy {
+    margin-left:0!important;
+    padding:14px 16px!important;
+    background:linear-gradient(90deg,rgba(8,7,33,.90),rgba(8,7,33,.70))!important;
+    -webkit-backdrop-filter:none;
+    backdrop-filter:none;
+  }
+}
