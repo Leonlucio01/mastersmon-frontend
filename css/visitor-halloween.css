@@ -1,0 +1,33 @@
+/* Visitor Halloween isolated overrides. Only active Oct 1 to Nov 15 (Lima), testing: ?halloween=1 or 0. */
+html.mm-visitor-halloween{--bg:#110920;--bg-2:#200e39;--panel:#170d31;--panel-2:#25103c;--line:#e48a41;--line-soft:#9d4a8d;--cyan:#ffb34d;--cyan-2:#ff8a2f;--gold:#ffe098;--gold-2:#ff9b24;--muted:#ddcae4}
+html.mm-visitor-halloween body{background:linear-gradient(180deg,rgba(12,4,26,.48),rgba(14,5,29,.73)),url('../assets/visitor/halloween/background.webp') center center/cover fixed no-repeat,#140721;color:#fff2ec}
+html.mm-visitor-halloween .site-header{background:linear-gradient(180deg,#160820,#0d051a);border-bottom:1px solid #ee8d3a;box-shadow:0 2px 20px rgba(220,82,171,.28)}
+html.mm-visitor-halloween .brand{color:#ffda8d;text-shadow:0 0 15px #e98b46}
+html.mm-visitor-halloween .brand-emblem{background:linear-gradient(160deg,#fff3c0,#ed982b)}
+html.mm-visitor-halloween .hero{background:#150a2b;border-bottom:2px solid #db7d32;isolation:isolate}
+html.mm-visitor-halloween .hero-art{background:url('../assets/visitor/halloween/hero.webp') 55% center/cover no-repeat;mask-image:none;opacity:1;filter:saturate(1.1)}
+html.mm-visitor-halloween .hero-bg{background:none}
+html.mm-visitor-halloween .hero-overlay{background:linear-gradient(90deg,rgba(16,5,34,.96) 0%,rgba(19,7,40,.94) 22%,rgba(17,6,34,.70) 38%,rgba(19,8,42,.12) 70%,rgba(15,5,29,.18) 100%)}
+html.mm-visitor-halloween .hero h1{text-shadow:0 0 22px rgba(255,148,37,.64),0 3px 10px #0a041c}
+html.mm-visitor-halloween .eyebrow,html.mm-visitor-halloween .section-kicker{color:#ffae53}
+html.mm-visitor-halloween .panel,html.mm-visitor-halloween .shop-panel{border:1px solid rgba(255,155,69,.82);background:linear-gradient(150deg,rgba(34,13,58,.97),rgba(17,7,34,.97));box-shadow:inset 0 1px 0 rgba(255,224,134,.13),0 0 12px rgba(200,72,169,.19)}
+html.mm-visitor-halloween .pokedex-panel{background:linear-gradient(150deg,rgba(37,14,58,.98),rgba(15,7,34,.98))}
+html.mm-visitor-halloween .panel h2,html.mm-visitor-halloween .shop-panel h2{color:#fff0cf;text-shadow:0 0 9px rgba(255,157,64,.21)}
+html.mm-visitor-halloween .panel p,html.mm-visitor-halloween .shop-heading p{color:#e4d0e9}
+html.mm-visitor-halloween .feature-image{border:1px solid #bf68ab;box-shadow:0 0 12px rgba(222,87,171,.22)}
+html.mm-visitor-halloween .explore-img{background-image:url('../assets/visitor/halloween/explore.webp')}
+html.mm-visitor-halloween .image-features{background:linear-gradient(90deg,rgba(19,7,41,.72),rgba(19,5,36,.96));border-left-color:#a758a0}
+html.mm-visitor-halloween .image-features>span{color:#ffe8ee}
+html.mm-visitor-halloween .heading-symbol{filter:drop-shadow(0 0 5px rgba(255,161,49,.55))}
+html.mm-visitor-halloween .creature{box-shadow:0 0 10px color-mix(in srgb, var(--type) 28%, transparent),inset 0 0 18px #100625;background:radial-gradient(ellipse at 50% 14%,color-mix(in srgb,var(--type) 24%,#251142),transparent 75%),linear-gradient(145deg,var(--wash),#110823)}
+html.mm-visitor-halloween .shop-items div{background:linear-gradient(150deg,#291044,#140b31);border-color:#d27d65;box-shadow:inset 0 0 12px rgba(255,133,53,.05)}
+html.mm-visitor-halloween .shop-item-icon{filter:drop-shadow(0 0 7px rgba(255,156,54,.6))}
+html.mm-visitor-halloween .final-cta{border:1px solid #eb9c4d;background:linear-gradient(95deg,#2a1045,#17092d 60%,#301145);box-shadow:0 0 18px rgba(233,102,159,.16)}
+html.mm-visitor-halloween .footer{background:rgba(14,5,27,.93);border-top:1px solid #a25a85}
+html.mm-visitor-halloween .mobile-tab{background:linear-gradient(#371342,#1e0c35);border-color:#c56f80;color:#ffddb2}
+html.mm-visitor-halloween .mobile-tab.is-active{box-shadow:inset 0 -2px 0 #ffab47,0 0 10px rgba(247,132,48,.4);border-color:#ffab47}
+html.mm-visitor-halloween .language-switch{border-color:#cb7c6b}
+html.mm-visitor-halloween .auth-dialog{background:#210e36;border-color:#eea854}
+html.mm-visitor-halloween .gold,html.mm-visitor-halloween .top-login{box-shadow:0 0 16px rgba(255,147,34,.38),inset 0 1px 4px #fff3c0}
+@media(max-width:768px){html.mm-visitor-halloween body{background-attachment:scroll;background-position:center center}html.mm-visitor-halloween .hero-art{background-position:65% center}html.mm-visitor-halloween .hero-overlay{background:linear-gradient(180deg,rgba(17,6,34,.79),rgba(19,6,36,.85) 55%,rgba(15,5,33,.96))}html.mm-visitor-halloween .hero h1{font-size:clamp(40px,11vw,62px)}}
+@media(prefers-reduced-motion:reduce){html.mm-visitor-halloween *{scroll-behavior:auto!important}}
