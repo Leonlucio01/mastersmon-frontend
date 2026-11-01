@@ -266,3 +266,51 @@ html.mm-visitor-halloween .hero {backdrop-filter:none!important;}
     background-color:#170829!important;
   }
 }
+
+
+/* V5.2: final background placement, applied ONLY during Halloween. */
+html.mm-visitor-halloween body {
+  /* One continuous illustration; proportional scaling, no tiles or stretching. */
+  background-image: linear-gradient(180deg,rgba(14,5,31,.17),rgba(16,6,33,.24)),
+    url('../assets/visitor/halloween/background.webp')!important;
+  background-repeat:no-repeat,no-repeat!important;
+  background-size:100% 100%,100% auto!important;
+  /* The slight vertical offset brings the lower pumpkins up into view. */
+  background-position:center top,center -55px!important;
+  background-attachment:scroll,scroll!important;
+  background-color:#160729!important;
+}
+html.mm-visitor-halloween .footer {
+  background:rgba(17,6,33,.42)!important;
+  border-top:1px solid rgba(242,146,75,.6)!important;
+  backdrop-filter:none!important;
+}
+html.mm-visitor-halloween .shop-panel {
+  background:linear-gradient(90deg,rgba(32,11,52,.75),rgba(23,8,40,.71))!important;
+}
+html.mm-visitor-halloween .final-cta {
+  background:linear-gradient(90deg,rgba(34,10,52,.74),rgba(23,8,40,.72))!important;
+}
+/* Replace the large, angular gold corners with compact Halloween webs. */
+html.mm-visitor-halloween .pokedex-panel::before,
+html.mm-visitor-halloween .explore-panel::before,
+html.mm-visitor-halloween .battles-panel::before {
+  content:""!important;
+  width:54px!important;height:54px!important;
+  background-image:url('../assets/visitor/halloween/icons/spiderweb.svg')!important;
+  background-size:contain!important;background-repeat:no-repeat!important;
+  opacity:.8!important;z-index:1;pointer-events:none;
+}
+@media(max-width:768px) {
+  html.mm-visitor-halloween body {
+    /* Small screens: preserve illustration aspect ratio and retain the center. */
+    background-size:100% 100%,auto 100%!important;
+    background-position:center top,center top!important;
+    background-attachment:scroll,scroll!important;
+  }
+  html.mm-visitor-halloween .pokedex-panel::before,
+  html.mm-visitor-halloween .explore-panel::before,
+  html.mm-visitor-halloween .battles-panel::before {
+    width:34px!important;height:34px!important;
+  }
+}
