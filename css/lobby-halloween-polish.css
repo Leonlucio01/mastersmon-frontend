@@ -291,21 +291,23 @@ html.mm-halloween body {
     url('../assets/lobby/halloween/footer-fog.webp'),
     url('../assets/lobby/halloween/footer-fog.webp'),
     radial-gradient(ellipse at 50% 25%,#3a1757,#120922 72%)!important;
-  background-size:100% 100%,cover,100% auto,cover!important;
+  /* Layer 3 is intentionally enlarged by width only so its height grows proportionally
+     and the pumpkins/leaves look taller without distorting the artwork. */
+  background-size:100% 100%,cover,112% auto,cover!important;
   background-position:center,center,center bottom,center!important;
   background-repeat:no-repeat,no-repeat,no-repeat,no-repeat!important;
   background-attachment:scroll,fixed,scroll,scroll!important;
 }
 @media(max-width:850px){
   html.mm-halloween body {
-    background-size:100% 100%,auto 100vh,auto 230px,cover!important;
+    background-size:100% 100%,auto 100vh,126% auto,cover!important;
     background-position:center,center top,center bottom,center!important;
     background-attachment:scroll,scroll,scroll,scroll!important;
   }
 }
 @media(max-width:580px){
   html.mm-halloween body {
-    background-size:100% 100%,auto 100vh,auto 170px,cover!important;
+    background-size:100% 100%,auto 100vh,155% auto,cover!important;
     background-position:center,center top,center bottom,center!important;
   }
 }
