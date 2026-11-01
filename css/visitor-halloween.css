@@ -31,3 +31,20 @@ html.mm-visitor-halloween .auth-dialog{background:#210e36;border-color:#eea854}
 html.mm-visitor-halloween .gold,html.mm-visitor-halloween .top-login{box-shadow:0 0 16px rgba(255,147,34,.38),inset 0 1px 4px #fff3c0}
 @media(max-width:768px){html.mm-visitor-halloween body{background-attachment:scroll;background-position:center center}html.mm-visitor-halloween .hero-art{background-position:65% center}html.mm-visitor-halloween .hero-overlay{background:linear-gradient(180deg,rgba(17,6,34,.79),rgba(19,6,36,.85) 55%,rgba(15,5,33,.96))}html.mm-visitor-halloween .hero h1{font-size:clamp(40px,11vw,62px)}}
 @media(prefers-reduced-motion:reduce){html.mm-visitor-halloween *{scroll-behavior:auto!important}}
+
+/* V2: Halloween detailing for visitor page */
+html.mm-visitor-halloween .site-header::after{content:"";position:absolute;left:0;right:0;bottom:-2px;height:2px;background:linear-gradient(90deg,transparent,#ffad42,#d647ba,#ffad42,transparent);pointer-events:none}
+html.mm-visitor-halloween .hero{box-shadow:inset 0 0 0 1px rgba(245,145,63,.28)}
+html.mm-visitor-halloween .panel,html.mm-visitor-halloween .final-cta{position:relative;overflow:hidden;border-color:#d78950;border-radius:13px;box-shadow:0 0 0 1px rgba(255,126,49,.13),0 0 14px rgba(196,75,176,.26),inset 0 1px rgba(255,202,103,.14)}
+html.mm-visitor-halloween .pokedex-panel::before,html.mm-visitor-halloween .explore-panel::before,html.mm-visitor-halloween .battles-panel::before{content:"";position:absolute;right:0;top:0;width:56px;height:56px;background:url('../assets/visitor/halloween/icons/spiderweb.svg') right top/contain no-repeat;opacity:.73;pointer-events:none}
+html.mm-visitor-halloween .panel h2 .heading-symbol{display:inline-grid;place-items:center;width:28px;height:28px}
+html.mm-visitor-halloween .panel h2 .heading-symbol img,html.mm-visitor-halloween .shop-panel h2 .heading-symbol img{filter:drop-shadow(0 0 6px #ff9f37)}
+html.mm-visitor-halloween .pokedex-panel .heading-symbol img{content:url('../assets/visitor/halloween/icons/pokedex.svg')}
+html.mm-visitor-halloween .explore-panel .heading-symbol img{content:url('../assets/visitor/halloween/icons/explore.svg')}
+html.mm-visitor-halloween .battles-panel .heading-symbol img{content:url('../assets/visitor/halloween/icons/battles.svg')}
+html.mm-visitor-halloween .shop-panel .heading-symbol img{content:url('../assets/visitor/halloween/icons/shop.svg')}
+html.mm-visitor-halloween .final-cta{background:linear-gradient(90deg,rgba(31,10,51,.94),rgba(17,8,36,.92)),url('../assets/visitor/halloween/background.webp') center 80%/cover no-repeat}
+html.mm-visitor-halloween .shop-panel{background:linear-gradient(90deg,rgba(30,12,48,.93),rgba(25,9,41,.95)),url('../assets/visitor/halloween/background.webp') center 65%/cover no-repeat}
+html.mm-visitor-halloween .feature-image{border-color:#ed9862;box-shadow:inset 0 0 12px rgba(255,176,72,.13),0 0 12px rgba(215,69,173,.2)}
+html.mm-visitor-halloween .auth-dialog{box-shadow:0 0 28px rgba(255,116,44,.35),0 20px 70px rgba(0,0,0,.6)}
+@media(max-width:768px){html.mm-visitor-halloween .pokedex-panel::before,html.mm-visitor-halloween .explore-panel::before,html.mm-visitor-halloween .battles-panel::before{width:37px;height:37px;opacity:.55}html.mm-visitor-halloween .hero-art{background-position:73% center}html.mm-visitor-halloween .hero-copy{position:relative;z-index:5}}
