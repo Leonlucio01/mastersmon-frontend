@@ -1,0 +1,18 @@
+/* MastersMon seasonal Christmas / Visitor only. 16 Nov - 15 Jan, America/Lima. */
+html.mm-visitor-christmas{--bg:#091430;--bg-2:#17123a;--panel:#17102f;--panel-2:#231447;--line:#efbb66;--line-soft:#7554a6;--cyan:#d6f1ff;--cyan-2:#a6e5ff;--gold:#ffe2a0;--gold-2:#ffb64f;--muted:#e2ddf6;}
+html.mm-visitor-christmas body{color:#fff5ee;background:linear-gradient(180deg,rgba(12,8,38,.22),rgba(17,9,46,.38)),url('../assets/visitor/christmas/background.webp') center center/cover fixed no-repeat,#0c1235;}
+html.mm-visitor-christmas .site-header{border-bottom:1px solid #edb862;background:linear-gradient(180deg,rgba(14,9,39,.88),rgba(19,9,43,.84));box-shadow:0 3px 16px rgba(58,36,106,.4);}
+html.mm-visitor-christmas .brand{color:#ffe0a0;text-shadow:0 0 12px #c57f3a;}
+html.mm-visitor-christmas .hero{background:#0d1541;border-bottom:2px solid #eeb357;isolation:isolate;}
+html.mm-visitor-christmas .hero-art{background:url('../assets/visitor/christmas/hero.webp') center center/cover no-repeat;mask-image:none;-webkit-mask-image:none;opacity:1;filter:saturate(1.05);}
+html.mm-visitor-christmas .hero-bg{background:none;}
+html.mm-visitor-christmas .hero-overlay{background:linear-gradient(90deg,rgba(9,10,39,.95) 0%,rgba(10,12,45,.9) 22%,rgba(12,12,44,.72) 39%,rgba(9,16,52,.10) 72%,rgba(9,10,40,.10) 100%);}
+html.mm-visitor-christmas .hero h1{color:#ffe5ac;text-shadow:0 0 18px rgba(255,192,100,.65),0 3px 10px #0b092b;}
+html.mm-visitor-christmas .eyebrow,html.mm-visitor-christmas .section-kicker{color:#ffe29c;}
+html.mm-visitor-christmas .panel,html.mm-visitor-christmas .shop-panel,html.mm-visitor-christmas .final-cta{border:1px solid rgba(246,189,95,.85);background-color:rgba(18,12,50,.84);box-shadow:0 0 15px rgba(75,70,168,.23),inset 0 1px 0 rgba(255,228,189,.13);}
+html.mm-visitor-christmas .explore-panel .feature-image,html.mm-visitor-christmas .explore-panel .explore-img{background-image:url('../assets/visitor/christmas/explore.webp')!important;background-size:cover!important;background-position:center!important;}
+html.mm-visitor-christmas .battles-panel .feature-image,html.mm-visitor-christmas .battles-panel .battle-img{background-image:url('../assets/visitor/christmas/battles.webp')!important;background-size:cover!important;background-position:center!important;}
+html.mm-visitor-christmas .shop-panel{background-image:linear-gradient(90deg,rgba(22,12,55,.84),rgba(19,11,48,.83)),url('../assets/visitor/christmas/shop-background.webp')!important;background-size:cover,cover!important;background-position:center,center!important;background-repeat:no-repeat!important;}
+html.mm-visitor-christmas .google-cta,html.mm-visitor-christmas .top-login{border-color:#ffe1a0!important;}
+html.mm-visitor-christmas .footer{background:rgba(10,7,34,.52)!important;border-top:1px solid rgba(251,197,115,.65)!important;}
+@media(max-width:768px){html.mm-visitor-christmas .hero-art{background-position:68% center!important;} html.mm-visitor-christmas .hero-overlay{background:linear-gradient(90deg,rgba(10,8,39,.93),rgba(10,9,40,.62) 70%,rgba(10,9,40,.25))!important;}html.mm-visitor-christmas body{background-attachment:scroll;}}
