@@ -1,0 +1,16 @@
+/* MastersMon V7.1 — Visual assets and Halloween section icons only. */
+html.mm-halloween .workspace .hero{background-image:url('../assets/lobby/halloween/banner-lobby.webp')!important;background-size:cover!important;background-position:50% 50%!important}
+html.mm-halloween .visual-world{background-image:url('../assets/lobby/halloween/world-map.webp')!important;background-size:cover!important;background-position:center!important}
+html.mm-halloween .quests-panel{background-image:linear-gradient(180deg,rgba(23,8,42,.42) 0%,rgba(21,7,37,.85) 38%,rgba(18,7,36,.98) 66%),url('../assets/lobby/halloween/missions-background.webp')!important;background-position:center,center top!important;background-size:cover,100% auto!important;background-repeat:no-repeat!important}
+html.mm-halloween .quests-panel .panel-title{min-height:43px!important;margin-bottom:2px!important}
+html.mm-halloween .panel-title .panel-icon{display:inline-flex!important;width:30px!important;height:30px!important;min-width:30px!important;flex:0 0 30px!important;align-items:center!important;justify-content:center!important;padding:0!important;font-size:0!important;color:transparent!important;background-color:transparent!important;background-position:center!important;background-size:contain!important;background-repeat:no-repeat!important;border:none!important;box-shadow:0 0 9px #ff9a4244!important;vertical-align:middle}
+html.mm-halloween .collection-panel .panel-icon{background-image:url('../assets/lobby/halloween/icons/captures.svg')!important}
+html.mm-halloween .party-panel .panel-icon{background-image:url('../assets/lobby/halloween/icons/party.svg')!important}
+html.mm-halloween .explore-panel .panel-icon{background-image:url('../assets/lobby/halloween/icons/explore.svg')!important}
+html.mm-halloween .quests-panel .panel-icon{background-image:url('../assets/lobby/halloween/icons/missions.svg')!important}
+html.mm-halloween .shop-panel .panel-icon{background-image:url('../assets/lobby/halloween/icons/shop.svg')!important}
+html.mm-halloween .events-panel .panel-icon{background-image:url('../assets/lobby/halloween/icons/events.svg')!important}
+html.mm-halloween .panel-title h2{color:#ffd183!important;text-shadow:0 0 8px #ed863d66}
+html.mm-halloween .panel-title>a{color:#ffc36d!important}
+html.mm-halloween .panel{border-color:#b45de8!important;box-shadow:inset 0 0 0 1px #eaa36d20,0 0 16px #a93aec33!important}
+@media(max-width:700px){html.mm-halloween .workspace .hero{background-position:52% center!important}html.mm-halloween .panel-title .panel-icon{width:27px!important;height:27px!important;min-width:27px!important;flex-basis:27px!important}html.mm-halloween .quests-panel{background-size:cover,auto 125px!important}}
