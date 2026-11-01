@@ -79,3 +79,31 @@ html.mm-christmas .panel-title { margin-bottom: 3px; }
   html.mm-christmas .hero .gold-btn { font-size:12px; gap:7px; }
   html.mm-christmas .hero .gold-btn::before { width:16px;height:16px;flex-basis:16px; }
 }
+
+
+/* CHRISTMAS LOBBY V3: individually redesigned seasonal title icons. */
+html.mm-christmas .panel .panel-title h2 .panel-icon {
+  width:30px!important;height:30px!important;min-width:30px!important;
+  display:inline-block!important;flex:0 0 30px!important;
+  color:transparent!important;font-size:0!important;line-height:0!important;
+  background-color:transparent!important;background-repeat:no-repeat!important;
+  background-position:center!important;background-size:contain!important;
+  border:0!important;border-radius:0!important;
+  box-shadow:none!important;vertical-align:middle;
+}
+html.mm-christmas .collection-panel .panel-icon{background-image:url('../assets/lobby/christmas/icons/recent-captures-icon.webp')!important}
+html.mm-christmas .party-panel .panel-icon{background-image:url('../assets/lobby/christmas/icons/current-team-icon.webp')!important}
+html.mm-christmas .explore-panel .panel-icon{background-image:url('../assets/lobby/christmas/icons/explore-world-icon.webp')!important}
+html.mm-christmas .quests-panel .panel-icon{background-image:url('../assets/lobby/christmas/icons/daily-missions-icon.webp')!important}
+html.mm-christmas .shop-panel .panel-icon{background-image:url('../assets/lobby/christmas/icons/featured-shop-icon.webp')!important}
+html.mm-christmas .events-panel .panel-icon{background-image:url('../assets/lobby/christmas/icons/events-challenges-icon.webp')!important}
+/* Daily missions: show snowy festive village at the top, keep actual progress readable. */
+html.mm-christmas .quests-panel{
+  background-image:linear-gradient(180deg,rgba(13,10,37,.42) 0px,rgba(13,10,37,.46) 66px,rgba(15,11,38,.96) 118px),url('../assets/lobby/christmas/daily-missions-banner.webp')!important;
+  background-size:100% 100%,100% 120px!important;
+  background-position:center top,center top!important;
+  background-repeat:no-repeat,no-repeat!important;
+}
+html.mm-christmas .quests-panel .quest-list{position:relative;z-index:1}
+html.mm-christmas .quests-panel .panel-title{background:linear-gradient(90deg,rgba(16,10,43,.65),rgba(16,10,43,.26) 78%,transparent)!important}
+@media(max-width:780px){html.mm-christmas .panel .panel-title h2 .panel-icon{width:26px!important;height:26px!important;min-width:26px!important;flex-basis:26px!important}}
