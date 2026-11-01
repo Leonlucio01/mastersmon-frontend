@@ -1,0 +1,9 @@
+/* MastersMon lobby-only audio dock. Does not modify the game's interface or cards. */
+.mm-audio-dock{position:fixed;right:16px;bottom:16px;z-index:850;display:flex;align-items:center;gap:9px;padding:8px 10px;border:1px solid #397baf;border-radius:12px;background:#06172eea;color:#f9f4ff;box-shadow:0 6px 22px #0008;max-width:min(365px,calc(100vw - 22px));backdrop-filter:blur(12px);font:12px/1.3 system-ui,sans-serif}
+.mm-audio-dock button{border:1px solid #527ca0;border-radius:8px;background:#0e355b;color:#fff;min-width:35px;min-height:34px;cursor:pointer;font-size:16px;flex:none}
+.mm-audio-dock button:focus-visible,.mm-audio-dock input:focus-visible{outline:2px solid #ffd079;outline-offset:2px}
+.mm-audio-dock .mm-audio-text{min-width:0;flex:1}.mm-audio-dock .mm-audio-title{font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mm-audio-dock .mm-audio-status{font-size:10px;color:#c0cfe2}
+.mm-audio-dock input[type=range]{width:74px;accent-color:#ffc25f;cursor:pointer}
+html.mm-halloween .mm-audio-dock{border-color:#bb6cdd;background:#210c32ed;box-shadow:0 6px 25px #430e6380}
+html.mm-halloween .mm-audio-dock button{border-color:#ab66db;background:#622778}
+@media(max-width:600px){.mm-audio-dock{right:9px;bottom:9px;padding:7px;gap:6px}.mm-audio-dock .mm-audio-status{display:none}.mm-audio-dock input[type=range]{width:56px}}
