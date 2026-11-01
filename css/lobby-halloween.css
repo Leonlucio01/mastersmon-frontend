@@ -92,3 +92,105 @@ html.mm-halloween .mission-claim {color:#ffcb69;}
 @media(prefers-reduced-motion:reduce) {
   html.mm-halloween *,html.mm-halloween *::before,html.mm-halloween *::after {animation-duration:.01ms!important;transition-duration:.01ms!important;}
 }
+
+
+/* V6 — upgraded Halloween art pack: panoramic banner, mission graveyard, footer fog, and refined topbar/panel lighting. */
+html.mm-halloween .topbar::before,
+html.mm-halloween .unified-header::before{
+  content:'';position:absolute;left:0;right:0;top:0;height:100%;pointer-events:none;z-index:0;
+  background:
+    url('../assets/lobby/halloween/bats.svg') 33% 12px / 34px no-repeat,
+    url('../assets/lobby/halloween/bats.svg') 67% 12px / 34px no-repeat,
+    url('../assets/lobby/halloween/autumn-leaves.svg') 8px -6px / 92px no-repeat,
+    url('../assets/lobby/halloween/autumn-leaves.svg') calc(100% - 8px) -6px / 92px no-repeat;
+  opacity:.62;
+}
+html.mm-halloween .top-inner{position:relative;z-index:1}
+html.mm-halloween .workspace .hero{
+  background:#251035 url('../assets/lobby/halloween/banner-lobby.webp') center 53% / cover no-repeat!important;
+  min-height:220px;
+}
+html.mm-halloween .hero-scrim{
+  background:linear-gradient(90deg,rgba(18,7,28,.95) 0%,rgba(18,7,28,.78) 26%,rgba(18,7,28,.20) 58%,rgba(18,7,28,.45) 100%)!important;
+}
+html.mm-halloween .hero::after{
+  content:'';position:absolute;inset:auto 0 0;height:54px;pointer-events:none;z-index:1;
+  background:linear-gradient(to top,rgba(76,21,112,.42),transparent);
+}
+html.mm-halloween .hero-profile{
+  backdrop-filter: blur(4px);
+  background:linear-gradient(135deg,rgba(39,18,60,.93),rgba(22,12,45,.90))!important;
+}
+html.mm-halloween .visual-world{
+  background:#28113c url('../assets/lobby/halloween/world-map.webp') center 45% / cover no-repeat!important;
+}
+html.mm-halloween .quests-panel{
+  background-image:linear-gradient(180deg,rgba(23,8,41,.76),rgba(18,7,33,.94) 44%),url('../assets/lobby/halloween/missions-background.webp')!important;
+  background-size:cover,cover!important;
+  background-position:center,center bottom!important;
+  background-repeat:no-repeat!important;
+}
+html.mm-halloween .quests-panel::after{
+  background:linear-gradient(90deg,transparent,rgba(255,163,72,.36),transparent),
+             linear-gradient(0deg,rgba(255,150,53,.15),transparent 60%);
+  opacity:.88;
+}
+html.mm-halloween .shop-panel{
+  box-shadow:0 0 16px rgba(169,58,236,.22), inset 0 1px rgba(233,167,255,.10), inset 0 0 54px rgba(255,156,52,.06)!important;
+}
+html.mm-halloween .shop-panel::after{
+  background:linear-gradient(90deg,transparent,rgba(255,167,72,.44),transparent);
+  opacity:.9;
+}
+html.mm-halloween .shop-cards > *{
+  box-shadow:0 0 0 1px rgba(255,178,82,.07), inset 0 0 0 1px rgba(255,255,255,.03);
+}
+html.mm-halloween .shop-cards > *:hover{
+  box-shadow:0 0 18px rgba(255,150,56,.36), 0 0 0 1px rgba(255,185,88,.18)!important;
+}
+html.mm-halloween .event-art,
+html.mm-halloween #eventCard{
+  box-shadow:inset 0 0 55px rgba(208,86,255,.14), inset 0 0 0 1px rgba(255,160,58,.08);
+}
+html.mm-halloween .event-art::before,
+html.mm-halloween #eventCard::before{
+  content:'';position:absolute;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(circle at 82% 55%,rgba(255,111,196,.22),transparent 34%),
+             radial-gradient(circle at 68% 42%,rgba(196,113,255,.22),transparent 44%),
+             linear-gradient(90deg,rgba(16,7,33,.30),transparent 55%);
+}
+html.mm-halloween .event-art > *, html.mm-halloween #eventCard > *{position:relative;z-index:1}
+html.mm-halloween footer{
+  position:relative;overflow:hidden;isolation:isolate;
+  background:linear-gradient(180deg,rgba(22,7,36,.28),rgba(14,5,28,.58));
+}
+html.mm-halloween footer::after{
+  content:'';position:absolute;left:0;right:0;bottom:0;height:132px;pointer-events:none;z-index:-1;
+  background:linear-gradient(180deg,transparent 0%,rgba(14,6,30,.18) 20%,rgba(14,6,30,.94) 100%),
+             url('../assets/lobby/halloween/footer-fog.webp') center bottom / cover no-repeat;
+  opacity:.96;
+}
+html.mm-halloween footer span, html.mm-halloween footer a{position:relative;z-index:2}
+@media (max-width:1024px){
+  html.mm-halloween .workspace .hero{background-position:44% center!important;}
+  html.mm-halloween footer::after{height:116px;background-position:center bottom;}
+}
+@media (max-width:780px){
+  html.mm-halloween .topbar::before,html.mm-halloween .unified-header::before{background:
+    url('../assets/lobby/halloween/bats.svg') 24% 13px / 28px no-repeat,
+    url('../assets/lobby/halloween/bats.svg') 76% 13px / 28px no-repeat,
+    url('../assets/lobby/halloween/autumn-leaves.svg') 4px -4px / 72px no-repeat,
+    url('../assets/lobby/halloween/autumn-leaves.svg') calc(100% - 4px) -4px / 72px no-repeat;opacity:.55;}
+  html.mm-halloween .workspace .hero{background-position:42% center!important;min-height:210px;}
+  html.mm-halloween .hero-scrim{background:linear-gradient(180deg,rgba(18,7,28,.78),rgba(18,7,28,.42))!important;}
+  html.mm-halloween .quests-panel{background-position:center,42% bottom!important;}
+  html.mm-halloween footer::after{height:92px;}
+}
+@media (max-width:560px){
+  html.mm-halloween .topbar::before,html.mm-halloween .unified-header::before{background:
+    url('../assets/lobby/halloween/bats.svg') center 11px / 24px no-repeat,
+    url('../assets/lobby/halloween/autumn-leaves.svg') left -5px top -6px / 58px no-repeat,
+    url('../assets/lobby/halloween/autumn-leaves.svg') right -5px top -6px / 58px no-repeat;opacity:.45;}
+  html.mm-halloween .workspace .hero{background-position:40% center!important;min-height:198px;}
+  html.mm-halloween footer::after{height:76px;}
+}

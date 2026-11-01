@@ -73,3 +73,84 @@ html.mm-halloween .quests-panel{background-size:cover,auto 100px!important;}
 @media(max-width:900px){html.mm-halloween .panel .panel-title{gap:5px}html.mm-halloween .quests-panel .panel-title::after,html.mm-halloween .shop-panel .panel-title::after,html.mm-halloween .events-panel .panel-title::after{opacity:.28;width:24px;height:22px;top:26px}}
 @media(max-width:680px){html.mm-halloween .workspace .hero{background-position:62% center!important}html.mm-halloween .panel .panel-title > a{font-size:11px;max-width:45%;overflow:hidden;text-overflow:ellipsis}html.mm-halloween .quests-panel .panel-title::after,html.mm-halloween .shop-panel .panel-title::after,html.mm-halloween .events-panel .panel-title::after{display:none!important}}
 @media(prefers-reduced-motion:reduce){html.mm-halloween .panel,html.mm-halloween .hero{animation:none!important}}
+
+
+/* V6 polish — footer atmosphere, cleaner action links, and panel decorations kept out of flow. */
+html.mm-halloween .collection-panel .panel-title::before,
+html.mm-halloween .party-panel .panel-title::before,
+html.mm-halloween .explore-panel .panel-title::before{
+  content:'';position:absolute;pointer-events:none;right:2px;bottom:-8px;width:34px;height:25px;opacity:.22;background:url('../assets/lobby/halloween/autumn-leaves.svg') center/contain no-repeat;z-index:0;
+}
+html.mm-halloween .collection-panel .panel-title::before{background-image:url('../assets/lobby/halloween/bats.svg');}
+html.mm-halloween .explore-panel .panel-title::before{background-image:url('../assets/lobby/halloween/spiderweb-corner.svg');width:28px;height:28px;right:4px;bottom:-10px;opacity:.20;}
+html.mm-halloween .quests-panel .panel-title::after,
+html.mm-halloween .shop-panel .panel-title::after,
+html.mm-halloween .events-panel .panel-title::after{
+  filter:drop-shadow(0 0 8px rgba(255,145,47,.16));
+}
+html.mm-halloween .panel a[href$='→'],
+html.mm-halloween .panel-title > a{letter-spacing:.01em}
+html.mm-halloween .event-cta,
+html.mm-halloween .inside-cta{
+  box-shadow:0 0 16px rgba(255,148,44,.20);
+}
+@media (max-width:680px){
+  html.mm-halloween .collection-panel .panel-title::before,
+  html.mm-halloween .party-panel .panel-title::before,
+  html.mm-halloween .explore-panel .panel-title::before{display:none!important;}
+}
+
+
+/* V6.1: artwork visibility fixes — only active for Halloween. */
+html.mm-halloween body {
+  background-color:#11051e!important;
+  background-image:
+    linear-gradient(to bottom,rgba(14,4,29,.10) 0%,rgba(14,4,29,.30) 50%,rgba(14,4,29,.04) 100%),
+    url('../assets/lobby/halloween/footer-fog.webp'),
+    radial-gradient(ellipse at 50% 35%,#321345 0%,#180a2d 62%,#0c051c 100%)!important;
+  background-position:center,center bottom,center!important;
+  background-size:100% 100%,100% auto,cover!important;
+  background-repeat:no-repeat!important;
+  background-attachment:scroll!important;
+  min-height:100vh;
+}
+/* Align upper half of cinematic image: full moon and tree were cropped off by cover. */
+html.mm-halloween .workspace .hero {
+  background-position:center 10%!important;
+}
+html.mm-halloween .hero-scrim {
+  background:linear-gradient(90deg,rgba(17,5,28,.93) 0%,rgba(17,5,28,.72) 26%,rgba(17,5,28,.10) 60%,rgba(17,5,28,.37) 100%)!important;
+}
+html.mm-halloween .hero::before {
+  background:
+    url('../assets/lobby/halloween/spiderweb-corner.svg') left top / 65px no-repeat,
+    url('../assets/lobby/halloween/spiderweb-corner.svg') right top / 65px no-repeat,
+    url('../assets/lobby/halloween/pumpkin.svg') 22% bottom / 58px no-repeat;
+  opacity:.72;
+}
+/* Preserve contrast for mission rows while making the graveyard visible in the heading. */
+html.mm-halloween .quests-panel {
+  background-image:
+     linear-gradient(180deg,rgba(24,8,42,.23) 0%,rgba(24,8,42,.54) 25%,rgba(19,7,37,.94) 52%,rgba(18,7,36,.98) 100%),
+     url('../assets/lobby/halloween/missions-background.webp')!important;
+  background-position:center,center 69%!important;
+  background-size:cover,cover!important;
+}
+html.mm-halloween .quests-panel .panel-title {min-height:66px;}
+html.mm-halloween .quests-panel .quest-list {position:relative;z-index:2;}
+html.mm-halloween .quests-panel .quest-row {background-color:rgba(10,24,42,.92)!important;}
+/* Footer is only a small strip; backdrop is now on body and visible below it. */
+html.mm-halloween footer::after {display:none!important;}
+html.mm-halloween footer {background:rgba(19,6,36,.42)!important;}
+@media(max-width:850px){
+ html.mm-halloween body {background-size:100% 100%,auto 280px,cover!important;}
+ html.mm-halloween .workspace .hero {background-position:45% 9%!important;}
+ html.mm-halloween .hero::before{background-size:39px,39px,38px;}
+}
+@media(max-width:580px){
+ html.mm-halloween body{background-size:100% 100%,auto 190px,cover!important;}
+ html.mm-halloween .workspace .hero{background-position:42% 7%!important;}
+ html.mm-halloween .hero::before{background-size:34px,34px,32px;}
+ html.mm-halloween .quests-panel .panel-title{min-height:55px;}
+}
+@media(prefers-reduced-motion:reduce){ html.mm-halloween body{background-attachment:scroll!important;} }
