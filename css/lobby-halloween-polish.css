@@ -1,0 +1,49 @@
+/* MastersMon Halloween V4 — purely decorative; never hide dynamic content. */
+html.mm-halloween body {
+  background-color:#10051e;
+  background-image:linear-gradient(180deg,rgba(9,3,23,.37),rgba(20,5,38,.70)),url('../assets/lobby/halloween/background-lobby.webp');
+}
+html.mm-halloween .workspace .hero {
+  background-position:center 56%!important;
+  border-color:#ffad4c!important;
+  box-shadow:0 0 0 1px rgba(255,166,64,.22),0 9px 26px rgba(98,30,118,.4)!important;
+}
+html.mm-halloween .hero::after {
+  content:'';position:absolute;inset:auto 0 0;z-index:1;pointer-events:none;height:45px;
+  background:linear-gradient(to top,rgba(56,15,87,.38),transparent);
+}
+html.mm-halloween .hero-intro,html.mm-halloween .hero-profile {position:relative;z-index:2}
+html.mm-halloween .panel {isolation:isolate;overflow:hidden}
+html.mm-halloween .panel > * {position:relative;z-index:2}
+html.mm-halloween .panel::before {z-index:0;opacity:.46}
+html.mm-halloween .panel::after {content:'';position:absolute;pointer-events:none;z-index:0;inset:auto 0 0;height:5px;background:linear-gradient(90deg,transparent,#ff9e3b50,transparent);opacity:.65}
+html.mm-halloween .quests-panel {
+ background-image:linear-gradient(180deg,rgba(24,8,43,.86),rgba(22,9,39,.97) 46%),url('../assets/lobby/halloween/graveyard.svg')!important;
+ background-size:cover,auto 125px!important;background-position:center,center top!important;background-repeat:no-repeat!important;
+}
+html.mm-halloween .quests-panel .panel-title::after {
+ content:'';width:50px;height:39px;flex:none;margin-left:auto;opacity:.84;pointer-events:none;
+ background:url('../assets/lobby/halloween/pumpkin.svg') center/contain no-repeat;
+}
+html.mm-halloween .shop-panel .panel-title::after {
+ content:'';width:48px;height:39px;flex:none;margin-left:auto;opacity:.75;pointer-events:none;
+ background:url('../assets/lobby/halloween/bats.svg') center/contain no-repeat;
+}
+html.mm-halloween .events-panel .panel-title::after {
+ content:'';width:34px;height:34px;flex:none;margin-left:auto;opacity:.73;pointer-events:none;
+ background:url('../assets/lobby/halloween/moon.svg') center/contain no-repeat;
+}
+html.mm-halloween .quests-panel .quest-row {box-shadow:inset 0 0 10px #6b2c9a24!important}
+html.mm-halloween .shop-cards > *, html.mm-halloween .pokemon-cards .pokemon-tile,html.mm-halloween .party-grid .party-tile {
+ transition:box-shadow .18s ease,border-color .18s ease;
+}
+html.mm-halloween .shop-cards > *:hover,html.mm-halloween .pokemon-cards .pokemon-tile:hover,html.mm-halloween .party-grid .party-tile:hover {
+ box-shadow:0 0 14px rgba(246,144,44,.30)!important;
+}
+/* Preserve the existing rarity/star styling and per-Pokemon type labels. */
+html.mm-halloween .capture-tile:not(.is-shiny)::before{content:none!important;display:none!important}
+html.mm-halloween footer {position:relative}
+html.mm-halloween footer::before {content:'';position:absolute;left:0;right:0;top:-6px;height:6px;pointer-events:none;background:linear-gradient(90deg,transparent,#c052f050,transparent)}
+@media(max-width:850px){html.mm-halloween .quests-panel .panel-title::after,html.mm-halloween .shop-panel .panel-title::after,html.mm-halloween .events-panel .panel-title::after{width:28px;height:26px}}
+@media(max-width:580px){html.mm-halloween .workspace .hero {background-position:62% center!important}html.mm-halloween .quests-panel .panel-title::after,html.mm-halloween .shop-panel .panel-title::after,html.mm-halloween .events-panel .panel-title::after {display:none}}
+@media(prefers-reduced-motion:reduce){html.mm-halloween .shop-cards > *,html.mm-halloween .pokemon-cards .pokemon-tile,html.mm-halloween .party-grid .party-tile{transition:none!important}}
