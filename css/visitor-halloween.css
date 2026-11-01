@@ -48,3 +48,39 @@ html.mm-visitor-halloween .shop-panel{background:linear-gradient(90deg,rgba(30,1
 html.mm-visitor-halloween .feature-image{border-color:#ed9862;box-shadow:inset 0 0 12px rgba(255,176,72,.13),0 0 12px rgba(215,69,173,.2)}
 html.mm-visitor-halloween .auth-dialog{box-shadow:0 0 28px rgba(255,116,44,.35),0 20px 70px rgba(0,0,0,.6)}
 @media(max-width:768px){html.mm-visitor-halloween .pokedex-panel::before,html.mm-visitor-halloween .explore-panel::before,html.mm-visitor-halloween .battles-panel::before{width:37px;height:37px;opacity:.55}html.mm-visitor-halloween .hero-art{background-position:73% center}html.mm-visitor-halloween .hero-copy{position:relative;z-index:5}}
+
+/* V3 - visual integration of approved Halloween illustrations. Seasonal class only. */
+html.mm-visitor-halloween body {
+  background-image: linear-gradient(180deg,rgba(15,5,34,.18),rgba(15,5,34,.26)),url('../assets/visitor/halloween/background.webp');
+  background-position:center top,center center;
+  background-size:100% 100%,cover;
+}
+html.mm-visitor-halloween .hero-art {
+  background-image:url('../assets/visitor/halloween/hero.webp');
+  background-position:center center;
+  background-size:cover;
+}
+html.mm-visitor-halloween .hero-overlay {
+  background:linear-gradient(90deg,rgba(13,4,31,.95) 0%,rgba(15,5,34,.89) 19%,rgba(15,5,33,.63) 35%,rgba(14,4,31,.11) 64%,rgba(14,5,33,.13) 100%);
+}
+html.mm-visitor-halloween .battle-img {background-image:url('../assets/visitor/halloween/battles.webp')}
+html.mm-visitor-halloween .explore-img {background-image:url('../assets/visitor/halloween/explore.webp');background-position:center 48%}
+html.mm-visitor-halloween .shop-panel {
+  background-image:linear-gradient(90deg,rgba(23,7,47,.9),rgba(24,8,46,.83)),url('../assets/visitor/halloween/shop-background.webp');
+  background-position:center,center 50%;background-size:cover,cover;
+}
+html.mm-visitor-halloween .final-cta {
+  background-image:linear-gradient(90deg,rgba(28,9,49,.83),rgba(21,7,39,.86)),url('../assets/visitor/halloween/background.webp');
+  background-position:center,center 80%;background-size:cover,cover;
+}
+html.mm-visitor-halloween .panel {
+  box-shadow:0 0 0 1px rgba(255,145,48,.17),0 0 17px rgba(204,73,178,.23),inset 0 1px rgba(255,215,129,.17);
+}
+html.mm-visitor-halloween .feature-image {box-shadow:inset 0 -12px 20px rgba(20,5,34,.18),0 0 13px rgba(229,97,175,.22)}
+html.mm-visitor-halloween .auth-dialog {background:linear-gradient(160deg,#271040,#100723)}
+@media(max-width:768px){
+ html.mm-visitor-halloween body {background-attachment:scroll,scroll;background-size:100% 100%,auto 100%;background-position:center,center top}
+ html.mm-visitor-halloween .hero-art {background-position:67% center}
+ html.mm-visitor-halloween .hero-overlay {background:linear-gradient(180deg,rgba(14,5,35,.72),rgba(15,5,35,.86) 50%,rgba(13,5,33,.95))}
+ html.mm-visitor-halloween .shop-panel {background-position:center,center}
+}
