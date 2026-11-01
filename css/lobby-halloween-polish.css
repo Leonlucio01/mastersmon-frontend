@@ -154,3 +154,85 @@ html.mm-halloween footer {background:rgba(19,6,36,.42)!important;}
  html.mm-halloween .quests-panel .panel-title{min-height:55px;}
 }
 @media(prefers-reduced-motion:reduce){ html.mm-halloween body{background-attachment:scroll!important;} }
+
+
+/* V6.2 — final adjustments after real mobile review. */
+/* 1) Make the mission graveyard more noticeable in the header without hurting row contrast. */
+html.mm-halloween .quests-panel {
+  background-image:
+     linear-gradient(180deg,rgba(24,8,42,.16) 0%,rgba(24,8,42,.36) 18%,rgba(19,7,37,.88) 49%,rgba(18,7,36,.98) 100%),
+     url('../assets/lobby/halloween/missions-background.webp')!important;
+  background-position:center,center 61%!important;
+}
+html.mm-halloween .quests-panel .panel-title{
+  min-height:78px;
+  align-items:flex-start;
+}
+html.mm-halloween .quests-panel .panel-title > div{
+  padding-top:2px;
+}
+/* 2) Footer art / fog: keep visible but avoid oversized cropped pumpkins near edges. */
+html.mm-halloween body{
+  background-position:center,center calc(100% + 4px),center!important;
+  background-size:100% 100%,100% auto,cover!important;
+}
+/* 3) Add enough breathing room so the audio dock never touches cards on mobile. */
+html.mm-halloween body,
+html.mm-halloween .workspace,
+html.mm-halloween .page-shell,
+html.mm-halloween main{
+  padding-bottom:0;
+}
+html.mm-halloween footer{
+  padding-bottom:92px!important;
+}
+/* 4) Audio dock spacing and mobile fit. */
+html.mm-halloween .mm-audio-dock{
+  bottom:14px;
+  right:14px;
+}
+/* 5) Mobile hero and panel rhythm. */
+@media(max-width:850px){
+  html.mm-halloween .quests-panel .panel-title{min-height:70px;}
+  html.mm-halloween body{background-position:center,center calc(100% + 2px),center!important;}
+}
+@media(max-width:580px){
+  html.mm-halloween body{
+    background-size:100% 100%,auto 165px,cover!important;
+    background-position:center,center calc(100% + 2px),center!important;
+  }
+  html.mm-halloween .workspace .hero{
+    background-position:41% 8%!important;
+    min-height:208px!important;
+  }
+  html.mm-halloween .hero-scrim{
+    background:linear-gradient(180deg,rgba(17,5,28,.82) 0%,rgba(17,5,28,.52) 52%,rgba(17,5,28,.20) 100%)!important;
+  }
+  html.mm-halloween .hero::before{
+    background:
+      url('../assets/lobby/halloween/spiderweb-corner.svg') left top / 34px no-repeat,
+      url('../assets/lobby/halloween/spiderweb-corner.svg') right top / 34px no-repeat,
+      url('../assets/lobby/halloween/pumpkin.svg') 20% bottom / 28px no-repeat;
+    opacity:.68;
+  }
+  html.mm-halloween .quests-panel{
+    background-position:center,48% 58%!important;
+  }
+  html.mm-halloween .quests-panel .panel-title{
+    min-height:66px;
+    margin-bottom:4px;
+  }
+  html.mm-halloween .mm-audio-dock{
+    right:10px;
+    bottom:12px;
+    max-width:calc(100vw - 20px);
+  }
+  html.mm-halloween footer{padding-bottom:88px!important;}
+}
+@media(max-width:420px){
+  html.mm-halloween body{background-size:100% 100%,auto 150px,cover!important;}
+  html.mm-halloween .workspace .hero{min-height:212px!important;background-position:40% 7%!important;}
+  html.mm-halloween .quests-panel .panel-title{min-height:64px;}
+  html.mm-halloween .mm-audio-dock{right:8px;bottom:10px;max-width:calc(100vw - 16px);}
+  html.mm-halloween footer{padding-bottom:84px!important;}
+}
