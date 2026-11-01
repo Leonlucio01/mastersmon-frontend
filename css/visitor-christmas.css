@@ -188,3 +188,99 @@ html.mm-visitor-christmas .hero .hero-copy .hint {opacity:1!important;}
     backdrop-filter:none;
   }
 }
+
+/* =============================================================
+   MastersMon Christmas Visitor V6 - final visual polish
+   Christmas-only refinements; no structural/layout/JS changes.
+   ============================================================= */
+/* Frosted vignette: keep all text readable without a heavy black rectangle. */
+html.mm-visitor-christmas .hero .hero-copy {
+  background:linear-gradient(96deg,rgba(13,9,42,.83) 0%,rgba(17,12,52,.71) 63%,rgba(21,13,51,.25) 94%,transparent 100%)!important;
+  border:1px solid rgba(255,220,154,.19)!important;
+  border-right-color:transparent!important;
+  border-radius:14px!important;
+  padding:17px 29px 18px 19px!important;
+  margin-left:-19px!important;
+  box-shadow:inset 0 1px rgba(255,244,216,.09),0 10px 28px rgba(8,4,31,.20)!important;
+  -webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);
+}
+html.mm-visitor-christmas .hero .hero-copy .eyebrow {
+  color:#b5f4ff!important;
+  letter-spacing:.09em;
+  text-shadow:0 1px 5px rgba(2,7,31,.95)!important;
+}
+html.mm-visitor-christmas .hero .hero-copy h1,
+html.mm-visitor-christmas .hero .hero-copy h1 span {
+  text-shadow:0 3px 9px rgba(5,4,24,.95),0 0 24px rgba(255,190,108,.22)!important;
+}
+html.mm-visitor-christmas .hero .hero-copy .hero-body {line-height:1.6!important;}
+html.mm-visitor-christmas .hero .hero-copy .hint {
+  font-size:clamp(10px,.75vw,12px)!important;
+  line-height:1.45!important;
+  margin-top:10px!important;
+  color:#f7f4ff!important;
+}
+/* Primary sign-in has warmer gold edging, focus visibility and controlled glow. */
+html.mm-visitor-christmas .hero .google-cta,
+html.mm-visitor-christmas .final-cta .google-cta {
+  border:1px solid #ffe2a1!important;
+  box-shadow:0 0 0 1px rgba(255,193,92,.25),0 5px 16px rgba(20,8,41,.40),0 0 17px rgba(255,190,89,.18)!important;
+  transition:transform .18s ease,box-shadow .18s ease,filter .18s ease!important;
+}
+html.mm-visitor-christmas .hero .google-cta:hover,
+html.mm-visitor-christmas .final-cta .google-cta:hover {
+  transform:translateY(-1px);
+  filter:brightness(1.055);
+  box-shadow:0 0 0 1px rgba(255,224,155,.43),0 8px 20px rgba(20,8,41,.45),0 0 23px rgba(255,190,89,.29)!important;
+}
+html.mm-visitor-christmas .google-cta:focus-visible {
+  outline:3px solid #b4efff!important;outline-offset:3px!important;
+}
+/* Soft edge transition from the illustrated hero to the content area. */
+html.mm-visitor-christmas .hero {
+  border-bottom:1px solid rgba(255,205,137,.78)!important;
+  box-shadow:0 7px 22px rgba(20,8,57,.48),inset 0 -2px rgba(255,213,161,.17)!important;
+}
+/* Panel accents: unobtrusive snow trim while preserving actual content and sprites. */
+html.mm-visitor-christmas .feature-grid > .panel {
+  border-color:rgba(247,193,120,.80)!important;
+  box-shadow:inset 0 1px 0 rgba(255,246,225,.15),0 7px 22px rgba(9,5,37,.28),0 0 12px rgba(167,91,187,.16)!important;
+}
+html.mm-visitor-christmas .feature-grid > .panel::before {
+  content:''!important;
+  position:absolute!important;
+  left:14px!important;right:42px!important;top:0!important;
+  height:2px!important;pointer-events:none!important;
+  background:linear-gradient(90deg,transparent,rgba(223,245,255,.72) 20%,rgba(255,229,171,.52) 65%,transparent)!important;
+  opacity:.65!important;z-index:2!important;
+}
+html.mm-visitor-christmas .feature-grid > .panel::after {
+  color:rgba(220,240,255,.84)!important;
+  text-shadow:0 0 8px rgba(193,223,255,.35)!important;
+}
+/* Warm closing call-to-action: no external image, keeps original button/content. */
+html.mm-visitor-christmas .final-cta {
+  background-image:linear-gradient(100deg,rgba(69,13,58,.94),rgba(40,12,62,.92) 48%,rgba(26,10,54,.92))!important;
+  border-color:rgba(255,191,103,.88)!important;
+  box-shadow:inset 0 1px rgba(255,226,180,.21),0 0 16px rgba(247,120,150,.14)!important;
+}
+/* Footer is transparent enough to show one continuous page background. */
+html.mm-visitor-christmas .footer {
+  background:rgba(17,8,44,.55)!important;
+  border-top:1px solid rgba(255,204,133,.65)!important;
+  -webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);
+}
+html.mm-visitor-christmas .fan-disclaimer {color:#e7e6fa!important;}
+@media(max-width:768px) {
+  html.mm-visitor-christmas .hero .hero-copy {
+    margin-left:0!important;padding:14px 15px 16px!important;
+    background:linear-gradient(90deg,rgba(10,7,35,.91),rgba(12,9,40,.83))!important;
+    -webkit-backdrop-filter:none;backdrop-filter:none;
+  }
+  html.mm-visitor-christmas .hero .hero-copy .hint {font-size:11px!important;}
+  html.mm-visitor-christmas .feature-grid > .panel::before {right:32px!important;}
+}
+@media(prefers-reduced-motion:reduce) {
+  html.mm-visitor-christmas .hero .google-cta,
+  html.mm-visitor-christmas .final-cta .google-cta {transition:none!important;transform:none!important;}
+}
