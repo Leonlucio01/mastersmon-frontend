@@ -111,3 +111,44 @@ html.mm-visitor-christmas .footer {background:rgba(18,7,42,.56)!important;border
 @media (prefers-reduced-motion:reduce) {
   html.mm-visitor-christmas .shop-items>div {transition:none!important;}
 }
+
+/* MASTERSMON CHRISTMAS V4 BACKGROUND START */
+/* Un unico fondo continuo para toda la ventana. El arte del hero permanece independiente. */
+html.mm-visitor-christmas {
+  min-height: 100%;
+  background-color: #0b1030 !important;
+  background-image: linear-gradient(180deg,rgba(8,9,32,.12),rgba(11,8,34,.18)),url('../assets/visitor/christmas/background.webp') !important;
+  background-position: center center, center center !important;
+  background-size: cover, cover !important;
+  background-repeat: no-repeat, no-repeat !important;
+  background-attachment: fixed, fixed !important;
+}
+html.mm-visitor-christmas body {
+  min-height: 100vh;
+  background: transparent !important;
+  background-image: none !important;
+  background-color: transparent !important;
+}
+/* El banner no debe crear franjas de color opaco a los lados del arte. */
+html.mm-visitor-christmas .hero {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+html.mm-visitor-christmas .hero .hero-content.wrap {
+  background-color: transparent !important;
+}
+/* No repetir un segundo fondo en contenedores del contenido. */
+html.mm-visitor-christmas main,
+html.mm-visitor-christmas .content,
+html.mm-visitor-christmas .feature-grid {
+  background-color: transparent !important;
+}
+/* Conservar las tarjetas opacas para facilitar la lectura. */
+@media (max-width: 768px) {
+  html.mm-visitor-christmas {
+    background-attachment: scroll, scroll !important;
+    background-position: center top, center top !important;
+    background-size: auto 100%, auto 100% !important;
+  }
+}
+/* MASTERSMON CHRISTMAS V4 BACKGROUND END */
