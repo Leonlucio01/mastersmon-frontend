@@ -1,50 +1,81 @@
-/* MastersMon Christmas Lobby V2 — additive seasonal theme, no gameplay changes. */
+/* MastersMon Christmas Lobby V2.1 — remove extra corner ornaments, keep clean prototype look. */
 html.mm-christmas{color-scheme:dark}
 html.mm-christmas body{--bg:#0a1232;--panel:#1b1039;--stroke:#d8a563;--cyan:#bdefff;--gold:#ffe5a0;--muted:#e7d9ff;--txt:#fff8f2;background-color:#101339!important;background-image:linear-gradient(180deg,rgba(10,7,32,.24),rgba(10,8,29,.34)),url('../assets/lobby/christmas/background-lobby.webp')!important;background-position:center top,center top!important;background-size:cover,cover!important;background-repeat:no-repeat,no-repeat!important;background-attachment:fixed,fixed!important}
 html.mm-christmas .topbar,html.mm-christmas .unified-header{background:linear-gradient(95deg,rgba(18,9,43,.93),rgba(25,12,55,.93))!important;border-bottom:1px solid #d8aa65!important;box-shadow:0 2px 15px #ffc46b35!important}
 html.mm-christmas .brand{color:#ffe2a1!important;text-shadow:0 0 12px #ffce8a80}
-html.mm-christmas .topbar::before,html.mm-christmas .unified-header::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:0;background:url('../assets/lobby/christmas/decor/garland-corner.svg') left center/150px auto no-repeat,url('../assets/lobby/christmas/decor/garland-corner.svg') right center/150px auto no-repeat;opacity:.95}
+/* Remove the last-added holly corner decorations to return to the cleaner prototype. */
+html.mm-christmas .topbar::before,html.mm-christmas .unified-header::before{content:none!important;display:none!important}
 html.mm-christmas .top-inner{position:relative;z-index:1}
 html.mm-christmas .unified-nav a.selected,html.mm-christmas .global-nav a.selected{background:linear-gradient(#783f58,#a75c43)!important;box-shadow:inset 0 -3px #ffd27b,0 0 12px #ffbb665e!important}
-html.mm-christmas .workspace .hero{background:#15103a url('../assets/lobby/christmas/banner-lobby.webp') center center/cover no-repeat!important;border-color:#f0c274!important;box-shadow:0 0 20px #bc87ff4d,inset 0 0 14px #daa76f25!important;min-height:220px;overflow:hidden}
+html.mm-christmas .workspace .hero{background:#15103a url('../assets/lobby/christmas/banner-lobby.webp') center center/cover no-repeat!important;border-color:#f0c274!important;box-shadow:0 0 19px rgba(255,207,117,.22),inset 0 1px rgba(255,255,255,.22)!important;min-height:220px;overflow:hidden;border-width:1px!important}
+html.mm-christmas .workspace .hero::after{content:'';position:absolute;pointer-events:none;inset:0 0 auto;height:12px;z-index:2;background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(213,235,255,.55) 32%,transparent 100%);clip-path:polygon(0 0,100% 0,100% 42%,96% 65%,90% 35%,84% 74%,76% 44%,67% 72%,59% 43%,53% 77%,45% 42%,38% 66%,30% 40%,24% 75%,16% 40%,10% 65%,4% 43%,0 62%);opacity:.68}
 html.mm-christmas .hero-scrim{background:linear-gradient(90deg,rgba(13,8,39,.92),rgba(13,8,39,.72) 30%,rgba(13,8,39,.07) 61%,rgba(12,9,38,.46))!important}
 html.mm-christmas .hero h1{color:#ffe4a2!important;text-shadow:0 2px 6px #05051a,0 0 18px #ffa95b6e!important}
-html.mm-christmas .hero-profile{background:linear-gradient(130deg,rgba(31,19,57,.94),rgba(16,15,47,.90))!important;border-color:#eac07d!important;box-shadow:0 0 14px #edb26e38!important;backdrop-filter:blur(4px)}
-html.mm-christmas .gold-btn{color:#311e24!important;background:linear-gradient(#fff0b3,#ffc35e)!important;border-color:#ffe8a8!important;box-shadow:0 0 15px #ffc35f70!important}
-html.mm-christmas .panel{background:linear-gradient(145deg,rgba(30,15,59,.95),rgba(16,12,43,.97))!important;border-color:#d9ae74!important;box-shadow:0 0 13px #7b50b543,inset 0 1px #fff4e621!important;position:relative}
-html.mm-christmas .panel::before{content:'';pointer-events:none;position:absolute;inset:0;z-index:1;background:url('../assets/lobby/christmas/decor/panel-bow.svg') right 9px top 0/84px 42px no-repeat;opacity:.92}
-html.mm-christmas .panel-title h2{color:#ffe5a9!important}
+html.mm-christmas .hero-profile{background:linear-gradient(130deg,rgba(31,19,57,.94),rgba(16,15,47,.90))!important;border-color:#eac07d!important;box-shadow:0 0 18px rgba(255,204,122,.24),inset 0 1px rgba(255,247,229,.16)!important;backdrop-filter:blur(4px);border-width:1px!important}
+/* Make the main CTA look closer to the approved prototype, including the Pokéball icon. */
+html.mm-christmas .gold-btn{color:#311e24!important;background:linear-gradient(#fff0b3,#ffc35e)!important;border-color:#ffe8a8!important;box-shadow:0 0 15px #ffc35f70!important;display:inline-flex!important;align-items:center;gap:.65rem;font-weight:800;padding:.78rem 1.18rem!important;border-radius:14px!important;letter-spacing:.02em}
+html.mm-christmas .gold-btn::before{content:'';width:18px;height:18px;border-radius:50%;flex:0 0 18px;background:radial-gradient(circle at center,#fdfdfd 0 21%,#33211d 22% 31%,transparent 32%),linear-gradient(180deg,#de4f58 0 46%,#37231c 46% 55%,#fff7ec 55% 100%);box-shadow:0 0 0 1.7px #4a2a20,0 1px 0 rgba(255,255,255,.18) inset}
+html.mm-christmas .hero .gold-btn:hover{filter:brightness(1.08);box-shadow:0 0 23px rgba(255,205,96,.5)!important}
+html.mm-christmas .panel{background:linear-gradient(145deg,rgba(30,15,59,.95),rgba(16,12,43,.97))!important;border:1px solid #dfb774!important;box-shadow:0 0 16px rgba(231,171,82,.14),inset 0 1px rgba(255,238,196,.19)!important;position:relative;isolation:isolate}
+/* Remove the last-added bow/ribbon corners from every panel. */
+html.mm-christmas .panel::before{content:none!important;display:none!important}
+html.mm-christmas .panel::after{content:'';pointer-events:none;position:absolute;inset:0 0 auto;height:7px;z-index:2;background:linear-gradient(180deg,rgba(245,253,255,.82),rgba(185,222,250,.42),transparent);clip-path:polygon(0 0,100% 0,100% 36%,93% 70%,86% 33%,78% 70%,70% 38%,61% 72%,53% 30%,46% 64%,35% 32%,28% 70%,18% 40%,10% 75%,0 40%);opacity:.78}
+html.mm-christmas .panel-title{position:relative;z-index:3}
+html.mm-christmas .panel-title h2{color:#ffe5a9!important;text-shadow:0 1px 5px rgba(8,3,25,.96);display:flex;align-items:center;gap:.55rem}
 html.mm-christmas .panel-title a{color:#ffe4a0!important}
+html.mm-christmas .panel-title a:hover{color:#fff1c7!important;text-shadow:0 0 8px rgba(255,210,133,.35)}
+/* Enhance title icons so the sections read closer to the nice prototype. */
+html.mm-christmas .panel-icon{display:inline-grid!important;place-items:center;width:24px;height:24px;border-radius:999px;background:linear-gradient(180deg,#f6cf79,#d48d39)!important;color:#2d1730!important;box-shadow:0 0 0 1px rgba(255,231,171,.34),0 2px 7px rgba(255,187,102,.2);font-size:13px;font-weight:800;line-height:1}
+html.mm-christmas .panel-icon.cyan{background:linear-gradient(180deg,#8ef0ff,#4fb9da)!important;color:#10213b!important;box-shadow:0 0 0 1px rgba(170,246,255,.32),0 2px 7px rgba(91,210,255,.18)}
 html.mm-christmas .pokemon-tile,html.mm-christmas .party-tile,html.mm-christmas .party-empty{background:radial-gradient(circle at 50% 12%,#26365d,#101633 88%)!important;border-color:#d2ad79!important}
 html.mm-christmas .pokemon-tile.is-shiny,html.mm-christmas .capture-tile.is-shiny{border-color:#ffd56c!important}
 html.mm-christmas .visual-world{background:#12234b url('../assets/lobby/christmas/explore-world.webp') center center/cover no-repeat!important;border-color:#edc67e!important}
 html.mm-christmas .visual-world img{opacity:0!important}
-html.mm-christmas .quests-panel{background-image:linear-gradient(180deg,rgba(17,13,52,.68),rgba(16,13,42,.94) 46%),url('../assets/lobby/christmas/daily-missions-background.webp')!important;background-size:cover,cover!important;background-position:center,center top!important;background-repeat:no-repeat!important}
-html.mm-christmas .quest-row{border-color:#c2a8c8!important}
-html.mm-christmas .shop-panel{background-image:linear-gradient(180deg,rgba(25,14,52,.81),rgba(17,12,42,.96) 55%),url('../assets/lobby/christmas/featured-shop-background.webp')!important;background-position:center center!important;background-size:cover!important}
-html.mm-christmas .shop-cards>*{box-shadow:inset 0 0 0 1px #ffe2a016!important}
-html.mm-christmas .event-art,html.mm-christmas #eventCard{background-image:linear-gradient(90deg,rgba(24,10,46,.87),rgba(24,10,46,.10) 70%),url('../assets/lobby/christmas/boss-background.webp')!important;background-size:cover!important;background-position:center!important;border-color:#c59af4!important}
-html.mm-christmas .event-art>*,html.mm-christmas #eventCard>*{position:relative;z-index:1}
-html.mm-christmas footer{background:linear-gradient(180deg,rgba(21,12,48,.43),rgba(10,10,32,.72))!important;border-top-color:#eac07a70!important;color:#fff3e2}
-/* V2: restrained snowy trim, gold illumination, richer panels, readable real data. */
-html.mm-christmas .workspace .hero{border-width:1px!important;box-shadow:0 0 19px rgba(255,207,117,.22),inset 0 1px rgba(255,255,255,.22)!important}
-html.mm-christmas .workspace .hero::after{content:'';position:absolute;pointer-events:none;inset:0 0 auto;height:12px;z-index:2;background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(213,235,255,.55) 32%,transparent 100%);clip-path:polygon(0 0,100% 0,100% 42%,96% 65%,90% 35%,84% 74%,76% 44%,67% 72%,59% 43%,53% 77%,45% 42%,38% 66%,30% 40%,24% 75%,16% 40%,10% 65%,4% 43%,0 62%);opacity:.68}
-html.mm-christmas .hero-profile{border-width:1px!important;box-shadow:0 0 18px rgba(255,204,122,.24),inset 0 1px rgba(255,247,229,.16)!important}
-html.mm-christmas .hero .gold-btn:hover{filter:brightness(1.08);box-shadow:0 0 23px rgba(255,205,96,.5)!important}
-html.mm-christmas .panel{border:1px solid #dfb774!important;box-shadow:0 0 16px rgba(231,171,82,.14),inset 0 1px rgba(255,238,196,.19)!important;isolation:isolate}
-html.mm-christmas .panel::after{content:'';pointer-events:none;position:absolute;inset:0 0 auto;height:7px;z-index:2;background:linear-gradient(180deg,rgba(245,253,255,.82),rgba(185,222,250,.42),transparent);clip-path:polygon(0 0,100% 0,100% 36%,93% 70%,86% 33%,78% 70%,70% 38%,61% 72%,53% 30%,46% 64%,35% 32%,28% 70%,18% 40%,10% 75%,0 40%);opacity:.78}
-html.mm-christmas .panel-title{position:relative;z-index:3}
-html.mm-christmas .panel-title h2{text-shadow:0 1px 5px rgba(8,3,25,.96)}
-html.mm-christmas .panel-title a:hover{color:#fff1c7!important;text-shadow:0 0 8px rgba(255,210,133,.35)}
-html.mm-christmas .quests-panel{background-image:linear-gradient(180deg,rgba(17,13,52,.43) 0%,rgba(16,13,42,.86) 49%,rgba(16,13,42,.96)),url('../assets/lobby/christmas/daily-missions-background.webp')!important}
+html.mm-christmas .quests-panel{background-image:linear-gradient(180deg,rgba(17,13,52,.43) 0%,rgba(16,13,42,.86) 49%,rgba(16,13,42,.96)),url('../assets/lobby/christmas/daily-missions-background.webp')!important;background-size:cover,cover!important;background-position:center,center top!important;background-repeat:no-repeat!important}
 html.mm-christmas .quests-panel .panel-title{background:linear-gradient(90deg,rgba(16,9,43,.65),rgba(16,9,43,.18) 70%,transparent);border-radius:6px;padding:3px 5px!important}
-html.mm-christmas .shop-panel{background-image:linear-gradient(180deg,rgba(25,14,52,.56) 0%,rgba(17,12,42,.91) 56%),url('../assets/lobby/christmas/featured-shop-background.webp')!important;background-size:cover,cover!important}
-html.mm-christmas .shop-cards>*{position:relative;z-index:2}
+html.mm-christmas .quest-row{border-color:#c2a8c8!important}
+html.mm-christmas .shop-panel{background-image:linear-gradient(180deg,rgba(25,14,52,.56) 0%,rgba(17,12,42,.91) 56%),url('../assets/lobby/christmas/featured-shop-background.webp')!important;background-position:center center!important;background-size:cover,cover!important}
+html.mm-christmas .shop-cards>*{box-shadow:inset 0 0 0 1px #ffe2a016!important;position:relative;z-index:2}
 html.mm-christmas .shop-cards>*:hover{box-shadow:0 0 14px rgba(255,205,127,.28),inset 0 0 0 1px rgba(255,230,160,.16)!important}
 html.mm-christmas .visual-world .inside-cta,html.mm-christmas .shop-cards a,html.mm-christmas .shop-cards button{box-shadow:0 0 10px rgba(255,184,100,.22)}
-html.mm-christmas .event-art,html.mm-christmas #eventCard{box-shadow:inset 0 0 45px rgba(130,68,195,.14),0 0 10px rgba(209,163,255,.18)}
-html.mm-christmas footer{position:relative;z-index:1;text-shadow:0 2px 6px rgba(8,5,25,.85);backdrop-filter:blur(3px)}
-@media(max-width:1024px){html.mm-christmas .workspace .hero{background-position:55% center!important}html.mm-christmas .panel::before{background-size:64px 32px}}
-@media(max-width:780px){html.mm-christmas body{background-attachment:scroll,scroll!important}html.mm-christmas .workspace .hero{background-position:58% center!important;min-height:210px}html.mm-christmas .hero-scrim{background:linear-gradient(180deg,#110b35dc,#110b3585)!important}html.mm-christmas .topbar::before,html.mm-christmas .unified-header::before{background-size:82px auto,82px auto;opacity:.68}html.mm-christmas .panel::before{background-size:53px 27px;opacity:.75}}
-@media(max-width:560px){html.mm-christmas .workspace .hero{background-position:58% center!important;min-height:198px}html.mm-christmas .topbar::before,html.mm-christmas .unified-header::before{background-size:52px auto,52px auto;opacity:.48}html.mm-christmas .panel::before{background-size:43px 24px;opacity:.6}}
+html.mm-christmas .event-art,html.mm-christmas #eventCard{background-image:linear-gradient(90deg,rgba(24,10,46,.87),rgba(24,10,46,.10) 70%),url('../assets/lobby/christmas/boss-background.webp')!important;background-size:cover!important;background-position:center!important;border-color:#c59af4!important;box-shadow:inset 0 0 45px rgba(130,68,195,.14),0 0 10px rgba(209,163,255,.18)}
+html.mm-christmas .event-art>*,html.mm-christmas #eventCard>*{position:relative;z-index:1}
+html.mm-christmas footer{background:linear-gradient(180deg,rgba(21,12,48,.43),rgba(10,10,32,.72))!important;border-top-color:#eac07a70!important;color:#fff3e2;position:relative;z-index:1;text-shadow:0 2px 6px rgba(8,5,25,.85);backdrop-filter:blur(3px)}
+@media(max-width:1024px){html.mm-christmas .workspace .hero{background-position:55% center!important}}
+@media(max-width:780px){html.mm-christmas body{background-attachment:scroll,scroll!important}html.mm-christmas .workspace .hero{background-position:58% center!important;min-height:210px}html.mm-christmas .hero-scrim{background:linear-gradient(180deg,#110b35dc,#110b3585)!important}}
+@media(max-width:560px){html.mm-christmas .workspace .hero{background-position:58% center!important;min-height:198px}html.mm-christmas .gold-btn{padding:.72rem 1rem!important;gap:.55rem}html.mm-christmas .gold-btn::before{width:16px;height:16px;flex-basis:16px}}
 @media(prefers-reduced-motion:reduce){html.mm-christmas *,html.mm-christmas *::before,html.mm-christmas *::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* Christmas Lobby V2.2 — restrained visual refinements. */
+/* Compact prominent call-to-action with original Pokeball decoration. */
+html.mm-christmas .hero .gold-btn {
+  min-height: 39px;
+  padding: 9px 17px !important;
+  gap: 9px;
+  border-radius: 11px !important;
+  font-size: 13px;
+  line-height: 1.15;
+  box-shadow: 0 3px 12px rgba(255,179,70,.26), inset 0 1px rgba(255,255,255,.5) !important;
+}
+html.mm-christmas .hero .gold-btn::before { width:19px; height:19px; flex-basis:19px; }
+html.mm-christmas .hero .gold-btn:hover { transform:translateY(-1px); box-shadow:0 5px 17px rgba(255,198,91,.42)!important; }
+/* Lift luminosity of the scene without washing out left-hand copy. */
+html.mm-christmas .hero-scrim {
+  background:linear-gradient(90deg,rgba(13,8,39,.86) 0%,rgba(13,8,39,.64) 28%,rgba(13,8,39,.04) 61%,rgba(12,9,38,.35) 100%)!important;
+}
+html.mm-christmas .workspace .hero { box-shadow:0 3px 15px rgba(6,5,30,.32),0 0 12px rgba(255,202,110,.16)!important; }
+/* Thin frosty edge, less visually dominant than the preceding version. */
+html.mm-christmas .panel::after { height:5px; opacity:.48; }
+html.mm-christmas .workspace .hero::after { height:8px; opacity:.46; }
+html.mm-christmas .panel { box-shadow:0 1px 8px rgba(0,0,0,.27),inset 0 1px rgba(255,240,204,.10)!important; }
+/* Maintain generous rhythm without expanding the compact desktop grid. */
+html.mm-christmas .workspace { row-gap: 8px; }
+html.mm-christmas .panel-title { margin-bottom: 3px; }
+@media(max-width:780px) {
+  html.mm-christmas .hero-scrim { background:linear-gradient(180deg,rgba(17,11,53,.89),rgba(17,11,53,.55))!important; }
+  html.mm-christmas .hero .gold-btn { min-height:37px; padding:8px 13px!important; }
+}
+@media(max-width:560px) {
+  html.mm-christmas .hero .gold-btn { font-size:12px; gap:7px; }
+  html.mm-christmas .hero .gold-btn::before { width:16px;height:16px;flex-basis:16px; }
+}
