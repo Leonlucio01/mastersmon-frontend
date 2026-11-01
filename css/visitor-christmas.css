@@ -1,97 +1,113 @@
-/* MastersMon Christmas Visitor V2: isolated seasonal overrides.
-   Active only with html.mm-visitor-christmas (Nov 16 through Jan 15).
-   Keep all original gameplay, authentication and translations untouched. */
-html.mm-visitor-christmas{--bg:#10112e;--bg-2:#1c1041;--panel:#180e36;--panel-2:#241344;--line:#e6b365;--line-soft:#8669b7;--cyan:#c9efff;--cyan-2:#a2e2ff;--gold:#ffe4aa;--gold-2:#f5b952;--muted:#e5daf6}
-html.mm-visitor-christmas body{
- color:#fff4ed!important;
- background-color:#11102e!important;
- background-image:linear-gradient(180deg,rgba(12,9,40,.12),rgba(13,8,36,.2)),url('../assets/visitor/christmas/background.webp')!important;
- background-position:center top,center center!important;
- background-repeat:no-repeat,no-repeat!important;
- background-size:100% 100%,cover!important;
- background-attachment:fixed,fixed!important;
+/* MastersMon Visitor Christmas V3 - scoped, no impact on other seasons.
+   Activation: html.mm-visitor-christmas (16 Nov - 15 Jan, America/Lima).
+   Uses assets/visitor/christmas from the previous image pack. */
+html.mm-visitor-christmas {
+  --bg:#0d0b29;--bg-2:#1b1038;--panel:#1d1039;--panel-2:#261449;
+  --line:#e6aa59;--line-soft:#9864af;--cyan:#c7ecff;--cyan-2:#93dffb;
+  --gold:#ffe5a9;--gold-2:#f6bc5b;--muted:#e5def4;
 }
-html.mm-visitor-christmas .site-header{
- background:linear-gradient(180deg,rgba(15,7,38,.91),rgba(16,8,43,.87))!important;
- border-bottom:1px solid rgba(255,206,117,.9)!important;
- box-shadow:0 3px 17px rgba(43,20,73,.34)!important;
+html.mm-visitor-christmas body {
+  color:#fff6ed!important;
+  background-color:#110b2f!important;
+  background-image:linear-gradient(180deg,rgba(15,7,40,.15),rgba(15,7,40,.24)),url('../assets/visitor/christmas/background.webp')!important;
+  background-position:center top,center center!important;
+  background-size:100% 100%,cover!important;
+  background-repeat:no-repeat,no-repeat!important;
+  background-attachment:fixed,fixed!important;
 }
-html.mm-visitor-christmas .brand{color:#ffe1a1!important;text-shadow:0 0 13px rgba(255,174,75,.62)!important}
-/* Suppress all normal blue hero image layers, including its original !important rules. */
-html.mm-visitor-christmas .hero{
- position:relative!important;
- isolation:isolate!important;
- background-color:#121038!important;
- background-image:none!important;
- border-bottom:2px solid #eab767!important;
- box-shadow:inset 0 0 0 1px rgba(255,215,150,.2)!important;
+/* Top navigation and legibility */
+html.mm-visitor-christmas .site-header {
+  background:linear-gradient(180deg,rgba(18,7,43,.94),rgba(15,8,40,.88))!important;
+  border-bottom:1px solid rgba(255,197,101,.86)!important;
+  box-shadow:0 3px 16px rgba(13,5,37,.48)!important;
 }
-html.mm-visitor-christmas .hero .hero-bg{
- background:none!important;
- background-image:none!important;
- opacity:0!important;
- visibility:hidden!important;
+html.mm-visitor-christmas .brand {color:#ffe3a7!important;text-shadow:0 0 15px rgba(255,192,110,.50)!important;}
+/* Hero: the actual illustration is the .hero-art element, not the .hero container.
+   Unset the legacy hero backgrounds, mask and pseudo imagery; retain the HTML text and login. */
+html.mm-visitor-christmas .hero {
+  position:relative!important;isolation:isolate!important;overflow:hidden!important;
+  background:#130b34!important;border-bottom:2px solid #e9ae5d!important;
+  box-shadow:inset 0 0 0 1px rgba(249,192,108,.2)!important;
 }
-html.mm-visitor-christmas .hero .hero-content.wrap{
- background:transparent!important;
- background-image:none!important;
+html.mm-visitor-christmas .hero .hero-bg,
+html.mm-visitor-christmas .hero .hero-content.wrap {
+  background:none!important;background-image:none!important;
+}
+html.mm-visitor-christmas .hero .hero-art {
+  background-image:url('../assets/visitor/christmas/hero.webp')!important;
+  background-position:57% center!important;background-size:cover!important;
+  background-repeat:no-repeat!important;
+  opacity:1!important;filter:saturate(1.05) contrast(1.025)!important;
+  -webkit-mask-image:none!important;mask-image:none!important;
 }
 html.mm-visitor-christmas .hero .hero-content.wrap::before,
-html.mm-visitor-christmas .hero .hero-content.wrap::after{
- background-image:none!important;
- content:none!important;
+html.mm-visitor-christmas .hero .hero-content.wrap::after {
+  background-image:none!important;pointer-events:none!important;
 }
-html.mm-visitor-christmas .hero .hero-art{
- display:block!important;
- visibility:visible!important;
- opacity:1!important;
- background-color:#16103c!important;
- background-image:url('../assets/visitor/christmas/hero.webp')!important;
- background-repeat:no-repeat!important;
- background-size:cover!important;
- background-position:58% 49%!important;
- mask:none!important;
- -webkit-mask:none!important;
- filter:saturate(1.06) contrast(1.035)!important;
+html.mm-visitor-christmas .hero .hero-overlay {
+  background:linear-gradient(90deg,rgba(9,6,32,.94) 0%,rgba(10,7,36,.88) 16%,rgba(12,7,39,.68) 32%,rgba(11,7,42,.20) 54%,rgba(10,7,39,.04) 78%,rgba(9,7,35,.10) 100%)!important;
+  pointer-events:none!important;
 }
-html.mm-visitor-christmas .hero .hero-overlay{
- background:linear-gradient(90deg,rgba(10,8,39,.94) 0%,rgba(10,8,39,.86) 20%,rgba(10,8,39,.6) 38%,rgba(10,8,39,.06) 65%,rgba(10,8,39,.09) 100%)!important;
- pointer-events:none!important;
-}
-html.mm-visitor-christmas .hero .hero-copy{position:relative!important;z-index:5!important}
-html.mm-visitor-christmas .hero h1{color:#ffe5ab!important;text-shadow:0 0 17px rgba(255,185,78,.52),0 3px 10px #0a0821!important}
-html.mm-visitor-christmas .eyebrow,html.mm-visitor-christmas .section-kicker{color:#ffd37c!important}
+html.mm-visitor-christmas .hero .hero-copy {position:relative!important;z-index:5!important;}
+html.mm-visitor-christmas .hero h1 {color:#ffe6ab!important;text-shadow:0 2px 9px rgba(6,4,24,.8),0 0 15px rgba(235,170,77,.36)!important;}
+html.mm-visitor-christmas .hero .hero-body,
+html.mm-visitor-christmas .hero .hero-sub,
+html.mm-visitor-christmas .hero .hint {text-shadow:0 1px 5px rgba(2,3,20,.94)!important;}
+html.mm-visitor-christmas .eyebrow,
+html.mm-visitor-christmas .section-kicker {color:#ffd184!important;}
+/* Cards should harmonize with the Christmas art instead of the normal blue UI. */
 html.mm-visitor-christmas .panel,
 html.mm-visitor-christmas .shop-panel,
-html.mm-visitor-christmas .final-cta{
- border:1px solid rgba(246,189,95,.87)!important;
- background-color:rgba(25,11,55,.86)!important;
- box-shadow:0 0 14px rgba(97,61,177,.25),inset 0 1px 0 rgba(255,226,171,.13)!important;
+html.mm-visitor-christmas .final-cta {
+  border:1px solid rgba(255,184,94,.84)!important;
+  background-color:rgba(24,10,53,.88)!important;
+  box-shadow:0 0 13px rgba(116,62,162,.23),inset 0 1px 0 rgba(255,225,180,.13)!important;
 }
-html.mm-visitor-christmas .explore-img{
- background-image:url('../assets/visitor/christmas/explore.webp')!important;
- background-size:cover!important;background-position:center!important;
+html.mm-visitor-christmas .pokedex-panel,
+html.mm-visitor-christmas .explore-panel,
+html.mm-visitor-christmas .battles-panel {
+  background-image:linear-gradient(160deg,rgba(29,12,62,.92),rgba(17,9,42,.91))!important;
 }
-html.mm-visitor-christmas .battle-img{
- background-image:url('../assets/visitor/christmas/battles.webp')!important;
- background-size:cover!important;background-position:center!important;
+/* Small snowy trim without creating additional asset dependencies. */
+html.mm-visitor-christmas .feature-grid > .panel {position:relative!important;}
+html.mm-visitor-christmas .feature-grid > .panel::after {
+  content:'❄'!important;position:absolute!important;top:7px!important;right:12px!important;
+  color:rgba(217,236,255,.68)!important;font:normal 18px/1 sans-serif!important;
+  pointer-events:none!important;background:none!important;opacity:.8!important;
 }
-html.mm-visitor-christmas .shop-panel{
- background-image:linear-gradient(90deg,rgba(25,10,57,.73),rgba(23,11,54,.68)),url('../assets/visitor/christmas/shop-background.webp')!important;
- background-size:cover,cover!important;
- background-position:center,center 55%!important;
- background-repeat:no-repeat,no-repeat!important;
+html.mm-visitor-christmas .explore-img,
+html.mm-visitor-christmas .explore-panel .feature-image {
+  background-image:url('../assets/visitor/christmas/explore.webp')!important;
+  background-size:cover!important;background-position:center!important;
 }
-html.mm-visitor-christmas .final-cta{
- background-image:linear-gradient(90deg,rgba(25,10,55,.8),rgba(18,8,43,.84)),url('../assets/visitor/christmas/background.webp')!important;
- background-position:center,center 72%!important;
- background-size:cover,cover!important;
+html.mm-visitor-christmas .battle-img,
+html.mm-visitor-christmas .battles-panel .feature-image {
+  background-image:url('../assets/visitor/christmas/battles.webp')!important;
+  background-size:cover!important;background-position:center!important;
+}
+html.mm-visitor-christmas .feature-image {border-color:rgba(255,188,98,.75)!important;box-shadow:0 0 9px rgba(160,92,194,.2)!important;}
+html.mm-visitor-christmas .shop-panel {
+  background-image:linear-gradient(90deg,rgba(30,11,61,.78),rgba(22,9,50,.77)),url('../assets/visitor/christmas/shop-background.webp')!important;
+  background-position:center,center 55%!important;
+  background-size:cover,cover!important;background-repeat:no-repeat,no-repeat!important;
+}
+html.mm-visitor-christmas .shop-items>div {border-color:rgba(255,181,94,.72)!important;background:rgba(25,13,57,.82)!important;}
+html.mm-visitor-christmas .final-cta {
+  background-image:linear-gradient(90deg,rgba(34,12,67,.90),rgba(20,9,47,.88))!important;
 }
 html.mm-visitor-christmas .google-cta,
-html.mm-visitor-christmas .top-login{border-color:#ffe1a0!important}
-html.mm-visitor-christmas .footer{background:rgba(12,6,38,.51)!important;border-top:1px solid rgba(251,197,115,.65)!important}
-@media(max-width:768px){
- html.mm-visitor-christmas body{background-attachment:scroll,scroll!important;background-position:center top,center top!important}
- html.mm-visitor-christmas .hero .hero-art{background-position:70% center!important}
- html.mm-visitor-christmas .hero .hero-overlay{background:linear-gradient(180deg,rgba(10,8,39,.68),rgba(10,8,39,.86) 55%,rgba(10,8,39,.92))!important}
+html.mm-visitor-christmas .top-login {border-color:#ffe4aa!important;}
+html.mm-visitor-christmas .footer {background:rgba(18,7,42,.56)!important;border-top:1px solid rgba(249,184,104,.6)!important;}
+@media (max-width:980px) {
+  html.mm-visitor-christmas .hero .hero-art {background-position:67% center!important;}
+  html.mm-visitor-christmas .hero .hero-overlay {background:linear-gradient(90deg,rgba(9,6,31,.92),rgba(9,6,31,.63) 47%,rgba(9,6,31,.12))!important;}
+}
+@media (max-width:768px) {
+  html.mm-visitor-christmas body {background-attachment:scroll,scroll!important;background-size:100% 100%,auto 100%!important;background-position:center,center top!important;}
+  html.mm-visitor-christmas .hero .hero-art {background-position:73% center!important;}
+  html.mm-visitor-christmas .hero .hero-overlay {background:linear-gradient(180deg,rgba(9,6,31,.72),rgba(11,7,36,.80) 54%,rgba(12,7,38,.91))!important;}
+  html.mm-visitor-christmas .feature-grid>.panel::after {font-size:14px!important;right:8px!important;}
+}
+@media (prefers-reduced-motion:reduce) {
+  html.mm-visitor-christmas .shop-items>div {transition:none!important;}
 }
