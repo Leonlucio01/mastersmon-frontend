@@ -1,0 +1,94 @@
+/* MastersMon Halloween: additive visual theme. Scoped exclusively to lobby page. */
+html.mm-halloween { color-scheme: dark; }
+html.mm-halloween body {
+  --bg:#0d071c; --panel:#1b0e2e; --stroke:#a650e9; --cyan:#d99bff;
+  --gold:#ffd375; --muted:#d9bee8; --txt:#fff3fd;
+  background:linear-gradient(180deg,rgba(8,4,22,.48),rgba(8,4,22,.78)),
+    url('../assets/lobby/halloween/background-lobby.webp') center top / cover fixed no-repeat,
+    radial-gradient(circle at 60% 15%,#4a1c69,#100a27 60%,#08051b);
+}
+html.mm-halloween .topbar,
+html.mm-halloween .unified-header {
+  background:linear-gradient(100deg,#150823,#210a31 55%,#0d091e)!important;
+  border-bottom-color:#b765e6!important;
+  box-shadow:0 2px 18px rgba(199,84,255,.25)!important;
+}
+html.mm-halloween .brand { color:#ffe09d; text-shadow:0 0 12px #ff8c34a8; }
+html.mm-halloween .unified-nav a.selected,
+html.mm-halloween .global-nav a.selected {
+  background:linear-gradient(#6b2a59,#b75018)!important;
+  box-shadow:inset 0 -3px #ffb347,0 0 13px #fb741f99!important;
+}
+html.mm-halloween .workspace .hero {
+  background:#251035 url('../assets/lobby/halloween/banner-lobby.webp') center 47% / cover no-repeat!important;
+  border-color:#ff9d45!important;
+  box-shadow:0 0 18px #ae48e94d, inset 0 0 20px #3a124355;
+}
+html.mm-halloween .hero-scrim {
+  background:linear-gradient(90deg,#180824f2 0%,#180824db 25%,#10071825 62%,#1a082b8c 100%)!important;
+}
+html.mm-halloween .hero::before {
+  content:'';position:absolute;pointer-events:none;z-index:1;inset:0;
+  background:url('../assets/lobby/halloween/spiderweb-corner.svg') left top / 65px no-repeat,
+             url('../assets/lobby/halloween/spiderweb-corner.svg') right top / 65px no-repeat;
+  opacity:.7;
+}
+html.mm-halloween .hero h1 { color:#ffce80!important;text-shadow:0 2px 12px #e8662b99,0 2px 4px #09020f; }
+html.mm-halloween .hero-profile {
+  border-color:#f9a94b!important;
+  background:linear-gradient(135deg,#28123cf2,#150c2ce8)!important;
+  box-shadow:0 0 20px #fa933344!important;
+}
+html.mm-halloween .gold-btn {
+  color:#270b0c!important;background:linear-gradient(#ffdf80,#ff921d)!important;
+  border-color:#ffd265!important;box-shadow:0 0 20px #ff8e2c9c!important;
+}
+html.mm-halloween .panel,
+html.mm-halloween .workspace > section:not(.hero) {
+  border-color:#a459db!important;
+}
+html.mm-halloween .panel {
+  background:linear-gradient(145deg,rgba(34,15,52,.96),rgba(17,10,38,.97))!important;
+  box-shadow:0 0 16px #a93aec33,inset 0 1px #e9a7ff1b!important;
+  position:relative;
+}
+html.mm-halloween .panel::before {
+  content:'';pointer-events:none;position:absolute;inset:0;
+  background:url('../assets/lobby/halloween/spiderweb-corner.svg') right top / 45px no-repeat;
+  opacity:.34;
+}
+html.mm-halloween .panel h2,
+html.mm-halloween .panel-title h2 { color:#ffce84!important; }
+html.mm-halloween .panel a:hover {color:#ffcf78;}
+html.mm-halloween .pokemon-tile,
+html.mm-halloween .party-tile,
+html.mm-halloween .party-empty {
+  background:radial-gradient(circle at 50% 12%,#302047,#130d2c 84%)!important;
+  border-color:#9460c4!important;
+}
+html.mm-halloween .pokemon-tile.is-shiny,
+html.mm-halloween .capture-tile.is-shiny {border-color:#ffb548!important;}
+html.mm-halloween .visual-world {
+  background:#28113c url('../assets/lobby/halloween/world-map.webp') center / cover no-repeat!important;
+}
+html.mm-halloween .visual-world img {opacity:0!important;}
+html.mm-halloween .event-art,
+html.mm-halloween #eventCard {
+  background-image:linear-gradient(90deg,#200d3fe0,#260d4a25),url('../assets/lobby/halloween/boss-background.webp')!important;
+  background-position:center!important;
+  background-size:cover!important;
+  border-color:#b15ae4!important;
+}
+html.mm-halloween .event-art::after,
+html.mm-halloween #eventCard::after {pointer-events:none;}
+html.mm-halloween .quest-row {border-color:#a46acd!important;}
+html.mm-halloween .mission-claim {color:#ffcb69;}
+@media(max-width:780px) {
+  html.mm-halloween body {background-attachment:scroll;}
+  html.mm-halloween .workspace .hero {background-position:58% center!important;}
+  html.mm-halloween .hero::before {background-size:40px;}
+  html.mm-halloween .panel::before {background-size:30px;}
+}
+@media(prefers-reduced-motion:reduce) {
+  html.mm-halloween *,html.mm-halloween *::before,html.mm-halloween *::after {animation-duration:.01ms!important;transition-duration:.01ms!important;}
+}
