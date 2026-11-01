@@ -1,0 +1,42 @@
+/* Halloween V7.2 - additive only, activates exclusively during Halloween. */
+/* Preserve actual lobby geometry, dynamically rendered cards, and normal theme. */
+html.mm-halloween .workspace .hero {
+  background-image:url('../assets/lobby/halloween/banner-lobby.webp')!important;
+  background-size:cover!important;
+  background-position:center 44%!important;
+}
+/* Independent scene without a repeated trainer. */
+html.mm-halloween .visual-world {
+  background-image:url('../assets/lobby/halloween/explore-world.webp')!important;
+  background-size:cover!important;
+  background-position:center 58%!important;
+}
+/* Keep text and mission rows legible while showing pumpkins on the header. */
+html.mm-halloween .quests-panel {
+  background-image:linear-gradient(180deg,rgba(22,7,38,.28) 0%,rgba(20,7,36,.64) 32%,rgba(17,6,32,.95) 63%),url('../assets/lobby/halloween/daily-missions-background.webp')!important;
+  background-position:center,center 78%!important;
+  background-size:cover,cover!important;
+  background-repeat:no-repeat!important;
+}
+html.mm-halloween .quests-panel .panel-title {min-height:43px!important;margin-bottom:2px!important;}
+/* Shop illustration remains behind all products; never covers text or purchase buttons. */
+html.mm-halloween .shop-panel {
+  background-image:linear-gradient(180deg,rgba(23,8,39,.45) 0%,rgba(20,7,36,.93) 31%,rgba(17,7,34,.98) 70%),url('../assets/lobby/halloween/featured-shop-background.webp')!important;
+  background-size:cover,cover!important;
+  background-position:center,center 77%!important;
+  background-repeat:no-repeat!important;
+}
+/* Use the separate pumpkin asset for the play action, only in Halloween. */
+html.mm-halloween .hero .gold-btn {display:inline-flex!important;align-items:center;gap:7px;}
+html.mm-halloween .hero .gold-btn::before {
+  content:'';display:inline-block;width:21px;height:21px;flex:0 0 21px;
+  background:url('../assets/lobby/halloween/play-now-pumpkin-icon.webp') center/contain no-repeat;
+  filter:drop-shadow(0 0 3px rgba(255,158,31,.55));
+}
+@media(max-width:720px){
+ html.mm-halloween .workspace .hero{background-position:46% 40%!important;}
+ html.mm-halloween .visual-world{background-position:62% center!important;}
+ html.mm-halloween .quests-panel{background-size:cover,auto 170px!important;background-position:center,center top!important;}
+ html.mm-halloween .shop-panel{background-size:cover,auto 160px!important;background-position:center,center top!important;}
+ html.mm-halloween .hero .gold-btn::before{width:18px;height:18px;flex-basis:18px;}
+}
