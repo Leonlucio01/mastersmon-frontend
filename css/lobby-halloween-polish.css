@@ -280,3 +280,32 @@ html.mm-halloween .quests-panel .quest-list {margin-top:3px!important;}
 @media(prefers-reduced-motion:reduce){
   html.mm-halloween body {background-attachment:scroll,scroll,scroll!important;}
 }
+
+
+/* V6.4 - restore pumpkins and autumn leaves without losing continuous ambiance.
+   Background copy A fills the screen. Copy B is anchored to the bottom at its
+   natural panoramic ratio, keeping the illustrated corner details visible. */
+html.mm-halloween body {
+  background-image:
+    linear-gradient(180deg,rgba(12,4,25,.36),rgba(15,5,30,.14) 48%,rgba(16,5,31,.22)),
+    url('../assets/lobby/halloween/footer-fog.webp'),
+    url('../assets/lobby/halloween/footer-fog.webp'),
+    radial-gradient(ellipse at 50% 25%,#3a1757,#120922 72%)!important;
+  background-size:100% 100%,cover,100% auto,cover!important;
+  background-position:center,center,center bottom,center!important;
+  background-repeat:no-repeat,no-repeat,no-repeat,no-repeat!important;
+  background-attachment:scroll,fixed,scroll,scroll!important;
+}
+@media(max-width:850px){
+  html.mm-halloween body {
+    background-size:100% 100%,auto 100vh,auto 230px,cover!important;
+    background-position:center,center top,center bottom,center!important;
+    background-attachment:scroll,scroll,scroll,scroll!important;
+  }
+}
+@media(max-width:580px){
+  html.mm-halloween body {
+    background-size:100% 100%,auto 100vh,auto 170px,cover!important;
+    background-position:center,center top,center bottom,center!important;
+  }
+}
