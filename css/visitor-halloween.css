@@ -84,3 +84,84 @@ html.mm-visitor-halloween .auth-dialog {background:linear-gradient(160deg,#27104
  html.mm-visitor-halloween .hero-overlay {background:linear-gradient(180deg,rgba(14,5,35,.72),rgba(15,5,35,.86) 50%,rgba(13,5,33,.95))}
  html.mm-visitor-halloween .shop-panel {background-position:center,center}
 }
+
+
+/* ============================================================
+   MastersMon Index Halloween V4: overrides the original visitor
+   hero rules that force hero-world.jpg with !important.
+   Every selector is scoped: normal lobby/site remains untouched.
+   ============================================================ */
+html.mm-visitor-halloween .hero,
+html.mm-visitor-halloween .hero .hero-bg,
+html.mm-visitor-halloween .hero .hero-content.wrap {
+  background-color:#160725!important;
+}
+html.mm-visitor-halloween .hero .hero-art {
+  background-image:url('../assets/visitor/halloween/hero.webp')!important;
+  background-repeat:no-repeat!important;
+  background-size:cover!important;
+  background-position:59% 49%!important;
+  filter:saturate(1.1) contrast(1.035)!important;
+  opacity:1!important;
+}
+html.mm-visitor-halloween .hero .hero-content.wrap::before {
+  /* Ensure the original blue hero isn't re-introduced by a decorative layer. */
+  background:transparent!important;
+}
+html.mm-visitor-halloween .hero .hero-overlay {
+  background:linear-gradient(90deg,rgba(14,4,32,.95) 0%,rgba(15,5,34,.9) 19%,rgba(15,5,34,.58) 37%,rgba(15,5,34,.13) 63%,rgba(13,5,30,.05) 100%)!important;
+}
+html.mm-visitor-halloween body {
+  background-image:linear-gradient(180deg,rgba(14,5,33,.34),rgba(17,7,36,.46)),url('../assets/visitor/halloween/background.webp')!important;
+  background-size:100% 100%,cover!important;
+  background-position:center,center bottom!important;
+}
+html.mm-visitor-halloween .panel {
+  border-color:#efa257!important;
+  box-shadow:0 0 0 1px rgba(255,136,45,.13),0 0 16px rgba(217,74,178,.29),inset 0 1px 0 rgba(255,201,92,.15)!important;
+}
+html.mm-visitor-halloween .pokedex-panel,
+html.mm-visitor-halloween .explore-panel,
+html.mm-visitor-halloween .battles-panel {background-color:#190b32!important;}
+html.mm-visitor-halloween .shop-panel {
+  background-image:linear-gradient(90deg,rgba(31,8,53,.87),rgba(25,7,47,.77)),url('../assets/visitor/halloween/shop-background.webp')!important;
+  background-position:center,center 67%!important;
+  background-size:cover,cover!important;
+}
+html.mm-visitor-halloween .shop-items>div {
+  border-color:#e18b5a!important;
+  box-shadow:inset 0 0 12px rgba(245,134,68,.11),0 0 9px rgba(227,101,165,.14)!important;
+}
+html.mm-visitor-halloween .final-cta {
+  border-color:#f0a053!important;
+  box-shadow:0 0 14px rgba(244,120,43,.23),0 0 19px rgba(201,59,183,.15)!important;
+}
+html.mm-visitor-halloween .footer {
+  background:linear-gradient(180deg,rgba(27,8,44,.92),rgba(12,4,29,.98))!important;
+  border-top:1px solid #ba608a!important;
+}
+html.mm-visitor-halloween .site-header {
+  background:linear-gradient(180deg,#170925,#0d051a)!important;
+}
+@media (min-width:769px) {
+  html.mm-visitor-halloween .hero .hero-art {
+    background-image:url('../assets/visitor/halloween/hero.webp')!important;
+    background-size:cover!important;
+    background-position:59% 49%!important;
+  }
+  html.mm-visitor-halloween .hero .hero-overlay {
+    background:linear-gradient(90deg,rgba(13,4,31,.96) 0%,rgba(15,5,32,.89) 21%,rgba(15,5,32,.56) 38%,rgba(15,5,32,.10) 62%,transparent 100%)!important;
+  }
+}
+@media (max-width:768px) {
+  /* Retain the site's original separate hero-art row on mobile. */
+  html.mm-visitor-halloween .hero .hero-art {
+    background-image:url('../assets/visitor/halloween/hero.webp')!important;
+    background-position:74% 45%!important;
+    background-size:cover!important;
+  }
+  html.mm-visitor-halloween .hero .hero-overlay {
+    background:linear-gradient(180deg,rgba(17,5,35,.67),rgba(14,4,29,.85))!important;
+  }
+  html.mm-visitor-halloween body {background-attachment:scroll!important;background-size:100% 100%,auto 100%!important;}
+}
