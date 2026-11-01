@@ -221,3 +221,48 @@ html.mm-visitor-halloween .battles-panel {
     background-size:auto 100%,auto 100%!important;
   }
 }
+
+
+/* V5.1 - Una imagen continua, sin cover ni fondo fijo.
+   Escalado proporcional al ancho; no se recortan los costados. */
+html.mm-visitor-halloween {
+  background-color:#130724!important;
+}
+html.mm-visitor-halloween body {
+  background-color:#130724!important;
+  background-image:
+    linear-gradient(180deg,rgba(17,5,35,.18) 0%,rgba(20,7,40,.23) 65%,rgba(18,6,37,.42) 100%),
+    url('../assets/visitor/halloween/background.webp')!important;
+  background-size:100% 100%,100% auto!important;
+  background-position:center top,center top!important;
+  background-repeat:no-repeat,no-repeat!important;
+  background-attachment:scroll,scroll!important;
+}
+/* Avoid a second, conflicting landscape drawn in the footer/CTA. */
+html.mm-visitor-halloween .footer {
+  background:rgba(16,6,32,.69)!important;
+  border-top-color:rgba(236,143,77,.58)!important;
+  backdrop-filter:none!important;
+}
+html.mm-visitor-halloween .final-cta {
+  background:linear-gradient(90deg,rgba(31,10,52,.83),rgba(20,7,38,.82))!important;
+  backdrop-filter:none!important;
+}
+html.mm-visitor-halloween .shop-panel {
+  background:linear-gradient(90deg,rgba(31,11,52,.85),rgba(20,8,39,.78))!important;
+  backdrop-filter:none!important;
+}
+html.mm-visitor-halloween .panel {
+  background:linear-gradient(160deg,rgba(32,12,56,.88),rgba(18,8,37,.85))!important;
+  backdrop-filter:none!important;
+}
+html.mm-visitor-halloween .hero {backdrop-filter:none!important;}
+/* The bottom decorations are part of the same image, not a new footer image. */
+@media (max-width:768px) {
+  html.mm-visitor-halloween body {
+    background-size:100% 100%,100% auto!important;
+    background-position:center top,center top!important;
+    background-attachment:scroll,scroll!important;
+    background-color:#170829!important;
+  }
+}
