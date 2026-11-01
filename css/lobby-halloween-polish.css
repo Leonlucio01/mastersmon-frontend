@@ -47,3 +47,29 @@ html.mm-halloween footer::before {content:'';position:absolute;left:0;right:0;to
 @media(max-width:850px){html.mm-halloween .quests-panel .panel-title::after,html.mm-halloween .shop-panel .panel-title::after,html.mm-halloween .events-panel .panel-title::after{width:28px;height:26px}}
 @media(max-width:580px){html.mm-halloween .workspace .hero {background-position:62% center!important}html.mm-halloween .quests-panel .panel-title::after,html.mm-halloween .shop-panel .panel-title::after,html.mm-halloween .events-panel .panel-title::after {display:none}}
 @media(prefers-reduced-motion:reduce){html.mm-halloween .shop-cards > *,html.mm-halloween .pokemon-cards .pokemon-tile,html.mm-halloween .party-grid .party-tile{transition:none!important}}
+
+
+/* V5: polished seasonal details; no changes to gameplay or rarity markers. */
+/* Decorations should never consume flex space or move panel actions. */
+html.mm-halloween .panel .panel-title{position:relative;display:flex;align-items:flex-start;justify-content:space-between;gap:8px;min-width:0;isolation:isolate;}
+html.mm-halloween .panel .panel-title > div{min-width:0;flex:1 1 auto;position:relative;z-index:2;}
+html.mm-halloween .panel .panel-title > a{position:relative;z-index:3;flex:0 0 auto;margin-left:auto;align-self:flex-start;white-space:nowrap;text-align:right;}
+html.mm-halloween .quests-panel .panel-title::after,
+html.mm-halloween .shop-panel .panel-title::after,
+html.mm-halloween .events-panel .panel-title::after{position:absolute!important;right:5px;top:25px;margin:0!important;z-index:1;opacity:.46;transform:none;}
+html.mm-halloween .quests-panel .panel-title,
+html.mm-halloween .shop-panel .panel-title,
+html.mm-halloween .events-panel .panel-title{padding-right:0!important;}
+/* Favor the panoramic Halloween world while keeping copy and trainer panel readable. */
+html.mm-halloween .workspace .hero{background-position:center 64%!important;}
+html.mm-halloween .hero-scrim{background:linear-gradient(90deg,rgba(20,5,34,.94),rgba(20,5,34,.74) 27%,transparent 58%,rgba(20,5,34,.36) 100%)!important;}
+html.mm-halloween .collection-panel::after{background:linear-gradient(90deg,transparent,rgba(250,136,48,.35),transparent);}
+html.mm-halloween .party-panel::after{background:linear-gradient(90deg,transparent,rgba(171,96,222,.32),transparent);}
+/* Subtle corners; never overlay interactive content. */
+html.mm-halloween .collection-panel .panel-title::before,
+html.mm-halloween .party-panel .panel-title::before{content:'';position:absolute;pointer-events:none;right:0;bottom:-8px;width:32px;height:24px;opacity:.23;background:url('../assets/lobby/halloween/bats.svg') center/contain no-repeat;z-index:0;}
+html.mm-halloween .party-panel .panel-title::before{background-image:url('../assets/lobby/halloween/autumn-leaves.svg');}
+html.mm-halloween .quests-panel{background-size:cover,auto 100px!important;}
+@media(max-width:900px){html.mm-halloween .panel .panel-title{gap:5px}html.mm-halloween .quests-panel .panel-title::after,html.mm-halloween .shop-panel .panel-title::after,html.mm-halloween .events-panel .panel-title::after{opacity:.28;width:24px;height:22px;top:26px}}
+@media(max-width:680px){html.mm-halloween .workspace .hero{background-position:62% center!important}html.mm-halloween .panel .panel-title > a{font-size:11px;max-width:45%;overflow:hidden;text-overflow:ellipsis}html.mm-halloween .quests-panel .panel-title::after,html.mm-halloween .shop-panel .panel-title::after,html.mm-halloween .events-panel .panel-title::after{display:none!important}}
+@media(prefers-reduced-motion:reduce){html.mm-halloween .panel,html.mm-halloween .hero{animation:none!important}}

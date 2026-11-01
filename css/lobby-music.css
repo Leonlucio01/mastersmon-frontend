@@ -7,3 +7,11 @@
 html.mm-halloween .mm-audio-dock{border-color:#bb6cdd;background:#210c32ed;box-shadow:0 6px 25px #430e6380}
 html.mm-halloween .mm-audio-dock button{border-color:#ab66db;background:#622778}
 @media(max-width:600px){.mm-audio-dock{right:9px;bottom:9px;padding:7px;gap:6px}.mm-audio-dock .mm-audio-status{display:none}.mm-audio-dock input[type=range]{width:56px}}
+
+/* V5: compact, touch-friendly dock. */
+.mm-audio-dock{gap:7px;padding:7px 9px;max-width:min(295px,calc(100vw - 20px));border-radius:11px}
+.mm-audio-dock button{min-width:32px;min-height:32px;font-size:14px}
+.mm-audio-dock input[type=range]{width:57px;min-width:40px}
+.mm-audio-dock .mm-audio-title{font-size:11px}
+.mm-audio-dock .mm-audio-status{font-size:9px}
+@media(max-width:520px){.mm-audio-dock{right:8px;bottom:8px;max-width:calc(100vw - 16px);gap:5px;padding:6px}.mm-audio-dock button{min-width:32px;min-height:32px}.mm-audio-dock input[type=range]{width:48px}.mm-audio-dock .mm-audio-text{max-width:95px}}
