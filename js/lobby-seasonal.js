@@ -1,55 +1,42 @@
-/* MastersMon seasonal appearance - Halloween. No API or game state changes. */
+/* MastersMon seasonal themes for lobby. Only visual classes; no game state edits. */
 (() => {
-  'use strict';
-  const root = document.documentElement;
-  const ZONE = 'America/Lima';
-  const overrideKey = 'mastersmon_halloween_preview';
-  const allowed = new Set(['halloween', 'normal', 'auto']);
-  function limaMonthDay() {
-    try {
-      const parts = new Intl.DateTimeFormat('en-US', {timeZone: ZONE, month:'numeric', day:'numeric'}).formatToParts(new Date());
-      return {m: Number(parts.find(p=>p.type==='month')?.value), d: Number(parts.find(p=>p.type==='day')?.value)};
-    } catch (_) {
-      return {m: new Date().getMonth()+1, d:new Date().getDate()};
-    }
-  }
-  function previewMode() {
-    try {
-      const q = new URLSearchParams(location.search).get('halloween');
-      if (q === '1') return 'halloween';
-      if (q === '0') return 'normal';
-      const stored = sessionStorage.getItem(overrideKey);
-      return allowed.has(stored) ? stored : 'auto';
-    } catch (_) { return 'auto'; }
-  }
-  function isHalloween() {
-    const forced = previewMode();
-    if (forced !== 'auto') return forced === 'halloween';
-    const {m,d} = limaMonthDay();
-    return m === 10 || (m === 11 && d <= 15);
-  }
-  let current = null;
-  function apply() {
-    const enabled = isHalloween();
-    if (enabled === current) return;
-    current = enabled;
-    root.classList.toggle('mm-halloween', enabled);
-    root.dataset.lobbyTheme = enabled ? 'halloween' : 'default';
-    document.dispatchEvent(new CustomEvent('mastersmon:lobby-theme', {detail:{theme:root.dataset.lobbyTheme}}));
-  }
-  apply();
-  // Date/visibility changes do not need a page reload.
-  window.addEventListener('focus',apply);
-  document.addEventListener('visibilitychange', () => {if(!document.hidden)apply();});
-  setInterval(apply, 30 * 1000);
-  // Session-scoped preview only; never changes another player's appearance.
-  window.MastersMonLobbyTheme = Object.freeze({
-    current:()=>root.dataset.lobbyTheme,
-    preview(mode='auto') {
-      if(!allowed.has(mode)) throw new Error('Use halloween, normal or auto');
-      sessionStorage.setItem(overrideKey,mode);
-      apply();
-    },
-    reset() {sessionStorage.removeItem(overrideKey);apply();}
-  });
+ 'use strict';
+ const root=document.documentElement, ZONE='America/Lima', key='mastersmon_lobby_season_preview';
+ const allowed=new Set(['auto','halloween','christmas','normal']);
+ const dateParts=()=>{
+   const parts=new Intl.DateTimeFormat('en-US',{timeZone:ZONE,month:'numeric',day:'numeric'}).formatToParts(new Date());
+   return {m:Number(parts.find(p=>p.type==='month').value),d:Number(parts.find(p=>p.type==='day').value)};
+ };
+ function season(){
+  let query;
+  try { query=new URLSearchParams(location.search); } catch(e){ query=new URLSearchParams(); }
+  if(query.get('christmas')==='1') return 'christmas';
+  if(query.get('halloween')==='1') return 'halloween';
+  if(query.get('christmas')==='0' || query.get('halloween')==='0') return 'normal';
+  const forced=sessionStorage.getItem(key);
+  if(allowed.has(forced)&&forced!=='auto')return forced;
+  // Support previous Halloween preview setting.
+  const old=sessionStorage.getItem('mastersmon_halloween_preview');
+  if(old==='halloween'||old==='normal')return old;
+  const {m,d}=dateParts();
+  if(m===10 || m===11 && d<=15) return 'halloween';
+  if(m===11 && d>=16 || m===12 || m===1 && d<=15) return 'christmas';
+  return 'normal';
+ }
+ let current;
+ function apply(){
+  const next=season(); if(next===current)return;current=next;
+  root.classList.toggle('mm-halloween',next==='halloween');
+  root.classList.toggle('mm-christmas',next==='christmas');
+  root.dataset.lobbyTheme=next==='normal'?'default':next;
+  document.dispatchEvent(new CustomEvent('mastersmon:lobby-theme',{detail:{theme:root.dataset.lobbyTheme}}));
+ }
+ apply();addEventListener('focus',apply);
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)apply();});
+ setInterval(apply,30000);
+ window.MastersMonLobbyTheme=Object.freeze({
+  current:()=>root.dataset.lobbyTheme,
+  preview(mode='auto'){if(!allowed.has(mode))throw new Error('Use auto, normal, halloween or christmas');sessionStorage.setItem(key,mode);apply();},
+  reset(){sessionStorage.removeItem(key);sessionStorage.removeItem('mastersmon_halloween_preview');apply();}
+ });
 })();
