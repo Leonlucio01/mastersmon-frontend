@@ -1,14 +1,18 @@
-/* MastersMon Lobby Music — Starlight / Halloween Carnival. Original files in assets/audio. */
+/* MastersMon Lobby Music — Starlight / Halloween Carnival / Winter Adventure V4. */
 (()=>{'use strict';
  const STORAGE='mastersmon_lobby_music_v1';
- const tracks={halloween:{src:'assets/audio/lobby-halloween.ogg',es:'Halloween Carnival',en:'Halloween Carnival'},default:{src:'assets/audio/lobby-starlight.ogg',es:'Starlight Lobby',en:'Starlight Lobby'}};
+ const tracks={
+  halloween:{src:'assets/audio/lobby-halloween.ogg',es:'Halloween Carnival',en:'Halloween Carnival'},
+  christmas:{src:'assets/audio/lobby-christmas.ogg',es:'Winter Adventure · Navidad',en:'Winter Adventure · Christmas'},
+  default:{src:'assets/audio/lobby-starlight.ogg',es:'Starlight Lobby',en:'Starlight Lobby'}
+ };
  const audio=new Audio();audio.loop=true;audio.preload='none';audio.volume=.35;
  let enabled=true,volume=35,unlocked=false,started=false,lastTrack='';
  try{const p=JSON.parse(localStorage.getItem(STORAGE)||'{}');enabled=p.enabled!==false;volume=Number.isFinite(p.volume)?Math.max(0,Math.min(100,p.volume)):35;}catch(_){}
  audio.volume=volume/100;
  function save(){try{localStorage.setItem(STORAGE,JSON.stringify({enabled,volume}))}catch(_){}}
  function language(){return document.documentElement.lang==='en'?'en':'es'}
- function season(){return document.documentElement.dataset.lobbyTheme==='halloween'?'halloween':'default'}
+ function season(){const mode=document.documentElement.dataset.lobbyTheme;return mode==='halloween'||mode==='christmas'?mode:'default'}
  function label(){return tracks[season()][language()]}
  const dock=document.createElement('section');dock.className='mm-audio-dock';dock.setAttribute('aria-label','Lobby music');
  dock.innerHTML='<button type="button" class="mm-audio-toggle" aria-label="Activar música" title="Activar música">▶</button><div class="mm-audio-text"><div class="mm-audio-title"></div><div class="mm-audio-status" role="status"></div></div><input class="mm-audio-volume" aria-label="Volumen de música" type="range" min="0" max="100" step="5" value="35"><button type="button" class="mm-audio-mute" title="Silenciar" aria-label="Silenciar">🔊</button>';
@@ -25,7 +29,6 @@
  slider.addEventListener('input',()=>{volume=Number(slider.value);if(volume>0)prevVolume=volume;audio.volume=volume/100;save();render()});
  document.addEventListener('mastersmon:lobby-theme',syncTrack);
  document.querySelectorAll('.masters-header [data-lang]').forEach(el=>el.addEventListener('click',()=>setTimeout(render,0)));
- // Enabled by default. Try autoplay, then unlock on first user gesture if blocked. Explicit pause remains saved.
  document.addEventListener('pointerdown',function unlock(e){if(!enabled||!audio.paused||e.target.closest('.mm-audio-dock'))return;unlocked=true;void play();},{passive:true});
  document.addEventListener('keydown',function unlockKey(e){if(!enabled||!audio.paused||e.key==='Tab')return;unlocked=true;void play();});
  document.addEventListener('visibilitychange',()=>{if(document.hidden){audio.pause();}else if(enabled){void play()}});
