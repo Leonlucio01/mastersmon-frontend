@@ -1,0 +1,30 @@
+/* V7.4: refinements only. All selectors scoped to Halloween. */
+/* Show the complete panorama without enlarging it beyond the banner. */
+html.mm-halloween .workspace .hero {
+  background-size:100% 100%!important;
+  background-position:center center!important;
+}
+/* Improve text clarity over mission artwork, without obscuring its cemetery. */
+html.mm-halloween .quests-panel .panel-title {
+  background:linear-gradient(90deg,rgba(17,6,34,.78),rgba(17,6,34,.32) 58%,transparent 100%);
+  border-radius:6px;
+  padding:3px 6px 4px!important;
+}
+html.mm-halloween .quests-panel .panel-title h2,
+html.mm-halloween .quests-panel .panel-title p,
+html.mm-halloween .quests-panel .panel-title a {
+  text-shadow:0 2px 5px rgba(8,1,20,.9),0 0 6px rgba(8,1,20,.7);
+}
+/* Soft gold glow, no dimension or layout changes. */
+html.mm-halloween .hero .gold-btn {
+  box-shadow:0 0 12px rgba(255,156,42,.50),0 0 24px rgba(255,112,20,.20)!important;
+}
+html.mm-halloween .visual-world .inside-cta,
+html.mm-halloween .shop-cards a,
+html.mm-halloween .shop-cards button {
+  box-shadow:0 0 10px rgba(255,143,38,.32);
+}
+@media(max-width:680px){
+ html.mm-halloween .quests-panel .panel-title {padding:2px 4px!important;}
+ html.mm-halloween .hero .gold-btn {box-shadow:0 0 9px rgba(255,156,42,.40)!important;}
+}
