@@ -49,3 +49,27 @@ body{background:radial-gradient(circle at 64% -6%,rgba(37,114,172,.34),transpare
 @media(max-width:800px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}.layout{grid-template-columns:170px minmax(0,1fr)}.subtoolbar #subhelp{display:none}.stats{display:none}.variant{margin-left:0}}
 @media(max-width:620px){.layout{display:block}.filters{position:static;margin-bottom:8px}.grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}.mon{height:130px!important;min-height:130px!important}.mon img{height:72px!important}.hero{min-height:130px!important;padding:10px!important}.pagination{justify-content:center}.page-size{width:100%;justify-content:center}.toolbar select{flex:1}}
 @media(prefers-reduced-motion:reduce){.mon,.mon:hover{transition:none!important;transform:none!important}}
+
+
+/* MastersMon Pokédex Normal V1.4.1 — fondo de aventura exclusivo. */
+body {
+  background-color:#04132b;
+  background-image:
+    linear-gradient(180deg,rgba(3,12,32,.52) 0%,rgba(3,12,32,.76) 42%,rgba(3,12,32,.88) 100%),
+    url('../assets/pokedex/normal/background-pokedex.webp');
+  background-position:center top,center top;
+  background-size:cover,cover;
+  background-repeat:no-repeat,no-repeat;
+  background-attachment:fixed,fixed;
+}
+/* Panorama visible en el banner; texto y contadores mantienen contraste. */
+.hero {
+  background-image:
+    linear-gradient(90deg,rgba(5,13,36,.91) 0%,rgba(5,17,48,.72) 31%,rgba(8,24,50,.15) 64%,rgba(6,13,35,.64) 100%),
+    url('../assets/pokedex/normal/background-pokedex.webp') !important;
+  background-position:center center,center 33% !important;
+  background-size:cover,cover !important;
+  background-repeat:no-repeat !important;
+}
+.filters,.catalog{background:linear-gradient(145deg,rgba(10,33,63,.96),rgba(7,21,47,.96)) !important;backdrop-filter:blur(5px)}
+@media(max-width:720px){body{background-attachment:scroll,scroll;background-position:center top,center top}.hero{background-position:center,center 30% !important}}
