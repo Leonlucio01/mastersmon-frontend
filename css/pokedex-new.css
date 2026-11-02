@@ -94,3 +94,51 @@ body {
 .mon img{image-rendering:pixelated}
 @media(max-width:900px){.hero .book.book-asset{width:84px!important;height:92px!important;flex-basis:84px!important}.hero .book-asset img{width:95px;height:95px}}
 @media(max-width:620px){.hero .book.book-asset{width:57px!important;height:69px!important;flex-basis:57px!important}.hero .book-asset img{width:74px;height:74px}.hero-info{gap:8px!important}.variant{margin-left:0!important}}
+
+
+/* MastersMon Pokédex Normal V1.6 — lightweight visual polish, no global style changes */
+.hero .book.book-asset{transform:rotate(-6deg) translateY(2px)!important;filter:drop-shadow(0 0 8px rgba(245,177,55,.25))}
+.hero .book-asset img{filter:drop-shadow(0 11px 15px rgba(0,0,0,.75)) drop-shadow(0 0 12px rgba(247,184,67,.54))!important}
+.hero{border-color:#edc77a!important;box-shadow:inset 0 1px 0 #ffe3a64d,0 0 19px rgba(26,145,213,.3)!important}
+.hero .stats{border-color:#e1ba71;box-shadow:0 4px 19px #0009,inset 0 1px 0 #f6dcab38}
+.hero .stats>div:not(.ring){min-width:74px}
+.hero .stats .stat-label::before{display:inline-block;margin-right:5px;color:#ffd57c;font-weight:900}
+.hero .stats .stat-species::before{content:'◈'}
+.hero .stats .stat-normal::before{content:'◉'}
+.hero .stats .stat-shiny::before{content:'✦'}
+.hero .stats strong{letter-spacing:.2px;text-shadow:0 0 12px rgba(246,196,87,.16)}
+.filters{background:linear-gradient(156deg,rgba(10,32,65,.97),rgba(7,21,46,.97))!important}
+.filters .heading{border-bottom-color:#ad8547}
+.filters select{border-color:#668db9!important;transition:border-color .15s,box-shadow .15s}
+.filters select:hover,.filters select:focus-visible,.toolbar input:focus-visible{border-color:#f1c870!important;box-shadow:0 0 0 2px #f1c8702b}
+.filters #genLabel::before{content:'▤';color:#f8ca70;margin-right:8px}
+.filters #typeLabel::before{content:'◇';color:#f8ca70;margin-right:8px}
+.filters #statusLabel::before{content:'◉';color:#f8ca70;margin-right:8px}
+.filters .heading button:hover{background:#26567e;border-color:#f5cd76}
+.catalog{background:linear-gradient(150deg,rgba(8,29,59,.955),rgba(5,17,43,.97))!important}
+.catalog .toolbar{border-bottom-color:#4e80a5}
+.catalog .subtoolbar strong{color:#f5e2bb}
+.grid{gap:7px!important}
+.mon{isolation:isolate;border-color:#406f9c!important;box-shadow:inset 0 1px 0 #ffffff15;cursor:pointer}
+.mon.owned{border-color:#32afc7!important;box-shadow:inset 0 1px 0 #9aeaff36,0 0 0 1px #1386ab17}
+.mon.missing{border-color:#60718e!important}
+.mon.missing img{filter:brightness(0) drop-shadow(0 0 5px rgba(121,167,229,.48))!important;opacity:.96!important}
+.mon.owned img{filter:drop-shadow(0 4px 4px rgba(0,0,0,.78)) drop-shadow(0 0 5px rgba(63,174,236,.1))!important}
+.mon.shiny-owned{border-color:#f1cb6f!important;box-shadow:inset 0 0 0 1px #ffebac70,0 0 9px #e6b54e50!important}
+.mon.shiny-owned img{filter:drop-shadow(0 4px 4px rgba(0,0,0,.8)) drop-shadow(0 0 6px rgba(255,204,91,.3))!important}
+.mon .check{background:#10754d;box-shadow:0 0 0 1px #155436,0 0 7px rgba(64,210,154,.3)}
+.mon:focus-visible{outline:2px solid #f5d37b!important;outline-offset:2px}
+.mon:hover{z-index:3!important;transform:translateY(-2px)!important;border-color:#e8dbac!important;box-shadow:inset 0 1px 0 #ffffff30,0 4px 15px #0006,0 0 13px rgba(59,192,247,.46)!important}
+.mon.shiny-owned:hover{box-shadow:inset 0 1px 0 #fff8df38,0 4px 15px #0006,0 0 15px rgba(249,196,68,.65)!important}
+.mon.is-selected{border-color:#ffdf89!important;box-shadow:inset 0 0 0 1px #fff4bc99,0 0 16px #ffd574a8!important}
+.mon.is-selected::before{content:'';position:absolute;inset:2px;border-radius:6px;border:1px solid #ffe8a945;pointer-events:none}
+.mon img{image-rendering:pixelated;object-fit:contain!important;object-position:center!important;width:100%!important;height:88px!important;max-height:88px!important}
+.mon strong{font-size:12px!important;letter-spacing:.05px;text-shadow:0 2px 3px #000b}
+.mon .type{font-weight:800;box-shadow:inset 0 1px 0 #ffffff29}
+.mon.missing .types{opacity:.6!important}
+.variant button:not(:disabled):hover{filter:brightness(1.12)}
+.pagination{border-top-color:#4a7599}
+.page-numbers button:hover:not(.current),.pages>button:hover:not(:disabled){border-color:#e6bc66;background:#205078}
+@media(min-width:1350px){.mon img{height:92px!important;max-height:92px!important}}
+@media(max-width:780px){.hero .stats .stat-label::before{display:none}.mon img{height:76px!important;max-height:76px!important}}
+@media(prefers-reduced-motion:reduce){.mon,.mon:hover{transition:none!important;transform:none!important}}
