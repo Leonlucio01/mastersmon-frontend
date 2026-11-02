@@ -73,3 +73,24 @@ body {
 }
 .filters,.catalog{background:linear-gradient(145deg,rgba(10,33,63,.96),rgba(7,21,47,.96)) !important;backdrop-filter:blur(5px)}
 @media(max-width:720px){body{background-attachment:scroll,scroll;background-position:center top,center top}.hero{background-position:center,center 30% !important}}
+
+
+/* MastersMon Pokédex Normal V1.5: selected illustrated book + single filter source. */
+.hero{overflow:visible!important;isolation:isolate}
+.hero-info{min-width:0;gap:18px!important}
+.hero .book.book-asset{width:135px!important;height:138px!important;flex:0 0 135px!important;position:relative!important;transform:rotate(-7deg) translateY(-1px)!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;display:grid!important;place-items:center!important;overflow:visible!important;z-index:2}
+.hero .book.book-asset:before,.hero .book.book-asset:after{content:none!important;display:none!important}
+.hero .book-asset img{width:145px;height:145px;max-width:none;object-fit:contain;display:block;filter:drop-shadow(0 10px 13px rgba(0,0,0,.65)) drop-shadow(0 0 12px rgba(254,198,90,.35))}
+.hero .book-asset .book-ball{display:none!important}
+.toolbar{justify-content:space-between!important}
+.toolbar .searchbar{flex:1 1 480px!important;max-width:none!important}
+.toolbar .searchbar:before{content:'⌕';position:absolute;left:10px;top:50%;transform:translateY(-53%);font-size:19px;color:#d0eaff;pointer-events:none}
+.toolbar .searchbar input{padding-left:34px!important}
+.filters{border-color:#d0ac61!important;box-shadow:inset 0 1px #ffeeb54a,0 0 13px #d19e3422!important}
+.filters .heading h2{color:#ffdb8a!important}
+.filters label{margin-top:14px!important}
+.filters .info-note{margin-top:19px;line-height:1.5}
+.variant{flex:0 0 auto;margin-left:auto!important}
+.mon img{image-rendering:pixelated}
+@media(max-width:900px){.hero .book.book-asset{width:84px!important;height:92px!important;flex-basis:84px!important}.hero .book-asset img{width:95px;height:95px}}
+@media(max-width:620px){.hero .book.book-asset{width:57px!important;height:69px!important;flex-basis:57px!important}.hero .book-asset img{width:74px;height:74px}.hero-info{gap:8px!important}.variant{margin-left:0!important}}
