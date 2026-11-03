@@ -228,3 +228,23 @@ body {
 @media(max-width:900px){.mm-dossier{grid-template-columns:minmax(0,1fr)!important;overflow:auto!important;max-height:96vh}.dossier-mark{display:none}.dossier-left{min-height:465px;padding:20px 16px 14px;background-position:center 47%}.dossier-stage{min-height:120px;max-height:165px}.dossier-stage #detailImg{max-height:175px!important}.dossier-right{padding:18px 14px;max-height:none;overflow:visible}.dossier-collection-note{font-size:10px}}
 @media(max-width:490px){.mm-dossier{width:99vw!important;border-radius:14px!important}.dossier-left{padding:17px 12px 11px}.dossier-pokemon-heading h2{font-size:32px!important}.dossier-right{padding:14px 10px}.dossier-collection-grid{gap:2px}.dossier-collect-item small{font-size:9px}.mm-dossier .detail-tabs button{font-size:12px}.mm-dossier .evo-level{min-width:122px}.dossier-foot{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){.dossier-stage #detailImg{transition:none}}
+
+/* V2.3 — Evolution variant-specific ownership and readable branched stages */
+.mm-dossier .evo-variant-pill{display:inline-flex;align-items:center;border:1px solid #e4ba60;border-radius:999px;background:#46361b;padding:3px 12px;color:#ffdc86;font-size:11px;font-weight:900}
+.mm-dossier .evo-intro{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;padding-bottom:16px}
+.mm-dossier .evo-stage.evo-locked{background:#081d34;border-color:#4a6680}
+.mm-dossier .evo-stage.evo-caught{border-color:#3b98ae}
+.mm-dossier .evo-stage.current{border-color:#ffd26e}
+.mm-dossier .evo-stage-image{min-height:73px}
+.mm-dossier .evo-ownership{font-size:10px;font-weight:800;border-radius:5px;padding:2px 6px}
+.mm-dossier .evo-ownership.is-owned{color:#b5fadd;background:#105a4b}
+.mm-dossier .evo-ownership.is-locked{color:#b2c0d8;background:#263854}
+.mm-dossier .evo-ownership.is-preview{color:#e8d2a8;background:#49402b}
+.mm-dossier .evo-chain-branched .evo-level{max-width:none;min-width:170px}
+.mm-dossier .evo-chain-branched .evo-level-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:9px;align-content:start}
+.mm-dossier .evo-chain-branched .evo-stage{min-height:146px}
+.mm-dossier .evo-single{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:13px;padding:18px;border:1px solid #426a8b;border-radius:12px;background:radial-gradient(ellipse at 50% 30%,#1a4163,#071b34 80%);min-height:240px}
+.mm-dossier .evo-single .evo-stage{max-width:230px;width:100%}
+.mm-dossier .evo-single-label{font-size:14px;text-align:center;color:#ffdb96;font-weight:900}
+.mm-dossier .evo-single p{color:#b4d1e5;font-size:12px;text-align:center;margin:0}
+@media(max-width:700px){.mm-dossier .evo-chain-branched .evo-level-list{grid-template-columns:repeat(auto-fit,minmax(110px,1fr))}.mm-dossier .evo-chain-branched .evo-level{min-width:135px}}
