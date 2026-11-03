@@ -81,3 +81,40 @@ tbody tr.is-me:hover{background:linear-gradient(90deg,#7c5b2eaa,#164268 75%)!imp
 @media(max-width:800px){.my-card .my-content{min-height:98px}}
 @media(max-width:600px){.podium-area{min-height:155px}.podium-label{font-size:7px;letter-spacing:0}.my-content{min-height:86px}.my-gap>strong{font-size:14px}.podium-slot:hover{transform:none}}
 @media(prefers-reduced-motion:reduce){.podium-area article{animation:none!important}.podium-slot{transition:none!important}}
+/* MastersMon V2 - Hall of Fame refresh; retained compact V1.2 base */
+body{background:linear-gradient(180deg,#03152db5,#031329ed 63%,#031027f2),url('../assets/ranking-v2/background-world.webp') center top/cover fixed no-repeat,#031529}
+.rank-wrap{max-width:1570px;padding:10px 15px 24px}
+.rank-hero{min-height:151px;padding:13px 21px 13px 15px;background:linear-gradient(90deg,#03132be8,#071b40a9 55%,#03132bdd),url('../assets/ranking-v2/hero-panorama.webp') center/cover}
+.rank-crest{height:92px;width:92px}
+.rank-hero h1{font-size:clamp(39px,4.3vw,58px)}
+.rank-hero-stats{display:grid;grid-template-columns:repeat(3,minmax(100px,1fr));min-width:min(450px,44vw);border:1px solid #d2ac66;border-radius:12px;background:#061630ed;box-shadow:0 8px 24px #0007;padding:15px 8px;gap:0}
+.rank-hero-stats>div{min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 10px;gap:3px}
+.rank-hero-stats>div+div{border-left:1px solid #667c9877}
+.rank-hero-stats strong{color:#ffe09c;font-size:clamp(18px,2vw,25px);font-weight:900;font-variant-numeric:tabular-nums;white-space:nowrap}
+.rank-hero-stats small{color:#d2e2f5;font-size:10px}
+.stats-emoji{font-size:17px;color:#ffd47c}.rank-hero-stats>div:first-child .stats-emoji{color:#53e69b}
+.rank-tabs{margin:7px 0;padding:6px;gap:7px}.rank-modes .category{min-height:40px}.rank-categories .category{min-height:35px}.category img{height:18px;width:18px;object-fit:contain}
+.category:disabled{opacity:.45;cursor:not-allowed}.category:disabled:hover{background:#102b50}
+.team-filter{display:flex;justify-content:center;flex-wrap:wrap;gap:7px;margin:7px 0}
+.team-filter[hidden],.team-summary[hidden]{display:none}
+.team-filter-button{border:1px solid #4d779c;border-radius:9px;color:#edf6ff;background:#102b50;display:flex;align-items:center;gap:6px;min-height:32px;padding:5px 13px;font-weight:750}
+.team-filter-button img{height:19px;width:19px}.team-filter-button.active{border-color:#edc36b;box-shadow:inset 0 0 0 1px #ddac48;color:#ffe4a5;background:#323047}
+.team-summary{margin-bottom:8px;padding:12px}.team-summary h2{font:800 19px Georgia;color:#ffe1a0;margin:0}
+.team-summary-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:10px}
+.team-stat-card{border:1px solid #456e96;background:#0a2342cc;border-radius:10px;display:flex;align-items:center;gap:10px;text-align:left;color:#e7f4ff;padding:9px;min-width:0}
+.team-stat-card:hover{border-color:#e9bf71}.team-stat-card>img{height:58px;width:58px;object-fit:contain;flex-shrink:0}.team-stat-card>div{display:grid;gap:1px;min-width:0}.team-stat-card strong{font-size:12px}.team-stat-card b{font-size:20px;color:#ffe096;font-variant-numeric:tabular-nums}.team-stat-card small,.team-stat-card span{font-size:10px;color:#accbde}.team-stat-card em{color:#74e5b0;font-style:normal}
+.team-badge{display:inline-flex;align-items:center;white-space:nowrap;gap:3px;border:1px solid #4f6586;background:#10294a;color:#e3ecfa;border-radius:20px;padding:2px 6px;font-weight:700;font-size:10px;line-height:1.35}
+.team-badge img{height:15px;width:15px;object-fit:contain}.badge-red{background:#711d2d;border-color:#cb4e5d;color:#fff0ed}.badge-blue{background:#203881;border-color:#547af0;color:#e1ebff}.badge-green{background:#1b5841;border-color:#4ab78e;color:#d6ffec}.badge-none{opacity:.66}
+.stage{padding:11px 15px 12px;background:linear-gradient(180deg,#04162c4f,#04152ccd 87%),url('../assets/ranking-v2/podium-arena.webp') center 46%/cover}
+.podium-area{min-height:231px;padding-top:13px;gap:10px}.podium-slot{max-width:336px;min-height:176px;padding:15px 11px 10px}.podium-slot.rank-1{min-height:198px;padding:19px 11px 15px}.podium-trophy{height:46px}.podium-slot.rank-1 .podium-trophy{height:58px}.podium-avatar{height:38px;width:38px}.podium-score{font-size:20px}.podium-slot .team-badge{margin:4px auto 2px}.podium-extra{display:flex;justify-content:center;gap:12px;color:#b8d7eb;font-size:10px;margin-top:4px}.podium-extra .online-mark{color:#6aecaa}
+.lower-grid{grid-template-columns:minmax(0,1fr) 290px;margin-top:9px}.sidebar{gap:9px}
+.leaderboard{padding:13px}.section-heading h2{font-size:20px}.list-heading{padding-bottom:9px}.search-row{margin:9px 0}.search-input input{padding:8px 0}.page-limit select{padding:7px}
+thead th{padding:9px 8px;font-size:9px}tbody td{padding:7px 8px}.trainer-cell img{height:30px;width:30px}.trainer-cell strong{max-width:160px}
+.presence-on{display:inline-flex;gap:5px;align-items:center;color:#91efc3;font-size:10px;white-space:nowrap}.presence-on i{width:7px;height:7px;display:inline-block;background:#4bec9d;border-radius:50%;box-shadow:0 0 8px #49ff98}.presence-off{color:#8399b3;font-size:10px}.is-me td{background:#eec36b15}.is-me td:first-child{box-shadow:inset 3px 0 #f4bf64}
+.my-card,.presence-card,.champ-card{padding:12px}.my-content{margin:8px 0;padding-top:9px}.my-team{margin:6px 0}.my-gap{margin-top:8px;border-top:1px solid #326084;padding-top:7px;font-size:10px;color:#b2d5ee;display:flex;justify-content:space-between;gap:7px;flex-wrap:wrap}.my-gap strong{color:#ffe49a;font-size:13px}.team-only-note{font-size:10px;color:#a1b6d0}
+.presence-card .side-title img{height:38px;width:38px}.presence-list{margin-top:9px;display:grid;gap:5px}.presence-list>p{margin:5px 0;color:#a1bed5;font-size:11px}.presence-user{display:flex;align-items:center;gap:7px;border-top:1px solid #28547b;padding-top:6px}.presence-user>img{height:28px;width:28px;border:1px solid #e3ba73;border-radius:50%;object-fit:cover}.presence-user>div{flex:1;min-width:0;display:flex;flex-direction:column}.presence-user strong{white-space:nowrap;text-overflow:ellipsis;overflow:hidden;font-size:11px}.presence-user small{color:#a3c4dd;font-size:9px}.presence-user .presence-on{font-size:9px}.presence-note{font-size:9px;color:#99b5cd;line-height:1.35;display:block;margin-top:10px}
+.champ-card{min-height:160px;background:linear-gradient(160deg,#0b2844eb,#06142eea),url('../assets/ranking-v2/hall-of-fame.webp') center/cover}.champ-icon{height:66px;width:66px}.champ-trophies img{height:32px;width:32px}
+@media(max-width:1160px){.rank-hero-stats{min-width:min(380px,43vw)}.lower-grid{grid-template-columns:minmax(0,1fr) 252px}.podium-slot{padding-left:5px;padding-right:5px}}
+@media(max-width:850px){.rank-hero{flex-wrap:wrap}.rank-hero-stats{width:100%;min-width:0}.lower-grid{grid-template-columns:1fr}.sidebar{grid-template-columns:repeat(2,1fr)}.team-summary-cards{gap:5px}}
+@media(max-width:620px){.rank-hero{padding:10px}.rank-crest{height:66px;width:66px}.rank-hero h1{font-size:38px}.rank-hero-stats{padding:8px 2px}.rank-hero-stats strong{font-size:16px}.rank-hero-stats small{font-size:9px}.rank-modes,.rank-categories{overflow-x:auto}.rank-tabs .category{min-width:120px;font-size:10px}.rank-tabs .category img{height:16px;width:16px}.team-summary-cards{grid-template-columns:1fr}.team-stat-card>img{height:42px;width:42px}.podium-area{gap:5px}.podium-slot .team-badge{font-size:8px;padding:2px 3px}.podium-slot .team-badge img{height:12px;width:12px}.podium-extra{gap:3px;font-size:8px}.sidebar{grid-template-columns:1fr}.podium-trophy{height:38px}.podium-slot.rank-1 .podium-trophy{height:49px}.podium-score{font-size:15px}.podium-slot .podium-label{font-size:8px}.rank-wrap{padding:7px}.stage{padding:9px}.podium-slot{min-height:165px}.podium-slot.rank-1{min-height:183px}}
+@media(prefers-reduced-motion:reduce){.podium-slot,.category{transition:none!important;animation:none!important}}

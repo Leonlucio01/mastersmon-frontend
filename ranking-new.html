@@ -2,13 +2,13 @@
 <html lang="es">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>MastersMon | Ranking V1.2</title>
+<title>MastersMon | Rankings V2</title>
 <meta name="theme-color" content="#07172e">
-<link rel="stylesheet" href="css/ranking-new.css?v=312">
+<link rel="stylesheet" href="css/ranking-new.css?v=420">
 <link rel="stylesheet" href="css/menu-unificado.css?v=2204">
 <script defer src="js/api.js"></script>
 <script defer src="js/menu-unificado.js?v=2204"></script>
-<script defer src="js/ranking-new.js?v=312"></script>
+<script defer src="js/ranking-new.js?v=420"></script>
 </head>
 <body>
 <header class="topbar unified-header masters-header" id="mastersHeader">
@@ -34,15 +34,32 @@
 </header>
 <main class="rank-wrap">
  <section class="rank-hero" aria-labelledby="rankTitle">
-  <div class="hero-left"><img class="rank-crest" src="assets/ranking/ranking-emblem.webp" alt=""><div><p class="rank-kicker" data-i18n="eyebrow">MASTERSMON · HALL OF FAME</p><h1 id="rankTitle" data-i18n="title">Ranking</h1><p class="rank-sub" data-i18n="subtitle">Los mejores entrenadores de MastersMon, clasificados con datos reales.</p></div></div>
-  <div class="hero-right"><span class="live-dot"></span><strong data-i18n="live">Clasificación general</strong><span data-i18n="noSeason">Sin temporadas ni puntos RP por ahora</span></div>
+  <div class="hero-left"><img class="rank-crest" src="assets/ranking-v2/ranking-emblem.webp" alt=""><div><p class="rank-kicker" data-i18n="eyebrow">MASTERSMON · CLASIFICACIONES</p><h1 id="rankTitle" data-i18n="title">Rankings</h1><p class="rank-sub" data-i18n="subtitle">Los mejores entrenadores de MastersMon, clasificados con datos reales.</p></div></div>
+  <div class="rank-hero-stats" aria-label="Datos reales de MastersMon">
+   <div><span class="stats-emoji">●</span><strong id="onlineCount">—</strong><small data-i18n="online">Activos (2 min)</small></div>
+   <div><span class="stats-emoji">♙</span><strong id="trainerCount">—</strong><small data-i18n="totalTrainers">Entrenadores</small></div>
+   <div><span class="stats-emoji">♛</span><strong id="topScore">—</strong><small data-i18n="bestScore">Mejor puntuación</small></div>
+  </div>
  </section>
- <section class="rank-tabs panel" aria-label="Categoría de ranking" id="categoryTabs">
-  <button class="category active" type="button" data-category="entrenadores" aria-pressed="true"><span class="tab-symbol">♛</span><span data-i18n="catTrainers">Entrenadores</span></button>
-  <button class="category" type="button" data-category="coleccion" aria-pressed="false"><span class="tab-symbol">◈</span><span data-i18n="catCollection">Coleccionistas</span></button>
-  <button class="category" type="button" data-category="shiny" aria-pressed="false"><span class="tab-symbol">✦</span><span data-i18n="catShiny">Cazadores Shiny</span></button>
-  <button class="category" type="button" data-category="victorias" aria-pressed="false"><span class="tab-symbol">⚔</span><span data-i18n="catWins">Victorias</span></button>
+ <section class="rank-tabs panel rank-modes" aria-label="Modo de clasificación">
+  <button type="button" class="category active" data-mode="global" aria-pressed="true"><img src="assets/ranking-v2/icon-global.svg" alt=""><span data-i18n="global">Global</span></button>
+  <button type="button" class="category" data-mode="team" aria-pressed="false"><img src="assets/ranking-v2/icon-teams.svg" alt=""><span data-i18n="byTeam">Por equipos</span></button>
+  <button type="button" class="category" disabled title="Próximamente"><img src="assets/ranking-v2/icon-weekly.svg" alt=""><span data-i18n="weekly">Semanal · Próximamente</span></button>
+  <button type="button" class="category" disabled title="Próximamente"><img src="assets/ranking-v2/icon-region.svg" alt=""><span data-i18n="byRegion">Por región · Próximamente</span></button>
  </section>
+ <section class="rank-tabs panel rank-categories" aria-label="Categoría de ranking" id="categoryTabs">
+  <button class="category active" type="button" data-category="entrenadores"><span class="tab-symbol">♛</span><span data-i18n="catTrainers">Entrenadores</span></button>
+  <button class="category" type="button" data-category="coleccion"><img src="assets/ranking-v2/icon-collectors.svg" alt=""><span data-i18n="catCollection">Coleccionistas</span></button>
+  <button class="category" type="button" data-category="shiny"><img src="assets/ranking-v2/icon-shiny.svg" alt=""><span data-i18n="catShiny">Cazadores Shiny</span></button>
+  <button class="category" type="button" data-category="victorias"><img src="assets/ranking-v2/icon-victories.svg" alt=""><span data-i18n="catWins">Victorias</span></button>
+ </section>
+ <section class="team-filter" id="teamFilter" hidden aria-label="Filtro de equipos">
+  <button class="team-filter-button active" type="button" data-team="all"><span data-i18n="allTeams">Todos los equipos</span></button>
+  <button class="team-filter-button team-red" type="button" data-team="red"><img src="assets/ranking-v2/team-red.svg" alt=""><span data-i18n="teamRed">Rojo</span></button>
+  <button class="team-filter-button team-blue" type="button" data-team="blue"><img src="assets/ranking-v2/team-blue.svg" alt=""><span data-i18n="teamBlue">Azul</span></button>
+  <button class="team-filter-button team-green" type="button" data-team="green"><img src="assets/ranking-v2/team-green.svg" alt=""><span data-i18n="teamGreen">Verde</span></button>
+ </section>
+ <section class="team-summary panel" id="teamSummary" hidden><div class="section-heading"><h2 data-i18n="teamsTitle">Clasificación por equipos</h2></div><div id="teamCards" class="team-summary-cards"></div></section>
  <section class="stage panel" aria-labelledby="podiumTitle">
   <div class="section-heading"><div><p class="section-kicker" data-i18n="hall">SALÓN DE LA FAMA</p><h2 id="podiumTitle" data-i18n="podiumTitle">Los tres primeros</h2></div><span class="category-tag" id="podiumMetric">EXP</span></div>
   <div class="podium-area" id="podiumArea" aria-live="polite"><div class="load-placeholder" data-i18n="loading">Cargando clasificación…</div></div>
@@ -52,12 +69,13 @@
    <div class="section-heading list-heading"><div><p class="section-kicker" data-i18n="official">CLASIFICACIÓN OFICIAL</p><h2 id="tableTitle" data-i18n="leaderboard">Tabla de posiciones</h2></div><span class="count-label" id="totalLabel">—</span></div>
    <div class="search-row"><label class="search-input"><span aria-hidden="true">⌕</span><input id="rankSearch" maxlength="60" type="search" autocomplete="off" data-placeholder-es="Buscar entrenador…" data-placeholder-en="Search trainer…" placeholder="Buscar entrenador…" aria-label="Buscar entrenador"></label><label class="page-limit"><span data-i18n="perPage">Por página</span><select id="pageSize"><option value="10" selected>10</option><option value="20">20</option><option value="50">50</option></select></label></div>
    <div id="status" class="notice" role="status" aria-live="polite" hidden></div>
-   <div class="table-scroll"><table aria-label="Ranking de entrenadores"><thead><tr><th data-i18n="pos">Puesto</th><th data-i18n="trainer">Entrenador</th><th id="metricCol1">EXP total</th><th id="metricCol2">Únicos</th><th id="metricCol3">Victorias</th></tr></thead><tbody id="leaderRows"></tbody></table></div>
+   <div class="table-scroll"><table aria-label="Ranking de entrenadores"><thead><tr><th data-i18n="pos">Puesto</th><th data-i18n="trainer">Entrenador</th><th data-i18n="team">Equipo</th><th id="metricCol1">EXP total</th><th id="metricCol2">Únicos</th><th id="metricCol3">Victorias</th><th data-i18n="activity">Actividad</th></tr></thead><tbody id="leaderRows"></tbody></table></div>
    <div class="pager"><span id="pageText" class="pager-caption">—</span><div class="pager-actions"><button type="button" id="prevPage" aria-label="Anterior">‹</button><button type="button" id="nextPage" aria-label="Siguiente">›</button></div></div>
   </section>
   <aside class="sidebar">
-   <section class="my-card panel"><div class="side-title"><img src="assets/ranking/ranking-emblem.webp" alt=""><div><p class="section-kicker" data-i18n="personal">TU PROGRESO</p><h2 data-i18n="myPosition">Mi posición</h2></div></div><div id="myRankContent" class="my-content" aria-live="polite"><p data-i18n="checking">Comprobando sesión…</p></div><button type="button" class="soft-button" id="refreshMe" data-i18n="refresh">Actualizar mi posición</button></section>
-   <section class="champ-card panel"><img src="assets/ranking/trophy-gold.webp" alt="" class="champ-icon"><p class="section-kicker" data-i18n="rankingInfo">RANKING DE MASTERSMON</p><h2 data-i18n="fairRules">Resultados de juego reales</h2><p data-i18n="rankingInfoText">Cada categoría utiliza las estadísticas registradas de los entrenadores. No hay premios ni temporadas activos en esta versión.</p><div class="champ-trophies"><img src="assets/ranking/trophy-silver.webp" alt=""><img src="assets/ranking/trophy-bronze.webp" alt=""></div></section>
+   <section class="my-card panel"><div class="side-title"><img src="assets/ranking-v2/ranking-emblem.webp" alt=""><div><p class="section-kicker" data-i18n="personal">TU PROGRESO</p><h2 data-i18n="myPosition">Mi posición</h2></div></div><div id="myRankContent" class="my-content" aria-live="polite"><p data-i18n="checking">Comprobando sesión…</p></div><button type="button" class="soft-button" id="refreshMe" data-i18n="refresh">Actualizar mi posición</button></section>
+   <section class="presence-card panel"><div class="side-title"><img src="assets/ranking-v2/icon-online.svg" alt=""><div><p class="section-kicker" data-i18n="presenceTitle">ENTRENADORES ACTIVOS</p><h2 data-i18n="presenceSub">Actividad reciente</h2></div></div><div id="presenceList" class="presence-list"><p>—</p></div><small class="presence-note" data-i18n="presenceNote">Actividad en los últimos 2 minutos; no implica conexión en tiempo real.</small></section>
+   <section class="champ-card panel"><img src="assets/ranking-v2/trophy-gold.webp" alt="" class="champ-icon"><p class="section-kicker" data-i18n="rankingInfo">RANKING DE MASTERSMON</p><h2 data-i18n="fairRules">Resultados de juego reales</h2><p data-i18n="rankingInfoText">Cada categoría utiliza las estadísticas registradas de los entrenadores. No hay premios ni temporadas activos en esta versión.</p><div class="champ-trophies"><img src="assets/ranking-v2/trophy-silver.webp" alt=""><img src="assets/ranking-v2/trophy-bronze.webp" alt=""></div></section>
   </aside>
  </div>
  <footer class="rank-footer"><span>MASTERSMON</span><span data-i18n="footer">Ranking · Datos en tiempo real</span></footer>
