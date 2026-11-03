@@ -118,3 +118,8 @@ thead th{padding:9px 8px;font-size:9px}tbody td{padding:7px 8px}.trainer-cell im
 @media(max-width:850px){.rank-hero{flex-wrap:wrap}.rank-hero-stats{width:100%;min-width:0}.lower-grid{grid-template-columns:1fr}.sidebar{grid-template-columns:repeat(2,1fr)}.team-summary-cards{gap:5px}}
 @media(max-width:620px){.rank-hero{padding:10px}.rank-crest{height:66px;width:66px}.rank-hero h1{font-size:38px}.rank-hero-stats{padding:8px 2px}.rank-hero-stats strong{font-size:16px}.rank-hero-stats small{font-size:9px}.rank-modes,.rank-categories{overflow-x:auto}.rank-tabs .category{min-width:120px;font-size:10px}.rank-tabs .category img{height:16px;width:16px}.team-summary-cards{grid-template-columns:1fr}.team-stat-card>img{height:42px;width:42px}.podium-area{gap:5px}.podium-slot .team-badge{font-size:8px;padding:2px 3px}.podium-slot .team-badge img{height:12px;width:12px}.podium-extra{gap:3px;font-size:8px}.sidebar{grid-template-columns:1fr}.podium-trophy{height:38px}.podium-slot.rank-1 .podium-trophy{height:49px}.podium-score{font-size:15px}.podium-slot .podium-label{font-size:8px}.rank-wrap{padding:7px}.stage{padding:9px}.podium-slot{min-height:165px}.podium-slot.rank-1{min-height:183px}}
 @media(prefers-reduced-motion:reduce){.podium-slot,.category{transition:none!important;animation:none!important}}
+
+/* V2.1 - Navegacion simple: Global y Por equipos */
+.rank-modes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;}
+.rank-modes .category{width:100%;min-width:0;flex:none;}
+@media(max-width:620px){.rank-modes{overflow:visible;gap:6px}.rank-modes .category{min-width:0;font-size:11px;white-space:nowrap}}
