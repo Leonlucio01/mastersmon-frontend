@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MastersMon | Ranking V1</title>
+<meta name="theme-color" content="#07172e">
+<link rel="stylesheet" href="css/ranking-new.css?v=301">
+<link rel="stylesheet" href="css/menu-unificado.css?v=2204">
+<script defer src="js/api.js"></script>
+<script defer src="js/menu-unificado.js?v=2204"></script>
+<script defer src="js/ranking-new.js?v=301"></script>
+</head>
+<body>
+<header class="topbar unified-header masters-header" id="mastersHeader">
+ <div class="top-inner">
+  <a class="brand" href="lobby.html"><span class="emblem">M</span><span>MASTERSMON</span></a>
+  <nav aria-label="Navegación" class="unified-nav">
+   <a href="lobby.html"><img class="icon" src="assets/ui/icons/home.svg" alt=""><span data-menu-es="Jugar" data-menu-en="Play">Jugar</span></a>
+   <a href="mypokemon.html"><img class="icon" src="assets/ui/icons/pokedex.svg" alt=""><span data-menu-es="Colección" data-menu-en="Collection">Colección</span></a>
+   <a href="pokemart.html"><img class="icon" src="assets/ui/icons/shop.svg" alt=""><span data-menu-es="Tienda" data-menu-en="Shop">Tienda</span></a>
+   <a href="battle.html"><img class="icon" src="assets/ui/icons/battle.svg" alt=""><span data-menu-es="Batallas" data-menu-en="Battles">Batallas</span></a>
+   <a href="gyms.html"><img class="icon" src="assets/ui/icons/gym.svg" alt=""><span data-menu-es="Gimnasios" data-menu-en="Gyms">Gimnasios</span></a>
+   <a href="pokedex.html"><img class="icon" src="assets/ui/icons/ball.svg" alt=""><span data-menu-es="Pokédex" data-menu-en="Pokédex">Pokédex</span></a>
+   <a href="ranking-new.html" class="selected" aria-current="page"><img class="icon" src="assets/ui/icons/medal.svg" alt=""><span data-menu-es="Rankings" data-menu-en="Rankings">Rankings</span></a>
+  </nav>
+  <div class="nav-right">
+   <div class="language" aria-label="Idioma"><button data-lang="es" type="button">ES</button><button data-lang="en" type="button">EN</button></div>
+   <div class="trainer-menu-root"><button type="button" class="nav-profile trainer-menu-toggle" id="trainerMenuToggle" aria-controls="trainerDropdown" aria-expanded="false"><img class="unified-avatar" id="navAvatar" src="assets/onboarding/steven.webp" alt=""><span class="trainer-menu-identity"><small data-menu-es="Entrenador" data-menu-en="Trainer">Entrenador</small><strong id="navName">Entrenador</strong></span><span class="trainer-chevron">⌄</span></button>
+    <div class="trainer-dropdown" id="trainerDropdown" hidden><div class="trainer-dropdown-heading"><img src="assets/onboarding/steven.webp" id="menuTrainerAvatar" alt=""><div><small data-menu-es="MI ENTRENADOR" data-menu-en="MY TRAINER">MI ENTRENADOR</small><strong id="menuTrainerName">Entrenador</strong></div></div><a class="trainer-option" href="perfil.html"><span class="trainer-option-icon">♙</span><span data-menu-es="Mi perfil y avatar" data-menu-en="My profile &amp; avatar">Mi perfil y avatar</span><b>›</b></a><a class="trainer-option" href="inventario.html"><span class="trainer-option-icon">▣</span><span data-menu-es="Mi inventario" data-menu-en="My inventory">Mi inventario</span><b>›</b></a><button class="trainer-option trainer-option-logout" id="trainerMenuLogout" type="button"><span class="trainer-option-icon">↪</span><span data-menu-es="Cerrar sesión" data-menu-en="Sign out">Cerrar sesión</span><b>›</b></button></div>
+   </div>
+   <button class="logout" id="logoutBtn" type="button" data-menu-es="Salir" data-menu-en="Exit">Salir</button>
+  </div>
+ </div>
+</header>
+<main class="rank-wrap">
+ <section class="rank-hero" aria-labelledby="rankTitle">
+  <div class="hero-left"><img class="rank-crest" src="assets/ranking/ranking-emblem.webp" alt=""><div><p class="rank-kicker" data-i18n="eyebrow">MASTERSMON · HALL OF FAME</p><h1 id="rankTitle" data-i18n="title">Ranking</h1><p class="rank-sub" data-i18n="subtitle">Los mejores entrenadores de MastersMon, clasificados con datos reales.</p></div></div>
+  <div class="hero-right"><span class="live-dot"></span><strong data-i18n="live">Clasificación general</strong><span data-i18n="noSeason">Sin temporadas ni puntos RP por ahora</span></div>
+ </section>
+ <section class="rank-tabs panel" aria-label="Categoría de ranking" id="categoryTabs">
+  <button class="category active" type="button" data-category="entrenadores" aria-pressed="true"><span class="tab-symbol">♛</span><span data-i18n="catTrainers">Entrenadores</span></button>
+  <button class="category" type="button" data-category="coleccion" aria-pressed="false"><span class="tab-symbol">◈</span><span data-i18n="catCollection">Coleccionistas</span></button>
+  <button class="category" type="button" data-category="shiny" aria-pressed="false"><span class="tab-symbol">✦</span><span data-i18n="catShiny">Cazadores Shiny</span></button>
+  <button class="category" type="button" data-category="victorias" aria-pressed="false"><span class="tab-symbol">⚔</span><span data-i18n="catWins">Victorias</span></button>
+ </section>
+ <section class="stage panel" aria-labelledby="podiumTitle">
+  <div class="section-heading"><div><p class="section-kicker" data-i18n="hall">SALÓN DE LA FAMA</p><h2 id="podiumTitle" data-i18n="podiumTitle">Los tres primeros</h2></div><span class="category-tag" id="podiumMetric">EXP</span></div>
+  <div class="podium-area" id="podiumArea" aria-live="polite"><div class="load-placeholder" data-i18n="loading">Cargando clasificación…</div></div>
+ </section>
+ <div class="lower-grid">
+  <section class="leaderboard panel" aria-labelledby="tableTitle">
+   <div class="section-heading list-heading"><div><p class="section-kicker" data-i18n="official">CLASIFICACIÓN OFICIAL</p><h2 id="tableTitle" data-i18n="leaderboard">Tabla de posiciones</h2></div><span class="count-label" id="totalLabel">—</span></div>
+   <div class="search-row"><label class="search-input"><span aria-hidden="true">⌕</span><input id="rankSearch" maxlength="60" type="search" autocomplete="off" data-placeholder-es="Buscar entrenador…" data-placeholder-en="Search trainer…" placeholder="Buscar entrenador…" aria-label="Buscar entrenador"></label><label class="page-limit"><span data-i18n="perPage">Por página</span><select id="pageSize"><option value="10">10</option><option value="20" selected>20</option><option value="50">50</option></select></label></div>
+   <div id="status" class="notice" role="status" aria-live="polite" hidden></div>
+   <div class="table-scroll"><table aria-label="Ranking de entrenadores"><thead><tr><th data-i18n="pos">Puesto</th><th data-i18n="trainer">Entrenador</th><th id="scoreHead">EXP</th><th data-i18n="collectionSmall">Colección</th><th data-i18n="wins">Victorias</th></tr></thead><tbody id="leaderRows"></tbody></table></div>
+   <div class="pager"><span id="pageText" class="pager-caption">—</span><div class="pager-actions"><button type="button" id="prevPage" aria-label="Anterior">‹</button><button type="button" id="nextPage" aria-label="Siguiente">›</button></div></div>
+  </section>
+  <aside class="sidebar">
+   <section class="my-card panel"><div class="side-title"><img src="assets/ranking/ranking-emblem.webp" alt=""><div><p class="section-kicker" data-i18n="personal">TU PROGRESO</p><h2 data-i18n="myPosition">Mi posición</h2></div></div><div id="myRankContent" class="my-content" aria-live="polite"><p data-i18n="checking">Comprobando sesión…</p></div><button type="button" class="soft-button" id="refreshMe" data-i18n="refresh">Actualizar mi posición</button></section>
+   <section class="champ-card panel"><img src="assets/ranking/trophy-gold.webp" alt="" class="champ-icon"><p class="section-kicker" data-i18n="rankingInfo">RANKING DE MASTERSMON</p><h2 data-i18n="fairRules">Resultados de juego reales</h2><p data-i18n="rankingInfoText">Cada categoría utiliza las estadísticas registradas de los entrenadores. No hay premios ni temporadas activos en esta versión.</p><div class="champ-trophies"><img src="assets/ranking/trophy-silver.webp" alt=""><img src="assets/ranking/trophy-bronze.webp" alt=""></div></section>
+  </aside>
+ </div>
+ <footer class="rank-footer"><span>MASTERSMON</span><span data-i18n="footer">Ranking · Datos en tiempo real</span></footer>
+</main>
+</body>
+</html>
