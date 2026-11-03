@@ -2,13 +2,13 @@
 <html lang="es">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>MastersMon | Ranking V1</title>
+<title>MastersMon | Ranking V1.1</title>
 <meta name="theme-color" content="#07172e">
-<link rel="stylesheet" href="css/ranking-new.css?v=301">
+<link rel="stylesheet" href="css/ranking-new.css?v=311">
 <link rel="stylesheet" href="css/menu-unificado.css?v=2204">
 <script defer src="js/api.js"></script>
 <script defer src="js/menu-unificado.js?v=2204"></script>
-<script defer src="js/ranking-new.js?v=301"></script>
+<script defer src="js/ranking-new.js?v=311"></script>
 </head>
 <body>
 <header class="topbar unified-header masters-header" id="mastersHeader">
@@ -50,9 +50,9 @@
  <div class="lower-grid">
   <section class="leaderboard panel" aria-labelledby="tableTitle">
    <div class="section-heading list-heading"><div><p class="section-kicker" data-i18n="official">CLASIFICACIÓN OFICIAL</p><h2 id="tableTitle" data-i18n="leaderboard">Tabla de posiciones</h2></div><span class="count-label" id="totalLabel">—</span></div>
-   <div class="search-row"><label class="search-input"><span aria-hidden="true">⌕</span><input id="rankSearch" maxlength="60" type="search" autocomplete="off" data-placeholder-es="Buscar entrenador…" data-placeholder-en="Search trainer…" placeholder="Buscar entrenador…" aria-label="Buscar entrenador"></label><label class="page-limit"><span data-i18n="perPage">Por página</span><select id="pageSize"><option value="10">10</option><option value="20" selected>20</option><option value="50">50</option></select></label></div>
+   <div class="search-row"><label class="search-input"><span aria-hidden="true">⌕</span><input id="rankSearch" maxlength="60" type="search" autocomplete="off" data-placeholder-es="Buscar entrenador…" data-placeholder-en="Search trainer…" placeholder="Buscar entrenador…" aria-label="Buscar entrenador"></label><label class="page-limit"><span data-i18n="perPage">Por página</span><select id="pageSize"><option value="10" selected>10</option><option value="20">20</option><option value="50">50</option></select></label></div>
    <div id="status" class="notice" role="status" aria-live="polite" hidden></div>
-   <div class="table-scroll"><table aria-label="Ranking de entrenadores"><thead><tr><th data-i18n="pos">Puesto</th><th data-i18n="trainer">Entrenador</th><th id="scoreHead">EXP</th><th data-i18n="collectionSmall">Colección</th><th data-i18n="wins">Victorias</th></tr></thead><tbody id="leaderRows"></tbody></table></div>
+   <div class="table-scroll"><table aria-label="Ranking de entrenadores"><thead><tr><th data-i18n="pos">Puesto</th><th data-i18n="trainer">Entrenador</th><th id="metricCol1">EXP total</th><th id="metricCol2">Únicos</th><th id="metricCol3">Victorias</th></tr></thead><tbody id="leaderRows"></tbody></table></div>
    <div class="pager"><span id="pageText" class="pager-caption">—</span><div class="pager-actions"><button type="button" id="prevPage" aria-label="Anterior">‹</button><button type="button" id="nextPage" aria-label="Siguiente">›</button></div></div>
   </section>
   <aside class="sidebar">
