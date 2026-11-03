@@ -150,3 +150,21 @@ body {
 .stats-chart{display:grid;gap:10px;padding:6px 0}.stat-line{display:grid;grid-template-columns:74px minmax(0,1fr) 35px;align-items:center;gap:10px}.stat-line>b{font-size:12px}.stat-line>strong{text-align:right}.stat-track{height:12px;background:#041628;border:1px solid #345c83;border-radius:15px;overflow:hidden}.stat-track span{display:block;height:100%;background:linear-gradient(90deg,#38bcd5,#72e4b9,#ffe07c);border-radius:15px}
 .evo-list,.location-list{display:grid;gap:9px}.evo-item,.location-item{display:flex;align-items:center;gap:13px;border:1px solid #3c749d;border-radius:11px;background:#0b2a48;padding:10px 13px}.evo-item img{height:56px;width:62px;object-fit:contain;image-rendering:pixelated}.evo-item div,.location-item>div{display:grid;gap:2px;flex:1}.evo-item small,.location-item small{font-size:11px;color:#c2d9ea}.go-map{border:1px solid #e7b95e;color:#182540;background:linear-gradient(#ffe69e,#e2ab48);border-radius:8px;padding:8px 12px;white-space:nowrap;font-weight:800}.go-map:hover{filter:brightness(1.08)}
 @media(max-width:600px){.detail{padding:14px}.detail-head img{width:115px;height:125px}.detail-head{min-height:130px}.detail-tabs button{font-size:10px}.variant-statuses{grid-template-columns:1fr}.location-item{align-items:flex-start;flex-wrap:wrap}.go-map{margin-left:auto}}
+
+
+/* MastersMon Pokédex V1.8 — evolution family tree and 3-tab detail */
+.detail-tabs{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+.detail-body{min-height:185px}
+.evo-intro{color:#b7d5e9;font-size:12px;padding:0 1px 12px}
+.evo-chain{display:flex;gap:10px;overflow-x:auto;align-items:stretch;padding:3px 2px 14px;scrollbar-color:#618bb1 #081a35}
+.evo-level{flex:1 0 150px;min-width:148px;max-width:300px;border:1px solid #315f84;border-radius:12px;padding:9px;background:linear-gradient(160deg,#12395a,#091a35)}
+.evo-level-title{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:#f5d589;text-align:center;margin-bottom:8px;font-weight:800}
+.evo-level-list{display:grid;gap:7px}.evo-stage{width:100%;background:#0b2948;border:1px solid #3e7c9e;border-radius:10px;padding:7px 5px 9px;display:flex;align-items:center;flex-direction:column;gap:4px;color:#eaf6ff;min-width:0;cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.evo-stage:hover{border-color:#ffdc8c;box-shadow:0 0 12px #ffcf6540}
+.evo-stage.current{border-color:#f7d179;background:#193859;box-shadow:inset 0 0 0 1px #e2b86866}
+.evo-stage-image{display:grid;place-items:center;width:100%;height:77px}.evo-stage img{width:100%;max-width:110px;height:72px;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 5px 6px #000a)}
+.evo-stage img.evo-unowned{filter:brightness(0) drop-shadow(0 0 6px #6ca5d1);opacity:.78}
+.evo-stage strong{font-size:12px;text-align:center;word-break:break-word}.evo-condition{color:#ebd9ae;font-size:10px;line-height:1.25;text-align:center;display:block}.evo-current{font-weight:800;color:#f5d589;font-size:10px}.evo-origin{font-size:10px;color:#93bfe3}.evo-arrow{align-self:center;font-size:26px;color:#f6c775;flex:0 0 20px;text-shadow:0 0 8px #ffca6377}
+.evo-empty{color:#bfd5e5;padding:12px}
+@media(max-width:670px){.evo-chain{gap:5px}.evo-level{flex-basis:125px;min-width:125px;padding:6px}.evo-arrow{font-size:18px;flex-basis:13px}.evo-stage strong{font-size:11px}}
+@media(prefers-reduced-motion:reduce){.evo-stage{transition:none}}
