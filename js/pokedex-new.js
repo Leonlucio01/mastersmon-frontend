@@ -1,4 +1,89 @@
-(()=>{'use strict';const $=s=>document.querySelector(s);let all=[],normal=new Set(),shiny=new Set(),page=1,variant='normal',lang='es',selected=null,tab='evo';const variantOrder=['normal','shiny','bronze','silver','golden'];const variantMeta={normal:{label:'Normal',icon:'◉',suffix:'',ownedKey:'normal'},shiny:{label:'Shiny',icon:'✦',suffix:'_s',ownedKey:'shiny'},silver:{label:'Silver',icon:'✧',suffix:'_sl',ownedKey:'normal'},golden:{label:'Golden',icon:'✶',suffix:'_gl',ownedKey:'normal'},bronze:{label:'Bronze',icon:'⬢',suffix:'_bz',ownedKey:'normal'}};const limit=()=>Number($('#per').value);const types=['Normal','Fuego','Agua','Planta','Electrico','Hielo','Lucha','Veneno','Tierra','Volador','Psiquico','Bicho','Roca','Fantasma','Dragon','Acero','Hada','Siniestro'];const en={Normal:'Normal',Fuego:'Fire',Agua:'Water',Planta:'Grass',Electrico:'Electric',Hielo:'Ice',Lucha:'Fighting',Veneno:'Poison',Tierra:'Ground',Volador:'Flying',Psiquico:'Psychic',Bicho:'Bug',Roca:'Rock',Fantasma:'Ghost',Dragon:'Dragon',Acero:'Steel',Hada:'Fairy',Siniestro:'Dark'};const es={};Object.assign(en,{'Eléctrico':'Electric','Psíquico':'Psychic','Dragón':'Dragon','Oscuro':'Dark'});const dict={es:{search:'Buscar Pokémon',gen:'Generación',type:'Tipo',status:'Estado',all:'Todos',caught:'Capturados',missing:'Sin capturar',progress:'Progreso',species:'Especies',note:'Los Pokémon sin capturar aparecen como siluetas. Selecciona una variante para consultar tu colección.',results:'Pokémon',per:'Por página',info:'Información',stats:'Estadísticas',evo:'Evolución'},en:{search:'Search Pokémon',gen:'Generation',type:'Type',status:'Status',all:'All',caught:'Caught',missing:'Not caught',progress:'Progress',species:'Species',note:'Uncaught Pokémon appear as silhouettes. Select a variant to check your collection.',results:'Pokémon',per:'Per page',info:'Information',stats:'Stats',evo:'Evolution'}};function trans(t){return lang==='en'?(en[t]||t):es[t]||t}function safe(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}function ownedKey(v){return (variantMeta[v]&&variantMeta[v].ownedKey)||'normal'}function own(p,v=variant){if(v!=='normal'&&v!=='shiny')return false;return (v==='shiny'?shiny:normal).has(Number(p.id))}function spriteCandidates(p,v=variant){const id=String(p.id).padStart(4,'0'),meta=variantMeta[v]||variantMeta.normal,candidates=[];if(typeof obtenerRutaSpriteDesdePokemon==='function'&&(v==='normal'||v==='shiny'))candidates.push(obtenerRutaSpriteDesdePokemon({...p,es_shiny:v==='shiny'},v==='shiny'));if(v==='normal')candidates.push(`img/pokemon-png/sprites_normal/${id}.png`);else if(v==='shiny'){candidates.push(`img/pokemon-png/sprites_shiny/${id}_s.png`)}else{candidates.push(`img/pokemon-png/sprites_normal/${id}${meta.suffix}.png`,`img/pokemon-png/sprites_${v}/${id}${meta.suffix}.png`,`assets/pokedex/variants/${v}/${id}${meta.suffix}.png`);/* V2.6: normal sprite is the LAST fallback, never ownership. */if(typeof obtenerRutaSpriteDesdePokemon==='function')candidates.push(obtenerRutaSpriteDesdePokemon({...p,es_shiny:false},false));candidates.push(`img/pokemon-png/sprites_normal/${id}.png`)}return [...new Set(candidates.filter(Boolean))]}function sprite(p,v=variant){return spriteCandidates(p,v)[0]}function imgFallback(e){e.onerror=null;e.style.visibility='hidden';e.alt='Imagen no disponible'}function attachVariantFallback(img,p,v=variant){const list=spriteCandidates(p,v);let index=0;const next=()=>{if(index>=list.length){imgFallback(img);return}img.style.visibility='visible';img.src=list[index++]};img.onerror=next;next()}function updateCatalogVariantButtons(){document.querySelectorAll('[data-variant]').forEach(btn=>{const active=btn.dataset.variant===variant;btn.classList.toggle('on',active);btn.classList.toggle('active',active)})}function primeGridImages(){$('#grid').querySelectorAll('img[data-poke-id]').forEach(im=>{const poke=all.find(x=>Number(x.id)===Number(im.dataset.pokeId));if(poke)attachVariantFallback(im,poke,im.dataset.variant||variant)})}function filt(){const q=$('#search').value.trim().toLowerCase(),g=$('#generation').value,t=$('#type').value,status=$('#status').value;return all.filter(p=>{const typ=String(p.tipo||'').split('/').map(s=>s.trim());return (!q||String(p.nombre).toLowerCase().includes(q)||String(p.id).includes(q))&&(!g||String(p.generacion)===g)&&(!t||typ.includes(t))&&(status==='all'||(status==='caught'&&own(p))||(status==='missing'&&!own(p)))}).sort((a,b)=>Number(a.id)-Number(b.id))}function card(p){const preview=['silver','golden','bronze'].includes(variant),yes=own(p,variant),showShinyAura=yes&&variant==='shiny';return `<button class="mon ${yes?'owned':'missing'} ${showShinyAura?'shiny-owned':''}" data-id="${Number(p.id)}"><span class="num">#${String(p.id).padStart(3,'0')}</span>${preview?'<span class="check check-preview" title="Variante no registrada / Unregistered variant">🔒</span>':(yes?'<span class="check">✓</span>':'<span class="check" style="background:#263f62">🔒</span>')}<img class="${yes?'':'unknown-silhouette'}" loading="lazy" alt="${safe(p.nombre)}" data-poke-id="${Number(p.id)}" data-variant="${variant}" src="${safe(sprite(p,variant))}"><strong>${safe(p.nombre)}</strong><div class="types">${String(p.tipo||'').split('/').map(x=>`<span class="type" data-type="${safe(x.trim())}">${safe(trans(x.trim()))}</span>`).join('')}</div></button>`}function render(){const list=filt(),per=limit(),max=Math.max(1,Math.ceil(list.length/per));page=Math.min(page,max);$('#results').textContent=`${lang==='es'?'Pokédex Nacional':'National Pokédex'} · ${list.length} ${dict[lang].results}`;$('#grid').innerHTML=list.slice((page-1)*per,page*per).map(card).join('')||`<p>${lang==='es'?'No hay resultados.':'No results.'}</p>`;$('#range').textContent=`${list.length?((page-1)*per+1):0}–${Math.min(page*per,list.length)} / ${list.length}`;drawPages(max);$('#prev').disabled=page===1;$('#next').disabled=page>=max;$('#normal').classList.toggle('on',variant==='normal');$('#shiny').classList.toggle('on',variant==='shiny');$('#grid').querySelectorAll('.mon').forEach(el=>el.addEventListener('click',()=>open(Number(el.dataset.id))));updateCatalogVariantButtons();primeGridImages();}function drawPages(max){const host=$('#page');host.innerHTML='';const entries=new Set([1,max,page-2,page-1,page,page+1,page+2]);let previous=0;for(const n of [...entries].filter(n=>n>=1&&n<=max).sort((a,b)=>a-b)){if(previous&&n>previous+1){const dots=document.createElement('span');dots.className='ellipsis';dots.textContent='…';host.appendChild(dots)}const btn=document.createElement('button');btn.type='button';btn.textContent=String(n);btn.className=n===page?'current':'';btn.setAttribute('aria-label',(lang==='es'?'Página ':'Page ')+n);if(n===page)btn.setAttribute('aria-current','page');btn.addEventListener('click',()=>{page=n;render()});host.appendChild(btn);previous=n}}
+(()=>{'use strict';const $=s=>document.querySelector(s);let all=[],normal=new Set(),shiny=new Set(),page=1,variant='normal',lang='es',selected=null,tab='evo';const variantOrder=['normal','shiny','bronze','silver','golden'];const variantMeta={normal:{label:'Normal',icon:'◉',suffix:'',ownedKey:'normal'},shiny:{label:'Shiny',icon:'✦',suffix:'_s',ownedKey:'shiny'},silver:{label:'Silver',icon:'✧',suffix:'_sl',ownedKey:'normal'},golden:{label:'Golden',icon:'✶',suffix:'_gl',ownedKey:'normal'},bronze:{label:'Bronze',icon:'⬢',suffix:'_bz',ownedKey:'normal'}};const limit=()=>Number($('#per').value);const types=['Normal','Fuego','Agua','Planta','Electrico','Hielo','Lucha','Veneno','Tierra','Volador','Psiquico','Bicho','Roca','Fantasma','Dragon','Acero','Hada','Siniestro'];const en={Normal:'Normal',Fuego:'Fire',Agua:'Water',Planta:'Grass',Electrico:'Electric',Hielo:'Ice',Lucha:'Fighting',Veneno:'Poison',Tierra:'Ground',Volador:'Flying',Psiquico:'Psychic',Bicho:'Bug',Roca:'Rock',Fantasma:'Ghost',Dragon:'Dragon',Acero:'Steel',Hada:'Fairy',Siniestro:'Dark'};const es={};Object.assign(en,{'Eléctrico':'Electric','Psíquico':'Psychic','Dragón':'Dragon','Oscuro':'Dark'});const dict={es:{search:'Buscar Pokémon',gen:'Generación',type:'Tipo',status:'Estado',all:'Todos',caught:'Capturados',missing:'Sin capturar',progress:'Progreso',species:'Especies',note:'Los Pokémon sin capturar aparecen como siluetas. Selecciona una variante para consultar tu colección.',results:'Pokémon',per:'Por página',info:'Información',stats:'Estadísticas',evo:'Evolución'},en:{search:'Search Pokémon',gen:'Generation',type:'Type',status:'Status',all:'All',caught:'Caught',missing:'Not caught',progress:'Progress',species:'Species',note:'Uncaught Pokémon appear as silhouettes. Select a variant to check your collection.',results:'Pokémon',per:'Per page',info:'Information',stats:'Stats',evo:'Evolution'}};function trans(t){return lang==='en'?(en[t]||t):es[t]||t}function safe(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}function ownedKey(v){return (variantMeta[v]&&variantMeta[v].ownedKey)||'normal'}function own(p,v=variant){if(v!=='normal'&&v!=='shiny')return false;return (v==='shiny'?shiny:normal).has(Number(p.id))}function spriteCandidates(p,v=variant){const id=String(p.id).padStart(4,'0'),meta=variantMeta[v]||variantMeta.normal,candidates=[];if(typeof obtenerRutaSpriteDesdePokemon==='function'&&(v==='normal'||v==='shiny'))candidates.push(obtenerRutaSpriteDesdePokemon({...p,es_shiny:v==='shiny'},v==='shiny'));if(v==='normal')candidates.push(`img/pokemon-png/sprites_normal/${id}.png`);else if(v==='shiny'){candidates.push(`img/pokemon-png/sprites_shiny/${id}_s.png`)}else{candidates.push(`img/pokemon-png/sprites_normal/${id}${meta.suffix}.png`,`img/pokemon-png/sprites_${v}/${id}${meta.suffix}.png`,`assets/pokedex/variants/${v}/${id}${meta.suffix}.png`);/* V2.6: normal sprite is the LAST fallback, never ownership. */if(typeof obtenerRutaSpriteDesdePokemon==='function')candidates.push(obtenerRutaSpriteDesdePokemon({...p,es_shiny:false},false));candidates.push(`img/pokemon-png/sprites_normal/${id}.png`)}return [...new Set(candidates.filter(Boolean))]}/* V2.7 - render a ready fallback before probing optional sprites.
+   Absent variant assets never cause an empty/broken grid cell. */
+const isSpecialVariant=v=>v==='bronze'||v==='silver'||v==='golden';
+const availableVariantSprites=new Map();
+const pendingVariantSprites=new Map();
+const variantProbeTasks=[];
+let activeVariantProbes=0;
+const MAX_VARIANT_PROBES=4;
+function normalSpriteCandidates(p){return spriteCandidates(p,'normal')}
+function sprite(p,v=variant){
+ if(isSpecialVariant(v))return normalSpriteCandidates(p)[0];
+ return spriteCandidates(p,v)[0];
+}
+function imgFallback(img){img.onerror=null;img.style.visibility='hidden';img.alt='Imagen no disponible'}
+function runVariantProbeQueue(){
+ while(activeVariantProbes<MAX_VARIANT_PROBES&&variantProbeTasks.length){
+  const task=variantProbeTasks.shift();activeVariantProbes++;
+  task().finally(()=>{activeVariantProbes--;runVariantProbeQueue()});
+ }
+}
+function probeOneUrl(url){
+ return new Promise(resolve=>{
+  const test=new Image();
+  test.onload=()=>resolve(true);
+  test.onerror=()=>resolve(false);
+  test.src=url;
+ });
+}
+function findAvailableVariantSprite(p,v){
+ const key=`${v}:${p.id}`;
+ if(availableVariantSprites.has(key))return Promise.resolve(availableVariantSprites.get(key));
+ if(pendingVariantSprites.has(key))return pendingVariantSprites.get(key);
+ const fallbackUrls=new Set(normalSpriteCandidates(p));
+ const specialUrls=spriteCandidates(p,v).filter(url=>!fallbackUrls.has(url));
+ const promise=new Promise(resolve=>{
+  variantProbeTasks.push(async()=>{
+   let found=null;
+   for(const url of specialUrls){if(await probeOneUrl(url)){found=url;break}}
+   availableVariantSprites.set(key,found);
+   pendingVariantSprites.delete(key);
+   resolve(found);
+  });
+  runVariantProbeQueue();
+ });
+ pendingVariantSprites.set(key,promise);
+ return promise;
+}
+function attachVariantFallback(img,p,v=variant){
+ const key=`${p.id}:${v}`;
+ img.dataset.spriteKey=key;
+ img.style.visibility='visible';
+ if(isSpecialVariant(v)){
+  const normalCandidates=normalSpriteCandidates(p);
+  let index=0;
+  const fallback=()=>{
+   if(img.dataset.spriteKey!==key)return;
+   if(index>=normalCandidates.length){imgFallback(img);return}
+   const url=normalCandidates[index++];
+   if(img.getAttribute('src')!==url)img.src=url;
+  };
+  img.onerror=fallback;
+  const known=availableVariantSprites.get(`${v}:${p.id}`);
+  if(known){img.src=known;return}
+  fallback();
+  findAvailableVariantSprite(p,v).then(url=>{
+   // A user might have changed page/variant while the probe was pending.
+   if(url&&img.isConnected&&img.dataset.spriteKey===key){
+    img.onerror=fallback;
+    img.src=url;
+   }
+  });
+  return;
+ }
+ const list=spriteCandidates(p,v);let index=0;
+ const next=()=>{
+  if(img.dataset.spriteKey!==key)return;
+  if(index>=list.length){imgFallback(img);return}
+  const url=list[index++];
+  if(img.getAttribute('src')!==url)img.src=url;
+ };
+ img.onerror=next;
+ // If the markup already points at the first URL, don't restart that request.
+ if(img.getAttribute('src')===list[0])index=1;
+ else next();
+}
+function updateCatalogVariantButtons(){document.querySelectorAll('[data-variant]').forEach(btn=>{const active=btn.dataset.variant===variant;btn.classList.toggle('on',active);btn.classList.toggle('active',active)})}function primeGridImages(){$('#grid').querySelectorAll('img[data-poke-id]').forEach(im=>{const poke=all.find(x=>Number(x.id)===Number(im.dataset.pokeId));if(poke)attachVariantFallback(im,poke,im.dataset.variant||variant)})}function filt(){const q=$('#search').value.trim().toLowerCase(),g=$('#generation').value,t=$('#type').value,status=$('#status').value;return all.filter(p=>{const typ=String(p.tipo||'').split('/').map(s=>s.trim());return (!q||String(p.nombre).toLowerCase().includes(q)||String(p.id).includes(q))&&(!g||String(p.generacion)===g)&&(!t||typ.includes(t))&&(status==='all'||(status==='caught'&&own(p))||(status==='missing'&&!own(p)))}).sort((a,b)=>Number(a.id)-Number(b.id))}function card(p){const preview=['silver','golden','bronze'].includes(variant),yes=own(p,variant),showShinyAura=yes&&variant==='shiny';return `<button class="mon ${yes?'owned':'missing'} ${showShinyAura?'shiny-owned':''}" data-id="${Number(p.id)}"><span class="num">#${String(p.id).padStart(3,'0')}</span>${preview?'<span class="check check-preview" title="Variante no registrada / Unregistered variant">🔒</span>':(yes?'<span class="check">✓</span>':'<span class="check" style="background:#263f62">🔒</span>')}<img class="${yes?'':'unknown-silhouette'}" loading="lazy" alt="${safe(p.nombre)}" data-poke-id="${Number(p.id)}" data-variant="${variant}" src="${safe(sprite(p,variant))}"><strong>${safe(p.nombre)}</strong><div class="types">${String(p.tipo||'').split('/').map(x=>`<span class="type" data-type="${safe(x.trim())}">${safe(trans(x.trim()))}</span>`).join('')}</div></button>`}function render(){const list=filt(),per=limit(),max=Math.max(1,Math.ceil(list.length/per));page=Math.min(page,max);$('#results').textContent=`${lang==='es'?'Pokédex Nacional':'National Pokédex'} · ${list.length} ${dict[lang].results}`;$('#grid').innerHTML=list.slice((page-1)*per,page*per).map(card).join('')||`<p>${lang==='es'?'No hay resultados.':'No results.'}</p>`;$('#range').textContent=`${list.length?((page-1)*per+1):0}–${Math.min(page*per,list.length)} / ${list.length}`;drawPages(max);$('#prev').disabled=page===1;$('#next').disabled=page>=max;$('#normal').classList.toggle('on',variant==='normal');$('#shiny').classList.toggle('on',variant==='shiny');$('#grid').querySelectorAll('.mon').forEach(el=>el.addEventListener('click',()=>open(Number(el.dataset.id))));updateCatalogVariantButtons();primeGridImages();}function drawPages(max){const host=$('#page');host.innerHTML='';const entries=new Set([1,max,page-2,page-1,page,page+1,page+2]);let previous=0;for(const n of [...entries].filter(n=>n>=1&&n<=max).sort((a,b)=>a-b)){if(previous&&n>previous+1){const dots=document.createElement('span');dots.className='ellipsis';dots.textContent='…';host.appendChild(dots)}const btn=document.createElement('button');btn.type='button';btn.textContent=String(n);btn.className=n===page?'current':'';btn.setAttribute('aria-label',(lang==='es'?'Página ':'Page ')+n);if(n===page)btn.setAttribute('aria-current','page');btn.addEventListener('click',()=>{page=n;render()});host.appendChild(btn);previous=n}}
 function open(id){selected=all.find(p=>Number(p.id)===id);tab='evo';detailVariant=variant;$('#grid').querySelectorAll('.mon').forEach(el=>el.classList.toggle('is-selected',Number(el.dataset.id)===id));$('#modal').hidden=false;drawDetail()}let detailVariant='normal',zoneCache=null,zonePromise=null,evolutionGraphPromise=null,evolutionGraph=null,evoCache=new Map();
 const apiRoot=()=>typeof API_BASE==='string'?API_BASE:'https://mastersmon-api.onrender.com';
 function detailOwn(p,v){return ['normal','shiny'].includes(v)?own(p,v):false}
