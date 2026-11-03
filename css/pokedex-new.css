@@ -168,3 +168,25 @@ body {
 .evo-empty{color:#bfd5e5;padding:12px}
 @media(max-width:670px){.evo-chain{gap:5px}.evo-level{flex-basis:125px;min-width:125px;padding:6px}.evo-arrow{font-size:18px;flex-basis:13px}.evo-stage strong{font-size:11px}}
 @media(prefers-reduced-motion:reduce){.evo-stage{transition:none}}
+
+
+/* MastersMon Pokédex V1.9 — aligned toolbar + five active variants */
+.toolbar{display:grid!important;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px!important}
+.toolbar .searchbar{display:flex;align-items:center;position:relative;min-width:0;flex:none!important;max-width:none!important}
+.toolbar .searchbar::before{content:'⌕';position:absolute;left:12px;top:50%;transform:translateY(-52%);font-size:18px;color:#d5e7f7;pointer-events:none;z-index:1}
+.toolbar .searchbar input{width:100%;min-height:42px;padding:10px 12px 10px 38px!important}
+.variant{display:flex!important;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap;border-left:0!important;padding-left:0!important;margin-left:0!important}
+.variant small{margin-right:2px;white-space:nowrap}
+.variant button,.detail-variants button{min-height:42px;padding:8px 14px;border-radius:10px;font-weight:800;transition:border-color .15s,box-shadow .15s,filter .15s}
+.variant button.on,.variant button.active,.detail-variants button.active{background:linear-gradient(#ffe7a4,#dba236)!important;color:#1f1b12!important;border-color:#ffd98a!important;box-shadow:0 0 0 1px #ffeec09c,inset 0 1px 0 #fff4cf77}
+.variant button:not(.active):not(.on),.detail-variants button:not(.active){background:#112e50;color:#e8f2ff;border:1px solid #5a8cb0}
+.variant button:hover,.detail-variants button:hover{filter:brightness(1.08)}
+.variant-silver{border-color:#a7bed7!important;background:linear-gradient(180deg,#173753,#102945)!important}
+.variant-golden{border-color:#d6ad54!important;background:linear-gradient(180deg,#3f2f11,#231909)!important}
+.variant-bronze{border-color:#b88254!important;background:linear-gradient(180deg,#402618,#26160d)!important}
+.variant button.variant-silver.active,.detail-variants button.variant-silver.active{background:linear-gradient(180deg,#edf4fb,#b8c8db)!important;color:#16283e!important;border-color:#edf4fb!important;box-shadow:0 0 0 1px #ffffff66}
+.variant button.variant-golden.active,.detail-variants button.variant-golden.active{background:linear-gradient(180deg,#ffe59a,#cf9a2c)!important;color:#21180c!important;border-color:#ffe7af!important}
+.variant button.variant-bronze.active,.detail-variants button.variant-bronze.active{background:linear-gradient(180deg,#efc49f,#b26f37)!important;color:#24160e!important;border-color:#f0cfb5!important}
+.detail-variants{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+@media(max-width:1160px){.toolbar{grid-template-columns:1fr}.variant{justify-content:flex-start}}
+@media(max-width:760px){.detail-variants{grid-template-columns:repeat(2,minmax(0,1fr))}.detail-variants button:first-child{grid-column:1/-1}}
