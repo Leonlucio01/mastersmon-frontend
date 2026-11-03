@@ -1,46 +1,52 @@
-/* MastersMon - Pokedex -> Maps deep link, v1.1.
- * Include synchronously immediately AFTER js/maps.js and BEFORE DOMContentLoaded.
- * Leaves ordinary Maps navigation untouched.
+/* MastersMon Maps - enlace Pokédex por zona_id.  v2.0
+ * Cargar DESPUES de js/maps.js y ANTES de DOMContentLoaded.
+ * Reutiliza inicializarMaps() y seleccionarZona(), sin cambios al backend.
  */
 (function () {
     'use strict';
     const params = new URLSearchParams(window.location.search);
-    const requested = Number(params.get('zona_id'));
-    if (!Number.isSafeInteger(requested) || requested <= 0) return;
+    const value = params.get('zona_id');
+    if (!value || !/^\d+$/.test(value)) return;
+    const targetId = Number(value);
+    if (!Number.isSafeInteger(targetId) || targetId <= 0) return;
 
-    // maps.js declares seleccionarZona in the global script scope. Its own
-    // initializer calls seleccionarZona(zonasCache[0].id) after loading /zonas.
-    // Intercept only that initial call and honor the explicit destination.
-    const original = window.seleccionarZona;
-    if (typeof original !== 'function') {
-        console.warn('[MastersMon Maps] No se encontro seleccionarZona');
+    if (typeof inicializarMaps !== 'function' || typeof seleccionarZona !== 'function') {
+        console.warn('[MastersMon Pokedex Maps] Maps no esta inicializado.');
         return;
     }
 
-    let handled = false;
-    window.seleccionarZona = function (zoneId) {
-        if (!handled) {
-            handled = true;
-            const target = Array.isArray(window.zonasCache)
-                ? window.zonasCache.find(z => Number(z.id) === requested)
-                : (typeof zonasCache !== 'undefined' && Array.isArray(zonasCache)
-                    ? zonasCache.find(z => Number(z.id) === requested)
-                    : null);
-            if (target) {
-                const visible = (typeof obtenerZonasFiltradas === 'function')
-                    ? obtenerZonasFiltradas(false) : null;
-                const list = Array.isArray(visible) ? visible : zonasCache;
-                const index = list.findIndex(z => Number(z.id) === requested);
-                // Show the selected map card in the carousel as well as
-                // selecting the exploration map itself.
-                if (index >= 0) {
-                    mapaInicio = index;
-                }
-                zoneId = requested;
-            } else {
-                console.warn('[MastersMon Maps] La zona solicitada no existe:', requested);
-            }
+    const originalInit = inicializarMaps;
+    inicializarMaps = async function iniciarMapsDesdePokedex() {
+        // Esperar a que termine la carga normal, incluida la seleccion inicial.
+        await originalInit.apply(this, arguments);
+        if (!Array.isArray(zonasCache) || !zonasCache.length) return;
+
+        const targetZone = zonasCache.find(z => Number(z.id) === targetId);
+        if (!targetZone) {
+            console.warn('[MastersMon Pokedex Maps] Zona no encontrada:', targetId);
+            return;
         }
-        return original.call(this, zoneId);
+
+        // Mover el carrusel hasta la zona solicitada, sin filtros heredados.
+        if (typeof mapsFiltrosEstado === 'object' && mapsFiltrosEstado) {
+            mapsFiltrosEstado.search = '';
+            mapsFiltrosEstado.region = 'all';
+            mapsFiltrosEstado.generation = 'all';
+            mapsFiltrosEstado.biome = 'all';
+        }
+        if (typeof renderizarOpcionesFiltrosMaps === 'function') renderizarOpcionesFiltrosMaps();
+        if (typeof obtenerZonasFiltradas === 'function') {
+            const list = obtenerZonasFiltradas(false);
+            const i = list.findIndex(z => Number(z.id) === targetId);
+            if (i >= 0) mapaInicio = i;
+        }
+        await seleccionarZona(targetId);
+        if (typeof renderizarZonas === 'function') renderizarZonas();
+
+        // La seleccion ya activa el panel de exploracion. No iniciar encuentros.
+        const panel = document.getElementById('encuentroContainer');
+        if (panel && typeof panel.scrollIntoView === 'function') {
+            requestAnimationFrame(() => panel.scrollIntoView({behavior: 'smooth', block: 'start'}));
+        }
     };
 })();
