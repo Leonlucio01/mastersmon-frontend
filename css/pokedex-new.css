@@ -248,3 +248,9 @@ body {
 .mm-dossier .evo-single-label{font-size:14px;text-align:center;color:#ffdb96;font-weight:900}
 .mm-dossier .evo-single p{color:#b4d1e5;font-size:12px;text-align:center;margin:0}
 @media(max-width:700px){.mm-dossier .evo-chain-branched .evo-level-list{grid-template-columns:repeat(auto-fit,minmax(110px,1fr))}.mm-dossier .evo-chain-branched .evo-level{min-width:135px}}
+
+/* V2.4: variant captures must not be inferred from Normal ownership */
+.mon.missing .check-preview{background:#283854!important;border:1px solid #7894aa!important;color:#e5ecf3!important;box-shadow:none!important;opacity:.9}
+.mon.missing:has(.check-preview){background:linear-gradient(160deg,#0c1a32,#081125)!important;border-color:#5e7390!important;box-shadow:none!important}
+.mon.missing:has(.check-preview) img{filter:brightness(0) drop-shadow(0 0 5px #5d83a9)!important;opacity:.78!important}
+.mon.missing:has(.check-preview) .types{opacity:.45!important}

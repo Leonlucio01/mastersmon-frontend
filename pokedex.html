@@ -1,272 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mastersmon - Pokedex</title>
-    <link rel="stylesheet" href="css/style.css?v=trainerfix4">
-    <link rel="stylesheet" href="css/menu.css?v=team3">
-    <link rel="stylesheet" href="css/pokemon.css">
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
-</head>
-<body>
-
-    <!-- HEADER -->
-    <header class="menu menu-pro">
-    <div class="menu-topbar">
-        <h1 class="logo">Mastersmon</h1>
-
-        <nav class="menu-nav-desktop">
-            <a href="pokedex.html" class="active" data-i18n="menu_pokedex">Pokedex</a>
-            <a href="maps.html" data-i18n="menu_maps">Maps</a>
-            <div class="menu-dropdown menu-dropdown-play">
-                <button class="menu-dropdown-toggle" type="button" data-menu-dropdown-toggle="play" aria-expanded="false">
-                    <span data-i18n="menu_play">Battle</span>
-                    <span class="menu-dropdown-caret" aria-hidden="true">▾</span>
-                </button>
-                <div class="menu-dropdown-panel" role="menu" aria-label="Battle">
-                    <a href="battle.html" class="menu-dropdown-link" data-i18n="menu_play_battle_ia">Battle IA</a>
-                    <a href="gyms.html" class="menu-dropdown-link" data-i18n="menu_play_gyms">Gyms</a>
-                    <a href="#" class="menu-dropdown-link menu-disabled" onclick="return false;" aria-disabled="true" data-i18n="menu_play_pvp">PvP</a>
-                    <a href="idle.html" class="menu-dropdown-link" data-i18n="menu_play_idle">Idle</a>
-                </div>
-            </div>
-            <a href="mypokemon.html" data-i18n="menu_collection">Collection</a>
-            <a href="pokemart.html" data-i18n="menu_shop">Shop</a>
-            <div class="menu-dropdown menu-dropdown-more">
-                <button class="menu-dropdown-toggle" type="button" data-menu-dropdown-toggle="more" aria-expanded="false">
-                    <span data-i18n="menu_more">More</span>
-                    <span class="menu-dropdown-caret" aria-hidden="true">▾</span>
-                </button>
-                <div class="menu-dropdown-panel" role="menu" aria-label="More">
-                    <a href="ranking.html" class="menu-dropdown-link" data-i18n="menu_ranking">Ranking</a>
-                </div>
-            </div>
-        </nav>
-
-        <div class="menu-auth-area">
-            <div class="lang-switch">
-                <select id="languageSelect" data-i18n-aria-label="idle_language_label" aria-label="Language">
-                    <option value="en">EN</option>
-                    <option value="es">ES</option>
-                </select>
-            </div>
-
-            <div id="loginMenuContainer">
-                <div id="g_id_onload"
-                     data-client_id="535230935122-vqqd262fjhetd408li95420bb8cas5vb.apps.googleusercontent.com"
-                     data-callback="handleCredentialResponse">
-                </div>
-
-                <div class="g_id_signin"
-                     data-type="standard"
-                     data-size="medium"
-                     data-theme="outline"
-                     data-text="signin_with"
-                     data-shape="pill"
-                     data-logo_alignment="left">
-                </div>
-            </div>
-
-            <div id="usuarioMenu" class="oculto">
-                <span id="nombreUsuario"></span>
-                <button id="cerrarSesionMenu" type="button" data-i18n="menu_logout">Logout</button>
-            </div>
-        </div>
-
-        <button class="menu-toggle" id="menuToggle" type="button" aria-label="Open menu">☰</button>
-    </div>
-
-    <div class="menu-links-mobile" id="menuMobile">
-        <div class="mobile-panel">
-            <a href="pokedex.html" class="active" data-i18n="menu_pokedex">Pokedex</a>
-            <a href="maps.html" data-i18n="menu_maps">Maps</a>
-            <button class="menu-mobile-group-toggle" type="button" data-menu-mobile-group-toggle="play" aria-expanded="false">
-                <span data-i18n="menu_play">Battle</span>
-                <span class="menu-mobile-caret" aria-hidden="true">▾</span>
-            </button>
-            <div class="menu-mobile-submenu" data-menu-mobile-group="play">
-                <a href="battle.html" class="menu-mobile-submenu-link" data-i18n="menu_play_battle_ia">Battle IA</a>
-                <a href="gyms.html" class="menu-mobile-submenu-link" data-i18n="menu_play_gyms">Gyms</a>
-                <a href="#" class="menu-mobile-submenu-link menu-disabled" onclick="return false;" aria-disabled="true" data-i18n="menu_play_pvp">PvP</a>
-                <a href="idle.html" class="menu-mobile-submenu-link" data-i18n="menu_play_idle">Idle</a>
-            </div>
-            <a href="mypokemon.html" data-i18n="menu_collection">Collection</a>
-            <a href="pokemart.html" data-i18n="menu_shop">Shop</a>
-            <button class="menu-mobile-group-toggle" type="button" data-menu-mobile-group-toggle="more" aria-expanded="false">
-                <span data-i18n="menu_more">More</span>
-                <span class="menu-mobile-caret" aria-hidden="true">▾</span>
-            </button>
-            <div class="menu-mobile-submenu" data-menu-mobile-group="more">
-                <a href="ranking.html" class="menu-mobile-submenu-link" data-i18n="menu_ranking">Ranking</a>
-            </div>
-
-            <div class="menu-mobile-user">
-                <div class="lang-switch">
-                    <select id="languageSelectMobile" data-i18n-aria-label="idle_language_label" aria-label="Language">
-                        <option value="en">EN</option>
-                        <option value="es">ES</option>
-                    </select>
-                </div>
-
-                <div id="loginMenuContainerMobile">
-                    <div class="g_id_signin"
-                         data-type="standard"
-                         data-size="medium"
-                         data-theme="outline"
-                         data-text="signin_with"
-                         data-shape="pill"
-                         data-logo_alignment="left">
-                    </div>
-                </div>
-
-                <div id="usuarioMenuMobile" class="oculto">
-                    <span id="nombreUsuarioMobile"></span>
-                    <button id="cerrarSesionMenuMobile" type="button" data-i18n="menu_logout">Logout</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</header>
-
-
-    <section class="banner">
-        <img src="img/Banner.png" alt="Pokemon Banner">
-    </section>
-
-    <section id="trainerLaunchSection" class="trainer-launch-section" aria-live="polite">
-        <div id="trainerLaunchShell" class="trainer-launch-shell"></div>
-    </section>
-
-    <section id="starterJourneySection" class="starter-journey-section oculto" aria-live="polite">
-        <div class="starter-journey-shell">
-            <article class="starter-journey-card">
-                <div class="starter-journey-top">
-                    <div>
-                        <span class="starter-journey-badge" data-i18n="onboarding_panel_badge">Starter Journey</span>
-                        <h2 id="starterJourneyTitle" data-i18n="onboarding_panel_title">Complete your first steps</h2>
-                        <p id="starterJourneyText" data-i18n="onboarding_panel_text">Capture Pokémon, build your team, and win your first Battle IA to unlock onboarding rewards.</p>
-                    </div>
-                    <div class="starter-journey-progress-box">
-                        <small id="starterJourneyProgressLabel" data-i18n="onboarding_progress_label">Progress</small>
-                        <strong id="starterJourneyProgressValue">0 / 3</strong>
-                        <span id="starterJourneyProgressPercent">0%</span>
-                    </div>
-                </div>
-
-                <div id="starterJourneyLiveRewards" class="starter-journey-live-rewards oculto"></div>
-
-                <div id="starterJourneyGrid" class="starter-journey-grid"></div>
-
-                <div class="starter-final-reward" id="starterFinalRewardBox">
-                    <div>
-                        <small data-i18n="onboarding_final_reward_label">Final reward</small>
-                        <strong id="starterFinalRewardTitle" data-i18n="onboarding_final_reward_text">Complete the 3 missions to unlock an extra welcome reward.</strong>
-                    </div>
-                    <div id="starterFinalRewardStatus" class="starter-final-reward-status">—</div>
-                </div>
-            </article>
-        </div>
-    </section>
-
-    <section class="seccion-pokedex">
-        <div class="encabezado-pokedex">
-            <h2 class="titulo" data-i18n="pokedex_title">POKEDEX</h2>
-            <p class="subtitulo" data-i18n="pokedex_subtitle">Explore, search, and filter your favorite Pokémon</p>
-        </div>
-
-        <div class="filtros">
-            <input
-                type="text"
-                id="buscarPokemon"
-                placeholder="🔎 Search Pokémon..."
-                data-i18n-placeholder="pokedex_search_placeholder"
-            >
-
-            <select id="filtroTipo">
-                <option value="" data-i18n="type_all">All types</option>
-                <option value="Normal" data-i18n="type_normal">Normal</option>
-                <option value="Fuego" data-i18n="type_fire">Fire</option>
-                <option value="Agua" data-i18n="type_water">Water</option>
-                <option value="Planta" data-i18n="type_grass">Grass</option>
-                <option value="Electrico" data-i18n="type_electric">Electric</option>
-                <option value="Hielo" data-i18n="type_ice">Ice</option>
-                <option value="Lucha" data-i18n="type_fighting">Fighting</option>
-                <option value="Veneno" data-i18n="type_poison">Poison</option>
-                <option value="Tierra" data-i18n="type_ground">Ground</option>
-                <option value="Volador" data-i18n="type_flying">Flying</option>
-                <option value="Psiquico" data-i18n="type_psychic">Psychic</option>
-                <option value="Bicho" data-i18n="type_bug">Bug</option>
-                <option value="Roca" data-i18n="type_rock">Rock</option>
-                <option value="Fantasma" data-i18n="type_ghost">Ghost</option>
-                <option value="Dragon" data-i18n="type_dragon">Dragon</option>
-                <option value="Acero" data-i18n="type_steel">Steel</option>
-                <option value="Hada" data-i18n="type_fairy">Fairy</option>
-                <option value="Siniestro" data-i18n="type_dark">Dark</option>
-            </select>
-
-            <select id="filtroGeneracion">
-                <option value="" data-i18n="pokedex_all_generations">All generations</option>
-                <option value="1" data-i18n="pokedex_generation_1">Gen 1</option>
-                <option value="2" data-i18n="pokedex_generation_2">Gen 2</option>
-                <option value="3" data-i18n="pokedex_generation_3">Gen 3</option>
-                <option value="4" data-i18n="pokedex_generation_4">Gen 4</option>
-                <option value="5" data-i18n="pokedex_generation_5">Gen 5</option>
-                <option value="6" data-i18n="pokedex_generation_6">Gen 6</option>
-                <option value="7" data-i18n="pokedex_generation_7">Gen 7</option>
-                <option value="8" data-i18n="pokedex_generation_8">Gen 8</option>
-                <option value="9" data-i18n="pokedex_generation_9">Gen 9</option>
-            </select>
-
-            <button id="modoShiny" type="button">✨ Shiny</button>
-        </div>
-
-        <div id="pokedex"></div>
-    </section>
-
-    <div id="detallePokemon" class="modal oculto">
-        <div class="modal-content">
-            <span class="cerrar" onclick="cerrarDetalle()">✖</span>
-            <div id="contenidoDetalle"></div>
-        </div>
-    </div>
-
-    <div id="starterJourneyModal" class="starter-modal-overlay oculto" aria-hidden="true">
-        <div class="starter-modal-box">
-            <span id="starterJourneyModalBadge" class="starter-modal-badge" data-i18n="onboarding_modal_badge">Welcome trainer</span>
-            <h3 id="starterJourneyModalTitle" data-i18n="onboarding_modal_title">Your first mission path is ready</h3>
-            <p id="starterJourneyModalText" data-i18n="onboarding_modal_text">Start with Maps, build your 6-Pokémon squad in Battle, and win your first Battle IA to unlock beginner rewards.</p>
-
-            <div class="starter-modal-steps">
-                <div class="starter-modal-step">
-                    <span>1</span>
-                    <strong data-i18n="onboarding_modal_step_maps">Catch 6 Pokémon in Maps</strong>
-                </div>
-                <div class="starter-modal-step">
-                    <span>2</span>
-                    <strong data-i18n="onboarding_modal_step_team">Save your first 6-Pokémon squad</strong>
-                </div>
-                <div class="starter-modal-step">
-                    <span>3</span>
-                    <strong data-i18n="onboarding_modal_step_battle">Win your first Battle IA</strong>
-                </div>
-            </div>
-
-            <p class="starter-modal-hint" data-i18n="onboarding_modal_primary_hint">This welcome route can be completed in a few minutes and unlocks instant rewards.</p>
-
-            <div class="starter-modal-actions starter-modal-actions-single">
-                <button id="starterJourneyModalStart" class="starter-modal-btn starter-modal-btn-primary" type="button" data-i18n="onboarding_start_now">Start now</button>
-            </div>
-        </div>
-    </div>
-
-    <script src="js/api.js"></script>
-    <script src="js/i18n.js"></script>
-    <script src="js/menu.js?v=team3"></script>
-    <script src="js/items.js?v=itemslocal2"></script>
-    <script src="js/sprites.js?v=spriteslocal2"></script>
-    <script src="js/pokemon.js?v=local2"></script>
-    <script src="js/gmail.js?v=team3"></script>
-    <script src="js/app.js?v=team4"></script>
-</body>
-</html>
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MastersMon | Pokédex</title><link rel="stylesheet" href="css/pokedex-new.css?v=24"><link rel="stylesheet" href="css/menu-unificado.css?v=2204"><script defer src="js/api.js"></script><script defer src="js/sprites.js"></script><script defer src="js/menu-unificado.js?v=2204"></script><script defer src="js/pokedex-new.js?v=24"></script></head><body>
+<header class="topbar unified-header masters-header" id="mastersHeader"><div class="top-inner"><a class="brand" href="lobby.html"><span class="emblem">M</span><span>MASTERSMON</span></a><nav aria-label="Navegación" class="unified-nav"><a href="lobby.html"><img class="icon" src="assets/ui/icons/home.svg" alt=""><span data-menu-es="Jugar" data-menu-en="Play">Jugar</span></a><a href="mypokemon.html"><img class="icon" src="assets/ui/icons/pokedex.svg" alt=""><span data-menu-es="Colección" data-menu-en="Collection">Colección</span></a><a href="pokemart.html"><img class="icon" src="assets/ui/icons/shop.svg" alt=""><span data-menu-es="Tienda" data-menu-en="Shop">Tienda</span></a><a href="battle.html"><img class="icon" src="assets/ui/icons/battle.svg" alt=""><span data-menu-es="Batallas" data-menu-en="Battles">Batallas</span></a><a href="gyms.html"><img class="icon" src="assets/ui/icons/gym.svg" alt=""><span data-menu-es="Gimnasios" data-menu-en="Gyms">Gimnasios</span></a><a href="pokedex.html" class="selected" aria-current="page"><img class="icon" src="assets/ui/icons/ball.svg" alt=""><span data-menu-es="Pokédex" data-menu-en="Pokédex">Pokédex</span></a><a href="rankings.html"><img class="icon" src="assets/ui/icons/medal.svg" alt=""><span data-menu-es="Rankings" data-menu-en="Rankings">Rankings</span></a></nav><div class="nav-right"><div class="language"><button data-lang="es" type="button">ES</button><button data-lang="en" type="button">EN</button></div><div class="trainer-menu-root"><button type="button" class="nav-profile trainer-menu-toggle" id="trainerMenuToggle" aria-controls="trainerDropdown" aria-expanded="false"><img class="unified-avatar" id="navAvatar" src="assets/onboarding/steven.webp" alt=""><span class="trainer-menu-identity"><small data-menu-es="Entrenador" data-menu-en="Trainer">Entrenador</small><strong id="navName">Entrenador</strong></span><span class="trainer-chevron">⌄</span></button><div class="trainer-dropdown" id="trainerDropdown" hidden><div class="trainer-dropdown-heading"><img src="assets/onboarding/steven.webp" id="menuTrainerAvatar" alt=""><div><small data-menu-es="MI ENTRENADOR" data-menu-en="MY TRAINER">MI ENTRENADOR</small><strong id="menuTrainerName">Entrenador</strong></div></div><a class="trainer-option" href="perfil.html"><span class="trainer-option-icon">♙</span><span data-menu-es="Mi perfil y avatar" data-menu-en="My profile &amp; avatar">Mi perfil y avatar</span><b>›</b></a><a class="trainer-option" href="inventario.html"><span class="trainer-option-icon">▣</span><span data-menu-es="Mi inventario" data-menu-en="My inventory">Mi inventario</span><b>›</b></a><button class="trainer-option trainer-option-logout" id="trainerMenuLogout" type="button"><span class="trainer-option-icon">↪</span><span data-menu-es="Cerrar sesión" data-menu-en="Sign out">Cerrar sesión</span><b>›</b></button></div></div><button class="logout" id="logoutBtn" type="button" data-menu-es="Salir" data-menu-en="Exit">Salir</button></div></div></header>
+<main class="shell"><section class="hero"><div class="hero-info"><div class="book book-asset" aria-hidden="true"><img src="assets/pokedex/normal/book-pokedex.webp" alt="" width="122" height="122" decoding="async"></div><div><div class="eyebrow">MASTERSMON · NATIONAL POKÉDEX</div><h1>Pokédex</h1><p id="heroSub">Explora las especies y completa tu colección.</p></div></div><div class="stats"><div><small id="labelSpecies" class="stat-label stat-species">Especies</small><strong id="species">—</strong></div><div><small id="labelNormal" class="stat-label stat-normal">Normal</small><strong id="caught">—</strong></div><div><small class="stat-label stat-shiny">Shiny</small><strong id="shinies">—</strong></div><div class="ring" title="Especies únicas registradas"><strong id="progress">—%</strong><small id="labelProgress">Progreso</small></div></div></section>
+<div class="layout"><aside class="filters"><div class="line heading"><h2 id="filterTitle">⚲ Filtros</h2><button id="reset" type="button">Reset</button></div><input type="hidden" id="search" value=""><label id="genLabel" for="generation">Generación</label><select id="generation"><option value="">Todas las generaciones</option></select><label id="typeLabel" for="type">Tipo</label><select id="type"><option value="">Todos los tipos</option></select><label id="statusLabel" for="status">Estado</label><select id="status"><option value="all">Todos</option><option value="caught">Capturados</option><option value="missing">Sin capturar</option></select><div class="info-note" id="note">Los Pokémon sin capturar se muestran como siluetas. Selecciona una variante para comprobar tu colección.</div></aside>
+<section class="catalog"><div class="toolbar"><div class="searchbar"><input id="quicksearch" placeholder="Buscar Pokémon…"></div><div class="variant" id="catalogVariantBar"><small id="variantLabel">Variante:</small><button id="normal" class="on variant-btn" data-variant="normal" type="button">◉ Normal</button><button id="shiny" class="variant-btn" data-variant="shiny" type="button">✦ Shiny</button><button class="variant-btn variant-silver" data-variant="silver" type="button">✧ Silver</button><button class="variant-btn variant-golden" data-variant="golden" type="button">✶ Golden</button><button class="variant-btn variant-bronze" data-variant="bronze" type="button">⬢ Bronze</button></div></div><div class="subtoolbar"><strong id="results">Pokédex Nacional</strong><span id="subhelp">40 Pokémon por página · Haz clic para ver detalles</span></div><div id="grid" class="grid"><p class="loading">Cargando catálogo…</p></div><footer class="pagination"><span id="range">—</span><div class="pages"><button id="prev" type="button">‹</button><span id="page" class="page-numbers">1 / 1</span><button id="next" type="button">›</button></div><div class="page-size"><label id="perLabel" for="per">Por página</label><select id="per"><option>40</option><option>80</option><option>120</option><option>160</option></select></div></footer></section></div></main>
+<div id="modal" class="overlay" hidden>
+ <div class="detail mm-dossier" role="dialog" aria-modal="true" aria-labelledby="detailName">
+   <button class="close" id="close" type="button" aria-label="Cerrar">✕</button>
+   <div class="dossier-mark" aria-hidden="true">M</div>
+   <section class="dossier-left" id="detailScenery" data-type="normal">
+      <div class="dossier-scenery-shade"></div>
+      <div class="dossier-pokemon-heading"><small id="detailId"></small><h2 id="detailName"></h2><div id="detailTypes" class="types"></div><div id="detailStatus" class="status"></div></div>
+      <div class="dossier-stage"><img id="detailImg" alt=""></div>
+      <div class="dossier-select"><div class="detail-variants" id="detailVariants">
+          <button type="button" id="detailNormal" data-detail-variant="normal" class="active">◉ Normal</button>
+          <button type="button" id="detailShiny" data-detail-variant="shiny">✦ Shiny</button>
+          <button type="button" data-detail-variant="silver" class="variant-silver">✧ Silver</button>
+          <button type="button" data-detail-variant="golden" class="variant-golden">✶ Golden</button>
+          <button type="button" data-detail-variant="bronze" class="variant-bronze">⬢ Bronze</button>
+      </div></div>
+      <div class="dossier-collection" id="detailCollection"></div>
+   </section>
+   <section class="dossier-right">
+     <div class="detail-tabs" role="tablist" aria-label="Datos del Pokémon"><button class="active" type="button" data-tab="evo">Evolución</button><button type="button" data-tab="maps">Mapas</button><button type="button" data-tab="stats">Estadísticas</button></div>
+     <div class="dossier-section-label" id="dossierSectionTitle">CADENA EVOLUTIVA</div>
+     <div id="detailBody" class="detail-body"></div>
+     <div class="dossier-foot"><div><strong id="dossierSpeciesTitle">Datos de especie</strong><p id="dossierSpeciesValue">—</p></div><div><strong id="dossierVariantTitle">Variante</strong><p id="dossierVariantValue">—</p></div></div>
+   </section>
+ </div>
+</div></body></html>
