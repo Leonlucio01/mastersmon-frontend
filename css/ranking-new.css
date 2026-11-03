@@ -58,3 +58,26 @@ tbody tr.is-me:hover{background:linear-gradient(90deg,#7c5b2eaa,#164268 75%)!imp
 @media(max-width:1100px){.lower-grid{grid-template-columns:minmax(0,1fr) 255px}}
 @media(max-width:800px){.lower-grid{grid-template-columns:1fr}.sidebar{grid-template-columns:1fr 1fr}.rank-hero{min-height:125px}.podium-area{min-height:180px}}
 @media(max-width:600px){.rank-wrap{padding:7px}.rank-hero{padding:9px;gap:8px}.rank-crest{width:60px;height:60px}.rank-hero h1{font-size:34px}.hero-right{padding:8px 10px}.rank-tabs{gap:4px;padding:4px}.category{min-height:34px;min-width:118px;font-size:11px}.stage,.leaderboard{padding:9px}.podium-area{gap:5px;padding:12px 0 0;min-height:150px}.podium-slot{padding:10px 4px 7px}.podium-slot.rank-1{padding:12px 4px 10px}.podium-trophy{height:39px;max-width:48px}.podium-slot.rank-1 .podium-trophy{height:49px;max-width:58px}.podium-avatar{width:30px;height:30px}.podium-score{font-size:15px}.sidebar{grid-template-columns:1fr}.trainer-cell strong{max-width:104px}.you-tag{display:inline-block;margin-left:1px;font-size:9px}.search-input{flex-basis:100%}thead th,tbody td{padding:7px 5px}}
+
+/* Ranking V1.2: premium compact podium and responsive personal progression */
+.podium-area{align-items:end;min-height:208px;padding-top:10px}
+.podium-slot{position:relative;min-width:0;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
+.podium-slot:hover{transform:translateY(-3px);box-shadow:0 0 22px #e9ba4c29}
+.podium-slot.rank-1{border-color:#ffd77b;box-shadow:inset 0 0 0 1px #efbd5c70,0 0 20px #f8c75a38;z-index:1}
+.podium-slot.rank-1:hover{box-shadow:0 0 27px #f8c75a6a}
+.podium-label{display:block;color:#bfcfe4;font-size:9px;font-weight:850;letter-spacing:.14em;margin:0 0 3px}
+.rank-1 .podium-label{color:#ffe3a2}
+.podium-trophy{filter:drop-shadow(0 0 10px #f9ca6366)}
+.my-content{min-height:88px}
+.my-score{text-align:right;max-width:50%}
+.my-gap{border-top:1px solid #2c5b84;margin-top:10px;padding-top:10px;display:flex;gap:5px;justify-content:space-between;flex-wrap:wrap;align-items:center;color:#bfdbef;font-size:11px}
+.my-gap>strong{color:#ffe5a0;font-size:16px;font-variant-numeric:tabular-nums}
+.my-gap>strong small{font-size:10px;font-weight:500;color:#b9d1e7}
+.my-gap .gap-note{width:100%;font-size:10px;color:#99bdd9}
+.my-gap.my-leader{color:#ffe0a1;font-weight:750}
+.leaderboard[aria-busy=true] .table-scroll{opacity:.65;transition:opacity .15s ease}
+.podium-area article{animation:rank-rise .25s ease-out both}
+@keyframes rank-rise{from{opacity:.65;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:800px){.my-card .my-content{min-height:98px}}
+@media(max-width:600px){.podium-area{min-height:155px}.podium-label{font-size:7px;letter-spacing:0}.my-content{min-height:86px}.my-gap>strong{font-size:14px}.podium-slot:hover{transform:none}}
+@media(prefers-reduced-motion:reduce){.podium-area article{animation:none!important}.podium-slot{transition:none!important}}
