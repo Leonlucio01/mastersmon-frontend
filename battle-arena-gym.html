@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#06182c">
+<title>MastersMon | Gym Leader Battle</title>
+<style>
+:root{--bg:#031428;--panel:#082746;--gold:#fbd47c;--cyan:#54dffa}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#ebf8ff;font:13px/1.4 Arial,Helvetica,sans-serif}
+a{color:inherit;text-decoration:none}.head{height:54px;display:flex;align-items:center;gap:22px;padding:0 max(16px,calc((100vw - 1390px)/2));border-bottom:1px solid #1b6988;background:#00172d;position:relative;z-index:4}
+.brand{font:bold clamp(19px,2.25vw,29px) Georgia,serif;color:var(--gold);white-space:nowrap}.brand:before{content:'M';display:inline-flex;width:27px;height:31px;border:2px solid var(--gold);align-items:center;justify-content:center;margin-right:9px}
+nav{display:flex;gap:20px;align-items:center;margin-left:auto;font-weight:700}nav a{padding:11px 0}nav a.active{color:#76e8ff;border-bottom:3px solid #2fd4f8}
+.gym-banner{max-width:1380px;margin:8px auto 7px;padding:9px 17px;border-radius:9px;border:1px solid #418cbd;background:linear-gradient(90deg,rgba(0,20,42,.96),rgba(4,27,52,.68)),url('assets/gyms/v2/bg_gym_detail.webp') center 43%/cover;display:flex;align-items:center;justify-content:space-between;gap:15px;min-height:76px}
+.gym-banner h1{font:700 clamp(23px,3vw,35px) Georgia,serif;color:var(--gold);margin:0 0 1px}.gym-banner p{margin:0;color:#b2e0ef;font-size:12px}.gym-label{font-size:10px;letter-spacing:2px;color:#80ebff;font-weight:800}.leader-chip{display:flex;align-items:center;gap:9px;padding:9px 13px;border:1px solid #c9a258;background:#021b34e9;border-radius:9px;max-width:40%}.leader-chip img{width:42px;height:43px;object-fit:contain;image-rendering:pixelated}.leader-chip strong{display:block;color:var(--gold);font-size:15px}.leader-chip small{color:#adcee7}.shell{width:min(1380px,calc(100% - 20px));margin:auto}.frame{width:100%;height:calc(100vh - 154px);min-height:600px;display:block;border:1px solid #2b8ab6;border-radius:10px;background:#04172f}
+.fail{display:none;max-width:850px;margin:40px auto;padding:25px;border:1px solid #a85e64;border-radius:12px;background:#291f33;text-align:center}.fail h2{color:#ffdb8e}.fail a{color:#7de7ff;text-decoration:underline}
+@media(max-width:820px){.head{height:auto;min-height:52px;padding:10px;flex-wrap:wrap}.head nav{margin:auto;gap:9px;font-size:11px}.gym-banner{margin:5px 10px;align-items:flex-start}.leader-chip{max-width:50%}.frame{height:calc(100vh - 178px);min-height:580px}}
+</style>
+</head>
+<body>
+<header class="head"><a class="brand" href="lobby.html">MASTERSMON</a><nav aria-label="Main navigation"><a href="lobby.html">Play</a><a href="mypokemon.html">Collection</a><a href="pokemart.html">Shop</a><a class="active" href="gyms-new.html">Gyms</a><a href="pokedex.html">Pokédex</a><a href="ranking.html">Rankings</a></nav></header>
+<div class="gym-banner"><div><span class="gym-label">MASTERSMON · GYM CHALLENGE</span><h1 id="gymTitle">Gym Leader Arena</h1><p id="gymSubtitle">Your team versus the Gym Leader's official team</p></div><div class="leader-chip"><img id="leaderImg" alt="Gym Leader" hidden><div><small id="gymRegion">REGION</small><strong id="gymLeader">Gym Leader</strong><small id="gymBadge">Official Gym Battle</small></div></div></div>
+<div id="frameShell" class="shell"><iframe id="gymFrame" title="Gym Battle" class="frame" src="battle-arena_old.html?modo=gym" referrerpolicy="same-origin"></iframe></div>
+<section id="gymError" class="fail" role="alert"><h2>Gym session unavailable</h2><p>Return to Gyms to start a valid battle session. No battle result has been recorded.</p><a href="gyms-new.html">Back to Gyms</a></section>
+<script>
+(() => {
+'use strict';
+const MODE_KEY='mastersmon_battle_arena_mode_v1';
+const SESSION_KEY='mastersmon_battle_gym_session_v1';
+let session=null;
+try {session=JSON.parse(sessionStorage.getItem(SESSION_KEY)||'null')}catch{}
+const frame=document.getElementById('gymFrame');
+if(new URLSearchParams(location.search).get('modo')!=='gym'||!session?.gym_session_token||!Array.isArray(session.equipo_rival)||!session.equipo_rival.length){
+ document.getElementById('frameShell').hidden=true;document.getElementById('gymError').style.display='block';return;
+}
+// Reuse the already verified Gym session; the embedded legacy engine owns all turns and rewards.
+sessionStorage.setItem(MODE_KEY,'gym');
+const gym=session.gym||{};
+const leader=String(gym.leader||'Gym Leader');
+document.getElementById('gymTitle').textContent=leader+' · Gym Battle';
+document.getElementById('gymLeader').textContent=leader;
+document.getElementById('gymRegion').textContent=String(gym.regionName||gym.region||'Region').toUpperCase();
+document.getElementById('gymBadge').textContent=String(gym.badge||'Gym Badge');
+const path=String(gym.trainerAssetPath||'');
+if(/^(assets|img)\/[a-z0-9_./-]+\.(png|webp|jpg)$/i.test(path)&&!path.includes('..')){let im=document.getElementById('leaderImg');im.src=path;im.hidden=false;im.onerror=()=>{im.hidden=true}}
+const type=String(gym.type||'normal').toLowerCase().replace(/[^a-z]/g,'');
+const approvedTypes=new Set('normal fire water grass electric ice fighting poison ground flying psychic bug rock ghost dragon dark steel fairy'.split(' '));
+const bg=`assets/gyms/v2/types/bg_gym_${approvedTypes.has(type)?type:'normal'}.webp`;
+frame.addEventListener('load',()=>{
+ try {
+  const doc=frame.contentDocument;if(!doc)return;
+  if(frame.contentWindow.location.pathname.split('/').pop()!=='battle-arena_old.html'){
+   const url=frame.contentWindow.location.href;if(url.startsWith(location.origin+'/'))location.replace(url);return;
+  }
+  const st=doc.createElement('style');st.id='mastersmon-gym-modern-style';
+  st.textContent=`
+   :root{--gm-gold:#ffda8a;--gm-cyan:#67e6ff;--gm-blue:#113b5a}
+   body{background:#031429!important;color:#ecf7ff!important;font-family:Arial,Helvetica,sans-serif!important}
+   .menu,.menu-pro,header.menu{display:none!important}
+   .battle-arena-page{max-width:none!important;margin:0!important;padding:8px 12px 14px!important}
+   .arena-hero{display:none!important}
+   .arena-layout{display:grid!important;grid-template-columns:minmax(0,1fr) 290px!important;gap:9px!important;align-items:start!important}
+   .arena-main-panel,.arena-side-panel{background:linear-gradient(160deg,#072b48,#021a32)!important;color:#eaf7ff!important;border:1px solid #237aab!important;border-radius:9px!important;min-width:0!important;padding:10px!important}
+   .arena-versus-grid{position:relative!important;display:grid!important;grid-template-columns:minmax(0,1fr) 90px minmax(0,1fr)!important;gap:8px!important;padding:14px 12px!important;min-height:330px!important;align-items:stretch!important;border-radius:9px!important;border:1px solid #2a8ebc!important;background:linear-gradient(180deg,rgba(3,24,48,.12),rgba(3,19,37,.18)),url('${bg}') center 56%/cover!important}
+   .arena-side-card{background:rgba(3,23,45,.8)!important;border:1px solid #3c98bf!important;border-radius:9px!important;color:#e7f8ff!important;min-width:0!important;padding:8px!important;box-shadow:0 8px 25px #00112688!important}
+   .arena-side-card.enemy{border-color:#d2a053!important}
+   .arena-side-kicker{color:var(--gm-gold)!important;font-weight:800!important;font-size:12px!important}
+   .arena-active-card{background:rgba(5,29,56,.68)!important;border-radius:8px!important;color:white!important;padding:8px!important}
+   .arena-active-card img{object-fit:contain!important;image-rendering:auto!important}
+   .arena-vs-center{align-self:center!important;color:var(--gm-gold)!important}
+   .arena-vs-badge{background:linear-gradient(#ffeaac,#d79938)!important;color:#12233a!important;border:2px solid #ffe1a3!important;box-shadow:0 0 18px #49cfff!important}
+   .arena-turn-box{background:#062640ed!important;border:1px solid #268db7!important;color:#ffde88!important}
+   .arena-actions-panel,.arena-team-preview-wrap,.arena-log-panel,.arena-status-panel{background:linear-gradient(160deg,#082c4a,#031c36)!important;border:1px solid #287bab!important;border-radius:8px!important;padding:10px!important;margin-top:8px!important;color:#ebf8ff!important}
+   .arena-actions-grid{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:7px!important}
+   .btn-arena{border-radius:6px!important;border:1px solid #2e97c5!important;background:#0c456e!important;color:#fff!important;font-weight:bold!important;padding:10px 7px!important}
+   .btn-arena-primary{background:linear-gradient(#ffe596,#dda53d)!important;color:#14263a!important;border-color:#ffdc85!important}
+   .btn-arena-danger{background:#8e1f3a!important;border-color:#b34465!important}
+   .arena-team-preview-wrap{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}
+   .arena-team-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:5px!important}
+   .arena-team-grid img{object-fit:contain!important;max-width:100%!important}
+   .arena-log-panel,.arena-status-panel{margin:0 0 9px!important}
+   .arena-side-panel h3,.arena-main-panel h3,.arena-subsection-title,.arena-action-header h3{color:#ffe09a!important}
+   .arena-status-grid{color:#eaf7ff!important}
+   .arena-status-card,.arena-log-list{background:#082c4c!important;color:#ebf7ff!important;border:1px solid #286d9a!important;border-radius:7px!important}
+   .arena-modal-overlay{z-index:9999!important}
+   .arena-modal{background:#092946!important;color:#fff!important;border:1px solid #4f9fca!important}
+   @media(max-width:950px){.arena-layout{grid-template-columns:1fr!important}.arena-versus-grid{grid-template-columns:minmax(0,1fr) 52px minmax(0,1fr)!important;padding:7px!important;min-height:300px!important}}
+   @media(max-width:550px){.arena-team-preview-wrap{grid-template-columns:1fr!important}.arena-actions-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+  `;
+  doc.head.appendChild(st);
+  // Titles and labels only. Do not intercept combat controls, gym tokens or reward requests.
+  const badge=doc.querySelector('.arena-hero-badge');if(badge)badge.textContent='Gym Challenge';
+ }catch(e){console.warn('Gym visual adaptation unavailable; original Gym combat remains active.',e)}
+});
+})();
+</script>
+</body>
+</html>
