@@ -1,0 +1,15 @@
+/* V23: Gym mode only. Reuses the current Battle Arena layout and cards. */
+body:has(.mm23-rival) .panel.right .rival-quote,body:has(.mm23-rival) .panel.right .notice{display:none}
+body:has(.mm23-rival) .panel.right .rival{margin-bottom:9px}
+body:has(.mm23-rival) .panel.right .enemy-team{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.mm23-mini{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:105px;padding:8px 5px 6px;border:1px solid #3189b8;border-radius:7px;background:#103450;color:#fff;text-align:center;min-width:0}
+.mm23-mini.mm23-active{border-color:#efc46d;box-shadow:inset 0 0 0 1px #efc46d55;background:#193d58}
+.mm23-mini img{height:52px;width:76px;object-fit:contain;max-width:100%}
+.mm23-mini b{font-size:11px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mm23-mini small{font-size:10px;color:#cfe7ff}.mm23-ko{filter:grayscale(.85);opacity:.65}
+.mm23-number{position:absolute;top:3px;left:4px;padding:1px 4px;border:1px solid #328dc0;border-radius:4px;font-size:10px}
+.mm23-ko-label{position:absolute;top:3px;right:3px;padding:1px 3px;color:white;background:#b82843;border-radius:3px;font-size:10px}
+.mm23-hp{display:block;width:95%;height:5px;background:#052539;border-radius:6px;overflow:hidden}.mm23-hp i{display:block;height:100%;background:#28d6a1;border-radius:6px}
+body:has(.mm23-rival) .stage{background-size:cover!important;background-position:center!important}
+body:has(.mm23-rival) .stage .combatant{object-fit:contain}
+.mm23-message{padding:16px;color:#cde8fa}.mm23-session-error{margin:60px auto;padding:30px;background:#09213d;color:#fff;border:1px solid #3d91bc;border-radius:12px;max-width:650px;text-align:center}.mm23-session-error a{color:#f1c66d}

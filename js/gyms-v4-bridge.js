@@ -66,7 +66,7 @@
       const session=sessionFromResponse(gym,data);
       sessionStorage.setItem(MODE_KEY,'gym');
       sessionStorage.setItem(SESSION_KEY,JSON.stringify(session));
-      window.location.assign('battle-arena-gym.html?modo=gym');
+      window.location.assign('battle-arena.html?modo=gym');
     } catch(e) { console.error('[Gyms V4] Could not start Gym battle',e);notify(e?.message || tr('Could not start the battle.','No se pudo iniciar el combate.'),true);busy=false;sync(); }
   }
   async function refresh() {
