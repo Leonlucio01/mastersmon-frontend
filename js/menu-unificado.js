@@ -47,11 +47,19 @@
   document.addEventListener('keydown',event=>{if(event.key==='Escape')close()});
   if(logout&&existingLogout)logout.addEventListener('click',()=>existingLogout.click());
   header.querySelectorAll('[data-lang]').forEach(el=>el.addEventListener('click',()=>{applyLang();close()}));
-  // Update from cached session immediately; refresh after API session updates.
   fromCache();applyLang();sync();
   document.addEventListener('usuarioSesionActualizada',event=>{if(event.detail?.usuario)updateTrainer(event.detail.usuario);else fromCache()});
   if(typeof MutationObserver!=='undefined'&&primaryName)new MutationObserver(sync).observe(primaryName,{childList:true,characterData:true,subtree:true});
   if(typeof MutationObserver!=='undefined'&&primaryAvatar)new MutationObserver(sync).observe(primaryAvatar,{attributes:true,attributeFilter:['src']});
  };
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready,{once:true});else ready();
+})();
+/* MastersMon Presence V2.2: load once from the shared header script. */
+(()=>{
+ if(window.__mmPresenceLoaderRequested)return;
+ window.__mmPresenceLoaderRequested=true;
+ const s=document.createElement('script');
+ s.src='js/mastersmon-presence.js?v=2213';
+ s.async=true;
+ (document.head||document.documentElement).appendChild(s);
 })();

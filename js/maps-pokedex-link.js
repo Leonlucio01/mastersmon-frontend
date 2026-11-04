@@ -1,4 +1,4 @@
-/* MastersMon Maps - enlace Pokédex por zona_id.  v2.0
+/* MastersMon Maps - enlace Pokédex por zona_id. v2.0
  * Cargar DESPUES de js/maps.js y ANTES de DOMContentLoaded.
  * Reutiliza inicializarMaps() y seleccionarZona(), sin cambios al backend.
  */
@@ -17,7 +17,6 @@
 
     const originalInit = inicializarMaps;
     inicializarMaps = async function iniciarMapsDesdePokedex() {
-        // Esperar a que termine la carga normal, incluida la seleccion inicial.
         await originalInit.apply(this, arguments);
         if (!Array.isArray(zonasCache) || !zonasCache.length) return;
 
@@ -26,8 +25,6 @@
             console.warn('[MastersMon Pokedex Maps] Zona no encontrada:', targetId);
             return;
         }
-
-        // Mover el carrusel hasta la zona solicitada, sin filtros heredados.
         if (typeof mapsFiltrosEstado === 'object' && mapsFiltrosEstado) {
             mapsFiltrosEstado.search = '';
             mapsFiltrosEstado.region = 'all';
@@ -43,10 +40,18 @@
         await seleccionarZona(targetId);
         if (typeof renderizarZonas === 'function') renderizarZonas();
 
-        // La seleccion ya activa el panel de exploracion. No iniciar encuentros.
         const panel = document.getElementById('encuentroContainer');
         if (panel && typeof panel.scrollIntoView === 'function') {
             requestAnimationFrame(() => panel.scrollIntoView({behavior: 'smooth', block: 'start'}));
         }
     };
+})();
+/* MastersMon Presence V2.2: register activity on the maps page too. */
+(()=>{
+ if(window.__mmPresenceLoaderRequested)return;
+ window.__mmPresenceLoaderRequested=true;
+ const s=document.createElement('script');
+ s.src='js/mastersmon-presence.js?v=2213';
+ s.async=true;
+ (document.head||document.documentElement).appendChild(s);
 })();
