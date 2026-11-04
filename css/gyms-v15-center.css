@@ -1,0 +1,54 @@
+/* MastersMon Gyms V15 - center the Gym Leader sprite inside the stadium art */
+
+.gv-page-refined .gv-leader-art {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.gv-page-refined .gv-leader-art #gvLeaderPortrait,
+.gv-page-refined .gv-leader-art .gv-portrait-fallback {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+/* Main adjustment requested by the user: keep the trainer visually centered in the arena */
+@media (min-width:1180px) and (min-height:710px) {
+  .gv-page-refined .gv-leader-art #gvLeaderPortrait {
+    left: 50% !important;
+    right: auto !important;
+    bottom: 16px !important;
+    transform: translateX(-50%) !important;
+    transform-origin: center bottom;
+  }
+  .gv-page-refined .gv-leader-art .gv-portrait-fallback {
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 20px;
+  }
+}
+
+@media (min-width:1180px) and (min-height:821px) {
+  .gv-page-refined .gv-leader-art #gvLeaderPortrait {
+    bottom: 18px !important;
+  }
+}
+
+@media (min-width:1180px) and (min-height:710px) and (max-height:820px) {
+  .gv-page-refined .gv-leader-art #gvLeaderPortrait {
+    bottom: 14px !important;
+  }
+}
+
+@media (max-width:1179px), (max-height:709px) {
+  .gv-page-refined .gv-leader-art #gvLeaderPortrait {
+    left: 50% !important;
+    right: auto !important;
+    bottom: 14px !important;
+    transform: translateX(-50%) !important;
+  }
+}
