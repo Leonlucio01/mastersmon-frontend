@@ -1,15 +1,26 @@
-/* MastersMon Gyms V9 - presentation-only type arenas and clarity enhancements.
+/* MastersMon Gyms V10 - presentation-only type arenas and clarity enhancements.
  * Source of truth remains gyms-new.js, the authenticated Gym catalog and gym battle bridge.
  */
 (() => {
   'use strict';
-  const TYPES = {
-    rock: {rgb:'179,141,89'}, water:{rgb:'48,166,240'}, electric:{rgb:'244,188,52'},
-    grass:{rgb:'79,190,105'}, poison:{rgb:'169,78,214'}, psychic:{rgb:'224,107,205'},
-    fire:{rgb:'240,102,57'}, ground:{rgb:'183,144,82'}
-  };
-  const TRANSLATE = {roca:'rock',agua:'water',electrico:'electric',planta:'grass',veneno:'poison',
-    psiquico:'psychic',fuego:'fire',tierra:'ground'};
+  const TYPES = Object.freeze({
+    normal:{rgb:'206,190,155'}, fire:{rgb:'240,102,57'}, water:{rgb:'48,166,240'},
+    electric:{rgb:'244,188,52'}, grass:{rgb:'79,190,105'}, ice:{rgb:'116,214,245'},
+    fighting:{rgb:'204,118,81'}, poison:{rgb:'169,78,214'}, ground:{rgb:'183,144,82'},
+    flying:{rgb:'117,175,248'}, psychic:{rgb:'224,107,205'}, bug:{rgb:'142,185,65'},
+    rock:{rgb:'179,141,89'}, ghost:{rgb:'134,91,201'}, dragon:{rgb:'77,126,246'},
+    dark:{rgb:'114,98,132'}, steel:{rgb:'152,189,214'}, fairy:{rgb:'246,143,209'}
+  });
+  const TRANSLATE = Object.freeze({
+    normal:'normal', fuego:'fire', agua:'water', electrico:'electric', planta:'grass',
+    hielo:'ice', lucha:'fighting', veneno:'poison', tierra:'ground', volador:'flying',
+    psiquico:'psychic', bicho:'bug', roca:'rock', fantasma:'ghost', dragon:'dragon',
+    siniestro:'dark', acero:'steel', hada:'fairy',
+    fire:'fire', water:'water', electric:'electric', grass:'grass', ice:'ice',
+    fighting:'fighting', poison:'poison', ground:'ground', flying:'flying',
+    psychic:'psychic', bug:'bug', rock:'rock', ghost:'ghost', dark:'dark',
+    steel:'steel', fairy:'fairy'
+  });
   const $=id=>document.getElementById(id);
   const normalize = s => String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
   const isEs = () => document.querySelector('.language button.active')?.dataset.lang === 'es'

@@ -1,0 +1,28 @@
+/* MastersMon Gyms V10: 18 clean stadiums, following the existing V9 layout. */
+/* Both scene images are already managed by the type-aware V9/V10 JS. */
+.gv-page-refined .gv-leader-art #gvLeaderPortrait {
+ height:104px!important;max-height:110px!important;
+ margin-bottom:12px;max-width:80%;
+ image-rendering:pixelated;
+}
+.gv-page-refined .gv-leader-art .gv9-scene {
+ object-fit:contain;object-position:center center;
+ filter:brightness(.96) saturate(1.04);
+}
+.gv-page-refined .gv-leader-art::before {
+ filter:blur(11px) brightness(.55);
+}
+.gv-page-refined .gv-dossier-picture img.gv9-detail-img {
+ object-fit:contain;object-position:center center;
+}
+.gv-page-refined .gv-dossier-picture::before {
+ filter:blur(14px) brightness(.57);
+}
+/* Preserve the type accent without competing with the stadium image. */
+.gv-page-refined .gv-leader-card,.gv-page-refined .gv-dossier {
+ border-color:rgba(var(--gv9-rgb),.78);
+}
+.gv-page-refined .gv-v5-ace {border-color:#e8b95a}
+@media(max-width:760px){
+ .gv-page-refined .gv-leader-art #gvLeaderPortrait {height:95px!important;max-height:100px!important}
+}
