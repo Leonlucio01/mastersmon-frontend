@@ -880,3 +880,39 @@ body{background:
  .gv-page-refined .gv-reward-list{grid-template-columns:repeat(2,minmax(0,1fr))!important}
  .gv-page-refined .gv-reward-list .gv19-reward{min-height:77px!important}
 }
+
+
+/* V20 - final UI cleanup and stable initial loading placement */
+.gv-page-refined.gv-initializing .gv-hero {display:flex!important}
+.gv-page-refined.gv-initializing .gv-hero-counter strong {font-size:0!important}
+.gv-page-refined.gv-initializing .gv-hero-counter strong::after {content:"···";font-size:24px}
+.gv-page-refined.gv-initializing .gv-initial-loading {
+  min-height:365px!important;margin:10px 0 0!important;
+  border-color:rgba(88,145,184,.48);background:rgba(4,20,43,.91)
+}
+.gv-page-refined .gv-panel-actions #gvTeamNotice,
+.gv-page-refined #gvFooterStage {display:none!important}
+.gv-page-refined .gv-panel-actions {justify-content:flex-end!important}
+.gv-page-refined .gv-footer {margin-top:7px!important}
+/* Show long Pokemon names on two lines while preserving the full level label. */
+.gv-page-refined .gv-v5-enemy .gv-v5-monname,
+.gv-page-refined .gv-enemy span:first-of-type {
+  white-space:normal!important;overflow-wrap:anywhere!important;
+  display:-webkit-box!important;-webkit-box-orient:vertical;
+  -webkit-line-clamp:2;line-clamp:2;
+  min-height:20px;line-height:10px!important;text-align:center
+}
+/* Keep lower two panels aligned without adding scroll at laptop sizes. */
+@media (min-width:1050px) and (min-height:790px) {
+  .gv-page-refined .gv-bottom-grid > .gv-panel {min-height:142px}
+}
+/* Badge already earned: subtle confirmation in the preview only. */
+.gv-page-refined .gv19-reward-badge.gv20-earned::after {
+  content:"✓";position:absolute;right:5px;top:4px;
+  display:grid;place-items:center;width:15px;height:15px;
+  border-radius:50%;background:#155c47;color:#d6ffe5;
+  border:1px solid #54c995;font:800 11px Arial,sans-serif
+}
+@media(max-width:640px) {
+  .gv-page-refined.gv-initializing .gv-initial-loading {min-height:275px!important}
+}
