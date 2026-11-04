@@ -812,3 +812,71 @@ body{background:
 @keyframes gv18spin {to {transform:rotate(360deg);}}
 @media (prefers-reduced-motion:reduce) {.gv-loading-orb {animation:none;border-top-color:#f5ca65;}}
 @media (max-width:640px) {.gv-page-refined.gv-initializing .gv-initial-loading {min-height:350px;}}
+
+
+/* === V19: Leader Team 2 columns x 3 rows and battle-style reward previews === */
+.gv-page-refined .gv-dossier .gv-panel-heading h3{font-size:0!important;line-height:1.2}
+.gv-page-refined .gv-dossier .gv-panel-heading h3::before{content:"LEADER TEAM";font:700 15px Georgia,serif;color:#fff4d8}
+.gv-page-refined .gv-dossier .gv-panel-heading h3::after{content:" · 6 POKÉMON";font:700 9px Arial,sans-serif;color:#f7d476;letter-spacing:.4px}
+.gv-page-refined .gv-dossier-body{padding:8px!important}
+.gv-page-refined .gv-enemies{
+  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:7px!important;align-items:stretch
+}
+.gv-page-refined .gv-enemies > .gv-v5-enemy,
+.gv-page-refined .gv-enemies > .gv-enemy{
+  min-width:0!important;min-height:78px!important;position:relative;
+  display:flex!important;flex-direction:column!important;justify-content:center!important;
+  align-items:center!important;gap:2px!important;padding:6px 4px 5px!important;
+  background:linear-gradient(160deg,#143c62,#081a35)!important;
+  border-radius:8px!important;overflow:hidden;
+}
+.gv-page-refined .gv-enemies > .gv-v5-enemy img,
+.gv-page-refined .gv-enemies > .gv-enemy img{
+  display:block!important;width:60px!important;height:48px!important;max-width:96%!important;
+  object-fit:contain!important;image-rendering:pixelated;
+  filter:drop-shadow(0 3px 3px #0008)
+}
+.gv-page-refined .gv-v5-enemy .gv-v5-monname,
+.gv-page-refined .gv-enemy span:first-of-type{
+  font-size:10px!important;line-height:1.1!important;max-width:100%;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap!important;font-weight:700;
+}
+.gv-page-refined .gv-v5-enemy .gv-v5-level,
+.gv-page-refined .gv-enemy span:last-of-type{font-size:9px!important;color:#ffd882;font-weight:800}
+.gv-page-refined .gv-v5-ace{border-color:#f6c96c!important;box-shadow:inset 0 0 12px #ffce5924,0 0 0 1px #eabc604d!important}
+.gv-page-refined .gv-v5-ace::after{font-size:8px!important;}
+/* Reward icon layout borrows the dark-blue, gold and cyan visual language from battle-arena. */
+.gv-page-refined .gv-reward-list{
+  display:grid!important;grid-template-columns:1.24fr 1fr 1fr .88fr!important;
+  gap:6px!important;padding:8px!important;align-items:stretch;
+}
+.gv-page-refined .gv-reward-list .gv19-reward{
+  position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-width:0;min-height:86px!important;padding:8px 3px!important;gap:2px;
+  border:1px solid #3e85b5!important;border-radius:9px;
+  background:linear-gradient(155deg,#164067,#071d3e)!important;
+  font-size:9px!important;text-align:center;line-height:1.15;
+}
+.gv-page-refined .gv-reward-list .gv19-reward-badge{
+  border-color:#f0c15e!important;background:linear-gradient(155deg,#153b5e,#07162e)!important;
+  box-shadow:inset 0 0 14px #efbc4930;
+}
+.gv-page-refined .gv-reward-list .gv19-reward strong{
+  display:block;color:#ffdd8e;font-size:12px!important;line-height:1.1;margin:2px 0 0!important;
+  max-width:100%;overflow-wrap:anywhere;
+}
+.gv-page-refined .gv19-icon{display:flex;align-items:center;justify-content:center;height:29px;color:#73e9ff}
+.gv-page-refined .gv19-icon svg{display:block;width:22px;height:22px;filter:drop-shadow(0 0 4px #3bb8eb44)}
+.gv-page-refined .gv19-reward-badge .gv19-icon{height:33px;color:#ffd876}
+.gv-page-refined .gv19-reward-badge .gv19-icon img{
+  width:32px;height:32px;object-fit:contain;image-rendering:pixelated;
+  filter:drop-shadow(0 0 5px #ffcf62a8)
+}
+@media(max-width:900px){
+ .gv-page-refined .gv-enemies{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:520px){
+ .gv-page-refined .gv-reward-list{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ .gv-page-refined .gv-reward-list .gv19-reward{min-height:77px!important}
+}
