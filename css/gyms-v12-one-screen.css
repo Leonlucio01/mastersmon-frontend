@@ -1,0 +1,113 @@
+/* MastersMon Gyms V12 - One-screen desktop composition.
+   Presentation only: all existing IDs, event listeners, catalog, battle and reward flows remain unchanged.
+   Never hide overflow or sacrifice content on narrow/small viewports. */
+@media (min-width: 1180px) and (min-height: 710px) {
+  .gv-page-refined {
+    width: min(1400px, calc(100% - 32px));
+    max-width: 1400px;
+    padding: 7px 0 8px;
+  }
+  .gv-page-refined .gv-hero {
+    min-height: 88px; height: 88px;
+    padding: 9px 18px;
+    border-radius: 13px;
+    gap: 12px;
+  }
+  .gv-page-refined .gv-hero .gv-overline {font-size: 9px; letter-spacing: 1.5px}
+  .gv-page-refined .gv-hero h1 {
+    font-size: clamp(32px, 2.6vw, 41px);
+    line-height: 1;
+    margin: 2px 0 3px;
+  }
+  .gv-page-refined .gv-hero p {font-size: 11px; line-height: 1.1}
+  .gv-page-refined .gv-hero-status {font-size: 10px; margin-top: 3px}
+  .gv-page-refined .gv-hero-counter {min-width: 175px; width: 175px; padding: 10px 12px}
+  .gv-page-refined .gv-hero-counter span {font-size: 9px}
+  .gv-page-refined .gv-hero-counter strong {font-size: 24px; margin: 2px 0 3px}
+  .gv-page-refined .gv-progress-track {height: 5px}
+  .gv-page-refined .gv-regions {gap: 12px; margin: 8px 0}
+  .gv-page-refined .gv-region-btn {height: 45px; border-radius: 11px; padding: 7px 14px}
+  .gv-page-refined .gv-region-btn strong {font-size: 20px; line-height: 1}
+  .gv-page-refined .gv-region-btn small {font-size: 11px}
+  .gv-page-refined .gv-layout {grid-template-columns: minmax(0,1fr) 264px; gap: 12px; align-items: start}
+  .gv-page-refined .gv-intro-line {min-height: 31px; margin-bottom: 5px; padding: 0 4px; align-items: center}
+  .gv-page-refined .gv-intro-line .gv-kicker {font-size: 9px; margin: 0; line-height: 1}
+  .gv-page-refined .gv-intro-line h2 {font-size: 20px; margin: 2px 0 0; line-height: 1}
+  .gv-page-refined .gv-badge-counter {padding: 4px 9px; font-size: 11px}
+  .gv-page-refined .gv-main-grid {grid-template-columns: 207px minmax(0,1fr); gap: 10px}
+  .gv-page-refined .gv-panel {border-radius: 12px}
+  .gv-page-refined .gv-panel-heading {padding: 6px 10px 5px; min-height: 26px}
+  .gv-page-refined .gv-panel-heading h3 {font-size: 13px; line-height: 1.05}
+  .gv-page-refined .gv-panel-heading>span {font-size: 9px}
+  .gv-page-refined .gv-leader-card {height: 264px; min-height: 0; overflow: hidden}
+  .gv-page-refined .gv-leader-art {height: 186px; min-height: 186px; flex: none}
+  .gv-page-refined .gv-leader-art #gvLeaderPortrait {
+    height: 77px !important; max-height: 77px !important;
+    bottom: 9px; max-width: 61% !important;
+  }
+  .gv-page-refined .gv-leader-info {padding: 4px 8px 5px}
+  .gv-page-refined .gv-leader-info .gv-type {font-size: 9px; padding: 2px 9px; min-height: 0}
+  .gv-page-refined .gv-leader-info h2 {font-size: 21px; margin: 3px 0 1px; line-height: 1}
+  .gv-page-refined .gv-leader-info p {font-size: 10px; margin: 0}
+  .gv-page-refined .gv-central {gap: 7px}
+  .gv-page-refined .gv-team-list {grid-template-columns: repeat(6,minmax(0,1fr)); padding: 7px 8px 5px; gap: 5px}
+  .gv-page-refined .gv-team-mon {min-height: 77px; padding: 3px 2px; border-radius: 7px}
+  .gv-page-refined .gv-team-mon img {width: min(100%,48px); height: 43px}
+  .gv-page-refined .gv-team-mon strong {font-size: 9px; line-height: 1.05}
+  .gv-page-refined .gv-team-mon small {font-size: 10px; line-height: 1}
+  .gv-page-refined .gv-panel-actions {padding: 0 8px 6px; gap: 8px}
+  .gv-page-refined .gv-panel-actions span {font-size: 9px; line-height: 1.1}
+  .gv-page-refined #gvEditTeam {font-size: 10px; padding: 4px 7px; border-radius: 6px}
+  .gv-page-refined .gv-progress-panel {margin-top: 0}
+  .gv-page-refined .gv-badge-grid {padding: 5px; gap: 4px}
+  .gv-page-refined .gv-badge {min-height: 58px; gap: 1px; padding: 3px 1px; border-radius: 7px}
+  .gv-page-refined .gv-badge img {width: 25px; height: 24px}
+  .gv-page-refined .gv-badge small {font-size: 7px; line-height: 1.1}
+  .gv-page-refined .gv-badge b {font-size: 8px; line-height: 1}
+  .gv-page-refined .gv-leader-picker {margin-top: 8px}
+  .gv-page-refined .gv-picker-grid {grid-template-columns: repeat(8,minmax(0,1fr)); gap: 5px; padding: 6px}
+  .gv-page-refined .gv-pick {min-height: 66px; padding: 2px; gap: 2px; border-radius: 7px}
+  .gv-page-refined .gv-pick img {height: 34px; width: 35px}
+  .gv-page-refined .gv-pick b {font-size: 9px}
+  .gv-page-refined .gv-pick small {font-size: 8px}
+  .gv-page-refined .gv-bottom-grid {grid-template-columns: 1fr 1.15fr; gap: 10px; margin-top: 8px}
+  .gv-page-refined .gv-req,.gv-page-refined .gv-rewards {height: auto; min-height: 0 !important}
+  .gv-page-refined .gv-facts {padding: 4px 8px}
+  .gv-page-refined .gv-fact {padding: 4px 0 !important; font-size: 10px; line-height: 1.1}
+  .gv-page-refined .gv-reward-list {grid-template-columns: repeat(4,minmax(0,1fr)); gap: 4px; padding: 6px}
+  .gv-page-refined .gv-reward {padding: 5px 2px; min-height: 50px; font-size: 9px}
+  .gv-page-refined .gv-reward strong {font-size: 11px; margin-top: 3px}
+  .gv-page-refined .gv-right {position: static; display: flex; flex-direction: column; gap: 8px; min-width: 0}
+  .gv-page-refined .gv-dossier-body {padding: 7px 7px 8px}
+  .gv-page-refined .gv-enemies {gap: 5px}
+  .gv-page-refined .gv-v5-enemy {min-height: 78px; padding: 3px 1px; gap: 1px; border-radius: 7px}
+  .gv-page-refined .gv-v5-enemy img {width: min(100%,47px); height: 43px}
+  .gv-page-refined .gv-v5-enemy .gv-v5-monname {font-size: 9px; line-height: 1.05}
+  .gv-page-refined .gv-v5-enemy .gv-v5-level {font-size: 9px}
+  .gv-page-refined .gv-v5-ace-label {top: 1px; right: 1px; font-size: 7px; padding: 2px 3px}
+  .gv-page-refined .gv-challenge-block {margin: 0; padding: 7px; gap: 6px; border-radius: 12px}
+  .gv-page-refined #gvChallengeBtn {height: 51px; min-height: 51px; font-size: 17px; border-radius: 9px; padding: 5px}
+  .gv-page-refined #gvBattleNote {padding: 6px; font-size: 10px; line-height: 1.2; margin: 0}
+  .gv-page-refined #gvClassicLink {margin: 0; padding: 5px 9px; font-size: 10px; border-radius: 7px}
+  .gv-page-refined .gv-footer {margin: 6px 2px 0; font-size: 9px}
+}
+/* Even denser only on common laptop 1366x768 displays, without hiding content. */
+@media (min-width:1180px) and (min-height:710px) and (max-height:820px) {
+  .gv-page-refined .gv-hero {height: 77px;min-height:77px}
+  .gv-page-refined .gv-hero h1 {font-size: 31px}
+  .gv-page-refined .gv-regions {margin: 6px 0}
+  .gv-page-refined .gv-region-btn {height: 42px}
+  .gv-page-refined .gv-intro-line {min-height: 27px;margin-bottom:3px}
+  .gv-page-refined .gv-leader-card {height: 251px}
+  .gv-page-refined .gv-leader-art {height:175px;min-height:175px}
+  .gv-page-refined .gv-team-mon {min-height:72px}
+  .gv-page-refined .gv-team-mon img {height:39px}
+  .gv-page-refined .gv-badge {min-height:53px}
+  .gv-page-refined .gv-pick {min-height:62px}
+  .gv-page-refined .gv-pick img {height:30px}
+  .gv-page-refined .gv-fact {padding:3px 0!important}
+  .gv-page-refined .gv-reward {min-height:44px}
+  .gv-page-refined .gv-v5-enemy {min-height:72px}
+  .gv-page-refined .gv-v5-enemy img {height:38px}
+  .gv-page-refined #gvChallengeBtn {min-height:46px;height:46px}
+}
