@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MastersMon | Grand Gym Arena V2</title><meta name="theme-color" content="#06182c">
 <link rel="stylesheet" href="css/menu-unificado.css?v=2204">
-<link rel="stylesheet" href="css/gyms-new.css?v=1701">
+<link rel="stylesheet" href="css/gyms-new.css?v=1801">
 <script defer src="js/api.js"></script>
 <script defer src="js/menu-unificado.js?v=2204"></script>
 <script defer src="js/gyms-new.js?v=310"></script>
@@ -34,7 +34,8 @@
   </div>
  </div>
 </header>
-<main class="gv-page gv-page-refined">
+<main class="gv-page gv-page-refined gv-initializing">
+ <div class="gv-initial-loading" role="status" aria-live="polite"><span class="gv-loading-orb" aria-hidden="true"></span><strong>Loading Gym League…</strong><small>Loading the official Gym catalog and badge progress</small></div>
  <section class="gv-hero" aria-labelledby="gvTitle"><div class="gv-hero-content"><div class="gv-overline">MASTERSMON · GYM LEAGUE</div><h1 id="gvTitle">Grand Gym Arena</h1><p id="gvSubtitle">Challenge real Gym Leaders. Collect badges and unlock the next challenge.</p><div class="gv-hero-status" id="gvHeroStatus">Loading your Gym journey…</div></div><div class="gv-hero-counter"><span id="gvTotalLabel">BADGE PROGRESS</span><strong id="gvTotalBadges">— / —</strong><div class="gv-progress-track"><div id="gvTotalBar"></div></div></div></section>
  <section class="gv-regions" id="gvRegions" aria-label="Regions"></section>
  <div class="gv-layout">
@@ -56,5 +57,56 @@
  </div>
  <footer class="gv-footer"><span>MASTERSMON · GRAND GYM ARENA V2</span><span id="gvFooterStage">V15 · Trainer centered</span></footer>
 </main>
+<script>
+/* Gyms V18 — UI loading state and trainer-image recovery; no gameplay changes. */
+(() => {
+  'use strict';
+  function init() {
+    const page=document.querySelector('.gv-page');
+    const status=document.getElementById('gvHeroStatus');
+    const portrait=document.getElementById('gvLeaderPortrait');
+    const fallback=document.getElementById('gvLeaderFallback');
+    if(!page || !status || !portrait) return;
+    const language=()=>document.querySelector('.language button.active')?.dataset.lang==='es';
+    const loadPane=page.querySelector('.gv-initial-loading');
+    function finish() {
+      const s=(status.textContent||'').toLowerCase();
+      if (/synced|sincronizado|could not connect|no se pudo conectar|unavailable|no disponible|error/.test(s)) {
+        page.classList.remove('gv-initializing');
+        if(loadPane) loadPane.setAttribute('aria-hidden','true');
+      }
+    }
+    new MutationObserver(finish).observe(status,{childList:true,subtree:true,characterData:true});
+    finish();
+    function revealTrainer(){
+      if(portrait.hidden)return;
+      // A previous loading error may have left inline visibility:hidden in place.
+      portrait.style.removeProperty('visibility');
+      portrait.style.removeProperty('opacity');
+      if(fallback) fallback.hidden=true;
+    }
+    portrait.addEventListener('load',revealTrainer);
+    new MutationObserver(() => {
+      if(!portrait.hidden){
+        // Reset stale error styling when the selected Gym changes.
+        portrait.style.removeProperty('visibility');
+        portrait.style.removeProperty('opacity');
+      }
+    }).observe(portrait,{attributes:true,attributeFilter:['src','hidden']});
+    portrait.addEventListener('error',()=>{
+      // Keep failed media from obstructing the stadium; the page can retry on selection.
+      if(fallback) fallback.hidden=false;
+    });
+    document.addEventListener('languageChanged',()=>{
+      if(loadPane && page.classList.contains('gv-initializing')) {
+        loadPane.querySelector('strong').textContent=language()?'Cargando gimnasios…':'Loading Gym League…';
+        loadPane.querySelector('small').textContent=language()?'Cargando el catálogo y las medallas oficiales':'Loading the official Gym catalog and badge progress';
+      }
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init);
+  else init();
+})();
+</script>
 </body>
 </html>
