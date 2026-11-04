@@ -916,3 +916,20 @@ body{background:
 @media(max-width:640px) {
   .gv-page-refined.gv-initializing .gv-initial-loading {min-height:275px!important}
 }
+
+
+/* MastersMon Gyms V21 - full-viewport main arena background.
+   Image remains proportional; cover crops only the excess area. */
+body::before {
+  background-image: linear-gradient(90deg, rgba(2,12,29,.78) 0%, rgba(3,17,38,.53) 47%, rgba(2,12,29,.78) 100%), url('../assets/gyms/v2/bg_gym_main.webp?v=21') !important;
+  background-size: 100% 100%, cover !important;
+  background-position: center, center center !important;
+  background-repeat: no-repeat, no-repeat !important;
+  background-attachment: scroll, scroll !important;
+}
+@media (max-width: 700px) {
+  body::before {
+    background-position: center, center top !important;
+    background-image: linear-gradient(90deg, rgba(2,12,29,.84), rgba(3,17,38,.64), rgba(2,12,29,.84)), url('../assets/gyms/v2/bg_gym_main.webp?v=21') !important;
+  }
+}
