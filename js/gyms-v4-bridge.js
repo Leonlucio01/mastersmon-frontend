@@ -29,14 +29,14 @@
     const gym = getSelected();
     const ids = teamIds();
     const valid = ids.length === 6 && ids.every(Number.isSafeInteger) && ids.every(id => id > 0) && new Set(ids).size === 6;
-    const eligible = Boolean(gym && gym.desbloqueado && valid);
+    const eligible = Boolean(gym && gym.desbloqueado && !gym.completado && valid);
     if (button.disabled !== !eligible) button.disabled = !eligible;
     button.textContent = tr('⚔ Challenge Gym', '⚔ Desafiar Gimnasio');
     if (!catalog.length) notify(tr('Gym catalog is unavailable. Try refreshing the page.','El catálogo no está disponible. Recarga la página.'),true);
     else if (!gym) notify(tr('Choose a Gym Leader.','Selecciona un líder de gimnasio.'));
     else if (!gym.desbloqueado) notify(tr('Complete the required Gym to unlock this challenge.','Supera el gimnasio requerido para desbloquear este desafío.'));
     else if (!valid) notify(tr('Save 6 different Pokémon with valid IDs to your team first.','Guarda primero 6 Pokémon diferentes y válidos en tu equipo.'));
-    else if (gym.completado) notify(tr('Badge earned. You may challenge this leader again; rewards depend on the server.','Medalla conseguida. Puedes volver a desafiarlo; las recompensas dependen del servidor.'));
+    else if (gym.completado) notify(tr('Badge earned. This Gym cannot be challenged again under current server rules.','Medalla conseguida. Las reglas actuales del servidor no permiten repetir este gimnasio.'));
     else notify(tr('Ready. Battle and badge progress will be validated by the server.','Listo. El servidor validará el combate y el progreso de medallas.'));
   }
   function sessionFromResponse(gym, data) {
@@ -52,7 +52,7 @@
   async function challenge() {
     if (busy) return;
     const gym = getSelected(); const ids = teamIds();
-    if (!gym || !gym.desbloqueado || ids.length!==6 || ids.some(id=>!Number.isSafeInteger(id)||id<=0) || new Set(ids).size!==6) {sync();return;}
+    if (!gym || !gym.desbloqueado || gym.completado || ids.length!==6 || ids.some(id=>!Number.isSafeInteger(id)||id<=0) || new Set(ids).size!==6) {sync();return;}
     if (gym.completado && !confirm(tr('You already earned this badge. Challenge again?','Ya conseguiste esta medalla. ¿Desafiar nuevamente?'))) return;
     const levels = getTeam().map(p=>Number(p.nivel||0)).filter(x=>x>0);
     const average = levels.length===6 ? levels.reduce((a,b)=>a+b,0)/6 : 0;
