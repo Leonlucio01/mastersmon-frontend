@@ -710,3 +710,84 @@ body{background:
   }
 }
 /* ===== FIN gyms-v15-center.css ===== */
+
+/* ===== V17: full-bleed stadium + centered trainer, consolidated CSS =====
+   Keep the stadium as an independent image and never stretch the sprite.
+   The stadium uses cover, so it fills the full art surface, with natural cropping.
+*/
+.gv-page-refined .gv-leader-art {
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  padding:0!important;
+  background:var(--gv9-type-bg) center center / cover no-repeat!important;
+}
+.gv-page-refined .gv-leader-art .gv9-scene {
+  position:absolute!important;
+  inset:0!important;
+  z-index:1!important;
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  max-height:none!important;
+  max-width:none!important;
+  margin:0!important;
+  border:0!important;
+  border-radius:0!important;
+  object-fit:cover!important;
+  object-position:center 56%!important;
+  transform:none!important;
+}
+.gv-page-refined .gv-leader-art::before {
+  display:none!important;
+}
+.gv-page-refined .gv-leader-art::after {
+  content:"";
+  display:block;
+  position:absolute;
+  inset:0;
+  z-index:2;
+  pointer-events:none;
+  background:linear-gradient(to bottom,transparent 60%,rgba(0,0,0,.12) 100%);
+}
+.gv-page-refined .gv-leader-art #gvLeaderPortrait {
+  position:absolute!important;
+  z-index:3!important;
+  left:50%!important;
+  right:auto!important;
+  top:auto!important;
+  bottom:29px!important;
+  display:block;
+  height:75px!important;
+  max-height:75px!important;
+  width:auto!important;
+  max-width:50%!important;
+  object-fit:contain!important;
+  object-position:center bottom!important;
+  margin:0!important;
+  transform:translateX(-50%)!important;
+  transform-origin:center bottom!important;
+  image-rendering:pixelated;
+  filter:drop-shadow(0 3px 3px rgba(0,0,0,.9))!important;
+}
+.gv-page-refined .gv-leader-art #gvLeaderPortrait[hidden] {display:none!important}
+.gv-page-refined .gv-leader-art .gv-portrait-fallback {
+  left:50%!important;
+  bottom:31px!important;
+  transform:translateX(-50%)!important;
+  z-index:3!important;
+}
+@media(min-width:1180px) and (min-height:821px) {
+  .gv-page-refined .gv-leader-art #gvLeaderPortrait {
+    height:82px!important;
+    max-height:82px!important;
+    bottom:35px!important;
+  }
+}
+@media(max-width:1179px), (max-height:709px) {
+  .gv-page-refined .gv-leader-art #gvLeaderPortrait {
+    height:80px!important;
+    max-height:80px!important;
+    bottom:32px!important;
+  }
+}
