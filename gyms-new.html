@@ -1,17 +1,21 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MastersMon | Grand Gym Arena V2</title><meta name="theme-color" content="#06182c">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MastersMon | Grand Gym Arena V3 Compact</title>
+<meta name="theme-color" content="#06182c">
 <link rel="stylesheet" href="css/menu-unificado.css?v=2204">
 <link rel="stylesheet" href="css/gyms-new.css?v=310">
+<link rel="stylesheet" href="css/gyms-v5-visual.css?v=501">
+<link rel="stylesheet" href="css/gyms-v6-compact.css?v=601">
 <script defer src="js/api.js"></script>
 <script defer src="js/menu-unificado.js?v=2204"></script>
 <script defer src="js/gyms-new.js?v=310"></script>
 <script defer src="js/gyms-v4-bridge.js?v=400"></script>
-<link rel="stylesheet" href="css/gyms-v5-visual.css?v=501">
 <script defer src="js/sprites.js"></script>
 <script defer src="js/gyms-v5-visual.js?v=501"></script>
+<script defer src="js/gyms-v6-compact.js?v=601"></script>
 </head>
 <body>
 <header class="topbar unified-header masters-header" id="mastersHeader">
@@ -33,27 +37,109 @@
   </div>
  </div>
 </header>
-<main class="gv-page">
- <section class="gv-hero" aria-labelledby="gvTitle"><div class="gv-hero-content"><div class="gv-overline">MASTERSMON · GYM LEAGUE</div><h1 id="gvTitle">Grand Gym Arena</h1><p id="gvSubtitle">Challenge real Gym Leaders. Collect badges and unlock the next challenge.</p><div class="gv-hero-status" id="gvHeroStatus">Loading your Gym journey…</div></div><div class="gv-hero-counter"><span id="gvTotalLabel">BADGE PROGRESS</span><strong id="gvTotalBadges">— / —</strong><div class="gv-progress-track"><div id="gvTotalBar"></div></div></div></section>
- <section class="gv-regions" id="gvRegions" aria-label="Regions"></section>
- <div class="gv-layout">
-  <section class="gv-left">
-   <div class="gv-intro-line"><div><p class="gv-kicker" id="gvRouteKicker">REGIONAL CAMPAIGN</p><h2 id="gvRegionTitle">Kanto Gym League</h2></div><div class="gv-badge-counter" id="gvRegionCounter">—</div></div>
-   <div class="gv-main-grid">
-    <article class="gv-panel gv-leader-card"><div class="gv-panel-heading"><span id="gvLeaderEyebrow">GYM LEADER</span><span id="gvGymState" class="gv-state">—</span></div><div class="gv-leader-art"><img id="gvLeaderPortrait" src="" alt="Gym Leader" hidden><div id="gvLeaderFallback" class="gv-portrait-fallback">★</div></div><div class="gv-leader-info"><span class="gv-type" id="gvLeaderType">—</span><h2 id="gvLeaderName">—</h2><p id="gvLeaderCity">—</p></div></article>
-    <div class="gv-central">
-     <article class="gv-panel gv-team-panel"><div class="gv-panel-heading"><h3 id="gvTeamTitle">YOUR TEAM</h3><span id="gvTeamCount" class="gv-small-note">— / 6</span></div><div class="gv-team-list" id="gvTeamList"></div><div class="gv-panel-actions"><span id="gvTeamNotice">Your saved team is shown for preview.</span><a href="equipo.html" id="gvEditTeam">Edit Team ↗</a></div></article>
-     <article class="gv-panel gv-progress-panel"><div class="gv-panel-heading"><h3 id="gvProgressTitle">GYM PROGRESS</h3><span id="gvRegionalProgress">—</span></div><div class="gv-badge-grid" id="gvBadges"></div></article>
+
+<main class="gvc-page">
+  <section class="gv-hero" aria-labelledby="gvTitle">
+    <div class="gv-hero-content">
+      <div class="gv-overline">MASTERSMON · GYM LEAGUE</div>
+      <h1 id="gvTitle">Grand Gym Arena</h1>
+      <p id="gvSubtitle">Challenge real Gym Leaders. Collect badges and unlock the next challenge.</p>
+      <div class="gv-hero-status" id="gvHeroStatus">Loading your Gym journey…</div>
     </div>
-   </div>
-   <section class="gv-panel gv-leader-picker"><div class="gv-panel-heading"><h3 id="gvChooseTitle">CHOOSE A GYM</h3><span id="gvChooseCaption">Select a leader to inspect their challenge</span></div><div id="gvGymPicker" class="gv-picker-grid"></div></section>
-   <div class="gv-bottom-grid"><article class="gv-panel gv-req"><div class="gv-panel-heading"><h3 id="gvChallengeTitle">CHALLENGE INFO</h3></div><div id="gvChallengeInfo" class="gv-facts"></div></article><article class="gv-panel gv-rewards"><div class="gv-panel-heading"><h3 id="gvRewardTitle">REWARD PREVIEW</h3></div><div id="gvRewardInfo" class="gv-reward-list"></div></article></div>
+    <div class="gv-hero-counter">
+      <span id="gvTotalLabel">BADGE PROGRESS</span>
+      <strong id="gvTotalBadges">— / —</strong>
+      <div class="gv-progress-track"><div id="gvTotalBar"></div></div>
+    </div>
   </section>
-  <aside class="gv-right"><article class="gv-panel gv-dossier"><div class="gv-panel-heading"><h3 id="gvDetailsTitle">GYM DETAILS</h3></div><div class="gv-dossier-picture"><img src="assets/gyms/v2/bg_gym_detail.webp" alt="Gym arena" loading="lazy"></div><div class="gv-dossier-body"><h2 id="gvDossierName">—</h2><div class="gv-dossier-bits"><span id="gvDossierType">—</span><span id="gvDossierLevel">—</span></div><div id="gvDossierFacts" class="gv-facts"></div><h3 id="gvDossierDescLabel">ABOUT THIS GYM</h3><p id="gvDossierDescription">—</p><div id="gvEnemyRoster" class="gv-enemies"></div></div></article>
-   <div class="gv-challenge-block"><button id="gvChallengeBtn" type="button" disabled>⚔ Challenge Gym</button><div id="gvBattleNote" role="status" aria-live="polite">Loading challenge eligibility…</div><a href="gyms.html" id="gvClassicLink">Open current Gyms ↗</a></div>
-  </aside>
- </div>
- <footer class="gv-footer"><span>MASTERSMON · GRAND GYM ARENA V2</span><span id="gvFooterStage">Stage 4 · Server-backed Gym challenge integration</span></footer>
+
+  <section class="gv-regions" id="gvRegions" aria-label="Regions"></section>
+
+  <section class="gvc-progress-strip">
+    <article class="gvc-mini-panel">
+      <span class="gvc-mini-label">GYM PROGRESS</span>
+      <div class="gvc-mini-main"><strong id="gvcRegionalProgress">—</strong></div>
+    </article>
+    <article class="gvc-mini-panel">
+      <span class="gvc-mini-label">CURRENT REGION</span>
+      <div class="gvc-mini-main"><strong id="gvcRegionTitleMirror">—</strong></div>
+    </article>
+  </section>
+
+  <section class="gvc-panel gvc-picker-panel">
+    <div class="gvc-panel-heading">
+      <h3 id="gvChooseTitleVisual">CHOOSE A GYM</h3>
+      <span id="gvChooseCaptionVisual">Select a Gym Leader</span>
+    </div>
+    <div id="gvcPickerHost"></div>
+  </section>
+
+  <section class="gvc-panel gvc-vs-panel">
+    <div class="gvc-arena-head">
+      <div class="gvc-gym-title-wrap">
+        <h2 id="gvcSelectedGymName">—</h2>
+        <span class="gvc-gym-type" id="gvcSelectedType">—</span>
+      </div>
+    </div>
+    <div class="gvc-vs-grid">
+      <article class="gvc-side-panel">
+        <div class="gvc-side-title">YOUR TEAM</div>
+        <div id="gvcTeamHost"></div>
+      </article>
+
+      <article class="gvc-center-panel">
+        <div class="gvc-arena-scene">
+          <div class="gvc-vs-badge">VS</div>
+          <div class="gvc-leader-card-mini">
+            <div class="gvc-leader-portrait"><img id="gvcLeaderPortraitImg" src="" alt="Gym Leader"></div>
+            <small>Gym Leader</small>
+            <strong id="gvcLeaderName">—</strong>
+          </div>
+        </div>
+      </article>
+
+      <article class="gvc-side-panel">
+        <div class="gvc-side-title">LEADER TEAM</div>
+        <div id="gvcEnemyHost"></div>
+      </article>
+    </div>
+  </section>
+
+  <div class="gvc-bottom-grid">
+    <article class="gvc-panel gvc-bottom-card">
+      <div class="gvc-panel-heading"><h3>CHALLENGE INFO</h3></div>
+      <div id="gvcChallengeInfoHost"></div>
+    </article>
+
+    <article class="gvc-panel gvc-bottom-card">
+      <div class="gvc-panel-heading"><h3>REWARD PREVIEW</h3></div>
+      <div id="gvcRewardInfoHost"></div>
+    </article>
+
+    <article class="gvc-panel gvc-action-card">
+      <div class="gvc-panel-heading"><h3>CHALLENGE GYM</h3></div>
+      <div id="gvcActionHost"></div>
+    </article>
+  </div>
+
+  <footer class="gvc-footer"><span>MASTERSMON · GRAND GYM ARENA V3</span><span id="gvFooterStage">Compact VS prototype with server-backed Gym challenge integration</span></footer>
+
+  <!-- Hidden source layout. Original scripts keep using these IDs; V6 moves the live nodes above. -->
+  <div class="gvc-source" aria-hidden="true">
+    <div class="gv-intro-line"><div><p class="gv-kicker" id="gvRouteKicker">REGIONAL CAMPAIGN</p><h2 id="gvRegionTitle">Kanto Gym League</h2></div><div class="gv-badge-counter" id="gvRegionCounter">—</div></div>
+    <div class="gv-main-grid">
+      <article class="gv-panel gv-leader-card"><div class="gv-panel-heading"><span id="gvLeaderEyebrow">GYM LEADER</span><span id="gvGymState" class="gv-state">—</span></div><div class="gv-leader-art"><img id="gvLeaderPortrait" src="" alt="Gym Leader" hidden><div id="gvLeaderFallback" class="gv-portrait-fallback">★</div></div><div class="gv-leader-info"><span class="gv-type" id="gvLeaderType">—</span><h2 id="gvLeaderName">—</h2><p id="gvLeaderCity">—</p></div></article>
+      <div class="gv-central">
+        <article class="gv-panel gv-team-panel"><div class="gv-panel-heading"><h3 id="gvTeamTitle">YOUR TEAM</h3><span id="gvTeamCount" class="gv-small-note">— / 6</span></div><div class="gv-team-list" id="gvTeamList"></div><div class="gv-panel-actions"><span id="gvTeamNotice">Your saved team is shown for preview.</span><a href="equipo.html" id="gvEditTeam">Edit Team ↗</a></div></article>
+        <article class="gv-panel gv-progress-panel"><div class="gv-panel-heading"><h3 id="gvProgressTitle">GYM PROGRESS</h3><span id="gvRegionalProgress">—</span></div><div class="gv-badge-grid" id="gvBadges"></div></article>
+      </div>
+    </div>
+    <section class="gv-panel gv-leader-picker"><div class="gv-panel-heading"><h3 id="gvChooseTitle">CHOOSE A GYM</h3><span id="gvChooseCaption">Select a leader to inspect their challenge</span></div><div id="gvGymPicker" class="gv-picker-grid"></div></section>
+    <div class="gv-bottom-grid"><article class="gv-panel gv-req"><div class="gv-panel-heading"><h3 id="gvChallengeTitle">CHALLENGE INFO</h3></div><div id="gvChallengeInfo" class="gv-facts"></div></article><article class="gv-panel gv-rewards"><div class="gv-panel-heading"><h3 id="gvRewardTitle">REWARD PREVIEW</h3></div><div id="gvRewardInfo" class="gv-reward-list"></div></article></div>
+    <aside class="gv-right"><article class="gv-panel gv-dossier"><div class="gv-panel-heading"><h3 id="gvDetailsTitle">GYM DETAILS</h3></div><div class="gv-dossier-picture"><img src="assets/gyms/v2/bg_gym_detail.webp" alt="Gym arena" loading="lazy"></div><div class="gv-dossier-body"><h2 id="gvDossierName">—</h2><div class="gv-dossier-bits"><span id="gvDossierType">—</span><span id="gvDossierLevel">—</span></div><div id="gvDossierFacts" class="gv-facts"></div><h3 id="gvDossierDescLabel">ABOUT THIS GYM</h3><p id="gvDossierDescription">—</p><div id="gvEnemyRoster" class="gv-enemies"></div></div></article>
+     <div class="gv-challenge-block"><button id="gvChallengeBtn" type="button" disabled>⚔ Challenge Gym</button><div id="gvBattleNote" role="status" aria-live="polite">Loading challenge eligibility…</div><a href="gyms.html" id="gvClassicLink">Open current Gyms ↗</a></div>
+    </aside>
+  </div>
 </main>
 </body>
 </html>
