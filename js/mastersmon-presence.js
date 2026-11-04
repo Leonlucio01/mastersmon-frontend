@@ -1,15 +1,14 @@
-/* MastersMon Presence V2.2 - Shared authenticated heartbeat.
+/* MastersMon Presence V2.3 - Shared authenticated heartbeat.
  * Frontend only. Uses /usuario/actividad; no login or database changes.
  */
 (() => {
   'use strict';
-  if (window.__mastersmonPresenceV22) return;
-  window.__mastersmonPresenceV22 = true;
+  if (window.__mastersmonPresenceV23) return;
+  window.__mastersmonPresenceV23 = true;
 
-  const PREFIX = 'mm-presence-v22';
+  const PREFIX = 'mm-presence-v23';
   const SESSION_KEY = PREFIX + '-session';
   const BEAT_MS = 45000;
-  const IDLE_MS = 120000;
   const RETRY_MS = 12000;
   const RANK_REFRESH_MS = 15000;
   const API_FALLBACK = 'https://mastersmon-api.onrender.com';
@@ -18,6 +17,8 @@
   const acceptedPages = new Set(['index', 'battle', 'battle-arena', 'maps', 'mypokemon', 'pokemart', 'ranking', 'login']);
   const page = acceptedPages.has(pageName) ? pageName : pageName.startsWith('ranking') ? 'ranking' : 'global';
   let lastInteraction = Date.now();
+  let lastOk = 0;
+  let lastError = null;
   let lastSent = 0;
   let pending = false;
   let stopped = false;
@@ -48,7 +49,7 @@
     }
     return sessionId;
   }
-  function activeTab() { return document.visibilityState !== 'hidden' && Date.now() - lastInteraction < IDLE_MS; }
+  function activeTab() { return document.visibilityState !== 'hidden'; }
   function hasAuth() { return Boolean(token()); }
   function post(action, keepalive = false) {
     const jwt = token();
@@ -61,7 +62,7 @@
       cache: 'no-store',
       credentials: 'omit',
       keepalive
-    }).then(resp => resp.ok ? resp.json().then(data => Boolean(data && data.ok)) : false).catch(() => false);
+    }).then(resp => resp.ok ? resp.json().then(data => Boolean(data && data.ok)) : (lastError = 'HTTP ' + resp.status, false)).catch(e => (lastError = String(e && e.message || e), false));
   }
   async function beat(force = false) {
     if (stopped || pending || !hasAuth() || !activeTab()) return;
@@ -75,6 +76,8 @@
     if (ok) {
       loginRecorded = true;
       lastSent = Date.now();
+      lastOk = lastSent;
+      lastError = null;
       retryAfter = 0;
     } else {
       retryAfter = Date.now() + RETRY_MS;
@@ -91,10 +94,7 @@
     }
   }
   function onSessionChanged(event) {
-    if (!event || !event.detail || !event.detail.usuario) {
-      stopped = true;
-      return;
-    }
+    if (!hasAuth()) { stopped = true; return; }
     stopped = false;
     lastInteraction = Date.now();
     tokenHash = '';
@@ -115,7 +115,7 @@
   window.addEventListener('focus', onVisible);
   window.addEventListener('pageshow', () => { stopped = false; onVisible(); });
   // Do not mark offline during normal navigation: the same session continues on the next page.
-  window.setInterval(() => { if (!stopped) beat(); }, BEAT_MS);
+  window.setInterval(() => { if (hasAuth()) { if (stopped) stopped = false; beat(); } }, BEAT_MS);
 
   // Ranking counter: do not wait for the ranking page's slower full-list refresh.
   async function refreshRankingCount() {
@@ -140,5 +140,5 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => beat(true), { once: true });
   else beat(true);
   window.setTimeout(refreshRankingCount, 2000);
-  window.MastersMonPresence = { refresh: () => { lastInteraction = Date.now(); return beat(true); } };
+  window.MastersMonPresence = { refresh: () => { lastInteraction = Date.now(); return beat(true); }, status: () => ({ page, authenticated: hasAuth(), visible: activeTab(), lastOk: lastOk ? new Date(lastOk).toISOString() : null, lastError, session: Boolean(sessionId) }) }; 
 })();

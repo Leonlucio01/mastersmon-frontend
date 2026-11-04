@@ -13,3 +13,13 @@
   document.documentElement.classList.toggle('mm-visitor-halloween', halloween);
   document.documentElement.classList.toggle('mm-visitor-christmas', christmas);
 })();
+
+/* Presence V2.3: record login from the visitor/login screen. */
+(()=>{
+ if(window.__mmPresenceLoaderRequested)return;
+ window.__mmPresenceLoaderRequested=true;
+ const s=document.createElement('script');
+ s.src='js/mastersmon-presence.js?v=2301';
+ s.async=true;
+ (document.head||document.documentElement).appendChild(s);
+})();

@@ -54,12 +54,12 @@
  };
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready,{once:true});else ready();
 })();
-/* MastersMon Presence V2.2: load once from the shared header script. */
+/* MastersMon Presence V2.3: load once from the shared header script. */
 (()=>{
  if(window.__mmPresenceLoaderRequested)return;
  window.__mmPresenceLoaderRequested=true;
  const s=document.createElement('script');
- s.src='js/mastersmon-presence.js?v=2213';
+ s.src='js/mastersmon-presence.js?v=2301';
  s.async=true;
  (document.head||document.documentElement).appendChild(s);
 })();

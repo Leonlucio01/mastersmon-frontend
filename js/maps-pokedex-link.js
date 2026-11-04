@@ -46,12 +46,12 @@
         }
     };
 })();
-/* MastersMon Presence V2.2: register activity on the maps page too. */
+/* MastersMon Presence V2.3: register activity on the maps page too. */
 (()=>{
  if(window.__mmPresenceLoaderRequested)return;
  window.__mmPresenceLoaderRequested=true;
  const s=document.createElement('script');
- s.src='js/mastersmon-presence.js?v=2213';
+ s.src='js/mastersmon-presence.js?v=2301';
  s.async=true;
  (document.head||document.documentElement).appendChild(s);
 })();
