@@ -8,6 +8,7 @@
 <script defer src="js/api.js"></script>
 <script defer src="js/menu-unificado.js?v=2204"></script>
 <script defer src="js/gyms-new.js?v=310"></script>
+<script defer src="js/gyms-v4-bridge.js?v=400"></script>
 </head>
 <body>
 <header class="topbar unified-header masters-header" id="mastersHeader">
@@ -46,10 +47,10 @@
    <div class="gv-bottom-grid"><article class="gv-panel gv-req"><div class="gv-panel-heading"><h3 id="gvChallengeTitle">CHALLENGE INFO</h3></div><div id="gvChallengeInfo" class="gv-facts"></div></article><article class="gv-panel gv-rewards"><div class="gv-panel-heading"><h3 id="gvRewardTitle">REWARD PREVIEW</h3></div><div id="gvRewardInfo" class="gv-reward-list"></div></article></div>
   </section>
   <aside class="gv-right"><article class="gv-panel gv-dossier"><div class="gv-panel-heading"><h3 id="gvDetailsTitle">GYM DETAILS</h3></div><div class="gv-dossier-picture"><img src="assets/gyms/v2/bg_gym_detail.webp" alt="Gym arena" loading="lazy"></div><div class="gv-dossier-body"><h2 id="gvDossierName">—</h2><div class="gv-dossier-bits"><span id="gvDossierType">—</span><span id="gvDossierLevel">—</span></div><div id="gvDossierFacts" class="gv-facts"></div><h3 id="gvDossierDescLabel">ABOUT THIS GYM</h3><p id="gvDossierDescription">—</p><div id="gvEnemyRoster" class="gv-enemies"></div></div></article>
-   <div class="gv-challenge-block"><button id="gvChallengeBtn" type="button" disabled>⚔ Challenge Gym</button><div id="gvBattleNote" role="status" aria-live="polite">Stage 3 visual preview · Gym battles stay on the current page until Stage 4.</div><a href="gyms.html" id="gvClassicLink">Open current Gyms ↗</a></div>
+   <div class="gv-challenge-block"><button id="gvChallengeBtn" type="button" disabled>⚔ Challenge Gym</button><div id="gvBattleNote" role="status" aria-live="polite">Loading challenge eligibility…</div><a href="gyms.html" id="gvClassicLink">Open current Gyms ↗</a></div>
   </aside>
  </div>
- <footer class="gv-footer"><span>MASTERSMON · GRAND GYM ARENA V2</span><span id="gvFooterStage">Stage 3 · Visual preview with real backend data</span></footer>
+ <footer class="gv-footer"><span>MASTERSMON · GRAND GYM ARENA V2</span><span id="gvFooterStage">Stage 4 · Server-backed Gym challenge integration</span></footer>
 </main>
 </body>
 </html>
