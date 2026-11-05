@@ -65,3 +65,29 @@ body:has(.mm23-rival) .panel.left .team-list .teammate.mm27-fainted{opacity:.60;
 body:has(.mm23-rival) .panel.left .team-list .teammate .team-hp{display:block;height:4px;border-radius:4px;background:#183b4e;margin:6px 2px 0;overflow:hidden}
 body:has(.mm23-rival) .panel.left .team-list .teammate .team-hp i{display:block;height:100%;border-radius:4px;transition:width .22s}
 body:has(.mm23-rival) .panel.left .team-list .teammate:focus-visible{outline:2px solid #8be7ff;outline-offset:2px}
+
+/* V28: Gym switch panel uses the same 3-column / 2-row composition as AI battle. */
+body:has(.mm23-rival) .move-grid:has(.mm25-switch){
+ display:grid;
+ grid-template-columns:repeat(3,minmax(0,1fr));
+ gap:6px;
+}
+body:has(.mm23-rival) .move-grid .mm25-switch{
+ min-width:0;
+ min-height:58px;
+ padding:5px 7px;
+ gap:6px;
+}
+body:has(.mm23-rival) .mm25-switch img{width:29px;height:37px;flex:0 0 29px}
+body:has(.mm23-rival) .mm25-switch strong{font-size:11px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+body:has(.mm23-rival) .mm25-switch small{font-size:9px}
+body:has(.mm23-rival) .mm25-switch-health{margin-top:4px}
+body:has(.mm23-rival) .move-grid:has(.mm28-item){display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+body:has(.mm23-rival) .move-grid .mm28-item{min-width:0;min-height:66px;padding:7px 6px;display:flex;align-items:center;text-align:left;gap:6px;background:linear-gradient(135deg,#123d61,#0b2745);border:1px solid #397fa9;color:#f2faff;border-radius:6px;opacity:.78;cursor:not-allowed}
+body:has(.mm23-rival) .mm28-item-icon{font-size:22px;line-height:1}
+body:has(.mm23-rival) .mm28-item-copy{display:grid;gap:2px;min-width:0}
+body:has(.mm23-rival) .mm28-item-copy strong{font-size:11px;white-space:normal}
+body:has(.mm23-rival) .mm28-item-copy small{color:#a6d4f1;font-size:9px}
+body:has(.mm23-rival) .mm28-item-copy em{font-size:9px;font-style:normal;color:#ffcf81}
+body:has(.mm23-rival) .mm28-item-note{grid-column:1/-1;margin:2px 0 0;font-size:10px;color:#b7d7ee}
+@media(max-width:720px){body:has(.mm23-rival) .move-grid:has(.mm25-switch),body:has(.mm23-rival) .move-grid:has(.mm28-item){grid-template-columns:repeat(2,minmax(0,1fr))}}
