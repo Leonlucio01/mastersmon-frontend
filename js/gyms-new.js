@@ -100,7 +100,7 @@
     const done=STATE.gyms.filter(g=>g.completed).length,total=STATE.gyms.length;
     $('gvTotalBadges').textContent=`${done} / ${total||'—'}`;
     $('gvTotalBar').style.width=total?`${done/total*100}%`:'0%';
-    $('gvHeroStatus').textContent=STATE.error?`${t('Could not connect to Gym data:','No se pudo conectar a los datos de gimnasios:')} ${STATE.error}`:STATE.loaded?t('Synced with official Gym catalog','Sincronizado con el catálogo oficial de gimnasios'):t('Loading official Gym data…','Cargando datos oficiales de gimnasios…');
+    $('gvHeroStatus').textContent=STATE.error?`${t('Could not connect to Gym data:','No se pudo conectar a los datos de gimnasios:')} ${STATE.error}`:STATE.continueNotice|| (STATE.loaded?t('Synced with official Gym catalog','Sincronizado con el catálogo oficial de gimnasios'):t('Loading official Gym data…','Cargando datos oficiales de gimnasios…'));
     $('gvHeroStatus').classList.toggle('gv-error',!!STATE.error);
   }
   async function load(){
@@ -117,8 +117,29 @@
       if(!STATE.gyms.some(g=>g.region===STATE.region))STATE.region=REGIONS.find(r=>STATE.gyms.some(g=>g.region===r))||'kanto';
       const list=regionGyms();
       STATE.selected=list.some(g=>g.code===saved.gymId)?saved.gymId:(list.find(g=>g.unlocked&&!g.completed)||list.find(g=>g.unlocked)||list[0])?.code||null;
+      STATE.continueNotice=selectAfterVictory();
     }catch(err){STATE.error=String(err?.message||err);STATE.gyms=[];STATE.loaded=false;console.warn('[Gyms V2] Official data unavailable:',err)}
     render();
+  }
+  function selectAfterVictory(){
+    const params=new URLSearchParams(location.search);
+    const fromRegion=String(params.get('fromRegion')||'').toLowerCase();
+    const afterGym=String(params.get('afterGym')||'');
+    if(!REGIONS.includes(fromRegion)||!afterGym)return '';
+    const list=STATE.gyms.filter(g=>g.region===fromRegion).sort((a,b)=>a.order-b.order);
+    const index=list.findIndex(g=>g.code===afterGym);
+    if(index<0)return '';
+    // Prefer the next unlocked and unfinished Gym, using freshly fetched backend status.
+    const next=list.slice(index+1).find(g=>g.unlocked&&!g.completed);
+    const upcoming=next||list[index+1]||null;
+    STATE.region=fromRegion;
+    STATE.selected=upcoming?.code||list[index]?.code||null;
+    // A locked Gym is previewed only: the existing Challenge button remains disabled.
+    const notice=next?t('Next Gym Leader selected. Choose Challenge Gym when ready.','Siguiente líder seleccionado. Presiona Desafiar Gimnasio cuando estés listo.')
+      :upcoming?t('The next Gym is locked. Complete its requirement to continue.','El siguiente gimnasio está bloqueado. Cumple su requisito para continuar.')
+      :t('Regional Gym League completed! Choose another region to continue.','¡Liga regional completada! Elige otra región para continuar.');
+    history.replaceState(history.state,'',location.pathname+location.hash);
+    return notice;
   }
   function lang(){const selected=document.querySelector('.language button.active');const raw=selected?.dataset.lang||localStorage.getItem('mastersmon_language')||localStorage.getItem('language')||document.documentElement.lang||'en';return String(raw).toLowerCase().startsWith('es')?'es':'en'}
   document.addEventListener('DOMContentLoaded',()=>{

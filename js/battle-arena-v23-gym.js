@@ -76,7 +76,21 @@ function showGymResultModal(){
  const title=r.error?word('Result pending','Resultado pendiente'):won?word('Victory!','¡Victoria!'):word('Defeat','Derrota');
  const detail=r.error?word('The server has not confirmed the result. Check Gym progress before retrying.','El servidor aún no confirmó el resultado. Comprueba el progreso antes de reintentar.'):won?word('Your victory was recorded by the server.','El servidor registró tu victoria.'):word('Your Gym challenge has ended.','Tu desafío de gimnasio ha terminado.');
  const modal=document.createElement('div');modal.id='mm29-result-modal';modal.className='mm29-overlay';modal.innerHTML=`<section class="mm29-modal" role="dialog" aria-modal="true" aria-labelledby="mm29-result-title"><div class="mm29-crest">${won?'🏅':r.error?'!':'⚔'}</div><h2 id="mm29-result-title">${title}</h2><p>${detail}</p>${won?`<div class="mm29-reward"><span>🏅</span><div><small>${word('Badge obtained','Medalla obtenida')}</small><strong>${esc(info?.gym?.badge||'Gym Badge')}</strong></div></div>`:''}<div class="mm29-modal-actions"><button type="button" class="mm29-go">${word('Return to Gyms','Volver a Gimnasios')}</button><button type="button" class="mm29-continue">${word('Continue','Continuar')}</button></div></section>`;
- document.body.appendChild(modal);modal.querySelector('.mm29-go').onclick=()=>exitGym();modal.querySelector('.mm29-continue').onclick=()=>modal.remove();modal.querySelector('.mm29-go').focus();
+ document.body.appendChild(modal);modal.querySelector('.mm29-go').onclick=()=>exitGym();modal.querySelector('.mm29-continue').onclick=()=>continueAfterGym();modal.querySelector('.mm29-go').focus();
+}
+function continueAfterGym(){
+ // Never resume a finalized battle: navigate to the official catalogue to select the next Gym.
+ stopAuto();
+ sessionStorage.removeItem(KEY);
+ sessionStorage.removeItem(MODE);
+ if(!finishResult?.won||finishResult?.error){location.assign('gyms-new.html');return;}
+ const gym=info?.gym||{};
+ const region=String(gym.region||'').toLowerCase().replace(/[^a-z0-9_-]/g,'');
+ const code=String(gym.codigo||gym.id||'').replace(/[^a-zA-Z0-9_-]/g,'');
+ const params=new URLSearchParams();
+ if(region)params.set('fromRegion',region);
+ if(code)params.set('afterGym',code);
+ location.assign('gyms-new.html'+(params.toString()?'?'+params.toString():''));
 }
 function scheduleAuto(){if(autoEnabled&&!ended){if(autoTimer)clearTimeout(autoTimer);autoTimer=setTimeout(autoNext,800);}}
 function setHP(prefix,p){const ratio=Math.max(0,Math.min(100,100*p.hp/p.max));$(prefix+'Hp').textContent=`${p.hp} / ${p.max}`;$(prefix+'HpBar').style.width=ratio+'%';$(prefix+'HpBar').style.background=ratio<20?'#ee5771':ratio<50?'#f0c35c':'#1fcda3';}
