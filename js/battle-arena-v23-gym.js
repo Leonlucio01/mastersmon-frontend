@@ -19,7 +19,45 @@ function norm(x,i,side){const p=x.pokemon||x;return {...p,pid:num(p.pokemon_id||
 function badge(msg){$('notice').textContent=msg;}
 function log(msg,kind=''){const el=document.createElement('p');el.textContent=msg;el.className='mm29-log '+(kind?'mm29-log-'+kind:'');$('logLines').prepend(el);while($('logLines').children.length>8)$('logLines').lastChild.remove()}
 function stopAuto(){autoEnabled=false;if(autoTimer){clearTimeout(autoTimer);autoTimer=null;}const b=document.querySelector('[data-panel="auto"]');if(b){b.textContent=word('▶ Auto','▶ Auto');b.classList.remove('chosen');} }
-function autoNext(){if(!autoEnabled||ended)return;if(busy||loadingMoves){autoTimer=setTimeout(autoNext,300);return;}if(players[active]?.hp<=0){stopAuto();return;}if(!moves.length){stopAuto();log(word('Auto stopped: no equipped moves.','Auto detenido: no hay movimientos.'));return;}const best=moves.slice().sort((a,b)=>((num(b.potencia)||40)*multiplier(b.tipo,foes[enemy]))-((num(a.potencia)||40)*multiplier(a.tipo,foes[enemy])))[0];attack(best);}
+// Same decision criteria as Battle vs IA: expected damage, accuracy, priority and KO potential.
+// Keep Gym's existing damage() function unchanged: this only estimates the best equipped move.
+function expectedGymDamage(attacker,target,move){
+ const power=num(move.potencia)||40;
+ const special=/especial|special/i.test(move.categoria||move.clase||'');
+ const offense=special?attacker.spa:attacker.atk;
+ const defense=Math.max(1,special?target.spd:target.def);
+ const type=alias[slug(move.tipo)]||slug(move.tipo);
+ const effectiveness=multiplier(move.tipo,target);
+ const stab=types(attacker).includes(type)?1.3:1;
+ const base=((2*attacker.level/5+2)*Math.max(10,power)*offense/defense)/50+2;
+ // Expected roll (.94) instead of generating random values while evaluating moves.
+ return Math.max(0,Math.floor(base*stab*effectiveness*.94));
+}
+function gymMoveScore(move,attacker,target){
+ const damage=expectedGymDamage(attacker,target,move);
+ const accuracy=Math.min(100,Math.max(1,Number(move.precision_pct??move.precision??100)||100))/100;
+ const priority=Number(move.prioridad??move.priority??0)||0;
+ const finishing=damage>=Math.max(1,target.hp)?60:0;
+ // Battle vs IA scoring: damage * accuracy + (priority * 8) + KO bonus.
+ return damage*accuracy+priority*8+finishing;
+}
+function bestGymAutoMove(attacker,target){
+ if(!attacker||!target||!moves.length)return null;
+ return moves.reduce((best,current)=>
+   !best||gymMoveScore(current,attacker,target)>gymMoveScore(best,attacker,target)?current:best,null);
+}
+function autoNext(){
+ autoTimer=null;
+ if(!autoEnabled||ended)return;
+ if(busy||loadingMoves){autoTimer=setTimeout(autoNext,300);return;}
+ const attacker=players[active],target=foes[enemy];
+ if(!attacker||attacker.hp<=0){stopAuto();return;}
+ if(!target||target.hp<=0){stopAuto();return;}
+ if(!moves.length){stopAuto();log(word('Auto stopped: no equipped moves.','Auto detenido: no hay movimientos.'));return;}
+ const best=bestGymAutoMove(attacker,target);
+ if(!best){stopAuto();return;}
+ attack(best);
+}
 function startAuto(){if(ended||busy)return;autoEnabled=true;panel='moves';const b=document.querySelector('[data-panel="auto"]');if(b){b.textContent=word('■ Stop Auto','■ Detener Auto');b.classList.add('chosen');}drawPanel();autoTimer=setTimeout(autoNext,200);}
 function floatDamage(prefix,value,effect){const stage=document.querySelector('.stage');if(!stage)return;const el=document.createElement('span');el.className='mm24-damage '+(prefix==='enemy'?'mm24-rival-damage':'mm24-player-damage');el.textContent=(value===0?word('IMMUNE','INMUNE'):'-'+value);stage.appendChild(el);setTimeout(()=>el.remove(),1100)}
 function animateHit(prefix,value,effect){const image=$(prefix+'Image');if(image){image.classList.remove('mm24-hit');void image.offsetWidth;image.classList.add('mm24-hit');setTimeout(()=>image.classList.remove('mm24-hit'),600);}floatDamage(prefix,value,effect)}
