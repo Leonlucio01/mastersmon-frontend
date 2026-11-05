@@ -52,3 +52,16 @@ body:has(.mm23-rival) .move-grid:has(.mm25-result){display:block}
 body:has(.mm23-rival) footer{display:none}
 @media(max-width:720px){.mm25-result{flex-wrap:wrap}.mm25-return{width:100%}}
 @media(prefers-reduced-motion:reduce){body:has(.mm23-rival) .stage .combatant.mm24-lunge,body:has(.mm23-rival) .stage .combatant.mm24-hit{animation:none!important}}
+
+/* V27: exact side-team treatment from Battle vs IA; scoped only to Gym mode. */
+body:has(.mm23-rival) .panel.left .team-list .teammate{
+  color:#f6fcff; font:inherit; cursor:pointer; padding:7px 4px;
+  background:linear-gradient(135deg,color-mix(in srgb,var(--type,#2681b9) 30%,#05203d),#072038);
+  border:1px solid color-mix(in srgb,var(--type,#2681b9) 60%,#39759a);
+  border-bottom:2px solid var(--type,#2681b9);
+}
+body:has(.mm23-rival) .panel.left .team-list .teammate.is-active{border-color:#ffe394;box-shadow:0 0 0 1px #ffe39455}
+body:has(.mm23-rival) .panel.left .team-list .teammate.mm27-fainted{opacity:.60;filter:grayscale(.55)}
+body:has(.mm23-rival) .panel.left .team-list .teammate .team-hp{display:block;height:4px;border-radius:4px;background:#183b4e;margin:6px 2px 0;overflow:hidden}
+body:has(.mm23-rival) .panel.left .team-list .teammate .team-hp i{display:block;height:100%;border-radius:4px;transition:width .22s}
+body:has(.mm23-rival) .panel.left .team-list .teammate:focus-visible{outline:2px solid #8be7ff;outline-offset:2px}
