@@ -28,3 +28,27 @@ body:has(.mm23-rival) .stage .combatant{object-fit:contain}
 @keyframes mm24-player-lunge{0%,100%{transform:translateX(0)}46%{transform:translateX(24px)}}
 @keyframes mm24-enemy-lunge{0%,100%{transform:translateX(0)}46%{transform:translateX(-24px)}}
 @media(prefers-reduced-motion:reduce){.mm24-damage,.stage .combatant.mm24-hit,.stage .combatant.mm24-lunge{animation:none!important}}
+
+/* V25: keep the player's native mirrored sprite orientation during animations. */
+body:has(.mm23-rival) .stage .combatant.player-img.mm24-lunge{animation:mm25-player-lunge .50s ease-out!important}
+body:has(.mm23-rival) .stage .combatant.player-img.mm24-hit{animation:mm25-player-hit .48s ease-in-out!important}
+body:has(.mm23-rival) .stage .combatant.enemy-img.mm24-lunge{animation:mm25-enemy-lunge .50s ease-out!important}
+body:has(.mm23-rival) .stage .combatant.enemy-img.mm24-hit{animation:mm25-enemy-hit .48s ease-in-out!important}
+@keyframes mm25-player-lunge{0%,100%{transform:scaleX(-1) translateX(0)}46%{transform:scaleX(-1) translateX(-24px)}}
+@keyframes mm25-enemy-lunge{0%,100%{transform:translateX(0)}46%{transform:translateX(-24px)}}
+@keyframes mm25-player-hit{0%,100%{transform:scaleX(-1);filter:brightness(1)}35%{transform:scaleX(-1) translateX(6px);filter:brightness(2)}65%{transform:scaleX(-1) translateX(-6px);opacity:.65}}
+@keyframes mm25-enemy-hit{0%,100%{transform:translateX(0);filter:brightness(1)}35%{transform:translateX(6px);filter:brightness(2)}65%{transform:translateX(-6px);opacity:.65}}
+body:has(.mm23-rival) .move-grid .mm25-move{min-height:75px;position:relative;padding:8px 10px;border-left:4px solid var(--move-color,#258dc2);background:linear-gradient(110deg,color-mix(in srgb,var(--move-color,#258dc2) 24%,#061c3a),#071e3a);padding-bottom:9px}
+body:has(.mm23-rival) .move-grid .mm25-move strong{font-size:13px}
+body:has(.mm23-rival) .move-grid .mm25-move small{display:block;font-size:10px}
+body:has(.mm23-rival) .mm25-switch{display:flex;align-items:center;flex-direction:row;gap:8px;text-align:left;min-height:70px;background:#0a3052}
+.mm25-switch img{width:42px;height:45px;object-fit:contain;flex:none}.mm25-switch>span{flex:1;min-width:0}.mm25-switch strong,.mm25-switch small{display:block}.mm25-switch-health{display:block;height:4px;margin-top:5px;background:#12314c;border-radius:5px;overflow:hidden}.mm25-switch-health i{display:block;height:100%;background:#29cda3}
+body:has(.mm23-rival) .move-grid:has(.mm25-result){display:block}
+.mm25-result{border:1px solid #368cc0;border-radius:9px;background:linear-gradient(115deg,#123756,#071e35);padding:12px;display:flex;align-items:center;gap:12px;min-height:130px}
+.mm25-result.is-win{border-color:#e6bd60;background:linear-gradient(115deg,#274125,#081f37)}
+.mm25-result-icon{font-size:34px;flex:none}.mm25-result-copy{flex:1;min-width:0}.mm25-result-copy strong{font-size:17px;color:#ffdf8f}.mm25-result-copy p{color:#c8e6fa;font-size:11px;margin:6px 0}.mm25-result-copy small{color:#ffd878}
+.mm25-return{border:1px solid #e7bc63;border-radius:6px;background:linear-gradient(#ffe39a,#e0a837);color:#0a2438;font-weight:800;padding:10px 12px}
+.mm25-return:disabled{opacity:.5}
+body:has(.mm23-rival) footer{display:none}
+@media(max-width:720px){.mm25-result{flex-wrap:wrap}.mm25-return{width:100%}}
+@media(prefers-reduced-motion:reduce){body:has(.mm23-rival) .stage .combatant.mm24-lunge,body:has(.mm23-rival) .stage .combatant.mm24-hit{animation:none!important}}
