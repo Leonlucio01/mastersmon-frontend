@@ -66,6 +66,22 @@ function renderTeam(card){
  section.append(make('small','mm31-disclaimer',t('Solo se muestran datos confirmados; no se calculan EXP ni niveles en el navegador.','Only confirmed data is shown; EXP and levels are not calculated in the browser.')));
  return section;
 }
+function safeBadgeAsset(gym){
+ const trusted=(initial?.gym?.badgeAssetPath||gym?.badge_asset_path||gym?.badgeAssetPath||'').trim();
+ // Keep assets local and avoid remote URLs or arbitrary paths.
+ if(/^img\/(?:bagde|badge)\/[a-z0-9_-]+\/[a-z0-9_-]+\.png$/i.test(trusted))return trusted.replace(/^img\/badge\//i,'img/bagde/');
+ const region=String(gym?.region_codigo||initial?.gym?.region||'kanto').toLowerCase().replace(/[^a-z0-9_-]/g,'');
+ const slug=String(gym?.medalla_slug||initial?.gym?.badgeSlug||'').toLowerCase().replace(/[^a-z0-9_-]/g,'');
+ return region&&slug?`img/bagde/${region}/${slug}.png`:'';
+}
+function badgeSymbol(src,label){
+ const holder=make('span','mm31-reward-symbol mm31-reward-badge');
+ if(!src){holder.textContent='🏅';return holder;}
+ const picture=make('img','mm31-badge-image');picture.src=src;picture.alt=label;
+ picture.loading='eager';picture.decoding='async';
+ picture.onerror=()=>{holder.textContent='🏅';};
+ holder.append(picture);return holder;
+}
 function enhance(){
  const overlay=document.getElementById('mm29-result-modal');
  if(!overlay||overlay.dataset.mm31==='done')return;
@@ -95,7 +111,7 @@ function enhance(){
  const badgeGranted=confirmed.badge_otorgada===true;
  const badgeName=String(confirmed.gym?.medalla_nombre||initial?.gym?.badge||t('Medalla de gimnasio','Gym Badge'));
  const data=[['🏅',t('Medalla','Badge'),badgeGranted?badgeName:t('No otorgada','Not awarded')],['✦','EXP','+'+fmt(confirmed.exp_ganada)],['◈',t('Pokédolares','Pokédollars'),'+'+fmt(confirmed.pokedolares_ganados)]];
- for(const [symbol,label,value] of data){const tile=make('div','mm31-reward-tile');tile.append(make('span','mm31-reward-symbol',symbol),make('small','',label),make('strong','',value));tiles.append(tile);}
+ for(let i=0;i<data.length;i++){const [symbol,label,value]=data[i];const tile=make('div','mm31-reward-tile');const visual=i===0&&badgeGranted?badgeSymbol(safeBadgeAsset(confirmed.gym||initial?.gym),badgeName):make('span','mm31-reward-symbol',symbol);tile.append(visual,make('small','',label),make('strong','',value));tiles.append(tile);}
  rewards.append(tiles,make('small','mm31-verified',t('✓ Recompensas confirmadas por el servidor','✓ Rewards confirmed by the server')));
  const team=renderTeam(card);
  if(action){action.before(rewards,team);action.classList.add('mm31-actions');}else card.append(rewards,team);
