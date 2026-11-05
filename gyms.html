@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="css/gyms-new.css?v=2001">
 <script defer src="js/api.js"></script>
 <script defer src="js/menu-unificado.js?v=2204"></script>
-<script defer src="js/gyms-new.js?v=3400"></script>
+<script defer src="js/gyms-new.js?v=3501"></script>
 <script defer src="js/gyms-v4-bridge.js?v=400"></script>
 <script defer src="js/sprites.js"></script>
 <script defer src="js/gyms-v5-visual.js?v=501"></script>
@@ -77,7 +77,7 @@
    <div class="gv-bottom-grid"><article class="gv-panel gv-req"><div class="gv-panel-heading"><h3 id="gvChallengeTitle">CHALLENGE INFO</h3></div><div id="gvChallengeInfo" class="gv-facts"></div></article><article class="gv-panel gv-rewards"><div class="gv-panel-heading"><h3 id="gvRewardTitle">REWARD PREVIEW</h3></div><div id="gvRewardInfo" class="gv-reward-list"></div></article></div>
   </section>
   <aside class="gv-right"><article class="gv-panel gv-dossier"><div class="gv-panel-heading"><h3 id="gvDetailsTitle">GYM DETAILS</h3></div><div class="gv-dossier-picture"><img src="assets/gyms/v2/bg_gym_detail.webp" alt="Gym arena" loading="lazy"></div><div class="gv-dossier-body"><h2 id="gvDossierName">—</h2><div class="gv-dossier-bits"><span id="gvDossierType">—</span><span id="gvDossierLevel">—</span></div><div id="gvDossierFacts" class="gv-facts"></div><h3 id="gvDossierDescLabel">ABOUT THIS GYM</h3><p id="gvDossierDescription">—</p><div id="gvEnemyRoster" class="gv-enemies"></div></div></article>
-   <div class="gv-challenge-block"><button id="gvChallengeBtn" type="button" disabled>⚔ Challenge Gym</button><div id="gvBattleNote" role="status" aria-live="polite">Loading challenge eligibility…</div><a href="gyms.html" id="gvClassicLink">Open current Gyms ↗</a></div>
+   <div class="gv-challenge-block"><button id="gvChallengeBtn" type="button" disabled>⚔ Challenge Gym</button><div id="gvBattleNote" role="status" aria-live="polite">Loading challenge eligibility…</div></div>
   </aside>
  </div>
  <footer class="gv-footer"><span>MASTERSMON · GRAND GYM ARENA</span><span id="gvFooterStage" hidden></span></footer>
@@ -94,14 +94,15 @@
     if(!page || !status || !portrait) return;
     const language=()=>document.querySelector('.language button.active')?.dataset.lang==='es';
     const loadPane=page.querySelector('.gv-initial-loading');
+    // The Gym renderer owns loading visibility; do not infer it from translated status text.
+    // A "Continue" notice is a successful state even when it does not contain "Synced".
     function finish() {
-      const s=(status.textContent||'').toLowerCase();
-      if (/synced|sincronizado|could not connect|no se pudo conectar|unavailable|no disponible|error/.test(s)) {
-        page.classList.remove('gv-initializing');
-        if(loadPane) loadPane.setAttribute('aria-hidden','true');
+      if (!page.classList.contains('gv-initializing') && loadPane) {
+        loadPane.hidden=true;
+        loadPane.setAttribute('aria-hidden','true');
       }
     }
-    new MutationObserver(finish).observe(status,{childList:true,subtree:true,characterData:true});
+    new MutationObserver(finish).observe(page,{attributes:true,attributeFilter:['class']});
     finish();
     function revealTrainer(){
       if(portrait.hidden)return;

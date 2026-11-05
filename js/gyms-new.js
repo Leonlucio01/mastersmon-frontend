@@ -48,7 +48,6 @@
     $('gvDossierDescLabel').textContent=t('ABOUT THIS GYM','SOBRE ESTE GIMNASIO');
     $('gvChallengeBtn').textContent=t('⚔ Challenge Gym','⚔ Desafiar Gimnasio');
     $('gvBattleNote').textContent=t('Stage 3 preview: Combat remains in the existing Gyms page until Stage 4 is validated.','Vista previa de Etapa 3: el combate continúa en la página actual hasta validar la Etapa 4.');
-    $('gvClassicLink').textContent=t('Open current Gyms ↗','Abrir gimnasios actuales ↗');
     $('gvEditTeam').textContent=t('Edit Team ↗','Editar equipo ↗');
     $('gvFooterStage').textContent=t('Stage 3 · Visual preview with real backend data','Etapa 3 · Vista visual con datos reales del backend');
   }
@@ -102,6 +101,15 @@
     $('gvTotalBar').style.width=total?`${done/total*100}%`:'0%';
     $('gvHeroStatus').textContent=STATE.error?`${t('Could not connect to Gym data:','No se pudo conectar a los datos de gimnasios:')} ${STATE.error}`:STATE.continueNotice|| (STATE.loaded?t('Synced with official Gym catalog','Sincronizado con el catálogo oficial de gimnasios'):t('Loading official Gym data…','Cargando datos oficiales de gimnasios…'));
     $('gvHeroStatus').classList.toggle('gv-error',!!STATE.error);
+    // Hide the initial overlay based on actual API completion, not on status-message wording.
+    // This covers Continue-after-victory, normal loading, and failed API requests.
+    const page=document.querySelector('.gv-page');
+    if(page){
+      const ready=STATE.loaded||!!STATE.error;
+      page.classList.toggle('gv-initializing',!ready);
+      const overlay=page.querySelector('.gv-initial-loading');
+      if(overlay){overlay.hidden=ready;overlay.setAttribute('aria-hidden',ready?'true':'false');}
+    }
   }
   async function load(){
     STATE.team=readTeam();
