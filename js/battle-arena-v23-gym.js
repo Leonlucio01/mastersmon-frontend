@@ -1,6 +1,6 @@
 /* MastersMon Gym mode on the SAME battle-arena.html visual shell.
  * Gym session originates from /battle/gyms/iniciar, and is finalized ONLY by /battle/gyms/recompensa.
- * The API currently has no turn-by-turn Gym endpoint: combat turns follow client rules.
+ * V32 authoritative Gym combat: turns, damage, switches, auto and battle state are server-owned.
  */
 (()=>{'use strict';
 if(new URLSearchParams(location.search).get('modo')!=='gym')return;
@@ -19,7 +19,7 @@ function norm(x,i,side){const p=x.pokemon||x;return {...p,pid:num(p.pokemon_id||
 function badge(msg){$('notice').textContent=msg;}
 function log(msg,kind=''){const el=document.createElement('p');el.textContent=msg;el.className='mm29-log '+(kind?'mm29-log-'+kind:'');$('logLines').prepend(el);while($('logLines').children.length>8)$('logLines').lastChild.remove()}
 function stopAuto(){autoEnabled=false;if(autoTimer){clearTimeout(autoTimer);autoTimer=null;}const b=document.querySelector('[data-panel="auto"]');if(b){b.textContent=word('▶ Auto','▶ Auto');b.classList.remove('chosen');} }
-// Same decision criteria as Battle vs IA: expected damage, accuracy, priority and KO potential.
+// Legacy move-scoring helpers remain unused: Gym V32 selects Auto on the server.
 // Keep Gym's existing damage() function unchanged: this only estimates the best equipped move.
 function expectedGymDamage(attacker,target,move){
  const power=num(move.potencia)||40;
@@ -49,14 +49,10 @@ function bestGymAutoMove(attacker,target){
 function autoNext(){
  autoTimer=null;
  if(!autoEnabled||ended)return;
- if(busy||loadingMoves){autoTimer=setTimeout(autoNext,300);return;}
- const attacker=players[active],target=foes[enemy];
- if(!attacker||attacker.hp<=0){stopAuto();return;}
- if(!target||target.hp<=0){stopAuto();return;}
- if(!moves.length){stopAuto();log(word('Auto stopped: no equipped moves.','Auto detenido: no hay movimientos.'));return;}
- const best=bestGymAutoMove(attacker,target);
- if(!best){stopAuto();return;}
- attack(best);
+ if(busy||loadingMoves){autoTimer=setTimeout(autoNext,350);return;}
+ if(!players[active]||players[active].hp<=0){stopAuto();return;}
+ // The V32 server selects the best expected damage. No local damage or move injection.
+ attack(null,true);
 }
 function startAuto(){if(ended||busy)return;autoEnabled=true;panel='moves';const b=document.querySelector('[data-panel="auto"]');if(b){b.textContent=word('■ Stop Auto','■ Detener Auto');b.classList.add('chosen');}drawPanel();autoTimer=setTimeout(autoNext,200);}
 function floatDamage(prefix,value,effect){const stage=document.querySelector('.stage');if(!stage)return;const el=document.createElement('span');el.className='mm24-damage '+(prefix==='enemy'?'mm24-rival-damage':'mm24-player-damage');el.textContent=(value===0?word('IMMUNE','INMUNE'):'-'+value);stage.appendChild(el);setTimeout(()=>el.remove(),1100)}
@@ -106,7 +102,12 @@ if(loadingMoves){root.innerHTML=`<div class="mm23-message">${word('Loading equip
 if(!moves.length){root.innerHTML=`<div class="mm23-message">${word('This Pokémon has no equipped moves. Switch Pokémon or equip moves in your team.','Este Pokémon no tiene movimientos equipados. Cambia de Pokémon o equípale movimientos.')}</div>`;return;}
 root.innerHTML=moves.slice(0,4).map((m,i)=>{const eff=multiplier(m.tipo,foes[enemy]), label=eff===0?word('No effect','Sin efecto'):eff>1?word('Super effective','Muy eficaz'):eff<1?word('Not very effective','Poco eficaz'):word('Normal effectiveness','Eficacia normal');return `<button class="move-option mm25-move" style="--move-color:${colors[alias[slug(m.tipo)]||slug(m.tipo)]||'#258dc2'}" type="button" data-attack="${i}" ${busy||autoEnabled?'disabled':''}><strong>${esc(m.nombre||m.name||m.codigo||'Move')}</strong><small>${esc(m.tipo||'Normal')} · ${word('Power','Potencia')} ${num(m.potencia)||'—'}</small><span class="mm24-effect ${eff>1?'good':eff===0?'immune':eff<1?'weak':'neutral'}">${label} · ×${eff}</span></button>`}).join('');root.querySelectorAll('[data-attack]').forEach(b=>b.onclick=()=>attack(moves[Number(b.dataset.attack)]));}
 const token=()=>typeof getAccessToken==='function'?getAccessToken():(sessionStorage.getItem('access_token')||localStorage.getItem('access_token'));
-async function loadMoves(){loadingMoves=true;moves=[];drawPanel();const p=players[active],id=p.id,seq=++moveSeq;try{if(!id||!token())throw Error('Missing Pokémon ID or authentication');const response=await fetch(`${API}/usuario/pokemon/${encodeURIComponent(id)}/movimientos`,{headers:{Authorization:'Bearer '+token()}});if(!response.ok)throw Error(`HTTP ${response.status}`);const data=await response.json();if(seq===moveSeq&&players[active]===p)moves=(Array.isArray(data.equipados)?data.equipados:[]).sort((a,b)=>num(a.slot)-num(b.slot));}catch(e){log(word('Could not load moves: ','No se pudieron cargar movimientos: ')+e.message)}finally{if(seq===moveSeq){loadingMoves=false;drawPanel();scheduleAuto();}}}
+async function loadMoves(){
+ const current=players[active];
+ loadingMoves=false;
+ moves=Array.isArray(current?.moves)?current.moves.filter(x=>num(x.potencia)>0).sort((a,b)=>num(a.slot)-num(b.slot)):[];
+ drawPanel();scheduleAuto();
+}
 const chart={
 normal:{roca:.5,acero:.5,fantasma:0},
 fuego:{planta:2,hielo:2,bicho:2,acero:2,fuego:.5,agua:.5,roca:.5,dragon:.5},
@@ -128,22 +129,96 @@ acero:{hielo:2,roca:2,hada:2,fuego:.5,agua:.5,electrico:.5,acero:.5},
 hada:{lucha:2,dragon:2,siniestro:2,fuego:.5,veneno:.5,acero:.5}
 };
 function multiplier(type,target){let r=1;const row=chart[alias[slug(type)]||slug(type)]||{};for(const t of types(target))r*=row[t]??1;return r;}
-function damage(attacker,target,power,kind,type){const special=/especial|special/i.test(kind||'');const att=special?attacker.spa:attacker.atk,def=special?target.spd:target.def,eff=multiplier(type,target);const stab=types(attacker).includes(alias[slug(type)]||slug(type))?1.3:1;return Math.min(target.hp,Math.max(0,Math.floor((((2*attacker.level/5+2)*Math.max(10,power)*att/Math.max(1,def))/50+2)*stab*eff*(.88+Math.random()*.12))));}
-async function attack(move){if(busy||ended||!move||players[active].hp<=0)return;
-busy=true;drawPanel();const p=players[active],f=foes[enemy],eff=multiplier(move.tipo,f);
-const hit=damage(p,f,num(move.potencia)||40,move.categoria||move.clase,move.tipo);
-animateAttack('player');await new Promise(r=>setTimeout(r,220));typeEffect(move.tipo,'enemy');animateHit('enemy',hit,eff);
-f.hp=Math.max(0,f.hp-hit);log(`${p.name} ${word('used','usó')} ${move.nombre||move.name||'Move'} · -${hit} HP · ${effectivenessText(eff)} (×${eff})`,'attack');render();await new Promise(r=>setTimeout(r,440));
-if(f.hp===0){log(`${f.name} ${word('fainted!','se debilitó.')}`,'faint');const next=foes.findIndex(v=>v.hp>0);if(next<0){stopAuto();await finish(true);return;}enemy=next;log(word('The Gym Leader sends out ','El líder envía a ')+foes[enemy].name);}
-else await rivalTurn();
-if(players.every(v=>v.hp<=0)){stopAuto();await finish(false);return;}
-turn++;busy=false;render();scheduleAuto();}
-async function rivalTurn(){const foe=foes[enemy];let p=players[active];const type=types(foe)[0]||'normal';const eff=multiplier(type,p);const hit=damage(foe,p,Math.min(85,45+Math.round(foe.level/6)),'physical',type);
-animateAttack('enemy');await new Promise(r=>setTimeout(r,230));typeEffect(type,'player');animateHit('player',hit,eff);
-p.hp=Math.max(0,p.hp-hit);log(`${foe.name} ${word('counterattacks','contraataca')} · -${hit} HP · ${effectivenessText(eff)} (×${eff})`,'counter');render();await new Promise(r=>setTimeout(r,360));
-if(p.hp===0){log(`${p.name} ${word('fainted!','se debilitó.')}`,'faint');const next=players.findIndex(v=>v.hp>0);if(next>=0){active=next;moves=[];stopAuto();await loadMoves();log(word('Go, ','Adelante, ')+players[active].name);}}}
-async function switchTo(index){if(busy||ended||!players[index]||players[index].hp<=0||index===active)return;
-stopAuto();busy=true;active=index;moves=[];moveSeq++;log(word('Switched to ','Cambiaste a ')+players[active].name);render();await rivalTurn();turn++;busy=false;render();if(players.every(v=>v.hp<=0)){await finish(false);return;}await loadMoves();}
+// V32: the server owns HP, type effectiveness, opponent actions and victory status.
+let serverReady=false;
+const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+async function gymRequest(method,route,body){
+ const jwt=token();
+ if(!jwt)throw Error(word('Your session expired. Please sign in again.','Tu sesión expiró. Vuelve a iniciar sesión.'));
+ const url=API+route;
+ const response=await fetch(method==='GET'?url+'?gym_session_token='+encodeURIComponent(info.gym_session_token):url,{
+  method,headers:{Authorization:'Bearer '+jwt,...(method==='POST'?{'Content-Type':'application/json'}:{})},
+  ...(method==='POST'?{body:JSON.stringify({gym_session_token:info.gym_session_token,...body})}:{})
+ });
+ const raw=await response.text();let data={};try{data=JSON.parse(raw)}catch(_){}
+ if(!response.ok||data.ok===false){
+  const detail=data.detail||data.error||word('Server response error','Error de respuesta del servidor');
+  throw Error(typeof detail==='string'?detail:JSON.stringify(detail));
+ }
+ return data;
+}
+function applyServerState(data){
+ if(!Array.isArray(data.players)||!Array.isArray(data.rivals))throw Error('Gym server state incomplete');
+ players=data.players.map((p,i)=>{const v=norm(p,i,'player');v.hp=Math.max(0,num(p.hp));v.max=Math.max(1,num(p.hp_max));v.moves=Array.isArray(p.moves)?p.moves:[];return v});
+ foes=data.rivals.map((p,i)=>{const v=norm(p,i,'enemy');v.hp=Math.max(0,num(p.hp));v.max=Math.max(1,num(p.hp_max));return v});
+ active=data.player_active==null?Math.max(0,active):num(data.player_active);
+ enemy=data.rival_active==null?Math.max(0,enemy):num(data.rival_active);
+ turn=Math.max(1,num(data.turn)||1);render();
+}
+async function initializeGymServer(){
+ busy=true;loadingMoves=true;
+ badge(word('Synchronizing official Gym battle…','Sincronizando combate oficial de gimnasio…'));
+ try{
+  const data=await gymRequest('GET','/battle/gyms/estado');
+  applyServerState(data);serverReady=true;loadingMoves=false;busy=false;
+  loadMoves();badge('');log(word('Gym battle synchronized with the server.','Combate sincronizado con el servidor.'));
+  if(data.status==='victory'||data.status==='defeat')await finish(data.status==='victory');
+ }catch(error){
+  stopAuto();busy=false;loadingMoves=false;
+  console.error('[Gym V32] Initial server state:',error);
+  badge(word('Unable to load Gym battle: ','No se pudo cargar el combate: ')+error.message);
+  document.getElementById('moveGrid').innerHTML='<p class="mm23-message">'+esc(error.message)+'</p>';
+ }
+}
+async function playServerEvents(events,priorPlayers,priorRivals){
+ for(const event of events){
+  const type=event.move_type||'normal',eff=Number(event.effectiveness??1);
+  if(event.event==='attack'||event.event==='rival_attack'){
+   const playerHit=event.event==='rival_attack';
+   animateAttack(playerHit?'enemy':'player');
+   await wait(180);
+   typeEffect(type,playerHit?'player':'enemy');
+   animateHit(playerHit?'player':'enemy',num(event.damage),eff);
+   const attacker=playerHit?priorRivals[enemy]?.name:priorPlayers[active]?.name;
+   log((attacker||word('Pokémon','Pokémon'))+' '+word('used','usó')+' '+(event.move_name||'Move')+' · -'+num(event.damage)+' HP · '+effectivenessText(eff)+' (×'+eff+')',playerHit?'counter':'attack');
+   await wait(260);
+  }else if(event.event==='rival_switch')log(word('The Gym Leader sends out the next Pokémon.','El líder envía al siguiente Pokémon.'),'switch');
+  else if(event.event==='player_switch'||event.event==='switch')log(word('Your active Pokémon changed.','Cambiaste tu Pokémon activo.'),'switch');
+ }
+}
+async function serverTurn(action,payload={}){
+ if(busy||ended||!serverReady)return;
+ busy=true;drawPanel();
+ const oldPlayers=players,oldRivals=foes;
+ try{
+  const state=await gymRequest('POST','/battle/gyms/turno',{action,...payload});
+  await playServerEvents(state.turn_events||[],oldPlayers,oldRivals);
+  const previous=active;
+  applyServerState(state);
+  if(active!==previous)panel='moves';
+  if(state.status==='victory'||state.status==='defeat'){
+   stopAuto();await finish(state.status==='victory');return;
+  }
+  if(active!==previous||action==='switch')await loadMoves();
+  else{drawPanel();scheduleAuto()}
+  badge('');
+ }catch(error){
+  stopAuto();console.error('[Gym V32] Turn error:',error);
+  badge(word('Turn not confirmed: ','Turno no confirmado: ')+error.message);
+  // Never calculate or modify HP locally on a failed request.
+  try{const authoritative=await gymRequest('GET','/battle/gyms/estado');applyServerState(authoritative);loadMoves()}catch(syncError){console.error('[Gym V32] Resync:',syncError)}
+ }finally{busy=false;drawPanel()}
+}
+async function attack(move,automatic=false){
+ if(automatic)return serverTurn('auto');
+ if(!move||!Number.isFinite(num(move.slot)))return;
+ return serverTurn('attack',{move_slot:num(move.slot)});
+}
+async function switchTo(index){
+ if(busy||ended||!players[index]||players[index].hp<=0||index===active)return;
+ stopAuto();
+ return serverTurn('switch',{pokemon_id:players[index].id});
+}
 async function finish(won){if(ended)return;stopAuto();ended=true;busy=true;render();badge(word('Validating Gym result with server…','Validando resultado con el servidor…'));try{let result;if(typeof reclamarGymBattle==='function'){result=await reclamarGymBattle(info.gym_session_token,won,turn)}else{const response=await fetch(`${API}/battle/gyms/recompensa`,{method:'POST',headers:{Authorization:'Bearer '+token(),'Content-Type':'application/json'},body:JSON.stringify({gym_session_token:info.gym_session_token,victoria:won,turnos:turn})});if(!response.ok)throw Error(`HTTP ${response.status}`);result=await response.json();}
 if(result?.ok===false)throw Error(result?.detail||result?.error||'Server rejected Gym result');finalized=true;finishResult={won,result};sessionStorage.removeItem(KEY);sessionStorage.removeItem(MODE);badge(won?word(`Victory! ${info.gym.badge} confirmed by the server.`,`¡Victoria! ${info.gym.badge} confirmada por el servidor.`):word('Defeat. The Gym session is closed.','Derrota. La sesión del gimnasio terminó.'));log(won?word('Victory confirmed. Return to Gyms to see the badge.','Victoria confirmada. Vuelve a Gimnasios para ver la medalla.'):word('Gym challenge failed.','Desafío de gimnasio perdido.'),won?'victory':'faint');showGymResultModal();
 }catch(e){console.error('[Gym Arena] Failed to finalize Gym',e);finishResult={won,error:String(e?.message||e)};badge(word('The result could not be confirmed: ','No se pudo confirmar el resultado: ')+e.message);log(word('Do not refresh or claim another reward until the session is checked.','No recargues ni reclames otra recompensa hasta verificar la sesión.'));}finally{busy=false;render()}}
@@ -174,6 +249,6 @@ function setup(){lang=localStorage.getItem('mastersmon_lang')==='es'?'es':'en';t
 players=info.equipo_usuario.map((p,i)=>norm(p,i,'player'));foes=info.equipo_rival.map((p,i)=>norm(p,i,'enemy'));const nav=document.querySelector('.unified-nav');if(nav){nav.querySelector('a[href="battle.html"]')?.classList.remove('selected');nav.querySelector('a[href="gyms-new.html"]')?.classList.add('selected');}document.querySelector('.hero h1').textContent=word('GYM BATTLE','BATALLA DE GIMNASIO');$('heroSubtitle').textContent=`${info.gym?.leader||'Gym Leader'} · ${info.gym?.regionName||'Gym League'}`;$('heroCopy').textContent=word('Your team versus the Gym Leader’s official squad','Tu equipo contra los Pokémon oficiales del líder');$('heroQuote').textContent=info.gym?.badge||'Gym Badge';document.querySelector('.panel.right h3').textContent=word('◎ Leader team','◎ Equipo del líder');$('rivalName').textContent=info.gym?.leader||'Gym Leader';$('rivalRank').textContent=info.gym?.regionName||'';$('rivalAvatar').src=info.gym?.trainerAssetPath||'assets/ui/icons/gym.svg';$('rivalAvatar').onerror=()=>{$('rivalAvatar').src='assets/ui/icons/gym.svg';$('rivalAvatar').onerror=null};$('difficultyBadge').hidden=true;$('rivalQuote').hidden=true;document.querySelector('.panel.right .rewards')?.remove();document.querySelector('.panel.right h4[data-t="rewards"]')?.remove();document.querySelector('.panel.right .behavior')?.remove();document.querySelector('.panel.right h4[data-t="enemyTeam"]').textContent=word('6 rival Pokémon','6 Pokémon rivales');document.querySelector('.arena-top strong').textContent=word('GYM CHALLENGE','DESAFÍO DE GIMNASIO');document.querySelector('.arena-top .weather').textContent=info.gym?.city||'Gym Arena';document.querySelector('.panel.center .back').href='gyms-new.html';document.querySelector('.actions .danger').textContent=word('⚑ Surrender','⚑ Rendirse');
 const type=String(info.gym?.type||'normal').toLowerCase();const stage=document.querySelector('.stage');stage.style.backgroundImage=`linear-gradient(180deg,rgba(1,12,28,.10),rgba(1,12,28,.13)),url('assets/gyms/v2/types/bg_gym_${type}.webp')`;
 const sw=(x)=>{panel=x;drawPanel()};document.querySelectorAll('[data-panel]').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.panel==='auto'){if(autoEnabled)stopAuto();else startAuto();return;}if(autoEnabled)stopAuto();sw(b.dataset.panel)}));document.querySelector('.actions .danger').addEventListener('click',e=>{e.preventDefault();exitGym()});document.querySelector('.panel.center .back').addEventListener('click',e=>{e.preventDefault();exitGym()});document.querySelector('.panel.left a.full').href='equipo.html';document.querySelector('.panel.left a.full').addEventListener('click',e=>{e.preventDefault();badge(word('Return to Gyms before editing your team.','Regresa a Gimnasios antes de editar el equipo.'))});document.querySelector('.panel.right').classList.add('mm23-rival');
-$('trainerName').textContent=localStorage.getItem('mastersmon_user_name')||document.getElementById('navName')?.textContent?.trim()||word('Trainer','Entrenador');loadGymTrainerProfile();badge('');render();loadMoves();log(word('Gym battle started.','Comienza el desafío de gimnasio.'));}
+$('trainerName').textContent=localStorage.getItem('mastersmon_user_name')||document.getElementById('navName')?.textContent?.trim()||word('Trainer','Entrenador');loadGymTrainerProfile();badge('');initializeGymServer();}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup,{once:true});else setup();
 })();
