@@ -17,13 +17,33 @@ function types(p){const a=p?.tipo||p?.tipos||'';return (Array.isArray(a)?a:Strin
 function img(img,p){const path=sprite(p);if(img.dataset.spritePath===path)return;img.dataset.spritePath=path;img.onerror=()=>{img.onerror=null;img.src=`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.shiny?'shiny/':''}${p.pid||25}.png`};img.style.visibility='visible';img.src=path}
 function norm(x,i,side){const p=x.pokemon||x;return {...p,pid:num(p.pokemon_id||p.numero_pokedex||p.pokedex_id||p.numero||p.id_pokemon),id:num(p.usuario_pokemon_id||p.instance_id||p.id),name:String(p.nombre||p.name||p.pokemon_nombre||'Pokémon'),level:num(p.nivel||p.level)||1,max:Math.max(1,num(p.hp_max||p.hp||p.hp_actual)||100),hp:Math.max(0,num(p.hp_actual??p.hp??p.hp_max??100)),shiny:p.es_shiny===true||p.es_shiny===1||p.es_shiny==='true',slot:i,side,atk:num(p.ataque||p.attack)||100,def:num(p.defensa||p.defense)||100,spa:num(p.ataque_especial||p.sp_attack||p.ataque)||100,spd:num(p.defensa_especial||p.sp_defense||p.defensa)||100,speed:num(p.velocidad||p.speed)||100};}
 function badge(msg){$('notice').textContent=msg;}
-function log(msg){const el=document.createElement('p');el.textContent=msg;$('logLines').prepend(el);while($('logLines').children.length>6)$('logLines').lastChild.remove()}
+function log(msg,kind=''){const el=document.createElement('p');el.textContent=msg;el.className='mm29-log '+(kind?'mm29-log-'+kind:'');$('logLines').prepend(el);while($('logLines').children.length>8)$('logLines').lastChild.remove()}
 function stopAuto(){autoEnabled=false;if(autoTimer){clearTimeout(autoTimer);autoTimer=null;}const b=document.querySelector('[data-panel="auto"]');if(b){b.textContent=word('▶ Auto','▶ Auto');b.classList.remove('chosen');} }
 function autoNext(){if(!autoEnabled||ended)return;if(busy||loadingMoves){autoTimer=setTimeout(autoNext,300);return;}if(players[active]?.hp<=0){stopAuto();return;}if(!moves.length){stopAuto();log(word('Auto stopped: no equipped moves.','Auto detenido: no hay movimientos.'));return;}const best=moves.slice().sort((a,b)=>((num(b.potencia)||40)*multiplier(b.tipo,foes[enemy]))-((num(a.potencia)||40)*multiplier(a.tipo,foes[enemy])))[0];attack(best);}
 function startAuto(){if(ended||busy)return;autoEnabled=true;panel='moves';const b=document.querySelector('[data-panel="auto"]');if(b){b.textContent=word('■ Stop Auto','■ Detener Auto');b.classList.add('chosen');}drawPanel();autoTimer=setTimeout(autoNext,200);}
 function floatDamage(prefix,value,effect){const stage=document.querySelector('.stage');if(!stage)return;const el=document.createElement('span');el.className='mm24-damage '+(prefix==='enemy'?'mm24-rival-damage':'mm24-player-damage');el.textContent=(value===0?word('IMMUNE','INMUNE'):'-'+value);stage.appendChild(el);setTimeout(()=>el.remove(),1100)}
 function animateHit(prefix,value,effect){const image=$(prefix+'Image');if(image){image.classList.remove('mm24-hit');void image.offsetWidth;image.classList.add('mm24-hit');setTimeout(()=>image.classList.remove('mm24-hit'),600);}floatDamage(prefix,value,effect)}
 function animateAttack(prefix){const image=$(prefix+'Image');if(image){image.classList.remove('mm24-lunge');void image.offsetWidth;image.classList.add('mm24-lunge');setTimeout(()=>image.classList.remove('mm24-lunge'),570)}}
+// Type-specific combat feedback, visual only; never changes HP or server rewards.
+function typeEffect(type,target){
+ const stage=document.querySelector('.stage');if(!stage)return;
+ const t=alias[slug(type)]||slug(type)||'normal';
+ const flash=document.createElement('span');flash.className='mm29-type-impact mm29-type-'+t+' mm29-target-'+target;
+ flash.style.setProperty('--impact-color',colors[t]||'#dbedff');
+ const glyph={fuego:'✦',agua:'✧',electrico:'ϟ',planta:'❋',hielo:'❄',psiquico:'◈',fantasma:'◉',veneno:'☣',roca:'◆',tierra:'◆',lucha:'✹',volador:'≋',dragon:'✦',hada:'✧',acero:'✶',bicho:'✣',siniestro:'☾',normal:'✧'};
+ flash.textContent=glyph[t]||'✦';stage.appendChild(flash);
+ requestAnimationFrame(()=>flash.classList.add('mm29-play'));
+ setTimeout(()=>flash.remove(),800);
+}
+function effectivenessText(eff){return eff===0?word('No effect','Sin efecto'):eff>1?word('Super effective','Muy eficaz'):eff<1?word('Not very effective','Poco eficaz'):word('Normal effectiveness','Eficacia normal');}
+function showGymResultModal(){
+ if(!finishResult||document.getElementById('mm29-result-modal'))return;
+ const r=finishResult,won=r.won&&!r.error;
+ const title=r.error?word('Result pending','Resultado pendiente'):won?word('Victory!','¡Victoria!'):word('Defeat','Derrota');
+ const detail=r.error?word('The server has not confirmed the result. Check Gym progress before retrying.','El servidor aún no confirmó el resultado. Comprueba el progreso antes de reintentar.'):won?word('Your victory was recorded by the server.','El servidor registró tu victoria.'):word('Your Gym challenge has ended.','Tu desafío de gimnasio ha terminado.');
+ const modal=document.createElement('div');modal.id='mm29-result-modal';modal.className='mm29-overlay';modal.innerHTML=`<section class="mm29-modal" role="dialog" aria-modal="true" aria-labelledby="mm29-result-title"><div class="mm29-crest">${won?'🏅':r.error?'!':'⚔'}</div><h2 id="mm29-result-title">${title}</h2><p>${detail}</p>${won?`<div class="mm29-reward"><span>🏅</span><div><small>${word('Badge obtained','Medalla obtenida')}</small><strong>${esc(info?.gym?.badge||'Gym Badge')}</strong></div></div>`:''}<div class="mm29-modal-actions"><button type="button" class="mm29-go">${word('Return to Gyms','Volver a Gimnasios')}</button><button type="button" class="mm29-continue">${word('Continue','Continuar')}</button></div></section>`;
+ document.body.appendChild(modal);modal.querySelector('.mm29-go').onclick=()=>exitGym();modal.querySelector('.mm29-continue').onclick=()=>modal.remove();modal.querySelector('.mm29-go').focus();
+}
 function scheduleAuto(){if(autoEnabled&&!ended){if(autoTimer)clearTimeout(autoTimer);autoTimer=setTimeout(autoNext,800);}}
 function setHP(prefix,p){const ratio=Math.max(0,Math.min(100,100*p.hp/p.max));$(prefix+'Hp').textContent=`${p.hp} / ${p.max}`;$(prefix+'HpBar').style.width=ratio+'%';$(prefix+'HpBar').style.background=ratio<20?'#ee5771':ratio<50?'#f0c35c':'#1fcda3';}
 function setTypes(id,p){$(id).innerHTML=types(p).map(x=>`<em style="background:${colors[x]||'#3569a1'}">${esc(x)}</em>`).join('')}
@@ -40,16 +60,8 @@ function renderFinishPanel(root){
 function drawPanel(){document.querySelectorAll('[data-panel]').forEach(b=>b.classList.toggle('chosen',b.dataset.panel===panel||(autoEnabled&&b.dataset.panel==='auto')));const root=$('moveGrid');$('actionTitle').textContent=panel==='switch'?word('Switch Pokémon','Cambiar Pokémon'):panel==='items'?word('Items','Objetos'):word('Available moves','Movimientos disponibles');if(ended){renderFinishPanel(root);return;}
 if(panel==='switch'){root.innerHTML=players.map((p,i)=>`<button class="switch-option mm25-switch" type="button" data-switch="${i}" ${p.hp<=0||i===active||busy?'disabled':''}><img src="${sprite(p)}" alt=""><span><strong>${esc(p.name)}${p.shiny?' ✦':''}</strong><small>Lv. ${p.level} · ${p.hp} / ${p.max} HP</small><span class="mm25-switch-health"><i style="width:${Math.max(0,100*p.hp/p.max)}%"></i></span></span></button>`).join('');root.querySelectorAll('[data-switch]').forEach(b=>b.onclick=()=>switchTo(Number(b.dataset.switch)));return;}
 if(panel==='items'){
- // Presentation only. The Gym API has no item-use endpoint: do not modify HP/inventory locally.
- const catalog=[
-  ['🧪',word('Potion','Poción'),word('Restore HP','Restaurar PS')],
-  ['💊',word('Super Potion','Superpoción'),word('Restore HP','Restaurar PS')],
-  ['✨',word('Hyper Potion','Hiperpoción'),word('Restore HP','Restaurar PS')],
-  ['💎',word('Max Potion','Poción máxima'),word('Fully restore HP','Restaurar todos los PS')],
-  ['🌟',word('Revive','Revivir'),word('Revive a fainted Pokémon','Revivir Pokémon debilitado')],
-  ['💠',word('Full Restore','Restaurar todo'),word('HP and status','PS y estados')]
- ];
- root.innerHTML=catalog.map(([symbol,name,description])=>`<button type="button" class="mm28-item" disabled aria-disabled="true" title="${esc(word('Not yet available in Gym battles','Aún no disponible en gimnasios'))}"><span class="mm28-item-icon" aria-hidden="true">${symbol}</span><span class="mm28-item-copy"><strong>${esc(name)}</strong><small>${esc(description)}</small><em>${word('Coming soon','Próximamente')}</em></span></button>`).join('')+`<p class="mm28-item-note">${word('Items will be enabled when the Gym backend supports inventory and item use. No items are consumed.','Los objetos se habilitarán cuando el backend de gimnasios permita consultar inventario y usarlos. No se consumirá ningún objeto.')}</p>`;
+ // Same two view-only entries as Battle vs AI. Gym item usage is not enabled server-side.
+ root.innerHTML=`<section class="mm29-inventory"><div class="mm29-inventory-head"><strong>${word('Available potions','Pociones disponibles')}</strong><small>${word('Live inventory · view only','Inventario · solo lectura')}</small><span>${word('VIEW ONLY','SOLO VISTA')}</span></div><div class="mm29-potions"><div class="mm29-potion"><span class="mm29-potion-img">🧪</span><div><strong>${word('Potion','Poción')}</strong><small>${word('Restores 20 HP','Restaura 20 PS')}</small></div><button disabled>${word('Backend pending','Backend pendiente')}</button></div><div class="mm29-potion"><span class="mm29-potion-img">🧴</span><div><strong>${word('Super Potion','Superpoción')}</strong><small>${word('Restores 50 HP','Restaura 50 PS')}</small></div><button disabled>${word('Backend pending','Backend pendiente')}</button></div></div><p>${word('Item use is unavailable until Gym battles have a server endpoint. No HP or inventory is changed.','Los objetos no se podrán usar hasta tener un endpoint de gimnasio. No se modifican PS ni inventario.')}</p></section>`;
  return;
 }
 if(loadingMoves){root.innerHTML=`<div class="mm23-message">${word('Loading equipped moves…','Cargando movimientos equipados…')}</div>`;return;}
@@ -82,20 +94,20 @@ function damage(attacker,target,power,kind,type){const special=/especial|special
 async function attack(move){if(busy||ended||!move||players[active].hp<=0)return;
 busy=true;drawPanel();const p=players[active],f=foes[enemy],eff=multiplier(move.tipo,f);
 const hit=damage(p,f,num(move.potencia)||40,move.categoria||move.clase,move.tipo);
-animateAttack('player');await new Promise(r=>setTimeout(r,220));animateHit('enemy',hit,eff);
-f.hp=Math.max(0,f.hp-hit);log(`${p.name} ${word('used','usó')} ${move.nombre||move.name||'Move'} · -${hit} HP · ×${eff}`);render();await new Promise(r=>setTimeout(r,440));
-if(f.hp===0){const next=foes.findIndex(v=>v.hp>0);if(next<0){stopAuto();await finish(true);return;}enemy=next;log(word('The Gym Leader sends out ','El líder envía a ')+foes[enemy].name);}
+animateAttack('player');await new Promise(r=>setTimeout(r,220));typeEffect(move.tipo,'enemy');animateHit('enemy',hit,eff);
+f.hp=Math.max(0,f.hp-hit);log(`${p.name} ${word('used','usó')} ${move.nombre||move.name||'Move'} · -${hit} HP · ${effectivenessText(eff)} (×${eff})`,'attack');render();await new Promise(r=>setTimeout(r,440));
+if(f.hp===0){log(`${f.name} ${word('fainted!','se debilitó.')}`,'faint');const next=foes.findIndex(v=>v.hp>0);if(next<0){stopAuto();await finish(true);return;}enemy=next;log(word('The Gym Leader sends out ','El líder envía a ')+foes[enemy].name);}
 else await rivalTurn();
 if(players.every(v=>v.hp<=0)){stopAuto();await finish(false);return;}
 turn++;busy=false;render();scheduleAuto();}
 async function rivalTurn(){const foe=foes[enemy];let p=players[active];const type=types(foe)[0]||'normal';const eff=multiplier(type,p);const hit=damage(foe,p,Math.min(85,45+Math.round(foe.level/6)),'physical',type);
-animateAttack('enemy');await new Promise(r=>setTimeout(r,230));animateHit('player',hit,eff);
-p.hp=Math.max(0,p.hp-hit);log(`${foe.name} ${word('counterattacks','contraataca')} · -${hit} HP · ×${eff}`);render();await new Promise(r=>setTimeout(r,360));
-if(p.hp===0){const next=players.findIndex(v=>v.hp>0);if(next>=0){active=next;moves=[];stopAuto();await loadMoves();log(word('Go, ','Adelante, ')+players[active].name);}}}
+animateAttack('enemy');await new Promise(r=>setTimeout(r,230));typeEffect(type,'player');animateHit('player',hit,eff);
+p.hp=Math.max(0,p.hp-hit);log(`${foe.name} ${word('counterattacks','contraataca')} · -${hit} HP · ${effectivenessText(eff)} (×${eff})`,'counter');render();await new Promise(r=>setTimeout(r,360));
+if(p.hp===0){log(`${p.name} ${word('fainted!','se debilitó.')}`,'faint');const next=players.findIndex(v=>v.hp>0);if(next>=0){active=next;moves=[];stopAuto();await loadMoves();log(word('Go, ','Adelante, ')+players[active].name);}}}
 async function switchTo(index){if(busy||ended||!players[index]||players[index].hp<=0||index===active)return;
 stopAuto();busy=true;active=index;moves=[];moveSeq++;log(word('Switched to ','Cambiaste a ')+players[active].name);render();await rivalTurn();turn++;busy=false;render();if(players.every(v=>v.hp<=0)){await finish(false);return;}await loadMoves();}
 async function finish(won){if(ended)return;stopAuto();ended=true;busy=true;render();badge(word('Validating Gym result with server…','Validando resultado con el servidor…'));try{let result;if(typeof reclamarGymBattle==='function'){result=await reclamarGymBattle(info.gym_session_token,won,turn)}else{const response=await fetch(`${API}/battle/gyms/recompensa`,{method:'POST',headers:{Authorization:'Bearer '+token(),'Content-Type':'application/json'},body:JSON.stringify({gym_session_token:info.gym_session_token,victoria:won,turnos:turn})});if(!response.ok)throw Error(`HTTP ${response.status}`);result=await response.json();}
-if(result?.ok===false)throw Error(result?.detail||result?.error||'Server rejected Gym result');finalized=true;finishResult={won,result};sessionStorage.removeItem(KEY);sessionStorage.removeItem(MODE);badge(won?word(`Victory! ${info.gym.badge} confirmed by the server.`,`¡Victoria! ${info.gym.badge} confirmada por el servidor.`):word('Defeat. The Gym session is closed.','Derrota. La sesión del gimnasio terminó.'));log(won?word('Victory confirmed. Return to Gyms to see the badge.','Victoria confirmada. Vuelve a Gimnasios para ver la medalla.'):word('Gym challenge failed.','Desafío de gimnasio perdido.'));
+if(result?.ok===false)throw Error(result?.detail||result?.error||'Server rejected Gym result');finalized=true;finishResult={won,result};sessionStorage.removeItem(KEY);sessionStorage.removeItem(MODE);badge(won?word(`Victory! ${info.gym.badge} confirmed by the server.`,`¡Victoria! ${info.gym.badge} confirmada por el servidor.`):word('Defeat. The Gym session is closed.','Derrota. La sesión del gimnasio terminó.'));log(won?word('Victory confirmed. Return to Gyms to see the badge.','Victoria confirmada. Vuelve a Gimnasios para ver la medalla.'):word('Gym challenge failed.','Desafío de gimnasio perdido.'),won?'victory':'faint');showGymResultModal();
 }catch(e){console.error('[Gym Arena] Failed to finalize Gym',e);finishResult={won,error:String(e?.message||e)};badge(word('The result could not be confirmed: ','No se pudo confirmar el resultado: ')+e.message);log(word('Do not refresh or claim another reward until the session is checked.','No recargues ni reclames otra recompensa hasta verificar la sesión.'));}finally{busy=false;render()}}
 async function exitGym(){stopAuto();if(!ended&&!confirm(word('Leave the Gym challenge and cancel the session?','¿Salir del gimnasio y cancelar la sesión?')))return;if(!ended&&!finalized&&info?.gym_session_token){try{if(typeof cancelarGymBattle==='function')await cancelarGymBattle(info.gym_session_token);else await fetch(`${API}/battle/gyms/cancelar`,{method:'POST',headers:{Authorization:'Bearer '+token(),'Content-Type':'application/json'},body:JSON.stringify({gym_session_token:info.gym_session_token})});}catch(e){console.warn('Cancel gym session failed',e)}}sessionStorage.removeItem(KEY);sessionStorage.removeItem(MODE);location.assign('gyms-new.html')}
 async function loadGymTrainerProfile(){
