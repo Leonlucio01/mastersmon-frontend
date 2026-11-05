@@ -13,3 +13,18 @@ body:has(.mm23-rival) .panel.right .enemy-team{display:grid;grid-template-column
 body:has(.mm23-rival) .stage{background-size:cover!important;background-position:center!important}
 body:has(.mm23-rival) .stage .combatant{object-fit:contain}
 .mm23-message{padding:16px;color:#cde8fa}.mm23-session-error{margin:60px auto;padding:30px;background:#09213d;color:#fff;border:1px solid #3d91bc;border-radius:12px;max-width:650px;text-align:center}.mm23-session-error a{color:#f1c66d}
+
+/* V24: restore battle feedback and effectiveness indicators in Gym mode */
+.mm24-effect{display:block;font-size:10px;font-weight:700;margin-top:4px;color:#abd5f5}
+.mm24-effect.good{color:#43e6a0}.mm24-effect.weak{color:#f6bd65}.mm24-effect.immune{color:#fc849b}
+.stage{position:relative;overflow:hidden}
+.mm24-damage{position:absolute;z-index:18;top:42%;font-size:clamp(22px,3vw,38px);font-weight:900;color:#ffd373;text-shadow:0 2px 6px #111,0 0 10px #511;pointer-events:none;animation:mm24-float 1.1s ease-out forwards}
+.mm24-rival-damage{left:73%}.mm24-player-damage{left:24%}
+.stage .combatant.mm24-hit{animation:mm24-hit .48s ease-in-out}
+.stage .combatant.mm24-lunge.player-img{animation:mm24-player-lunge .50s ease-out}
+.stage .combatant.mm24-lunge.enemy-img{animation:mm24-enemy-lunge .50s ease-out}
+@keyframes mm24-float{0%{opacity:0;transform:translate(-50%,14px) scale(.8)}20%{opacity:1;transform:translate(-50%,0) scale(1.18)}85%{opacity:1}100%{opacity:0;transform:translate(-50%,-48px) scale(1)}}
+@keyframes mm24-hit{0%,100%{filter:brightness(1)}25%,65%{filter:brightness(2);opacity:.65;transform:translateX(6px)}50%{transform:translateX(-7px)}}
+@keyframes mm24-player-lunge{0%,100%{transform:translateX(0)}46%{transform:translateX(24px)}}
+@keyframes mm24-enemy-lunge{0%,100%{transform:translateX(0)}46%{transform:translateX(-24px)}}
+@media(prefers-reduced-motion:reduce){.mm24-damage,.stage .combatant.mm24-hit,.stage .combatant.mm24-lunge{animation:none!important}}
