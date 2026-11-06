@@ -1,0 +1,114 @@
+/* PokéMart V2.1 compact theme. Shared header is provided by css/menu-unificado.css. */
+body.pokemart-v2{background:#001527!important;font-family:Arial,Helvetica,sans-serif!important}
+.pokemart-v2 .masters-header{position:sticky;top:0;z-index:12000;width:100%;max-width:none;margin:0;border-radius:0;background:#001425;color:#fff}
+.pokemart-v2 .masters-header .top-inner{max-width:1460px;margin:0 auto}
+.pokemart-v2 .pokemart-page{padding:0 0 28px!important;min-height:calc(100vh - 48px)}
+.pokemart-v2 .pokemart-shell.compact{max-width:1460px!important;width:calc(100% - 32px)!important}
+.pokemart-v2 .pokemart-overview-card{min-height:110px!important;margin:5px 0 0!important;padding:14px 19px!important;border-radius:7px!important;background:linear-gradient(90deg,#02172bf2,#0a3157b0 70%,#021529b5),url('../assets/lobby/hero-premium.webp') center/cover!important;box-shadow:inset 0 0 24px #0b64a73b!important}
+.pokemart-v2 .pokemart-overview-card:after{right:15%;font-size:110px}
+.pokemart-v2 .pokemart-classic-title{font-size:clamp(23px,2.65vw,34px)!important;letter-spacing:-.02em}
+.pokemart-v2 .pokemart-classic-subtitle{font-size:13px!important}
+.pokemart-v2 .pokemart-saldo .saldo-box{padding:9px 14px;min-width:148px}
+.pokemart-v2 .pokemart-view-switch{min-height:48px!important;margin:0 0 8px!important;padding:4px 9px!important;gap:5px!important;background:#021326!important}
+.pokemart-v2 .pokemart-view-btn{min-width:140px!important;min-height:39px!important;padding:8px 16px!important;font-size:14px!important;border-radius:7px 7px 0 0!important}
+.v2-tab-note{font-size:12px}
+.v2-items-banner,.v2-history-banner{min-height:100px!important;padding:13px 19px!important;gap:14px!important;border-radius:7px!important}
+.v2-items-banner h2,.v2-history-banner h2{font-size:clamp(22px,2.4vw,32px)!important}
+.v2-items-banner p,.v2-history-banner p{font-size:13px!important}
+.v2-items-badge,.v2-history-glyph{width:56px!important;height:56px!important;font-size:35px!important}
+.v2-banner-orb{font-size:55px!important}
+.v2-items-layout{grid-template-columns:170px minmax(0,1fr) 250px!important;gap:8px!important;margin:9px 0!important}
+.v2-side-categories{padding:11px 8px!important;top:58px!important}
+.v2-side-categories h3{font-size:15px;margin:0 6px 9px!important}
+.v2-cat{padding:9px 10px!important;font-size:12px!important}
+.v2-items-content{padding:9px!important}
+.pokemart-v2 .pokemart-items-head{display:none!important}
+.v2-item-toolbar{margin-bottom:8px!important;gap:6px!important}
+.v2-search input,.v2-history-search input{min-height:34px!important;font-size:12px!important}
+.v2-item-toolbar select,.v2-history-tools select{padding:8px!important;font-size:12px!important}
+.pokemart-v2 .pokemart-classic-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:7px!important}
+.pokemart-v2 .pokemart-category-head{padding:5px 8px!important;margin:0 0 6px!important}
+.pokemart-v2 .pokemart-category-head h4{font-size:13px!important}
+.pokemart-v2 .pokemart-category-chip{font-size:9px!important}
+.pokemart-v2 .item-card{gap:3px!important;padding:8px!important;border-radius:8px!important;min-height:218px!important}
+.pokemart-v2 .item-card-top{min-height:76px!important}
+.pokemart-v2 .item-card .item-imagen{height:72px!important;max-height:72px!important}
+.pokemart-v2 .item-card h3{font-size:13px!important}
+.pokemart-v2 .item-card .item-descripcion{font-size:10px!important;min-height:26px!important;height:26px!important}
+.pokemart-v2 .item-stock{font-size:9px!important}
+.pokemart-v2 .item-info.compact{padding:3px 5px!important}
+.pokemart-v2 .item-info.compact strong{font-size:11px!important}
+.pokemart-v2 .item-buy-row{gap:4px!important;align-items:center!important}
+.pokemart-v2 .item-buy-side{gap:2px!important}
+.pokemart-v2 .cantidad-compra-box input{width:45px!important;height:25px!important;font-size:11px!important}
+.pokemart-v2 .btn-comprar-item{padding:6px!important;min-width:49px!important;font-size:11px!important}
+.pokemart-v2 .item-total-line{font-size:10px!important}
+.v2-item-aside{gap:8px!important}
+.v2-item-aside>div{padding:11px!important}
+.v2-balance-value{font-size:21px!important}
+.v2-feature-panel{min-height:210px!important}
+.v2-feature-icon{font-size:50px!important}
+.v2-feature-panel h3{font-size:17px!important}
+.v2-selected-price{font-size:16px!important}
+.v2-feature-btn{padding:8px!important;font-size:12px!important}
+/* Premium screenshot: dominant golden daily offer, three cards, sidebar stacked */
+.v21-premium-layout{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:10px;align-items:start}
+.v21-premium-main,.v21-premium-sidebar{min-width:0}
+.v2-premium-hero{min-height:267px!important;grid-template-columns:minmax(160px,39%) 1fr!important;gap:11px!important;padding:13px!important;margin:0 0 9px!important;border-radius:8px!important}
+.v2-premium-hero-art{min-height:230px!important;background:radial-gradient(circle at 45% 65%,#f7b63480,transparent 55%)}
+.v2-premium-hero-art:before{font-size:132px!important}
+.v2-premium-hero-art:after{bottom:16px!important}
+.v2-premium-hero-art img.v21-daily-sprite{position:absolute;z-index:2;inset:5% 5% 12%;max-width:90%;max-height:83%;width:90%;height:83%;object-fit:contain;filter:drop-shadow(0 0 23px #ffcd59)}
+.v2-premium-hero-copy h2{font-size:clamp(22px,2.2vw,32px)!important;margin:8px 0!important}
+.v2-premium-hero-copy p{font-size:13px!important}
+.v2-premium-hero-pills{margin:10px 0!important;gap:5px!important}
+.v2-premium-hero-pills span{padding:5px 7px!important;font-size:10px!important}
+.v2-hero-buy{padding:9px 16px!important;font-size:12px!important}
+.pokemart-v2 .premium-shop-catalog-wrap{margin:0!important;padding:11px!important;border-radius:8px!important}
+.pokemart-v2 .premium-shop-catalog-head{margin:0 0 8px!important}
+.pokemart-v2 .premium-shop-catalog-head h4{font-size:16px!important}
+.pokemart-v2 .premium-shop-catalog-head p{display:none}
+.pokemart-v2 .premium-shop-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important}
+.pokemart-v2 .premium-card{padding:10px!important;border-radius:8px!important;gap:5px!important}
+.pokemart-v2 .premium-card h4{font-size:14px!important;line-height:1.25!important}
+.pokemart-v2 .premium-card .premium-card-copy p{font-size:11px!important;line-height:1.35!important}
+.pokemart-v2 .premium-card-price strong{font-size:17px!important}
+.pokemart-v2 .premium-card .premium-feature-list{font-size:10px!important;padding-left:15px!important}
+.pokemart-v2 .premium-card .premium-meta-pill{font-size:10px!important}
+.pokemart-v2 .premium-card-btn{font-size:12px!important;padding:8px!important}
+.pokemart-v2 .premium-card .premium-card-note{font-size:10px!important}
+.pokemart-v2 .premium-shop-summary{grid-template-columns:1fr!important;margin:0!important;padding:8px!important;gap:7px!important;border-radius:8px!important}
+.pokemart-v2 .premium-summary-card{padding:11px!important}
+.pokemart-v2 .premium-summary-card strong{font-size:16px!important}
+.pokemart-v2 .premium-summary-card p{font-size:11px!important;margin:3px 0 0!important}
+.v21-paypal-panel{margin:9px 0;padding:17px 13px;border:1px solid #6e603b;border-radius:8px;background:linear-gradient(#18273b,#071c30);text-align:center}
+.v21-paypal-panel h3{margin:0 0 9px;font-size:14px;color:#ffe1a2}
+.v21-paypal-panel strong{display:block;padding:14px;font-size:24px;font-style:italic;background:linear-gradient(#0c9fea,#07598e);border-radius:8px;color:white}
+.v21-paypal-panel p{font-size:11px;color:#bdd2e7}
+.pokemart-v2 .premium-shop-head{margin:8px 0!important;padding:10px!important;border-radius:8px!important}
+/* History: reference compact purple hero, filters, row-style records */
+.pokemart-v2 .premium-history-shell{margin:0!important;padding:10px!important;border-radius:8px!important}
+.v2-history-banner{min-height:83px!important;background:linear-gradient(100deg,#062b4c,#221046 70%),url('../assets/lobby/halloween/boss-background.webp') center/cover!important}
+.pokemart-v2 .premium-history-head{padding:5px 8px!important;margin:0 0 6px!important}
+.pokemart-v2 .premium-history-head h4{font-size:15px!important}
+.pokemart-v2 .premium-history-head p{font-size:11px!important}
+.v2-history-tools{gap:7px!important;margin:5px 0 9px!important;align-items:center}
+.v2-history-tools>select{min-width:110px!important}
+.pokemart-v2 .premium-history-tabs{margin:4px 0 10px!important}
+.pokemart-v2 .premium-history-tab{padding:7px 12px!important;font-size:12px!important}
+.pokemart-v2 .premium-history-list{gap:5px!important}
+.pokemart-v2 .premium-history-card{padding:9px 12px!important;display:grid!important;grid-template-columns:1fr auto;gap:7px!important;border-radius:6px!important}
+.pokemart-v2 .premium-history-card h5{font-size:13px!important;margin:0 0 2px!important}
+.pokemart-v2 .premium-history-card-top{display:contents}
+.pokemart-v2 .premium-history-card-top>div{grid-column:1}
+.pokemart-v2 .premium-history-card-top>.premium-status{grid-column:2;grid-row:1;align-self:center}
+.pokemart-v2 .premium-history-meta{grid-column:1/-1;display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px!important}
+.pokemart-v2 .premium-history-meta-box{padding:6px!important;border-radius:6px!important;font-size:11px!important}
+.pokemart-v2 .premium-history-meta-box strong{font-size:11px!important;overflow-wrap:anywhere}
+.pokemart-v2 .premium-history-card [data-claim-purchase]{grid-column:1/-1;justify-self:end}
+.pokemart-v2 .premium-modal-backdrop,.pokemart-v2 .shop-feedback-backdrop{z-index:50000!important}
+@media(max-width:1220px){.v2-items-layout{grid-template-columns:145px minmax(0,1fr) 215px!important}.pokemart-v2 .pokemart-classic-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}.v21-premium-layout{grid-template-columns:minmax(0,1fr) 245px}}
+@media(max-width:960px){.v2-items-layout{grid-template-columns:130px minmax(0,1fr)!important}.v2-item-aside{grid-column:1/-1;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))}.v2-item-aside>a{grid-column:1/-1}.v21-premium-layout{grid-template-columns:1fr}.v21-premium-sidebar{display:grid;grid-template-columns:1fr 1fr;gap:8px}.v21-paypal-panel{margin:0}.pokemart-v2 .premium-shop-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+@media(max-width:720px){.pokemart-v2 .pokemart-shell.compact{width:95%!important}.pokemart-v2 .pokemart-overview-card{padding:12px!important;min-height:85px!important}.pokemart-v2 .pokemart-view-btn{min-width:0!important}.v2-items-layout{display:block!important}.v2-side-categories{display:flex!important;position:static!important;overflow-x:auto;margin-bottom:8px;padding:7px!important}.v2-side-categories h3{display:none}.v2-cat{width:auto!important;flex:none;white-space:nowrap}.v2-item-aside{display:grid!important;grid-template-columns:1fr 1fr!important}.pokemart-v2 .pokemart-classic-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.v2-premium-hero{grid-template-columns:1fr!important}.v2-premium-hero-art{min-height:145px!important}.v2-premium-hero-art img.v21-daily-sprite{height:125px}.pokemart-v2 .premium-shop-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.v21-premium-sidebar{display:block}.v21-paypal-panel{margin-top:8px}.pokemart-v2 .premium-history-meta{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:450px){.pokemart-v2 .pokemart-overview-card .pokemart-saldo{display:none}.v2-item-aside{display:block!important}.pokemart-v2 .pokemart-classic-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.pokemart-v2 .premium-shop-grid{grid-template-columns:1fr!important}.v2-history-tools{flex-wrap:wrap}.v2-history-tools>*{width:100%;max-width:none!important}}
+.pokemart-v2 #premiumHistoryList .premium-history-card.v21-outside-range{display:none!important}
