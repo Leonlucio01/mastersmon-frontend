@@ -95,12 +95,15 @@ function lobbyShiny(p){
  if(!isShiny(p?.es_shiny??p?.shiny))return null;
  const e=document.createElement('span');e.className='lobby-shiny-label';e.textContent='✦ '+tr('shiny');return e;
 }
-function renderPokemon(capturesOnly=false){
- const col=$('pokemonCards'),team=$('partyGrid');if(!col||!team)return;
- col.replaceChildren();team.replaceChildren();
- const recent=Array.isArray(recentCaptures)?recentCaptures:[];
- const note=$('popularNote');if(note)note.textContent=recent.length?'':(recentError?tr('recentError'):tr('recentNone'));
- if(recent.length){recent.slice(0,5).forEach(c=>{
+// Live community feed: keyed DOM reconciliation preserves cards that have not changed.
+// Only NEW captures create DOM; existing cards move in place instead of blinking.
+const recentCardCache=new Map();
+function captureKey(c){
+ const key=c.usuario_pokemon_id??c.captura_id??c.id??c.registro_id;
+ if(key!=null&&key!=='')return 'capture:'+String(key);
+ return JSON.stringify([c.pokemon_id,c.entrenador_nombre,c.capturado_en??c.fecha_captura??c.created_at??c.fecha??c.registrado_en,c.es_shiny,c.variant_suffix]);
+}
+function buildRecentCapture(c){
    const id=Number(c.pokemon_id)||0;if(id<=0)return;
    const tile=pokemonTile({id,name:String(c.pokemon_nombre||'Pokémon'),level:null,tipo:String(c.tipo||'').toLowerCase(),es_shiny:c.es_shiny,species_id:c.species_id,variant_suffix:c.variant_suffix,pokemon_name_api:c.pokemon_name_api});
    tile.classList.add('capture-tile');tile.classList.remove('popular-tile');lobbyTheme(tile,{tipo:c.tipo,tipo_secundario:c.tipo_secundario??c.tipo2});const chip=typeChip(c.tipo);if(chip)tile.append(chip);
@@ -109,10 +112,44 @@ function renderPokemon(capturesOnly=false){
    const author=document.createElement('span');author.className='capture-trainer';
    const lead=document.createElement('small');lead.textContent=tr('recentBy');
    const trainer=document.createElement('strong');trainer.textContent=String(c.entrenador_nombre||'Entrenador').slice(0,60);
-   author.append(lead,trainer);tile.append(author);const when=timeAgo(c.capturado_en??c.fecha_captura??c.created_at??c.fecha??c.registrado_en);if(when){const t=document.createElement('span');t.className='capture-time';t.textContent=when;tile.append(t);}col.append(tile);
- });}
- else{const empty=document.createElement('p');empty.className='recent-empty';empty.textContent=recentError?tr('recentError'):tr('recentNone');col.append(empty);}
+   author.append(lead,trainer);tile.append(author);const when=timeAgo(c.capturado_en??c.fecha_captura??c.created_at??c.fecha??c.registrado_en);if(when){const t=document.createElement('span');t.className='capture-time';t.textContent=when;tile.append(t);}return tile;
+}
+function renderRecentCaptures(){
+ const col=$('pokemonCards');if(!col)return;
+ const recent=Array.isArray(recentCaptures)?recentCaptures.slice(0,5):[];
+ const note=$('popularNote');if(note)note.textContent=recent.length?'':(recentError?tr('recentError'):tr('recentNone'));
+ const desired=[];const used=new Set();
+ for(const c of recent){
+   if(!(Number(c.pokemon_id)>0))continue;
+   const key=captureKey(c);
+   if(used.has(key))continue;
+   used.add(key);
+   const signature=JSON.stringify([lang,c.pokemon_id,c.pokemon_nombre,c.tipo,c.tipo_secundario,c.tipo2,c.es_shiny,c.entrenador_nombre,c.capturado_en,c.fecha_captura,c.created_at,c.fecha,c.registrado_en,c.species_id,c.variant_suffix,c.pokemon_name_api]);
+   let cached=recentCardCache.get(key);
+   if(!cached||cached.signature!==signature){
+     cached={signature,node:buildRecentCapture(c)};
+     recentCardCache.set(key,cached);
+   }
+   if(cached.node)desired.push(cached.node);
+ }
+ for(const key of recentCardCache.keys())if(!used.has(key))recentCardCache.delete(key);
+ if(!desired.length){
+   const current=col.firstElementChild;
+   const message=recentError?tr('recentError'):tr('recentNone');
+   if(col.children.length!==1||!current?.classList.contains('recent-empty')||current.textContent!==message){
+     const empty=document.createElement('p');empty.className='recent-empty';empty.textContent=message;col.replaceChildren(empty);
+   }
+   return;
+ }
+ // insertBefore reorders existing nodes without destroying them; no changes means zero DOM writes.
+ for(let i=0;i<desired.length;i++)if(col.children[i]!==desired[i])col.insertBefore(desired[i],col.children[i]||null);
+ while(col.children.length>desired.length)col.lastElementChild.remove();
+}
+function renderPokemon(capturesOnly=false){
+ const team=$('partyGrid');if(!team)return;
+ renderRecentCaptures();
  if(capturesOnly)return;
+ team.replaceChildren();
  for(let i=0;i<6;i++){const p=party[i];if(p){const e=document.createElement('div');e.className='party-tile';lobbyTheme(e,p);const img=document.createElement('img');attachPokemonSprite(img,p);img.alt=p.name;img.loading='lazy';img.decoding='async';const name=document.createElement('strong');name.className='party-pokemon-name';const matched=owned.find(x=>Number(x.linkId)===Number(p.linkId));const resolved=String(matched?.name||p.name||catalogNames.get(Number(p.id))||'').trim();name.textContent=(!resolved||/^Pokémon #\d+$/i.test(resolved))?(catalogNames.get(Number(p.id))||resolved||'Pokémon'):resolved;name.title=name.textContent;const lv=document.createElement('small');lv.textContent=p.level==null?'':tr('level')+' '+p.level;const spriteBox=document.createElement('span');spriteBox.className='party-sprite-box';spriteBox.append(img);e.append(spriteBox,name,lv);if(isShiny(p?.es_shiny??p?.shiny)){const sparkle=document.createElement('span');sparkle.className='party-shiny-spark';sparkle.textContent='✦';sparkle.title=tr('shiny');sparkle.setAttribute('aria-label',tr('shiny'));e.append(sparkle);}team.append(e);}else{const a=document.createElement('a');a.className='party-empty';a.href='mypokemon.html';const plus=document.createElement('b');plus.textContent='+';const label=document.createElement('span');label.textContent=tr('noParty');a.append(plus,label);team.append(a);}}
 }
 function questRow(symbol,label,url,detail){const a=document.createElement('a');a.href=url;a.className='quest-row';const i=document.createElement('span');i.className='quest-symbol';i.textContent=symbol;const s=document.createElement('strong');s.textContent=tr(label);a.append(i,s);if(detail!==undefined&&detail!==null){const x=document.createElement('small');x.textContent=String(detail);a.append(x);}return a;}
@@ -360,40 +397,23 @@ setInterval(()=>{
  }
 },60000);
 setInterval(()=>{if(authToken&&!document.hidden)loadDailyMissions();},60000);
-// V2.255 - Feed global: update only the captures section, never redraw the trainer team.
-let recentRefreshPending=false, recentLastRefresh=0;
-const recentRefreshButton=()=>document.getElementById('refreshRecentCaptures');
-function recentButtonState(loading=false){
- const button=recentRefreshButton();if(!button)return;
- button.disabled=loading;
- const label=document.getElementById('recentRefreshLabel');
- if(label)label.textContent=loading?(lang==='es'?'Actualizando…':'Refreshing…'):(lang==='es'?'Actualizar':'Refresh');
- button.title=lang==='es'?'Actualizar capturas recientes':'Refresh recent captures';
- button.setAttribute('aria-label',button.title);
-}
-async function refreshRecentCaptures(manual=false){
- if(recentRefreshPending||!authToken||(!manual&&document.hidden))return;
- // Avoid accidental double clicks and redundant network traffic.
- if(!manual&&Date.now()-recentLastRefresh<15000)return;
- recentRefreshPending=true;recentButtonState(true);
+// Poll recent captures quietly; never refresh the page or re-render the player's team.
+// The backend does not push events, so this is near-live polling every 15 seconds.
+let recentRefreshPending=false,recentLastRefresh=0;
+async function refreshRecentCaptures(){
+ if(recentRefreshPending||!authToken||document.hidden||Date.now()-recentLastRefresh<12000)return;
+ recentRefreshPending=true;
  try{
-  const data=await read('/pokemon/capturas-recientes?limit=5');
-  if(data?.ok!==true||!Array.isArray(data.capturas))throw Error('Invalid captures response');
-  recentCaptures=data.capturas;recentError=false;recentLastRefresh=Date.now();
-  renderPokemon(true);
+   const data=await read('/pokemon/capturas-recientes?limit=5');
+   if(data?.ok!==true||!Array.isArray(data.capturas))throw Error('Invalid capture response');
+   recentCaptures=data.capturas;recentError=false;recentLastRefresh=Date.now();
+   renderRecentCaptures();
  }catch(error){
-  console.info('Recent captures refresh failed',error);
-  // Keep the last successful cards visible on intermittent network errors.
-  if(manual){const note=$('popularNote');if(note&&!recentCaptures.length)note.textContent=tr('recentError');}
- }finally{recentRefreshPending=false;recentButtonState(false);}
+   console.info('Recent captures sync skipped:',error);
+   // Keep the last successful cards displayed during temporary API failures.
+ }finally{recentRefreshPending=false;}
 }
-function initRecentRefresh(){
- const button=recentRefreshButton();
- if(button){recentButtonState();button.addEventListener('click',()=>refreshRecentCaptures(true));}
- document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshRecentCaptures(false)});
- window.addEventListener('focus',()=>refreshRecentCaptures(false));
-}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initRecentRefresh,{once:true});
-else initRecentRefresh();
-setInterval(()=>{refreshRecentCaptures(false);},60000);
+setInterval(refreshRecentCaptures,15000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshRecentCaptures()});
+window.addEventListener('focus',refreshRecentCaptures);
 })();
