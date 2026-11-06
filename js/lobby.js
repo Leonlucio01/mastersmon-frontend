@@ -95,7 +95,7 @@ function lobbyShiny(p){
  if(!isShiny(p?.es_shiny??p?.shiny))return null;
  const e=document.createElement('span');e.className='lobby-shiny-label';e.textContent='✦ '+tr('shiny');return e;
 }
-function renderPokemon(){
+function renderPokemon(capturesOnly=false){
  const col=$('pokemonCards'),team=$('partyGrid');if(!col||!team)return;
  col.replaceChildren();team.replaceChildren();
  const recent=Array.isArray(recentCaptures)?recentCaptures:[];
@@ -112,6 +112,7 @@ function renderPokemon(){
    author.append(lead,trainer);tile.append(author);const when=timeAgo(c.capturado_en??c.fecha_captura??c.created_at??c.fecha??c.registrado_en);if(when){const t=document.createElement('span');t.className='capture-time';t.textContent=when;tile.append(t);}col.append(tile);
  });}
  else{const empty=document.createElement('p');empty.className='recent-empty';empty.textContent=recentError?tr('recentError'):tr('recentNone');col.append(empty);}
+ if(capturesOnly)return;
  for(let i=0;i<6;i++){const p=party[i];if(p){const e=document.createElement('div');e.className='party-tile';lobbyTheme(e,p);const img=document.createElement('img');attachPokemonSprite(img,p);img.alt=p.name;img.loading='lazy';img.decoding='async';const name=document.createElement('strong');name.className='party-pokemon-name';const matched=owned.find(x=>Number(x.linkId)===Number(p.linkId));const resolved=String(matched?.name||p.name||catalogNames.get(Number(p.id))||'').trim();name.textContent=(!resolved||/^Pokémon #\d+$/i.test(resolved))?(catalogNames.get(Number(p.id))||resolved||'Pokémon'):resolved;name.title=name.textContent;const lv=document.createElement('small');lv.textContent=p.level==null?'':tr('level')+' '+p.level;const spriteBox=document.createElement('span');spriteBox.className='party-sprite-box';spriteBox.append(img);e.append(spriteBox,name,lv);if(isShiny(p?.es_shiny??p?.shiny)){const sparkle=document.createElement('span');sparkle.className='party-shiny-spark';sparkle.textContent='✦';sparkle.title=tr('shiny');sparkle.setAttribute('aria-label',tr('shiny'));e.append(sparkle);}team.append(e);}else{const a=document.createElement('a');a.className='party-empty';a.href='mypokemon.html';const plus=document.createElement('b');plus.textContent='+';const label=document.createElement('span');label.textContent=tr('noParty');a.append(plus,label);team.append(a);}}
 }
 function questRow(symbol,label,url,detail){const a=document.createElement('a');a.href=url;a.className='quest-row';const i=document.createElement('span');i.className='quest-symbol';i.textContent=symbol;const s=document.createElement('strong');s.textContent=tr(label);a.append(i,s);if(detail!==undefined&&detail!==null){const x=document.createElement('small');x.textContent=String(detail);a.append(x);}return a;}
@@ -359,6 +360,40 @@ setInterval(()=>{
  }
 },60000);
 setInterval(()=>{if(authToken&&!document.hidden)loadDailyMissions();},60000);
-// Actualiza el feed global sin recargar el lobby. Solo se consulta si hay sesión.
-setInterval(async()=>{if(!authToken||document.hidden)return;try{const r=await optional('/pokemon/capturas-recientes?limit=5');if(r?.ok===true&&Array.isArray(r.capturas)){recentError=false;recentCaptures=r.capturas;renderPokemon();}}catch(e){console.info('Recent captures refresh',e);}},60000);
+// V2.255 - Feed global: update only the captures section, never redraw the trainer team.
+let recentRefreshPending=false, recentLastRefresh=0;
+const recentRefreshButton=()=>document.getElementById('refreshRecentCaptures');
+function recentButtonState(loading=false){
+ const button=recentRefreshButton();if(!button)return;
+ button.disabled=loading;
+ const label=document.getElementById('recentRefreshLabel');
+ if(label)label.textContent=loading?(lang==='es'?'Actualizando…':'Refreshing…'):(lang==='es'?'Actualizar':'Refresh');
+ button.title=lang==='es'?'Actualizar capturas recientes':'Refresh recent captures';
+ button.setAttribute('aria-label',button.title);
+}
+async function refreshRecentCaptures(manual=false){
+ if(recentRefreshPending||!authToken||(!manual&&document.hidden))return;
+ // Avoid accidental double clicks and redundant network traffic.
+ if(!manual&&Date.now()-recentLastRefresh<15000)return;
+ recentRefreshPending=true;recentButtonState(true);
+ try{
+  const data=await read('/pokemon/capturas-recientes?limit=5');
+  if(data?.ok!==true||!Array.isArray(data.capturas))throw Error('Invalid captures response');
+  recentCaptures=data.capturas;recentError=false;recentLastRefresh=Date.now();
+  renderPokemon(true);
+ }catch(error){
+  console.info('Recent captures refresh failed',error);
+  // Keep the last successful cards visible on intermittent network errors.
+  if(manual){const note=$('popularNote');if(note&&!recentCaptures.length)note.textContent=tr('recentError');}
+ }finally{recentRefreshPending=false;recentButtonState(false);}
+}
+function initRecentRefresh(){
+ const button=recentRefreshButton();
+ if(button){recentButtonState();button.addEventListener('click',()=>refreshRecentCaptures(true));}
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshRecentCaptures(false)});
+ window.addEventListener('focus',()=>refreshRecentCaptures(false));
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initRecentRefresh,{once:true});
+else initRecentRefresh();
+setInterval(()=>{refreshRecentCaptures(false);},60000);
 })();
