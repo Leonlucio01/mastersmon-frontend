@@ -661,3 +661,117 @@ body.pokemart-v2{background:#001324!important;color:#eaf6ff!important}
   #paypal-section #premiumCatalogo > .premium-card.locked {grid-column:1 / -1;}
   #paypal-section #premiumCatalogo > .premium-card {height:auto !important;max-height:none !important;min-height:155px !important;}
 }
+/* MastersMon PokéMart Premium — integration of approved LOCAL assets.
+   This block only styles #paypal-section; prices, product access and payments
+   continue to be resolved by the existing backend and js/pokemart.js. */
+#paypal-section .v2-premium-hero {
+  background:linear-gradient(90deg,rgba(4,17,34,.08) 0%,rgba(4,18,35,.38) 33%,rgba(2,14,31,.78) 57%,rgba(3,16,34,.56) 100%),url('../assets/pokemart/premium/premium-featured-bg.png') center center/cover no-repeat!important;
+  border:1px solid #dfaa42!important;
+  box-shadow:inset 0 0 19px #ffc95718,0 0 11px #ffbe4030!important;
+  overflow:hidden!important;
+  position:relative!important;
+}
+#paypal-section .v2-premium-hero-art {
+  position:relative!important;
+  isolation:isolate;
+  background:transparent!important;
+  overflow:visible!important;
+}
+/* Decorative podium remains behind the live daily sprite; never hardcode a Pokémon. */
+#paypal-section .v2-premium-hero-art::before {
+  content:''!important;
+  position:absolute!important;
+  z-index:0!important;
+  inset:7% 2% 0!important;
+  width:96%!important;
+  height:93%!important;
+  background:url('../assets/pokemart/premium/premium-gold-podium.png') center 80%/contain no-repeat!important;
+  font-size:0!important;
+  pointer-events:none;
+  filter:drop-shadow(0 0 9px #f0ae4542);
+}
+#paypal-section .v2-premium-hero-art::after{opacity:.3!important;z-index:0!important;pointer-events:none}
+#paypal-section .v2-premium-hero-art .v2-glow-orbit,
+#paypal-section .v2-premium-hero-art .v2-hero-spark{opacity:.38!important}
+#paypal-section .v2-premium-hero-art img.v21-daily-sprite{
+  z-index:2!important;
+  object-fit:contain!important;
+  filter:drop-shadow(0 1px 5px #0c1024) drop-shadow(0 0 11px #ffe18f)!important;
+}
+#paypal-section .v2-premium-hero-copy{position:relative!important;z-index:3!important;min-width:0!important}
+#paypal-section .v2-premium-hero-copy h2{color:#ffdc83!important;text-shadow:0 2px 10px #0009!important}
+#paypal-section .v2-gold-label{box-shadow:0 0 12px #ffb93e44!important}
+#paypal-section .v2-hero-buy{position:relative!important;z-index:4!important;box-shadow:0 0 10px #ecb74248!important}
+/* Five actual catalog offers: three available followed by two disabled. */
+#paypal-section #premiumCatalogo>.premium-card{
+  background:linear-gradient(160deg,rgba(5,22,42,.91),rgba(4,27,52,.88)),url('../assets/pokemart/premium/premium-card-bg.png') center/cover no-repeat!important;
+  border:1px solid #1ca9de!important;
+  box-shadow:inset 0 0 12px #0b8cdb22,0 1px 6px #0006!important;
+  position:relative!important;
+}
+#paypal-section #premiumCatalogo>.premium-card.locked{
+  background:linear-gradient(150deg,rgba(6,22,40,.88),rgba(3,15,29,.90)),url('../assets/pokemart/premium/premium-comingsoon-bg.png') center/cover no-repeat!important;
+  border-color:#416481!important;
+  opacity:.88!important;
+}
+#paypal-section #premiumCatalogo>.premium-card[data-premium-code="idle_masters_1m"]{border-color:#e0b659!important;box-shadow:inset 0 0 12px #ffd35c1f,0 0 7px #d6a33925!important}
+#paypal-section #premiumCatalogo .premium-card-top{display:flex!important;align-items:center!important;gap:7px!important;min-height:43px!important}
+#paypal-section #premiumCatalogo .premium-card-badge{
+  display:inline-block!important;
+  flex:0 0 43px!important;
+  width:43px!important;height:43px!important;min-width:43px!important;
+  padding:0!important;
+  font-size:0!important;line-height:0!important;
+  border:0!important;
+  background-color:transparent!important;
+  background-position:center!important;
+  background-repeat:no-repeat!important;
+  background-size:contain!important;
+  filter:drop-shadow(0 0 6px #20a8d35c);
+}
+#paypal-section #premiumCatalogo .premium-card[data-premium-code="idle_masters_1m"] .premium-card-badge{background-image:url('../assets/pokemart/premium/idle-masters.png')!important}
+#paypal-section #premiumCatalogo .premium-card[data-premium-code="battle_exp_x2_pack5"] .premium-card-badge{background-image:url('../assets/pokemart/premium/battle-exp-x2.png')!important}
+#paypal-section #premiumCatalogo .premium-card[data-premium-code="battle_gold_x2_pack5"] .premium-card-badge{background-image:url('../assets/pokemart/premium/battle-gold-x2.png')!important}
+#paypal-section #premiumCatalogo .premium-card[data-premium-code="map_exclusive_rate_1y"] .premium-card-badge,
+#paypal-section #premiumCatalogo .premium-card[data-premium-code="exclusive_maps_rate_1y"] .premium-card-badge{background-image:url('../assets/pokemart/premium/maps-exclusive.png')!important}
+#paypal-section #premiumCatalogo .premium-card[data-premium-code="battle_pass_s1"] .premium-card-badge{background-image:url('../assets/pokemart/premium/battle-pass.png')!important}
+#paypal-section #premiumCatalogo .premium-card-copy h4{color:#f1f9ff!important;font-size:12.5px!important;line-height:1.16!important;text-shadow:0 1px 3px #001629!important}
+#paypal-section #premiumCatalogo .premium-card-copy p{color:#c8e4f6!important;font-size:10px!important;line-height:1.22!important}
+#paypal-section #premiumCatalogo .premium-card-price strong{color:#ffce62!important}
+#paypal-section #premiumCatalogo .premium-card-tag{background:rgba(7,37,60,.9)!important;color:#d8efff!important}
+#paypal-section #premiumCatalogo .premium-card-btn:not(:disabled){border-color:#62d7ff!important;background:linear-gradient(180deg,#28c4f9,#087eb8)!important;box-shadow:inset 0 1px #c7efff55,0 0 7px #02baff3b!important}
+#paypal-section #premiumCatalogo .premium-card-btn:disabled{background:linear-gradient(180deg,#244159,#112b43)!important;color:#a2bad0!important}
+/* Sidebar background assets, without baking any dynamic counts into images. */
+#paypal-section .premium-shop-summary{
+  background:linear-gradient(180deg,rgba(5,28,49,.90),rgba(4,22,41,.94)),url('../assets/pokemart/premium/premium-summary-bg.png') center/cover no-repeat!important;
+  border:1px solid #249ecb!important;
+  box-shadow:inset 0 0 12px #02c9ff18!important;
+}
+#paypal-section .premium-summary-card{background:rgba(7,36,60,.80)!important;border-color:#235d87!important}
+#paypal-section .premium-summary-card strong{color:#ffd463!important}
+#paypal-section .v21-paypal-panel{background:linear-gradient(140deg,rgba(7,33,58,.92),rgba(6,24,42,.95)),url('../assets/pokemart/premium/premium-summary-bg.png') 50% 72%/cover no-repeat!important;border-color:#98762e!important}
+/* Do not let product artwork crowd out live checkout buttons in short viewports. */
+@media(min-width:1000px) and (min-height:720px){
+ #paypal-section .v2-premium-hero{min-height:176px!important;height:176px!important}
+ #paypal-section .v2-premium-hero-art{height:150px!important;min-height:150px!important}
+ #paypal-section .v2-premium-hero-art img.v21-daily-sprite{inset:1% 4% 9%!important;height:90%!important;max-height:90%!important}
+ #paypal-section .v2-premium-hero-copy h2{font-size:clamp(19px,2vw,25px)!important;margin:2px 0!important}
+ #paypal-section .v2-premium-hero-pills{margin:4px 0!important}
+ #paypal-section .v2-hero-buy{min-height:29px!important;margin-top:4px!important;padding:5px 11px!important}
+ #paypal-section #premiumCatalogo>.premium-card:not(.locked){height:166px!important;min-height:166px!important;max-height:166px!important}
+ #paypal-section #premiumCatalogo>.premium-card.locked{height:118px!important;min-height:118px!important;max-height:118px!important}
+}
+@media(min-width:1000px) and (max-height:819px){
+ #paypal-section .v2-premium-hero{height:151px!important;min-height:151px!important}
+ #paypal-section .v2-premium-hero-art{height:129px!important;min-height:129px!important}
+ #paypal-section #premiumCatalogo>.premium-card:not(.locked){height:147px!important;min-height:147px!important;max-height:147px!important}
+ #paypal-section #premiumCatalogo>.premium-card.locked{height:103px!important;min-height:103px!important;max-height:103px!important}
+ #paypal-section #premiumCatalogo .premium-card-top{min-height:30px!important}
+ #paypal-section #premiumCatalogo .premium-card-badge{height:30px!important;width:30px!important;min-width:30px!important;flex-basis:30px!important}
+}
+@media(max-width:999px), (max-height:719px){
+ #paypal-section #premiumCatalogo>.premium-card,
+ #paypal-section #premiumCatalogo>.premium-card.locked{height:auto!important;min-height:135px!important;max-height:none!important}
+ #paypal-section .v2-premium-hero{height:auto!important;min-height:190px!important}
+ #paypal-section .v2-premium-hero-art{min-height:145px!important;height:auto!important}
+}
