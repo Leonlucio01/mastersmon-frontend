@@ -520,3 +520,144 @@ body.pokemart-v2{background:#001324!important;color:#eaf6ff!important}
  #paypal-section .premium-card {height:auto!important;max-height:none!important}
  #paypal-section .v21-premium-layout {align-items:start!important}
 }
+
+/* MastersMon PokéMart Premium - five-offer layout / no duplicated Pokémon promo.
+   Scope limited to the premium panel; no changes to Items, History or PayPal flows. */
+#paypal-section #premiumCatalogo > .premium-card[data-premium-code="exclusive_pokemon_single"] {
+  display: none !important;
+}
+#paypal-section .premium-shop-catalog-wrap {
+  border: 1px solid rgba(27,136,209,.7) !important;
+  background: linear-gradient(155deg,#092844 0%,#06192f 95%) !important;
+  box-shadow: inset 0 1px 0 rgba(124,216,255,.08) !important;
+}
+#paypal-section .premium-shop-catalog-head {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+#paypal-section .premium-shop-catalog-head h4 {
+  color: #eaf7ff !important;
+  letter-spacing: .01em !important;
+}
+#paypal-section .premium-shop-mini-kicker {
+  color: #9bdcfa !important;
+  background: #0a3859 !important;
+  border-color: #1f729c !important;
+}
+#paypal-section #premiumCatalogo {
+  display: grid !important;
+  grid-template-columns: repeat(6,minmax(0,1fr)) !important;
+  gap: 8px !important;
+  align-items: stretch !important;
+}
+#paypal-section #premiumCatalogo > .premium-card {
+  grid-column: span 2;
+  position: relative !important;
+  isolation: isolate;
+  background: linear-gradient(150deg,#123a5c,#071d37 78%) !important;
+  border: 1px solid #267baf !important;
+  box-shadow: inset 0 1px 0 rgba(134,216,255,.08),0 2px 9px rgba(0,0,0,.16) !important;
+  transition: border-color .15s ease,box-shadow .15s ease,transform .15s ease;
+}
+#paypal-section #premiumCatalogo > .premium-card:not(.locked):hover {
+  border-color: #5dd4ff !important;
+  box-shadow: 0 0 13px rgba(26,179,250,.24),inset 0 1px 0 rgba(134,216,255,.1) !important;
+  transform: translateY(-1px);
+}
+#paypal-section #premiumCatalogo > .premium-card.locked {
+  grid-column: span 3;
+  background:linear-gradient(145deg,#0e263c,#091c30 85%) !important;
+  border-color:#34526c !important;
+  opacity:.84 !important;
+}
+#paypal-section #premiumCatalogo > .premium-card[data-premium-code="idle_masters_1m"] {border-color:#a38943 !important;}
+#paypal-section #premiumCatalogo > .premium-card[data-premium-code="battle_exp_x2_pack5"] {border-color:#29a9e7 !important;}
+#paypal-section #premiumCatalogo > .premium-card[data-premium-code="battle_gold_x2_pack5"] {border-color:#bd9449 !important;}
+#paypal-section #premiumCatalogo .premium-card-badge {
+  background:linear-gradient(145deg,#173f64,#0a2848) !important;
+  color:#fdd568 !important;
+  border:1px solid rgba(69,159,214,.5) !important;
+  border-radius:9px !important;
+}
+#paypal-section #premiumCatalogo .premium-card-tag,
+#paypal-section #premiumCatalogo .premium-price-type {
+  color:#c5e5f7 !important;
+  background:#102d49 !important;
+  border-color:#255373 !important;
+}
+#paypal-section #premiumCatalogo .premium-card-price strong {
+  color:#ffce55 !important;
+  font-variant-numeric:tabular-nums;
+}
+#paypal-section #premiumCatalogo .premium-card-btn:not(:disabled) {
+  background:linear-gradient(180deg,#29bdf2,#067cba) !important;
+  color:#fff !important;
+  border:1px solid #64d8ff !important;
+  box-shadow:0 2px 7px rgba(0,153,219,.2);
+}
+#paypal-section #premiumCatalogo .premium-card-btn:disabled {
+  background:linear-gradient(#15374f,#0d273d) !important;
+  color:#a3b7c9 !important;
+  border:1px solid #36566b !important;
+  box-shadow:none !important;
+}
+#paypal-section .premium-shop-summary {
+  border:1px solid #236a99 !important;
+  border-radius:9px !important;
+  background:linear-gradient(180deg,#0c2b45,#081c34) !important;
+}
+#paypal-section .premium-summary-card {
+  border:1px solid #275171 !important;
+  background:#0b243d !important;
+  border-radius:7px !important;
+}
+#paypal-section .premium-summary-card strong {color:#ffd467 !important;}
+#paypal-section .v21-paypal-panel {
+  background:linear-gradient(155deg,#102a46,#071c33) !important;
+  border:1px solid #806934 !important;
+}
+#paypal-section .v21-paypal-panel strong {
+  background:linear-gradient(135deg,#218fd2,#08699c) !important;
+  color:#fff !important;
+}
+#paypal-section .v2-premium-hero {
+  background: radial-gradient(circle at 25% 50%,rgba(224,164,38,.17),transparent 43%),linear-gradient(118deg,#192637,#0a1b32 80%) !important;
+  border-color:#b58b37 !important;
+  box-shadow:inset 0 0 28px rgba(248,184,61,.045);
+}
+#paypal-section .v2-premium-hero-copy h2 {color:#ffdb75 !important;}
+#paypal-section .v2-hero-buy:not(:disabled) {
+  color:#122038 !important;
+  background:linear-gradient(180deg,#ffe28a,#dfaa34) !important;
+}
+/* Keep the premium screen compact at ordinary desktop sizes. */
+@media(min-width:1000px) and (min-height:720px) {
+  #paypal-section #premiumCatalogo > .premium-card {
+    height:155px !important;
+    min-height:155px !important;
+    max-height:155px !important;
+  }
+  #paypal-section #premiumCatalogo > .premium-card.locked {
+    height:113px !important;
+    min-height:113px !important;
+    max-height:113px !important;
+  }
+  #paypal-section #premiumCatalogo > .premium-card.locked .premium-card-copy p {
+    -webkit-line-clamp:1 !important;
+  }
+  #paypal-section #premiumCatalogo > .premium-card.locked .premium-card-price-row {display:none !important;}
+  #paypal-section .v2-premium-hero {height:161px !important;min-height:161px !important;}
+  #paypal-section .v2-premium-hero-art {height:138px !important;min-height:138px !important;}
+}
+@media(max-width:999px) {
+  #paypal-section #premiumCatalogo > .premium-card,
+  #paypal-section #premiumCatalogo > .premium-card.locked {grid-column:span 3;}
+  #paypal-section #premiumCatalogo > .premium-card {height:auto !important;max-height:none !important;min-height:145px !important;}
+}
+@media(max-width:610px) {
+  #paypal-section #premiumCatalogo {grid-template-columns:1fr !important;}
+  #paypal-section #premiumCatalogo > .premium-card,
+  #paypal-section #premiumCatalogo > .premium-card.locked {grid-column:1 / -1;}
+  #paypal-section #premiumCatalogo > .premium-card {height:auto !important;max-height:none !important;min-height:155px !important;}
+}
