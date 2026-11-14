@@ -42,7 +42,10 @@ const ITEM_SORT_ORDER = {
     "Piedra Trueno": 240,
     "Thunder Stone": 240,
     "Piedra Lunar": 250,
-    "Moon Stone": 250
+    "Moon Stone": 250,
+    "Piedra Noche": 260,
+    "Dusk Stone": 260,
+    "Prism Scale": 345
 };
 
 const POKEMART_AUTH_GATE_COPY = {
@@ -444,6 +447,12 @@ function filtrarItemsTiendaPublica(items = []) {
 }
 
 function traducirNombreItemTienda(nombre = "") {
+    const lang = idiomaPokeMart();
+    const nombresEspeciales = {
+        "Piedra Noche": { es: "Piedra Noche", en: "Dusk Stone" },
+        "Prism Scale": { es: "Escama Prisma", en: "Prism Scale" }
+    };
+    if (nombresEspeciales[nombre]) return nombresEspeciales[nombre][lang];
     const mapa = {
         "Poke Ball": "item_poke_ball",
         "Super Ball": "item_super_ball",
@@ -462,6 +471,18 @@ function traducirNombreItemTienda(nombre = "") {
 }
 
 function traducirDescripcionItemTienda(nombre = "", descripcion = "") {
+    const lang = idiomaPokeMart();
+    const descripcionesEspeciales = {
+        "Piedra Noche": {
+            es: "Piedra evolutiva para convertir Eevee en Umbreon en MastersMon.",
+            en: "Evolution stone used to evolve Eevee into Umbreon in MastersMon."
+        },
+        "Prism Scale": {
+            es: "Escama evolutiva para convertir Feebas en Milotic en MastersMon.",
+            en: "Evolution scale used to evolve Feebas into Milotic in MastersMon."
+        }
+    };
+    if (descripcionesEspeciales[nombre]) return descripcionesEspeciales[nombre][lang];
     const mapa = {
         "Poke Ball": "pokemart_desc_poke_ball",
         "Super Ball": "pokemart_desc_super_ball",

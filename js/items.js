@@ -129,6 +129,9 @@ const ITEMS_ALIAS_MAP = {
     "dusk-stone": "dusk-stone",
     "dusk_stone": "dusk-stone",
     "dusk stone": "dusk-stone",
+    "piedra-noche": "dusk-stone",
+    "piedra_noche": "dusk-stone",
+    "piedra noche": "dusk-stone",
 
     "dawn-stone": "dawn-stone",
     "dawn_stone": "dawn-stone",
