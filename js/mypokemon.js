@@ -1759,18 +1759,53 @@ async function manejarEvolucion(usuarioPokemonId, nombrePokemon) {
     }
 }
 
-function mostrarModalEvolucionNivel(usuarioPokemonId, nombrePokemon, data) {
+function construirSolicitudEvolucionMyPokemon(usuarioPokemonId, itemId = null) {
+    const payload = { usuario_pokemon_id: usuarioPokemonId };
+    const modal = modalEvolucionActual;
+    if (modal && Number(modal.usuarioPokemonId) === Number(usuarioPokemonId)) {
+        if (modal.evolucionId) payload.evolucion_id = Number(modal.evolucionId);
+        if (modal.data?.pokemon_id) payload.pokemon_origen_id = Number(modal.data.pokemon_id);
+        if (modal.data?.estado_evolucion) payload.estado_evolucion = String(modal.data.estado_evolucion);
+    }
+    if (itemId !== null) payload.item_id = Number(itemId);
+    return payload;
+}
+
+function agregarSelectorDestinosEvolucion(contenido, opciones, elegido, onChange) {
+    if (opciones.length < 2) return;
+    const selector = document.createElement("select");
+    selector.setAttribute("aria-label", "Destino de evolución");
+    for (const opcion of opciones) {
+        const node = document.createElement("option");
+        node.value = String(opcion.evolucion_id || opcion.evoluciona_a);
+        node.textContent = opcion.evolucion_nombre + (opcion.item_nombre ? " · " + opcion.item_nombre : "");
+        selector.appendChild(node);
+    }
+    selector.value = String(elegido.evolucion_id || elegido.evoluciona_a);
+    selector.onchange = () => onChange(Number(selector.value));
+    contenido.querySelector(".evolucion-botones").before(selector);
+}
+
+function mostrarDestinoEvolucionMyPokemon(usuarioPokemonId, nombrePokemon, data, destino) {
+    const opcion = (data.opciones || []).find(op => Number(op.evolucion_id || op.evoluciona_a) === Number(destino));
+    if (opcion?.tipo === "item") mostrarModalEvolucionItem(usuarioPokemonId, nombrePokemon, data, destino);
+    else if (opcion?.tipo === "nivel") mostrarModalEvolucionNivel(usuarioPokemonId, nombrePokemon, data, destino);
+}
+
+function mostrarModalEvolucionNivel(usuarioPokemonId, nombrePokemon, data, destinoSeleccionado = null) {
     const modal = document.getElementById("modalEvolucion");
     const contenido = document.getElementById("contenidoModalEvolucion");
 
-    const opciones = Array.isArray(data?.opciones) ? data.opciones : [];
-    const opcionNivel = opciones.find(op => op.tipo === "nivel") || opciones[0];
+    const opciones = (Array.isArray(data?.opciones) ? data.opciones : []).filter(op => op.tipo === "nivel");
+    const opcionNivel = opciones.find(op => Number(op.evolucion_id || op.evoluciona_a) === Number(destinoSeleccionado))
+        || opciones.find(op => op.listo) || opciones[0];
     if (!opcionNivel || !contenido || !modal) return;
 
     modalEvolucionActual = {
         tipo: "nivel",
         usuarioPokemonId,
         nombrePokemon,
+        evolucionId: opcionNivel.evolucion_id || opcionNivel.evoluciona_a,
         data
     };
 
@@ -1823,16 +1858,18 @@ function mostrarModalEvolucionNivel(usuarioPokemonId, nombrePokemon, data) {
         </div>
     `;
 
+    agregarSelectorDestinosEvolucion(contenido, data.opciones || [], opcionNivel,
+        destino => mostrarDestinoEvolucionMyPokemon(usuarioPokemonId, nombrePokemon, data, destino));
     modal.classList.remove("oculto");
 }
 
-function mostrarModalEvolucionItem(usuarioPokemonId, nombrePokemon, data) {
+function mostrarModalEvolucionItem(usuarioPokemonId, nombrePokemon, data, destinoSeleccionado = null) {
     const modal = document.getElementById("modalEvolucion");
     const contenido = document.getElementById("contenidoModalEvolucion");
 
-    const opciones = Array.isArray(data?.opciones) ? data.opciones : [];
+    const opciones = (Array.isArray(data?.opciones) ? data.opciones : []).filter(op => op.tipo === "item");
     const opcionDisponible = opciones.find(op => op.tiene_item);
-    const opcionMostrar = opcionDisponible || opciones[0];
+    const opcionMostrar = opciones.find(op => Number(op.evolucion_id || op.evoluciona_a) === Number(destinoSeleccionado)) || opcionDisponible || opciones[0];
 
     if (!opcionMostrar || !contenido || !modal) return;
 
@@ -1840,6 +1877,7 @@ function mostrarModalEvolucionItem(usuarioPokemonId, nombrePokemon, data) {
         tipo: "item",
         usuarioPokemonId,
         nombrePokemon,
+        evolucionId: opcionMostrar.evolucion_id || opcionMostrar.evoluciona_a,
         data
     };
 
@@ -1896,6 +1934,8 @@ function mostrarModalEvolucionItem(usuarioPokemonId, nombrePokemon, data) {
         </div>
     `;
 
+    agregarSelectorDestinosEvolucion(contenido, data.opciones || [], opcionMostrar,
+        destino => mostrarDestinoEvolucionMyPokemon(usuarioPokemonId, nombrePokemon, data, destino));
     modal.classList.remove("oculto");
 }
 
@@ -1915,18 +1955,16 @@ async function confirmarEvolucionNivel(usuarioPokemonId) {
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({
-                usuario_pokemon_id: usuarioPokemonId
-            })
+            body: JSON.stringify(construirSolicitudEvolucionMyPokemon(usuarioPokemonId))
         });
 
         cerrarModalEvolucion();
 
-        if (evoData.mensaje && (
+        if (evoData.ok === false || (evoData.mensaje && (
             evoData.mensaje.toLowerCase().includes("aún no puede") ||
             evoData.mensaje.toLowerCase().includes("no encontrado") ||
             evoData.mensaje.toLowerCase().includes("no puede")
-        )) {
+        ))) {
             mostrarMensajeEvolucion(evoData.mensaje, "error");
             return;
         }
@@ -1975,19 +2013,16 @@ async function confirmarEvolucionItem(usuarioPokemonId, itemId) {
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({
-                usuario_pokemon_id: usuarioPokemonId,
-                item_id: itemId
-            })
+            body: JSON.stringify(construirSolicitudEvolucionMyPokemon(usuarioPokemonId, itemId))
         });
 
         cerrarModalEvolucion();
 
-        if (evoData.mensaje && (
+        if (evoData.ok === false || (evoData.mensaje && (
             evoData.mensaje.toLowerCase().includes("no tienes") ||
             evoData.mensaje.toLowerCase().includes("no encontrado") ||
             evoData.mensaje.toLowerCase().includes("no evoluciona")
-        )) {
+        ))) {
             mostrarMensajeEvolucion(evoData.mensaje, "error");
             return;
         }

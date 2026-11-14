@@ -3,6 +3,7 @@
 const $=id=>document.getElementById(id), GRID_PAGE=12, LIST_PAGE=20;
 let evolutionBusy=false;
 let pendingEvolution=null;
+let evolutionReviewVersion=0;
 const pageSize=()=>state.view==='list'?LIST_PAGE:GRID_PAGE;
 const state={list:[],filtered:[],selectedId:null,page:0,view:'grid',lang:localStorage.getItem('mastersmon_lang')==='en'?'en':'es',tab:'info',type:'',evo:null,chain:null,lookups:new Map(),chains:new Map(),favorites:new Set(),user:null,team:null,teamPositions:new Map(),loading:true};
 const tr=(es,en)=>state.lang==='en'?en:es;
@@ -140,18 +141,26 @@ function ensureEvoDialog(){
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!modal.hidden&&!evolutionBusy)closeEvoDialog()});
   return modal;
 }
-function closeEvoDialog(){const modal=$('collectionEvoDialog');if(modal){modal.hidden=true;modal.classList.remove('evo-success-overlay')}pendingEvolution=null}
-function evoChoice(data){
+function closeEvoDialog(){evolutionReviewVersion++;const modal=$('collectionEvoDialog');if(modal){modal.hidden=true;modal.classList.remove('evo-success-overlay')}pendingEvolution=null}
+function evoChoice(data,target=null){
  if(!data||data.puede_evolucionar!==true)return null;
  const opts=Array.isArray(data.opciones)?data.opciones:[];
+ if(target!==null)return opts.find(o=>evoTargetId(o)===Number(target))||null;
  if(data.tipo==='nivel')return opts.find(o=>o.tipo==='nivel')||null;
  if(data.tipo==='item')return opts.find(o=>o.tiene_item===true)||opts.find(o=>o.tipo==='item')||null;
  return null;
 }
 function evoTargetId(choice){return num(choice?.evolucion_id??choice?.evoluciona_a)}
-function evoReady(data,choice){return data?.listo_ahora===true&&!!choice&&(data.tipo==='nivel'?choice.listo===true:data.tipo==='item'?choice.tiene_item===true&&num(choice.item_id)>0:false)}
-async function prepareEvolution(id){
+function evoReady(data,choice){return data?.listo_ahora===true&&!!choice&&(choice.tipo==='nivel'?choice.listo===true:choice.tipo==='item'?choice.listo===true&&choice.tiene_item===true&&num(choice.item_id)>0:false)}
+function evoPayload(request){
+ const payload={usuario_pokemon_id:request.id,evolucion_id:request.target,pokemon_origen_id:request.origin};
+ if(request.version)payload.estado_evolucion=String(request.version);
+ if(request.tipo==='item')payload.item_id=request.itemId;
+ return payload;
+}
+async function prepareEvolution(id,selectedTarget=null){
  if(evolutionBusy)return;
+ const reviewVersion=++evolutionReviewVersion;
  const p=state.list.find(x=>x.id===id);
  if(!p||!state.user?.id||!getAccessToken())return;
  const modal=ensureEvoDialog();
@@ -161,14 +170,20 @@ async function prepareEvolution(id){
  modal.querySelector('.collection-evo-dialog').focus();
  try{
   const data=await fetchAuth(`${API_BASE}/usuario/pokemon/${p.id}/evolucion`);
-  if(modal.hidden)return;
+  if(modal.hidden||reviewVersion!==evolutionReviewVersion)return;
   state.lookups.set(p.id,data);if(state.selectedId===p.id)state.evo={id:p.id,data};
-  const choice=evoChoice(data),ready=evoReady(data,choice),target=evoTargetId(choice);
+  const choice=evoChoice(data,selectedTarget),ready=evoReady(data,choice),target=evoTargetId(choice),tipo=choice?.tipo||data.tipo;
   const label=String(choice?.evolucion_nombre||'#'+target);
-  const extra=data.tipo==='nivel'?`${tr('Nivel actual','Current level')}: ${num(data.nivel_actual)} · ${tr('Requerido','Required')}: ${num(choice?.nivel_requerido)}`:data.tipo==='item'?`${tr('Objeto','Item')}: ${esc(choice?.item_nombre||'—')} · ${tr('Disponible','Owned')}: ${num(choice?.cantidad)}`:'';
-  pendingEvolution=ready?{id:p.id,tipo:data.tipo,itemId:num(choice.item_id),target}:null;
+  const extra=tipo==='nivel'?`${tr('Nivel actual','Current level')}: ${num(data.nivel_actual)} · ${tr('Requerido','Required')}: ${num(choice?.nivel_requerido)}`:tipo==='item'?`${tr('Objeto','Item')}: ${esc(choice?.item_nombre||'—')} · ${tr('Disponible','Owned')}: ${num(choice?.cantidad)}`:'';
+  pendingEvolution=ready?{id:p.id,tipo,itemId:num(choice.item_id),target,origin:num(data.pokemon_id),version:data.estado_evolucion}:null;
   const dest=target?pic({pokemon_id:target,nombre:label,es_shiny:p.es_shiny},'evo-modal-sprite'):'<span>?</span>';
   modal.querySelector('#collectionEvoContent').innerHTML=`<h2 id="collectionEvoTitle">${tr('Confirmar evolución','Confirm evolution')}</h2><p>${esc(p.nombre)} · ${tr('Nv.','Lv.')} ${p.nivel}${p.es_shiny?' · ✦ Shiny':''}</p><div class="evo-modal-pair"><div>${pic(p,'evo-modal-sprite')}<strong>${esc(p.nombre)}</strong></div><span class="evo-modal-arrow">➜</span><div>${dest}<strong>${esc(label)}</strong></div></div><p class="evo-modal-requirement">${extra||esc(data?.motivo||'')}</p>${ready?'<p class="evo-modal-warning">'+tr('Esta acción modificará tu Pokémon y puede consumir un objeto.','This will change your Pokémon and may consume an item.')+'</p>':'<p class="evo-modal-warning">'+tr('Todavía no cumple los requisitos.','Requirements are not met yet.')+'</p>'}<div class="evo-modal-actions"><button type="button" class="evo-cancel">${tr('Cancelar','Cancel')}</button><button type="button" class="evo-confirm" ${ready?'':'disabled'}>${tr('Confirmar evolución','Confirm evolution')}</button></div>`;
+  if(Array.isArray(data.opciones)&&data.opciones.length>1){
+   const selector=document.createElement('select');selector.setAttribute('aria-label',tr('Destino de evolución','Evolution target'));
+   for(const option of data.opciones){const node=document.createElement('option');node.value=String(evoTargetId(option));node.textContent=option.evolucion_nombre+(option.item_nombre?' · '+option.item_nombre:'');selector.appendChild(node)}
+   selector.value=String(target);selector.onchange=()=>prepareEvolution(id,Number(selector.value));
+   modal.querySelector('.evo-modal-actions').before(selector);
+  }
   modal.querySelector('.evo-cancel').onclick=closeEvoDialog;
   modal.querySelector('.evo-confirm').onclick=confirmEvolution;
   bindImages(modal);
@@ -185,13 +200,13 @@ async function confirmEvolution(){
   // Revalidate against server immediately before the irreversible POST.
   if(!getAccessToken()||!state.user?.id)throw Error(tr('La sesión ha caducado.','Session expired.'));
   const fresh=await fetchAuth(`${API_BASE}/usuario/pokemon/${request.id}/evolucion`);
-  const choice=evoChoice(fresh);
-  if(!evoReady(fresh,choice)||fresh.tipo!==request.tipo||evoTargetId(choice)!==request.target||(fresh.tipo==='item'&&num(choice.item_id)!==request.itemId)){
+  const choice=evoChoice(fresh,request.target);
+  if(!evoReady(fresh,choice)||choice?.tipo!==request.tipo||evoTargetId(choice)!==request.target||num(fresh.pokemon_id)!==request.origin||(request.version&&fresh.estado_evolucion!==request.version)||(request.tipo==='item'&&num(choice.item_id)!==request.itemId)){
    throw Error(tr('Los requisitos cambiaron. Vuelve a comprobarlos.','Requirements changed. Please recheck.'));
   }
   feedback.textContent=tr('Evolucionando Pokémon…','Evolving Pokémon…');
-  const endpoint=fresh.tipo==='nivel'?'evolucionar-nivel':'evolucionar-item';
-  const payload={usuario_pokemon_id:request.id};if(fresh.tipo==='item')payload.item_id=request.itemId;
+  const endpoint=request.tipo==='nivel'?'evolucionar-nivel':'evolucionar-item';
+  const payload=evoPayload(request);
   const before=state.list.find(x=>x.id===request.id);
   const result=await fetchAuth(`${API_BASE}/pokemon/${endpoint}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
   // Older backend versions may return an HTTP 200 with a failure message.
