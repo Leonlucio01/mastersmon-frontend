@@ -447,7 +447,7 @@ function filtrarItemsTiendaPublica(items = []) {
 }
 
 function traducirNombreItemTienda(nombre = "") {
-    const lang = idiomaPokeMart();
+    const lang = getPokeMartLang();
     const nombresEspeciales = {
         "Piedra Noche": { es: "Piedra Noche", en: "Dusk Stone" },
         "Prism Scale": { es: "Escama Prisma", en: "Prism Scale" }
@@ -471,7 +471,7 @@ function traducirNombreItemTienda(nombre = "") {
 }
 
 function traducirDescripcionItemTienda(nombre = "", descripcion = "") {
-    const lang = idiomaPokeMart();
+    const lang = getPokeMartLang();
     const descripcionesEspeciales = {
         "Piedra Noche": {
             es: "Piedra evolutiva para convertir Eevee en Umbreon en MastersMon.",
