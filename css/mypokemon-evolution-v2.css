@@ -1,0 +1,72 @@
+/* MastersMon / My Pokemon - compact evolution destination cards v2 */
+#contenidoModalEvolucion .evo-v2-heading {
+  color: #f8d78d;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .025em;
+  margin: 11px 0 7px;
+}
+#contenidoModalEvolucion .evo-v2-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0 0 12px;
+  max-height: min(220px, 28vh);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #397492 #09283e;
+}
+#contenidoModalEvolucion .evo-v2-choice {
+  appearance: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  min-width: 0;
+  min-height: 72px;
+  padding: 10px 11px;
+  border: 1px solid #386581;
+  border-radius: 10px;
+  color: #f8fbff;
+  background: linear-gradient(150deg, #123a55, #0a243c);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color .15s ease, background .15s ease, transform .15s ease;
+}
+#contenidoModalEvolucion .evo-v2-choice strong {
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.15;
+}
+#contenidoModalEvolucion .evo-v2-requirement {
+  font-size: 11px;
+  color: #c4d7e8;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+#contenidoModalEvolucion .evo-v2-status {
+  font-size: 10px;
+  font-weight: 750;
+  color: #e5bb83;
+}
+#contenidoModalEvolucion .evo-v2-choice.is-ready .evo-v2-status { color: #7ce1af; }
+#contenidoModalEvolucion .evo-v2-choice.is-selected {
+  border: 2px solid #ffd475;
+  padding: 9px 10px;
+  background: linear-gradient(150deg, #17496a, #13314b);
+  box-shadow: inset 0 0 0 1px #bc8a4155, 0 0 12px #f0b85422;
+}
+#contenidoModalEvolucion .evo-v2-choice:hover { border-color: #f3c96e; transform: translateY(-1px); }
+#contenidoModalEvolucion .evo-v2-choice:focus-visible { outline: 2px solid #ffe4a3; outline-offset: 2px; }
+#contenidoModalEvolucion .evo-v2-choice.is-unavailable { opacity: .77; }
+#contenidoModalEvolucion .evolucion-botones { margin-top: 9px; }
+#contenidoModalEvolucion .evolucion-preview-horizontal { margin-bottom: 8px; }
+#contenidoModalEvolucion .evolucion-detalle { margin-top: 7px; margin-bottom: 7px; }
+@media (max-width: 430px) {
+  #contenidoModalEvolucion .evo-v2-options { gap: 6px; }
+  #contenidoModalEvolucion .evo-v2-choice { min-height: 66px; padding: 8px; }
+  #contenidoModalEvolucion .evo-v2-choice.is-selected { padding: 7px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #contenidoModalEvolucion .evo-v2-choice { transition: none; }
+}

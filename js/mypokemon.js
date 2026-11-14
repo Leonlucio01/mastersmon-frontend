@@ -1771,19 +1771,65 @@ function construirSolicitudEvolucionMyPokemon(usuarioPokemonId, itemId = null) {
     return payload;
 }
 
+function asegurarEstilosEvolucionV2() {
+    if (document.getElementById("mastersmon-evolution-v2-css")) return;
+    const css = document.createElement("link");
+    css.id = "mastersmon-evolution-v2-css";
+    css.rel = "stylesheet";
+    css.href = "css/mypokemon-evolution-v2.css?v=2";
+    document.head.appendChild(css);
+}
+
+function esShinyCapturaEvolucionV2(usuarioPokemonId) {
+    const captura = misPokemonData.find(p => Number(p.id) === Number(usuarioPokemonId));
+    return Boolean(captura && captura.es_shiny === true);
+}
+
 function agregarSelectorDestinosEvolucion(contenido, opciones, elegido, onChange) {
-    if (opciones.length < 2) return;
-    const selector = document.createElement("select");
-    selector.setAttribute("aria-label", "Destino de evolución");
+    if (!Array.isArray(opciones) || opciones.length < 2) return;
+    asegurarEstilosEvolucionV2();
+    const actual = Number(elegido.evolucion_id || elegido.evoluciona_a);
+    const label = document.createElement("div");
+    label.className = "evo-v2-heading";
+    label.textContent = tMyPokemon("mypokemon_evolution_pick_target", "Choose your evolution");
+    const grupo = document.createElement("div");
+    grupo.className = "evo-v2-options";
+    grupo.setAttribute("role", "group");
+    grupo.setAttribute("aria-label", label.textContent);
     for (const opcion of opciones) {
-        const node = document.createElement("option");
-        node.value = String(opcion.evolucion_id || opcion.evoluciona_a);
-        node.textContent = opcion.evolucion_nombre + (opcion.item_nombre ? " · " + opcion.item_nombre : "");
-        selector.appendChild(node);
+        const destino = Number(opcion.evolucion_id || opcion.evoluciona_a);
+        if (!Number.isInteger(destino) || destino <= 0) continue;
+        const seleccionada = destino === actual;
+        const disponible = opcion.listo === true;
+        const esItem = opcion.tipo === "item";
+        const descripcion = esItem
+            ? (opcion.item_nombre || tMyPokemon("mypokemon_evolve_requires_item", "Evolution item"))
+            : `${tMyPokemon("mypokemon_evolve_required_level", "Level required")}: ${Number(opcion.nivel_requerido || 0)}`;
+        const cantidad = Math.max(0, Number(opcion.cantidad || 0));
+        const estado = disponible
+            ? tMyPokemon("mypokemon_evolution_available", "Available")
+            : (esItem
+                ? tMyPokemon("mypokemon_evolution_item_missing", "Item missing")
+                : tMyPokemon("mypokemon_evolution_level_missing", "Level too low"));
+        const boton = document.createElement("button");
+        boton.type = "button";
+        boton.className = `evo-v2-choice${seleccionada ? " is-selected" : ""}${disponible ? " is-ready" : " is-unavailable"}`;
+        boton.setAttribute("aria-pressed", String(seleccionada));
+        boton.setAttribute("aria-label", `${opcion.evolucion_nombre}: ${descripcion}, ${estado}`);
+        const nombre = document.createElement("strong");
+        nombre.textContent = opcion.evolucion_nombre || `#${destino}`;
+        const requisito = document.createElement("span");
+        requisito.className = "evo-v2-requirement";
+        requisito.textContent = esItem ? `${descripcion} · x${cantidad}` : descripcion;
+        const estadoEl = document.createElement("small");
+        estadoEl.className = "evo-v2-status";
+        estadoEl.textContent = `${disponible ? "✓" : "○"} ${estado}`;
+        boton.append(nombre, requisito, estadoEl);
+        boton.onclick = () => { if (!seleccionada) onChange(destino); };
+        grupo.appendChild(boton);
     }
-    selector.value = String(elegido.evolucion_id || elegido.evoluciona_a);
-    selector.onchange = () => onChange(Number(selector.value));
-    contenido.querySelector(".evolucion-botones").before(selector);
+    const acciones = contenido.querySelector(".evolucion-botones");
+    if (acciones) { acciones.before(label); acciones.before(grupo); }
 }
 
 function mostrarDestinoEvolucionMyPokemon(usuarioPokemonId, nombrePokemon, data, destino) {
@@ -1793,6 +1839,7 @@ function mostrarDestinoEvolucionMyPokemon(usuarioPokemonId, nombrePokemon, data,
 }
 
 function mostrarModalEvolucionNivel(usuarioPokemonId, nombrePokemon, data, destinoSeleccionado = null) {
+    asegurarEstilosEvolucionV2();
     const modal = document.getElementById("modalEvolucion");
     const contenido = document.getElementById("contenidoModalEvolucion");
 
@@ -1809,8 +1856,9 @@ function mostrarModalEvolucionNivel(usuarioPokemonId, nombrePokemon, data, desti
         data
     };
 
-    const imagenActual = obtenerImagenPokemonModal(data.pokemon_id);
-    const imagenEvolucion = obtenerImagenPokemonModal(opcionNivel.evolucion_id || opcionNivel.evoluciona_a);
+    const shiny = esShinyCapturaEvolucionV2(usuarioPokemonId);
+    const imagenActual = obtenerImagenPokemonModal(data.pokemon_id, shiny);
+    const imagenEvolucion = obtenerImagenPokemonModal(opcionNivel.evolucion_id || opcionNivel.evoluciona_a, shiny);
 
     const nivelActual = data.nivel_actual || 0;
     const nivelRequerido = opcionNivel.nivel_requerido || 0;
@@ -1864,6 +1912,7 @@ function mostrarModalEvolucionNivel(usuarioPokemonId, nombrePokemon, data, desti
 }
 
 function mostrarModalEvolucionItem(usuarioPokemonId, nombrePokemon, data, destinoSeleccionado = null) {
+    asegurarEstilosEvolucionV2();
     const modal = document.getElementById("modalEvolucion");
     const contenido = document.getElementById("contenidoModalEvolucion");
 
@@ -1881,8 +1930,9 @@ function mostrarModalEvolucionItem(usuarioPokemonId, nombrePokemon, data, destin
         data
     };
 
-    const imagenActual = obtenerImagenPokemonModal(data.pokemon_id);
-    const imagenEvolucion = obtenerImagenPokemonModal(opcionMostrar.evoluciona_a);
+    const shiny = esShinyCapturaEvolucionV2(usuarioPokemonId);
+    const imagenActual = obtenerImagenPokemonModal(data.pokemon_id, shiny);
+    const imagenEvolucion = obtenerImagenPokemonModal(opcionMostrar.evoluciona_a, shiny);
     const imagenItem = obtenerImagenItemModal(
         opcionMostrar.item_nombre,
         opcionMostrar.item_codigo || opcionMostrar.item_code || "",
@@ -1921,7 +1971,7 @@ function mostrarModalEvolucionItem(usuarioPokemonId, nombrePokemon, data, destin
 
         <p class="evolucion-detalle ${tieneItem ? "ok" : "error"}">
             ${tieneItem
-                ? t("mypokemon_evolve_item_ready_text")
+                ? tMyPokemon("mypokemon_evolution_consume_one", "Confirming will consume 1 item: ") + escapeHtmlMyPokemon(itemTraducido)
                 : t("mypokemon_evolve_item_missing_text")}
         </p>
 
@@ -1997,15 +2047,21 @@ async function confirmarEvolucionNivel(usuarioPokemonId) {
     }
 }
 
+let evolucionItemPendienteV2 = false;
 async function confirmarEvolucionItem(usuarioPokemonId, itemId) {
+    if (evolucionItemPendienteV2) return;
+    evolucionItemPendienteV2 = true;
     const usuario = usuarioActualMyPokemon || await obtenerUsuarioActual();
     if (!usuario?.id) {
+        evolucionItemPendienteV2 = false;
         cerrarModalEvolucion();
         mostrarMensajeEvolucion(t("mypokemon_login_required_action"), "error");
         return;
     }
 
     try {
+        const boton = document.querySelector('#contenidoModalEvolucion .btn-usar-item');
+        if (boton) boton.disabled = true;
         limpiarMensajeEvolucion();
 
         const evoData = await fetchAuth(`${API_BASE}/pokemon/evolucionar-item`, {
@@ -2062,6 +2118,8 @@ async function confirmarEvolucionItem(usuarioPokemonId, itemId) {
         }
 
         mostrarMensajeEvolucion(error.message || t("mypokemon_evolve_error"), "error");
+    } finally {
+        evolucionItemPendienteV2 = false;
     }
 }
 
