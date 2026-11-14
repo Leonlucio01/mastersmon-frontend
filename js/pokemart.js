@@ -1,4 +1,4 @@
-const TIENDA_CACHE_KEY = "mastersmon_tienda_items_cache";
+const TIENDA_CACHE_KEY = "mastersmon_tienda_items_cache_v2253";
 const TIENDA_USER_CACHE_KEY = "mastersmon_tienda_user_cache";
 const TIENDA_INV_CACHE_KEY = "mastersmon_tienda_inv_cache";
 const POKEMART_VIEW_KEY = "mastersmon_pokemart_view_v2";
@@ -775,20 +775,25 @@ function actualizarCardItemComprado(itemId) {
 }
 
 async function cargarCatalogoTienda({ forzar = false } = {}) {
-    if (!forzar && tiendaItemsGlobal.length > 0) return tiendaItemsGlobal;
-    if (!forzar) {
-        const cache = leerCacheTienda();
-        if (cache?.length) {
-            tiendaItemsGlobal = filtrarItemsTiendaPublica(cache);
+    // Always revalidate the shop catalog against FastAPI. A previous sessionStorage
+    // snapshot must not permanently hide newly released products.
+    const fallback = tiendaItemsGlobal.length ? tiendaItemsGlobal : leerCacheTienda();
+    try {
+        const res = await fetch(`${API_BASE}/tienda/items`, { cache: "no-store" });
+        if (!res.ok) throw new Error("Error al obtener items de la tienda");
+        const items = await res.json();
+        if (!Array.isArray(items)) throw new Error("Respuesta invalida del catalogo");
+        tiendaItemsGlobal = filtrarItemsTiendaPublica(items);
+        guardarCacheTienda(tiendaItemsGlobal);
+        return tiendaItemsGlobal;
+    } catch (error) {
+        if (Array.isArray(fallback) && fallback.length) {
+            console.warn("Usando catalogo en cache por error temporal de red:", error);
+            tiendaItemsGlobal = filtrarItemsTiendaPublica(fallback);
             return tiendaItemsGlobal;
         }
+        throw error;
     }
-    const res = await fetch(`${API_BASE}/tienda/items`);
-    if (!res.ok) throw new Error("Error al obtener items de la tienda");
-    const items = await res.json();
-    tiendaItemsGlobal = filtrarItemsTiendaPublica(items);
-    guardarCacheTienda(tiendaItemsGlobal);
-    return tiendaItemsGlobal;
 }
 
 async function cargarDatosUsuarioTienda() {
