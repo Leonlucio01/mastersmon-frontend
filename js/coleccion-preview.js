@@ -131,7 +131,16 @@ el.querySelectorAll('[data-detail-tab]').forEach(b=>b.onclick=()=>{state.tab=b.d
 async function getEvolution(p){const key=p.id;if(state.lookups.has(key)){state.evo={id:key,data:state.lookups.get(key)};if(state.selectedId===key)renderDetail();return}try{const data=await fetchAuth(`${API_BASE}/usuario/pokemon/${key}/evolucion`);if(state.selectedId!==key)return;state.lookups.set(key,data);state.evo={id:key,data};if(state.chain?.id===key&&Array.isArray(data?.opciones)){for(const o of data.opciones){const t=num(o.evolucion_id??o.evoluciona_a);if(t&&!state.chain.steps.some(z=>z.id===t))state.chain.steps.push({id:t,nombre:o.evolucion_nombre||'',nivel:num(o.nivel_requerido),item:o.item_nombre||''})}}renderDetail()}catch(error){if(state.selectedId===key){state.evo={id:key,error:true};renderDetail()}}}
 
 /* V2.17.6: confirmed, server-authoritative evolution directly from the preview. */
+function ensureEvolutionChoiceStyles(){
+ if(document.getElementById('mastersmon-evolution-choice-v21'))return;
+ const link=document.createElement('link');
+ link.id='mastersmon-evolution-choice-v21';
+ link.rel='stylesheet';
+ link.href='css/coleccion-evolucion-v2.css?v=21';
+ document.head.appendChild(link);
+}
 function ensureEvoDialog(){
+  ensureEvolutionChoiceStyles();
   let modal=$('collectionEvoDialog');if(modal)return modal;
   modal=document.createElement('div');modal.id='collectionEvoDialog';modal.className='collection-evo-overlay';modal.hidden=true;
   modal.innerHTML=`<div class="collection-evo-dialog" role="dialog" aria-modal="true" aria-labelledby="collectionEvoTitle" tabindex="-1"><button type="button" class="collection-evo-close" aria-label="Cerrar">×</button><div id="collectionEvoContent"></div><div id="collectionEvoFeedback" aria-live="polite"></div></div>`;
@@ -179,10 +188,30 @@ async function prepareEvolution(id,selectedTarget=null){
   const dest=target?pic({pokemon_id:target,nombre:label,es_shiny:p.es_shiny},'evo-modal-sprite'):'<span>?</span>';
   modal.querySelector('#collectionEvoContent').innerHTML=`<h2 id="collectionEvoTitle">${tr('Confirmar evolución','Confirm evolution')}</h2><p>${esc(p.nombre)} · ${tr('Nv.','Lv.')} ${p.nivel}${p.es_shiny?' · ✦ Shiny':''}</p><div class="evo-modal-pair"><div>${pic(p,'evo-modal-sprite')}<strong>${esc(p.nombre)}</strong></div><span class="evo-modal-arrow">➜</span><div>${dest}<strong>${esc(label)}</strong></div></div><p class="evo-modal-requirement">${extra||esc(data?.motivo||'')}</p>${ready?'<p class="evo-modal-warning">'+tr('Esta acción modificará tu Pokémon y puede consumir un objeto.','This will change your Pokémon and may consume an item.')+'</p>':'<p class="evo-modal-warning">'+tr('Todavía no cumple los requisitos.','Requirements are not met yet.')+'</p>'}<div class="evo-modal-actions"><button type="button" class="evo-cancel">${tr('Cancelar','Cancel')}</button><button type="button" class="evo-confirm" ${ready?'':'disabled'}>${tr('Confirmar evolución','Confirm evolution')}</button></div>`;
   if(Array.isArray(data.opciones)&&data.opciones.length>1){
-   const selector=document.createElement('select');selector.setAttribute('aria-label',tr('Destino de evolución','Evolution target'));
-   for(const option of data.opciones){const node=document.createElement('option');node.value=String(evoTargetId(option));node.textContent=option.evolucion_nombre+(option.item_nombre?' · '+option.item_nombre:'');selector.appendChild(node)}
-   selector.value=String(target);selector.onchange=()=>prepareEvolution(id,Number(selector.value));
-   modal.querySelector('.evo-modal-actions').before(selector);
+   // V2.1: accessible, compact destination cards. Server remains authoritative.
+   const grid=document.createElement('div');
+   grid.className='mm-evo-options';
+   grid.setAttribute('role','group');
+   grid.setAttribute('aria-label',tr('Elige una evolución','Choose an evolution'));
+   for(const option of data.opciones){
+    const optionId=evoTargetId(option);
+    if(!optionId)continue;
+    const selectedOption=optionId===target;
+    const available=option.tipo==='nivel'
+      ? option.listo===true
+      : option.tipo==='item'&&option.tiene_item===true&&option.listo===true;
+    const condition=option.tipo==='nivel'
+      ? `${tr('Nivel','Level')} ${num(option.nivel_requerido)}`
+      : `${esc(option.item_nombre||tr('Objeto','Item'))} · x${num(option.cantidad)}`;
+    const btn=document.createElement('button');
+    btn.type='button';
+    btn.className=`mm-evo-option${selectedOption?' is-selected':''}${available?' is-available':' is-locked'}`;
+    btn.setAttribute('aria-pressed',String(selectedOption));
+    btn.innerHTML=`<span class="mm-evo-option-title">${esc(option.evolucion_nombre||'#'+optionId)}</span><span class="mm-evo-option-condition">${condition}</span><span class="mm-evo-option-state">${available?'✓ '+tr('Disponible','Available'):'◇ '+tr('Bloqueado','Locked')}</span>`;
+    btn.onclick=()=>{if(!evolutionBusy&&optionId!==target)void prepareEvolution(id,optionId)};
+    grid.appendChild(btn);
+   }
+   modal.querySelector('.evo-modal-actions').before(grid);
   }
   modal.querySelector('.evo-cancel').onclick=closeEvoDialog;
   modal.querySelector('.evo-confirm').onclick=confirmEvolution;

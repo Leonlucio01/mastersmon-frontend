@@ -1,0 +1,14 @@
+/* MastersMon Evolution Choice V2.1 - Coleccion Preview */
+#collectionEvoDialog .mm-evo-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:12px 0 0}
+#collectionEvoDialog .mm-evo-option{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:5px;min-width:0;min-height:78px;padding:11px 12px;border:1px solid #31789b;border-radius:10px;background:#082942;color:#eaf6fc;cursor:pointer;transition:background .15s,border-color .15s,box-shadow .15s}
+#collectionEvoDialog .mm-evo-option:hover{background:#103a55;border-color:#78b8d5}
+#collectionEvoDialog .mm-evo-option.is-selected{border:2px solid #ffd274;background:linear-gradient(145deg,#123c54,#092a45);padding:10px 11px;box-shadow:0 0 0 1px #d4a34b35,inset 0 0 16px #ffd27412}
+#collectionEvoDialog .mm-evo-option:focus-visible{outline:2px solid #fff1bd;outline-offset:2px}
+#collectionEvoDialog .mm-evo-option-title{font-size:13px;font-weight:800;overflow-wrap:anywhere}
+#collectionEvoDialog .mm-evo-option-condition{font-size:11px;color:#bbd9ec;overflow-wrap:anywhere}
+#collectionEvoDialog .mm-evo-option-state{font-size:11px;font-weight:800;color:#f2b985}
+#collectionEvoDialog .mm-evo-option.is-available .mm-evo-option-state{color:#85e5b7}
+#collectionEvoDialog .evo-modal-pair{margin:10px 0}
+#collectionEvoDialog .evo-modal-actions{margin-top:12px}
+@media(max-width:420px){#collectionEvoDialog .mm-evo-options{gap:6px}#collectionEvoDialog .mm-evo-option{padding:9px;min-height:74px}#collectionEvoDialog .mm-evo-option.is-selected{padding:8px}#collectionEvoDialog .mm-evo-option-title{font-size:12px}}
+@media(prefers-reduced-motion:reduce){#collectionEvoDialog .mm-evo-option{transition:none}}
