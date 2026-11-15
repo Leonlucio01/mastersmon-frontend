@@ -1,4 +1,4 @@
-/* MastersMon PokéMart V2.254 — local presentation override only */
+/* MastersMon PokéMart V2.256 — local presentation override only */
 .pokemart-v2 #v22QtyCount{appearance:textfield!important;-moz-appearance:textfield!important;min-width:0!important;width:46px!important;max-width:56px!important;height:28px!important;box-sizing:border-box!important;padding:3px 2px!important;border:1px solid #318bb4!important;border-radius:4px!important;background:#031e37!important;color:#fff4ce!important;text-align:center!important;font-size:13px!important;font-weight:900!important;outline:none!important;cursor:text!important}
 .pokemart-v2 #v22QtyCount:focus{border-color:#ffd66a!important;box-shadow:0 0 0 2px #eab44a55!important}
 .pokemart-v2 #v22QtyCount::-webkit-inner-spin-button,.pokemart-v2 #v22QtyCount::-webkit-outer-spin-button{-webkit-appearance:none!important;margin:0!important}
@@ -20,3 +20,8 @@
 .pokemart-v2 #shopFeedbackOkBtn{background:linear-gradient(#ffe7a3,#dba83b)!important;color:#081d34!important;border:1px solid #ffdf90!important;border-radius:9px!important;font-weight:900!important;min-width:145px!important}
 .pokemart-v2 #shopFeedbackCloseBtn{background:#0a2b49!important;border:1px solid #397093!important;color:#f1f9ff!important}
 @media(max-width:600px){.pokemart-v2 .shop-feedback-head{padding:20px 18px 12px!important}.pokemart-v2 .shop-feedback-body{padding:17px!important}.pokemart-v2 .shop-feedback-actions{padding:12px 17px 18px!important}}
+
+/* V2.256 — Purchased item's icon instead of the oversized checkmark. */
+.pokemart-v2 #shopFeedbackIcon.mm-purchase-item-icon{display:flex!important;align-items:center!important;justify-content:center!important;width:96px!important;height:96px!important;min-width:96px!important;background:radial-gradient(circle at 50% 42%,#14496b,#09233c 72%)!important;border:1px solid #e8bb60!important;border-radius:18px!important;box-shadow:0 0 20px #e7b7573d!important;overflow:hidden!important}
+.pokemart-v2 #shopFeedbackIcon .mm-purchase-item-sprite{display:block;width:76px;height:76px;max-width:calc(100% - 12px);max-height:calc(100% - 12px);object-fit:contain;image-rendering:auto;filter:drop-shadow(0 5px 6px #0009)}
+@media(max-width:600px){.pokemart-v2 #shopFeedbackIcon.mm-purchase-item-icon{width:78px!important;height:78px!important;min-width:78px!important}.pokemart-v2 #shopFeedbackIcon .mm-purchase-item-sprite{width:65px;height:65px}}

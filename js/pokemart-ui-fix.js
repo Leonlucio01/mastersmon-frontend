@@ -1,4 +1,4 @@
-/* MastersMon PokéMart V2.254: editable quantity, fresh balance, shop-themed feedback.
+/* MastersMon PokéMart V2.256: editable quantity, fresh balance, shop-themed feedback.
    Presentation only: the existing authenticated /tienda/comprar remains authoritative. */
 (()=>{'use strict';
  const $=id=>document.getElementById(id);
@@ -40,18 +40,38 @@
   const item=typeof tiendaItemsGlobal!=='undefined'?tiendaItemsGlobal.find(x=>Number(x.id)===id):null;
   const input=card.querySelector('input[id^="cantidad-item-"]');
   const qty=Math.min(maxQty,Math.max(1,Number(input?.value)||1));
-  pending={id,qty,name:card.querySelector('h3')?.textContent?.trim()||item?.nombre||'',price:Number(item?.precio||0)};
+  pending={id,qty,name:card.querySelector('h3')?.textContent?.trim()||item?.nombre||'',price:Number(item?.precio||0),image:card.querySelector('img.item-imagen')?.getAttribute('src')||''};
  }
  function modalImprove(message,type){
   refreshMirror();
   if(type==='error'||!pending)return;
-  const {qty,name,price}=pending;pending=null;
+  const {qty,name,price,image}=pending;pending=null;
   const badge=$('shopFeedbackBadge'),title=$('shopFeedbackTitle'),subtitle=$('shopFeedbackSubtitle'),msg=$('shopFeedbackMessage'),ok=$('shopFeedbackOkBtn');
   if(!title||!msg)return;
   const es=inSpanish();
   if(badge)badge.textContent=es?'COMPRA CONFIRMADA':'PURCHASE CONFIRMED';
   title.textContent=es?'¡Compra completada!':'Purchase complete!';
   if(subtitle)subtitle.textContent=es?'Tu compra se registró correctamente.':'Your purchase was completed successfully.';
+  // V2.256: reflect the purchased item's actual card sprite in the success modal.
+  // Retain the original checkmark whenever the item has no valid image.
+  const icon=$('shopFeedbackIcon');
+  if(icon){
+   icon.classList.remove('mm-purchase-item-icon');
+   icon.textContent='✓';
+   if(image){
+    const sprite=new Image();
+    sprite.className='mm-purchase-item-sprite';
+    sprite.alt=name;
+    sprite.decoding='async';
+    sprite.onload=()=>{
+     if(!icon.isConnected||!icon.classList.contains('is-success'))return;
+     icon.replaceChildren(sprite);
+     icon.classList.add('mm-purchase-item-icon');
+    };
+    sprite.onerror=()=>{if(icon.isConnected){icon.classList.remove('mm-purchase-item-icon');icon.textContent='✓';}};
+    sprite.src=image;
+   }
+  }
   msg.replaceChildren();
   const nameEl=document.createElement('strong');nameEl.className='mm-purchase-product';nameEl.textContent=`${qty} × ${name}`;
   const paid=document.createElement('div');paid.className='mm-purchase-row';paid.innerHTML=`<span>${es?'Total pagado':'Total paid'}</span><strong>◉ ${fmt(qty*price)}</strong>`;
