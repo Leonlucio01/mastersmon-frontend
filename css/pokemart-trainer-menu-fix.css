@@ -1,0 +1,11 @@
+/* MastersMon PokéMart V2.255 — trainer dropdown parity with Lobby.
+   Shared menu-unificado.css specifies a 310px menu and 43px rows.
+   PokéMart uses content-box elsewhere, which adds padding/borders to both.
+   Constrain only the trainer dropdown and its descendants, preserving all
+   store cards, quantity controls, premium/history, and other pages. */
+body.pokemart-v2 .masters-header .trainer-dropdown,
+body.pokemart-v2 .masters-header .trainer-dropdown *,
+body.pokemart-v2 .masters-header .trainer-dropdown *::before,
+body.pokemart-v2 .masters-header .trainer-dropdown *::after {
+  box-sizing: border-box !important;
+}
