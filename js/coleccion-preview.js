@@ -154,11 +154,6 @@ function closeEvoDialog(){evolutionReviewVersion++;const modal=$('collectionEvoD
 function evoChoice(data,target=null){
  if(!data||data.puede_evolucionar!==true)return null;
  const opts=Array.isArray(data.opciones)?data.opciones:[];
- // Nincada evolves only into Ninjask. Shedinja is a separate backend bonus.
- if(num(data.pokemon_id)===290){
-  if(target!==null&&Number(target)!==291)return null;
-  return opts.find(o=>evoTargetId(o)===291)||null;
- }
  if(target!==null)return opts.find(o=>evoTargetId(o)===Number(target))||null;
  if(data.tipo==='nivel')return opts.find(o=>o.tipo==='nivel')||null;
  if(data.tipo==='item')return opts.find(o=>o.tiene_item===true)||opts.find(o=>o.tipo==='item')||null;
@@ -186,15 +181,15 @@ async function prepareEvolution(id,selectedTarget=null){
   const data=await fetchAuth(`${API_BASE}/usuario/pokemon/${p.id}/evolucion`);
   if(modal.hidden||reviewVersion!==evolutionReviewVersion)return;
   state.lookups.set(p.id,data);if(state.selectedId===p.id)state.evo={id:p.id,data};
-  const isNincada=num(data.pokemon_id)===290;
   const choice=evoChoice(data,selectedTarget),ready=evoReady(data,choice),target=evoTargetId(choice),tipo=choice?.tipo||data.tipo;
   const label=String(choice?.evolucion_nombre||'#'+target);
+  const isShedinja=num(data.pokemon_id)===290&&target===292;
   const extra=tipo==='nivel'?`${tr('Nivel actual','Current level')}: ${num(data.nivel_actual)} · ${tr('Requerido','Required')}: ${num(choice?.nivel_requerido)}`:tipo==='item'?`${tr('Objeto','Item')}: ${esc(choice?.item_nombre||'—')} · ${tr('Disponible','Owned')}: ${num(choice?.cantidad)}`:'';
   pendingEvolution=ready?{id:p.id,tipo,itemId:num(choice.item_id),target,origin:num(data.pokemon_id),version:data.estado_evolucion}:null;
+  const itemNote=isShedinja?` · ${tr('Consume','Consumes')}: 1 Poké Ball (${tr('Tienes','Owned')}: ${num(choice?.cantidad)})`:'';
   const dest=target?pic({pokemon_id:target,nombre:label,es_shiny:p.es_shiny},'evo-modal-sprite'):'<span>?</span>';
-  const bonusNote=isNincada?`<p class="evo-modal-bonus" style="margin:10px 0;padding:10px 12px;border:1px solid rgba(231,180,70,.55);border-radius:9px;background:rgba(226,168,46,.09);font-size:12px;line-height:1.45;color:#ffe3a0">🎁 ${tr('Evolución principal: Ninjask. Si tienes al menos 1 Poké Ball y la recompensa está habilitada, también recibirás a Shedinja en tu colección. La Poké Ball se consumirá.','Main evolution: Ninjask. If you own at least 1 Poké Ball and the bonus is enabled, you will also receive Shedinja in your collection. One Poké Ball will be consumed.')}</p>`:'';
-  modal.querySelector('#collectionEvoContent').innerHTML=`<h2 id="collectionEvoTitle">${tr('Confirmar evolución','Confirm evolution')}</h2><p>${esc(p.nombre)} · ${tr('Nv.','Lv.')} ${p.nivel}${p.es_shiny?' · ✦ Shiny':''}</p><div class="evo-modal-pair"><div>${pic(p,'evo-modal-sprite')}<strong>${esc(p.nombre)}</strong></div><span class="evo-modal-arrow">➜</span><div>${dest}<strong>${esc(label)}</strong></div></div><p class="evo-modal-requirement">${extra||esc(data?.motivo||'')}</p>${ready?'<p class="evo-modal-warning">'+tr('Esta acción modificará tu Pokémon y puede consumir un objeto.','This will change your Pokémon and may consume an item.')+'</p>':'<p class="evo-modal-warning">'+tr('Todavía no cumple los requisitos.','Requirements are not met yet.')+'</p>'}${bonusNote}<div class="evo-modal-actions"><button type="button" class="evo-cancel">${tr('Cancelar','Cancel')}</button><button type="button" class="evo-confirm" ${ready?'':'disabled'}>${tr('Confirmar evolución','Confirm evolution')}</button></div>`;
-  if(!isNincada&&Array.isArray(data.opciones)&&data.opciones.length>1){
+  modal.querySelector('#collectionEvoContent').innerHTML=`<h2 id="collectionEvoTitle">${tr('Confirmar evolución','Confirm evolution')}</h2><p>${esc(p.nombre)} · ${tr('Nv.','Lv.')} ${p.nivel}${p.es_shiny?' · ✦ Shiny':''}</p><div class="evo-modal-pair"><div>${pic(p,'evo-modal-sprite')}<strong>${esc(p.nombre)}</strong></div><span class="evo-modal-arrow">➜</span><div>${dest}<strong>${esc(label)}</strong></div></div><p class="evo-modal-requirement">${extra||esc(data?.motivo||'')}${itemNote}</p>${ready?'<p class="evo-modal-warning">'+tr('Esta acción modificará tu Pokémon y puede consumir un objeto.','This will change your Pokémon and may consume an item.')+'</p>':'<p class="evo-modal-warning">'+tr('Todavía no cumple los requisitos.','Requirements are not met yet.')+'</p>'}<div class="evo-modal-actions"><button type="button" class="evo-cancel">${tr('Cancelar','Cancel')}</button><button type="button" class="evo-confirm" ${ready?'':'disabled'}>${tr('Confirmar evolución','Confirm evolution')}</button></div>`;
+  if(Array.isArray(data.opciones)&&data.opciones.length>1){
    // V2.1: accessible, compact destination cards. Server remains authoritative.
    const grid=document.createElement('div');
    grid.className='mm-evo-options';
@@ -208,7 +203,7 @@ async function prepareEvolution(id,selectedTarget=null){
       ? option.listo===true
       : option.tipo==='item'&&option.tiene_item===true&&option.listo===true;
     const condition=option.tipo==='nivel'
-      ? `${tr('Nivel','Level')} ${num(option.nivel_requerido)}`
+      ? `${tr('Nivel','Level')} ${num(option.nivel_requerido)}${option.requiere_item?' + 1 Poké Ball':''}`
       : `${esc(option.item_nombre||tr('Objeto','Item'))} · x${num(option.cantidad)}`;
     const btn=document.createElement('button');
     btn.type='button';
@@ -259,7 +254,7 @@ async function confirmEvolution(){
   state.selectedId=state.list.some(x=>x.id===request.id)?request.id:state.list[0]?.id||null;
   pendingEvolution=null;modal.hidden=true;state.page=0;render();
   if(selected()){getEvolution(selected());getEvolutionChain(selected())}
-  if(confirmed){showEvolutionSuccess(before,evolved,result?.shedinja_adicional||null)}
+  if(confirmed){showEvolutionSuccess(before,evolved)}
   else {showEvoToast(tr('Se procesó la solicitud. Revisa el Pokémon actualizado antes de intentarlo de nuevo.','Request processed. Review the updated Pokémon before trying again.'))}
 
  }catch(error){feedback.textContent=error?.message||tr('No se pudo completar la evolución.','Evolution could not be completed.');feedback.classList.add('error');
@@ -268,7 +263,7 @@ async function confirmEvolution(){
  }finally{evolutionBusy=false}
 }
 let collectionSuccessTimeout=0;
-function showEvolutionSuccess(before, after, shedinjaBonus=null){
+function showEvolutionSuccess(before, after){
  const modal=ensureEvoDialog();
  const old=before||after;
  const wasShiny=!!after.es_shiny;
@@ -276,8 +271,7 @@ function showEvolutionSuccess(before, after, shedinjaBonus=null){
  modal.classList.add('evo-success-overlay');
  modal.querySelector('#collectionEvoFeedback').textContent='';
  const content=modal.querySelector('#collectionEvoContent');
- const bonusSuccess=shedinjaBonus?.pokemon_id===292?`<p style="margin:12px 0;padding:10px 12px;border:1px solid #e9b74a;border-radius:10px;color:#ffe5a7;text-align:center">🎁 ${tr('¡Shedinja también se añadió a tu colección! Se consumió 1 Poké Ball.','Shedinja was also added to your collection! 1 Poké Ball was consumed.')}</p>`:'';
- content.innerHTML=`<div class="evo-success-header"><span class="evo-success-sparkle" aria-hidden="true">✦</span><span class="evo-success-kicker">${tr('¡Evolución completada!','Evolution complete!')}</span><h2 id="collectionEvoTitle">${esc(after.nombre)}</h2><p>${tr('Tu compañero ha evolucionado correctamente.','Your companion has evolved successfully.')}</p></div><div class="evo-success-pair"><div class="evo-success-mon">${pic(old,'evo-modal-sprite')}<strong>${esc(old.nombre)}</strong></div><span class="evo-success-arrow" aria-hidden="true">➜</span><div class="evo-success-mon evolved">${pic(after,'evo-modal-sprite')}<strong>${esc(after.nombre)}</strong>${wasShiny?'<span class="evo-shiny-tag">✦ Shiny</span>':''}</div></div><div class="evo-success-stats"><span>${tr('Nivel','Level')} <b>${after.nivel}</b></span><span>HP <b>${esc(after.hp_actual??'—')}/${esc(after.hp_max??'—')}</b></span><span>${tr('Ataque','Attack')} <b>${esc(after.ataque??'—')}</b></span></div>${bonusSuccess}<button type="button" class="evo-success-done">${tr('Continuar mi aventura','Continue adventure')} →</button>`;
+ content.innerHTML=`<div class="evo-success-header"><span class="evo-success-sparkle" aria-hidden="true">✦</span><span class="evo-success-kicker">${tr('¡Evolución completada!','Evolution complete!')}</span><h2 id="collectionEvoTitle">${esc(after.nombre)}</h2><p>${tr('Tu compañero ha evolucionado correctamente.','Your companion has evolved successfully.')}</p></div><div class="evo-success-pair"><div class="evo-success-mon">${pic(old,'evo-modal-sprite')}<strong>${esc(old.nombre)}</strong></div><span class="evo-success-arrow" aria-hidden="true">➜</span><div class="evo-success-mon evolved">${pic(after,'evo-modal-sprite')}<strong>${esc(after.nombre)}</strong>${wasShiny?'<span class="evo-shiny-tag">✦ Shiny</span>':''}</div></div><div class="evo-success-stats"><span>${tr('Nivel','Level')} <b>${after.nivel}</b></span><span>HP <b>${esc(after.hp_actual??'—')}/${esc(after.hp_max??'—')}</b></span><span>${tr('Ataque','Attack')} <b>${esc(after.ataque??'—')}</b></span></div><button type="button" class="evo-success-done">${tr('Continuar mi aventura','Continue adventure')} →</button>`;
  bindImages(modal);
  const close=()=>{modal.classList.remove('evo-success-overlay');closeEvoDialog()};
  modal.querySelector('.evo-success-done').onclick=close;
