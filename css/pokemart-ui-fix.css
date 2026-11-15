@@ -1,0 +1,22 @@
+/* MastersMon PokéMart V2.254 — local presentation override only */
+.pokemart-v2 #v22QtyCount{appearance:textfield!important;-moz-appearance:textfield!important;min-width:0!important;width:46px!important;max-width:56px!important;height:28px!important;box-sizing:border-box!important;padding:3px 2px!important;border:1px solid #318bb4!important;border-radius:4px!important;background:#031e37!important;color:#fff4ce!important;text-align:center!important;font-size:13px!important;font-weight:900!important;outline:none!important;cursor:text!important}
+.pokemart-v2 #v22QtyCount:focus{border-color:#ffd66a!important;box-shadow:0 0 0 2px #eab44a55!important}
+.pokemart-v2 #v22QtyCount::-webkit-inner-spin-button,.pokemart-v2 #v22QtyCount::-webkit-outer-spin-button{-webkit-appearance:none!important;margin:0!important}
+.pokemart-v2 .shop-feedback-backdrop{background:rgba(0,9,24,.82)!important;backdrop-filter:blur(8px)!important}
+.pokemart-v2 .shop-feedback-modal{background:linear-gradient(155deg,#103958 0%,#062440 60%,#06172a 100%)!important;border:1px solid #d3a950!important;border-radius:20px!important;color:#f3f7ff!important;box-shadow:0 25px 75px #000b,0 0 28px #d4a54822!important;max-width:510px!important;overflow:hidden!important}
+.pokemart-v2 .shop-feedback-head{background:linear-gradient(120deg,#164665,#08233e)!important;border-bottom:1px solid #9c752d88!important;padding:24px 26px 16px!important}
+.pokemart-v2 .shop-feedback-head h3,.pokemart-v2 #shopFeedbackTitle{color:#ffe4a1!important;font-family:Georgia,serif!important;font-size:29px!important;line-height:1.15!important;letter-spacing:-.02em!important}
+.pokemart-v2 #shopFeedbackSubtitle{color:#bcdaf0!important}
+.pokemart-v2 .shop-feedback-badge.is-success{background:#113d3b!important;color:#8cfbd3!important;border:1px solid #1d8c75!important}
+.pokemart-v2 .shop-feedback-body{padding:24px 26px!important;background:transparent!important;align-items:center!important}
+.pokemart-v2 .shop-feedback-icon.is-success{background:linear-gradient(145deg,#fce6a2,#d69d32)!important;border:1px solid #ffe7ac!important;box-shadow:0 0 22px #d7ab5680!important;color:#12324c!important}
+.pokemart-v2 .shop-feedback-icon-wrap{align-self:center!important}
+.pokemart-v2 .shop-feedback-message{background:#05233b!important;border:1px solid #2b6585!important;border-radius:12px!important;color:#f3f7ff!important;min-width:0!important;padding:15px!important;line-height:1.5!important}
+.pokemart-v2 .mm-purchase-product{display:block;color:#ffe0a0;font-size:16px;margin-bottom:11px}
+.pokemart-v2 .mm-purchase-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;border-top:1px solid #2e5e77;padding:9px 0 0;margin-top:9px;font-size:12px;color:#c0d8e9}
+.pokemart-v2 .mm-purchase-row strong{font-weight:900;color:#ffda75;white-space:nowrap;font-size:15px}
+.pokemart-v2 .mm-purchase-balance strong{color:#9af4dd}
+.pokemart-v2 .shop-feedback-actions{background:transparent!important;border-top:1px solid #2b5573!important;padding:16px 26px 22px!important}
+.pokemart-v2 #shopFeedbackOkBtn{background:linear-gradient(#ffe7a3,#dba83b)!important;color:#081d34!important;border:1px solid #ffdf90!important;border-radius:9px!important;font-weight:900!important;min-width:145px!important}
+.pokemart-v2 #shopFeedbackCloseBtn{background:#0a2b49!important;border:1px solid #397093!important;color:#f1f9ff!important}
+@media(max-width:600px){.pokemart-v2 .shop-feedback-head{padding:20px 18px 12px!important}.pokemart-v2 .shop-feedback-body{padding:17px!important}.pokemart-v2 .shop-feedback-actions{padding:12px 17px 18px!important}}
