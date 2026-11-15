@@ -8,7 +8,11 @@
     "pocket": "",
     "cost": 200,
     "source": "official",
-    "file": "official/0004_poke-ball.png"
+    "file": "official/0004_poke-ball.png",
+    "mastersmon_db_id": 1,
+    "mastersmon_db_code": "poke_ball",
+    "mastersmon_db_price": 200,
+    "mastersmon_shop_enabled": true
   },
   {
     "item_id": 3,
@@ -19,7 +23,11 @@
     "pocket": "",
     "cost": 600,
     "source": "official",
-    "file": "official/0003_great-ball.png"
+    "file": "official/0003_great-ball.png",
+    "mastersmon_db_id": 2,
+    "mastersmon_db_code": "super_ball",
+    "mastersmon_db_price": 600,
+    "mastersmon_shop_enabled": true
   },
   {
     "item_id": 2,
@@ -28,9 +36,13 @@
     "display_name": "Ultra Ball",
     "category": "standard-balls",
     "pocket": "",
-    "cost": 800,
+    "cost": 1200,
     "source": "official",
-    "file": "official/0002_ultra-ball.png"
+    "file": "official/0002_ultra-ball.png",
+    "mastersmon_db_id": 3,
+    "mastersmon_db_code": "ultra_ball",
+    "mastersmon_db_price": 1200,
+    "mastersmon_shop_enabled": true
   },
   {
     "item_id": 1,
@@ -39,9 +51,13 @@
     "display_name": "Master Ball",
     "category": "standard-balls",
     "pocket": "",
-    "cost": 0,
+    "cost": 100000,
     "source": "official",
-    "file": "official/0001_master-ball.png"
+    "file": "official/0001_master-ball.png",
+    "mastersmon_db_id": 11,
+    "mastersmon_db_code": "master_ball",
+    "mastersmon_db_price": 100000,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 887,
@@ -52,7 +68,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0887_beast-ball.png"
+    "file": "official/0887_beast-ball.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 17,
@@ -61,9 +79,13 @@
     "display_name": "Potion",
     "category": "healing",
     "pocket": "",
-    "cost": 200,
+    "cost": 300,
     "source": "official",
-    "file": "official/0017_potion.png"
+    "file": "official/0017_potion.png",
+    "mastersmon_db_id": 4,
+    "mastersmon_db_code": "potion",
+    "mastersmon_db_price": 300,
+    "mastersmon_shop_enabled": true
   },
   {
     "item_id": 26,
@@ -74,7 +96,11 @@
     "pocket": "",
     "cost": 700,
     "source": "official",
-    "file": "official/0026_super-potion.png"
+    "file": "official/0026_super-potion.png",
+    "mastersmon_db_id": 5,
+    "mastersmon_db_code": "super_potion",
+    "mastersmon_db_price": 700,
+    "mastersmon_shop_enabled": true
   },
   {
     "item_id": 25,
@@ -85,7 +111,9 @@
     "pocket": "",
     "cost": 1500,
     "source": "official",
-    "file": "official/0025_hyper-potion.png"
+    "file": "official/0025_hyper-potion.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 24,
@@ -96,7 +124,9 @@
     "pocket": "",
     "cost": 2500,
     "source": "official",
-    "file": "official/0024_max-potion.png"
+    "file": "official/0024_max-potion.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 28,
@@ -107,7 +137,9 @@
     "pocket": "",
     "cost": 2000,
     "source": "official",
-    "file": "official/0028_revive.png"
+    "file": "official/0028_revive.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 29,
@@ -118,7 +150,9 @@
     "pocket": "",
     "cost": 4000,
     "source": "official",
-    "file": "official/0029_max-revive.png"
+    "file": "official/0029_max-revive.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 82,
@@ -127,9 +161,12 @@
     "display_name": "Fire Stone",
     "category": "evolution",
     "pocket": "",
-    "cost": 3000,
+    "cost": 2500,
     "source": "official",
-    "file": "official/0082_fire-stone.png"
+    "file": "official/0082_fire-stone.png",
+    "mastersmon_db_id": 6,
+    "mastersmon_db_price": 2500,
+    "mastersmon_shop_enabled": true
   },
   {
     "item_id": 84,
@@ -138,9 +175,12 @@
     "display_name": "Water Stone",
     "category": "evolution",
     "pocket": "",
-    "cost": 3000,
+    "cost": 2500,
     "source": "official",
-    "file": "official/0084_water-stone.png"
+    "file": "official/0084_water-stone.png",
+    "mastersmon_db_id": 7,
+    "mastersmon_db_price": 2500,
+    "mastersmon_shop_enabled": true
   },
   {
     "item_id": 83,
@@ -149,9 +189,12 @@
     "display_name": "Thunder Stone",
     "category": "evolution",
     "pocket": "",
-    "cost": 3000,
+    "cost": 2500,
     "source": "official",
-    "file": "official/0083_thunder-stone.png"
+    "file": "official/0083_thunder-stone.png",
+    "mastersmon_db_id": 8,
+    "mastersmon_db_price": 2500,
+    "mastersmon_shop_enabled": true
   },
   {
     "item_id": 85,
@@ -160,9 +203,12 @@
     "display_name": "Leaf Stone",
     "category": "evolution",
     "pocket": "",
-    "cost": 3000,
+    "cost": 2500,
     "source": "official",
-    "file": "official/0085_leaf-stone.png"
+    "file": "official/0085_leaf-stone.png",
+    "mastersmon_db_id": 9,
+    "mastersmon_db_price": 2500,
+    "mastersmon_shop_enabled": true
   },
   {
     "item_id": 81,
@@ -173,7 +219,10 @@
     "pocket": "",
     "cost": 3000,
     "source": "official",
-    "file": "official/0081_moon-stone.png"
+    "file": "official/0081_moon-stone.png",
+    "mastersmon_db_id": 10,
+    "mastersmon_db_price": 3000,
+    "mastersmon_shop_enabled": true
   },
   {
     "item_id": 80,
@@ -182,9 +231,12 @@
     "display_name": "Sun Stone",
     "category": "evolution",
     "pocket": "",
-    "cost": 3000,
+    "cost": 450,
     "source": "official",
-    "file": "official/0080_sun-stone.png"
+    "file": "official/0080_sun-stone.png",
+    "mastersmon_db_id": 14,
+    "mastersmon_db_price": 450,
+    "mastersmon_shop_enabled": true
   },
   {
     "item_id": 107,
@@ -193,9 +245,13 @@
     "display_name": "Shiny Stone",
     "category": "evolution",
     "pocket": "",
-    "cost": 3000,
+    "cost": 35000,
     "source": "official",
-    "file": "official/0107_shiny-stone.png"
+    "file": "official/0107_shiny-stone.png",
+    "mastersmon_db_id": 26,
+    "mastersmon_db_code": "shiny_stone",
+    "mastersmon_db_price": 35000,
+    "mastersmon_shop_enabled": true
   },
   {
     "item_id": 108,
@@ -204,9 +260,13 @@
     "display_name": "Dusk Stone",
     "category": "evolution",
     "pocket": "",
-    "cost": 3000,
+    "cost": 3500,
     "source": "official",
-    "file": "official/0108_dusk-stone.png"
+    "file": "official/0108_dusk-stone.png",
+    "mastersmon_db_id": 24,
+    "mastersmon_db_code": "dusk_stone",
+    "mastersmon_db_price": 3500,
+    "mastersmon_shop_enabled": true
   },
   {
     "item_id": 109,
@@ -215,9 +275,13 @@
     "display_name": "Dawn Stone",
     "category": "evolution",
     "pocket": "",
-    "cost": 3000,
+    "cost": 35000,
     "source": "official",
-    "file": "official/0109_dawn-stone.png"
+    "file": "official/0109_dawn-stone.png",
+    "mastersmon_db_id": 27,
+    "mastersmon_db_code": "dawn_stone",
+    "mastersmon_db_price": 35000,
+    "mastersmon_shop_enabled": true
   },
   {
     "item_id": 885,
@@ -226,9 +290,13 @@
     "display_name": "Ice Stone",
     "category": "evolution",
     "pocket": "",
-    "cost": 3000,
+    "cost": 35000,
     "source": "official",
-    "file": "official/0885_ice-stone.png"
+    "file": "official/0885_ice-stone.png",
+    "mastersmon_db_id": 28,
+    "mastersmon_db_code": "ice_stone",
+    "mastersmon_db_price": 35000,
+    "mastersmon_shop_enabled": true
   },
   {
     "item_id": 198,
@@ -237,9 +305,12 @@
     "display_name": "King’s Rock",
     "category": "held-items",
     "pocket": "",
-    "cost": 5000,
+    "cost": 650,
     "source": "official",
-    "file": "official/0198_kings-rock.png"
+    "file": "official/0198_kings-rock.png",
+    "mastersmon_db_id": 15,
+    "mastersmon_db_price": 650,
+    "mastersmon_shop_enabled": true
   },
   {
     "item_id": 210,
@@ -248,9 +319,12 @@
     "display_name": "Metal Coat",
     "category": "type-enhancement",
     "pocket": "",
-    "cost": 2000,
+    "cost": 700,
     "source": "official",
-    "file": "official/0210_metal-coat.png"
+    "file": "official/0210_metal-coat.png",
+    "mastersmon_db_id": 16,
+    "mastersmon_db_price": 700,
+    "mastersmon_shop_enabled": true
   },
   {
     "item_id": 212,
@@ -259,9 +333,12 @@
     "display_name": "Dragon Scale",
     "category": "evolution",
     "pocket": "",
-    "cost": 2000,
+    "cost": 700,
     "source": "official",
-    "file": "official/0212_dragon-scale.png"
+    "file": "official/0212_dragon-scale.png",
+    "mastersmon_db_id": 17,
+    "mastersmon_db_price": 700,
+    "mastersmon_shop_enabled": true
   },
   {
     "item_id": 229,
@@ -270,9 +347,12 @@
     "display_name": "Upgrade",
     "category": "evolution",
     "pocket": "",
-    "cost": 2000,
+    "cost": 700,
     "source": "official",
-    "file": "official/0229_up-grade.png"
+    "file": "official/0229_up-grade.png",
+    "mastersmon_db_id": 18,
+    "mastersmon_db_price": 700,
+    "mastersmon_shop_enabled": true
   },
   {
     "item_id": 2160,
@@ -281,9 +361,12 @@
     "display_name": "Linking Cord",
     "category": "evolution",
     "pocket": "",
-    "cost": 8000,
+    "cost": 500,
     "source": "official",
-    "file": "official/link-cable.png"
+    "file": "official/link-cable.png",
+    "mastersmon_db_id": 19,
+    "mastersmon_db_price": 500,
+    "mastersmon_shop_enabled": true
   },
   {
     "item_id": 298,
@@ -292,9 +375,13 @@
     "display_name": "Protector",
     "category": "evolution",
     "pocket": "",
-    "cost": 2000,
+    "cost": 30000,
     "source": "official",
-    "file": "official/0298_protector.png"
+    "file": "official/0298_protector.png",
+    "mastersmon_db_id": 29,
+    "mastersmon_db_code": "protector",
+    "mastersmon_db_price": 30000,
+    "mastersmon_shop_enabled": true
   },
   {
     "item_id": 299,
@@ -303,9 +390,13 @@
     "display_name": "Electirizer",
     "category": "evolution",
     "pocket": "",
-    "cost": 2000,
+    "cost": 30000,
     "source": "official",
-    "file": "official/0299_electirizer.png"
+    "file": "official/0299_electirizer.png",
+    "mastersmon_db_id": 30,
+    "mastersmon_db_code": "electirizer",
+    "mastersmon_db_price": 30000,
+    "mastersmon_shop_enabled": true
   },
   {
     "item_id": 300,
@@ -314,9 +405,13 @@
     "display_name": "Magmarizer",
     "category": "evolution",
     "pocket": "",
-    "cost": 2000,
+    "cost": 30000,
     "source": "official",
-    "file": "official/0300_magmarizer.png"
+    "file": "official/0300_magmarizer.png",
+    "mastersmon_db_id": 31,
+    "mastersmon_db_code": "magmarizer",
+    "mastersmon_db_price": 30000,
+    "mastersmon_shop_enabled": true
   },
   {
     "item_id": 301,
@@ -325,9 +420,13 @@
     "display_name": "Dubious Disc",
     "category": "evolution",
     "pocket": "",
-    "cost": 2000,
+    "cost": 30000,
     "source": "official",
-    "file": "official/0301_dubious-disc.png"
+    "file": "official/0301_dubious-disc.png",
+    "mastersmon_db_id": 32,
+    "mastersmon_db_code": "dubious_disc",
+    "mastersmon_db_price": 30000,
+    "mastersmon_shop_enabled": true
   },
   {
     "item_id": 302,
@@ -336,9 +435,13 @@
     "display_name": "Reaper Cloth",
     "category": "evolution",
     "pocket": "",
-    "cost": 2000,
+    "cost": 30000,
     "source": "official",
-    "file": "official/0302_reaper-cloth.png"
+    "file": "official/0302_reaper-cloth.png",
+    "mastersmon_db_id": 33,
+    "mastersmon_db_code": "reaper_cloth",
+    "mastersmon_db_price": 30000,
+    "mastersmon_shop_enabled": true
   },
   {
     "item_id": 303,
@@ -347,9 +450,13 @@
     "display_name": "Razor Claw",
     "category": "held-items",
     "pocket": "",
-    "cost": 5000,
+    "cost": 35000,
     "source": "official",
-    "file": "official/0303_razor-claw.png"
+    "file": "official/0303_razor-claw.png",
+    "mastersmon_db_id": 37,
+    "mastersmon_db_code": "razor_claw",
+    "mastersmon_db_price": 35000,
+    "mastersmon_shop_enabled": true
   },
   {
     "item_id": 304,
@@ -358,9 +465,13 @@
     "display_name": "Razor Fang",
     "category": "held-items",
     "pocket": "",
-    "cost": 5000,
+    "cost": 35000,
     "source": "official",
-    "file": "official/0304_razor-fang.png"
+    "file": "official/0304_razor-fang.png",
+    "mastersmon_db_id": 38,
+    "mastersmon_db_code": "razor_fang",
+    "mastersmon_db_price": 35000,
+    "mastersmon_shop_enabled": true
   },
   {
     "item_id": 203,
@@ -369,9 +480,12 @@
     "display_name": "Deep Sea Tooth",
     "category": "species-specific",
     "pocket": "",
-    "cost": 2000,
+    "cost": 700,
     "source": "official",
-    "file": "official/0203_deep-sea-tooth.png"
+    "file": "official/0203_deep-sea-tooth.png",
+    "mastersmon_db_id": 20,
+    "mastersmon_db_price": 700,
+    "mastersmon_shop_enabled": true
   },
   {
     "item_id": 204,
@@ -380,9 +494,12 @@
     "display_name": "Deep Sea Scale",
     "category": "species-specific",
     "pocket": "",
-    "cost": 2000,
+    "cost": 700,
     "source": "official",
-    "file": "official/0204_deep-sea-scale.png"
+    "file": "official/0204_deep-sea-scale.png",
+    "mastersmon_db_id": 21,
+    "mastersmon_db_price": 700,
+    "mastersmon_shop_enabled": true
   },
   {
     "item_id": 110,
@@ -391,9 +508,13 @@
     "display_name": "Oval Stone",
     "category": "evolution",
     "pocket": "",
-    "cost": 2000,
+    "cost": 30000,
     "source": "official",
-    "file": "official/0110_oval-stone.png"
+    "file": "official/0110_oval-stone.png",
+    "mastersmon_db_id": 36,
+    "mastersmon_db_code": "oval_stone",
+    "mastersmon_db_price": 30000,
+    "mastersmon_shop_enabled": true
   },
   {
     "item_id": 580,
@@ -402,9 +523,13 @@
     "display_name": "Prism Scale",
     "category": "evolution",
     "pocket": "",
-    "cost": 2000,
+    "cost": 4500,
     "source": "official",
-    "file": "official/0580_prism-scale.png"
+    "file": "official/0580_prism-scale.png",
+    "mastersmon_db_id": 25,
+    "mastersmon_db_code": "prism_scale",
+    "mastersmon_db_price": 4500,
+    "mastersmon_shop_enabled": true
   },
   {
     "item_id": 687,
@@ -413,9 +538,13 @@
     "display_name": "Sachet",
     "category": "evolution",
     "pocket": "",
-    "cost": 2000,
+    "cost": 30000,
     "source": "official",
-    "file": "official/0687_sachet.png"
+    "file": "official/0687_sachet.png",
+    "mastersmon_db_id": 34,
+    "mastersmon_db_code": "sachet",
+    "mastersmon_db_price": 30000,
+    "mastersmon_shop_enabled": true
   },
   {
     "item_id": 686,
@@ -424,9 +553,13 @@
     "display_name": "Whipped Dream",
     "category": "evolution",
     "pocket": "",
-    "cost": 2000,
+    "cost": 30000,
     "source": "official",
-    "file": "official/0686_whipped-dream.png"
+    "file": "official/0686_whipped-dream.png",
+    "mastersmon_db_id": 35,
+    "mastersmon_db_code": "whipped_dream",
+    "mastersmon_db_price": 30000,
+    "mastersmon_shop_enabled": true
   },
   {
     "item_id": 698,
@@ -437,7 +570,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0698_venusaurite.png"
+    "file": "official/0698_venusaurite.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 699,
@@ -448,7 +583,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0699_charizardite-x.png"
+    "file": "official/0699_charizardite-x.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 717,
@@ -459,7 +596,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0717_charizardite-y.png"
+    "file": "official/0717_charizardite-y.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 700,
@@ -470,7 +609,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0700_blastoisinite.png"
+    "file": "official/0700_blastoisinite.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 811,
@@ -481,7 +622,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0811_beedrillite.png"
+    "file": "official/0811_beedrillite.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 803,
@@ -492,7 +635,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0803_pidgeotite.png"
+    "file": "official/0803_pidgeotite.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 718,
@@ -503,7 +648,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0718_alakazite.png"
+    "file": "official/0718_alakazite.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 801,
@@ -514,7 +661,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0801_slowbronite.png"
+    "file": "official/0801_slowbronite.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 695,
@@ -525,7 +674,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0695_gengarite.png"
+    "file": "official/0695_gengarite.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 714,
@@ -536,7 +687,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0714_kangaskhanite.png"
+    "file": "official/0714_kangaskhanite.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 710,
@@ -547,7 +700,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0710_pinsirite.png"
+    "file": "official/0710_pinsirite.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 715,
@@ -558,7 +713,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0715_gyaradosite.png"
+    "file": "official/0715_gyaradosite.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 711,
@@ -569,7 +726,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0711_aerodactylite.png"
+    "file": "official/0711_aerodactylite.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 701,
@@ -580,7 +739,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0701_mewtwonite-x.png"
+    "file": "official/0701_mewtwonite-x.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 702,
@@ -591,7 +752,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0702_mewtwonite-y.png"
+    "file": "official/0702_mewtwonite-y.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 697,
@@ -602,7 +765,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0697_ampharosite.png"
+    "file": "official/0697_ampharosite.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 802,
@@ -613,7 +778,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0802_steelixite.png"
+    "file": "official/0802_steelixite.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 709,
@@ -624,7 +791,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0709_scizorite.png"
+    "file": "official/0709_scizorite.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 719,
@@ -635,7 +804,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0719_heracronite.png"
+    "file": "official/0719_heracronite.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 705,
@@ -646,7 +817,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0705_houndoominite.png"
+    "file": "official/0705_houndoominite.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 708,
@@ -657,7 +830,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0708_tyranitarite.png"
+    "file": "official/0708_tyranitarite.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 794,
@@ -668,7 +843,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0794_sceptilite.png"
+    "file": "official/0794_sceptilite.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 703,
@@ -679,7 +856,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0703_blazikenite.png"
+    "file": "official/0703_blazikenite.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 793,
@@ -690,7 +869,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0793_swampertite.png"
+    "file": "official/0793_swampertite.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 696,
@@ -701,7 +882,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0696_gardevoirite.png"
+    "file": "official/0696_gardevoirite.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 795,
@@ -712,7 +895,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0795_sablenite.png"
+    "file": "official/0795_sablenite.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 720,
@@ -723,7 +908,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0720_mawilite.png"
+    "file": "official/0720_mawilite.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 706,
@@ -734,7 +921,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0706_aggronite.png"
+    "file": "official/0706_aggronite.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 704,
@@ -745,7 +934,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0704_medichamite.png"
+    "file": "official/0704_medichamite.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 721,
@@ -756,7 +947,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0721_manectite.png"
+    "file": "official/0721_manectite.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 800,
@@ -767,7 +960,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0800_sharpedonite.png"
+    "file": "official/0800_sharpedonite.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 808,
@@ -778,7 +973,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0808_cameruptite.png"
+    "file": "official/0808_cameruptite.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 796,
@@ -789,7 +986,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0796_altarianite.png"
+    "file": "official/0796_altarianite.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 707,
@@ -800,7 +999,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0707_banettite.png"
+    "file": "official/0707_banettite.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 716,
@@ -811,7 +1012,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0716_absolite.png"
+    "file": "official/0716_absolite.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 804,
@@ -822,7 +1025,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0804_glalitite.png"
+    "file": "official/0804_glalitite.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 810,
@@ -833,7 +1038,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0810_salamencite.png"
+    "file": "official/0810_salamencite.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 799,
@@ -844,7 +1051,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0799_metagrossite.png"
+    "file": "official/0799_metagrossite.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 760,
@@ -855,7 +1064,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0760_latiasite.png"
+    "file": "official/0760_latiasite.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 761,
@@ -866,7 +1077,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0761_latiosite.png"
+    "file": "official/0761_latiosite.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 809,
@@ -877,7 +1090,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0809_lopunnite.png"
+    "file": "official/0809_lopunnite.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 722,
@@ -888,7 +1103,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0722_garchompite.png"
+    "file": "official/0722_garchompite.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 712,
@@ -899,7 +1116,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0712_lucarionite.png"
+    "file": "official/0712_lucarionite.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 713,
@@ -910,7 +1129,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0713_abomasite.png"
+    "file": "official/0713_abomasite.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 797,
@@ -921,7 +1142,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0797_galladite.png"
+    "file": "official/0797_galladite.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 798,
@@ -932,7 +1155,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0798_audinite.png"
+    "file": "official/0798_audinite.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 805,
@@ -943,7 +1168,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0805_diancite.png"
+    "file": "official/0805_diancite.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 675,
@@ -954,7 +1181,9 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0675_shiny-charm.png"
+    "file": "official/0675_shiny-charm.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   },
   {
     "item_id": 739,
@@ -965,6 +1194,8 @@
     "pocket": "",
     "cost": 0,
     "source": "official",
-    "file": "official/0739_mega-ring.png"
+    "file": "official/0739_mega-ring.png",
+    "mastersmon_db_id": null,
+    "mastersmon_shop_enabled": false
   }
 ]
