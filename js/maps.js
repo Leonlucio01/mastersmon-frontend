@@ -35,7 +35,7 @@ let nodoPendientePresenciaMaps = null;
 let timerPendientePresenciaMaps = null;
 const MAPS_PRESENCIA_MOVE_THROTTLE_MS = 120;
  
-const MAPS_ZONAS_CACHE_KEY = "mastersmon_maps_zonas_cache_v7";
+const MAPS_ZONAS_CACHE_KEY = "mastersmon_maps_zonas_cache_v8_alola";
 let mapsRegionShowcaseStart = 0;
 const MAPS_AVATAR_POSICIONES_KEY = "mastersmon_maps_avatar_posiciones_v1";
 const MAPS_AVATAR_DEFAULT_ID = "steven";
@@ -3467,7 +3467,11 @@ function renderizarZonaExploracion() {
 }
 
 function renderMiniaturasZona(zona = null) {
-    const pokemonesZona = Array.isArray(zona?.pokemones) ? zona.pokemones : [];
+    const originales = Array.isArray(zona?.pokemones) ? zona.pokemones : [];
+    // SNOW_V3B: feature-enabled Vulpix Alola is the first visible thumbnail.
+    const pokemonesZona = String(zona?.codigo || '') === 'frontier_snow_summit'
+        ? [...originales].sort((a, b) => Number(Number(b?.forma_id) === 10205) - Number(Number(a?.forma_id) === 10205))
+        : originales;
  
     if (!pokemonesZona.length) {
         return `
