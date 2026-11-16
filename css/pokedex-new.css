@@ -254,3 +254,10 @@ body {
 .mon.missing:has(.check-preview){background:linear-gradient(160deg,#0c1a32,#081125)!important;border-color:#5e7390!important;box-shadow:none!important}
 .mon.missing:has(.check-preview) img{filter:brightness(0) drop-shadow(0 0 5px #5d83a9)!important;opacity:.78!important}
 .mon.missing:has(.check-preview) .types{opacity:.45!important}
+
+/* Alola V2E: regional dossier uses the SAME native Pokedex stylesheet and structure. */
+#mmRegionalDossier .dossier-stage [data-mm-slot="image"]{width:95%!important;height:100%!important;max-height:275px!important;object-fit:contain!important;image-rendering:pixelated!important;filter:drop-shadow(0 12px 12px #000a) drop-shadow(0 0 8px #ffee8f50)!important;z-index:2}
+#mmRegionalDossier .dossier-stage [data-mm-slot="image"].locked-sprite{filter:brightness(0) drop-shadow(0 0 11px #aed1fc)!important;opacity:.8}
+#grid .mm-regional-mon strong small{font-size:10px;color:#a9ddfb}
+#mmRegionalDossier .dossier-collection{min-height:112px}
+@media(max-width:900px){#mmRegionalDossier .dossier-stage [data-mm-slot="image"]{max-height:175px!important}}
