@@ -2601,6 +2601,13 @@ async function salirPresenciaMaps(cerrarConexion = false) {
 ========================= */
 
 function obtenerImagenPokemonMaps(pokemon = {}, shinyOverride = null) {
+    // SNOW_SUMMIT_ALOLA_FRONTEND_V3: keep the form's real local sprite.
+    if (Number(pokemon?.forma_id) === 10205) {
+        const isShiny = shinyOverride !== null ? Boolean(shinyOverride) : Boolean(pokemon?.es_shiny);
+        return isShiny
+            ? 'img/pokemon-png/sprites_shiny/0037_a_s.png'
+            : 'img/pokemon-png/sprites_normal/0037_a.png';
+    }
     const shiny = shinyOverride !== null
         ? Boolean(shinyOverride)
         : (
@@ -2675,6 +2682,8 @@ async function solicitarEncuentroServidor(requestIdActual, zonaIdActual) {
 
     encuentroActual = {
         pokemon_id: Number(pokemon.pokemon_id),
+        forma_id: Number(pokemon.forma_id || 0) || null,
+        region: pokemon.region || null,
         species_id: Number(pokemon.species_id || pokemon.pokemon_species_id || pokemon.id_base || pokemon.pokemon_id || 0) || null,
         pokemon_name_api: pokemon.pokemon_name_api || pokemon.api_name || pokemon.pokeapi_name || pokemon.nombre_api || "",
         variant_suffix: pokemon.variant_suffix || pokemon.forma_suffix || "",
@@ -2775,7 +2784,7 @@ function esValorShinyMaps(valor) {
     );
 }
 
-function obtenerEstadoCapturaMapa(pokemonId, esShiny, listaPokemonUsuario = []) {
+function obtenerEstadoCapturaMapa(pokemonId, esShiny, listaPokemonUsuario = [], formaId = null) {
     const shinyActual = esValorShinyMaps(esShiny);
 
     let cantidadNormal = 0;
@@ -2783,6 +2792,10 @@ function obtenerEstadoCapturaMapa(pokemonId, esShiny, listaPokemonUsuario = []) 
 
     for (const p of listaPokemonUsuario) {
         if (Number(p.pokemon_id) !== Number(pokemonId)) continue;
+        // Alola V3: a regional capture is not the same as its base species.
+        const captureForm = Number(p.forma_id || 0);
+        const encounterForm = Number(formaId || 0);
+        if (captureForm !== encounterForm) continue;
 
         const shinyPokemon = esValorShinyMaps(p.es_shiny);
 
@@ -3642,7 +3655,8 @@ function renderEncuentroActual() {
     const estadoCaptura = obtenerEstadoCapturaMapa(
         encuentroActual.pokemon_id,
         encuentroActual.es_shiny,
-        listaPokemonUsuarioMaps
+        listaPokemonUsuarioMaps,
+        encuentroActual.forma_id
     );
  
     infoPanel.innerHTML = `
