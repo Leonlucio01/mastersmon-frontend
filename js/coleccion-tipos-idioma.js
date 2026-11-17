@@ -47,7 +47,40 @@ function update(){
   let node;while((node=walk.nextNode()))translateText(node);
  }
 }
-function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;update()});}
+
+// ALOLA_V3D: correct the visual identity of regional captures in the existing collection.
+// We don't modify capture records or the evolution engine. The My Pokemon core
+// currently merges raw regional type + base species type; repair only Alola Vulpix UI.
+function fixAlolaRegionalVisuals(){
+ const isAlolaText=el=>/vulpix\s*(?:\(alola\)|de alola)/i.test(el?.textContent||'');
+ const localLang=lang();
+ const fix=(el,isShiny)=>{
+  if(!el||!isAlolaText(el))return;
+  el.querySelectorAll('img').forEach(img=>{
+    if(!img.matches('.card-sprite, .detail-sprite, .recent-item img'))return;
+    const current=img.getAttribute('src')||'';
+    if(!/0037(?:_a)?(?:_s)?\.png(?:\?.*)?$/.test(current))return;
+    const path=`img/pokemon-png/sprites_${isShiny?'shiny':'normal'}/0037_a${isShiny?'_s':''}.png`;
+    if(current!==path){img.setAttribute('src',path);img.removeAttribute('data-fallback');img.onerror=null;}
+  });
+  el.querySelectorAll('.chip').forEach(chip=>{
+    if(/^(?:fire|fuego)$/i.test(chip.textContent.trim()))chip.remove();
+  });
+  el.querySelectorAll('.collection-info strong').forEach(node=>{
+    const clean=node.textContent.trim();
+    if(/^(?:ice|hielo)\s*[\/|]\s*(?:fire|fuego)$/i.test(clean))node.textContent=localLang==='es'?'Hielo':'Ice';
+  });
+  if(el.matches('.poke-card'))el.style.setProperty('--type-secondary','#60c6f9');
+ };
+ document.querySelectorAll('#pokemonGrid .poke-card').forEach(el=>fix(el,!!el.classList.contains('shiny')));
+ const detail=document.getElementById('pokemonDetail');
+ if(detail&&isAlolaText(detail.querySelector('.detail-hero'))){
+    fix(detail,!!detail.querySelector('.detail-hero .shiny-label'));
+ }
+ document.querySelectorAll('#recentList .recent-item').forEach(el=>fix(el,!!el.classList.contains('recent-shiny')));
+}
+
+function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;update();fixAlolaRegionalVisuals()});}
 function init(){
  if(!document.getElementById('mm-type-label-fix')){
   const style=document.createElement('style');style.id='mm-type-label-fix';
