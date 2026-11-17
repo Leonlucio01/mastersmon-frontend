@@ -52,34 +52,52 @@ function update(){
 // We don't modify capture records or the evolution engine. The My Pokemon core
 // currently merges raw regional type + base species type; repair only Alola Vulpix UI.
 function fixAlolaRegionalVisuals(){
- const isAlolaText=el=>/vulpix\s*(?:\(alola\)|de alola)/i.test(el?.textContent||'');
  const localLang=lang();
- const fix=(el,isShiny)=>{
-  if(!el||!isAlolaText(el))return;
+ function alolaSpecies(el){
+  const text=el?.textContent||'';
+  if(/vulpix\s*(?:\(alola\)|de alola)/i.test(text))return '0037';
+  if(/ninetales\s*(?:\(alola\)|de alola)/i.test(text))return '0038';
+  return '';
+ }
+ function fix(el,isShiny){
+  if(!el)return;
+  const species=alolaSpecies(el);
+  if(!species)return;
   el.querySelectorAll('img').forEach(img=>{
     if(!img.matches('.card-sprite, .detail-sprite, .recent-item img'))return;
-    const current=img.getAttribute('src')||'';
-    if(!/0037(?:_a)?(?:_s)?\.png(?:\?.*)?$/.test(current))return;
-    const path=`img/pokemon-png/sprites_${isShiny?'shiny':'normal'}/0037_a${isShiny?'_s':''}.png`;
-    if(current!==path){img.setAttribute('src',path);img.removeAttribute('data-fallback');img.onerror=null;}
+    const path=`img/pokemon-png/sprites_${isShiny?'shiny':'normal'}/${species}_a${isShiny?'_s':''}.png`;
+    if(img.getAttribute('src')!==path){img.setAttribute('src',path);img.removeAttribute('data-fallback');img.onerror=null;}
   });
   el.querySelectorAll('.chip').forEach(chip=>{
     if(/^(?:fire|fuego)$/i.test(chip.textContent.trim()))chip.remove();
   });
   el.querySelectorAll('.collection-info strong').forEach(node=>{
     const clean=node.textContent.trim();
-    if(/^(?:ice|hielo)\s*[\/|]\s*(?:fire|fuego)$/i.test(clean))node.textContent=localLang==='es'?'Hielo':'Ice';
+    if(species==='0037'&&/^(?:ice|hielo)\s*[\/|]\s*(?:fire|fuego)$/i.test(clean))node.textContent=localLang==='es'?'Hielo':'Ice';
+    if(species==='0038'&&/^(?:ice|hielo)\s*[\/|]\s*(?:fairy|hada)(?:\s*[\/|]\s*(?:fire|fuego))?$/i.test(clean))node.textContent=localLang==='es'?'Hielo / Hada':'Ice / Fairy';
   });
   if(el.matches('.poke-card'))el.style.setProperty('--type-secondary','#60c6f9');
- };
+ }
  document.querySelectorAll('#pokemonGrid .poke-card').forEach(el=>fix(el,!!el.classList.contains('shiny')));
  const detail=document.getElementById('pokemonDetail');
- if(detail&&isAlolaText(detail.querySelector('.detail-hero'))){
+ if(detail&&alolaSpecies(detail.querySelector('.detail-hero'))){
     fix(detail,!!detail.querySelector('.detail-hero .shiny-label'));
  }
  document.querySelectorAll('#recentList .recent-item').forEach(el=>fix(el,!!el.classList.contains('recent-shiny')));
+ // Native evolution confirmation: use Alola Ninetales sprite for the target.
+ const dialog=document.getElementById('collectionEvoDialog');
+ if(dialog&&!dialog.hidden&&/Vulpix\s*\(Alola\)/i.test(dialog.textContent||'')){
+    const pair=dialog.querySelector('.evo-modal-pair');
+    if(pair){
+      const imgs=pair.querySelectorAll('img');
+      if(imgs.length>=2){
+        const shiny=!!detail?.querySelector('.detail-hero .shiny-label');
+        const path=`img/pokemon-png/sprites_${shiny?'shiny':'normal'}/0038_a${shiny?'_s':''}.png`;
+        if(imgs[1].getAttribute('src')!==path){imgs[1].src=path;imgs[1].removeAttribute('data-fallback');imgs[1].onerror=null;}
+      }
+    }
+ }
 }
-
 function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;update();fixAlolaRegionalVisuals()});}
 function init(){
  if(!document.getElementById('mm-type-label-fix')){
@@ -90,6 +108,15 @@ function init(){
  for(const id of roots){const root=document.getElementById(id);if(!root)continue;
   new MutationObserver(schedule).observe(root,{childList:true,subtree:true,characterData:true});
  }
+ // Observe only the evolution dialog so regional preview artwork stays accurate.
+ new MutationObserver(mutations=>{
+   if(mutations.some(m=>{
+      const el=m.target;
+      return el?.closest?.('#collectionEvoDialog') ||
+        [...m.addedNodes].some(node=>node.nodeType===1&&(
+          node.id==='collectionEvoDialog'||node.querySelector?.('#collectionEvoDialog')));
+   }))schedule();
+ }).observe(document.body,{childList:true,subtree:true});
  document.querySelectorAll('#langEs,#langEn,.masters-header [data-lang]').forEach(btn=>btn.addEventListener('click',schedule));
  window.addEventListener('pageshow',schedule);
  schedule();
