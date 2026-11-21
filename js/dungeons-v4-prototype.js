@@ -8,7 +8,7 @@
   const canvas=$('dgCanvas'),ctx=canvas.getContext('2d');
   const TILE=60, GRID_W=13, GRID_H=9;
   const atlas=new Image();atlas.src='assets/dungeons/forest_v4_tiles.png';
-  const ui={run:null,team:[],busy:false,lang:'en',images:new Map(),facing:'down',pos:null,history:[],actors:new Map(),particles:[],stamp:0,flash:0,last:null,animManifest:{}};
+  const ui={run:null,team:[],busy:false,lang:'en',images:new Map(),facing:'down',pos:null,history:[],actors:new Map(),particles:[],stamp:0,flash:0,last:null,animManifest:{},lastAttackAt:0,attackSpecies:0};
   const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches||false;
   const messages={en:{login:'Sign in from the Lobby to enter Dungeons.',empty:'Save at least one Pokémon to your battle team first.',blocked:'A wall blocks the way.',occupied:'An enemy blocks the tile. Use Attack.',range:'Get next to an enemy to attack.',stairs:'Defeat all enemies and reach the stairs.',chest:'Defeat all enemies and approach the chest.',ready:'Choose Start Expedition to explore Mystic Forest.',start:'Start Expedition',replay:'New Expedition',complete:'Dungeon cleared!',dead:'Expedition failed'},es:{login:'Inicia sesión desde el Lobby para entrar a Dungeons.',empty:'Guarda al menos un Pokémon en tu equipo.',blocked:'Una pared bloquea el camino.',occupied:'El enemigo bloquea el paso. Usa Attack.',range:'Acércate a un enemigo para atacar.',stairs:'Derrota a los enemigos y alcanza las escaleras.',chest:'Derrota a todos los enemigos y acércate al cofre.',ready:'Selecciona Iniciar expedición para explorar Mystic Forest.',start:'Iniciar expedición',replay:'Nueva expedición',complete:'¡Dungeon completado!',dead:'Expedición fallida'}};
   const t=k=>messages[ui.lang][k]||messages.en[k]||k;
@@ -34,8 +34,10 @@
     const n=(x*63+y*19)%17;if(ch!=='#'&&n===5){ctx.globalAlpha=.35+.15*Math.sin(stamp/800+x);ctx.fillStyle='#fbf4ab';ctx.fillRect(x*TILE+16,y*TILE+15,3,3);ctx.globalAlpha=1}
   }
   function animation(species,walk,face){
+    if(window.SpriteCollabPreview)window.SpriteCollabPreview.ensure(species);
     const entry=ui.animManifest[String(species)]||{};
-    const key=walk?'walk':'idle',data=entry[key];
+    const isAttack=ui.attackSpecies===Number(species)&&performance.now()-ui.lastAttackAt<460;
+    const key=isAttack&&entry.attack?'attack':walk?'walk':'idle',data=entry[key]||entry.idle;
     if(!data||!data.src||!Number.isInteger(data.frame_width)||!Number.isInteger(data.frame_height)||!Number.isInteger(data.frames)||data.frames<1)return null;
     const image=img(data.src);if(!image)return null;
     const row=Number((data.directions||{})[face]??0);
@@ -44,14 +46,14 @@
     if(sx+data.frame_width>image.naturalWidth||sy+data.frame_height>image.naturalHeight)return null;
     return {image,sx,sy,w:data.frame_width,h:data.frame_height};
   }
-  function drawMon(path,x,y,size,{walk=false,face='down',boss=false,hit=false,phase=0,species=0}={}){
+  function drawMon(path,x,y,size,{walk=false,face='down',boss=false,hit=false,phase=0,species=0,remote=true}={}){
     const image=img(path);ctx.save();ctx.translate(Math.round(x),Math.round(y));
     const bob=walk&&!reduced?Math.sin(performance.now()/92+phase)*3:(!reduced?Math.sin(performance.now()/520+phase):0);
     const stretch=walk&&!reduced?1+Math.sin(performance.now()/110+phase)*.045:1;
     const scale=boss?1.38:1;ctx.scale((face==='left'?-1:1)*scale,scale*stretch);
     ctx.fillStyle='#10221b80';ctx.beginPath();ctx.ellipse(0,size*.34,size*.34,6,0,0,Math.PI*2);ctx.fill();
     if(hit&&Math.floor(performance.now()/100)%2){ctx.globalAlpha=.48}
-    const sequence=animation(species,walk,face);
+    const sequence=remote?animation(species,walk,face):null;
     if(sequence){ctx.imageSmoothingEnabled=false;ctx.drawImage(sequence.image,sequence.sx,sequence.sy,sequence.w,sequence.h,-size/2,-size*.62+bob,size,size)}
     else if(image){ctx.imageSmoothingEnabled=false;ctx.drawImage(image,-size/2, -size*.62+bob,size,size)}
     else{ctx.fillStyle=boss?'#e5a266':'#e9db97';ctx.beginPath();ctx.arc(0,-8+bob,size*.25,0,Math.PI*2);ctx.fill();ctx.fillStyle='#24382b';ctx.fillRect(-size*.13,-size*.2+bob,4,4);ctx.fillRect(size*.07,-size*.2+bob,4,4)}
@@ -75,12 +77,12 @@
   function partyRender(time){const run=ui.run;if(!run?.player)return;const p=tracked('leader',run.player);if(!ui.history.length)ui.history=[gridPos(run.player)];
     let [x,y]=p.p;ctx.save();ctx.strokeStyle='#ffdd83';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(x,y+16,23,10,0,0,Math.PI*2);ctx.stroke();ctx.restore();
     const leader=run.team?.[0]||{};const l=ui.team.find(a=>a.id===leader.capture_id)||{};
-    drawMon(sprite(leader.pokemon_id,l.shiny,l.variant),x,y,57,{face:ui.facing,walk:p.walk,phase:0,species:leader.pokemon_id});
+    drawMon(sprite(leader.pokemon_id,l.shiny,l.variant),x,y,57,{face:ui.facing,walk:p.walk,phase:0,species:leader.pokemon_id,remote:!l.shiny&&!l.variant});
     (run.team||[]).slice(1).forEach((t,i)=>{
       const track=ui.history.length>(i+1)*2?ui.history[(i+1)*2]:[x-45-i*45,y+52];
       const a=tracked('friend-'+i,[Math.max(0,Math.min(12,Math.round(track[0]/TILE-.5))),Math.max(0,Math.min(8,Math.round(track[1]/TILE-.5)))]);
       const meta=ui.team.find(b=>b.id===t.capture_id)||{};
-      drawMon(sprite(t.pokemon_id,meta.shiny,meta.variant),...a.p,41,{walk:a.walk,face:ui.facing,phase:i+2,species:t.pokemon_id});
+      drawMon(sprite(t.pokemon_id,meta.shiny,meta.variant),...a.p,41,{walk:a.walk,face:ui.facing,phase:i+2,species:t.pokemon_id,remote:!meta.shiny&&!meta.variant});
     });
   }
   function effects(time){ui.particles=ui.particles.filter(f=>time-f.time<520);for(const f of ui.particles){let progress=Math.min(1,(time-f.time)/520);ctx.save();ctx.globalAlpha=1-progress;ctx.strokeStyle='#ffe18a';ctx.lineWidth=5*(1-progress)+1;ctx.beginPath();ctx.arc(f.x,f.y,12+progress*39,0,Math.PI*2);ctx.stroke();for(let i=0;i<8;i++){const a=i*Math.PI/4;ctx.fillStyle=i%2?'#ff9746':'#fff0ba';ctx.fillRect(f.x+Math.cos(a)*progress*30,f.y+Math.sin(a)*progress*30,5,5)}ctx.restore()}
@@ -109,7 +111,7 @@
     const active=r?.status==='active';document.querySelectorAll('.dg-actions button,.dg-dpad button').forEach(b=>b.disabled=!active||ui.busy);endOverlay()}
   function resetTracking(){ui.actors.clear();ui.history=[]}
   function errorText(e){if(e?.code==='NO_TOKEN'||e?.code==='UNAUTHORIZED')return t('login');const s=String(e?.message||e);if(s.includes('Blocked tile'))return t('blocked');if(s.includes('Enemy out of range'))return t('range');if(s.includes('Enemy blocks'))return t('occupied');return s}
-  async function action(path,method='POST',payload){if(ui.busy)return null;ui.busy=true;render();try{const old=ui.run;const next=await api(path,method,payload);if(old?.floor!==next.floor)resetTracking();if(path.endsWith('/attack')){const foe=old?.enemies?.find(e=>e.hp>0&&next.enemies?.find(n=>n.id===e.id&&n.hp<e.hp));if(foe){const [x,y]=gridPos(foe.pos);ui.particles.push({x,y,time:performance.now()});ui.flash=7}}
+  async function action(path,method='POST',payload){if(ui.busy)return null;ui.busy=true;render();try{const old=ui.run;const next=await api(path,method,payload);if(old?.floor!==next.floor)resetTracking();if(path.endsWith('/attack')){ui.lastAttackAt=performance.now();ui.attackSpecies=Number(old?.team?.[0]?.pokemon_id||0);const foe=old?.enemies?.find(e=>e.hp>0&&next.enemies?.find(n=>n.id===e.id&&n.hp<e.hp));if(foe){const [x,y]=gridPos(foe.pos);ui.particles.push({x,y,time:performance.now()});ui.flash=7}}
       ui.run=next;if(next.message)say(next.message);render();return next
     }catch(e){say(errorText(e),true);if(/Stale action/.test(String(e.message))&&ui.run){try{ui.run=await api('/runs/'+ui.run.id);resetTracking()}catch{}}render();return null}finally{ui.busy=false;render()}}
   async function start(){if(!access()){say(t('login'),true);return}const ids=loadTeam().map(p=>p.id);if(!ids.length){say(t('empty'),true);return}await action('/start','POST',{dungeon_code:'mystic_forest',pokemon_ids:ids})}
@@ -122,7 +124,9 @@
     $('dgAttack').addEventListener('click',attack);$('dgInteract').addEventListener('click',interact);$('dgAbandon').addEventListener('click',abandon);document.querySelectorAll('[data-dir]').forEach(b=>b.addEventListener('click',()=>move(b.dataset.dir)));
     document.addEventListener('keydown',e=>{if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName)||e.ctrlKey||e.altKey||e.metaKey||e.repeat)return;const dirs={ArrowUp:'up',w:'up',W:'up',ArrowDown:'down',s:'down',S:'down',ArrowLeft:'left',a:'left',A:'left',ArrowRight:'right',d:'right',D:'right'};if(dirs[e.key]){e.preventDefault();move(dirs[e.key])}else if(e.code==='Space'){e.preventDefault();attack()}else if(e.key.toLowerCase()==='e'){e.preventDefault();interact()}});
     $('logoutBtn')?.addEventListener('click',()=>{if(typeof limpiarSesion==='function')limpiarSesion();location.href='index.html'});
-    fetch('assets/dungeons/animated_sprites.json',{cache:'no-store'}).then(r=>r.ok?r.json():{}).then(data=>{ui.animManifest=data&&typeof data==='object'?data:{}}).catch(()=>{});
+    // Preview only: directly request remote SpriteCollab sheets and XML. No sprites are bundled.
+    if(window.SpriteCollabPreview) window.SpriteCollabPreview.connect(ui);
+    fetch('assets/dungeons/animated_sprites.json',{cache:'no-store'}).then(r=>r.ok?r.json():{}).then(data=>{Object.assign(ui.animManifest,data)}).catch(()=>{});
     requestAnimationFrame(frame);render();if(!access()){say(t('login'),true);return}try{const c=await api('/catalog');if(!c?.dungeons?.length)throw Error('Dungeon catalog unavailable');const r=await api('/active');if(r?.run){ui.run=r.run;if(ui.run.message)say(ui.run.message)}else{say(t('ready'))}render()}catch(e){say(errorText(e),true);banner('Dungeon unavailable',errorText(e),'Retry',()=>location.reload())}}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
