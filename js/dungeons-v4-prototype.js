@@ -117,6 +117,18 @@
   async function start(){if(!access()){say(t('login'),true);return}const ids=loadTeam().map(p=>p.id);if(!ids.length){say(t('empty'),true);return}await action('/start','POST',{dungeon_code:'mystic_forest',pokemon_ids:ids})}
   async function move(direction){const r=ui.run;if(!r||r.status!=='active'||ui.busy)return;ui.facing=direction;const vec={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]}[direction];if(!vec)return;const nx=r.player[0]+vec[0],ny=r.player[1]+vec[1];if(r.map.rows[ny]?.[nx]==null||r.map.rows[ny][nx]==='#'){say(t('blocked'),true);return}if(alive().some(e=>e.pos[0]===nx&&e.pos[1]===ny)){say(t('occupied'),true);return}ui.history.unshift(gridPos(r.player));ui.history=ui.history.slice(0,12);await action(`/runs/${r.id}/move`,'POST',{direction,expected_turn:r.turn})}
   async function attack(){const r=ui.run;if(!r||r.status!=='active'||ui.busy)return;const [x,y]=r.player;if(!alive().some(e=>Math.abs(e.pos[0]-x)+Math.abs(e.pos[1]-y)<=1)){say(t('range'),true);return}await action(`/runs/${r.id}/attack`,'POST',{expected_turn:r.turn})}
+  async function skill(kind){
+    const r=ui.run;if(!r||r.status!=='active'||ui.busy)return;
+    const enemies=alive().filter(e=>Math.abs(e.pos[0]-r.player[0])+Math.abs(e.pos[1]-r.player[1])<=({fire:3,water:3,electric:2,slash:1}[kind]||1));
+    if(!enemies.length){say('No enemy in skill range.',true);return;}
+    const foe=enemies.sort((a,b)=>Math.abs(a.pos[0]-r.player[0])+Math.abs(a.pos[1]-r.player[1])-Math.abs(b.pos[0]-r.player[0])-Math.abs(b.pos[1]-r.player[1]))[0];
+    const previous=ui.run;
+    const next=await action(`/runs/${r.id}/skill`,'POST',{skill:kind,enemy_id:String(foe.id),expected_turn:r.turn});
+    if(next?.last_combat_event?.type==='skill'){
+      ui.lastAttackAt=performance.now();ui.attackSpecies=Number(previous?.team?.[0]?.pokemon_id||0);
+      window.dispatchEvent(new CustomEvent('mm-dungeon-skill',{detail:{kind,event:next.last_combat_event,old:previous,next}}));
+    }
+  }
   async function interact(){const r=ui.run;if(!r||r.status!=='active'||ui.busy)return;const [x,y]=r.player;if(r.floor<3&&r.map.rows[y][x]==='>'){if(alive().length){say(t('stairs'),true);return}await action(`/runs/${r.id}/next-floor`,'POST',{expected_turn:r.turn});return}
     let near=false;r.map.rows.forEach((row,j)=>{const i=row.indexOf('C');if(i>=0&&Math.abs(x-i)+Math.abs(y-j)<=1)near=true});if(r.floor===3&&near&&!alive().length){await action(`/runs/${r.id}/chest`,'POST',{expected_turn:r.turn});return}say(r.floor===3?t('chest'):t('stairs'),true)}
   async function abandon(){const r=ui.run;if(!r||r.status!=='active'||ui.busy)return;if(!confirm('Leave this expedition? This run will end.'))return;await action(`/runs/${r.id}/abandon`)}
@@ -127,6 +139,6 @@
     // Preview only: directly request remote SpriteCollab sheets and XML. No sprites are bundled.
     if(window.SpriteCollabPreview) window.SpriteCollabPreview.connect(ui);
     fetch('assets/dungeons/animated_sprites.json',{cache:'no-store'}).then(r=>r.ok?r.json():{}).then(data=>{Object.assign(ui.animManifest,data)}).catch(()=>{});
-    requestAnimationFrame(frame);render();window.MMDungeonBridge={getRun:()=>ui.run,getManifest:()=>ui.animManifest,getTeam:()=>ui.team,getFacing:()=>ui.facing,attack,move};if(!access()){say(t('login'),true);return}try{const c=await api('/catalog');if(!c?.dungeons?.length)throw Error('Dungeon catalog unavailable');const r=await api('/active');if(r?.run){ui.run=r.run;if(ui.run.message)say(ui.run.message);window.dispatchEvent(new CustomEvent('mm-dungeon-state',{detail:{run:ui.run,old:null}}))}else{say(t('ready'))}render()}catch(e){say(errorText(e),true);banner('Dungeon unavailable',errorText(e),'Retry',()=>location.reload())}}
+    requestAnimationFrame(frame);render();window.MMDungeonBridge={getRun:()=>ui.run,getManifest:()=>ui.animManifest,getTeam:()=>ui.team,getFacing:()=>ui.facing,attack,move,skill};if(!access()){say(t('login'),true);return}try{const c=await api('/catalog');if(!c?.dungeons?.length)throw Error('Dungeon catalog unavailable');const r=await api('/active');if(r?.run){ui.run=r.run;if(ui.run.message)say(ui.run.message);window.dispatchEvent(new CustomEvent('mm-dungeon-state',{detail:{run:ui.run,old:null}}))}else{say(t('ready'))}render()}catch(e){say(errorText(e),true);banner('Dungeon unavailable',errorText(e),'Retry',()=>location.reload())}}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();

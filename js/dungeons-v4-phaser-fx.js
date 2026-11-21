@@ -6,8 +6,9 @@ const bridge=()=>window.MMDungeonBridge;
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const points=p=>({x:Number(p?.[0]||0)*TILE+30,y:Number(p?.[1]||0)*TILE+30});
 let scene=null,current=null,loadedAssets=new Map(),tileObjects=[],actors=new Map(),mapSignature='';
+let footprints=[];
 const canUse=()=>!!(scene&&current?.status==='active');
-function boxScene(run){if(!scene||!run?.map?.rows)return;let sig=run.floor+':'+run.map.rows.join('|');if(sig===mapSignature)return;mapSignature=sig;
+function boxScene(run){if(!scene||!run?.map?.rows)return;let sig=run.floor+':'+run.map.rows.join('|');if(sig===mapSignature)return;mapSignature=sig;footprints=[];
   tileObjects.forEach(o=>o.destroy());tileObjects=[];
   run.map.rows.forEach((row,y)=>Array.from(row).forEach((ch,x)=>{let idx=0;
     if(ch==='#')idx=4;else if(ch==='>')idx=5;else if(ch==='C')idx=6;else if(ch==='S')idx=7;
@@ -39,7 +40,7 @@ function syncActor(key,mon,pos,size,meta={}){if(!mon||!pos)return;const a=getAct
   a.walk=Math.abs(a.x-p.x)+Math.abs(a.y-p.y)>1.1;
   if(a.walk){a.face=Math.abs(p.x-a.x)>Math.abs(p.y-a.y)?(p.x>a.x?'right':'left'):(p.y>a.y?'down':'up')}
   if(key==='leader')a.face=bridge()?.getFacing?.()||a.face;
-  a.x+=(p.x-a.x)*(reduced?1:.19);a.y+=(p.y-a.y)*(reduced?1:.19);
+  a.x+=(p.x-a.x)*(reduced?1:.24);a.y+=(p.y-a.y)*(reduced?1:.24);
   a.mon=mon;a.meta=meta;a.sprite.setPosition(a.x,a.y-11).setDepth(12+Math.round(a.y/60));a.shadow.setPosition(a.x,a.y+15);a.ring.setPosition(a.x,a.y+14);
   const id=identity(mon),entry=bridge()?.getManifest?.()?.[String(id)]||{};
   let type=a.walk?'walk':'idle';const data=entry[type]||entry.idle;
@@ -65,7 +66,7 @@ function syncActors(){if(!current?.player)return;const active=new Set();
   const leader=party[0];if(leader){const meta=saved.find(p=>p.id===(leader.capture_id||leader.id))||{};syncActor('leader',leader,current.player,54,meta);active.add('leader')}
   party.slice(1).forEach((mon,i)=>{const meta=saved.find(p=>p.id===(mon.capture_id||mon.id))||{};
     // Followers use lightweight trailing offset for visual accompaniment only.
-    const follow=[Math.max(1,current.player[0]-((i+1)%2)),Math.min(7,current.player[1]+1+i)];
+    const follow=footprints[Math.min(footprints.length-1,(i+1)*2)]||current.player;
     syncActor('ally-'+i,mon,follow,43,meta);active.add('ally-'+i);
   });
   (current.enemies|| (current.enemy?[current.enemy]:[])).filter(e=>e.hp>0).forEach((mon,i)=>{
@@ -105,10 +106,15 @@ function effect(kind,origin,target,damage=null){if(!scene)return;let ox=origin.x
 function nearestEnemy(run){if(!run?.player)return null;const list=(run.enemies|| (run.enemy?[run.enemy]:[])).filter(e=>e.hp>0);const p=run.player;
   return list.sort((a,b)=>Math.abs(a.pos[0]-p[0])+Math.abs(a.pos[1]-p[1])-Math.abs(b.pos[0]-p[0])-Math.abs(b.pos[1]-p[1]))[0]||null;
 }
-function preview(kind){if(!canUse())return;const enemy=nearestEnemy(current),source=points(current.player);
-  let dest=enemy?points(enemy.pos):{x:source.x+120,y:source.y-60};effect(kind,source,dest);
-  const msg=$('dgMessage');if(msg){msg.textContent=`${kind.toUpperCase()} · Visual preview only — no damage or rewards`;msg.style.color='#b0edff'}
+function preview(kind){if(!canUse())return;bridge()?.skill?.(kind);}
+function confirmedSkill(detail){
+  if(!scene||!detail?.event||!detail.old)return;
+  const ev=detail.event;
+  const origin=points(ev.player_pos||detail.old.player);
+  const target=points(ev.enemy_pos);
+  effect(detail.kind||ev.skill,origin,target,Number(ev.damage||0));
 }
+window.addEventListener('mm-dungeon-skill',e=>confirmedSkill(e.detail));
 function onRealAttack({old,next,foe}){if(!scene||!old||!next)return;const e=foe&&next.enemies?.find(n=>n.id===foe.id);
   if(!e||e.hp>=foe.hp)return;
   effect('slash',points(old.player),points(foe.pos),foe.hp-e.hp);
@@ -135,4 +141,5 @@ function boot(){document.querySelectorAll('[data-skill]').forEach(b=>b.addEventL
   initPhaser();
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
+window.addEventListener('mm-dungeon-state',e=>{const old=e.detail?.old,now=e.detail?.run;if(!now?.player)return;if(!old||old.floor!==now.floor){footprints=[];return;}if(old.player?.[0]!==now.player[0]||old.player?.[1]!==now.player[1]){footprints.unshift([...old.player]);footprints=footprints.slice(0,24);}});
 })();
