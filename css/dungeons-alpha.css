@@ -9,3 +9,12 @@
 .dg-actions button:focus-visible,.dg-dpad button:focus-visible{outline:2px solid #f1d58b;outline-offset:2px}
 .dg-mon img,.dg-enemy-icon img{image-rendering:pixelated;filter:drop-shadow(0 3px 4px #001d17b0)}
 @media(prefers-reduced-motion:reduce){.dg-actions button,.dg-dpad button{transition:none}}
+
+/* Alpha V3.1 - full playable map and encounter roster */
+.dg-canvas-wrap{background:#294a38;border-color:#74b78c;box-shadow:0 12px 40px #07130d99}
+.dg-enemy-list{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+.dg-enemy-pill{border:1px solid #446b5e;background:#183831;padding:5px 8px;border-radius:7px;font-size:10px;color:#def1dc}
+.dg-enemy-pill.ko{opacity:.45;text-decoration:line-through}
+.dg-enemy-pill.boss{border-color:#ca8a6b;color:#ffd6b8}
+.dg-status{max-width:46%;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(min-width:1100px){.dg-shell{max-width:1480px;padding-top:16px}.dg-header{margin-bottom:12px}.dg-game-top{padding:10px 17px}.dg-controls{padding:8px 16px}.dg-panel{padding:13px}.dg-sidebar{gap:9px}}
