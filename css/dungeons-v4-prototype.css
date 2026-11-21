@@ -47,3 +47,16 @@ body {background:radial-gradient(ellipse at 42% 0,#184f53 0%,#0b2936 43%,#071526
 .dg-overlay h2{font-family:Georgia,serif;color:#ffe7ac}
 .dg-overlay button{background:linear-gradient(120deg,#ead69a,#f9b95d);color:#233b35;border-radius:12px}
 @media(max-width:700px){.dg-header h1{font-size:28px}.dg-map-plaque{font-size:8px;padding:5px 8px}.dg-canvas-wrap{margin:8px 5px}}
+
+/* Phaser V4.2 overlay; old Canvas remains as offline fallback. */
+#dgPhaser{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;display:none;z-index:1}
+#dgPhaser canvas{display:block;width:100%!important;height:100%!important;image-rendering:pixelated}
+.dg-canvas-wrap.phaser-on #dgPhaser{display:block}
+.dg-canvas-wrap.phaser-on #dgCanvas{visibility:hidden}
+.dg-canvas-wrap .dg-map-plaque{z-index:3}
+.dg-canvas-wrap .dg-overlay{z-index:4}
+.dg-skills{display:flex;gap:5px;flex-wrap:wrap;align-items:center;padding:0 17px 12px}
+.dg-skills button{border:1px solid #668f7d;border-radius:9px;background:linear-gradient(#254d45,#18362f);color:#f5f1d6;padding:9px 12px;cursor:pointer;font-weight:700;font-size:12px}
+.dg-skills button b{font-size:10px;border:1px solid #9eb6a1;padding:2px 4px;border-radius:4px;margin-right:3px;color:#ffe4a0}
+.dg-skills button:hover{filter:brightness(1.2)}
+.dg-skills button:disabled{opacity:.45;cursor:not-allowed}
